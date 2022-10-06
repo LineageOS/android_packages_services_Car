@@ -178,6 +178,10 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     @Before
     public final void startSession() {
+        if (VERBOSE) {
+            Log.v(TAG, "startSession() for " + getTestName() + " on thread "
+                    + Thread.currentThread() + "; sHighlanderSession=" + sHighlanderSession);
+        }
         finishHighlanderSessionIfNeeded("startSession()");
 
         beginTrace("startSession()");
@@ -204,14 +208,20 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             sSessionCreationLocation = new Exception(getTestName());
         } catch (Exception e) {
             // Better safe than sorry...
-            Log.e(TAG, "Could not create sSessionCreationLocation with test name", e);
+            Log.e(TAG, "Could not create sSessionCreationLocation with " + getTestName()
+                    + " on thread " + Thread.currentThread(), e);
             sSessionCreationLocation = e;
         }
         endTrace();
     }
 
     @After
-    public final void finishSession() {
+    public final void finishSession() throws Exception {
+        if (VERBOSE) {
+            Log.v(TAG, "finishSession() for " + getTestName() + " on thread "
+                    + Thread.currentThread() + "; sHighlanderSession=" + sHighlanderSession);
+
+        }
         if (false) { // For obvious reasons, should NEVER be merged as true
             forceFailure(1, RuntimeException.class, "to simulate an unfinished session");
         }
@@ -223,6 +233,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             beginTrace("finishSession()");
             completeAllHandlerThreadTasks();
         } finally {
+            sHighlanderSession = null;
             finishSessionMocking();
         }
         endTrace();
@@ -231,30 +242,40 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     private void finishSessionMocking() {
         if (mSession == null) {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
-            finishHighlanderSessionIfNeeded("finishSessionMocking()");
             return;
         }
         try {
             beginTrace("finishMocking()");
         } finally {
-            mSession.finishMocking();
-            // Shouldn't need to set mSession to null as JUnit always instantiate a new object,
-            // but it doesn't hurt....
-            mSession = null;
+            try {
+                mSession.finishMocking();
+            } finally {
+                // Shouldn't need to set mSession to null as JUnit always instantiate a new object,
+                // but it doesn't hurt....
+                mSession = null;
+            }
         }
         endTrace();
     }
 
     private void finishHighlanderSessionIfNeeded(String where) {
         if (sHighlanderSession == null) {
+            if (VERBOSE) {
+                Log.v(TAG, "finishHighlanderSessionIfNeeded(): sHighlanderSession already null");
+            }
             return;
         }
 
         beginTrace("finishHighlanderSessionIfNeeded()");
 
         if (sSessionCreationLocation != null) {
-            Log.e(TAG, where + ": There can be only one! Closing unfinished session, "
-                    + "created by", sSessionCreationLocation);
+            if (VERBOSE) {
+                Log.e(TAG, where + ": There can be only one! Closing unfinished session, "
+                        + "created at", sSessionCreationLocation);
+            } else {
+                Log.e(TAG, where + ": There can be only one! Closing unfinished session, "
+                        + "created at " +  sSessionCreationLocation);
+            }
         } else {
             Log.e(TAG, where + ": There can be only one! Closing unfinished session created at "
                     + "unknown location");
@@ -268,6 +289,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                 Log.e(TAG, "Failed to close unfinished session on " + getTestName() + ": " + t);
             }
         } finally {
+            if (VERBOSE) {
+                Log.v(TAG, "Resetting sHighlanderSession at finishHighlanderSessionIfNeeded()");
+            }
             sHighlanderSession = null;
         }
 
@@ -318,20 +342,23 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         Thread currentThread = Thread.currentThread();
         for (Thread t : threadSet) {
             if (t != currentThread && t instanceof HandlerThread) {
+                Log.d(TAG, "Will wait for " + t);
                 handlerThreads.add((HandlerThread) t);
+            } else if (VERBOSE) {
+                Log.v(TAG, "Skipping " + t);
             }
         }
-        ArrayList<SyncRunnable> syncs = new ArrayList<>(handlerThreads.size());
-        if (VERBOSE) {
-            Log.v(TAG, "will wait for " + handlerThreads.size() + " HandlerThreads");
-        }
-        for (int i = 0; i < handlerThreads.size(); i++) {
-            Looper looper = handlerThreads.get(i).getLooper();
+        int size = handlerThreads.size();
+        ArrayList<SyncRunnable> syncs = new ArrayList<>(size);
+        Log.d(TAG, "Waiting for " + size + " HandlerThreads");
+        for (int i = 0; i < size; i++) {
+            HandlerThread thread = handlerThreads.get(i);
+            Looper looper = thread.getLooper();
             if (looper == null) {
-                Log.w(TAG, "Ignoring thread " + handlerThreads.get(i)
-                        + ". It doesn't have a looper.");
+                Log.w(TAG, "Ignoring thread " + thread + ". It doesn't have a looper.");
                 continue;
             }
+            Log.v(TAG, "Will wait for thread " + thread);
             Handler handler = new Handler(looper);
             SyncRunnable sr = new SyncRunnable(() -> { });
             handler.post(sr);
