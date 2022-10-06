@@ -77,6 +77,13 @@ public final class HidlVehicleStubUnitTest {
 
     private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
 
+    private static final HalPropValue TEST_PROP_VALUE;
+
+    static {
+        HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ false);
+        TEST_PROP_VALUE = builder.build(TEST_PROP, /* areaId= */ 0, TEST_VALUE);
+    }
+
     @Mock
     private IVehicle mHidlVehicle;
     @Mock
@@ -380,8 +387,7 @@ public final class HidlVehicleStubUnitTest {
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -407,8 +413,7 @@ public final class HidlVehicleStubUnitTest {
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
@@ -433,8 +438,7 @@ public final class HidlVehicleStubUnitTest {
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
@@ -459,12 +463,9 @@ public final class HidlVehicleStubUnitTest {
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue gotValue = mHidlVehicleStub.get(TEST_PROP_VALUE);
 
-        HalPropValue gotValue = mHidlVehicleStub.get(value);
-
-        assertThat(gotValue).isEqualTo(value);
+        assertThat(gotValue).isEqualTo(TEST_PROP_VALUE);
     }
 
     @Test(expected = ServiceSpecificException.class)
@@ -478,39 +479,30 @@ public final class HidlVehicleStubUnitTest {
             return null;
         }).when(mHidlVehicle).get(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
-
-        mHidlVehicleStub.get(value);
+        mHidlVehicleStub.get(TEST_PROP_VALUE);
     }
 
     @Test
     public void testSetHidl() throws Exception {
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
-        VehiclePropValue propValue =
-                new VehiclePropValue();
+        VehiclePropValue propValue = new VehiclePropValue();
         propValue.prop = TEST_PROP;
         propValue.value.int32Values.add(TEST_VALUE);
 
         when(mHidlVehicle.set(propValue)).thenReturn(StatusCode.OK);
 
-        mHidlVehicleStub.set(value);
+        mHidlVehicleStub.set(TEST_PROP_VALUE);
     }
 
     @Test
     public void testSetHidlError() throws Exception {
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
-        VehiclePropValue propValue =
-                new VehiclePropValue();
+        VehiclePropValue propValue = new VehiclePropValue();
         propValue.prop = TEST_PROP;
         propValue.value.int32Values.add(TEST_VALUE);
 
         when(mHidlVehicle.set(propValue)).thenReturn(StatusCode.INVALID_ARG);
 
         ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
-            mHidlVehicleStub.set(value);
+            mHidlVehicleStub.set(TEST_PROP_VALUE);
         });
         assertThat(exception.errorCode).isEqualTo(StatusCode.INVALID_ARG);
     }
@@ -520,18 +512,14 @@ public final class HidlVehicleStubUnitTest {
         HalClientCallback callback = mock(HalClientCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback.Stub hidlCallback = (IVehicleCallback.Stub) client;
-        VehiclePropValue propValue =
-                new VehiclePropValue();
+        VehiclePropValue propValue = new VehiclePropValue();
         propValue.prop = TEST_PROP;
         propValue.value.int32Values.add(TEST_VALUE);
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue halPropValue = builder.build(TEST_PROP, 0, TEST_VALUE);
 
-        hidlCallback.onPropertyEvent(
-                new ArrayList<VehiclePropValue>(
-                        Arrays.asList(propValue)));
+        hidlCallback.onPropertyEvent(new ArrayList<VehiclePropValue>(Arrays.asList(propValue)));
 
-        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(halPropValue)));
+        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(
+                TEST_PROP_VALUE)));
     }
 
     @Test
