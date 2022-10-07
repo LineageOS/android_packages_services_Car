@@ -99,14 +99,15 @@ public class PropertyHalService extends HalServiceBase {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
         private final IBinder mClientBinder;
 
+        private void retryIfNotTimedOut(int serviceRequestId) {
+            // TODO(b/241060746): Implement the retry logic.
+
+        }
+
         VehicleStubCallback(
                 IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
             mGetAsyncPropertyResultCallback = getAsyncPropertyResultCallback;
             mClientBinder = getAsyncPropertyResultCallback.asBinder();
-        }
-
-        private void retry(int serviceRequestId) {
-            // TODO(b/241060746): Implement the retry logic.
         }
 
         @Override
@@ -133,7 +134,7 @@ public class PropertyHalService extends HalServiceBase {
                     }
                     int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
                     if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
-                        retry(serviceRequestId);
+                        retryIfNotTimedOut(serviceRequestId);
                         continue;
                     }
                     mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
@@ -157,6 +158,11 @@ public class PropertyHalService extends HalServiceBase {
                 Slogf.w(TAG, "onGetAsyncResults: Client might have died already %s", e);
             }
         }
+
+        @Override
+        public void onRequestsTimeout(List<Integer> serviceRequestIds) {
+            // TODO(b/241060746): Implement this.
+        }
     }
 
     /**
@@ -177,8 +183,10 @@ public class PropertyHalService extends HalServiceBase {
             GetPropertyServiceRequest getPropertyServiceRequest) {
         int halPropertyId = managerToHalPropId(getPropertyServiceRequest.getPropertyId());
         int areaId = getPropertyServiceRequest.getAreaId();
+        // TODO(b/241060746): Use the timeoutInMs passed from CarPropertyManager.
         return new GetVehicleStubAsyncRequest(
-                serviceRequestId, mPropValueBuilder.build(halPropertyId, areaId));
+                serviceRequestId, mPropValueBuilder.build(halPropertyId, areaId),
+                /* timeoutInMs= */ 1000);
     }
 
     // Checks if the property exists in this VHAL before calling methods in IVehicle.

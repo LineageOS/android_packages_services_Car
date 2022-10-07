@@ -87,7 +87,8 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         int serviceRequestId = 1;
 
         VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue);
+                new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue,
+                        /* timeoutInMs= */ 0);
 
         mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetVehicleStubAsyncCallback);
 
