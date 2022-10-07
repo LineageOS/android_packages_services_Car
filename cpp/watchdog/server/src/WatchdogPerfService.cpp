@@ -229,6 +229,7 @@ Result<void> WatchdogPerfService::start() {
                       toString(mCurrCollectionEvent), toString(expected));
                 return;
             }
+            notifySystemStartUpLocked();
             mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
             mBoottimeCollection.lastUptime = mHandlerLooper->now();
             mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
@@ -404,9 +405,8 @@ Result<void> WatchdogPerfService::startUserSwitchCollection() {
 
 Result<void> WatchdogPerfService::onSuspendExit() {
     Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION ||
-        mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
-        // Ignoring the suspend exit event because the boot-time and custom collections take
+    if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        // Ignoring the suspend exit event because the custom collection takes
         // precedence over other collections.
         ALOGE("Unable to start %s. Current performance data collection event: %s",
               toString(EventType::WAKE_UP_COLLECTION), toString(mCurrCollectionEvent));
@@ -417,6 +417,7 @@ Result<void> WatchdogPerfService::onSuspendExit() {
               toString(EventType::WAKE_UP_COLLECTION));
         return {};
     }
+    notifySystemStartUpLocked();
     auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     mHandlerLooper->removeMessages(thiz);
     mWakeUpCollection.lastUptime = mHandlerLooper->now();
@@ -520,6 +521,10 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
                                       kDumpMajorDelimiter.c_str(), std::string(33, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
+        !WriteStringToFd(StringPrintf("\nWake-up collection information:\n%s\n",
+                                      std::string(31, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(mWakeUpCollection.toString(), fd) ||
         !WriteStringToFd(StringPrintf("\nUser-switch collection information:\n%s\n",
                                       std::string(35, '=').c_str()),
                          fd) ||
@@ -892,6 +897,16 @@ Result<void> WatchdogPerfService::processMonitorEvent(
         metadata->lastUptime += metadata->interval.count();
     }
     mHandlerLooper->sendMessageAtTime(metadata->lastUptime, thiz, metadata->eventType);
+    return {};
+}
+
+Result<void> WatchdogPerfService::notifySystemStartUpLocked() {
+    for (const auto& processor : mDataProcessors) {
+        if (const auto result = processor->onSystemStartup(); !result.ok()) {
+            ALOGE("%s failed to process system startup event", processor->name().c_str());
+            return Error() << processor->name() << " failed to process system startup event";
+        }
+    }
     return {};
 }
 
