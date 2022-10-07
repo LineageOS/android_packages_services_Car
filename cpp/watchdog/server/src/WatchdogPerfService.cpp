@@ -319,7 +319,10 @@ Result<void> WatchdogPerfService::onBootFinished() {
 
 Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserState& userState) {
     Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION) {
+    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION ||
+        mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        // Ignoring the user switch events because the boot-time and custom collections take
+        // precedence over other collections.
         return {};
     }
     switch (static_cast<int>(userState)) {
@@ -401,7 +404,10 @@ Result<void> WatchdogPerfService::startUserSwitchCollection() {
 
 Result<void> WatchdogPerfService::onSuspendExit() {
     Mutex::Autolock lock(mMutex);
-    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION) {
+    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION ||
+        mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        // Ignoring the suspend exit event because the boot-time and custom collections take
+        // precedence over other collections.
         ALOGE("Unable to start %s. Current performance data collection event: %s",
               toString(EventType::WAKE_UP_COLLECTION), toString(mCurrCollectionEvent));
         return {};
