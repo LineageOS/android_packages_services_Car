@@ -273,6 +273,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".UserPickerActivity"
+            android:label="@string/user_picker_activity"
+            android:exported="true"
+            android:permission="android.permission.INTERNAL_SYSTEM_WINDOW"
+            android:showForAllUsers="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".NoCrashActivity"
              android:label="@string/no_crash_activity"
              android:exported="true">

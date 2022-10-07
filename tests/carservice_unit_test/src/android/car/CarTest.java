@@ -36,6 +36,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.CarServiceUtils;
@@ -300,8 +301,10 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
 
     private void runOnMainSyncSafe(Runnable runnable) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
+            Log.d(TAG, "Running runnable directly on " + Thread.currentThread());
             runnable.run();
         } else {
+            Log.d(TAG, "Running runnable using CarServiceUtils.runOnMainSync()");
             CarServiceUtils.runOnMainSync(runnable);
         }
     }
