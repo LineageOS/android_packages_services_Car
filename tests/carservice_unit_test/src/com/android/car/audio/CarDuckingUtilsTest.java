@@ -27,7 +27,6 @@ import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 
@@ -48,11 +47,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 public class CarDuckingUtilsTest {
@@ -65,11 +62,10 @@ public class CarDuckingUtilsTest {
 
     @Test
     public void sContextsToDuck_verifyNoCycles() {
-        for (int i = 0; i < CarDuckingUtils.sContextsToDuck.size(); i++) {
-            int startingContext = CarDuckingUtils.sContextsToDuck.keyAt(i);
-            int[] duckedContexts = CarDuckingUtils.sContextsToDuck.valueAt(i);
-            List<Integer> contextsToVisit = Arrays.stream(duckedContexts).boxed()
-                    .collect(Collectors.toList());
+        for (int i = 0; i < CarAudioContext.sContextsToDuck.size(); i++) {
+            int startingContext = CarAudioContext.sContextsToDuck.keyAt(i);
+            List<Integer> contextsToVisit =
+                    new ArrayList<>(CarAudioContext.getContextsToDuck(startingContext));
             Set<Integer> visitedContexts = new HashSet<>(startingContext);
 
             while (contextsToVisit.size() > 0) {
@@ -79,7 +75,9 @@ public class CarDuckingUtilsTest {
                 }
                 visitedContexts.add(contextToVisit);
 
-                int[] duckedContextsToVisit = CarDuckingUtils.sContextsToDuck.get(contextToVisit);
+                List<Integer> duckedContextsToVisit =
+                        CarAudioContext.getContextsToDuck(contextToVisit);
+
                 for (int duckedContext : duckedContextsToVisit) {
                     assertWithMessage("A cycle exists where %s can duck itself via %s",
                             CarAudioContext.toString(startingContext),
@@ -96,13 +94,13 @@ public class CarDuckingUtilsTest {
 
     @Test
     public void sContextsToDuck_verifyContextsDontDuckThemselves() {
-        for (int i = 0; i < CarDuckingUtils.sContextsToDuck.size(); i++) {
-            int context = CarDuckingUtils.sContextsToDuck.keyAt(i);
-            int[] contextsToDuck = CarDuckingUtils.sContextsToDuck.valueAt(i);
+        for (int i = 0; i < CarAudioContext.sContextsToDuck.size(); i++) {
+            int context = CarAudioContext.sContextsToDuck.keyAt(i);
+            List<Integer> contextsToDuck = CarAudioContext.getContextsToDuck(context);
 
-            assertWithMessage("Context " + CarAudioContext.toString(context) + " ducks itself")
+            assertWithMessage("Context to duck for context %s",
+                    CarAudioContext.toString(context))
                     .that(contextsToDuck)
-                    .asList()
                     .doesNotContain(context);
         }
     }
@@ -352,7 +350,8 @@ public class CarDuckingUtilsTest {
         when(mockZone.getAddressForContext(EMERGENCY)).thenReturn(EMERGENCY_ADDRESS);
         when(mockZone.getAddressForContext(CALL)).thenReturn(CALL_ADDRESS);
         when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
-        when(mockZone.getAddressForContext(INVALID)).thenThrow(new IllegalArgumentException());
+        when(mockZone.getAddressForContext(CarAudioContext.getInvalidContext()))
+                .thenThrow(new IllegalArgumentException());
         when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
 
         return mockZone;

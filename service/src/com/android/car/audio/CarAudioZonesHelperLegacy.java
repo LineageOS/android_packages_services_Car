@@ -18,7 +18,6 @@ package com.android.car.audio;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
-import static com.android.car.audio.CarAudioZonesHelper.LEGACY_CONTEXTS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 
 import android.annotation.NonNull;
@@ -102,8 +101,10 @@ class CarAudioZonesHelperLegacy {
     private static SparseIntArray loadBusesForLegacyContexts(
             @NonNull AudioControlWrapperV1 audioControlWrapper) {
         SparseIntArray contextToBus = new SparseIntArray();
+        List<Integer> nonSystemContexts = CarAudioContext.getNonCarSystemContextIds();
 
-        for (int legacyContext : LEGACY_CONTEXTS) {
+        for (int index = 0; index < nonSystemContexts.size(); index++) {
+            int legacyContext = nonSystemContexts.get(index);
             int bus = audioControlWrapper.getBusForContext(legacyContext);
             validateBusNumber(legacyContext, bus);
             contextToBus.put(legacyContext, bus);
@@ -200,7 +201,6 @@ class CarAudioZonesHelperLegacy {
 
         return builder.build();
     }
-
 
     private void bindContextToBuilder(CarVolumeGroup.Builder groupBuilder, int legacyAudioContext) {
         int busNumber = mLegacyAudioContextToBus.get(legacyAudioContext);

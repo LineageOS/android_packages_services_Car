@@ -23,7 +23,6 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.android.car.audio.CarAudioContext.ALARM;
 import static com.android.car.audio.CarAudioContext.AudioContext;
-import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.SYSTEM_SOUND;
@@ -37,7 +36,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
@@ -108,10 +106,11 @@ public class CarAudioZoneTest {
     public void getAddressForContext_throwsOnInvalidContext() {
         IllegalArgumentException thrown =
                 expectThrows(IllegalArgumentException.class,
-                        () -> mTestAudioZone.getAddressForContext(INVALID));
+                        () -> mTestAudioZone.getAddressForContext(CarAudioContext
+                                .getInvalidContext()));
 
         assertThat(thrown).hasMessageThat()
-                .contains("Car audio context " + INVALID + " is invalid");
+                .contains("is invalid");
     }
 
     @Test
@@ -261,7 +260,7 @@ public class CarAudioZoneTest {
         mTestAudioZone.addVolumeGroup(mMockVoiceGroup);
         List<AudioPlaybackConfiguration> activeConfigurations = null;
 
-        assertThrows(NullPointerException.class,
+        expectThrows(NullPointerException.class,
                 () -> mTestAudioZone
                         .findActiveContextsFromPlaybackConfigurations(activeConfigurations));
     }
