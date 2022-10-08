@@ -116,7 +116,8 @@ public class FocusInteractionTest {
 
     @Test
     public void getInteractionMatrix_returnsNByNMatrix() {
-        int n = CarAudioContext.CONTEXTS.length + 1; // One extra for CarAudioContext.INVALID
+        // One extra for CarAudioContext.getInvalidContext()
+        int n = CarAudioContext.getAllContextsIds().size() + 1;
 
         int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();
 
@@ -145,10 +146,10 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateResult_forRejectPair_returnsFailed() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.INVALID);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
-        int result = mFocusInteraction.evaluateRequest(CarAudioContext.INVALID, focusEntry, mLosers,
-                false, false);
+        int result = mFocusInteraction.evaluateRequest(CarAudioContext.getInvalidContext(),
+                focusEntry, mLosers, false, false);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
     }
@@ -182,10 +183,10 @@ public class FocusInteractionTest {
 
     @Test
     public void evaluateResult_forRejectPair_doesNotAddToLosers() {
-        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.INVALID);
+        FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.INVALID, focusEntry, mLosers, false,
+                .evaluateRequest(CarAudioContext.getInvalidContext(), focusEntry, mLosers, false,
                         false);
 
         assertThat(mLosers).isEmpty();

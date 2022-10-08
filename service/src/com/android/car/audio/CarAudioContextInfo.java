@@ -30,11 +30,12 @@ import java.util.Objects;
 final class CarAudioContextInfo {
 
     private final String mName;
-    private final int mId;
+    private final @CarAudioContext.AudioContext int mId;
 
     private final AudioAttributes[] mAudioAttributes;
 
-    CarAudioContextInfo(AudioAttributes[] audioAttributes, String name, int id) {
+    CarAudioContextInfo(AudioAttributes[] audioAttributes, String name,
+            @CarAudioContext.AudioContext int id) {
         Objects.requireNonNull(audioAttributes,
                 "Car audio context's audio attributes can not be null");
         Preconditions.checkArgument(audioAttributes.length != 0,
@@ -52,7 +53,7 @@ final class CarAudioContextInfo {
         return mName;
     }
 
-    int getId() {
+    @CarAudioContext.AudioContext int getId() {
         return mId;
     }
 
