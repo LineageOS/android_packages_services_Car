@@ -1114,7 +1114,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         int contextForUsage = CarAudioContext.getContextForAudioAttribute(audioAttributes);
-        Preconditions.checkArgument(contextForUsage != CarAudioContext.INVALID,
+        Preconditions.checkArgument(!CarAudioContext.isInvalidContextId(contextForUsage),
                 "Invalid audio attribute usage %d", audioAttributes);
         return getCarAudioZoneLocked(zoneId).getAudioDeviceForContext(contextForUsage);
     }
