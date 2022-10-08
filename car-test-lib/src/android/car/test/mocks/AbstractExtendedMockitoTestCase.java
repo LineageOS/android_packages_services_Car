@@ -412,6 +412,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
      * test on {@link #startSession()}.
      *
      * <p>Typically, it should be overridden when mocking static methods.
+     *
+     * <p><b>NOTE:</b> you don't need to call it to spy on {@link Log} or {@link Slog}, as those
+     * are already spied on.
      */
     protected void onSessionBuilder(@NonNull CustomMockitoSessionBuilder session) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "onSessionBuilder()");

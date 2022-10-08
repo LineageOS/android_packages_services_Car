@@ -58,6 +58,7 @@ import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -65,7 +66,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -228,6 +228,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     @Test
+    @Ignore("b/250982055")
     public void testGetTopTasksOnMultiDisplay() throws Exception {
         // TaskOrganizer gets the callbacks only on the tasks launched in the actual Surface.
         try (VirtualDisplaySession session = new VirtualDisplaySession()) {

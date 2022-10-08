@@ -16,6 +16,7 @@
 
 package android.car.test;
 
+import static android.car.test.JUnitHelper.newTestMethod;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
@@ -39,6 +40,7 @@ import android.car.test.ApiCheckerRule.PlatformVersionMismatchExceptionNotThrown
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
+import android.car.test.JUnitHelper.SimpleStatement;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.Build;
 import android.util.Log;
@@ -923,39 +925,6 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     ////////////////////////////////////
     // End of members used on tests //
     ////////////////////////////////////
-
-    private static Description newTestMethod(Annotation... annotations) {
-        return newTestMethod(TEST_METHOD_BEING_EXECUTED, annotations);
-    }
-
-    private static Description newTestMethod(String methodName, Annotation... annotations) {
-        return Description.createTestDescription(ApiCheckerRuleTest.class,
-                methodName, annotations);
-    }
-
-    private static class SimpleStatement<T extends Exception> extends Statement {
-
-        private boolean mEvaluated;
-        private Throwable mThrowable;
-
-        @Override
-        public void evaluate() throws Throwable {
-            Log.d(TAG, "evaluate() called");
-            mEvaluated = true;
-            if (mThrowable != null) {
-                Log.d(TAG, "Throwing " + mThrowable);
-                throw mThrowable;
-            }
-        }
-
-        public void failWith(Throwable t) {
-            mThrowable = t;
-        }
-
-        public void assertEvaluated() {
-            assertWithMessage("test method called").that(mEvaluated).isTrue();
-        }
-    }
 
     @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
     private static final class UnsupportedVersionTestAnnotation implements UnsupportedVersionTest {
