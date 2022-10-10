@@ -62,11 +62,11 @@
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"الانتباه إلى تغييرات حالة التنقل على شاشة مجموعة العدادات"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ضبط قيود تجربة المستخدم"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ضبط قيود تجربة المُستخدِم"</string>
-    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"إذن الوصول لقراءة معرّف الشاشة الخاص"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"الإذن بالاطّلاع على معرّف الشاشة الخاص"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"يتيح إذن الوصول هذا قراءة معرّف الشاشة الخاص."</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"التواصل مع جهاز USB في وضع AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"يتيح للتطبيق التواصل مع جهاز في وضع AOAP."</string>
-    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"الوصول لقراءة Occupant Awareness System"</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"الإذن بالاطّلاع على Occupant Awareness System"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"السماح بقراءة حالة Occupant Awareness System وبيانات التعرف عليه"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"التحكّم في الرسم البياني لنظام Occupant Awareness System"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"السماح بالتحكّم في بدء وإيقاف الرسم البياني للتعرف على Occupant Awareness System"</string>
