@@ -178,6 +178,7 @@
         <activity android:name=".KitchenSinkActivity"
              android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/app_title"
+             android:configChanges="uiMode"
              android:launchMode="singleTask"
              android:exported="true">
             <intent-filter>
