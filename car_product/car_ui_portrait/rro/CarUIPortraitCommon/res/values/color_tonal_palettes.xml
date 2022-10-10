@@ -19,47 +19,53 @@
 
     <!--primary colors -->
     <color name="car_primary_100">#ffffff</color>
-    <color name="car_primary_99">#F2FEFF</color>
-    <color name="car_primary_95">#C8F9FF</color>
-    <color name="car_primary_90">#87F2FF</color>
-    <color name="car_primary_80">#4ED8E9</color>
-    <color name="car_primary_70">#20BCCC</color>
-    <color name="car_primary_60">#00A0AF</color>
-    <color name="car_primary_50">#008491</color>
-    <color name="car_primary_40">#006974</color>
-    <color name="car_primary_30">#004F57</color>
-    <color name="car_primary_20">#00363C</color>
-    <color name="car_primary_10">#001F23</color>
+    <color name="car_primary_99">#fdfbff</color>
+    <color name="car_primary_95">#edf0ff</color>
+    <color name="car_primary_93">#e5eaff</color>
+    <color name="car_primary_90">#d9e2ff</color>
+    <color name="car_primary_80">#b0c5ff</color>
+    <color name="car_primary_70">#86a9ff</color>
+    <color name="car_primary_60">#588cff</color>
+    <color name="car_primary_50">#3670e9</color>
+    <color name="car_primary_40">#0856cf</color>
+    <color name="car_primary_30">#003fa4</color>
+    <color name="car_primary_25">#00358d</color>
+    <color name="car_primary_20">#002b76</color>
+    <color name="car_primary_10">#00184a</color>
     <color name="car_primary_0">#000000</color>
 
     <!--secondary colors -->
     <color name="car_secondary_100">#ffffff</color>
-    <color name="car_secondary_99">#F2FEFF</color>
-    <color name="car_secondary_95">#DBF6FA</color>
-    <color name="car_secondary_90">#CDE7EB</color>
-    <color name="car_secondary_80">#B1CBCF</color>
-    <color name="car_secondary_70">#96B0B3</color>
-    <color name="car_secondary_60">#7C9599</color>
-    <color name="car_secondary_50">#627B7F</color>
-    <color name="car_secondary_40">#4A6367</color>
-    <color name="car_secondary_30">#324B4E</color>
-    <color name="car_secondary_20">#1C3437</color>
-    <color name="car_secondary_10">#051F22</color>
+    <color name="car_secondary_99">#fdfbff</color>
+    <color name="car_secondary_95">#edf0ff</color>
+    <color name="car_secondary_93">#e5eaff</color>
+    <color name="car_secondary_90">#dde2fa</color>
+    <color name="car_secondary_80">#c0c6dd</color>
+    <color name="car_secondary_70">#a5abc1</color>
+    <color name="car_secondary_60">#8a90a6</color>
+    <color name="car_secondary_50">#70768b</color>
+    <color name="car_secondary_40">#585e71</color>
+    <color name="car_secondary_30">#404659</color>
+    <color name="car_secondary_25">#353b4d</color>
+    <color name="car_secondary_20">#2a3042</color>
+    <color name="car_secondary_10">#151b2c</color>
     <color name="car_secondary_0">#000000</color>
 
     <!--tertiary colors -->
     <color name="car_tertiary_100">#ffffff</color>
-    <color name="car_tertiary_99">#FDFBFF</color>
-    <color name="car_tertiary_95">#ECF0FF</color>
-    <color name="car_tertiary_90">#D7E2FF</color>
-    <color name="car_tertiary_80">#B9C6EA</color>
-    <color name="car_tertiary_70">#9EABCE</color>
-    <color name="car_tertiary_60">#8390B2</color>
-    <color name="car_tertiary_50">#6A7797</color>
-    <color name="car_tertiary_40">#515E7D</color>
-    <color name="car_tertiary_30">#394664</color>
-    <color name="car_tertiary_20">#23304D</color>
-    <color name="car_tertiary_10">#0D1B36</color>
+    <color name="car_tertiary_99">#fcfcfc</color>
+    <color name="car_tertiary_95">#ffebfb</color>
+    <color name="car_tertiary_93">#ffe2fc</color>
+    <color name="car_tertiary_90">#fed7f9</color>
+    <color name="car_tertiary_80">#e1bbdd</color>
+    <color name="car_tertiary_70">#c4a0c1</color>
+    <color name="car_tertiary_60">#a886a5</color>
+    <color name="car_tertiary_50">#8d6c8b</color>
+    <color name="car_tertiary_40">#735571</color>
+    <color name="car_tertiary_30">#5a3d59</color>
+    <color name="car_tertiary_25">#4d324d</color>
+    <color name="car_tertiary_20">#422742</color>
+    <color name="car_tertiary_10">#2b122c</color>
     <color name="car_tertiary_0">#000000</color>
 
     <!--error colors -->
@@ -79,32 +85,37 @@
 
     <!--neutral colors -->
     <color name="car_neutral_100">#ffffff</color>
-    <color name="car_neutral_99">#FBFDFD</color>
-    <color name="car_neutral_95">#EFF1F1</color>
-    <color name="car_neutral_90">#E0E3E3</color>
-    <color name="car_neutral_80">#C4C7C7</color>
-    <color name="car_neutral_70">#A9ACAC</color>
-    <color name="car_neutral_60">#8E9191</color>
-    <color name="car_neutral_50">#747878</color>
-    <color name="car_neutral_40">#5C5F5F</color>
-    <color name="car_neutral_30">#444747</color>
-    <color name="car_neutral_20">#2E3131</color>
-    <color name="car_neutral_10">#191C1D</color>
+    <color name="car_neutral_99">#fefbff</color>
+    <color name="car_neutral_95">#f2f0f5</color>
+    <color name="car_neutral_93">#eceaef</color>
+    <color name="car_neutral_90">#e4e2e6</color>
+    <color name="car_neutral_80">#c8c6ca</color>
+    <color name="car_neutral_70">#acabaf</color>
+    <color name="car_neutral_60">#919094</color>
+    <color name="car_neutral_50">#77767a</color>
+    <color name="car_neutral_40">#5e5e62</color>
+    <color name="car_neutral_35">#525256</color>
+    <color name="car_neutral_30">#46464a</color>
+    <color name="car_neutral_25">#3b3b3e</color>
+    <color name="car_neutral_20">#303033</color>
+    <color name="car_neutral_10">#1b1b1e</color>
     <color name="car_neutral_0">#000000</color>
 
     <!--neutral variant colors -->
     <color name="car_neutral_variant_100">#ffffff</color>
-    <color name="car_neutral_variant_99">#F5FEFF</color>
-    <color name="car_neutral_variant_95">#E9F3F4</color>
-    <color name="car_neutral_variant_90">#DAE4E5</color>
-    <color name="car_neutral_variant_80">#BFC8CA</color>
-    <color name="car_neutral_variant_70">#A3ADAE</color>
-    <color name="car_neutral_variant_60">#899394</color>
-    <color name="car_neutral_variant_50">#6F797A</color>
-    <color name="car_neutral_variant_40">#576061</color>
-    <color name="car_neutral_variant_30">#3F494A</color>
-    <color name="car_neutral_variant_20">#293233</color>
-    <color name="car_neutral_variant_10">#141D1E</color>
+    <color name="car_neutral_variant_99">#fdfbff</color>
+    <color name="car_neutral_variant_95">#f0f0fa</color>
+    <color name="car_neutral_variant_93">#eaeaf5</color>
+    <color name="car_neutral_variant_90">#e2e2ec</color>
+    <color name="car_neutral_variant_80">#c5c6d0</color>
+    <color name="car_neutral_variant_70">#a9aab4</color>
+    <color name="car_neutral_variant_60">#8f909a</color>
+    <color name="car_neutral_variant_50">#75767f</color>
+    <color name="car_neutral_variant_40">#5c5e67</color>
+    <color name="car_neutral_variant_30">#44464e</color>
+    <color name="car_neutral_variant_25">#393b43</color>
+    <color name="car_neutral_variant_20">#2e3038</color>
+    <color name="car_neutral_variant_10">#191b23</color>
     <color name="car_neutral_variant_0">#000000</color>
 
 </resources>
