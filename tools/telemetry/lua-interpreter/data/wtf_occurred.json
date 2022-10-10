@@ -1,0 +1,18 @@
+{
+    "pid": [
+        638
+    ],
+    "tag": [
+        "ActivityManager"
+    ],
+    "uid": [
+        1000
+    ],
+    "elapsed_timestamp_nanos": 37800058755169,
+    "error_source": [
+        0
+    ],
+    "process_name": [
+        "system_server"
+    ]
+}
