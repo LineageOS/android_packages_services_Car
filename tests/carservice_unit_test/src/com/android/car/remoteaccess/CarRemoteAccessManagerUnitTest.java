@@ -16,8 +16,12 @@
 
 package com.android.car.remoteaccess;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,17 +29,21 @@ import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -59,32 +67,278 @@ public final class CarRemoteAccessManagerUnitTest {
 
     @Test
     public void testSetRemoteTaskClient() throws Exception {
-        RemoteTaskClient remoteTaskClient = new RemoteTaskClient();
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
 
         mRemoteAccessManager.setRemoteTaskClient(mExecutor, remoteTaskClient);
 
         verify(mService).addCarRemoteTaskClient(any(ICarRemoteAccessCallback.class));
     }
 
-    // TODO(b/134519794): Implement more test cases.
+    @Test
+    public void testSetRemoteTaskClient_invalidArguments() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+
+        assertThrows(IllegalArgumentException.class, () -> mRemoteAccessManager.setRemoteTaskClient(
+                /* executor= */ null, remoteTaskClient));
+        assertThrows(IllegalArgumentException.class, () -> mRemoteAccessManager.setRemoteTaskClient(
+                mExecutor, /* callback= */ null));
+    }
+
+    @Test
+    public void testSetRemoteTaskClient_doubleRegistration() throws Exception {
+        RemoteTaskClient remoteTaskClientOne = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+        RemoteTaskClient remoteTaskClientTwo = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+
+        mRemoteAccessManager.setRemoteTaskClient(mExecutor, remoteTaskClientOne);
+
+        assertThrows(IllegalStateException.class, () -> mRemoteAccessManager.setRemoteTaskClient(
+                mExecutor, remoteTaskClientTwo));
+    }
+
+    @Test
+    public void testSetRmoteTaskClient_remoteException() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+        doThrow(RemoteException.class).when(mService)
+                .addCarRemoteTaskClient(any(ICarRemoteAccessCallback.class));
+
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+        internalCallback.onRemoteTaskRequested("clientId_testing", "taskId_testing",
+                /* data= */ null, /* taskMaxDurationInSec= */ 10);
+
+        assertWithMessage("Remote task").that(remoteTaskClient.getTaskId()).isNull();
+    }
+
+    @Test
+    public void testClearRemoteTaskClient() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+
+        mRemoteAccessManager.clearRemoteTaskClient();
+        internalCallback.onRemoteTaskRequested("clientId_testing", "taskId_testing",
+                /* data= */ null, /* taskMaxDurationInSec= */ 10);
+
+        assertWithMessage("Remote task").that(remoteTaskClient.getTaskId()).isNull();
+    }
+
+    @Test
+    public void testClearRemoteTaskClient_remoteException() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 0);
+        doThrow(RemoteException.class).when(mService)
+                .removeCarRemoteTaskClient(any(ICarRemoteAccessCallback.class));
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+
+        mRemoteAccessManager.clearRemoteTaskClient();
+        internalCallback.onRemoteTaskRequested("clientId_testing", "taskId_testing",
+                /* data= */ null, /* taskMaxDurationInSec= */ 10);
+
+        assertWithMessage("Remote task").that(remoteTaskClient.getTaskId()).isNull();
+    }
+
+    @Test
+    public void testClientRegistration() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+        String serviceId = "serviceId_testing";
+        String deviceId = "deviceId_testing";
+        String clientId = "clientId_testing";
+
+        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+
+        assertWithMessage("Service ID").that(remoteTaskClient.getServiceId()).isEqualTo(serviceId);
+        assertWithMessage("Device ID").that(remoteTaskClient.getDeviceId()).isEqualTo(deviceId);
+        assertWithMessage("Client ID").that(remoteTaskClient.getClientId()).isEqualTo(clientId);
+    }
+
+    @Test
+    public void testClientRegistrationFail() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+
+        internalCallback.onClientRegistrationFailed();
+
+        assertWithMessage("Registration fail").that(remoteTaskClient.isRegistrationFail()).isTrue();
+    }
+
+    @Test
+    public void testRemoteTaskRequested() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 2);
+        String clientId = "clientId_testing";
+        String taskId = "taskId_testing";
+        prepareRemoteTaskRequested(remoteTaskClient, clientId, taskId, /* data= */ null);
+
+        assertWithMessage("Task ID").that(remoteTaskClient.getTaskId()).isEqualTo(taskId);
+        assertWithMessage("Data").that(remoteTaskClient.getData()).isNull();
+    }
+
+    @Test
+    public void testRemoteTaskRequested_withData() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 2);
+        String clientId = "clientId_testing";
+        String taskId = "taskId_testing";
+        byte[] data = new byte[]{1, 2, 3, 4};
+        prepareRemoteTaskRequested(remoteTaskClient, clientId, taskId, data);
+
+        assertWithMessage("Task ID").that(remoteTaskClient.getTaskId()).isEqualTo(taskId);
+        assertWithMessage("Data").that(remoteTaskClient.getData()).asList()
+                .containsExactlyElementsIn(new Byte[]{1, 2, 3, 4});
+    }
+
+    @Test
+    public void testRemoteTaskRequested_mismatchedClientId() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+        String serviceId = "serviceId_testing";
+        String deviceId = "deviceId_testing";
+        String clientId = "clientId_testing";
+        String misMatchedClientId = "clientId_mismatch";
+        String taskId = "taskId_testing";
+        byte[] data = new byte[]{1, 2, 3, 4};
+
+        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+        internalCallback.onRemoteTaskRequested(misMatchedClientId, taskId, data,
+                /* taskMaximumDurationInSec= */ 10);
+
+        assertWithMessage("Task ID").that(remoteTaskClient.getTaskId()).isNull();
+        assertWithMessage("Data").that(remoteTaskClient.getData()).isNull();
+    }
+
+    @Test
+    public void testReportRemoteTaskDone() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 2);
+        String clientId = "clientId_testing";
+        String taskId = "taskId_testing";
+        prepareRemoteTaskRequested(remoteTaskClient, clientId, taskId, /* data= */ null);
+
+        mRemoteAccessManager.reportRemoteTaskDone(taskId);
+
+        verify(mService).reportRemoteTaskDone(clientId, taskId);
+    }
+
+    @Test
+    public void testReportRemoteTaskDone_nullTaskId() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mRemoteAccessManager.reportRemoteTaskDone(/* taskId= */ null));
+    }
+
+    @Test
+    public void testReportRemoteTaskDone_noRegisteredClient() throws Exception {
+        assertThrows(IllegalStateException.class,
+                () -> mRemoteAccessManager.reportRemoteTaskDone("taskId_testing"));
+    }
+
+    @Test
+    public void testReportRemoteTaskDone_invalidTaskId() throws Exception {
+        RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 2);
+        String clientId = "clientId_testing";
+        String taskId = "taskId_testing";
+        prepareRemoteTaskRequested(remoteTaskClient, clientId, taskId, /* data= */ null);
+        doThrow(IllegalStateException.class).when(mService)
+                .reportRemoteTaskDone(clientId, taskId);
+
+        assertThrows(IllegalStateException.class,
+                () -> mRemoteAccessManager.reportRemoteTaskDone(taskId));
+    }
+
+    @Test
+    public void testSetPowerStatePostTaskExecution() throws Exception {
+        int nextPowerState = CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM;
+        boolean runGarageMode = true;
+
+        mRemoteAccessManager.setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
+
+        verify(mService).setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
+    }
+
+    private ICarRemoteAccessCallback setClientAndGetCallback(RemoteTaskClient client)
+            throws Exception {
+        ArgumentCaptor<ICarRemoteAccessCallback> internalCallbackCaptor =
+                ArgumentCaptor.forClass(ICarRemoteAccessCallback.class);
+        mRemoteAccessManager.setRemoteTaskClient(mExecutor, client);
+        verify(mService).addCarRemoteTaskClient(internalCallbackCaptor.capture());
+        return internalCallbackCaptor.getValue();
+    }
+
+    private void prepareRemoteTaskRequested(RemoteTaskClient client, String clientId,
+            String taskId, byte[] data) throws Exception {
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(client);
+        String serviceId = "serviceId_testing";
+        String deviceId = "deviceId_testing";
+
+        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+        internalCallback.onRemoteTaskRequested(clientId, taskId, data,
+                /* taskMaximumDurationInSec= */ 10);
+    }
 
     private static final class RemoteTaskClient
             implements CarRemoteAccessManager.RemoteTaskClientCallback {
+        private static final int WAIT_TIME_MS = 3000;
+
+        private final CountDownLatch mLatch;
+        private String mServiceId;
+        private String mDeviceId;
+        private String mClientId;
+        private String mTaskId;
+        private boolean mRegistrationFailed;
+        private byte[] mData;
+
+        private RemoteTaskClient(int expectedCallbackCount) {
+            mLatch = new CountDownLatch(expectedCallbackCount);
+        }
 
         @Override
         public void onRegistrationUpdated(String serviceId, String deviceId, String clientId) {
+            mServiceId = serviceId;
+            mDeviceId = deviceId;
+            mClientId = clientId;
+            mLatch.countDown();
         }
 
         @Override
         public void onRegistrationFailed() {
+            mRegistrationFailed = true;
+            mLatch.countDown();
         }
 
         @Override
-        public void onRemoteTaskRequested(String clientId, byte[] data, int remainingTimeSec) {
+        public void onRemoteTaskRequested(String taskId, byte[] data, int remainingTimeSec) {
+            mTaskId = taskId;
+            mData = data;
+            mLatch.countDown();
         }
 
         @Override
         public void onShutdownStarting(CarRemoteAccessManager.CompletableRemoteTaskFuture future) {
+            mLatch.countDown();
+        }
+
+        public String getServiceId() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mServiceId;
+        }
+
+        public String getDeviceId() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mDeviceId;
+        }
+
+        public String getClientId() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mClientId;
+        }
+
+        public String getTaskId() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mTaskId;
+        }
+
+        public byte[] getData() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mData;
+        }
+
+        public boolean isRegistrationFail() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mRegistrationFailed;
         }
     }
 }
