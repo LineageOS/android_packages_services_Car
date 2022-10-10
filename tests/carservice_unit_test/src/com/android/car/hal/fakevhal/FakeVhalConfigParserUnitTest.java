@@ -700,6 +700,8 @@ public class FakeVhalConfigParserUnitTest {
 
         assertThat(expectConfigDeclaration.getConfig().changeMode).isEqualTo(0);
         assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
+        assertThat(expectConfigDeclaration.hashCode()).isEqualTo(configDeclaration.hashCode());
+        assertThat(expectConfigDeclaration.toString()).isEqualTo(configDeclaration.toString());
     }
 
     @Test
