@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -45,6 +46,7 @@ import android.os.SystemClock;
 import android.util.SparseArray;
 
 import com.android.car.VehicleStub;
+import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
@@ -285,11 +287,11 @@ public class FakeVehicleStubUnitTest {
     public void testGetMethodPropIdIsGlobalHasNoDefaultValueAreaIdIgnored() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": "
-                + "\"VehicleProperty::VEHICLE_MAP_SERVICE\"}]}";
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\"}]}";
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.VEHICLE_MAP_SERVICE, /* areaId= */ 123);
+                .build(/* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -300,7 +302,7 @@ public class FakeVehicleStubUnitTest {
         // ServiceSpecificException with StatusCode.NOT_AVAILABLE.
         expect.that(thrown.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);
         expect.that(thrown).hasMessageThat().contains("propId: "
-                + VehicleProperty.VEHICLE_MAP_SERVICE + " has no property value.");
+                + VehicleProperty.INFO_FUEL_CAPACITY + " has no property value.");
     }
 
     @Test
@@ -1013,6 +1015,80 @@ public class FakeVehicleStubUnitTest {
         clearInvocations(callback);
 
         verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testGetValueForSpecialProp() throws Exception {
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(VehicleProperty.VHAL_HEARTBEAT, 0);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.get(requestPropValue);
+
+        verify(mMockRealVehicleStub).get(requestPropValue);
+    }
+
+    @Test
+    public void testSetValueForSpecialProp() throws Exception {
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.floatValues = new float[]{10};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.set(requestPropValue);
+
+        verify(mMockRealVehicleStub).set(requestPropValue);
+    }
+
+    @Test
+    public void testSubscribeSpecialProp() throws Exception {
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.VHAL_HEARTBEAT;
+        option.sampleRate = 100f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+        SubscriptionClient realClient = mock(SubscriptionClient.class);
+        when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+
+        doNothing().when(realClient).subscribe(options);
+        client.subscribe(options);
+
+        verify(realClient).subscribe(options);
+    }
+
+    @Test
+    public void testUnsubscribeSpecialProp() throws Exception {
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.VHAL_HEARTBEAT;
+        option.sampleRate = 100f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+        SubscriptionClient realClient = mock(SubscriptionClient.class);
+        when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+
+        doNothing().when(realClient).subscribe(options);
+        client.subscribe(options);
+
+        verify(realClient).subscribe(options);
+
+        doNothing().when(realClient).unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+        client.unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+
+        verify(realClient).unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
     }
 
     private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
