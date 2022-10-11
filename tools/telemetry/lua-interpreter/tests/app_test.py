@@ -27,7 +27,7 @@ class TestWebApp(unittest.TestCase):
         'process_memory_state', 'wtf_occurred'
     ], data)
     data = response.get_json()['memory_publisher']
-    self.assertIn('"timestamp": 1658520588225', data)
+    self.assertIn('"timestamp_millis": 1664995933733', data)
 
   def test_execute_script_output(self):
     response = self.client.post(
