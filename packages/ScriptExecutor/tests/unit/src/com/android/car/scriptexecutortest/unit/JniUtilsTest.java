@@ -38,6 +38,7 @@ public final class JniUtilsTest {
     private static final String INT_ARRAY_KEY = "int_array_key";
     private static final String LONG_ARRAY_KEY = "long_array_key";
     private static final String DOUBLE_ARRAY_KEY = "double_array_key";
+    private static final String PERSISTABLE_BUNDLE_KEY = "persistable_bundle_key";
 
     private static final boolean BOOLEAN_VALUE = true;
     private static final double NUMBER_VALUE = 0.1;
@@ -46,6 +47,7 @@ public final class JniUtilsTest {
     private static final int[] INT_ARRAY_VALUE = new int[]{1, 2, 3};
     private static final long[] LONG_ARRAY_VALUE = new long[]{1, 2, 3, 4};
     private static final double[] DOUBLE_ARRAY_VALUE = new double[]{1.1d, 2.2d, 3.3d, 4.4d};
+    private static final PersistableBundle PERSISTABLE_BUNDLE_VALUE = new PersistableBundle();
 
     // Pointer to Lua Engine instantiated in native space.
     private long mLuaEnginePtr = 0;
@@ -95,6 +97,13 @@ public final class JniUtilsTest {
 
     private native boolean nativeHasDoubleArrayValue(long luaEnginePtr, String key, double[] value);
 
+    /*
+     * Checks if the key maps to a Lua table/PersistableBundle, and checks if the PersistableBundle
+     * has the string representation equal to the parameter {@code expected}.
+     */
+    private native boolean nativeHasPersistableBundleOfStringValue(
+            long luaEnginePtr, String key, String expected);
+
     @Test
     public void pushBundleToLuaTable_nullBundleMakesEmptyLuaTable() {
         nativePushBundleToLuaTableCaller(mLuaEnginePtr, null);
@@ -110,6 +119,7 @@ public final class JniUtilsTest {
         bundle.putInt(INT_KEY, INT_VALUE);
         bundle.putDouble(NUMBER_KEY, NUMBER_VALUE);
         bundle.putString(STRING_KEY, STRING_VALUE);
+        bundle.putPersistableBundle(PERSISTABLE_BUNDLE_KEY, PERSISTABLE_BUNDLE_VALUE);
 
         // Invokes the corresponding helper method to convert the bundle
         // to Lua table on Lua stack.
@@ -120,6 +130,8 @@ public final class JniUtilsTest {
         assertThat(nativeHasIntValue(mLuaEnginePtr, INT_KEY, INT_VALUE)).isTrue();
         assertThat(nativeHasDoubleValue(mLuaEnginePtr, NUMBER_KEY, NUMBER_VALUE)).isTrue();
         assertThat(nativeHasStringValue(mLuaEnginePtr, STRING_KEY, STRING_VALUE)).isTrue();
+        assertThat(nativeHasPersistableBundleOfStringValue(mLuaEnginePtr, PERSISTABLE_BUNDLE_KEY,
+                PERSISTABLE_BUNDLE_VALUE.toString())).isTrue();
     }
 
     @Test
@@ -155,5 +167,24 @@ public final class JniUtilsTest {
         assertThat(
                 nativeHasDoubleArrayValue(mLuaEnginePtr, DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE))
                 .isTrue();
+    }
+
+    @Test
+    public void pushBundleToLuaTable_nestedBundle() {
+        PersistableBundle bundle = new PersistableBundle();
+        PersistableBundle nestedBundle = new PersistableBundle();
+        nestedBundle.putInt(INT_KEY, INT_VALUE);
+        nestedBundle.putDouble(NUMBER_KEY, NUMBER_VALUE);
+        nestedBundle.putString(STRING_KEY, STRING_VALUE);
+        nestedBundle.putPersistableBundle(PERSISTABLE_BUNDLE_KEY, PERSISTABLE_BUNDLE_VALUE);
+        bundle.putPersistableBundle(PERSISTABLE_BUNDLE_KEY, nestedBundle);
+
+        // Invokes the corresponding helper method to convert the bundle
+        // to Lua table on Lua stack.
+        nativePushBundleToLuaTableCaller(mLuaEnginePtr, bundle);
+
+        // Check contents of Lua table/PersistableBundle.
+        assertThat(nativeHasPersistableBundleOfStringValue(
+                mLuaEnginePtr, PERSISTABLE_BUNDLE_KEY, nestedBundle.toString())).isTrue();
     }
 }

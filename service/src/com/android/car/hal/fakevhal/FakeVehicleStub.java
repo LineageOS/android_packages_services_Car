@@ -58,7 +58,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,8 +68,20 @@ import java.util.Set;
 public final class FakeVehicleStub extends VehicleStub {
 
     private static final String TAG = CarLog.tagFor(FakeVehicleStub.class);
-    // TODO(b/241006476) Add a list of all special properties to constant SPECIAL_PROPERTIES.
-    private static final List<Integer> SPECIAL_PROPERTIES = Arrays.asList();
+    private static final List<Integer> SPECIAL_PROPERTIES = List.of(
+            VehicleProperty.VHAL_HEARTBEAT,
+            VehicleProperty.INITIAL_USER_INFO,
+            VehicleProperty.SWITCH_USER,
+            VehicleProperty.CREATE_USER,
+            VehicleProperty.REMOVE_USER,
+            VehicleProperty.USER_IDENTIFICATION_ASSOCIATION,
+            VehicleProperty.AP_POWER_STATE_REPORT,
+            VehicleProperty.AP_POWER_STATE_REQ,
+            VehicleProperty.VEHICLE_MAP_SERVICE,
+            VehicleProperty.OBD2_FREEZE_FRAME_CLEAR,
+            VehicleProperty.OBD2_FREEZE_FRAME,
+            VehicleProperty.OBD2_FREEZE_FRAME_INFO
+    );
     private static final String FAKE_VHAL_CONFIG_DIRECTORY = "/data/system/car/fake_vhal_config/";
     private static final String DEFAULT_CONFIG_FILE_NAME = "DefaultProperties.json";
     private static final String FAKE_MODE_ENABLE_FILE_NAME = "ENABLE";
@@ -83,6 +94,8 @@ public final class FakeVehicleStub extends VehicleStub {
     private final FakeVhalConfigParser mParser;
     private final List<File> mCustomConfigFiles;
     private final Handler mHandler;
+    private final List<Integer> mHvacPowerSupportedAreas;
+    private final List<Integer> mHvacPowerDependentProps;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -107,10 +120,12 @@ public final class FakeVehicleStub extends VehicleStub {
      * Initializes a {@link FakeVehicleStub} instance.
      *
      * @param realVehicle The real Vhal to be connected to handle special properties.
+     * @throws RemoteException if the remote operation through mRealVehicle fails.
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
-    public FakeVehicleStub(VehicleStub realVehicle) throws IOException, IllegalArgumentException {
+    public FakeVehicleStub(VehicleStub realVehicle) throws RemoteException, IOException,
+            IllegalArgumentException {
         this(realVehicle, new FakeVhalConfigParser(), getCustomConfigFiles());
     }
 
@@ -120,19 +135,23 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param realVehicle The real Vhal to be connected to handle special properties.
      * @param parser The parser to parse config files.
      * @param customConfigFiles The {@link List} of custom config files.
+     * @throws RemoteException if failed to get configs for special property from real Vehicle HAL.
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
     @VisibleForTesting
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
-            List<File> customConfigFiles) throws IOException, IllegalArgumentException {
+            List<File> customConfigFiles) throws RemoteException, IOException,
+            IllegalArgumentException {
+        mRealVehicle = realVehicle;
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mParser = parser;
         mCustomConfigFiles = customConfigFiles;
         mConfigDeclarationsByPropId = parseConfigFiles();
         mPropConfigsByPropId = extractPropConfigs(mConfigDeclarationsByPropId);
         mPropValuesByPropIdAreaId = extractPropValues(mConfigDeclarationsByPropId);
-        mRealVehicle = realVehicle;
+        mHvacPowerSupportedAreas = getHvacPowerSupportedAreaId();
+        mHvacPowerDependentProps = getHvacPowerDependentProps();
         mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
                 .getLooper());
         mOnChangeSubscribeClientByPropIdAreaId = new ArrayMap<>();
@@ -200,7 +219,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException {
-        // TODO(b/238646350)
+        mRealVehicle.linkToDeath(recipient);
     }
 
     /**
@@ -210,7 +229,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public void unlinkToDeath(IVehicleDeathRecipient recipient) {
-        // TODO(b/238646350)
+        mRealVehicle.unlinkToDeath(recipient);
     }
 
     /**
@@ -235,7 +254,8 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
-        return new FakeVhalSubscriptionClient(callback);
+        return new FakeVhalSubscriptionClient(callback,
+                mRealVehicle.newSubscriptionClient(callback));
     }
 
     /**
@@ -243,15 +263,22 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param requestedPropValue The property to get.
      * @return the property value.
+     * @throws RemoteException if getting value for special props through real vehicle HAL fails.
      * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
     @Nullable
-    public HalPropValue get(HalPropValue requestedPropValue) throws ServiceSpecificException {
+    public HalPropValue get(HalPropValue requestedPropValue) throws RemoteException,
+            ServiceSpecificException {
         int propId = requestedPropValue.getPropId();
         checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : requestedPropValue.getAreaId();
         checkAreaIdSupported(propId, areaId);
+
+        // For HVAC power dependent properties, check if HVAC_POWER_ON is on.
+        if (isHvacPowerDependentProp(propId)) {
+            checkPropAvailable(propId, areaId);
+        }
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
         if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
@@ -260,9 +287,7 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         if (isSpecialProperty(propId)) {
-            // TODO(b/241006476) Handle special properties.
-            Slogf.w(TAG, "Special property is not supported.");
-            return null;
+            return mRealVehicle.get(requestedPropValue);
         }
 
         // PropId config exists but the value map doesn't have this propId, this may be caused by:
@@ -286,24 +311,30 @@ public final class FakeVehicleStub extends VehicleStub {
      * Sets a property value.
      *
      * @param propValue The property to set.
+     * @throws RemoteException if setting value for special props through real vehicle HAL fails.
      * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
-    public void set(HalPropValue propValue) throws ServiceSpecificException {
+    public void set(HalPropValue propValue) throws RemoteException,
+                ServiceSpecificException {
         int propId = propValue.getPropId();
         checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : propValue.getAreaId();
         checkAreaIdSupported(propId, areaId);
+
+        // For HVAC power dependent properties, check if HVAC_POWER_ON is on.
+        if (isHvacPowerDependentProp(propId)) {
+            checkPropAvailable(propId, areaId);
+        }
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
         if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
-                + " doesn't have write permission.");
+                    + " doesn't have write permission.");
         }
 
         if (isSpecialProperty(propValue.getPropId())) {
-            // TODO(b/241006476) Handle special properties.
-            Slogf.w(TAG, "Special property is not supported.");
+            mRealVehicle.set(propValue);
             return;
         }
 
@@ -340,7 +371,7 @@ public final class FakeVehicleStub extends VehicleStub {
     @Override
     public void dump(FileDescriptor fd, List<String> args) throws RemoteException,
             ServiceSpecificException {
-        // TODO(b/238646350)
+        mRealVehicle.dump(fd, args);
     }
 
     /**
@@ -353,9 +384,12 @@ public final class FakeVehicleStub extends VehicleStub {
 
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
         private final HalClientCallback mCallBack;
+        private final SubscriptionClient mRealClient;
 
-        FakeVhalSubscriptionClient(HalClientCallback callback) {
+        FakeVhalSubscriptionClient(HalClientCallback callback,
+                SubscriptionClient realVehicleClient) {
             mCallBack = callback;
+            mRealClient = realVehicleClient;
             Slogf.d(TAG, "A FakeVhalSubscriptionClient instance is created.");
         }
 
@@ -364,18 +398,17 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         @Override
-        public void subscribe(SubscribeOptions[] options) {
+        public void subscribe(SubscribeOptions[] options) throws RemoteException {
             FakeVehicleStub.this.subscribe(this, options);
         }
 
         @Override
-        public void unsubscribe(int propId) {
+        public void unsubscribe(int propId) throws RemoteException {
             // Check if this propId is supported.
             checkPropIdSupported(propId);
             // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
-                // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
+            if (isSpecialProperty(propId)) {
+                mRealClient.unsubscribe(propId);
                 return;
             }
             FakeVehicleStub.this.unsubscribe(this, propId);
@@ -490,20 +523,23 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
-     * Extracts {@link HalPropConfig} for all properties from the parsing result.
+     * Extracts {@link HalPropConfig} for all properties from the parsing result and real VHAL.
      *
      * @param configDeclarationsByPropId The parsing result.
+     * @throws RemoteException if getting configs for special props through real vehicle HAL fails.
      * @return a {@link SparseArray} mapped from propId to its configs.
      */
     private SparseArray<HalPropConfig> extractPropConfigs(SparseArray<ConfigDeclaration>
-            configDeclarationsByPropId) {
-        SparseArray<HalPropConfig> propConfigsByPropId =
-                new SparseArray<>(/* initialCapacity= */ 0);
+            configDeclarationsByPropId) throws RemoteException {
+        SparseArray<HalPropConfig> propConfigsByPropId = new SparseArray<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
             VehiclePropConfig vehiclePropConfig = configDeclarationsByPropId.valueAt(i).getConfig();
             propConfigsByPropId.put(vehiclePropConfig.prop,
                     new AidlHalPropConfig(vehiclePropConfig));
         }
+        // If the special property is supported in this configuration, then override with configs
+        // from real vehicle.
+        overrideConfigsForSpecialProp(propConfigsByPropId);
         return propConfigsByPropId;
     }
 
@@ -569,6 +605,58 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
+     * Gets all supported areaIds by HVAC_POWER_ON.
+     *
+     * @return a {@link List} of areaIds supported by HVAC_POWER_ON.
+     */
+    private List<Integer> getHvacPowerSupportedAreaId() {
+        try {
+            checkPropIdSupported(VehicleProperty.HVAC_POWER_ON);
+            return getAllSupportedAreaId(VehicleProperty.HVAC_POWER_ON);
+        } catch (Exception e) {
+            Slogf.i(TAG, "%d is not supported.", VehicleProperty.HVAC_POWER_ON);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Gets the HVAC power dependent properties from HVAC_POWER_ON config array.
+     *
+     * @return a {@link List} of HVAC properties which are dependent to HVAC_POWER_ON.
+     */
+    private List<Integer> getHvacPowerDependentProps() {
+        List<Integer> hvacProps = new ArrayList<>();
+        try {
+            checkPropIdSupported(VehicleProperty.HVAC_POWER_ON);
+            int[] configArray = mPropConfigsByPropId.get(VehicleProperty.HVAC_POWER_ON)
+                    .getConfigArray();
+            for (int propId : configArray) {
+                hvacProps.add(propId);
+            }
+        } catch (Exception e) {
+            Slogf.i(TAG, "%d is not supported.", VehicleProperty.HVAC_POWER_ON);
+        }
+        return hvacProps;
+    }
+
+    /**
+     * Overrides prop configs for special properties from real vehicle HAL.
+     *
+     * @throws RemoteException if getting prop configs from real vehicle HAL fails.
+     */
+    private void overrideConfigsForSpecialProp(SparseArray<HalPropConfig> fakePropConfigsByPropId)
+            throws RemoteException {
+        HalPropConfig[] realVehiclePropConfigs = mRealVehicle.getAllPropConfigs();
+        for (int i = 0; i < realVehiclePropConfigs.length; i++) {
+            HalPropConfig propConfig = realVehiclePropConfigs[i];
+            int propId = propConfig.getPropId();
+            if (isSpecialProperty(propId) && fakePropConfigsByPropId.contains(propId)) {
+                fakePropConfigsByPropId.put(propConfig.getPropId(), propConfig);
+            }
+        }
+    }
+
+    /**
      * Checks if a property is a global property.
      *
      * @param propId The property to be checked.
@@ -600,11 +688,58 @@ public final class FakeVehicleStub extends VehicleStub {
     /**
      * Checks if a property is a special property.
      *
-     * @param propId to be checked.
+     * @param propId The property to be checked.
      * @return {@code true} if the property is special.
      */
     private static boolean isSpecialProperty(int propId) {
         return SPECIAL_PROPERTIES.contains(propId);
+    }
+
+    /**
+     * Checks if a property is an HVAC power affected property.
+     *
+     * @param propId The property to be checked.
+     * @return {@code true} if the property is one of the HVAC power affected properties.
+     */
+    private boolean isHvacPowerDependentProp(int propId) {
+        return mHvacPowerDependentProps.contains(propId);
+    }
+
+    /**
+     * Checks if a HVAC power dependent property is available.
+     *
+     * @param propId The property to be checked.
+     * @param areaId The areaId to be checked.
+     * @throws RemoteException if the remote operation through real vehicle HAL in get method fails.
+     * @throws ServiceSpecificException if there is no matched areaId in HVAC_POWER_ON to check or
+     * the property is not available.
+     */
+    private void checkPropAvailable(int propId, int areaId) throws RemoteException,
+            ServiceSpecificException {
+        HalPropValue propValues = get(mHalPropValueBuilder.build(VehicleProperty.HVAC_POWER_ON,
+                getMatchedAreaIdInHvacPower(areaId)));
+        if (propValues.getInt32ValuesSize() >= 1 && propValues.getInt32Value(0) == 0) {
+            throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE, "HVAC_POWER_ON is off."
+                    + " PropId: " + propId + " is not available.");
+        }
+    }
+
+    /**
+     * Gets matched areaId from HVAC_POWER_ON supported areaIds.
+     *
+     * @param areaId The specified areaId to find the match.
+     * @return the matched areaId.
+     * @throws ServiceSpecificException if no matched areaId found.
+     */
+    private int getMatchedAreaIdInHvacPower(int areaId) {
+        for (int i = 0; i < mHvacPowerSupportedAreas.size(); i++) {
+            int supportedAreaId = mHvacPowerSupportedAreas.get(i);
+            if ((areaId | supportedAreaId) == supportedAreaId) {
+                return supportedAreaId;
+            }
+        }
+        throw new ServiceSpecificException(StatusCode.INVALID_ARG, "This areaId: " + areaId
+                + " doesn't match any supported areaIds in HVAC_POWER_ON");
     }
 
     /**
@@ -628,13 +763,14 @@ public final class FakeVehicleStub extends VehicleStub {
      * @return {@code true} if set value is within the prop config range.
      */
     private boolean withinRange(int propId, int areaId, RawPropValues rawPropValues) {
-        if (isPropertyGlobal(propId)) {
-            // TODO(238646350) Handle global properties.
+        // For global property without areaId.
+        if (isPropertyGlobal(propId) && getAllSupportedAreaId(propId).isEmpty()) {
             return true;
         }
 
-        // For non-global properties.
+        // For non-global properties and global properties with areaIds.
         int index = getAllSupportedAreaId(propId).indexOf(areaId);
+
         HalAreaConfig areaConfig = mPropConfigsByPropId.get(propId).getAreaConfigs()[index];
 
         int[] int32Values = rawPropValues.int32Values;
@@ -719,18 +855,20 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
-     * Checks if an areaId of a property is supported. For global property, the areaId is ignored.
+     * Checks if an areaId of a property is supported.
      *
      * @param propId The property to be checked.
      * @param areaId The area to be checked.
      */
     private void checkAreaIdSupported(int propId, int areaId) {
-        // For global property, areaId is ignored.
-        // For non-global property, if property config exists, check if areaId is supported.
-        if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
-                + " is not supported.");
+        List<Integer> supportedAreaIds = getAllSupportedAreaId(propId);
+        // For global property, areaId will be ignored if the area config array is empty.
+        if ((isPropertyGlobal(propId) && supportedAreaIds.isEmpty())
+                || supportedAreaIds.contains(areaId)) {
+            return;
         }
+        throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
+                + " is not supported.");
     }
 
     /**
@@ -738,8 +876,10 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param client The client subscribes properties.
      * @param options The array of subscribe options.
+     * @throws RemoteException if remote operation through real SubscriptionClient fails.
      */
-    private void subscribe(FakeVhalSubscriptionClient client, SubscribeOptions[] options) {
+    private void subscribe(FakeVhalSubscriptionClient client, SubscribeOptions[] options)
+            throws RemoteException {
         for (int i = 0; i < options.length; i++) {
             int propId = options[i].propId;
 
@@ -747,9 +887,8 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropIdSupported(propId);
 
             // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
-                // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
+            if (isSpecialProperty(propId)) {
+                client.mRealClient.subscribe(new SubscribeOptions[]{options[i]});
                 return;
             }
 

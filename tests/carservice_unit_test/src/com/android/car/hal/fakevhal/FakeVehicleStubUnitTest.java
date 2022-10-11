@@ -18,9 +18,12 @@ package com.android.car.hal.fakevhal;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -44,7 +47,10 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
+import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
+import com.android.car.VehicleStub.SubscriptionClient;
+import com.android.car.hal.AidlHalPropConfig;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
@@ -60,6 +66,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -72,6 +79,9 @@ public class FakeVehicleStubUnitTest {
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
     private static final int SEAT_1_RIGHT = VehicleAreaSeat.ROW_1_RIGHT;
+    private static final int HVAC_LEFT = SEAT_1_LEFT | VehicleAreaSeat.ROW_2_LEFT
+            | VehicleAreaSeat.ROW_2_CENTER;
+    private static final int HVAC_ALL = HVAC_LEFT | SEAT_1_RIGHT | VehicleAreaSeat.ROW_2_RIGHT;
     private static final String PROPERTY_CONFIG_STRING_ON_CHANGE = "{\"property\":"
             + "\"VehicleProperty::ENGINE_OIL_LEVEL\","
             + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
@@ -96,6 +106,25 @@ public class FakeVehicleStubUnitTest {
             + "\"defaultValue\": {\"int32Values\": [\"FuelType::FUEL_TYPE_UNLEADED\"]},"
             + "\"access\": \"VehiclePropertyAccess::READ\","
             + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}";
+    private static final String PROPERTY_CONFIG_STRING_HVAC_POWER_ON = "{\"property\":"
+            + "\"VehicleProperty::HVAC_POWER_ON\","
+            + "\"defaultValue\": {\"int32Values\": [1]},"
+            + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\"}],"
+            + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+            + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}";
+    private static final String PROPERTY_CONFIG_STRING_HVAC_POWER_OFF = "{\"property\":"
+            + "\"VehicleProperty::HVAC_POWER_ON\","
+            + "\"defaultValue\": {\"int32Values\": [0]},"
+            + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\"}],"
+            + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+            + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}";
+    private static final String PROPERTY_CONFIG_STRING_HVAC_FAN_SPEED = "{\"property\":"
+            + "\"VehicleProperty::HVAC_FAN_SPEED\","
+            + "\"defaultValue\": {\"int32Values\": [3]},"
+            + "\"areas\": [{"
+            + "\"areaId\": \"Constants::HVAC_ALL\","
+            + "\"minInt32Value\": 1,"
+            + "\"maxInt32Value\": 7}]}";
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -108,6 +137,7 @@ public class FakeVehicleStubUnitTest {
     @Before
     public void setup() throws Exception {
         when(mMockRealVehicleStub.isValid()).thenReturn(true);
+        when(mMockRealVehicleStub.getAllPropConfigs()).thenReturn(new HalPropConfig[0]);
     }
 
     @Test
@@ -164,6 +194,23 @@ public class FakeVehicleStubUnitTest {
         expect.that(propConfig.getMaxSampleRate()).isEqualTo(5.0f);
         expect.that(allPropConfig.length).isEqualTo(new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>()).getAllPropConfigs().length + 1);
+    }
+
+    @Test
+    public void testGetAllPropConfigsWithSpecialProp() throws Exception {
+        // Access permission of VHAL_HEARTBEAT has been overridden by the mocked return result of
+        // AidlVehicleStub.getAllPropConfigs().
+        when(mMockRealVehicleStub.getAllPropConfigs()).thenReturn(new HalPropConfig[]{
+                new AidlHalPropConfig(createConfig(VehicleProperty.VHAL_HEARTBEAT,
+                        /* sampleRate= */ 0, VehiclePropertyAccess.READ_WRITE, /* areaId= */ 0))});
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        HalPropConfig propConfig = getPropConfigByPropId(fakeVehicleStub.getAllPropConfigs(),
+                VehicleProperty.VHAL_HEARTBEAT);
+
+        verify(mMockRealVehicleStub, atLeastOnce()).getAllPropConfigs();
+        expect.that(propConfig.getAccess()).isEqualTo(VehiclePropertyAccess.READ_WRITE);
     }
 
     @Test
@@ -285,11 +332,11 @@ public class FakeVehicleStubUnitTest {
     public void testGetMethodPropIdIsGlobalHasNoDefaultValueAreaIdIgnored() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": "
-                + "\"VehicleProperty::VEHICLE_MAP_SERVICE\"}]}";
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\"}]}";
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.VEHICLE_MAP_SERVICE, /* areaId= */ 123);
+                .build(/* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 123);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -300,7 +347,30 @@ public class FakeVehicleStubUnitTest {
         // ServiceSpecificException with StatusCode.NOT_AVAILABLE.
         expect.that(thrown.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);
         expect.that(thrown).hasMessageThat().contains("propId: "
-                + VehicleProperty.VEHICLE_MAP_SERVICE + " has no property value.");
+                + VehicleProperty.INFO_FUEL_CAPACITY + " has no property value.");
+    }
+
+    @Test
+    public void testGetMethodGlobalPropWithAreaIdNotZero() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        // For global properties, if the supported area config array doesn't include 0,
+        // a ServiceSpecificException with StatusCode.INVALID_ARG.
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The areaId: 0 is not supported.");
     }
 
     @Test
@@ -411,6 +481,128 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
+    public void testGetMethodForHvacProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_ON
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_ALL\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getPropId()).isEqualTo(VehicleProperty.HVAC_FAN_SPEED);
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
+    }
+
+    @Test
+    public void testGetMethodForHvacPropNotAvailable() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_OFF + "]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);
+        expect.that(thrown).hasMessageThat().contains("HVAC_POWER_ON is off. PropId: 356517120 "
+                + "is not available.");
+    }
+
+    @Test
+    public void testGetMethodForHvacPropMatchedBitOrAreaId() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_ON
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_LEFT\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getPropId()).isEqualTo(VehicleProperty.HVAC_FAN_SPEED);
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
+    }
+
+    @Test
+    public void testGetMethodForHvacPropNoMatchedAreaId() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::HVAC_POWER_ON\","
+                + "\"defaultValue\": {\"int32Values\": [1]},"
+                + "\"areas\": [{\"areaId\": \"Constants::HVAC_RIGHT\"}],"
+                + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}"
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_LEFT\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("This areaId: " + HVAC_LEFT + " doesn't match"
+                + " any supported areaIds in HVAC_POWER_ON");
+    }
+
+    @Test
+    public void testGetMethodForHvacPropWithMoreDefaultValues() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::HVAC_POWER_ON\","
+                + "\"defaultValue\": {\"int32Values\": [1, 0]},"
+                + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\"}],"
+                + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}"
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_ALL\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
+    }
+
+    @Test
     public void testSetMethodPropConfigNotExist() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\":"
@@ -509,6 +701,78 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
+    public void testSetMethodGlobalPropWithAreaIdSetValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 0, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.set(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The set value is outside the range");
+    }
+
+    @Test
+    public void testSetMethodGlobalPropWithNoAreaIdSetValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]}}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(120);
+    }
+
+    @Test
+    public void testSetMethodGlobalPropWithAreaIdNotZero() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        // For global properties, if the supported area config array doesn't include 0,
+        // a ServiceSpecificException with StatusCode.INVALID_ARG.
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The areaId: 0 is not supported.");
+    }
+
+    @Test
     public void testSetMethodAreaConfigHasNoLimit() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\":"
@@ -531,6 +795,46 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(oldPropValue.getInt32Value(0)).isEqualTo(0);
         expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(32);
+    }
+
+    @Test
+    public void testSetMethodForHvacProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_ON
+                + "," + PROPERTY_CONFIG_STRING_HVAC_FAN_SPEED + "]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{5};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        HalPropValue oldPropValue = fakeVehicleStub.get(requestPropValue);
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(oldPropValue.getInt32Value(0)).isEqualTo(3);
+        expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(5);
+    }
+
+    @Test
+    public void testSetMethodForHvacPropNotAvailable() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_OFF + "]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.set(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);
+        expect.that(thrown).hasMessageThat().contains("HVAC_POWER_ON is off. PropId: 356517120 "
+                + "is not available.");
     }
 
     @Test
@@ -948,7 +1252,7 @@ public class FakeVehicleStubUnitTest {
         client.unsubscribe(VehicleProperty.FUEL_LEVEL);
         clearInvocations(callback);
 
-        verify(callback, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
+        verify(callback, after(200).atMost(1)).onPropertyEvent(any(ArrayList.class));
     }
 
     @Test
@@ -979,7 +1283,7 @@ public class FakeVehicleStubUnitTest {
             clearInvocations(callback1);
             clearInvocations(callback2);
 
-            verify(callback1, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback1, after(200).atMost(1)).onPropertyEvent(any(ArrayList.class));
             verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
         } finally {
             client2.unsubscribe(VehicleProperty.FUEL_LEVEL);
@@ -1015,6 +1319,113 @@ public class FakeVehicleStubUnitTest {
         verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
     }
 
+    @Test
+    public void testGetValueForSpecialProp() throws Exception {
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(VehicleProperty.VHAL_HEARTBEAT, 0);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.get(requestPropValue);
+
+        verify(mMockRealVehicleStub).get(requestPropValue);
+    }
+
+    @Test
+    public void testSetValueForSpecialProp() throws Exception {
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.floatValues = new float[]{10};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.set(requestPropValue);
+
+        verify(mMockRealVehicleStub).set(requestPropValue);
+    }
+
+    @Test
+    public void testSubscribeSpecialProp() throws Exception {
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.VHAL_HEARTBEAT;
+        option.sampleRate = 100f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+        SubscriptionClient realClient = mock(SubscriptionClient.class);
+        when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+
+        doNothing().when(realClient).subscribe(options);
+        client.subscribe(options);
+
+        verify(realClient).subscribe(options);
+    }
+
+    @Test
+    public void testUnsubscribeSpecialProp() throws Exception {
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.VHAL_HEARTBEAT;
+        option.sampleRate = 100f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+        SubscriptionClient realClient = mock(SubscriptionClient.class);
+        when(mMockRealVehicleStub.newSubscriptionClient(callback)).thenReturn(realClient);
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+
+        doNothing().when(realClient).subscribe(options);
+        client.subscribe(options);
+
+        verify(realClient).subscribe(options);
+
+        doNothing().when(realClient).unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+        client.unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+
+        verify(realClient).unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+    }
+
+    @Test
+    public void testLinkToDeath() throws Exception {
+        IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.linkToDeath(recipient);
+
+        verify(mMockRealVehicleStub).linkToDeath(recipient);
+    }
+
+    @Test
+    public void testUnLinkToDeath() throws Exception {
+        IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.unlinkToDeath(recipient);
+
+        verify(mMockRealVehicleStub).unlinkToDeath(recipient);
+    }
+
+    @Test
+    public void testDump() throws Exception {
+        FileDescriptor fd = mock(FileDescriptor.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.dump(fd, new ArrayList<>());
+
+        verify(mMockRealVehicleStub).dump(eq(fd), eq(new ArrayList<>()));
+    }
+
     private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
             RawPropValues rawPropValues) {
         VehiclePropValue propValue = new VehiclePropValue();
@@ -1043,14 +1454,14 @@ public class FakeVehicleStubUnitTest {
         return null;
     }
 
-    private VehiclePropConfig createConfig(int propId, float rate, int access, int areaId) {
+    private VehiclePropConfig createConfig(int propId, float sampleRate, int access, int areaId) {
         VehiclePropConfig propConfigValue = new VehiclePropConfig();
         propConfigValue.prop = propId;
         propConfigValue.access = access;
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.areaId = areaId;
         propConfigValue.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
-        propConfigValue.maxSampleRate = rate;
+        propConfigValue.maxSampleRate = sampleRate;
         return propConfigValue;
     }
 

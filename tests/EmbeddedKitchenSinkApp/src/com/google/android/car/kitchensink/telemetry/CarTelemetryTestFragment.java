@@ -69,7 +69,7 @@ public class CarTelemetryTestFragment extends Fragment {
     /** Vehicle property via gear change section. */
     private static final String LUA_SCRIPT_ON_GEAR_CHANGE =
             "function onGearChange(published_data, state)\n"
-                    + "    result = {data = \"Hello World!\"}\n"
+                    + "    local result = {data = 'Hello World!'}\n"
                     + "    on_script_finished(result)\n"
                     + "end\n";
 
@@ -98,8 +98,8 @@ public class CarTelemetryTestFragment extends Fragment {
     /** ProcessMemoryState section. */
     private static final String LUA_SCRIPT_ON_PROCESS_MEMORY_STATE = new StringBuilder()
             .append("function calculateAverage(tbl)\n")
-            .append("    sum = 0\n")
-            .append("    size = 0\n")
+            .append("    local sum = 0\n")
+            .append("    local size = 0\n")
             .append("    for _, value in ipairs(tbl) do\n")
             .append("        sum = sum + value\n")
             .append("        size = size + 1\n")
@@ -107,7 +107,7 @@ public class CarTelemetryTestFragment extends Fragment {
             .append("    return sum/size\n")
             .append("end\n")
             .append("function onProcessMemory(published_data, state)\n")
-            .append("    result = {}\n")
+            .append("    local result = {}\n")
             .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
             .append("    result.major_page_fault_avg = calculateAverage("
                     + "published_data.page_major_fault)\n")
@@ -145,8 +145,8 @@ public class CarTelemetryTestFragment extends Fragment {
     /** AppStartMemoryStateCaptured section. */
     private static final String LUA_SCRIPT_ON_APP_START_MEMORY_STATE_CAPTURED = new StringBuilder()
             .append("function calculateAverage(tbl)\n")
-            .append("    sum = 0\n")
-            .append("    size = 0\n")
+            .append("    local sum = 0\n")
+            .append("    local size = 0\n")
             .append("    for _, value in ipairs(tbl) do\n")
             .append("        sum = sum + value\n")
             .append("        size = size + 1\n")
@@ -154,7 +154,7 @@ public class CarTelemetryTestFragment extends Fragment {
             .append("    return sum/size\n")
             .append("end\n")
             .append("function onAppStartMemoryStateCaptured(published_data, state)\n")
-            .append("    result = {}\n")
+            .append("    local result = {}\n")
             .append("    result.uid = published_data.uid\n")
             .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
             .append("    result.major_page_fault_avg = calculateAverage("
@@ -192,8 +192,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_ACTIVITY_FOREGROUND_STATE_CHANGED =
             new StringBuilder()
                     .append("function onActivityForegroundStateChanged(published_data, state)\n")
-                    .append("    result = {}\n")
-                    .append("    n = 0\n")
+                    .append("    local result = {}\n")
+                    .append("    local n = 0\n")
                     .append("    for k, v in pairs(published_data) do\n")
                     .append("        result[k] = v[1]\n")
                     .append("        n = n + 1\n")
@@ -227,8 +227,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_PROCESS_CPU_TIME =
             new StringBuilder()
                     .append("function onProcessCpuTime(published_data, state)\n")
-                    .append("    result = {}\n")
-                    .append("    n = 0\n")
+                    .append("    local result = {}\n")
+                    .append("    local n = 0\n")
                     .append("    for k, v in pairs(published_data) do\n")
                     .append("        result[k] = v[1]\n")
                     .append("        n = n + 1\n")
@@ -262,7 +262,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_APP_CRASH_OCCURRED =
             new StringBuilder()
                     .append("function onAppCrashOccurred(published_data, state)\n")
-                    .append("    result = {}\n")
+                    .append("    local result = {}\n")
                     .append("    for k, v in pairs(published_data) do\n")
                     .append("        result[k] = v[1]\n")
                     .append("    end\n")
@@ -294,7 +294,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_ANR_OCCURRED =
             new StringBuilder()
                     .append("function onAnrOccurred(published_data, state)\n")
-                    .append("    result = {}\n")
+                    .append("    local result = {}\n")
                     .append("    for k, v in pairs(published_data) do\n")
                     .append("        result[k] = v[1]\n")
                     .append("    end\n")
@@ -325,7 +325,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_WTF_OCCURRED =
             new StringBuilder()
                     .append("function onWtfOccurred(published_data, state)\n")
-                    .append("    result = {}\n")
+                    .append("    local result = {}\n")
                     .append("    for k, v in pairs(published_data) do\n")
                     .append("        result[k] = v[1]\n")
                     .append("    end\n")
@@ -427,15 +427,13 @@ public class CarTelemetryTestFragment extends Fragment {
                     .append("        iterations = 0\n")
                     .append("    end\n")
                     .append("    state['iterations'] = iterations + 1\n")
-                    .append("    report = {}\n")
-                    .append("    local ts_key = 'timestamp_' .. iterations\n")
-                    .append("    report[ts_key] = published_data['timestamp']\n")
                     .append("    local meminfo = published_data['meminfo']\n")
                     .append("    local available_memory = string.match(meminfo, "
                             + "'.*MemAvailable:%s*(%d+).*')\n")
                     .append("    local mem_key = 'available_memory_' .. iterations\n")
-                    .append("    report[mem_key] = available_memory\n")
-                    .append("    on_metrics_report(report, state)\n")
+                    .append("    published_data[mem_key] = available_memory\n")
+                    .append("    published_data['meminfo'] = nil\n")
+                    .append("    on_metrics_report(published_data, state)\n")
                     .append("end\n")
                     .toString();
     private static final TelemetryProto.Publisher MEMORY_PUBLISHER =
@@ -445,6 +443,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setReadIntervalSec(3)
                                     .setMaxSnapshots(3)
                                     .setMaxPendingTasks(10)
+                                    .addPackageNames("com.android.car")
+                                    .addPackageNames("com.android.car.scriptexecutor")
                                     .build())
                     .build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_MEMORY_V1 =
