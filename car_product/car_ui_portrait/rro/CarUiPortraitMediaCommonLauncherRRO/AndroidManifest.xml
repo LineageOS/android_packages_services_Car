@@ -19,7 +19,7 @@
     <application android:hasCode="false"/>
     <overlay android:priority="20"
              android:targetName="CarMediaCommon"
-             android:targetPackage="com.android.car.carlauncher"
+             android:targetPackage="com.android.car.portraitlauncher"
              android:resourcesMap="@xml/overlays"
              android:category="caruiportrait.launcher.mediacommon"
              android:isStatic="false" />
