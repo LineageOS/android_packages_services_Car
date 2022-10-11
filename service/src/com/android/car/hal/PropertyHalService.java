@@ -69,29 +69,29 @@ public class PropertyHalService extends HalServiceBase {
     private static final boolean DBG = true;
 
     private static final class AsyncGetRequestInfo {
-        private final GetPropertyServiceRequest mGetPropSvcRequest;
+        private final GetPropertyServiceRequest mPropMgrRequest;
         // The uptimeMillis when this request time out.
         private final long mTimeoutUptimeMillis;
         // The remaining timeout in milliseconds for this request.
         private final long mTimeoutInMs;
 
-        AsyncGetRequestInfo(GetPropertyServiceRequest propSvcRequest,
+        AsyncGetRequestInfo(GetPropertyServiceRequest propMgrRequest,
                 long timeoutUptimeMillis, long timeoutInMs) {
-            mGetPropSvcRequest = propSvcRequest;
+            mPropMgrRequest = propMgrRequest;
             mTimeoutUptimeMillis = timeoutUptimeMillis;
             mTimeoutInMs = timeoutInMs;
         }
 
-        private int getGetPropSvcRequestId() {
-            return mGetPropSvcRequest.getRequestId();
+        private int getManagerRequestId() {
+            return mPropMgrRequest.getRequestId();
         }
 
         public int getPropertyId() {
-            return mGetPropSvcRequest.getPropertyId();
+            return mPropMgrRequest.getPropertyId();
         }
 
         public GetPropertyServiceRequest getGetPropSvcRequest() {
-            return mGetPropSvcRequest;
+            return mPropMgrRequest;
         }
 
         public long getTimeoutUptimeMillis() {
@@ -99,26 +99,26 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         public GetVehicleStubAsyncRequest toGetVehicleStubAsyncRequest(
-                HalPropValueBuilder propValueBuilder, int halSvcRequestId) {
-            int halPropertyId = managerToHalPropId(mGetPropSvcRequest.getPropertyId());
-            int areaId = mGetPropSvcRequest.getAreaId();
+                HalPropValueBuilder propValueBuilder, int serviceRequestId) {
+            int halPropertyId = managerToHalPropId(mPropMgrRequest.getPropertyId());
+            int areaId = mPropMgrRequest.getAreaId();
             return new GetVehicleStubAsyncRequest(
-                    halSvcRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
+                    serviceRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
         }
 
         public GetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
-            return new GetValueResult(getGetPropSvcRequestId(), /* carPropertyValue= */ null,
+            return new GetValueResult(getManagerRequestId(), /* carPropertyValue= */ null,
                     errorCode);
         }
 
         public GetValueResult toOkayGetValueResult(CarPropertyValue value) {
-            return new GetValueResult(getGetPropSvcRequestId(), value,
+            return new GetValueResult(getManagerRequestId(), value,
                     CarPropertyManager.STATUS_OK);
         }
     };
 
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
-    private final AtomicInteger mHalSvcRequestIdCounter = new AtomicInteger(0);
+    private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
     private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
             BidirectionalSparseIntArray.create(
@@ -140,7 +140,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
     @GuardedBy("mLock")
-    private final SparseArray<AsyncGetRequestInfo> mHalSvcRequestIdToAsyncGetRequestInfo =
+    private final SparseArray<AsyncGetRequestInfo> mServiceRequestIdToAsyncGetRequestInfo =
             new SparseArray<>();
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
@@ -212,9 +212,9 @@ public class PropertyHalService extends HalServiceBase {
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
                     GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                             getVehicleStubAsyncResults.get(i);
-                    int halSvcRequestId = getVehicleStubAsyncResult.getServiceRequestId();
+                    int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
                     AsyncGetRequestInfo clientRequestInfo =
-                            getAndRemovePendingAsyncGetRequestInfoLocked(halSvcRequestId);
+                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
                     if (clientRequestInfo == null) {
                         continue;
                     }
@@ -251,17 +251,17 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         @Override
-        public void onRequestsTimeout(List<Integer> halSvcRequestIds) {
+        public void onRequestsTimeout(List<Integer> serviceRequestIds) {
             List<GetValueResult> timeoutResults = new ArrayList<>();
             synchronized (mLock) {
-                for (int i = 0; i < halSvcRequestIds.size(); i++) {
-                    int halSvcRequestId = halSvcRequestIds.get(i);
+                for (int i = 0; i < serviceRequestIds.size(); i++) {
+                    int serviceRequestId = serviceRequestIds.get(i);
                     AsyncGetRequestInfo requestInfo =
-                            getAndRemovePendingAsyncGetRequestInfoLocked(halSvcRequestId);
+                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
                     if (requestInfo == null) {
                         Slogf.w(TAG, "The request for hal svc request ID: %d timed out but no "
                                 + "pending request is found. The request may have already been "
-                                + "cancelled or finished", halSvcRequestId);
+                                + "cancelled or finished", serviceRequestId);
                         continue;
                     }
                     timeoutResults.add(requestInfo.toErrorGetValueResult(
@@ -307,21 +307,21 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private GetVehicleStubAsyncRequest generateGetVehicleStubAsyncRequestLocked(
             HalPropValueBuilder propValueBuilder, AsyncGetRequestInfo asyncGetRequestInfo) {
-        int newHalSvcRequestId = mHalSvcRequestIdCounter.getAndIncrement();
-        mHalSvcRequestIdToAsyncGetRequestInfo.put(newHalSvcRequestId, asyncGetRequestInfo);
+        int newServiceRequestId = mServiceRequestIdCounter.getAndIncrement();
+        mServiceRequestIdToAsyncGetRequestInfo.put(newServiceRequestId, asyncGetRequestInfo);
         return asyncGetRequestInfo.toGetVehicleStubAsyncRequest(propValueBuilder,
-                newHalSvcRequestId);
+                newServiceRequestId);
     }
 
     @GuardedBy("mLock")
     private @Nullable AsyncGetRequestInfo getAndRemovePendingAsyncGetRequestInfoLocked(
-            int halSvcRequestId) {
+            int serviceRequestId) {
         AsyncGetRequestInfo requestInfo =
-                mHalSvcRequestIdToAsyncGetRequestInfo.get(halSvcRequestId);
-        mHalSvcRequestIdToAsyncGetRequestInfo.remove(halSvcRequestId);
+                mServiceRequestIdToAsyncGetRequestInfo.get(serviceRequestId);
+        mServiceRequestIdToAsyncGetRequestInfo.remove(serviceRequestId);
         if (requestInfo == null) {
             Slogf.w(TAG, "onRequestsTimeout: the request for propertyHalService request "
-                    + "ID: %d already timed out or already completed", halSvcRequestId);
+                    + "ID: %d already timed out or already completed", serviceRequestId);
         }
         return requestInfo;
     }

@@ -173,7 +173,7 @@ public class PropertyHalServiceTest {
         });
     }
 
-    private Object deliverPropResult(InvocationOnMock invocation, int expectedHalSvcRequestId) {
+    private Object deliverPropResult(InvocationOnMock invocation, int expectedServiceRequestId) {
         Object[] args = invocation.getArguments();
         List getVehicleHalRequests = (List) args[0];
         GetVehicleStubAsyncRequest getVehicleHalRequest =
@@ -181,13 +181,13 @@ public class PropertyHalServiceTest {
         VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback =
                 (VehicleStub.VehicleStubCallbackInterface) args[1];
 
-        int halSvcRequestId = getVehicleHalRequest.getServiceRequestId();
-        assertThat(halSvcRequestId).isEqualTo(expectedHalSvcRequestId);
+        int serviceRequestId = getVehicleHalRequest.getServiceRequestId();
+        assertThat(serviceRequestId).isEqualTo(expectedServiceRequestId);
         assertThat(getVehicleHalRequest.getHalPropValue().getPropId()).isEqualTo(
                 HVAC_TEMPERATURE_SET);
 
         GetVehicleStubAsyncResult getVehicleStubAsyncResult =
-                new GetVehicleStubAsyncResult(halSvcRequestId, mPropValue);
+                new GetVehicleStubAsyncResult(serviceRequestId, mPropValue);
         getVehicleStubAsyncCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
         return null;
     }
@@ -213,7 +213,7 @@ public class PropertyHalServiceTest {
     }
 
     private Object deliverTryAgainResult(InvocationOnMock invocation,
-            Integer expectedHalSvcRequestId) {
+            Integer expectedServiceRequestId) {
         Object[] args = invocation.getArguments();
         List getVehicleHalRequests = (List) args[0];
         GetVehicleStubAsyncRequest getVehicleHalRequest =
@@ -221,13 +221,13 @@ public class PropertyHalServiceTest {
         VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback =
                 (VehicleStub.VehicleStubCallbackInterface) args[1];
 
-        int halSvcRequestId = getVehicleHalRequest.getServiceRequestId();
-        if (expectedHalSvcRequestId != null) {
-            assertThat(halSvcRequestId).isEqualTo(expectedHalSvcRequestId);
+        int serviceRequestId = getVehicleHalRequest.getServiceRequestId();
+        if (expectedServiceRequestId != null) {
+            assertThat(serviceRequestId).isEqualTo(expectedServiceRequestId);
         }
 
         GetVehicleStubAsyncResult getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(
-                halSvcRequestId, VehicleStub.STATUS_TRY_AGAIN);
+                serviceRequestId, VehicleStub.STATUS_TRY_AGAIN);
         getVehicleStubAsyncCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
         return null;
     }
