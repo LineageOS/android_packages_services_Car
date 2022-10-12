@@ -28,5 +28,6 @@ android_app {
         "car-media-common",
         "car-apps-common",
         "car-ui-lib",
+        "car-portrait-ui-common",
     ],
 }
