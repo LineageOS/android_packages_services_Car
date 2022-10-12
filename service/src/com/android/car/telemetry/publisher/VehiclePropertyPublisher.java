@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.CarTelemetryService.DEBUG;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
@@ -38,9 +40,11 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,9 +54,10 @@ import java.util.List;
  * property id of the subscriber and starts pushing the change events to the subscriber.
  */
 public class VehiclePropertyPublisher extends AbstractPublisher {
-    private static final boolean DEBUG = false;  // STOPSHIP if true
-
     public static final String BUNDLE_TIMESTAMP_KEY = "timestamp";
+    public static final String BUNDLE_PROP_ID_KEY = "propertyId";
+    public static final String BUNDLE_AREA_ID_KEY = "areaId";
+    public static final String BUNDLE_STATUS_KEY = "status";
     public static final String BUNDLE_STRING_KEY = "stringVal";
     public static final String BUNDLE_BOOLEAN_KEY = "boolVal";
     public static final String BUNDLE_INT_KEY = "intVal";
@@ -65,17 +70,9 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
 
     private final CarPropertyService mCarPropertyService;
     private final Handler mTelemetryHandler;
-
     // The class only reads, no need to synchronize this object.
     // Maps property_id to CarPropertyConfig.
     private final SparseArray<CarPropertyConfig> mCarPropertyList;
-
-    // SparseArray and ArraySet are memory optimized, but they can be bit slower for more
-    // than 100 items. We're expecting much less number of subscribers, so these DS are ok.
-    // Maps property_id to the set of DataSubscriber.
-    private final SparseArray<ArraySet<DataSubscriber>> mCarPropertyToSubscribers =
-            new SparseArray<>();
-
     private final ICarPropertyEventListener mCarPropertyEventListener =
             new ICarPropertyEventListener.Stub() {
                 @Override
@@ -89,6 +86,11 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                     }
                 }
             };
+
+    // Maps property id to the PropertyData containing batch of its bundles and subscribers.
+    // Each property is batched separately.
+    private final SparseArray<PropertyData> mPropertyDataLookup = new SparseArray<>();
+    private long mBatchIntervalMillis = 100L;  // Batch every 100 milliseconds = 10Hz
 
     public VehiclePropertyPublisher(
             @NonNull CarPropertyService carPropertyService,
@@ -122,18 +124,18 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                         || config.getAccess()
                         == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
-
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        if (subscribers == null) {
-            subscribers = new ArraySet<>();
-            mCarPropertyToSubscribers.put(propertyId, subscribers);
-            // Register the listener only once per propertyId.
+        PropertyData propertyData = mPropertyDataLookup.get(propertyId);
+        if (propertyData == null) {
+            propertyData = new PropertyData(config);
+            mPropertyDataLookup.put(propertyId, propertyData);
+        }
+        if (propertyData.subscribers.isEmpty()) {
             mCarPropertyService.registerListener(
                     propertyId,
                     publisherParam.getVehicleProperty().getReadRate(),
                     mCarPropertyEventListener);
         }
-        subscribers.add(subscriber);
+        propertyData.subscribers.add(subscriber);
     }
 
     @Override
@@ -146,14 +148,13 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             return;
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        if (subscribers == null) {
+        PropertyData propertyData = mPropertyDataLookup.get(propertyId);
+        if (propertyData == null) {
             return;
         }
-        subscribers.remove(subscriber);
-        if (subscribers.isEmpty()) {
-            mCarPropertyToSubscribers.remove(propertyId);
+        propertyData.subscribers.remove(subscriber);
+        if (propertyData.subscribers.isEmpty()) {
+            mPropertyDataLookup.remove(propertyId);
             // Doesn't throw exception as listener is not null. mCarPropertyService and
             // local mCarPropertyToSubscribers will not get out of sync.
             mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
@@ -162,13 +163,13 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
 
     @Override
     public void removeAllDataSubscribers() {
-        for (int i = 0; i < mCarPropertyToSubscribers.size(); i++) {
-            int propertyId = mCarPropertyToSubscribers.keyAt(i);
+        for (int i = 0; i < mPropertyDataLookup.size(); i++) {
             // Doesn't throw exception as listener is not null. mCarPropertyService and
             // local mCarPropertyToSubscribers will not get out of sync.
-            mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
+            mCarPropertyService.unregisterListener(
+                    mPropertyDataLookup.keyAt(i), mCarPropertyEventListener);
         }
-        mCarPropertyToSubscribers.clear();
+        mPropertyDataLookup.clear();
     }
 
     @Override
@@ -178,9 +179,17 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             return false;
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        return subscribers != null && subscribers.contains(subscriber);
+        return mPropertyDataLookup.contains(propertyId)
+                && mPropertyDataLookup.get(propertyId).subscribers.contains(subscriber);
     }
+
+    @VisibleForTesting
+    public void setBatchIntervalMillis(long intervalMillis) {
+        mBatchIntervalMillis = intervalMillis;
+    }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 
     /**
      * Called when publisher receives new event. It's executed on a CarPropertyService's
@@ -190,13 +199,29 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         // move the work from CarPropertyService's worker thread to the telemetry thread
         mTelemetryHandler.post(() -> {
             CarPropertyValue propValue = event.getCarPropertyValue();
+            int propertyId = propValue.getPropertyId();
+            PropertyData propertyData = mPropertyDataLookup.get(propertyId);
             PersistableBundle bundle = parseCarPropertyValue(
-                    propValue, mCarPropertyList.get(propValue.getPropertyId()).getConfigArray());
-            for (DataSubscriber subscriber
-                    : mCarPropertyToSubscribers.get(propValue.getPropertyId())) {
-                subscriber.push(bundle);
+                    propValue, propertyData.config.getConfigArray());
+            propertyData.pendingData.add(bundle);
+            if (propertyData.pendingData.size() == 1) {
+                mTelemetryHandler.postDelayed(
+                        () -> {
+                            pushPendingDataToSubscribers(propertyData);
+                        },
+                        mBatchIntervalMillis);
             }
         });
+    }
+
+    /**
+     * Pushes bundle batch to subscribers and resets batch.
+     */
+    private void pushPendingDataToSubscribers(PropertyData propertyData) {
+        for (DataSubscriber subscriber : propertyData.subscribers) {
+            subscriber.push(propertyData.pendingData);
+        }
+        propertyData.pendingData = new ArrayList<>();
     }
 
     /**
@@ -204,10 +229,13 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
      */
     private PersistableBundle parseCarPropertyValue(
             CarPropertyValue propValue, List<Integer> configArray) {
-        Object value = propValue.getValue();
         PersistableBundle bundle = new PersistableBundle();
         bundle.putLong(BUNDLE_TIMESTAMP_KEY, propValue.getTimestamp());
+        bundle.putInt(BUNDLE_PROP_ID_KEY, propValue.getPropertyId());
+        bundle.putInt(BUNDLE_AREA_ID_KEY, propValue.getAreaId());
+        bundle.putInt(BUNDLE_STATUS_KEY, propValue.getStatus());
         int type = propValue.getPropertyId() & VehiclePropertyType.MASK;
+        Object value = propValue.getValue();
         if (VehiclePropertyType.BOOLEAN == type) {
             bundle.putBoolean(BUNDLE_BOOLEAN_KEY, (Boolean) value);
         } else if (VehiclePropertyType.FLOAT == type) {
@@ -295,6 +323,19 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         return bundle;
     }
 
-    @Override
-    protected void handleSessionStateChange(SessionAnnotation annotation) {}
+    /**
+     * Container class holding all the relevant information for a property.
+     */
+    private static final class PropertyData {
+        // The config containing info on how to parse the property value.
+        public final CarPropertyConfig config;
+        // Subscribers subscribed to the property this PropertyData is mapped to.
+        public final ArraySet<DataSubscriber> subscribers = new ArraySet<>();
+        // The list of bundles that are batched together and pushed to subscribers
+        public List<PersistableBundle> pendingData = new ArrayList<>();
+
+        PropertyData(CarPropertyConfig propConfig) {
+            config = propConfig;
+        }
+    }
 }
