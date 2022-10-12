@@ -391,6 +391,7 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdownPrepare)
 TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdownEnter) {
     setSystemCallingUid();
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/false)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, onShutdownEnter()).Times(1);
 
     auto status = mWatchdogInternalHandler
                           ->notifySystemStateChange(StateType::POWER_CYCLE,
