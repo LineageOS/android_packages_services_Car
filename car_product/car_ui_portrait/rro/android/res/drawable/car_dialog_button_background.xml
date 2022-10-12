@@ -19,7 +19,7 @@
     <item>
         <shape>
             <solid android:color="@color/car_alert_dialog_action_button_color"/>
-            <corners android:radius="@dimen/alert_dialog_button_corner_radius"/>
+            <corners android:radius="@dimen/car_portrait_ui_button_radius"/>
         </shape>
     </item>
     <item>

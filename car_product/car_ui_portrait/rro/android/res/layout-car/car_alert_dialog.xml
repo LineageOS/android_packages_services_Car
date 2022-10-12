@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="24sp"
-                    android:textColor="@color/alert_dialog_subtitle_text_color"/>
+                    android:textColor="@color/car_alert_dialog_message_text_color"/>
                 <!-- we don't need this spacer, but the id needs to be here for compatibility -->
                 <Space
                     android:id="@*android:id/textSpacerNoButtons"
