@@ -755,11 +755,25 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--data-dir".equals(args[0])) {
             dumpDataDir(writer);
             return;
+        } else if ("--oem-service".equals(args[0])) {
+            dumpOemService(writer);
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
             execShellCmd(args, writer);
         }
+    }
+
+    private void dumpOemService(IndentingPrintWriter writer) {
+        mCarOemService.dump(writer);
+    }
+
+    private void dumpAll(IndentingPrintWriter writer) {
+        writer.println("*Dump car service*");
+        dumpVersions(writer);
+        dumpAllServices(writer);
+        dumpAllHals(writer);
+        dumpRROs(writer);
     }
 
     private void dumpRROs(IndentingPrintWriter writer) {
