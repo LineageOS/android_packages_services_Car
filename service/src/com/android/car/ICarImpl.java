@@ -724,9 +724,17 @@ public class ICarImpl extends ICar.Stub {
             case "--rro":
                 dumpRROs(writer);
                 return;
+            case "--oem-service":
+                dumpOemService(writer);
+                return;
+
             default:
                 execShellCmd(args, writer);
         }
+    }
+
+    private void dumpOemService(IndentingPrintWriter writer) {
+        mCarOemService.dump(writer);
     }
 
     private void dumpAll(IndentingPrintWriter writer) {
@@ -736,7 +744,6 @@ public class ICarImpl extends ICar.Stub {
         dumpAllHals(writer);
         dumpRROs(writer);
     }
-
 
     private void dumpRROs(IndentingPrintWriter writer) {
         writer.println("*Dump Car Service RROs*");
