@@ -1215,6 +1215,93 @@ TEST_F(WatchdogPerfServiceTest, TestPeriodicMonitorRequestsCollection) {
     EXPECT_CALL(*mMockDataProcessor, terminate()).Times(1);
 }
 
+TEST_F(WatchdogPerfServiceTest, TestShutdownEnter) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    // Start boot-time collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "Boot-time collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    ASSERT_RESULT_OK(mService->onShutdownEnter());
+
+    // Switch to periodic collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                     Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "Periodic collection didn't start immediately after receiving shutdown enter signal";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestShutdownEnterWithCustomCollection) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    // Start custom collection
+    Vector<String16> args;
+    args.push_back(String16(kStartCustomCollectionFlag));
+    args.push_back(String16(kIntervalFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionInterval.count()).c_str()));
+    args.push_back(String16(kMaxDurationFlag));
+    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
+
+    ASSERT_RESULT_OK(mService->onCustomCollection(-1, args));
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
+                                   Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // Suspend in middle of custom collection
+    ASSERT_RESULT_OK(mService->onShutdownEnter());
+
+    // Custom collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
+                                   Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestCustomCollectionInterval.count())
+            << "Subsequent custom collection didn't happen at "
+            << kTestCustomCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
 TEST_F(WatchdogPerfServiceTest, TestSystemStateSwitch) {
     ASSERT_NO_FATAL_FAILURE(startService());
 
