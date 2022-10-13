@@ -49,5 +49,6 @@ interface ICarProperty {
      * <p>This method gets the CarPropertyValue using async methods.
      */
     void getPropertiesAsync(in List<GetPropertyServiceRequest> getPropertyServiceRequests,
-                in IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) = 8;
+                in IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+                long timeoutInMs) = 8;
 }
