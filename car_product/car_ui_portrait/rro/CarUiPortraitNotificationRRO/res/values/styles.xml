@@ -16,13 +16,14 @@
   -->
 
 <resources>
-    <style name="NotificationBodyTitleText" parent="@android:TextAppearance.DeviceDefault.Large">
+    <style name="NotificationBodyTitleText" parent="TextAppearance.Car.Body.Large">
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAlignment">viewStart</item>
     </style>
 
-    <style name="NotificationBodyContentText" parent="@android:TextAppearance.DeviceDefault.Small">
+    <style name="NotificationBodyContentText" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textSize">28sp</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textAlignment">viewStart</item>
@@ -30,10 +31,10 @@
 
     <style name="NotificationActionViewLayout">
         <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginLeft">8dp</item>
-        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginLeft">24dp</item>
+        <item name="android:layout_marginRight">24dp</item>
         <item name="android:layout_marginTop">8dp</item>
-        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:layout_marginBottom">24dp</item>
     </style>
 
     <style name="NotificationActionButtonBase" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
@@ -41,7 +42,6 @@
         <item name="android:gravity">center</item>
         <item name="android:textSize">32sp</item>
         <item name="android:textAllCaps">false</item>
-        <item name="android:textColor">@color/notification_accent_color</item>
         <item name="android:maxLines">1</item>
         <item name="android:ellipsize">end</item>
         <item name="android:background">@drawable/action_button_background</item>
@@ -51,8 +51,11 @@
         <item name="android:background">@drawable/play_button_background</item>
     </style>
 
-    <style name="NotificationActionButtonText" parent="@android:TextAppearance.DeviceDefault.Large">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    <style name="NotificationActionButton2" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButton3" parent="NotificationActionButtonBase"/>
+
+    <style name="NotificationActionButtonText" parent="TextAppearance.Car.Body.Large">
         <item name="android:textSize">32sp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:maxLines">1</item>
@@ -60,12 +63,22 @@
     </style>
 
     <style name="ClearAllButton" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
-        <item name="android:minWidth">@dimen/clear_all_button_min_width</item>
-        <item name="android:paddingStart">@dimen/clear_all_button_padding</item>
-        <item name="android:paddingEnd">@dimen/clear_all_button_padding</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:paddingStart">@dimen/clear_all_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/clear_all_button_horizontal_padding</item>
+        <item name="android:textColor">@color/notification_accent_color</item>
         <item name="android:gravity">center</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/clear_all_button_background</item>
+    </style>
+
+    <style name="NotificationCenterHeaderText" parent="TextAppearance.Car">
+        <item name="android:layout_marginStart">204dp</item>
+        <item name="android:paddingBottom">@dimen/notification_header_text_padding_bottom</item>
+        <item name="android:paddingTop">@dimen/notification_header_text_padding_top</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:lineSpacingExtra">8sp</item>
     </style>
 </resources>
