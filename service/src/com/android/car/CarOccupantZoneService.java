@@ -816,6 +816,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
+        // TODO(b/243967195): Remove this functionality from assignVisibleUserToZone since this
+        // is already done when the user starts in CarUserService.
         if ((flags & CarOccupantZoneManager.USER_ASSIGNMENT_FLAG_LAUNCH_HOME) != 0) {
             int targetDisplayId = getDisplayForOccupant(occupantZoneId,
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);

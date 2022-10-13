@@ -344,6 +344,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final UserHandleHelper mUserHandleHelper;
 
+    // TODO(b/244370727): Clean up mAssignedUsers. It doesn't seem like it's needed anymore to
+    // launch home.
     /**
      * Keeps assigned users for zones and is used to launch home. This will not include the current
      * user as current user's home launch is already done by ActivityManagerService.
@@ -480,6 +482,25 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.decreaseIndent();
 
         mInitialUserSetter.dump(writer);
+    }
+
+    // TODO(b/248608281): clean up.
+    @Nullable
+    private OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
+        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        List<OccupantZoneInfo> occupantZoneInfos = zoneService.getAllOccupantZones();
+        for (int index = 0; index < occupantZoneInfos.size(); index++) {
+            OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(index);
+            int[] displays = zoneService.getAllDisplaysForOccupantZone(
+                    occupantZoneInfo.zoneId);
+            for (int displayIndex = 0; displayIndex < displays.length; displayIndex++) {
+                if (displays[displayIndex] == displayId) {
+                    return occupantZoneInfo;
+                }
+            }
+        }
+        return null;
     }
 
     private static String preCreationStageToString(@PreCreationStage int stage) {
@@ -1324,6 +1345,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
+    // TODO(b/244370727): Remove once the lifecycle event callbacks provide the display id.
+    /**
+     * Same as {@link UserManager#getDisplayAssignedToUser()}.
+     */
+    public int getDisplayAssignedToUser(int userId) {
+        ICarServiceHelper helper;
+        synchronized (mLockUser) {
+            if (mICarServiceHelper == null) {
+                Slogf.wtf(TAG, "isUserVisible(): mICarServiceHelper not set yet", new Exception());
+                return Display.INVALID_DISPLAY;
+            }
+            helper = mICarServiceHelper;
+        }
+        try {
+            return helper.getDisplayAssignedToUser(userId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, e, "getDisplayAssignedToUser(%d) failed", userId);
+            return Display.INVALID_DISPLAY;
+        }
+    }
+
     @Override
     public void createUser(@Nullable String name, @NonNull String userType, int flags,
             int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
@@ -2130,6 +2172,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED:
                 onUserRemoved(UserHandle.of(userId));
                 break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING:
+                assignVisibleUserToZone(userId);
+                break;
             default:
         }
 
@@ -2396,7 +2441,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 continue;
             }
         }
-        // Now good to start user and assign zone
+        // Now good to start users on secondary displays.
+        // Note: allocatedZones is to keep track of zones that will have user allocation (user to
+        // zone allocation will happen when user is starting) so that after this for loop we can
+        // deduce zones that do not have user allocation and user picker can be started on the
+        // display in those zones.
+        ArraySet<Integer> allocatedZones = new ArraySet<>();
         for (int i = mapping.size() - 1; i >= 0; i--) {
             int zoneId = mapping.keyAt(i);
             int userId = mapping.valueAt(i);
@@ -2418,20 +2468,88 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 mapping.removeAt(i);
                 continue;
             }
-            int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
-                    UserHandle.of(userId), /* flags= */ 0);
-            if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
-                Slogf.w(TAG, "startOtherUsers(): zone assignment failed %d", assignResult);
-                mapping.removeAt(i);
-                break;
-            }
+            allocatedZones.add(zoneId);
         }
+
         synchronized (mLockUser) {
             for (int i = 0; i < mapping.size(); i++) {
                 mAssignedUsers.add(mapping.valueAt(i));
             }
             // Make sure to drop current user as it could be left behind from a user switching.
             mAssignedUsers.remove(currentUserId);
+        }
+
+        // Start user picker on displays in zones without user allocation.
+        List<OccupantZoneInfo> allOccupantZones = zoneService.getAllOccupantZones();
+        for (int i = 0; i < allOccupantZones.size(); ++i) {
+            int zoneId = allOccupantZones.get(i).zoneId;
+            if (hasDriverZone && zoneId == driverZoneId) continue;
+            if (allocatedZones.contains(zoneId)) continue;
+            int targetDisplayId = zoneService.getDisplayForOccupant(zoneId,
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            // Start the user picker as user 0 on the target display.
+            if (targetDisplayId != Display.INVALID_DISPLAY) {
+                Slogf.d(TAG, "Starting user picker on display: %d", targetDisplayId);
+                boolean started = CarServiceUtils.startUserPickerOnDisplay(
+                        mContext, targetDisplayId,
+                        mContext.getResources().getString(R.string.config_userPickerActivity));
+                if (!started) {
+                    Slogf.w(TAG, "startOtherUsers(): failed to Start user picker on display: %d",
+                            targetDisplayId);
+                } else {
+                    Slogf.d(TAG, "startOtherUsers(): Started user picker on display: %d",
+                            targetDisplayId);
+                }
+            }
+        }
+    }
+
+    // Assigns the non-current visible user to the occupant zone that has the display the user is
+    // on.
+    private void assignVisibleUserToZone(@UserIdInt int userId) {
+        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            return;
+        }
+        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (isSystemUserInHeadlessSystemUserMode(userId)) {
+            return;
+        }
+
+        // non-current user only
+        if (userId == ActivityManager.getCurrentUser()) {
+            return;
+        }
+
+        int displayId = getDisplayAssignedToUser(userId);
+        if (displayId == Display.INVALID_DISPLAY) {
+            Slogf.w(TAG, "Cannot get display assigned to visible user %d", userId);
+            return;
+        }
+
+        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
+        if (zoneInfo == null) {
+            Slogf.w(TAG, "Cannot get occupant zone info associated with display %d for user %d",
+                    displayId, userId);
+            return;
+        }
+
+        int zoneId = zoneInfo.zoneId;
+        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
+                UserHandle.of(userId), /* flags= */ 0);
+        if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+            Slogf.w(TAG,
+                    "assignVisibleUserToZone: failed to assign user %d to zone %d, result %d",
+                    userId, zoneId, assignResult);
+            stopUser(userId, new AndroidFuture<UserStopResult>());
+            return;
+        }
+
+        synchronized (mLockUser) {
+            mAssignedUsers.add(userId);
         }
     }
 
@@ -2446,30 +2564,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (isSystemUserInHeadlessSystemUserMode(userId)) {
             return;
         }
-        CarOccupantZoneService zoneService = CarLocalServices.getService(
-                CarOccupantZoneService.class);
-        boolean shouldStartLauncher = false;
-        int zoneId = zoneService.getOccupantZoneIdForUserId(userId);
-        int displayId = zoneService.getDisplayForOccupant(zoneId,
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-        synchronized (mLockUser) {
-            if (mAssignedUsers.contains(userId)) {
-                if (displayId == Display.INVALID_DISPLAY) {
-                    Slogf.w(TAG, "User assignment for user %d invalid for zone %d", userId,
-                            zoneId);
-                    mAssignedUsers.remove(userId);
-                } else {
-                    shouldStartLauncher = true;
-                }
-            }
+
+        int displayId = getDisplayAssignedToUser(userId);
+        if (displayId == Display.INVALID_DISPLAY) {
+            Slogf.w(TAG, "Cannot get display assigned to visible user %d", userId);
+            return;
         }
-        if (shouldStartLauncher) {
-            if (!CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId)) {
-                Slogf.w(TAG,
-                        "Cannot launch home for assigned user %d, display %d, will stop the user",
-                        userId, displayId);
-                stopUser(userId, new AndroidFuture<UserStopResult>());
-            }
+
+        if (!CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId)) {
+            Slogf.w(TAG,
+                    "Cannot launch home for assigned user %d, display %d, will stop the user",
+                    userId, displayId);
+            stopUser(userId, new AndroidFuture<UserStopResult>());
         }
     }
 
@@ -2477,8 +2583,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             mAssignedUsers.remove(userId);
         }
-        // OccupantZoneService will un-assign user.
-        // TODO(b/244370727) Show user picker.
+        // TODO(b/253264316): See if we need to add back zone unassignment and
+        // launching user picker.
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {

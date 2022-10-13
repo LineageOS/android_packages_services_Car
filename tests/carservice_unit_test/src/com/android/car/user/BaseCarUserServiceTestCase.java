@@ -137,6 +137,7 @@ import java.util.Optional;
 abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = BaseCarUserServiceTestCase.class.getSimpleName();
+    private static final String FAKE_USER_PICKER_PACKAGE = "fake-user-picker-package";
 
     protected static final int NO_USER_INFO_FLAGS = 0;
     protected static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
@@ -525,6 +526,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         when(mMockedResources
                 .getBoolean(com.android.car.R.bool.config_switchGuestUserBeforeGoingSleep))
                 .thenReturn(switchGuestUserBeforeGoingSleep);
+
+        when(mMockedResources
+                .getString(com.android.car.R.string.config_userPickerActivity))
+                .thenReturn(FAKE_USER_PICKER_PACKAGE);
 
         return new CarUserService(
                 mMockContext,

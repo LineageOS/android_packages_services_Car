@@ -20,11 +20,21 @@
     <TextView
         android:id="@+id/textView_state"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:text=""/>
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:text=""/>
     <TextView
         android:id="@+id/textView_zoneinfo"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" android:text=""/>
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:text=""/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:padding="5dp"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -36,7 +46,10 @@
             <TextView
                 android:id="@+id/textView_users"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Users"/>
+                android:layout_height="wrap_content"
+                android:textSize="32sp"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:text="Users"/>
             <Spinner
                 android:id="@+id/spinner_users"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -48,7 +61,10 @@
             <TextView
                 android:id="@+id/textView_displays"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" android:text="Displays"/>
+                android:layout_height="wrap_content"
+                android:textSize="32sp"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:text="Displays"/>
             <Spinner
                 android:id="@+id/spinner_displays"
                 android:layout_width="wrap_content" android:layout_height="wrap_content"/>
@@ -61,15 +77,62 @@
         <Button
             android:id="@+id/button_start_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Start User"/>
+            android:layout_height="wrap_content"
+            android:text="Start User"/>
+        <TextView
+            android:id="@+id/textView_start_user_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/start_user_button_instruction"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
         <Button
             android:id="@+id/button_stop_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Stop User"/>
+            android:layout_height="wrap_content"
+            android:text="Stop User"/>
+        <TextView
+            android:id="@+id/textView_stop_user_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/stop_user_button_instruction"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
         <Button
             android:id="@+id/button_switch_user"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="Switch User"/>
+            android:layout_height="wrap_content"
+            android:text="Switch User"/>
+        <TextView
+            android:id="@+id/textView_switch_user_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/switch_user_button_instruction"/>
+    </LinearLayout>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal" >
+        <Button
+            android:id="@+id/button_refresh"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Refresh"/>
+        <TextView
+            android:id="@+id/textView_refresh_instruction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:text="@string/refresh_button_instruction"/>
     </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
