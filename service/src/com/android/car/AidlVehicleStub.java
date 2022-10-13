@@ -94,10 +94,10 @@ final class AidlVehicleStub extends VehicleStub {
 
     private static class AsyncRequestInfo {
         private final int mServiceRequestId;
-        private final IGetVehicleStubAsyncCallback mGetAsyncCallback;
+        private final VehicleStubCallbackInterface mGetAsyncCallback;
 
         private AsyncRequestInfo(int serviceRequestId,
-                IGetVehicleStubAsyncCallback getAsyncCallback) {
+                VehicleStubCallbackInterface getAsyncCallback) {
             mServiceRequestId = serviceRequestId;
             mGetAsyncCallback = getAsyncCallback;
         }
@@ -106,7 +106,7 @@ final class AidlVehicleStub extends VehicleStub {
             return mServiceRequestId;
         }
 
-        public IGetVehicleStubAsyncCallback getGetAsyncCallback() {
+        public VehicleStubCallbackInterface getGetAsyncCallback() {
             return mGetAsyncCallback;
         }
     }
@@ -308,7 +308,7 @@ final class AidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            IGetVehicleStubAsyncCallback getCallback) {
+            VehicleStubCallbackInterface getCallback) {
         GetValueRequest[] getValueRequests =
                 new GetValueRequest[getVehicleStubAsyncRequests.size()];
         LongSparseArray<List<Long>> vhalRequestIdsByTimeoutInMs = new LongSparseArray<>();
@@ -380,7 +380,7 @@ final class AidlVehicleStub extends VehicleStub {
      * where the caller is.
      */
     private void handleExceptionFromVhal(GetValueRequests requests,
-            IGetVehicleStubAsyncCallback getCallback, int errorCode) {
+            VehicleStubCallbackInterface getCallback, int errorCode) {
         Slogf.w(CarLog.TAG_SERVICE,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
                         + "dead.");
@@ -561,7 +561,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void onGetAsyncPropertyResult(GetValueResult result, long vhalRequestId,
-            Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
+            Map<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> callbackToResult) {
         AsyncRequestInfo requestInfo;
         synchronized (mLock) {
             requestInfo = getAndRemovePendingRequestInfoLocked(vhalRequestId);
@@ -585,7 +585,7 @@ final class AidlVehicleStub extends VehicleStub {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(result.prop));
         }
-        IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+        VehicleStubCallbackInterface getVehicleStubAsyncCallback =
                 requestInfo.getGetAsyncCallback();
         if (callbackToResult.get(getVehicleStubAsyncCallback) == null) {
             callbackToResult.put(getVehicleStubAsyncCallback, new ArrayList<>());
@@ -597,7 +597,7 @@ final class AidlVehicleStub extends VehicleStub {
         GetValueResults origResponses = (GetValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(responses,
                         /* keepSharedMemory= */ false);
-        Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult =
+        Map<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> callbackToResult =
                 new ArrayMap<>();
         synchronized (mLock) {
             for (GetValueResult result : origResponses.payloads) {
@@ -613,10 +613,10 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void callGetAsyncCallbacks(
-            Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
-        for (Map.Entry<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> entry :
+            Map<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> callbackToResult) {
+        for (Map.Entry<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> entry :
                 callbackToResult.entrySet()) {
-            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback = entry.getKey();
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback = entry.getKey();
             getVehicleStubAsyncCallback.onGetAsyncResults(entry.getValue());
         }
     }
@@ -692,7 +692,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     // Remove all the pending client info that has the specified callback.
-    private void removePendingAsyncClientForGetCallback(IGetVehicleStubAsyncCallback getCallback) {
+    private void removePendingAsyncClientForGetCallback(VehicleStubCallbackInterface getCallback) {
         synchronized (mLock) {
             List<Long> requestIdsToRemove = new ArrayList<>();
 
@@ -720,7 +720,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void requestsTimedout(List<Long> vhalRequestIds) {
-        Map<IGetVehicleStubAsyncCallback, List<Integer>> timedoutServiceRequestIdsByCallback =
+        Map<VehicleStubCallbackInterface, List<Integer>> timedoutServiceRequestIdsByCallback =
                 new ArrayMap<>();
         synchronized (mLock) {
             for (int i = 0; i < vhalRequestIds.size(); i++) {
@@ -731,7 +731,7 @@ final class AidlVehicleStub extends VehicleStub {
                     // We already finished the request or the callback is already dead, ignore.
                     continue;
                 }
-                IGetVehicleStubAsyncCallback getAsyncCallback = requestInfo.getGetAsyncCallback();
+                VehicleStubCallbackInterface getAsyncCallback = requestInfo.getGetAsyncCallback();
                 if (timedoutServiceRequestIdsByCallback.get(getAsyncCallback) == null) {
                     timedoutServiceRequestIdsByCallback.put(getAsyncCallback, new ArrayList<>());
                 }
@@ -740,7 +740,7 @@ final class AidlVehicleStub extends VehicleStub {
             }
         }
 
-        for (IGetVehicleStubAsyncCallback callback : timedoutServiceRequestIdsByCallback.keySet()) {
+        for (VehicleStubCallbackInterface callback : timedoutServiceRequestIdsByCallback.keySet()) {
             callback.onRequestsTimeout(timedoutServiceRequestIdsByCallback.get(callback));
         }
     }

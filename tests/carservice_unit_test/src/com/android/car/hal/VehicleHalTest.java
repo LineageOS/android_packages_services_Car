@@ -99,7 +99,7 @@ public class VehicleHalTest {
     @Mock private TimeHalService mTimeHalService;
     @Mock private HalClient mHalClient;
     @Mock private VehicleStub mVehicle;
-    @Mock private VehicleStub.IGetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
+    @Mock private VehicleStub.VehicleStubCallbackInterface mGetVehicleStubAsyncCallback;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             VehicleHal.class.getSimpleName());
@@ -159,7 +159,7 @@ public class VehicleHalTest {
         ArgumentCaptor<List<GetVehicleStubAsyncRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         verify(mHalClient).getValuesAsync(captor.capture(),
-                any(VehicleStub.IGetVehicleStubAsyncCallback.class));
+                any(VehicleStub.VehicleStubCallbackInterface.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(mHalPropValue);
     }
@@ -175,7 +175,7 @@ public class VehicleHalTest {
         ArgumentCaptor<List<GetVehicleStubAsyncRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         verify(mHalClient).getValuesAsync(captor.capture(),
-                any(VehicleStub.IGetVehicleStubAsyncCallback.class));
+                any(VehicleStub.VehicleStubCallbackInterface.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(mHalPropValue);
         assertThat(captor.getValue().get(1).getServiceRequestId()).isEqualTo(REQUEST_ID_2);

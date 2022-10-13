@@ -1187,7 +1187,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      * <p>This method gets the HalPropValue using async methods.
      */
     public void getAsync(List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            VehicleStub.IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 }

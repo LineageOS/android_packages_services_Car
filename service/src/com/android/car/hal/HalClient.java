@@ -290,7 +290,7 @@ final class HalClient {
      */
     public void getValuesAsync(
             List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            VehicleStub.IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mVehicle.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 }

@@ -109,7 +109,7 @@ public class VehicleStubTest {
     @Mock
     private android.hardware.automotive.vehicle.V2_0.IVehicle mHidlVehicle;
     @Mock
-    private VehicleStub.IGetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
+    private VehicleStub.VehicleStubCallbackInterface mGetVehicleStubAsyncCallback;
 
     private AidlVehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
