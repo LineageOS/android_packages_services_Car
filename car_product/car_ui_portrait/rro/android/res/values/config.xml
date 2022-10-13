@@ -33,4 +33,14 @@
 
     <!-- Colon separated list of package names that should be granted Notification Listener access -->
     <string name="config_defaultListenerAccessPackages" translatable="false">com.android.car.notification</string>
+
+    <!-- Default body font family used across the system -->
+    <string name="config_bodyFontFamily" translatable="false">google-sans</string>
+
+    <!-- Default medium body font family used across the system -->
+    <string name="config_bodyFontFamilyMedium" translatable="false">google-sans-medium</string>
+
+    <!-- Default headline font family used across the system -->
+    <string name="config_headlineFontFamilyMedium" translatable="false">google-sans-medium</string>
+
 </resources>

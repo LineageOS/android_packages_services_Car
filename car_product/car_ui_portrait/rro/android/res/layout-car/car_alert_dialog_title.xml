@@ -46,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_toEndOf="@+id/icon"
             android:textAlignment="center"
-            android:textColor="@color/alert_dialog_message_text_color"
+            android:textColor="@color/car_alert_dialog_message_text_color"
             android:layout_centerVertical="true"/>
     </RelativeLayout>
     <Space

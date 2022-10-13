@@ -97,6 +97,14 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativePushBundleToLuaT
     scriptexecutor::pushBundleToLuaTable(env, engine->getLuaState(), bundle);
 }
 
+JNIEXPORT void JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativePushBundleListToLuaTableCaller(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundleList) {
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::pushBundleListToLuaTable(env, engine->getLuaState(), bundleList);
+}
+
 JNIEXPORT jint JNICALL
 Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeGetObjectSize(JNIEnv* env,
                                                                               jobject object,
@@ -219,6 +227,46 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasDoubleArrayVa
     bool result = hasValidNumberArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength,
                                       /* checkIsInteger= */ false);
     env->ReleaseDoubleArrayElements(value, rawInputArray, JNI_ABORT);
+    return result;
+}
+
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasNumberOfTables(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jint num) {
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    auto* luaState = engine->getLuaState();
+    bool result = true;
+    for (int i = 1; i <= num; i++) {
+        lua_pushinteger(luaState, i);
+        lua_gettable(luaState, -2);
+        if (!lua_istable(luaState, -1)) {
+            result = false;
+        }
+        lua_pop(luaState, 1);
+    }
+    return result;
+}
+
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasTableAtIndexWithIntValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jint index, jstring key, jint value) {
+    const char* rawKey = env->GetStringUTFChars(key, nullptr);
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    // Assumes the table is on top of the stack.
+    auto* luaState = engine->getLuaState();
+    lua_pushinteger(luaState, index);
+    lua_gettable(luaState, -2);
+    lua_pushstring(luaState, rawKey);
+    env->ReleaseStringUTFChars(key, rawKey);
+    lua_gettable(luaState, -2);
+    bool result = false;
+    if (!lua_isinteger(luaState, -1))
+        result = false;
+    else
+        result = lua_tointeger(luaState, -1) == static_cast<int>(value);
+    lua_pop(luaState, 2);
     return result;
 }
 

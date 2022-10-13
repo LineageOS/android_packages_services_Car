@@ -39,29 +39,45 @@
     <item target="id/primary_text" value="@id/primary_text" />
     <item target="id/secondary_text" value="@id/secondary_text"/>
     <item target="id/title" value="@id/title"/>
+
     <item target="id/recent_apps_row" value="@id/recent_apps_row"/>
     <item target="id/divider" value="@id/divider"/>
     <item target="id/top_card" value="@id/top_card"/>
+
+    <item target="id/app_item" value="@id/app_item" />
+    <item target="id/app_icon" value="@id/app_icon" />
+    <item target="id/app_name" value="@id/app_name" />
 
     <item target="id/button_trio" value="@id/button_trio"/>
     <item target="id/button_center" value="@id/button_center"/>
     <item target="id/button_left" value="@id/button_left"/>
     <item target="id/button_right" value="@id/button_right"/>
+    <item target="id/focus_area" value="@id/focus_area" />
+    <item target="id/apps_grid" value="@id/apps_grid" />
 
-
+    <item target="layout/app_item" value="@layout/app_item" />
+    <item target="layout/app_grid_activity" value="@layout/app_grid_activity" />
     <item target="layout/card_content_media" value="@layout/card_content_media" />
     <item target="layout/card_fragment" value="@layout/card_fragment" />
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
-    <item target="layout/recent_apps_row" value="@layout/recent_apps_row" />
 
     <item target="dimen/card_background_image_blur_radius" value="@dimen/card_background_image_blur_radius" />
     <item target="dimen/button_tap_target_size" value="@dimen/button_tap_target_size"/>
     <item target="dimen/recent_apps_row_height" value="@dimen/recent_apps_row_height"/>
-    <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin"/>
+    <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin_vertical"/>
+    <item target="dimen/app_grid_touch_target_size" value="@dimen/app_grid_touch_target_size"/>
+    <item target="dimen/app_touch_target_padding" value="@dimen/app_touch_target_padding"/>
+    <item target="dimen/app_touch_target_margin" value="@dimen/app_touch_target_margin"/>
+    <item target="dimen/app_icon_description_margin" value="@dimen/app_icon_description_margin"/>
 
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
+
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
 
     <item target="string/default_media_song_title" value="@string/default_media_song_title"/>
+
+    <item target="bool/car_app_show_recent_apps" value="@bool/car_app_show_recent_apps"/>
+    <item target="bool/car_app_show_toolbar" value="@bool/car_app_show_toolbar"/>
+
 </overlay>

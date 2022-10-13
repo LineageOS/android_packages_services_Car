@@ -26,6 +26,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(JUnit4.class)
 public final class JniUtilsTest {
 
@@ -43,6 +46,7 @@ public final class JniUtilsTest {
     private static final boolean BOOLEAN_VALUE = true;
     private static final double NUMBER_VALUE = 0.1;
     private static final int INT_VALUE = 10;
+    private static final int INT_VALUE_2 = 20;
     private static final String STRING_VALUE = "test";
     private static final int[] INT_ARRAY_VALUE = new int[]{1, 2, 3};
     private static final long[] LONG_ARRAY_VALUE = new long[]{1, 2, 3, 4};
@@ -69,6 +73,10 @@ public final class JniUtilsTest {
     // Simply invokes PushBundleToLuaTable native method under test.
     private native void nativePushBundleToLuaTableCaller(
             long luaEnginePtr, PersistableBundle bundle);
+
+    // Invokes pushBundleListToLuaTable native method.
+    private native void nativePushBundleListToLuaTableCaller(
+            long luaEnginePtr, List<PersistableBundle> bundleList);
 
     // Creates an instance of LuaEngine on the heap and returns the pointer.
     private native long nativeCreateLuaEngine();
@@ -103,6 +111,11 @@ public final class JniUtilsTest {
      */
     private native boolean nativeHasPersistableBundleOfStringValue(
             long luaEnginePtr, String key, String expected);
+
+    private native boolean nativeHasNumberOfTables(long luaEnginePtr, int num);
+
+    private native boolean nativeHasTableAtIndexWithIntValue(
+            long luaEnginePtr, int index, String key, int value);
 
     @Test
     public void pushBundleToLuaTable_nullBundleMakesEmptyLuaTable() {
@@ -162,10 +175,28 @@ public final class JniUtilsTest {
         // Java int and long arrays both end up being arrays of Lua's Integer type,
         // which is interpreted as a 8-byte int type.
         assertThat(nativeHasIntArrayValue(mLuaEnginePtr, INT_ARRAY_KEY, INT_ARRAY_VALUE)).isTrue();
-        assertThat(
-                nativeHasLongArrayValue(mLuaEnginePtr, LONG_ARRAY_KEY, LONG_ARRAY_VALUE)).isTrue();
-        assertThat(
-                nativeHasDoubleArrayValue(mLuaEnginePtr, DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE))
+        assertThat(nativeHasLongArrayValue(mLuaEnginePtr, LONG_ARRAY_KEY, LONG_ARRAY_VALUE))
+                .isTrue();
+        assertThat(nativeHasDoubleArrayValue(mLuaEnginePtr, DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE))
+                .isTrue();
+    }
+
+    @Test
+    public void pushBundleListToLuaTable_makesArrayOfTables() {
+        PersistableBundle bundle1 = new PersistableBundle();
+        PersistableBundle bundle2 = new PersistableBundle();
+        bundle1.putInt(INT_KEY, INT_VALUE);
+        bundle2.putInt(INT_KEY, INT_VALUE_2);
+        List<PersistableBundle> bundleList = new ArrayList<>();
+        bundleList.add(bundle1);
+        bundleList.add(bundle2);
+
+        nativePushBundleListToLuaTableCaller(mLuaEnginePtr, bundleList);
+
+        assertThat(nativeHasNumberOfTables(mLuaEnginePtr, 2)).isTrue();
+        assertThat(nativeHasTableAtIndexWithIntValue(mLuaEnginePtr, 1, INT_KEY, INT_VALUE))
+                .isTrue();
+        assertThat(nativeHasTableAtIndexWithIntValue(mLuaEnginePtr, 2, INT_KEY, INT_VALUE_2))
                 .isTrue();
     }
 
