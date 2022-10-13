@@ -103,8 +103,7 @@ public final class ActivityManagerHelper {
      */
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean unlockUser(@UserIdInt int userId) {
-        return runRemotely(() -> getActivityManager().unlockUser(userId,
-                /* token= */ null, /* secret= */ null, /* listener= */ null),
+        return runRemotely(() -> getActivityManager().unlockUser2(userId, /* listener= */ null),
                 "error while unlocking user %d", userId);
     }
 
