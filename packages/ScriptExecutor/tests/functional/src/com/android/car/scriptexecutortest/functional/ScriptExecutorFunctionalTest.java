@@ -164,21 +164,51 @@ public final class ScriptExecutorFunctionalTest {
     }
 
     @Test
-    public void invokeScript_skipsUnsupportedNestedTables()
+    public void invokeScript_supportsNestedTables()
             throws RemoteException, InterruptedException {
         String script =
                 "function nested(data, state)\n"
                         + "    result = {string=\"hello\", boolean=true, integer=1, number=1.1}\n"
-                        + "    result.nested_table = {x=0, y=0}\n"
+                        + "    result.nested_table = {x=10, y=30}\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
         runScriptAndWaitForResponse(script, "nested", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that expected error is received.
-        assertThat(mListener.mErrorType)
-                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mListener.mMessage).contains("nested tables are not supported");
+        assertThat(mListener.mInterimResult.size()).isEqualTo(5);
+        PersistableBundle nestedBundle = mListener.mInterimResult.getPersistableBundle(
+                "nested_table");
+        assertThat(nestedBundle).isNotNull();
+        assertThat(nestedBundle.getLong("x")).isEqualTo(10);
+        assertThat(nestedBundle.getLong("y")).isEqualTo(30);
+    }
+
+    @Test
+    public void invokeScript_supportsDeeplyNestedTables()
+            throws RemoteException, InterruptedException {
+        String script =
+                "function nested(data, state)\n"
+                        + "    local result = {}\n"
+                        + "    result.nested_table = {x=10, y=30}\n"
+                        + "    result.nested_table.second_nested_table = {z=100}\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "nested", mEmptyPublishedData, mEmptyIterimResult);
+
+        // Verify that expected error is received.
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        PersistableBundle nestedBundle = mListener.mInterimResult.getPersistableBundle(
+                "nested_table");
+        assertThat(nestedBundle).isNotNull();
+        assertThat(nestedBundle.size()).isEqualTo(3);
+        assertThat(nestedBundle.getLong("x")).isEqualTo(10);
+        assertThat(nestedBundle.getLong("y")).isEqualTo(30);
+        PersistableBundle secondNestedBundle = nestedBundle.getPersistableBundle(
+                "second_nested_table");
+        assertThat(secondNestedBundle.size()).isEqualTo(1);
+        assertThat(secondNestedBundle.getLong("z")).isEqualTo(100);
     }
 
     @Test
