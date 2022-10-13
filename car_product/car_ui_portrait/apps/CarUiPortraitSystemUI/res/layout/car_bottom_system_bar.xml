@@ -51,12 +51,18 @@
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/grid_nav"
                 style="@style/SystemBarButton"
-                android:background="@drawable/nav_bar_app_grid_button_background"
                 systemui:componentNames="com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity"
-                systemui:icon="@android:color/transparent"
+                systemui:icon="@drawable/car_ic_apps"
                 systemui:highlightWhenSelected="true"
                 systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
                 systemui:clearBackStack="false"/>
+
+            <com.android.systemui.car.systembar.AssitantButton
+                android:id="@+id/assist"
+                style="@style/SystemBarButton"
+                systemui:icon="@drawable/car_ic_mic"
+                systemui:highlightWhenSelected="true"
+                systemui:useDefaultAppIconForRole="true"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/standalone_notifications"
@@ -76,12 +82,6 @@
                 systemui:highlightWhenSelected="true"
                 systemui:broadcast="true"/>
 
-            <com.android.systemui.car.systembar.AssitantButton
-                android:id="@+id/assist"
-                style="@style/SystemBarButton"
-                systemui:icon="@drawable/car_ic_mic"
-                systemui:highlightWhenSelected="true"
-                systemui:useDefaultAppIconForRole="true"/>
         </LinearLayout>
 
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView

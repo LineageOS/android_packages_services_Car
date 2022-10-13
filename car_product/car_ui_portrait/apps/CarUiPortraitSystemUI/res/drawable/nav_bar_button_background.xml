@@ -24,15 +24,13 @@
                             <size android:width="@dimen/system_bar_button_size"
                                   android:height="@dimen/system_bar_button_size"/>
                             <corners
-                                android:radius="@dimen/system_bar_button_corner_radius"/>
+                                android:radius="@dimen/system_bar_button_corner_radius_selected"/>
                             <solid
-                                android:color="?android:attr/colorAccent"/>
+                                android:color="@color/car_nav_icon_background_color_selected"/>
                         </shape>
                     </item>
                 </ripple>
             </item>
-            <item android:drawable="@drawable/ic_minimize"
-                  android:gravity="center"/>
         </layer-list>
     </item>
     <item>

@@ -29,7 +29,7 @@
         <item name="android:background">@drawable/nav_bar_button_background</item>
         <item name="android:gravity">center</item>
         <item name="unselectedAlpha">1.0</item>
-        <item name="selectedAlpha">0</item>
+        <item name="selectedAlpha">1.0</item>
     </style>
 
     <style name="QCFooterButtonStyle"
