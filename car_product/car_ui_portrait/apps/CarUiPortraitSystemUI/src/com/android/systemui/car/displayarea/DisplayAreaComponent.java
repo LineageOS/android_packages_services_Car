@@ -34,7 +34,7 @@ import javax.inject.Inject;
  * Dagger Subcomponent for DisplayAreas within SysUI.
  */
 @SysUISingleton
-public class DisplayAreaComponent extends CoreStartable {
+public class DisplayAreaComponent implements CoreStartable {
     public static final String TAG = "DisplayAreaComponent";
     // action name for the intent when to update the foreground DA visibility
     public static final String DISPLAY_AREA_VISIBILITY_CHANGED =
@@ -50,7 +50,6 @@ public class DisplayAreaComponent extends CoreStartable {
     @Inject
     public DisplayAreaComponent(Context context,
             CarDisplayAreaController carDisplayAreaController) {
-        super(context);
         mContext = context;
         mCarDisplayAreaController = carDisplayAreaController;
     }
