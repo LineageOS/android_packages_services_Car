@@ -18,10 +18,15 @@ package com.google.android.car.kitchensink;
 
 import static android.car.Car.CAR_OCCUPANT_ZONE_SERVICE;
 import static android.car.Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER;
+import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.util.Log;
 
 import androidx.fragment.app.FragmentActivity;
 
@@ -29,7 +34,8 @@ import androidx.fragment.app.FragmentActivity;
  * Activity that simply shows the SimpleUserPickerFragment.
  */
 public final class UserPickerActivity extends FragmentActivity {
-    // TODO(244370727): add logging.
+    private static final String TAG = UserPickerActivity.class.getSimpleName();
+
     private Car mCar;
     private CarOccupantZoneManager mOccupantZoneManager;
 
@@ -39,9 +45,22 @@ public final class UserPickerActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        connectCar();
-        setContentView(R.layout.user_picker_activity);
+        int myUserId = UserHandle.myUserId();
+        Log.i(TAG, "onCreate userid " + myUserId);
+        if (UserHandle.myUserId() != UserHandle.USER_SYSTEM) {
+            // "Trampoline pattern": restarting itself as user 0 so the user picker can stay
+            // when the user launched the user picker logs out of the display.
+            Log.i(TAG, "onCreate re-starting self as user 0");
+            Intent selfIntent = new Intent(UserPickerActivity.this, UserPickerActivity.class)
+                    .addFlags(FLAG_ACTIVITY_MULTIPLE_TASK | FLAG_ACTIVITY_NEW_TASK);
+            startActivityAsUser(selfIntent, UserHandle.SYSTEM);
+            finish();
+        } else {
+            Log.i(TAG, "onCreate rendering user picker");
+            super.onCreate(savedInstanceState);
+            connectCar();
+            setContentView(R.layout.user_picker_activity);
+        }
     }
 
     @Override

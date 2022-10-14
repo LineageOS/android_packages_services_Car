@@ -26,6 +26,7 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
@@ -35,6 +36,7 @@ import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -44,7 +46,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
-import com.android.car.VehicleStub.IGetVehicleStubAsyncCallback;
+import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -65,6 +67,56 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PropertyHalService extends HalServiceBase {
     private static final boolean DBG = true;
+
+    private static final class AsyncGetRequestInfo {
+        private final GetPropertyServiceRequest mPropMgrRequest;
+        // The uptimeMillis when this request time out.
+        private final long mTimeoutUptimeMillis;
+        // The remaining timeout in milliseconds for this request.
+        private final long mTimeoutInMs;
+
+        AsyncGetRequestInfo(GetPropertyServiceRequest propMgrRequest,
+                long timeoutUptimeMillis, long timeoutInMs) {
+            mPropMgrRequest = propMgrRequest;
+            mTimeoutUptimeMillis = timeoutUptimeMillis;
+            mTimeoutInMs = timeoutInMs;
+        }
+
+        private int getManagerRequestId() {
+            return mPropMgrRequest.getRequestId();
+        }
+
+        public int getPropertyId() {
+            return mPropMgrRequest.getPropertyId();
+        }
+
+        public GetPropertyServiceRequest getGetPropSvcRequest() {
+            return mPropMgrRequest;
+        }
+
+        public long getTimeoutUptimeMillis() {
+            return mTimeoutUptimeMillis;
+        }
+
+        public GetVehicleStubAsyncRequest toGetVehicleStubAsyncRequest(
+                HalPropValueBuilder propValueBuilder, int serviceRequestId) {
+            int halPropertyId = managerToHalPropId(mPropMgrRequest.getPropertyId());
+            int areaId = mPropMgrRequest.getAreaId();
+            return new GetVehicleStubAsyncRequest(
+                    serviceRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
+        }
+
+        public GetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
+            return new GetValueResult(getManagerRequestId(), /* carPropertyValue= */ null,
+                    errorCode);
+        }
+
+        public GetValueResult toOkayGetValueResult(CarPropertyValue value) {
+            return new GetValueResult(getManagerRequestId(), value,
+                    CarPropertyManager.STATUS_OK);
+        }
+    };
+
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
@@ -78,7 +130,7 @@ public class PropertyHalService extends HalServiceBase {
     private final HalPropValueBuilder mPropValueBuilder;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<IBinder, IGetVehicleStubAsyncCallback>
+    private final Map<IBinder, VehicleStubCallbackInterface>
             mResultBinderToVehicleStubCallback = new ArrayMap<>();
     @GuardedBy("mLock")
     private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
@@ -88,20 +140,56 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
     @GuardedBy("mLock")
-    private final SparseArray<GetPropertyServiceRequest> mServiceRequestIdToPropertyServiceRequest =
+    private final SparseArray<AsyncGetRequestInfo> mServiceRequestIdToAsyncGetRequestInfo =
             new SparseArray<>();
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
-    private class VehicleStubCallback extends IGetVehicleStubAsyncCallback {
+    private class VehicleStubCallback extends VehicleStubCallbackInterface {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
         private final IBinder mClientBinder;
 
-        private void retryIfNotTimedOut(int serviceRequestId) {
-            // TODO(b/241060746): Implement the retry logic.
+        private void sendGetValueResults(List<GetValueResult> results) {
+            if (results.isEmpty()) {
+                return;
+            }
+            try {
+                mGetAsyncPropertyResultCallback.onGetValueResult(results);
+            } catch (RemoteException e) {
+                Slogf.w(TAG, "onGetAsyncResults: Client might have died already", e);
+            }
+        }
 
+        private void retryIfNotExpired(List<AsyncGetRequestInfo> retryRequestInfo) {
+            List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests = new ArrayList<>();
+            List<GetValueResult> timeoutResults = new ArrayList<>();
+            synchronized (mLock) {
+                // Get the current time after obtaining lock since it might take some time to get
+                // the lock.
+                long currentTimeInMillis = SystemClock.uptimeMillis();
+                for (int i = 0; i < retryRequestInfo.size(); i++) {
+                    AsyncGetRequestInfo requestInfo = retryRequestInfo.get(i);
+                    long timeoutUptimeMillis = requestInfo.getTimeoutUptimeMillis();
+                    if (timeoutUptimeMillis <= currentTimeInMillis) {
+                        // The request already expired.
+                        timeoutResults.add(requestInfo.toErrorGetValueResult(
+                                CarPropertyManager.STATUS_ERROR_TIMEOUT));
+                        continue;
+                    }
+                    long timeoutInMs = timeoutUptimeMillis - currentTimeInMillis;
+                    // Need to create a new request for the retry.
+                    AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
+                            requestInfo.getGetPropSvcRequest(), timeoutUptimeMillis, timeoutInMs);
+                    getVehicleStubAsyncRequests.add(generateGetVehicleStubAsyncRequestLocked(
+                            mPropValueBuilder, asyncGetRequestInfo));
+                }
+            }
+            sendGetValueResults(timeoutResults);
+            if (!getVehicleStubAsyncRequests.isEmpty()) {
+                mVehicleHal.getAsync(getVehicleStubAsyncRequests, this);
+            }
         }
 
         VehicleStubCallback(
@@ -119,49 +207,68 @@ public class PropertyHalService extends HalServiceBase {
         public void onGetAsyncResults(
                 List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
             List<GetValueResult> getValueResults = new ArrayList<>();
+            List<AsyncGetRequestInfo> retryRequestInfo = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
                     GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                             getVehicleStubAsyncResults.get(i);
                     int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
-                    GetPropertyServiceRequest getPropertyServiceRequest =
-                            mServiceRequestIdToPropertyServiceRequest.get(serviceRequestId);
-                    if (getPropertyServiceRequest == null) {
-                        Slogf.w(TAG,
-                                "onGetAsyncResults: Request ID: %d might have been completed or an "
-                                        + "exception might have been thrown", serviceRequestId);
+                    AsyncGetRequestInfo clientRequestInfo =
+                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
+                    if (clientRequestInfo == null) {
                         continue;
                     }
                     int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
+
                     if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
-                        retryIfNotTimedOut(serviceRequestId);
+                        // We have special logic requests that might need retry.
+                        retryRequestInfo.add(clientRequestInfo);
                         continue;
                     }
-                    mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
-                    CarPropertyValue carPropertyValue;
+
                     if (vehicleStubErrorCode != CarPropertyManager.STATUS_OK) {
-                        carPropertyValue = null;
-                    } else {
-                        int managerPropertyId = getPropertyServiceRequest.getPropertyId();
-                        HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(
-                                managerToHalPropId(managerPropertyId));
-                        carPropertyValue = getVehicleStubAsyncResult.getHalPropValue()
-                                .toCarPropertyValue(managerPropertyId, halPropConfig);
+                        // All other error results will be delivered back through callback.
+                        getValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                                vehicleStubErrorCode));
+                        continue;
                     }
-                    getValueResults.add(new GetValueResult(getPropertyServiceRequest.getRequestId(),
-                            carPropertyValue, vehicleStubErrorCode));
+
+                    // For okay status, convert the property value to the type the client expects.
+                    int managerPropertyId = clientRequestInfo.getPropertyId();
+                    HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(
+                            managerToHalPropId(managerPropertyId));
+                    CarPropertyValue carPropertyValue = getVehicleStubAsyncResult.getHalPropValue()
+                            .toCarPropertyValue(managerPropertyId, halPropConfig);
+                    getValueResults.add(clientRequestInfo.toOkayGetValueResult(carPropertyValue));
                 }
             }
-            try {
-                mGetAsyncPropertyResultCallback.onGetValueResult(getValueResults);
-            } catch (RemoteException e) {
-                Slogf.w(TAG, "onGetAsyncResults: Client might have died already %s", e);
+
+            sendGetValueResults(getValueResults);
+
+            if (!retryRequestInfo.isEmpty()) {
+                retryIfNotExpired(retryRequestInfo);
             }
         }
 
         @Override
         public void onRequestsTimeout(List<Integer> serviceRequestIds) {
-            // TODO(b/241060746): Implement this.
+            List<GetValueResult> timeoutResults = new ArrayList<>();
+            synchronized (mLock) {
+                for (int i = 0; i < serviceRequestIds.size(); i++) {
+                    int serviceRequestId = serviceRequestIds.get(i);
+                    AsyncGetRequestInfo requestInfo =
+                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
+                    if (requestInfo == null) {
+                        Slogf.w(TAG, "The request for hal svc request ID: %d timed out but no "
+                                + "pending request is found. The request may have already been "
+                                + "cancelled or finished", serviceRequestId);
+                        continue;
+                    }
+                    timeoutResults.add(requestInfo.toErrorGetValueResult(
+                            CarPropertyManager.STATUS_ERROR_TIMEOUT));
+                }
+            }
+            sendGetValueResults(timeoutResults);
         }
     }
 
@@ -179,16 +286,6 @@ public class PropertyHalService extends HalServiceBase {
         return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
     }
 
-    private GetVehicleStubAsyncRequest toGetVehicleStubAsyncRequest(int serviceRequestId,
-            GetPropertyServiceRequest getPropertyServiceRequest) {
-        int halPropertyId = managerToHalPropId(getPropertyServiceRequest.getPropertyId());
-        int areaId = getPropertyServiceRequest.getAreaId();
-        // TODO(b/241060746): Use the timeoutInMs passed from CarPropertyManager.
-        return new GetVehicleStubAsyncRequest(
-                serviceRequestId, mPropValueBuilder.build(halPropertyId, areaId),
-                /* timeoutInMs= */ 1000);
-    }
-
     // Checks if the property exists in this VHAL before calling methods in IVehicle.
     private boolean isPropertySupportedInVehicle(int halPropId) {
         synchronized (mLock) {
@@ -201,6 +298,32 @@ public class PropertyHalService extends HalServiceBase {
             throw new IllegalArgumentException("Vehicle property not supported: "
                     + VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
         }
+    }
+
+    // Generates a {@link GetVehicleStubAsyncRequest} according to a {@link AsyncGetRequestInfo}.
+    //
+    // Generates a new PropertyHalService Request ID. Associate the ID with the request and
+    // returns a {@link GetVehicleStubAsyncRequest} that could be sent to {@link VehicleStub}.
+    @GuardedBy("mLock")
+    private GetVehicleStubAsyncRequest generateGetVehicleStubAsyncRequestLocked(
+            HalPropValueBuilder propValueBuilder, AsyncGetRequestInfo asyncGetRequestInfo) {
+        int newServiceRequestId = mServiceRequestIdCounter.getAndIncrement();
+        mServiceRequestIdToAsyncGetRequestInfo.put(newServiceRequestId, asyncGetRequestInfo);
+        return asyncGetRequestInfo.toGetVehicleStubAsyncRequest(propValueBuilder,
+                newServiceRequestId);
+    }
+
+    @GuardedBy("mLock")
+    private @Nullable AsyncGetRequestInfo getAndRemovePendingAsyncGetRequestInfoLocked(
+            int serviceRequestId) {
+        AsyncGetRequestInfo requestInfo =
+                mServiceRequestIdToAsyncGetRequestInfo.get(serviceRequestId);
+        mServiceRequestIdToAsyncGetRequestInfo.remove(serviceRequestId);
+        if (requestInfo == null) {
+            Slogf.w(TAG, "onRequestsTimeout: the request for propertyHalService request "
+                    + "ID: %d already timed out or already completed", serviceRequestId);
+        }
+        return requestInfo;
     }
 
     /**
@@ -541,7 +664,8 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void getCarPropertyValuesAsync(
             List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+            long timeoutInMs) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
         List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests = new ArrayList<>();
@@ -549,16 +673,16 @@ public class PropertyHalService extends HalServiceBase {
             for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
                 GetPropertyServiceRequest getPropertyServiceRequest =
                         getPropertyServiceRequests.get(i);
-                int serviceRequestId = mServiceRequestIdCounter.getAndIncrement();
-                mServiceRequestIdToPropertyServiceRequest.put(serviceRequestId,
-                        getPropertyServiceRequest);
-                getVehicleStubAsyncRequests.add(toGetVehicleStubAsyncRequest(serviceRequestId,
-                        getPropertyServiceRequest));
+                AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
+                        getPropertyServiceRequest, SystemClock.uptimeMillis() + timeoutInMs,
+                        timeoutInMs);
+                getVehicleStubAsyncRequests.add(generateGetVehicleStubAsyncRequestLocked(
+                        mPropValueBuilder, asyncGetRequestInfo));
             }
         }
 
         IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
-        IGetVehicleStubAsyncCallback callback;
+        VehicleStubCallbackInterface callback;
         synchronized (mLock) {
             if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
                 callback = new VehicleStubCallback(getAsyncPropertyResultCallback);

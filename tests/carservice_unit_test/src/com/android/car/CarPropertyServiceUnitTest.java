@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -128,11 +129,11 @@ public final class CarPropertyServiceUnitTest {
                 SPEED_ID, 0);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
-                mGetAsyncPropertyResultCallback);
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         ArgumentCaptor<List<GetPropertyServiceRequest>> captor = ArgumentCaptor.forClass(
                 List.class);
-        verify(mHalService).getCarPropertyValuesAsync(captor.capture(), any());
+        verify(mHalService).getCarPropertyValuesAsync(captor.capture(), any(), eq(1000L));
         assertThat(captor.getValue().get(0).getRequestId()).isEqualTo(0);
         assertThat(captor.getValue().get(0).getPropertyId()).isEqualTo(SPEED_ID);
     }
@@ -144,7 +145,7 @@ public final class CarPropertyServiceUnitTest {
                 invalidPropertyID, 0);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
-                mGetAsyncPropertyResultCallback);
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
     }
 
     @Test(expected = SecurityException.class)
@@ -154,7 +155,7 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getReadPermission(SPEED_ID)).thenReturn(DENIED_PERMISSION);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
-                mGetAsyncPropertyResultCallback);
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -164,7 +165,7 @@ public final class CarPropertyServiceUnitTest {
 
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
-                mGetAsyncPropertyResultCallback);
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -173,7 +174,16 @@ public final class CarPropertyServiceUnitTest {
                 HVAC_TEMP, NOT_SUPPORTED_AREA_ID);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
-                mGetAsyncPropertyResultCallback);
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetPropertiesAsync_timeoutNotPositiveNumber() {
+        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+                SPEED_ID, 0);
+
+        mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 0);
     }
 
     @Test

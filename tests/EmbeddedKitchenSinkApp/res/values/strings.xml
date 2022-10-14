@@ -362,6 +362,12 @@
     <!-- Users -->
     <string name="users_apply_button" translatable="false">Apply</string>
 
+    <!-- User Picker -->
+    <string name="start_user_button_instruction" translatable="false">On driver display to start a selected user on a selected display</string>
+    <string name="stop_user_button_instruction" translatable="false">On passenger display for the user to log out of the display</string>
+    <string name="switch_user_button_instruction" translatable="false">On passenger display to start a selected user on that display</string>
+    <string name="refresh_button_instruction" translatable="false">On any display to refresh occupant zone assignment information</string>
+
     <!-- carapi -->
     <string name="createandconnect" translatable="false">createCarAndConnect</string>
     <string name="disconnect" translatable="false">disconnect</string>

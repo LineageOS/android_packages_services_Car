@@ -156,7 +156,7 @@ public abstract class VehicleStub {
     /**
      * A callback for async {@link VehicleStub#getAsync} when successful.
      */
-    public abstract static class IGetVehicleStubAsyncCallback {
+    public abstract static class VehicleStubCallbackInterface {
         /**
          * Method called when {@link GetVehicleStubAsyncResult} returns a result.
          */
@@ -180,7 +180,7 @@ public abstract class VehicleStub {
      * Gets a property in async.
      */
     public abstract void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback);
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback);
 
     /**
      * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
