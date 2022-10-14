@@ -17,6 +17,7 @@
 package com.android.car.audio;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -177,6 +178,30 @@ public class CarAudioPowerListenerTest {
         listener.stopListeningForPolicyChanges();
 
         verify(mMockCarPowerService).removePowerPolicyListener(captor.getValue());
+    }
+
+    @Test
+    public void isAudioEnabled_withAudioInitiallyEnabled() {
+        withAudioInitiallyEnabled();
+
+        CarAudioPowerListener listener = new CarAudioPowerListener(mMockCarAudioService,
+                mMockCarPowerService);
+        listener.startListeningForPolicyChanges();
+
+        assertWithMessage("Audio enabling status when initially enabled")
+                .that(listener.isAudioEnabled()).isTrue();
+    }
+
+    @Test
+    public void isAudioEnabled_withAudioInitiallyDisabled() {
+        withAudioInitiallyDisabled();
+
+        CarAudioPowerListener listener = new CarAudioPowerListener(mMockCarAudioService,
+                mMockCarPowerService);
+        listener.startListeningForPolicyChanges();
+
+        assertWithMessage("Audio enabling status when initially disabled")
+                .that(listener.isAudioEnabled()).isFalse();
     }
 
     private void withAudioInitiallyEnabled() {
