@@ -27,7 +27,6 @@ import static android.telephony.TelephonyManager.CALL_STATE_RINGING;
 import static com.android.car.audio.CarAudioContext.ALARM;
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.CALL_RING;
-import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.NOTIFICATION;
@@ -213,7 +212,8 @@ public class CarVolumeTest {
 
     @Test
     public void getSuggestedAudioContext_withUnprioritizedAttribute_returnsDefault() {
-        List<Integer> activePlaybackContexts = ImmutableList.of(INVALID);
+        List<Integer> activePlaybackContexts =
+                ImmutableList.of(CarAudioContext.getInvalidContext());
 
         @AudioContext int suggestedContext = mCarVolume
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,

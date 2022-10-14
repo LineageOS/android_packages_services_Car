@@ -30,7 +30,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -144,10 +143,8 @@ import java.util.Set;
         }
 
         // All contexts are assigned
-        if (contexts.size() != CarAudioContext.CONTEXTS.length) {
-            Slogf.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Slogf.e(CarLog.TAG_AUDIO, "Assigned contexts " + contexts);
-            Slogf.e(CarLog.TAG_AUDIO, "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
+        if (!CarAudioContext.validateAllAudioAttributesSupported(contexts)) {
+            Slogf.e(CarLog.TAG_AUDIO, "Some audio attributes are not assigned to group");
             return false;
         }
         return true;

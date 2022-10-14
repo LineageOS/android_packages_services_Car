@@ -97,7 +97,7 @@ final class CarVolume {
             int volumeKeyEventTimeoutMs) {
         mClock = Objects.requireNonNull(clockWrapper, "Clock must not be null.");
         mVolumeKeyEventTimeoutMs = Preconditions.checkArgumentNonnegative(volumeKeyEventTimeoutMs);
-        mLastActiveContext = CarAudioContext.INVALID;
+        mLastActiveContext = CarAudioContext.getInvalidContext();
         mLastActiveContextStartTime = mClock.uptimeMillis();
         @AudioContext int[] contextVolumePriority =
                 getContextPriorityList(audioVolumeAdjustmentContextsVersion);
@@ -124,7 +124,7 @@ final class CarVolume {
      * @see {@link CarAudioService#resetSelectedVolumeContext()}
      */
     public void resetSelectedVolumeContext() {
-        setAudioContextStillActive(CarAudioContext.INVALID);
+        setAudioContextStillActive(CarAudioContext.getInvalidContext());
     }
 
     /**
@@ -141,7 +141,7 @@ final class CarVolume {
             List<AudioAttributes> activeHalAttributes) {
 
         int activeContext = getAudioContextStillActive();
-        if (activeContext != CarAudioContext.INVALID) {
+        if (!CarAudioContext.isInvalidContextId(activeContext)) {
             setAudioContextStillActive(activeContext);
             return activeContext;
         }
@@ -237,12 +237,12 @@ final class CarVolume {
             contextStartTime = mLastActiveContextStartTime;
         }
 
-        if (context == CarAudioContext.INVALID) {
-            return CarAudioContext.INVALID;
+        if (CarAudioContext.isInvalidContextId(context)) {
+            return CarAudioContext.getInvalidContext();
         }
 
         if (hasExpired(contextStartTime, mClock.uptimeMillis(), mVolumeKeyEventTimeoutMs)) {
-            return CarAudioContext.INVALID;
+            return CarAudioContext.getInvalidContext();
         }
 
         return context;

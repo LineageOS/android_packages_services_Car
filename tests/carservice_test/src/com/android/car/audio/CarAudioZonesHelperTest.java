@@ -29,6 +29,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.util.SparseArray;
@@ -248,13 +249,13 @@ public class CarAudioZonesHelperTest {
         CarAudioZone primaryZone = zones.get(0);
         CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
         assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
-                .containsExactly(CarAudioContext.MUSIC);
+                .containsExactly(CarAudioContext.getContextForAttributes(CarAudioContext
+                        .getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)));
 
         CarAudioZone rearSeatEntertainmentZone = zones.get(2);
         CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
         List<Integer> contextForBus100List = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
-        List<Integer> contextsList =
-                Arrays.stream(CarAudioContext.CONTEXTS).boxed().collect(Collectors.toList());
+        List<Integer> contextsList = CarAudioContext.getAllContextsIds();
         assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);
     }
 

@@ -937,7 +937,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Invalid context audio device address exception")
                 .that(thrown).hasMessageThat()
-                .contains("Car audio context " + CarAudioContext.INVALID + " is invalid");
+                .contains("invalid");
     }
 
     @Test
