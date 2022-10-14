@@ -28,6 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textStyle="italic"
+        android:layout_marginBottom="5dp"
         android:text=""/>
     <View
         android:layout_width="match_parent"
@@ -37,7 +38,8 @@
         android:background="@android:color/darker_gray"/>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="5dp"
     android:orientation="horizontal" >
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                       android:layout_width="wrap_content"
@@ -73,6 +75,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_marginBottom="5dp"
                   android:orientation="horizontal" >
         <Button
             android:id="@+id/button_start_user"
@@ -89,6 +92,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_marginBottom="5dp"
                   android:orientation="horizontal" >
         <Button
             android:id="@+id/button_stop_user"
@@ -105,6 +109,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_marginBottom="5dp"
                   android:orientation="horizontal" >
         <Button
             android:id="@+id/button_switch_user"
@@ -121,6 +126,7 @@
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
+                  android:layout_marginBottom="5dp"
                   android:orientation="horizontal" >
         <Button
             android:id="@+id/button_refresh"
@@ -141,6 +147,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="32sp"
+            android:textAppearance="?android:textAppearanceLarge"
             android:text="@string/status_message_title"/>
         <TextView
             android:id="@+id/status_message_text_view"
