@@ -635,7 +635,7 @@ final class InitialUserSetter {
         TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("UnlockSystemUser");
         // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
-        // update the state and USER_SYSTEM unlock happens twice.
+        // update the state and USER_SYSTEM stays as BOOTING.
         t.traceBegin("am.startUser");
         boolean started = ActivityManagerHelper.startUserInBackground(
                 UserHandle.SYSTEM.getIdentifier());
