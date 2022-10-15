@@ -180,6 +180,4 @@
         systemui:hvacToggleOnButtonDrawable="@drawable/ic_sync_on"
         systemui:hvacTurnOffIfAutoOn="true"/>
 
-    <include
-        layout="@layout/hvac_panel_handle_bar"/>
 </com.android.systemui.car.hvac.HvacPanelView>
