@@ -16,96 +16,15 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.CarAudioContext.ALARM;
-import static com.android.car.audio.CarAudioContext.ANNOUNCEMENT;
-import static com.android.car.audio.CarAudioContext.CALL;
-import static com.android.car.audio.CarAudioContext.CALL_RING;
-import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.INVALID;
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
-import static com.android.car.audio.CarAudioContext.NOTIFICATION;
-import static com.android.car.audio.CarAudioContext.SAFETY;
-import static com.android.car.audio.CarAudioContext.SYSTEM_SOUND;
-import static com.android.car.audio.CarAudioContext.VEHICLE_STATUS;
-import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
-
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.util.ArraySet;
-import android.util.SparseArray;
-
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 final class CarDuckingUtils {
-    @VisibleForTesting
-    static final SparseArray<int[]> sContextsToDuck = new SparseArray<>();
-
-    static {
-        // INVALID ducks nothing
-        sContextsToDuck.append(INVALID, new int[0]);
-        // MUSIC ducks nothing
-        sContextsToDuck.append(MUSIC, new int[0]);
-        sContextsToDuck.append(NAVIGATION, new int[]{
-                MUSIC,
-                CALL_RING,
-                CALL,
-                ALARM,
-                NOTIFICATION,
-                SYSTEM_SOUND,
-                VEHICLE_STATUS,
-                ANNOUNCEMENT
-        });
-        sContextsToDuck.append(VOICE_COMMAND, new int[]{
-                CALL_RING
-        });
-        sContextsToDuck.append(CALL_RING, new int[0]);
-        sContextsToDuck.append(CALL, new int[]{
-                CALL_RING,
-                ALARM,
-                NOTIFICATION,
-                VEHICLE_STATUS
-        });
-        sContextsToDuck.append(ALARM, new int[]{
-                MUSIC
-        });
-        sContextsToDuck.append(NOTIFICATION, new int[]{
-                MUSIC,
-                ALARM,
-                ANNOUNCEMENT
-        });
-        sContextsToDuck.append(SYSTEM_SOUND, new int[]{
-                MUSIC,
-                ALARM,
-                ANNOUNCEMENT
-        });
-        sContextsToDuck.append(EMERGENCY, new int[]{
-                CALL
-        });
-        sContextsToDuck.append(SAFETY, new int[]{
-                MUSIC,
-                NAVIGATION,
-                VOICE_COMMAND,
-                CALL_RING,
-                CALL,
-                ALARM,
-                NOTIFICATION,
-                SYSTEM_SOUND,
-                VEHICLE_STATUS,
-                ANNOUNCEMENT
-        });
-        sContextsToDuck.append(VEHICLE_STATUS, new int[]{
-                MUSIC,
-                CALL_RING,
-                ANNOUNCEMENT
-        });
-        // ANNOUNCEMENT ducks nothing
-        sContextsToDuck.append(ANNOUNCEMENT, new int[0]);
-    }
 
     private CarDuckingUtils() {
     }
@@ -136,7 +55,6 @@ final class CarDuckingUtils {
             CarAudioZone zone) {
         Set<Integer> uniqueContexts =
                 CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
-        uniqueContexts.remove(INVALID);
         Set<Integer> contextsToDuck = getContextsToDuck(uniqueContexts);
         Set<String> addressesToDuck = getAddressesForContexts(contextsToDuck, zone);
 
@@ -174,10 +92,8 @@ final class CarDuckingUtils {
         Set<Integer> contextsToDuck = new ArraySet<>();
 
         for (Integer context : contexts) {
-            int[] duckedContexts = sContextsToDuck.get(context);
-            for (int i = 0; i < duckedContexts.length; i++) {
-                contextsToDuck.add(duckedContexts[i]);
-            }
+            List<Integer> duckedContexts = CarAudioContext.getContextsToDuck(context);
+            contextsToDuck.addAll(duckedContexts);
         }
 
         // Reduce contextsToDuck down to subset of contexts currently holding focus

@@ -32,7 +32,7 @@ import com.android.internal.util.Preconditions;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -50,7 +50,7 @@ public final class CarAudioContext {
      * Shouldn't be used
      * ::android::hardware::automotive::audiocontrol::V1_0::ContextNumber.INVALID
      */
-    static final int INVALID = 0;
+    private static final int INVALID = 0;
     /*
      * Music playback
      * ::android::hardware::automotive::audiocontrol::V1_0::ContextNumber.INVALID implicitly + 1
@@ -129,7 +129,7 @@ public final class CarAudioContext {
     public @interface AudioContext {
     }
 
-    static final int[] CONTEXTS = {
+    private static final List<Integer> CONTEXTS = List.of(
             // The items are in a sorted order
             // Starting at one
             MUSIC,
@@ -144,7 +144,29 @@ public final class CarAudioContext {
             SAFETY,
             VEHICLE_STATUS,
             ANNOUNCEMENT
-    };
+    );
+
+    // Contexts related to non-car audio system, this covers the general use case of context
+    // that would exist in the phone.
+    private static final List<Integer> NON_CAR_SYSTEM_CONTEXTS = List.of(
+            MUSIC,
+            NAVIGATION,
+            VOICE_COMMAND,
+            CALL_RING,
+            CALL,
+            ALARM,
+            NOTIFICATION,
+            SYSTEM_SOUND
+    );
+
+    // Contexts related to car audio system, this covers the general use case of context
+    // that are generally related to car system.
+    private static final List<Integer> CAR_SYSTEM_CONTEXTS = List.of(
+            EMERGENCY,
+            SAFETY,
+            VEHICLE_STATUS,
+            ANNOUNCEMENT
+    );
 
     private static final AudioAttributes[] SYSTEM_ATTRIBUTES = new AudioAttributes[] {
             getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
@@ -227,7 +249,7 @@ public final class CarAudioContext {
                     getAudioAttributeFromUsage(AudioManagerHelper.getUsageVirtualSource())
             }, "INVALID", INVALID);
 
-    private static final CarAudioContextInfo[] CAR_CONTEXT_INFO = {
+    private static final List<CarAudioContextInfo> CAR_CONTEXT_INFO = List.of(
             CAR_CONTEXT_INFO_MUSIC,
             CAR_CONTEXT_INFO_NAVIGATION,
             CAR_CONTEXT_INFO_VOICE_COMMAND,
@@ -241,20 +263,87 @@ public final class CarAudioContext {
             CAR_CONTEXT_INFO_VEHICLE_STATUS,
             CAR_CONTEXT_INFO_ANNOUNCEMENT,
             CAR_CONTEXT_INFO_INVALID
-    };
+    );
 
-    public static int[] getSystemUsages() {
+    @VisibleForTesting
+    static final SparseArray<List<Integer>> sContextsToDuck =
+            new SparseArray<>(/* initialCapacity= */ 13);
+
+    static {
+        // INVALID ducks nothing
+        sContextsToDuck.append(INVALID, Collections.emptyList());
+        // MUSIC ducks nothing
+        sContextsToDuck.append(MUSIC, Collections.emptyList());
+        sContextsToDuck.append(NAVIGATION, List.of(
+                MUSIC,
+                CALL_RING,
+                CALL,
+                ALARM,
+                NOTIFICATION,
+                SYSTEM_SOUND,
+                VEHICLE_STATUS,
+                ANNOUNCEMENT
+        ));
+        sContextsToDuck.append(VOICE_COMMAND, List.of(
+                CALL_RING
+        ));
+        sContextsToDuck.append(CALL_RING, Collections.emptyList());
+        sContextsToDuck.append(CALL, List.of(
+                CALL_RING,
+                ALARM,
+                NOTIFICATION,
+                VEHICLE_STATUS
+        ));
+        sContextsToDuck.append(ALARM, List.of(
+                MUSIC
+        ));
+        sContextsToDuck.append(NOTIFICATION, List.of(
+                MUSIC,
+                ALARM,
+                ANNOUNCEMENT
+        ));
+        sContextsToDuck.append(SYSTEM_SOUND, List.of(
+                MUSIC,
+                ALARM,
+                ANNOUNCEMENT
+        ));
+        sContextsToDuck.append(EMERGENCY, List.of(
+                CALL
+        ));
+        sContextsToDuck.append(SAFETY, List.of(
+                MUSIC,
+                NAVIGATION,
+                VOICE_COMMAND,
+                CALL_RING,
+                CALL,
+                ALARM,
+                NOTIFICATION,
+                SYSTEM_SOUND,
+                VEHICLE_STATUS,
+                ANNOUNCEMENT
+        ));
+        sContextsToDuck.append(VEHICLE_STATUS, List.of(
+                MUSIC,
+                CALL_RING,
+                ANNOUNCEMENT
+        ));
+        // ANNOUNCEMENT ducks nothing
+        sContextsToDuck.append(ANNOUNCEMENT, Collections.emptyList());
+    }
+
+    static int[] getSystemUsages() {
         return covertAttributesToUsage(SYSTEM_ATTRIBUTES);
     }
 
-    private static final SparseArray<String> CONTEXT_NAMES = new SparseArray<>(CONTEXTS.length + 1);
+    private static final SparseArray<String> CONTEXT_NAMES = new SparseArray<>(CONTEXTS.size() + 1);
     private static final SparseArray<AudioAttributes[]> CONTEXT_TO_ATTRIBUTES = new SparseArray<>();
     private static final Map<AudioAttributesWrapper, Integer> AUDIO_ATTRIBUTE_TO_CONTEXT =
             new ArrayMap<>();
+    private static final List<AudioAttributesWrapper> ALL_SUPPORTED_ATTRIBUTES = new ArrayList<>();
 
     static {
-        for (int index = 0; index < CAR_CONTEXT_INFO.length; index++) {
-            CarAudioContextInfo info = CAR_CONTEXT_INFO[index];
+        for (int index = 0; index < CAR_CONTEXT_INFO.size(); index++) {
+            CarAudioContextInfo info = CAR_CONTEXT_INFO.get(index);
             CONTEXT_NAMES.append(info.getId(), info.getName());
             CONTEXT_TO_ATTRIBUTES.put(info.getId(), info.getAudioAttributes());
 
@@ -268,6 +357,10 @@ public final class CarAudioContext {
                             attributesWrapper, mappedContext, info.getId());
                 }
                 AUDIO_ATTRIBUTE_TO_CONTEXT.put(attributesWrapper, info.getId());
+                if (isInvalidContextId(info.getId())) {
+                    continue;
+                }
+                ALL_SUPPORTED_ATTRIBUTES.add(attributesWrapper);
             }
         }
     }
@@ -331,7 +424,7 @@ public final class CarAudioContext {
      * Checks if the audio context is within the valid range from MUSIC to SYSTEM_SOUND
      */
     static void preconditionCheckAudioContext(@AudioContext int audioContext) {
-        Preconditions.checkArgument(Arrays.binarySearch(CONTEXTS, audioContext) >= 0,
+        Preconditions.checkArgument(CONTEXTS.contains(audioContext),
                 "Car audio context %d is invalid", audioContext);
     }
 
@@ -383,6 +476,7 @@ public final class CarAudioContext {
             uniqueContexts.add(getContextForAudioAttribute(audioAttributes.get(index)));
         }
 
+        uniqueContexts.remove(INVALID);
         return uniqueContexts;
     }
 
@@ -402,14 +496,6 @@ public final class CarAudioContext {
         return "Unsupported Context 0x" + Integer.toHexString(audioContext);
     }
 
-    private static int[] covertAttributesToUsage(AudioAttributes[] audioAttributes) {
-        int[] usages = new int[audioAttributes.length];
-        for (int index = 0; index < audioAttributes.length; index++) {
-            usages[index] = audioAttributes[index].getSystemUsage();
-        }
-        return usages;
-    }
-
     static List<AudioAttributes> getUniqueAttributesHoldingFocus(
             List<AudioAttributes> audioAttributes) {
         Set<AudioAttributesWrapper> uniqueAudioAttributes = new ArraySet<>();
@@ -424,6 +510,65 @@ public final class CarAudioContext {
         }
 
         return uniqueAttributes;
+    }
+
+    static List<Integer> getAllContextsIds() {
+        return CONTEXTS;
+    }
+
+    static List<Integer> getNonCarSystemContextIds() {
+        return NON_CAR_SYSTEM_CONTEXTS;
+    }
+
+    static List<Integer> getCarSystemContextIds() {
+        return CAR_SYSTEM_CONTEXTS;
+    }
+
+    static List<CarAudioContextInfo> getAllContextsInfo() {
+        return CAR_CONTEXT_INFO;
+    }
+
+    static List<Integer> getContextsToDuck(@AudioContext int context) {
+        return sContextsToDuck.get(context);
+    }
+
+    static @AudioContext int getInvalidContext() {
+        return INVALID;
+    }
+
+    static boolean isInvalidContextId(@AudioContext int id) {
+        return id == INVALID;
+    }
+
+    static boolean validateAllAudioAttributesSupported(Set<Integer> contexts) {
+        ArraySet<AudioAttributesWrapper> supportedAudioAttributes =
+                new ArraySet<>(ALL_SUPPORTED_ATTRIBUTES);
+
+        for (int context : contexts) {
+            AudioAttributes[] attributes = getAudioAttributesForContext(context);
+            List<AudioAttributesWrapper> wrappers = new ArrayList<>(attributes.length);
+            for (int index = 0; index < attributes.length; index++) {
+                wrappers.add(new AudioAttributesWrapper(attributes[index]));
+            }
+
+            supportedAudioAttributes.removeAll(wrappers);
+        }
+
+        for (int index = 0; index < supportedAudioAttributes.size(); index++) {
+            AudioAttributesWrapper wrapper =  supportedAudioAttributes.valueAt(index);
+            Slogf.e(CarLog.TAG_AUDIO,
+                    "AudioAttribute %s not supported in current configuration", wrapper);
+        }
+
+        return supportedAudioAttributes.isEmpty();
+    }
+
+    private static int[] covertAttributesToUsage(AudioAttributes[] audioAttributes) {
+        int[] usages = new int[audioAttributes.length];
+        for (int index = 0; index < audioAttributes.length; index++) {
+            usages[index] = audioAttributes[index].getSystemUsage();
+        }
+        return usages;
     }
 
     /**

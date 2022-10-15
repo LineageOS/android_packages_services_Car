@@ -37,8 +37,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,55 +73,23 @@ import java.util.stream.Collectors;
     private static final Map<String, Integer> CONTEXT_NAME_MAP;
 
     static {
-        CONTEXT_NAME_MAP = new ArrayMap<>(CarAudioContext.CONTEXTS.length);
-        CONTEXT_NAME_MAP.put("music", CarAudioContext.MUSIC);
-        CONTEXT_NAME_MAP.put("navigation", CarAudioContext.NAVIGATION);
-        CONTEXT_NAME_MAP.put("voice_command", CarAudioContext.VOICE_COMMAND);
-        CONTEXT_NAME_MAP.put("call_ring", CarAudioContext.CALL_RING);
-        CONTEXT_NAME_MAP.put("call", CarAudioContext.CALL);
-        CONTEXT_NAME_MAP.put("alarm", CarAudioContext.ALARM);
-        CONTEXT_NAME_MAP.put("notification", CarAudioContext.NOTIFICATION);
-        CONTEXT_NAME_MAP.put("system_sound", CarAudioContext.SYSTEM_SOUND);
-        CONTEXT_NAME_MAP.put("emergency", CarAudioContext.EMERGENCY);
-        CONTEXT_NAME_MAP.put("safety", CarAudioContext.SAFETY);
-        CONTEXT_NAME_MAP.put("vehicle_status", CarAudioContext.VEHICLE_STATUS);
-        CONTEXT_NAME_MAP.put("announcement", CarAudioContext.ANNOUNCEMENT);
+        List<CarAudioContextInfo> allContext = CarAudioContext.getAllContextsInfo();
+        CONTEXT_NAME_MAP = new ArrayMap<>(allContext.size());
+        for (int index = 0; index < allContext.size(); index++) {
+            CarAudioContextInfo info = allContext.get(index);
+            CONTEXT_NAME_MAP.put(info.getName().toLowerCase(), info.getId());
+        }
 
         SUPPORTED_VERSIONS = new SparseIntArray(2);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_1, SUPPORTED_VERSION_1);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_2, SUPPORTED_VERSION_2);
     }
 
-    // Same contexts as defined in android.hardware.automotive.audiocontrol.V1_0.ContextNumber
-    static final int[] LEGACY_CONTEXTS = new int[]{
-            CarAudioContext.MUSIC,
-            CarAudioContext.NAVIGATION,
-            CarAudioContext.VOICE_COMMAND,
-            CarAudioContext.CALL_RING,
-            CarAudioContext.CALL,
-            CarAudioContext.ALARM,
-            CarAudioContext.NOTIFICATION,
-            CarAudioContext.SYSTEM_SOUND
-    };
-
-    private static boolean isLegacyContext(@AudioContext int audioContext) {
-        return Arrays.binarySearch(LEGACY_CONTEXTS, audioContext) >= 0;
-    }
-
-    private static final List<Integer> NON_LEGACY_CONTEXTS = new ArrayList<>(
-            CarAudioContext.CONTEXTS.length - LEGACY_CONTEXTS.length);
-
-    static {
-        for (@AudioContext int audioContext : CarAudioContext.CONTEXTS) {
-            if (!isLegacyContext(audioContext)) {
-                NON_LEGACY_CONTEXTS.add(audioContext);
-            }
-        }
-    }
-
     static void setNonLegacyContexts(CarVolumeGroup.Builder groupBuilder,
             CarAudioDeviceInfo info) {
-        for (@AudioContext int audioContext : NON_LEGACY_CONTEXTS) {
+        List<Integer> nonCarSystemContexts = CarAudioContext.getCarSystemContextIds();
+        for (int index = 0; index < nonCarSystemContexts.size(); index++) {
+            @AudioContext int audioContext = nonCarSystemContexts.get(index);
             groupBuilder.setDeviceInfoForContext(audioContext, info);
         }
     }
@@ -484,11 +450,12 @@ import java.util.stream.Collectors;
     }
 
     private static @AudioContext int parseCarAudioContext(String context) {
-        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(), CarAudioContext.INVALID);
+        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(),
+                CarAudioContext.getInvalidContext());
     }
 
     private void validateCarAudioContextSupport(@AudioContext int audioContext) {
-        if (isVersionOne() && NON_LEGACY_CONTEXTS.contains(audioContext)) {
+        if (isVersionOne() && CarAudioContext.getCarSystemContextIds().contains(audioContext)) {
             throw new IllegalArgumentException(String.format(
                     "Non-legacy audio contexts such as %s are not supported in "
                             + "car_audio_configuration.xml version %d",

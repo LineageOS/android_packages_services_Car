@@ -33,7 +33,6 @@ import static com.android.car.audio.CarAudioContext.ANNOUNCEMENT;
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.CALL_RING;
 import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.NOTIFICATION;
@@ -47,6 +46,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.util.ArraySet;
 
@@ -61,9 +61,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioContextTest {
+
+    private static final int INVALID_CONTEXT_ID = 0;
     private static final int INVALID_CONTEXT = -5;
 
     private static final AudioAttributes UNKNOWN_USAGE_ATTRIBUTE =
@@ -87,7 +90,8 @@ public class CarAudioContextTest {
                 new AudioAttributes.Builder().setUsage(USAGE_VIRTUAL_SOURCE).build();
 
         assertWithMessage("Context for invalid audio attribute")
-                .that(CarAudioContext.getContextForAttributes(attributes)).isEqualTo(INVALID);
+                .that(CarAudioContext.getContextForAttributes(attributes))
+                .isEqualTo(CarAudioContext.getInvalidContext());
     }
 
     @Test
@@ -110,13 +114,16 @@ public class CarAudioContextTest {
 
     @Test
     public void getAudioAttributesForContext_returnsUniqueValuesForAllContexts() {
-        Set<AudioAttributes> allUsages = new ArraySet<>();
-        for (@AudioContext int audioContext : CarAudioContext.CONTEXTS) {
-            AudioAttributes[] attributes =
+        Set<CarAudioContext.AudioAttributesWrapper> allUsages = new ArraySet<>();
+        for (@AudioContext int audioContext : CarAudioContext.getAllContextsIds()) {
+            AudioAttributes[] audioAttributes =
                     CarAudioContext.getAudioAttributesForContext(audioContext);
+            List<CarAudioContext.AudioAttributesWrapper> attributesWrappers =
+                    Arrays.stream(audioAttributes).map(CarAudioContext.AudioAttributesWrapper::new)
+                            .collect(Collectors.toList());
 
-            assertWithMessage("Unique audio attributes for context %s", audioContext)
-                    .that(allUsages.addAll(Arrays.asList(attributes))).isTrue();
+            assertWithMessage("Unique audio attributes wrapper for context %s", audioContext)
+                    .that(allUsages.addAll(attributesWrappers)).isTrue();
         }
     }
 
@@ -126,6 +133,19 @@ public class CarAudioContextTest {
                 CarAudioContext.getUniqueContextsForAudioAttributes(new ArrayList<>());
 
         assertWithMessage("Empty unique context list").that(result).isEmpty();
+    }
+
+    @Test
+    public void getUniqueContextsForAudioAttribute_withInvalidElement_returnsEmptySet() {
+        Set<Integer> result =
+                CarAudioContext.getUniqueContextsForAudioAttributes(
+                        new ArrayList<>(CarAudioContext
+                                .getContextForAudioAttribute(CarAudioContext
+                                        .getAudioAttributeFromUsage(AudioManagerHelper
+                                                .getUsageVirtualSource()))));
+
+        assertWithMessage("Empty unique context list for invalid context")
+                .that(result).isEmpty();
     }
 
     @Test
@@ -202,9 +222,22 @@ public class CarAudioContextTest {
     }
 
     @Test
+    public void getUniqueAttributesHoldingFocus_withInvalidAttribute_returnsEmpty() {
+        List<AudioAttributes> audioAttributes = new ArrayList<>(/* initialCapacity= */ 1);
+        audioAttributes.add(CarAudioContext
+                .getAudioAttributeFromUsage(AudioManagerHelper.getUsageVirtualSource()));
+
+        Set<Integer> contexts =
+                CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
+
+        assertWithMessage("Unique contexts without invalid")
+                .that(contexts).isEmpty();
+    }
+
+    @Test
     public void isCriticalAudioContext_forNonCriticalContexts_returnsFalse() {
         assertWithMessage("Non-critical context INVALID")
-                .that(isCriticalAudioContext(CarAudioContext.INVALID)).isFalse();
+                .that(isCriticalAudioContext(CarAudioContext.getInvalidContext())).isFalse();
         assertWithMessage("Non-critical context MUSIC")
                 .that(isCriticalAudioContext(CarAudioContext.MUSIC)).isFalse();
         assertWithMessage("Non-critical context NAVIGATION")
@@ -418,7 +451,8 @@ public class CarAudioContextTest {
     @Test
     public void toString_forNonSystemSoundsContexts_returnsStrings() {
         assertWithMessage("Context String for INVALID")
-                .that(CarAudioContext.toString(INVALID)).isEqualTo("INVALID");
+                .that(CarAudioContext.toString(CarAudioContext.getInvalidContext()))
+                .isEqualTo("INVALID");
         assertWithMessage("Context String for MUSIC")
                 .that(CarAudioContext.toString(MUSIC)).isEqualTo("MUSIC");
         assertWithMessage("Context String for NAVIGATION")
@@ -454,5 +488,117 @@ public class CarAudioContextTest {
         assertWithMessage("Context String for invalid context")
                 .that(CarAudioContext.toString(/* context= */ -1))
                 .contains("Unsupported Context");
+    }
+
+    @Test
+    public void getAllContextIds_returnsAllContext() {
+        assertWithMessage("All context IDs")
+                .that(CarAudioContext.getAllContextsIds())
+                .containsExactly(MUSIC,
+                        NAVIGATION,
+                        VOICE_COMMAND,
+                        CALL_RING,
+                        CALL,
+                        ALARM,
+                        NOTIFICATION,
+                        SYSTEM_SOUND,
+                        EMERGENCY,
+                        SAFETY,
+                        VEHICLE_STATUS,
+                        ANNOUNCEMENT);
+    }
+
+    @Test
+    public void getAllContextIds_failsForInvalid() {
+        assertWithMessage("All context IDs")
+                .that(CarAudioContext.getAllContextsIds())
+                .doesNotContain(CarAudioContext.getInvalidContext());
+    }
+
+    @Test
+    public void getCarSystemContextIds() {
+        List<Integer> systemContextIds = CarAudioContext.getCarSystemContextIds();
+
+        assertWithMessage("Car audio system contexts")
+                .that(systemContextIds)
+                .containsExactly(EMERGENCY, SAFETY, VEHICLE_STATUS, ANNOUNCEMENT);
+    }
+
+    @Test
+    public void getNonCarSystemContextIds() {
+        List<Integer> nonCarSystemContextIds = CarAudioContext.getNonCarSystemContextIds();
+
+        assertWithMessage("Car audio non system contexts")
+                .that(nonCarSystemContextIds)
+                .containsExactly(MUSIC, NAVIGATION, VOICE_COMMAND, CALL_RING,
+                        CALL, ALARM, NOTIFICATION, SYSTEM_SOUND);
+    }
+
+    @Test
+    public void validateAllAudioAttributesSupported() {
+        Set<Integer> allContext = new ArraySet<>(CarAudioContext.getAllContextsIds());
+
+        boolean valid = CarAudioContext.validateAllAudioAttributesSupported(allContext);
+
+        assertWithMessage("All audio attributes are supported flag")
+                .that(valid).isTrue();
+    }
+
+    @Test
+    public void validateAllAudioAttributesSupported_forNonCarSystemContextsOnly_fails() {
+        Set<Integer> allContext = new ArraySet<>(CarAudioContext.getNonCarSystemContextIds());
+
+        boolean valid = CarAudioContext.validateAllAudioAttributesSupported(allContext);
+
+        assertWithMessage("Missing car audio system audio attributes are supported flag")
+                .that(valid).isFalse();
+    }
+
+    @Test
+    public void validateAllAudioAttributesSupported_forCarSystemContextsOnly_fails() {
+        Set<Integer> allContext = new ArraySet<>(CarAudioContext.getNonCarSystemContextIds());
+
+        boolean valid = CarAudioContext.validateAllAudioAttributesSupported(allContext);
+
+        assertWithMessage("Missing non car audio system audio attributes are supported flag")
+                .that(valid).isFalse();
+    }
+
+    @Test
+    public void getAllContextsInfo() {
+        Set<Integer> allContextIds =
+                new ArraySet<Integer>(CarAudioContext.getAllContextsIds());
+        allContextIds.add(CarAudioContext.getInvalidContext());
+
+        List<CarAudioContextInfo> contextInfos = CarAudioContext.getAllContextsInfo();
+
+        for (CarAudioContextInfo info : contextInfos) {
+            assertWithMessage("Context info id for %s", info)
+                    .that(info.getId()).isIn(allContextIds);
+        }
+    }
+
+    @Test
+    public void getAllContextsInfo_sameSizeAsGetAllContextsIds() {
+        Set<Integer> allContextIds =
+                new ArraySet<Integer>(CarAudioContext.getAllContextsIds());
+        allContextIds.add(CarAudioContext.getInvalidContext());
+
+        List<CarAudioContextInfo> contextInfos = CarAudioContext.getAllContextsInfo();
+
+        assertWithMessage("All contexts info size")
+                .that(contextInfos.size()).isEqualTo(allContextIds.size());
+    }
+
+    @Test
+    public void getInvalidContext() {
+        assertWithMessage("Invalid context id")
+                .that(CarAudioContext.getInvalidContext()).isEqualTo(INVALID_CONTEXT_ID);
+    }
+
+    @Test
+    public void isInvalidContext() {
+        assertWithMessage("Is invalid context id")
+                .that(CarAudioContext.isInvalidContextId(INVALID_CONTEXT_ID)).isTrue();
     }
 }

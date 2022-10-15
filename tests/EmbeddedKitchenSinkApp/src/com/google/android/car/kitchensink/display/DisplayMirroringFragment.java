@@ -22,6 +22,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.Display;
+import android.view.DisplayInfo;
 import android.view.LayoutInflater;
 import android.view.SurfaceControl;
 import android.view.SurfaceView;
@@ -48,11 +49,9 @@ public final class DisplayMirroringFragment extends Fragment {
 
     private DisplayManager mDisplayManager;
     private SurfaceControl mMirrorSurfaceControl1;
-    private SurfaceControl mMirrorSurfaceControl2;
     private boolean mMirroring;
 
     private SurfaceView mSurfaceView1;
-    private SurfaceView mSurfaceView2;
     private Spinner mDisplaySpinner;
 
     @Override
@@ -69,7 +68,7 @@ public final class DisplayMirroringFragment extends Fragment {
         View view = inflater.inflate(R.layout.display_mirroring, container, false);
 
         mSurfaceView1 = view.findViewById(R.id.surface_view_1);
-        mSurfaceView2 = view.findViewById(R.id.surface_view_2);
+        mSurfaceView1.setZOrderOnTop(true);  // SurfaceView should be placed over the App.
         mDisplaySpinner = view.findViewById(R.id.display_spinner);
 
         return view;
@@ -97,18 +96,9 @@ public final class DisplayMirroringFragment extends Fragment {
     private void startMirroring() {
         int selectedDisplayId = (Integer) mDisplaySpinner.getSelectedItem();
         mMirrorSurfaceControl1 = mirrorDisplayOnSurfaceView(selectedDisplayId, mSurfaceView1);
-        mMirrorSurfaceControl2 = mirrorDisplayOnSurfaceView(selectedDisplayId, mSurfaceView2);
-        if (mMirrorSurfaceControl1 == null && mMirrorSurfaceControl2 == null) {
+        if (mMirrorSurfaceControl1 == null) {
             Toast.makeText(getContext(), "Error while mirroring.", Toast.LENGTH_SHORT);
             return;
-        }
-        if (mMirrorSurfaceControl1 == null) {
-            Toast.makeText(getContext(), "Failed to mirror on SurfaceView1",
-                    Toast.LENGTH_SHORT);
-        }
-        if (mMirrorSurfaceControl2 == null) {
-            Toast.makeText(getContext(), "Failed to mirror on SurfaceView2",
-                    Toast.LENGTH_SHORT);
         }
         mMirroring = true;
         updateUi();
@@ -131,12 +121,8 @@ public final class DisplayMirroringFragment extends Fragment {
         if (mMirrorSurfaceControl1 != null) {
             mTransaction.remove(mMirrorSurfaceControl1);
         }
-        if (mMirrorSurfaceControl2 != null) {
-            mTransaction.remove(mMirrorSurfaceControl2);
-        }
         mTransaction.apply();
         mMirrorSurfaceControl1 = null;
-        mMirrorSurfaceControl2 = null;
     }
 
     /**
@@ -148,11 +134,19 @@ public final class DisplayMirroringFragment extends Fragment {
             Log.e(TAG, "Failed to mirror display = " + displayId);
             return null;
         }
+        Display display = mDisplayManager.getDisplay(displayId);
+        DisplayInfo displayInfo = new DisplayInfo();
+        display.getDisplayInfo(displayInfo);
+        float scaleX = (float) surfaceView.getWidth() / displayInfo.appWidth;
+        float scaleY = (float) surfaceView.getHeight() / displayInfo.appHeight;
+        float scale = Math.min(scaleX, scaleY);
+
         SurfaceControl.Transaction mTransaction = new SurfaceControl.Transaction();
         mTransaction
                 .show(mirroredSurfaceControl)
-                .setScale(mirroredSurfaceControl, 0.5f, 0.5f)
+                .setScale(mirroredSurfaceControl, scale, scale)
                 .reparent(mirroredSurfaceControl, surfaceView.getSurfaceControl())
+                .setLayer(mirroredSurfaceControl, 1)  // Place the mirrorSurface over SurfaceView.
                 .apply();
         return mirroredSurfaceControl;
     }

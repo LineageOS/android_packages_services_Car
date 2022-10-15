@@ -23,7 +23,6 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.android.car.audio.CarAudioContext.ALARM;
 import static com.android.car.audio.CarAudioContext.AudioContext;
-import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.SYSTEM_SOUND;
@@ -107,10 +106,11 @@ public class CarAudioZoneTest {
     public void getAddressForContext_throwsOnInvalidContext() {
         IllegalArgumentException thrown =
                 assertThrows(IllegalArgumentException.class,
-                        () -> mTestAudioZone.getAddressForContext(INVALID));
+                        () -> mTestAudioZone.getAddressForContext(CarAudioContext
+                                .getInvalidContext()));
 
         assertThat(thrown).hasMessageThat()
-                .contains("Car audio context " + INVALID + " is invalid");
+                .contains("is invalid");
     }
 
     @Test
