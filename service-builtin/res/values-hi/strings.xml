@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"आपके डिवाइस को मिटा दिया जाएगा"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"एडमिन ऐप्लिकेशन का इस्तेमाल नहीं किया जा सकता. आपके डिवाइस पर मौजूद डेटा अब मिटा दिया जाएगा.\n\nअगर आपको कुछ पूछना है, तो अपने संगठन के एडमिन से संपर्क करें."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g>, आपके सिस्टम की परफ़ॉर्मेंस पर असर डालता है"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"सिस्टम की परफ़ॉर्मेंस को बेहतर बनाने के लिए, ऐप्लिकेशन बंद करें. आप सेटिंग में जाकर, ऐप्लिकेशन को दोबारा चालू कर सकते हैं."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"ऐप्लिकेशन का इस्तेमाल करते रहने के लिए, उसे प्राथमिकता दें."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"सिस्टम की परफ़ॉर्मेंस को बेहतर बनाने के लिए, ऐप्लिकेशन को अनइंस्टॉल करें."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"ऐप्लिकेशन बंद करें"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"इस ऐप्लिकेशन को बैकग्राउंड में चलने से रोक दिया गया है. बैकग्राउंड में ऐप्लिकेशन का इस्तेमाल जारी रखने के लिए, उसे प्राथमिकता दें."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"बंद करें"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ऐप्लिकेशन को प्राथमिकता दें"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"ऐप्लिकेशन अनइंस्टॉल करें"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> को बंद कर दिया गया है. आप सेटिंग में जाकर, इसे दोबारा चालू कर सकते हैं."</string>
 </resources>
