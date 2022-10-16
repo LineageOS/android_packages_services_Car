@@ -553,7 +553,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
         CarUxRestrictionsConfiguration other = (CarUxRestrictionsConfiguration) obj;
 
-        return mPhysicalPort == other.mPhysicalPort
+        return Objects.equals(mPhysicalPort, other.mPhysicalPort)
                 && hasSameParameters(other)
                 && mRestrictionModes.equals(other.mRestrictionModes);
     }
