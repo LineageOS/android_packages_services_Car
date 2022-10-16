@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Vaše zariadenie bude vymazané"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Daná aplikácia na správu sa nedá použiť. Vaše zariadenie bude vymazané.\n\nV prípade otázok kontaktujte správcu organizácie."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> ovplyvňuje výkon systému"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Ak chcete zlepšiť výkon systému, deaktivujte aplikáciu. Môžete ju znova aktivovať v Nastaveniach."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Ak chcete túto aplikáciu naďalej používať, uprednostnite ju."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Ak chcete zlepšiť výkon systému, odinštalujte aplikáciu."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Deaktivovať aplikáciu"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Pre túto aplikáciu je zablokované spustenie na pozadí. Ak ju chcete naďalej používať na pozadí, nastavte ju ako prioritnú."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Zavrieť"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Uprednostniť aplikáciu"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Odinštalovať aplikáciu"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Aplikácia <xliff:g id="ID_1">^1</xliff:g> bola deaktivovaná. Môžete ju znova aktivovať v Nastaveniach."</string>
 </resources>
