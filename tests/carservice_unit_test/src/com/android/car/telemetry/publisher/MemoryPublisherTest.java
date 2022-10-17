@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.publisher;
 
-import static com.android.car.telemetry.publisher.Constants.MEMORY_BUNDLE_KEY_MEMINFO;
-import static com.android.car.telemetry.publisher.Constants.MEMORY_BUNDLE_KEY_TIMESTAMP;
 import static com.android.car.telemetry.publisher.MemoryPublisher.BUNDLE_KEY_COLLECT_INDEFINITELY;
 import static com.android.car.telemetry.publisher.MemoryPublisher.BUNDLE_KEY_NUM_SNAPSHOTS_UNTIL_FINISH;
 import static com.android.car.telemetry.publisher.MemoryPublisher.THROTTLE_MILLIS;
@@ -190,8 +188,10 @@ public class MemoryPublisherTest {
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
         verify(mMockDataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
         assertThat(mBundleCaptor.getValue().keySet().stream().collect(Collectors.toList()))
-                .containsExactly(MEMORY_BUNDLE_KEY_MEMINFO, MEMORY_BUNDLE_KEY_TIMESTAMP);
-        assertThat(mBundleCaptor.getValue().getString(MEMORY_BUNDLE_KEY_MEMINFO))
+                .containsExactly(
+                        Constants.MEMORY_BUNDLE_KEY_MEMINFO,
+                        Constants.MEMORY_BUNDLE_KEY_TIMESTAMP);
+        assertThat(mBundleCaptor.getValue().getString(Constants.MEMORY_BUNDLE_KEY_MEMINFO))
                 .isEqualTo(FAKE_MEMINFO);
     }
 
@@ -210,8 +210,8 @@ public class MemoryPublisherTest {
         verify(dataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
         assertThat(mBundleCaptor.getValue().keySet().stream().collect(Collectors.toList()))
                 .containsExactly(
-                        MEMORY_BUNDLE_KEY_MEMINFO,
-                        MEMORY_BUNDLE_KEY_TIMESTAMP,
+                        Constants.MEMORY_BUNDLE_KEY_MEMINFO,
+                        Constants.MEMORY_BUNDLE_KEY_TIMESTAMP,
                         "com.android.car:0:com.android.car");
     }
 
@@ -239,8 +239,8 @@ public class MemoryPublisherTest {
         verify(dataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
         assertThat(mBundleCaptor.getValue().keySet().stream().collect(Collectors.toList()))
                 .containsExactly(
-                        MEMORY_BUNDLE_KEY_MEMINFO,
-                        MEMORY_BUNDLE_KEY_TIMESTAMP,
+                        Constants.MEMORY_BUNDLE_KEY_MEMINFO,
+                        Constants.MEMORY_BUNDLE_KEY_TIMESTAMP,
                         "com.android.car:12345:com.android.car",
                         "com.android.car:67890:com.android.car");
     }
@@ -260,7 +260,9 @@ public class MemoryPublisherTest {
         assertThat(mPublisher.hasDataSubscriber(dataSubscriber)).isTrue();
         verify(dataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
         assertThat(mBundleCaptor.getValue().keySet().stream().collect(Collectors.toList()))
-                .containsExactly(MEMORY_BUNDLE_KEY_MEMINFO, MEMORY_BUNDLE_KEY_TIMESTAMP);
+                .containsExactly(
+                        Constants.MEMORY_BUNDLE_KEY_MEMINFO,
+                        Constants.MEMORY_BUNDLE_KEY_TIMESTAMP);
     }
 
     @Test
