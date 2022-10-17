@@ -981,6 +981,40 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .isEqualTo(DEFAULT_AUDIO_CONTEXT);
     }
 
+    @Test
+    public void isVolumeGroupMuted_noSetVolumeGroupMute() {
+        mCarAudioService.init();
+
+        assertWithMessage("Volume group mute for default state")
+                .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isFalse();
+    }
+
+    @Test
+    public void isVolumeGroupMuted_setVolumeGroupMuted_isFalse() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ true, TEST_FLAGS);
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ false, TEST_FLAGS);
+
+        assertWithMessage("Volume group muted after mute and unmute")
+                .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isFalse();
+    }
+
+    @Test
+    public void isVolumeGroupMuted_setVolumeGroupMuted_isTrue() {
+        mCarAudioService.init();
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ true, TEST_FLAGS);
+        assertWithMessage("Volume group muted after mute")
+                .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isTrue();
+    }
+
     private void mockGrantCarControlAudioSettingsPermission() {
         mockContextCheckCallingOrSelfPermission(mMockContext,
                 PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_GRANTED);
