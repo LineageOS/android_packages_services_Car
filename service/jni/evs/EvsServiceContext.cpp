@@ -219,7 +219,8 @@ bool EvsServiceContext::initialize(JNIEnv* env, jobject thiz) {
         mCarEvsServiceObj = env->NewGlobalRef(thiz);
     }
 
-    // Reset a EvsDisplay handle
+    // Reset a stored camera id and a display handle
+    mCameraIdInUse.clear();
     mDisplay = nullptr;
 
     // Fetch a list of available camera devices
@@ -316,6 +317,9 @@ void EvsServiceContext::closeCamera() {
     if (!mServiceFactory->getService()->closeCamera(mCamera).isOk()) {
         LOG(WARNING) << "Failed to close a current camera device.";
     }
+
+    // Reset a camera id in use.
+    mCameraIdInUse.clear();
 }
 
 bool EvsServiceContext::startVideoStream() {
@@ -474,6 +478,7 @@ void EvsServiceContext::onEvsServiceDiedImpl() {
             mCamera = nullptr;
             mStreamHandler = nullptr;
             mBufferRecords.clear();
+            mCameraIdInUse.clear();
             mServiceFactory.reset();
             mLinkUnlinkImpl.reset();
         }
