@@ -21,7 +21,7 @@
     android:id="@+id/card_view"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    app:cardCornerRadius="24dp"
+    app:cardCornerRadius="@dimen/car_portrait_ui_window_rounded_corner_radius"
     android:visibility="gone">
 
     <FrameLayout
@@ -38,6 +38,7 @@
             android:id="@+id/control_bar_image_container"
             android:layout_height="@dimen/control_bar_image_size"
             android:layout_width="@dimen/control_bar_image_size"
+            android:layout_gravity="center"
             android:layout_centerVertical="true"
             android:layout_marginTop="8dp"
             android:layout_marginStart="8dp">
