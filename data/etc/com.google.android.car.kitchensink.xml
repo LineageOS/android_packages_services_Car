@@ -103,5 +103,7 @@
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
         <!-- use for CarPerformanceTestFragment -->
         <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
+        <!-- use for SimpleUserPickerFragment -->
+        <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
     </privapp-permissions>
 </permissions>
