@@ -18,16 +18,6 @@ package com.android.car.telemetry.publisher;
 
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
 
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_BOOLEAN_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_BYTE_ARRAY_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_FLOAT_ARRAY_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_FLOAT_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_INT_ARRAY_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_INT_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_LONG_ARRAY_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_LONG_KEY;
-import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_STRING_KEY;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -396,7 +386,8 @@ public class VehiclePropertyPublisherTest {
 
         verify(mMockIntDataSubscriber).push(mBundleListCaptor.capture());
         assertThat(mBundleListCaptor.getValue().size()).isEqualTo(1);
-        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT)).isEqualTo(1);
     }
 
     @Test
@@ -430,51 +421,69 @@ public class VehiclePropertyPublisherTest {
         mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch delay posted messages
 
         verify(mMockStringDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_STRING_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING))
             .isEqualTo("hi");
 
         verify(mMockBoolDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getBoolean(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BOOLEAN)).isTrue();
 
         verify(mMockIntDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT)).isEqualTo(1);
 
         verify(mMockIntVecDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getIntArray(BUNDLE_INT_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getIntArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT_ARRAY))
             .isEqualTo(new int[] {1, 2});
 
         verify(mMockLongDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getLong(BUNDLE_LONG_KEY)).isEqualTo(10L);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getLong(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG)).isEqualTo(10L);
 
         verify(mMockLongVecDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getLongArray(BUNDLE_LONG_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getLongArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG_ARRAY))
             .isEqualTo(new long[] {10L, 20L});
 
         verify(mMockFloatDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(1d);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getDouble(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT)).isEqualTo(1d);
 
         verify(mMockFloatVecDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getDoubleArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT_ARRAY))
             .isEqualTo(new double[] {1d, 2d});
 
         verify(mMockBytesDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_BYTE_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BYTE_ARRAY))
             .isEqualTo(new String(new byte[] {(byte) 1, (byte) 2}, StandardCharsets.UTF_8));
 
         verify(mMockMixedDataSubscriber).push(mBundleListCaptor.capture());
-        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_STRING_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING))
             .isEqualTo("test");
-        assertThat(mBundleListCaptor.getValue().get(0).getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
-        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
-        assertThat(mBundleListCaptor.getValue().get(0).getIntArray(BUNDLE_INT_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getBoolean(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BOOLEAN)).isTrue();
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT)).isEqualTo(1);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getIntArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT_ARRAY))
             .isEqualTo(new int[] {2, 3, 4});
-        assertThat(mBundleListCaptor.getValue().get(0).getLong(BUNDLE_LONG_KEY)).isEqualTo(2L);
-        assertThat(mBundleListCaptor.getValue().get(0).getLongArray(BUNDLE_LONG_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getLong(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG)).isEqualTo(2L);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getLongArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG_ARRAY))
             .isEqualTo(new long[] {5L, 6L});
-        assertThat(mBundleListCaptor.getValue().get(0).getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(3d);
-        assertThat(mBundleListCaptor.getValue().get(0).getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getDouble(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT)).isEqualTo(3d);
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getDoubleArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT_ARRAY))
             .isEqualTo(new double[] {7d, 8d});
-        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_BYTE_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0)
+                .getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BYTE_ARRAY))
             .isEqualTo(new String(new byte[] {(byte) 5, (byte) 6}, StandardCharsets.UTF_8));
     }
 
@@ -504,11 +513,11 @@ public class VehiclePropertyPublisherTest {
         verify(mMockStringDataSubscriber).push(mBundleListCaptor.capture());
         List<PersistableBundle> bundleList = mBundleListCaptor.getValue();
         assertThat(bundleList.size()).isEqualTo(3);
-        assertThat(bundleList.get(0).getString(BUNDLE_STRING_KEY))
+        assertThat(bundleList.get(0).getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING))
             .isEqualTo("first");
-        assertThat(bundleList.get(1).getString(BUNDLE_STRING_KEY))
+        assertThat(bundleList.get(1).getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING))
             .isEqualTo("second");
-        assertThat(bundleList.get(2).getString(BUNDLE_STRING_KEY))
+        assertThat(bundleList.get(2).getString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING))
             .isEqualTo("third");
     }
 }
