@@ -16,30 +16,23 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_SONIFICATION;
+import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_CALL_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VEHICLE_STATUS;
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
+import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
-import static com.android.car.audio.CarAudioContext.ALARM;
-import static com.android.car.audio.CarAudioContext.ANNOUNCEMENT;
-import static com.android.car.audio.CarAudioContext.CALL;
-import static com.android.car.audio.CarAudioContext.CALL_RING;
-import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
-import static com.android.car.audio.CarAudioContext.NOTIFICATION;
-import static com.android.car.audio.CarAudioContext.SAFETY;
-import static com.android.car.audio.CarAudioContext.SYSTEM_SOUND;
-import static com.android.car.audio.CarAudioContext.VEHICLE_STATUS;
-import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -76,12 +69,50 @@ public class CarAudioContextTest {
     private static final AudioAttributes GAME_USAGE_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
 
+    private @CarAudioContext.AudioContext int mMediaAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private @CarAudioContext.AudioContext int mAlarmAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_ALARM));
+    private @CarAudioContext.AudioContext int mCallAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION));
+    private @CarAudioContext.AudioContext int mCallRingAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_RINGTONE));
+    private @CarAudioContext.AudioContext int mEmergencyAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
+    private @CarAudioContext.AudioContext int mNavigationAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+    private @CarAudioContext.AudioContext int mNotificationAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_NOTIFICATION));
+    private @CarAudioContext.AudioContext int mAnnouncementAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
+    private @CarAudioContext.AudioContext int mSafetyAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_SAFETY));
+    private @CarAudioContext.AudioContext int mSystemSoundAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_SONIFICATION));
+    private @CarAudioContext.AudioContext int mVehicleStatusAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_VEHICLE_STATUS));
+    private @CarAudioContext.AudioContext int mAssistantAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANT));
+
     @Test
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
 
         assertWithMessage("Context for valid audio attributes usage")
-                .that(CarAudioContext.getContextForAttributes(attributes)).isEqualTo(MUSIC);
+                .that(CarAudioContext.getContextForAttributes(attributes))
+                .isEqualTo(mMediaAudioContext);
     }
 
     @Test
@@ -96,7 +127,8 @@ public class CarAudioContextTest {
 
     @Test
     public void getAudioAttributesForContext_withValidContext_returnsAttributes() {
-        AudioAttributes[] attributes = CarAudioContext.getAudioAttributesForContext(MUSIC);
+        AudioAttributes[] attributes =
+                CarAudioContext.getAudioAttributesForContext(mMediaAudioContext);
         assertWithMessage("Music context's audio attributes")
                 .that(attributes).asList().containsExactly(UNKNOWN_USAGE_ATTRIBUTE,
                 MEDIA_USAGE_ATTRIBUTE, GAME_USAGE_ATTRIBUTE);
@@ -167,7 +199,7 @@ public class CarAudioContextTest {
         Set<Integer> result = CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
 
         assertWithMessage("Media and Game audio attribute's context")
-                .that(result).containsExactly(MUSIC);
+                .that(result).containsExactly(mMediaAudioContext);
     }
 
     @Test
@@ -181,7 +213,8 @@ public class CarAudioContextTest {
         Set<Integer> result = CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
 
         assertWithMessage("Separate audio attribute's contexts")
-                .that(result).containsExactly(MUSIC, NAVIGATION, EMERGENCY);
+                .that(result).containsExactly(mMediaAudioContext, mNavigationAudioContext,
+                        mEmergencyAudioContext);
     }
 
     @Test
@@ -204,7 +237,7 @@ public class CarAudioContextTest {
                 CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
 
         assertWithMessage("Non duplicates unique contexts set")
-                .that(contexts).containsExactly(MUSIC, NOTIFICATION);
+                .that(contexts).containsExactly(mMediaAudioContext, mNotificationAudioContext);
     }
 
     @Test
@@ -218,7 +251,8 @@ public class CarAudioContextTest {
                 CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
 
         assertWithMessage("Non duplicates unique contexts set")
-                .that(contexts).containsExactly(MUSIC, SAFETY, EMERGENCY);
+                .that(contexts).containsExactly(mMediaAudioContext, mSafetyAudioContext,
+                        mEmergencyAudioContext);
     }
 
     @Test
@@ -239,33 +273,33 @@ public class CarAudioContextTest {
         assertWithMessage("Non-critical context INVALID")
                 .that(isCriticalAudioContext(CarAudioContext.getInvalidContext())).isFalse();
         assertWithMessage("Non-critical context MUSIC")
-                .that(isCriticalAudioContext(CarAudioContext.MUSIC)).isFalse();
+                .that(isCriticalAudioContext(mMediaAudioContext)).isFalse();
         assertWithMessage("Non-critical context NAVIGATION")
-                .that(isCriticalAudioContext(CarAudioContext.NAVIGATION)).isFalse();
+                .that(isCriticalAudioContext(mNavigationAudioContext)).isFalse();
         assertWithMessage("Non-critical context VOICE_COMMAND")
-                .that(isCriticalAudioContext(VOICE_COMMAND)).isFalse();
+                .that(isCriticalAudioContext(mAssistantAudioContext)).isFalse();
         assertWithMessage("Non-critical context CALL_RING")
-                .that(isCriticalAudioContext(CarAudioContext.CALL_RING)).isFalse();
+                .that(isCriticalAudioContext(mCallRingAudioContext)).isFalse();
         assertWithMessage("Non-critical context CALL")
-                .that(isCriticalAudioContext(CarAudioContext.CALL)).isFalse();
+                .that(isCriticalAudioContext(mCallAudioContext)).isFalse();
         assertWithMessage("Non-critical context ALARM")
-                .that(isCriticalAudioContext(ALARM)).isFalse();
+                .that(isCriticalAudioContext(mAlarmAudioContext)).isFalse();
         assertWithMessage("Non-critical context NOTIFICATION")
-                .that(isCriticalAudioContext(CarAudioContext.NOTIFICATION)).isFalse();
+                .that(isCriticalAudioContext(mNotificationAudioContext)).isFalse();
         assertWithMessage("Non-critical context SYSTEM_SOUND")
-                .that(isCriticalAudioContext(SYSTEM_SOUND)).isFalse();
+                .that(isCriticalAudioContext(mSystemSoundAudioContext)).isFalse();
         assertWithMessage("Non-critical context VEHICLE_STATUS")
-                .that(isCriticalAudioContext(CarAudioContext.VEHICLE_STATUS)).isFalse();
+                .that(isCriticalAudioContext(mVehicleStatusAudioContext)).isFalse();
         assertWithMessage("Non-critical context ANNOUNCEMENT")
-                .that(isCriticalAudioContext(CarAudioContext.ANNOUNCEMENT)).isFalse();
+                .that(isCriticalAudioContext(mAnnouncementAudioContext)).isFalse();
     }
 
     @Test
     public void isCriticalAudioContext_forCriticalContexts_returnsTrue() {
         assertWithMessage("Critical context EMERGENCY")
-                .that(isCriticalAudioContext(CarAudioContext.EMERGENCY)).isTrue();
+                .that(isCriticalAudioContext(mEmergencyAudioContext)).isTrue();
         assertWithMessage("Critical context SAFETY")
-                .that(isCriticalAudioContext(CarAudioContext.SAFETY)).isTrue();
+                .that(isCriticalAudioContext(mSafetyAudioContext)).isTrue();
     }
 
     @Test
@@ -383,7 +417,7 @@ public class CarAudioContextTest {
 
     @Test
     public void isRingerOrCallContext_withCallContext_returnsTrue() {
-        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(CALL);
+        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(mCallAudioContext);
 
         assertWithMessage("Is call check")
                 .that(isRingerOrCall).isTrue();
@@ -391,7 +425,7 @@ public class CarAudioContextTest {
 
     @Test
     public void isRingerOrCallContext_withRingerContext_returnsTrue() {
-        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(CALL_RING);
+        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(mCallRingAudioContext);
 
         assertWithMessage("Is ringer check")
                 .that(isRingerOrCall).isTrue();
@@ -399,7 +433,7 @@ public class CarAudioContextTest {
 
     @Test
     public void isRingerOrCallContext_withNonCriticalContext_returnsFalse() {
-        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(MUSIC);
+        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(mMediaAudioContext);
 
         assertWithMessage("Non critical context is ringer or call check")
                 .that(isRingerOrCall).isFalse();
@@ -407,7 +441,7 @@ public class CarAudioContextTest {
 
     @Test
     public void isRingerOrCallContext_withCriticalContext_returnsFalse() {
-        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(EMERGENCY);
+        boolean isRingerOrCall = CarAudioContext.isRingerOrCallContext(mEmergencyAudioContext);
 
         assertWithMessage("Critical context is ringer or call check")
                 .that(isRingerOrCall).isFalse();
@@ -416,12 +450,12 @@ public class CarAudioContextTest {
     @Test
     public void preconditionCheckAudioContext_withNonExistentContext_throws() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
-            CarAudioContext.preconditionCheckAudioContext(-EMERGENCY);
+            CarAudioContext.preconditionCheckAudioContext(-mEmergencyAudioContext);
         });
 
         assertWithMessage("Precondition exception with non existent context check")
                 .that(thrown).hasMessageThat()
-                .contains("Car audio context " + -EMERGENCY + " is invalid");
+                .contains("Car audio context " + -mEmergencyAudioContext + " is invalid");
     }
 
     @Test
@@ -454,33 +488,38 @@ public class CarAudioContextTest {
                 .that(CarAudioContext.toString(CarAudioContext.getInvalidContext()))
                 .isEqualTo("INVALID");
         assertWithMessage("Context String for MUSIC")
-                .that(CarAudioContext.toString(MUSIC)).isEqualTo("MUSIC");
+                .that(CarAudioContext.toString(mMediaAudioContext)).isEqualTo("MUSIC");
         assertWithMessage("Context String for NAVIGATION")
-                .that(CarAudioContext.toString(NAVIGATION)).isEqualTo("NAVIGATION");
+                .that(CarAudioContext.toString(mNavigationAudioContext)).isEqualTo("NAVIGATION");
         assertWithMessage("Context String for VOICE_COMMAND")
-                .that(CarAudioContext.toString(VOICE_COMMAND)).isEqualTo("VOICE_COMMAND");
+                .that(CarAudioContext.toString(mAssistantAudioContext))
+                .isEqualTo("VOICE_COMMAND");
         assertWithMessage("Context String for CALL_RING")
-                .that(CarAudioContext.toString(CALL_RING)).isEqualTo("CALL_RING");
+                .that(CarAudioContext.toString(mCallRingAudioContext)).isEqualTo("CALL_RING");
         assertWithMessage("Context String for CALL")
-                .that(CarAudioContext.toString(CALL)).isEqualTo("CALL");
+                .that(CarAudioContext.toString(mCallAudioContext)).isEqualTo("CALL");
         assertWithMessage("Context String for ALARM")
-                .that(CarAudioContext.toString(ALARM)).isEqualTo("ALARM");
+                .that(CarAudioContext.toString(mAlarmAudioContext)).isEqualTo("ALARM");
         assertWithMessage("Context String for NOTIFICATION")
-                .that(CarAudioContext.toString(NOTIFICATION)).isEqualTo("NOTIFICATION");
+                .that(CarAudioContext.toString(mNotificationAudioContext))
+                .isEqualTo("NOTIFICATION");
     }
 
     @Test
     public void toString_forSystemSoundsContexts_returnsStrings() {
         assertWithMessage("Context String for SYSTEM_SOUND")
-                .that(CarAudioContext.toString(SYSTEM_SOUND)).isEqualTo("SYSTEM_SOUND");
+                .that(CarAudioContext.toString(mSystemSoundAudioContext))
+                .isEqualTo("SYSTEM_SOUND");
         assertWithMessage("Context String for EMERGENCY")
-                .that(CarAudioContext.toString(EMERGENCY)).isEqualTo("EMERGENCY");
+                .that(CarAudioContext.toString(mEmergencyAudioContext)).isEqualTo("EMERGENCY");
         assertWithMessage("Context String for SAFETY")
-                .that(CarAudioContext.toString(SAFETY)).isEqualTo("SAFETY");
+                .that(CarAudioContext.toString(mSafetyAudioContext)).isEqualTo("SAFETY");
         assertWithMessage("Context String for VEHICLE_STATUS")
-                .that(CarAudioContext.toString(VEHICLE_STATUS)).isEqualTo("VEHICLE_STATUS");
+                .that(CarAudioContext.toString(mVehicleStatusAudioContext))
+                .isEqualTo("VEHICLE_STATUS");
         assertWithMessage("Context String for ANNOUNCEMENT")
-                .that(CarAudioContext.toString(ANNOUNCEMENT)).isEqualTo("ANNOUNCEMENT");
+                .that(CarAudioContext.toString(mAnnouncementAudioContext))
+                .isEqualTo("ANNOUNCEMENT");
     }
 
     @Test
@@ -494,18 +533,18 @@ public class CarAudioContextTest {
     public void getAllContextIds_returnsAllContext() {
         assertWithMessage("All context IDs")
                 .that(CarAudioContext.getAllContextsIds())
-                .containsExactly(MUSIC,
-                        NAVIGATION,
-                        VOICE_COMMAND,
-                        CALL_RING,
-                        CALL,
-                        ALARM,
-                        NOTIFICATION,
-                        SYSTEM_SOUND,
-                        EMERGENCY,
-                        SAFETY,
-                        VEHICLE_STATUS,
-                        ANNOUNCEMENT);
+                .containsExactly(mMediaAudioContext,
+                        mNavigationAudioContext,
+                        mAssistantAudioContext,
+                        mCallRingAudioContext,
+                        mCallAudioContext,
+                        mAlarmAudioContext,
+                        mNotificationAudioContext,
+                        mSystemSoundAudioContext,
+                        mEmergencyAudioContext,
+                        mSafetyAudioContext,
+                        mVehicleStatusAudioContext,
+                        mAnnouncementAudioContext);
     }
 
     @Test
@@ -521,7 +560,8 @@ public class CarAudioContextTest {
 
         assertWithMessage("Car audio system contexts")
                 .that(systemContextIds)
-                .containsExactly(EMERGENCY, SAFETY, VEHICLE_STATUS, ANNOUNCEMENT);
+                .containsExactly(mEmergencyAudioContext, mSafetyAudioContext,
+                        mVehicleStatusAudioContext, mAnnouncementAudioContext);
     }
 
     @Test
@@ -530,8 +570,9 @@ public class CarAudioContextTest {
 
         assertWithMessage("Car audio non system contexts")
                 .that(nonCarSystemContextIds)
-                .containsExactly(MUSIC, NAVIGATION, VOICE_COMMAND, CALL_RING,
-                        CALL, ALARM, NOTIFICATION, SYSTEM_SOUND);
+                .containsExactly(mMediaAudioContext, mNavigationAudioContext,
+                        mAssistantAudioContext, mCallRingAudioContext, mCallAudioContext,
+                        mAlarmAudioContext, mNotificationAudioContext, mSystemSoundAudioContext);
     }
 
     @Test
