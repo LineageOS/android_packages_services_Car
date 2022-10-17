@@ -41,6 +41,12 @@ using ::android::base::Result;
 // integer, double and String types in Java.
 void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle);
 
+// Helper function that takes list of android.os.Bundle object in "bundleList"
+// argument and converts it to Lua table on top of the Lua stack. The Lua table
+// will be an array of converted android.os.Bundle objects in Lua table form,
+// each having the key-value pairs as converted by pushBundleToLuaTable.
+void pushBundleListToLuaTable(JNIEnv* env, lua_State* lua, jobject bundleList);
+
 // Helper function that goes over Lua table fields one by one and populates PersistableBundle
 // object wrapped in BundleWrapper.
 // It is assumed that Lua table is located on top of the Lua stack. There could be other
