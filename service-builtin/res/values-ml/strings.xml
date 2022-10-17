@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ഈ ആപ്പ് പശ്ചാത്തലത്തിൽ പ്രവർത്തിക്കുന്നത് തടഞ്ഞിരിക്കുന്നു. പശ്ചാത്തല ഉപയോഗം തുടരുന്നതിന് ആപ്പിന് മുൻഗണന നൽകുക."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"അടയ്ക്കുക"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ആപ്പിന് മുൻഗണന നൽകുക"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> പ്രവർത്തനരഹിതമാക്കി. ക്രമീകരണത്തിൽ ഇത് നിങ്ങൾക്ക് വീണ്ടും പ്രവർത്തനക്ഷമമാക്കാം."</string>
 </resources>

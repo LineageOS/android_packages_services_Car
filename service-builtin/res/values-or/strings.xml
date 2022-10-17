@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ପୃଷ୍ଠପଟରେ ଚାଲିବାରୁ ଏହି ଆପକୁ ପ୍ରତିରୋଧ କରାଯାଇଛି। ପୃଷ୍ଠପଟ ବ୍ୟବହାର ଜାରି ରଖିବା ପାଇଁ ଆପକୁ ପ୍ରାଥମିକତା ଦିଅନ୍ତୁ।"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ଆପକୁ ପ୍ରାଥମିକତା ଦିଅନ୍ତୁ"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g>କୁ ଅକ୍ଷମ କରିଦିଆଯାଇଛି। ଆପଣ ସେଟିଂସରେ ପୁଣି ଏହାକୁ ସକ୍ଷମ କରିପାରିବେ।"</string>
 </resources>

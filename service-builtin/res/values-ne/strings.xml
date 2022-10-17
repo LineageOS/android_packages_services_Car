@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"यो एपलाई ब्याकग्राउन्डमा चल्नबाट रोकिएको छ। तपाईं यो एप ब्याकग्राउन्डमा चलाइरहन चाहनुहुन्छ भने यसलाई प्राथमिकता दिनुहोस्।"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"बन्द गर्नुहोस्"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"एपलाई प्राथमिकता दिनुहोस्"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> अफ गरिएको छ। तपाईं सेटिङमा गई यो एप फेरि अन गर्न सक्नुहुन्छ।"</string>
 </resources>

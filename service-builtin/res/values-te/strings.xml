@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ఈ యాప్ బ్యాక్‌గ్రౌండ్‌లో రన్ కాకుండా నిరోధించబడింది. బ్యాక్‌గ్రౌండ్ వినియోగాన్ని కొనసాగించడానికి యాప్‌నకు ప్రాధాన్యత ఇవ్వండి."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"మూసివేయండి"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"యాప్‌నకు ప్రాధాన్యత ఇవ్వండి"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> డిజేబుల్ చేయబడింది. మీరు సెట్టింగ్‌లలో దీన్ని మళ్లీ ఎనేబుల్ చేయవచ్చు."</string>
 </resources>
