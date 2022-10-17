@@ -19,9 +19,6 @@ package com.android.car.audio;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NOTIFICATION;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -65,6 +62,13 @@ public class CarHalAudioUtilsTest {
     private static final String[] USAGES_LITERAL_HOLDING_FOCUS = {
         AudioUsage.AUDIO_USAGE_MEDIA.toString(), AudioUsage.AUDIO_USAGE_NOTIFICATION.toString()
     };
+
+    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private static final @CarAudioContext.AudioContext int TEST_NOTIFICATION_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_NOTIFICATION));
 
     private final List<PlaybackTrackMetadata> mPlaybackTrackMetadataHoldingFocus =
             new ArrayList<>();
@@ -264,8 +268,9 @@ public class CarHalAudioUtilsTest {
     private static CarAudioZone generateZoneMock() {
         CarAudioZone zone = mock(CarAudioZone.class);
         when(zone.getId()).thenReturn(ZONE_ID);
-        when(zone.getAddressForContext(MUSIC)).thenReturn(MEDIA_ADDRESS);
-        when(zone.getAddressForContext(NOTIFICATION)).thenReturn(NOTIFICATION_ADDRESS);
+        when(zone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT)).thenReturn(MEDIA_ADDRESS);
+        when(zone.getAddressForContext(TEST_NOTIFICATION_AUDIO_CONTEXT))
+                .thenReturn(NOTIFICATION_ADDRESS);
         return zone;
     }
 }
