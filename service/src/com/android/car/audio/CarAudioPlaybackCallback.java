@@ -16,20 +16,19 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.CarAudioContext.AudioContext;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 import static com.android.car.audio.CarAudioUtils.hasExpired;
 
 import android.annotation.NonNull;
+import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
-import android.util.SparseLongArray;
+import android.util.ArrayMap;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -37,9 +36,10 @@ import java.util.Objects;
 final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final SparseLongArray mContextStartTime = new SparseLongArray();
+    private final ArrayMap<AudioAttributes, Long> mAudioAttributesStartTime = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final Map<String, AudioPlaybackConfiguration> mLastActiveConfigs = new HashMap<>();
+    private final ArrayMap<String, AudioPlaybackConfiguration> mLastActiveConfigs =
+            new ArrayMap<>();
     private final CarAudioZone mCarPrimaryAudioZone;
     private final SystemClockWrapper mClock;
     private final int mVolumeKeyEventTimeoutMs;
@@ -54,7 +54,7 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
 
     @Override
     public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configurations) {
-        Map<String, AudioPlaybackConfiguration> newActiveConfigs =
+        ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs =
                 filterNewActiveConfiguration(configurations);
 
         synchronized (mLock) {
@@ -73,9 +73,9 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
      * @return all active audio contexts, including those that recently became inactive but are
      * considered active due to the audio playback timeout.
      */
-    public List<Integer> getAllActiveContextsForPrimaryZone() {
+    public List<AudioAttributes> getAllActiveAudioAttributesForPrimaryZone() {
         synchronized (mLock) {
-            List<Integer> activeContexts = getCurrentlyActiveContextsLocked();
+            List<AudioAttributes> activeContexts = getCurrentlyActiveAttributesLocked();
             activeContexts
                     .addAll(getStillActiveContextAndRemoveExpiredContextsLocked());
             return activeContexts;
@@ -85,11 +85,11 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
     @GuardedBy("mLock")
     private void startTimersForContextThatBecameInactiveLocked(
             List<AudioPlaybackConfiguration> inactiveConfigs) {
-        List<Integer> activeContexts = mCarPrimaryAudioZone
-                .findActiveContextsFromPlaybackConfigurations(inactiveConfigs);
+        List<AudioAttributes> activeAttributes = mCarPrimaryAudioZone
+                .findActiveAudioAttributesFromPlaybackConfigurations(inactiveConfigs);
 
-        for (int activeContext : activeContexts) {
-            mContextStartTime.put(activeContext, mClock.uptimeMillis());
+        for (int index = 0; index < inactiveConfigs.size(); index++) {
+            mAudioAttributesStartTime.put(activeAttributes.get(index), mClock.uptimeMillis());
         }
     }
 
@@ -97,18 +97,19 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
     private List<AudioPlaybackConfiguration> getNewlyInactiveConfigurationsLocked(
             Map<String, AudioPlaybackConfiguration> newActiveConfigurations) {
         List<AudioPlaybackConfiguration> newlyInactiveConfigurations = new ArrayList<>();
-        for (String address : mLastActiveConfigs.keySet()) {
-            if (newActiveConfigurations.containsKey(address)) {
+        for (int index = 0; index < mLastActiveConfigs.size(); index++) {
+            if (newActiveConfigurations
+                    .containsKey(mLastActiveConfigs.keyAt(index))) {
                 continue;
             }
-            newlyInactiveConfigurations.add(mLastActiveConfigs.get(address));
+            newlyInactiveConfigurations.add(mLastActiveConfigs.valueAt(index));
         }
         return newlyInactiveConfigurations;
     }
 
-    private Map<String, AudioPlaybackConfiguration> filterNewActiveConfiguration(
+    private ArrayMap<String, AudioPlaybackConfiguration> filterNewActiveConfiguration(
             List<AudioPlaybackConfiguration> configurations) {
-        Map<String, AudioPlaybackConfiguration> newActiveConfigs = new HashMap<>();
+        ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs = new ArrayMap<>();
         for (int index = 0; index < configurations.size(); index++) {
             AudioPlaybackConfiguration configuration = configurations.get(index);
             if (!configuration.isActive()) {
@@ -124,34 +125,33 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
     }
 
     @GuardedBy("mLock")
-    private List<Integer> getCurrentlyActiveContextsLocked() {
-        return mCarPrimaryAudioZone.findActiveContextsFromPlaybackConfigurations(
+    private List<AudioAttributes> getCurrentlyActiveAttributesLocked() {
+        return mCarPrimaryAudioZone.findActiveAudioAttributesFromPlaybackConfigurations(
                 new ArrayList<>(mLastActiveConfigs.values()));
     }
 
     @GuardedBy("mLock")
-    private List<Integer> getStillActiveContextAndRemoveExpiredContextsLocked() {
-        List<Integer> contextsToRemove = new ArrayList<>();
-        List<Integer> stillActiveContexts = new ArrayList<>();
-        for (int index = 0; index < mContextStartTime.size(); index++) {
-            @AudioContext int context = mContextStartTime.keyAt(index);
-            if (hasExpired(mContextStartTime.valueAt(index),
-                    mClock.uptimeMillis(), mVolumeKeyEventTimeoutMs)) {
-                contextsToRemove.add(context);
+    private List<AudioAttributes> getStillActiveContextAndRemoveExpiredContextsLocked() {
+        List<AudioAttributes> attributesToRemove = new ArrayList<>();
+        List<AudioAttributes> activeAttributes = new ArrayList<>();
+        for (int index = 0; index < mAudioAttributesStartTime.size(); index++) {
+            long startTime = mAudioAttributesStartTime.valueAt(index);
+            if (hasExpired(startTime, mClock.uptimeMillis(), mVolumeKeyEventTimeoutMs)) {
+                attributesToRemove.add(mAudioAttributesStartTime.keyAt(index));
                 continue;
             }
-            stillActiveContexts.add(context);
+            activeAttributes.add(mAudioAttributesStartTime.keyAt(index));
         }
 
-        for (int indexToRemove = 0; indexToRemove < contextsToRemove.size(); indexToRemove++) {
-            mContextStartTime.delete(contextsToRemove.get(indexToRemove));
+        for (int indexToRemove = 0; indexToRemove < attributesToRemove.size(); indexToRemove++) {
+            mAudioAttributesStartTime.remove(attributesToRemove.get(indexToRemove));
         }
-        return stillActiveContexts;
+        return activeAttributes;
     }
 
     void resetStillActiveContexts() {
         synchronized (mLock) {
-            mContextStartTime.clear();
+            mAudioAttributesStartTime.clear();
         }
     }
 }

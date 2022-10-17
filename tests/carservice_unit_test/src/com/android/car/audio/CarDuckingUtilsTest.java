@@ -18,17 +18,13 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_CALL_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
-
-import static com.android.car.audio.CarAudioContext.CALL;
-import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -57,6 +53,19 @@ public class CarDuckingUtilsTest {
     private static final String EMERGENCY_ADDRESS = "emergency";
     private static final String CALL_ADDRESS = "call";
     private static final String NAVIGATION_ADDRESS = "navigation";
+
+    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private static final @CarAudioContext.AudioContext int TEST_EMERGENCY_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
+    private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+    private static final @CarAudioContext.AudioContext int TEST_CALL_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_CALL_ASSISTANT));
 
     private static final int ZONE_ID = 0;
 
@@ -346,13 +355,14 @@ public class CarDuckingUtilsTest {
 
     private static CarAudioZone generateAudioZoneMock() {
         CarAudioZone mockZone = mock(CarAudioZone.class);
-        when(mockZone.getAddressForContext(MUSIC)).thenReturn(MEDIA_ADDRESS);
-        when(mockZone.getAddressForContext(EMERGENCY)).thenReturn(EMERGENCY_ADDRESS);
-        when(mockZone.getAddressForContext(CALL)).thenReturn(CALL_ADDRESS);
-        when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
+        when(mockZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT)).thenReturn(MEDIA_ADDRESS);
+        when(mockZone.getAddressForContext(TEST_EMERGENCY_AUDIO_CONTEXT))
+                .thenReturn(EMERGENCY_ADDRESS);
+        when(mockZone.getAddressForContext(TEST_CALL_AUDIO_CONTEXT)).thenReturn(CALL_ADDRESS);
+        when(mockZone.getAddressForContext(TEST_NAVIGATION_AUDIO_CONTEXT))
+                .thenReturn(NAVIGATION_ADDRESS);
         when(mockZone.getAddressForContext(CarAudioContext.getInvalidContext()))
                 .thenThrow(new IllegalArgumentException());
-        when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
 
         return mockZone;
     }

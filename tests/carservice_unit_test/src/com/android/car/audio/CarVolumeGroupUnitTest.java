@@ -16,13 +16,14 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.CarAudioContext.ALARM;
-import static com.android.car.audio.CarAudioContext.CALL;
-import static com.android.car.audio.CarAudioContext.CALL_RING;
-import static com.android.car.audio.CarAudioContext.EMERGENCY;
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
-import static com.android.car.audio.CarAudioContext.NOTIFICATION;
+import static android.media.AudioAttributes.USAGE_ALARM;
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_EMERGENCY;
+import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -70,6 +71,28 @@ public class CarVolumeGroupUnitTest {
     private static final String NAVIGATION_DEVICE_ADDRESS = "navigation";
     private static final String OTHER_ADDRESS = "other_address";
 
+    private @CarAudioContext.AudioContext int mMediaAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private @CarAudioContext.AudioContext int mAlarmAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_ALARM));
+    private @CarAudioContext.AudioContext int mCallAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION));
+    private @CarAudioContext.AudioContext int mCallRingAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_RINGTONE));
+    private @CarAudioContext.AudioContext int mEmergencyAudioContext =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
+    private @CarAudioContext.AudioContext int mNavigationAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+    private @CarAudioContext.AudioContext int mNotificationAudioContext =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_NOTIFICATION));
+
     private CarAudioDeviceInfo mMediaDeviceInfo;
     private CarAudioDeviceInfo mNavigationDeviceInfo;
 
@@ -86,8 +109,8 @@ public class CarVolumeGroupUnitTest {
     public void setDeviceInfoForContext_associatesDeviceAddresses() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
-        builder.setDeviceInfoForContext(NAVIGATION, mNavigationDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, mNavigationDeviceInfo);
         CarVolumeGroup carVolumeGroup = builder.build();
 
         assertWithMessage("%s and %s", MEDIA_DEVICE_ADDRESS, NAVIGATION_DEVICE_ADDRESS)
@@ -99,23 +122,25 @@ public class CarVolumeGroupUnitTest {
     public void setDeviceInfoForContext_associatesContexts() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
-        builder.setDeviceInfoForContext(NAVIGATION, mNavigationDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, mNavigationDeviceInfo);
         CarVolumeGroup carVolumeGroup = builder.build();
 
-        assertWithMessage("Music[%s] and Navigation[%s] Context", MUSIC, NAVIGATION)
-                .that(carVolumeGroup.getContexts()).asList().containsExactly(MUSIC, NAVIGATION);
+        assertWithMessage("Music[%s] and Navigation[%s] Context",
+                mMediaAudioContext, mNavigationAudioContext)
+                .that(carVolumeGroup.getContexts()).asList()
+                .containsExactly(mMediaAudioContext, mNavigationAudioContext);
     }
 
     @Test
     public void setDeviceInfoForContext_withDifferentStepSize_throws() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo differentStepValueDevice = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setStepValue(mMediaDeviceInfo.getStepValue() + 1).build();
 
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
-                () -> builder.setDeviceInfoForContext(NAVIGATION,
+                () -> builder.setDeviceInfoForContext(mNavigationAudioContext,
                         differentStepValueDevice));
 
         assertWithMessage("setDeviceInfoForContext failure for different step size")
@@ -126,11 +151,10 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_withSameContext_throws() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
 
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
-                () -> builder.setDeviceInfoForContext(MUSIC,
-                        mNavigationDeviceInfo));
+                () -> builder.setDeviceInfoForContext(mMediaAudioContext,  mNavigationDeviceInfo));
 
         assertWithMessage("setDeviceInfoForSameContext failure for repeated context")
                 .that(thrown).hasMessageThat().contains("has already been set to");
@@ -140,7 +164,7 @@ public class CarVolumeGroupUnitTest {
     public void setDeviceInfoForContext_withFirstCall_setsMinGain() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
 
         assertWithMessage("Min Gain from builder")
                 .that(builder.mMinGain).isEqualTo(mMediaDeviceInfo.getMinGain());
@@ -150,7 +174,7 @@ public class CarVolumeGroupUnitTest {
     public void setDeviceInfoForContext_withFirstCall_setsMaxGain() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
 
         assertWithMessage("Max Gain from builder")
                 .that(builder.mMaxGain).isEqualTo(mMediaDeviceInfo.getMaxGain());
@@ -160,7 +184,7 @@ public class CarVolumeGroupUnitTest {
     public void setDeviceInfoForContext_withFirstCall_setsDefaultGain() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
 
         assertWithMessage("Default Gain from builder")
                 .that(builder.mDefaultGain).isEqualTo(mMediaDeviceInfo.getDefaultGain());
@@ -169,11 +193,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithSmallerMinGain_updatesMinGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setMinGain(mMediaDeviceInfo.getMinGain() - 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("Second, smaller min gain from builder")
                 .that(builder.mMinGain).isEqualTo(secondInfo.getMinGain());
@@ -182,11 +206,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithLargerMinGain_keepsFirstMinGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setMinGain(mMediaDeviceInfo.getMinGain() + 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("First, smaller min gain from builder")
                 .that(builder.mMinGain).isEqualTo(mMediaDeviceInfo.getMinGain());
@@ -195,11 +219,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithLargerMaxGain_updatesMaxGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setMaxGain(mMediaDeviceInfo.getMaxGain() + 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("Second, larger max gain from builder")
                 .that(builder.mMaxGain).isEqualTo(secondInfo.getMaxGain());
@@ -208,11 +232,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithSmallerMaxGain_keepsFirstMaxGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setMaxGain(mMediaDeviceInfo.getMaxGain() - 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("First, larger max gain from builder")
                 .that(builder.mMaxGain).isEqualTo(mMediaDeviceInfo.getMaxGain());
@@ -221,11 +245,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithLargerDefaultGain_updatesDefaultGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setDefaultGain(mMediaDeviceInfo.getDefaultGain() + 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("Second, larger default gain from builder")
                 .that(builder.mDefaultGain).isEqualTo(secondInfo.getDefaultGain());
@@ -234,11 +258,11 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void setDeviceInfoForContext_SecondCallWithSmallerDefaultGain_keepsFirstDefaultGain() {
         CarVolumeGroup.Builder builder = getBuilder();
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
         CarAudioDeviceInfo secondInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setDefaultGain(mMediaDeviceInfo.getDefaultGain() - 1).build();
 
-        builder.setDeviceInfoForContext(NAVIGATION, secondInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, secondInfo);
 
         assertWithMessage("Second, smaller default gain from builder")
                 .that(builder.mDefaultGain).isEqualTo(mMediaDeviceInfo.getDefaultGain());
@@ -257,7 +281,7 @@ public class CarVolumeGroupUnitTest {
 
     @Test
     public void builderBuild_withNoStoredGain_usesDefaultGain() {
-        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(MUSIC,
+        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(mMediaAudioContext,
                 mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
                 GROUP_ID)).thenReturn(-1);
@@ -271,7 +295,7 @@ public class CarVolumeGroupUnitTest {
 
     @Test
     public void builderBuild_withTooLargeStoredGain_usesDefaultGain() {
-        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(MUSIC,
+        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(mMediaAudioContext,
                 mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
                 GROUP_ID)).thenReturn(MAX_GAIN_INDEX + 1);
@@ -284,7 +308,7 @@ public class CarVolumeGroupUnitTest {
 
     @Test
     public void builderBuild_withTooSmallStoredGain_usesDefaultGain() {
-        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(MUSIC,
+        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(mMediaAudioContext,
                 mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
                 GROUP_ID)).thenReturn(MIN_GAIN_INDEX - 1);
@@ -297,7 +321,7 @@ public class CarVolumeGroupUnitTest {
 
     @Test
     public void builderBuild_withValidStoredGain_usesStoredGain() {
-        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(MUSIC,
+        CarVolumeGroup.Builder builder = getBuilder().setDeviceInfoForContext(mMediaAudioContext,
                 mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
                 GROUP_ID)).thenReturn(MAX_GAIN_INDEX - 1);
@@ -313,7 +337,7 @@ public class CarVolumeGroupUnitTest {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
         assertWithMessage("Supported context's address")
-                .that(carVolumeGroup.getAddressForContext(MUSIC))
+                .that(carVolumeGroup.getAddressForContext(mMediaAudioContext))
                 .isEqualTo(mMediaDeviceInfo.getAddress());
     }
 
@@ -322,7 +346,7 @@ public class CarVolumeGroupUnitTest {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
         assertWithMessage("Unsupported context's address")
-                .that(carVolumeGroup.getAddressForContext(NAVIGATION)).isNull();
+                .that(carVolumeGroup.getAddressForContext(mNavigationAudioContext)).isNull();
     }
 
     @Test
@@ -390,8 +414,8 @@ public class CarVolumeGroupUnitTest {
         List<Integer> contextsList = carVolumeGroup.getContextsForAddress(MEDIA_DEVICE_ADDRESS);
 
         assertWithMessage("Contexts for bounded address %s", MEDIA_DEVICE_ADDRESS)
-                .that(contextsList).containsExactly(MUSIC,
-                CALL, CALL_RING);
+                .that(contextsList).containsExactly(mMediaAudioContext,
+                        mCallAudioContext, mCallRingAudioContext);
     }
 
     @Test
@@ -545,7 +569,7 @@ public class CarVolumeGroupUnitTest {
     @Test
     public void hasCriticalAudioContexts_withCriticalContexts_returnsTrue() {
         CarVolumeGroup carVolumeGroup = getBuilder()
-                .setDeviceInfoForContext(EMERGENCY, mMediaDeviceInfo)
+                .setDeviceInfoForContext(mEmergencyAudioContext, mMediaDeviceInfo)
                 .build();
 
         assertWithMessage("Group with critical audio context")
@@ -1111,14 +1135,14 @@ public class CarVolumeGroupUnitTest {
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
         return getBuilder()
-                .setDeviceInfoForContext(MUSIC, mMediaDeviceInfo)
+                .setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo)
                 .build();
     }
 
     private CarVolumeGroup getCarVolumeGroupWithNavigationBound(CarAudioSettings settings,
             boolean useCarVolumeGroupMute) {
         return new CarVolumeGroup.Builder(0, 0, settings, useCarVolumeGroupMute)
-                .setDeviceInfoForContext(NAVIGATION, mNavigationDeviceInfo)
+                .setDeviceInfoForContext(mNavigationAudioContext, mNavigationDeviceInfo)
                 .build();
     }
 
@@ -1134,13 +1158,13 @@ public class CarVolumeGroupUnitTest {
     private CarVolumeGroup testVolumeGroupSetup() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
-        builder.setDeviceInfoForContext(CALL, mMediaDeviceInfo);
-        builder.setDeviceInfoForContext(CALL_RING, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mMediaAudioContext, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mCallAudioContext, mMediaDeviceInfo);
+        builder.setDeviceInfoForContext(mCallRingAudioContext, mMediaDeviceInfo);
 
-        builder.setDeviceInfoForContext(NAVIGATION, mNavigationDeviceInfo);
-        builder.setDeviceInfoForContext(ALARM, mNavigationDeviceInfo);
-        builder.setDeviceInfoForContext(NOTIFICATION, mNavigationDeviceInfo);
+        builder.setDeviceInfoForContext(mNavigationAudioContext, mNavigationDeviceInfo);
+        builder.setDeviceInfoForContext(mAlarmAudioContext, mNavigationDeviceInfo);
+        builder.setDeviceInfoForContext(mNotificationAudioContext, mNavigationDeviceInfo);
 
         return builder.build();
     }

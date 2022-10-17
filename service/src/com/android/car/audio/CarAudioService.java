@@ -54,7 +54,6 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
-import android.media.AudioPlaybackConfiguration;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
@@ -954,8 +953,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 "Invalid audio zone id %d", zoneId);
 
         return CarVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
-                getActiveContextsFromPlaybackConfigurations(zoneId), getCallStateForZone(zoneId),
-                getActiveHalAudioAttributesForZone(zoneId));
+                getActiveAttributesFromPlaybackConfigurations(zoneId),
+                getCallStateForZone(zoneId), getActiveHalAudioAttributesForZone(zoneId));
     }
 
     /**
@@ -973,10 +972,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return TelephonyManager.CALL_STATE_IDLE;
     }
 
-    private List<Integer> getActiveContextsFromPlaybackConfigurations(int zoneId) {
-        List<AudioPlaybackConfiguration> configurations = mAudioManager
-                .getActivePlaybackConfigurations();
-        return getCarAudioZone(zoneId).findActiveContextsFromPlaybackConfigurations(configurations);
+    private List<AudioAttributes> getActiveAttributesFromPlaybackConfigurations(int zoneId) {
+        return getCarAudioZone(zoneId)
+                .findActiveAudioAttributesFromPlaybackConfigurations(mAudioManager
+                        .getActivePlaybackConfigurations());
     }
 
 
@@ -1307,7 +1306,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @AudioContext int getSuggestedAudioContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
         return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
-                getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
+                getAllActiveAttributesForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalAudioAttributesForZone(zoneId));
     }
 
@@ -1582,9 +1581,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
-    private List<Integer> getAllActiveContextsForPrimaryZone() {
+    private List<AudioAttributes> getAllActiveAttributesForPrimaryZone() {
         synchronized (mImplLock) {
-            return mCarAudioPlaybackCallback.getAllActiveContextsForPrimaryZone();
+            return mCarAudioPlaybackCallback.getAllActiveAudioAttributesForPrimaryZone();
         }
     }
 
