@@ -620,29 +620,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testStopUser_fail() throws Exception {
         int userId = 101;
-        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
-        CarUserService carUserServiceLocal = new CarUserService(
-                mMockContext,
-                mUserHal,
-                mMockedUserManager,
-                mMockedUserHandleHelper,
-                mMockedDevicePolicyManager,
-                mMockedActivityManager,
-                /* maxRunningUsers= */ 3,
-                mInitialUserSetter,
-                mUserPreCreator,
-                mCarUxRestrictionService,
-                mMockedHandler,
-                mCarPackageManagerService);
         mockStopUserWithDelayedLockingThrows(userId, new IllegalStateException());
 
-        carUserServiceLocal.stopUser(userId, userStopResult);
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        stopUser(userId, userStopResult);
 
-        ArgumentCaptor<Runnable> runnableCaptor =
-                ArgumentCaptor.forClass(Runnable.class);
-        verify(mMockedHandler).post(runnableCaptor.capture());
-        Runnable runnable = runnableCaptor.getValue();
-        assertThrows(IllegalStateException.class, ()-> runnable.run());
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
+                .isEqualTo(UserStopResult.STATUS_ANDROID_FAILURE);
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
     }
 
     @Test
@@ -668,6 +653,19 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertThat(getUserStopResult(userStopResult, userId).getStatus())
                 .isEqualTo(UserStopResult.STATUS_FAILURE_SYSTEM_USER);
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopUser_amThrowsRuntimeException() throws Exception {
+        int userId = UserHandle.USER_SYSTEM;
+        mockStopUserWithDelayedLockingThrows(userId, new RuntimeException());
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        stopUser(userId, userStopResult);
+
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
+                .isEqualTo(UserStopResult.STATUS_ANDROID_FAILURE);
         assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
     }
 
