@@ -18,6 +18,8 @@ package com.android.car.audio;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
@@ -159,6 +161,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int MEDIA_VOLUME_GROUP_ID = 0;
     private static final int NAVIGATION_VOLUME_GROUP_ID = 1;
     private static final int INVALID_USAGE = -1;
+    private static final int INVALID_AUDIO_FEATURE = -1;
 
     private CarAudioService mCarAudioService;
     @Mock
@@ -189,7 +192,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
     private boolean mUseHalAudioDucking = true;
-    private boolean mUserCarVolumeGroupMuting = true;
+    private boolean mUseCarVolumeGroupMuting = true;
 
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
@@ -314,7 +317,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(VOLUME_KEY_EVENT_TIMEOUT_MS);
         when(mMockResources.getBoolean(audioUseHalDuckingSignals)).thenReturn(mUseHalAudioDucking);
         when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
-                .thenReturn(mUserCarVolumeGroupMuting);
+                .thenReturn(mUseCarVolumeGroupMuting);
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
@@ -1099,6 +1102,63 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Out of bounds fade")
                 .that(thrown).hasMessageThat()
                 .contains(String.format("Fade is out of range of [%f, %f]", -1f, 1f));
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDynamicRouting() {
+        mCarAudioService.init();
+
+        assertWithMessage("Dynamic routing audio feature")
+                .that(mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
+                .isEqualTo(mUseDynamicRouting);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonDynamicAudioService.init();
+
+        assertWithMessage("Disabled dynamic routing audio feature")
+                .that(nonDynamicAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
+                .isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forVolumeGroupMuting() {
+        mCarAudioService.init();
+
+        assertWithMessage("Group muting audio feature")
+                .that(mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_VOLUME_GROUP_MUTING))
+                .isEqualTo(mUseCarVolumeGroupMuting);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledVolumeGroupMuting() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
+                .thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonVolumeGroupMutingAudioService.init();
+
+        assertWithMessage("Disabled group muting audio feature")
+                .that(nonVolumeGroupMutingAudioService
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_VOLUME_GROUP_MUTING))
+                .isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forUnrecognizableAudioFeature_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mCarAudioService.isAudioFeatureEnabled(INVALID_AUDIO_FEATURE));
+
+        assertWithMessage("Unknown audio feature")
+                .that(thrown).hasMessageThat()
+                .contains("Unknown Audio Feature type: " + INVALID_AUDIO_FEATURE);
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
