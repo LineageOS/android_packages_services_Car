@@ -45,9 +45,11 @@ public final class UserPickerActivity extends FragmentActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         int myUserId = UserHandle.myUserId();
         Log.i(TAG, "onCreate userid " + myUserId);
-        if (UserHandle.myUserId() != UserHandle.USER_SYSTEM) {
+        if (myUserId != UserHandle.USER_SYSTEM) {
             // "Trampoline pattern": restarting itself as user 0 so the user picker can stay
             // when the user launched the user picker logs out of the display.
             Log.i(TAG, "onCreate re-starting self as user 0");
@@ -57,7 +59,6 @@ public final class UserPickerActivity extends FragmentActivity {
             finish();
         } else {
             Log.i(TAG, "onCreate rendering user picker");
-            super.onCreate(savedInstanceState);
             connectCar();
             setContentView(R.layout.user_picker_activity);
         }
