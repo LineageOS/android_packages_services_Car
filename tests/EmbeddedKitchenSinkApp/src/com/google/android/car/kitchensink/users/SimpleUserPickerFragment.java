@@ -64,7 +64,6 @@ public final class SimpleUserPickerFragment extends Fragment {
     private Button mStartUserButton;
     private Button mStopUserButton;
     private Button mSwitchUserButton;
-    private Button mRefreshButton;
 
     private TextView mUserIdText;
     private TextView mZoneInfoText;
@@ -100,8 +99,15 @@ public final class SimpleUserPickerFragment extends Fragment {
             Log.e(TAG, "cannot get CarOccupantZoneManager due to unknown activity");
             throw new RuntimeException("Unknown activity that hosts this fragment");
         }
+        mZoneManager.registerOccupantZoneConfigChangeListener(
+                new UserAssignmentChangeListener());
 
         mDisplayAttached = getContext().getDisplay();
+        int driverDisplayId = mZoneManager.getDisplayIdForDriver(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        Log.i(TAG, "driver display id: " + driverDisplayId);
+        boolean isPassengerView = mDisplayAttached != null
+                && mDisplayAttached.getDisplayId() != driverDisplayId;
 
         mUserIdText = view.findViewById(R.id.textView_state);
         mZoneInfoText = view.findViewById(R.id.textView_zoneinfo);
@@ -111,17 +117,44 @@ public final class SimpleUserPickerFragment extends Fragment {
                 view.findViewById(R.id.spinner_users), getUnassignedUsers());
         mDisplaysSpinner = SpinnerWrapper.create(getContext(),
                 view.findViewById(R.id.spinner_displays), getDisplays());
+        if (isPassengerView) {
+            view.findViewById(R.id.textView_displays).setVisibility(View.GONE);
+            view.findViewById(R.id.spinner_displays).setVisibility(View.GONE);
+        }
 
         mStartUserButton = view.findViewById(R.id.button_start_user);
         mStartUserButton.setOnClickListener(v -> startUser());
+        if (isPassengerView) {
+            mStartUserButton.setVisibility(View.GONE);
+        }
+
         mStopUserButton = view.findViewById(R.id.button_stop_user);
         mStopUserButton.setOnClickListener(v -> stopUser());
+        if (!isPassengerView) {
+            mStopUserButton.setVisibility(View.GONE);
+        }
+
         mSwitchUserButton = view.findViewById(R.id.button_switch_user);
         mSwitchUserButton.setOnClickListener(v -> switchUser());
-        mRefreshButton = view.findViewById(R.id.button_refresh);
-        mRefreshButton.setOnClickListener(v -> refresh());
+        if (!isPassengerView) {
+            mSwitchUserButton.setVisibility(View.GONE);
+        }
 
         mStatusMessageText = view.findViewById(R.id.status_message_text_view);
+    }
+
+    private final class UserAssignmentChangeListener implements
+            CarOccupantZoneManager.OccupantZoneConfigChangeListener {
+        @Override
+        public void onOccupantZoneConfigChanged(int changeFlags) {
+            Log.d(TAG, "onOccupantZoneConfigChanged changeFlags=" + changeFlags);
+            if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) == 0) {
+                return;
+            }
+
+            mUsersSpinner.updateEntries(getUnassignedUsers());
+            updateTextInfo();
+        }
     }
 
     private void updateTextInfo() {
@@ -266,12 +299,6 @@ public final class SimpleUserPickerFragment extends Fragment {
         updateTextInfo();
     }
 
-    private void refresh() {
-        mUsersSpinner.updateEntries(getUnassignedUsers());
-        updateTextInfo();
-        setMessage(INFO_MESSAGE, "User assignment info refreshed");
-    }
-
     // TODO(b/248608281): Use API from CarOccupantZoneManager for convenience.
     @Nullable
     private OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
@@ -343,6 +370,10 @@ public final class SimpleUserPickerFragment extends Fragment {
         // Exclude visible users and only show unassigned users.
         for (int i = 0; i < aliveUsers.size(); ++i) {
             UserInfo u = aliveUsers.get(i);
+            if (!u.userType.equals(UserManager.USER_TYPE_FULL_SECONDARY)) {
+                continue;
+            }
+
             if (!isIncluded(u.id, visibleUsers)) {
                 users.add(Integer.toString(u.id) + "," + u.userType);
             }
