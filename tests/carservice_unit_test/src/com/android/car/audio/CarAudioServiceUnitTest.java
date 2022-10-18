@@ -589,6 +589,26 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void releaseAudioPatch_forNullSourceAddress_throwsNullPointerException() {
+        mCarAudioService.init();
+        mockGrantCarControlAudioSettingsPermission();
+        doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
+                .when(() -> AudioManagerHelper
+                        .createAudioPatch(mTunerDevice, mMediaOutputDevice, DEFAULT_GAIN));
+
+        CarAudioPatchHandle audioPatch = mock(CarAudioPatchHandle.class);
+        when(audioPatch.getSourceAddress()).thenReturn(null);
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mCarAudioService.releaseAudioPatch(audioPatch));
+
+        assertWithMessage("Release audio patch for null source address "
+                + "and sink address Null Exception")
+                .that(thrown).hasMessageThat()
+                .contains("Source Address can not be null for patch id 0");
+    }
+
+    @Test
     public void releaseAudioPatch_failsForNullPatch() {
         mCarAudioService.init();
 
