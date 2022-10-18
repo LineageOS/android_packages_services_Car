@@ -56,6 +56,7 @@ import static com.android.car.R.bool.audioUseDynamicRouting;
 import static com.android.car.R.bool.audioUseHalDuckingSignals;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
+import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -949,6 +950,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Media usage audio device address for secondary zone")
                 .that(mediaDeviceAddress).isEqualTo(SECONDARY_TEST_DEVICE);
+    }
+
+    @Test
+    public void getSuggestedAudioContextForPrimaryZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Suggested audio context for primary zone")
+                .that(mCarAudioService.getSuggestedAudioContextForPrimaryZone())
+                .isEqualTo(DEFAULT_AUDIO_CONTEXT);
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
