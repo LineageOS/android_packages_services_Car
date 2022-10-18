@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"ឧបករណ៍របស់អ្នកនឹងត្រូវបានលុប"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"មិនអាច​ប្រើ​កម្មវិធី​អ្នកគ្រប់គ្រង​បានទេ។ ឧបករណ៍​របស់អ្នក​នឹងត្រូវលុប​ឥឡូវនេះ។\n\nប្រសិនបើ​អ្នកមាន​សំណួរ សូមទាក់ទង​អ្នកគ្រប់គ្រង​ស្ថាប័ន​របស់អ្នក។"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> កំពុងធ្វើឱ្យ​ប៉ះពាល់ដល់​ប្រតិបត្តិការប្រព័ន្ធរបស់អ្នក"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"បិទកម្មវិធី ដើម្បីកែលម្អ​ប្រតិបត្តិការប្រព័ន្ធ។ អ្នកអាចបើក​កម្មវិធីម្ដងទៀត​នៅក្នុងការកំណត់។"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"កំណត់អាទិភាព​កម្មវិធី ដើម្បីបន្តប្រើ​កម្មវិធី។"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"លុបកម្មវិធី ដើម្បីកែលម្អ​ប្រតិបត្តិការប្រព័ន្ធ។"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"បិទកម្មវិធី"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"កម្មវិធីនេះត្រូវបានទប់ស្កាត់មិនឱ្យដំណើរការនៅផ្ទៃខាងក្រោយ។ សូមផ្ដល់អាទិភាពឱ្យកម្មវិធី ដើម្បីបន្តការប្រើប្រាស់នៅផ្ទៃខាងក្រោយ។"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"បិទ"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"កំណត់អាទិភាព​កម្មវិធី"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"លុប​កម្មវិធី"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> ត្រូវបានបិទ។ អ្នកអាចបើកវា​ម្ដងទៀតនៅ​ក្នុងការកំណត់។"</string>
 </resources>

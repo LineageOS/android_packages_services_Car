@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"சாதனத் தரவு அழிக்கப்படும்"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"நிர்வாகி ஆப்ஸைப் பயன்படுத்த முடியாது. உங்கள் சாதனம் ஆரம்ப நிலைக்கு மீட்டமைக்கப்படும்.\n\nகேள்விகள் இருந்தால் உங்கள் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"உங்கள் சிஸ்டத்தின் செயல்திறனை <xliff:g id="ID_1">^1</xliff:g> பாதிக்கிறது"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"சிஸ்டத்தின் செயல்திறனை மேம்படுத்த ஆப்ஸை முடக்கவும். அமைப்புகளுக்குச் சென்று மீண்டும் ஆப்ஸை இயக்கலாம்."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"ஆப்ஸைத் தொடர்ந்து பயன்படுத்த அதை முன்னுரிமைப்படுத்தவும்."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"சிஸ்டத்தின் செயல்திறனை மேம்படுத்த ஆப்ஸை நிறுவல் நீக்கவும்."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"ஆப்ஸை முடக்கு"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"இந்த ஆப்ஸ் பின்னணியில் இயங்குவதிலிருந்து தடுக்கப்பட்டுள்ளது. ஆப்ஸ் பின்னணியில் தொடர்ந்து இயங்க அதற்கு முன்னுரிமை அளியுங்கள்."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"மூடுக"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ஆப்ஸை முன்னுரிமைப்படுத்துங்கள்"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"ஆப்ஸை நிறுவல் நீக்குங்கள்"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> முடக்கப்பட்டது. அமைப்புகளுக்குச் சென்று மீண்டும் அதை இயக்கலாம்."</string>
 </resources>
