@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Działanie tej aplikacji w tle zostało zablokowane. Nadaj aplikacji priorytet, aby umożliwić jej działanie w tle."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Zamknij"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Nadaj priorytet aplikacji"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Aplikacja <xliff:g id="ID_1">^1</xliff:g> została wyłączona. Możesz ją ponownie włączyć w Ustawieniach."</string>
 </resources>

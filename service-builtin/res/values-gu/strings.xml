@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"આ ઍપને બૅકગ્રાઉન્ડમાં ચાલતા અટકાવવામાં આવી છે. બૅકગ્રાઉન્ડમાં ઍપનો ઉપયોગ ચાલુ રાખવા માટે તેને પ્રાધાન્યતા આપો."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"બંધ કરો"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ઍપને પ્રાધાન્યતા આપો"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> બંધ કરવામાં આવી છે. તમે સેટિંગમાંથી તેને ફરીથી ચાલુ કરી શકો છો."</string>
 </resources>

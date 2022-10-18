@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Nu s-a permis rularea aplicației în fundal. Acordă prioritate aplicației ca să continui utilizarea în fundal."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Închide"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioritizează aplicația"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> a fost dezactivată. O poți activa din nou din Setări."</string>
 </resources>
