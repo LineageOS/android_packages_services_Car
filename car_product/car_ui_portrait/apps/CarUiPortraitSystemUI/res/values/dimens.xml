@@ -66,10 +66,6 @@
 
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
 
-    <dimen name="toast_margin">24dp</dimen>
-    <dimen name="toast_icon_dimen">48dp</dimen>
-    <dimen name="toast_bottom_margin">32dp</dimen>
-
     <dimen name="car_quick_controls_footer_button_vertical_margin">10dp</dimen>
     <dimen name="car_quick_controls_footer_button_horizontal_margin">24dp</dimen>
     <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
