@@ -152,6 +152,7 @@ protected:
                            mMockProcDiskStatsCollector);
 
         EXPECT_CALL(*mMockDataProcessor, init()).Times(1);
+        EXPECT_CALL(*mMockDataProcessor, onSystemStartup()).Times(1);
 
         ASSERT_RESULT_OK(mService->registerDataProcessor(mMockDataProcessor));
 
@@ -225,6 +226,7 @@ TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
                        mMockProcDiskStatsCollector);
 
     EXPECT_CALL(*mMockDataProcessor, init()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onSystemStartup()).Times(1);
 
     ASSERT_RESULT_OK(mService->registerDataProcessor(mMockDataProcessor));
 
@@ -235,6 +237,19 @@ TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
     ASSERT_RESULT_OK(mService->start());
 
     ASSERT_TRUE(mService->mCollectionThread.joinable()) << "Collection thread not created";
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "Boot-time collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
+            << "Invalid collection event";
 
     ASSERT_FALSE(mService->start().ok())
             << "No error returned when WatchdogPerfService was started more than once";
@@ -1068,6 +1083,7 @@ TEST_F(WatchdogPerfServiceTest, TestWakeUpCollection) {
     // #1 Wake up collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onSystemStartup()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onWakeUpCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
             .Times(1);
@@ -1116,14 +1132,26 @@ TEST_F(WatchdogPerfServiceTest, TestWakeUpCollection) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 }
 
-TEST_F(WatchdogPerfServiceTest, TestWakeUpCollectionDuringBoottime) {
+TEST_F(WatchdogPerfServiceTest, TestWakeUpCollectionDuringCustomCollection) {
     ASSERT_NO_FATAL_FAILURE(startService());
 
-    // #1 Boot-time collection
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    // Start custom collection
+    std::string customCollectionIntervalStr = std::to_string(kTestCustomCollectionInterval.count());
+    std::string customCollectionDurationStr = std::to_string(kTestCustomCollectionDuration.count());
+
+    const char* firstArgs[] = {kStartCustomCollectionFlag, kIntervalFlag,
+                               customCollectionIntervalStr.c_str(), kMaxDurationFlag,
+                               customCollectionDurationStr.c_str()};
+
+    ASSERT_RESULT_OK(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/5));
+
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(2);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(2);
     EXPECT_CALL(*mMockDataProcessor,
-                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
+                                   Eq(mMockProcStatCollector)))
             .Times(2);
     EXPECT_CALL(*mMockDataProcessor,
                 onWakeUpCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
@@ -1131,20 +1159,20 @@ TEST_F(WatchdogPerfServiceTest, TestWakeUpCollectionDuringBoottime) {
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
-    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
-            << "Boot-time collection didn't start immediately";
-    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
 
-    // #2 Boot-time collection while suspend exit signal is received
+    // Custom collection while suspend exit signal is received
     ASSERT_RESULT_OK(mService->onSuspendExit());
 
+    // Continued custom collection
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
-    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
-            << "Subsequent boot-time collection didn't happen at "
-            << kTestSystemEventCollectionInterval.count() << " seconds interval";
-    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::BOOT_TIME_COLLECTION)
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestCustomCollectionInterval.count())
+            << "Subsequent custom collection didn't happen at "
+            << kTestCustomCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 }

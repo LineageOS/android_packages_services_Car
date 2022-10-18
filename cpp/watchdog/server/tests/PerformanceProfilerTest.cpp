@@ -457,6 +457,11 @@ public:
         return mCollector->mUserSwitchCollections;
     }
 
+    const CollectionInfo& getWakeUpCollectionInfo() {
+        Mutex::Autolock lock(mCollector->mMutex);
+        return mCollector->mWakeUpCollection;
+    }
+
     const CollectionInfo& getCustomCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mCustomCollection;
@@ -547,8 +552,69 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
-            << "Periodic and user-switch collections shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Periodic, wake-up and user-switch collections shouldn't be reported";
+}
+
+TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
+    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+
+    const auto actual = mCollectorPeer->getWakeUpCollectionInfo();
+
+    const CollectionInfo expected{
+            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+            .records = {{
+                    .systemSummaryStats = systemSummaryStats,
+                    .userPackageSummaryStats = userPackageSummaryStats,
+            }},
+    };
+
+    EXPECT_THAT(actual, CollectionInfoEq(expected))
+            << "Wake-up collection info doesn't match.\nExpected:\n"
+            << expected.toString() << "\nActual:\n"
+            << actual.toString();
+
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, periodic, and user-switch collections shouldn't be reported";
+}
+
+TEST_F(PerformanceProfilerTest, TestOnSystemStartup) {
+    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            mCollector->onBoottimeCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+    ASSERT_RESULT_OK(
+            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+
+    auto actualBoottimeCollection = mCollectorPeer->getBoottimeCollectionInfo();
+    auto actualWakeUpCollection = mCollectorPeer->getWakeUpCollectionInfo();
+
+    EXPECT_THAT(actualBoottimeCollection.records.size(), 1)
+            << "Boot-time collection records is empty.";
+    EXPECT_THAT(actualWakeUpCollection.records.size(), 1) << "Wake-up collection records is empty.";
+
+    ASSERT_RESULT_OK(mCollector->onSystemStartup());
+
+    actualBoottimeCollection = mCollectorPeer->getBoottimeCollectionInfo();
+    actualWakeUpCollection = mCollectorPeer->getWakeUpCollectionInfo();
+
+    EXPECT_THAT(actualBoottimeCollection.records.size(), 0)
+            << "Boot-time collection records is not empty.";
+    EXPECT_THAT(actualWakeUpCollection.records.size(), 0)
+            << "Wake-up collection records is not empty.";
 }
 
 TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
@@ -651,8 +717,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
-            << "Boottime and Periodic collections shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and periodic collections shouldn't be reported";
 }
 
 TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
@@ -749,8 +815,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
-            << "Boot-time and user-switch collections shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and user-switch collections shouldn't be reported";
 }
 
 TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
@@ -913,8 +979,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
-            << "Boot-time and user-switch collections shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and user-switch collections shouldn't be reported";
 }
 
 TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
@@ -961,8 +1027,8 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
-            << "Boot-time and user-switch collection shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
+            << "Boot-time, wake-up and user-switch collection shouldn't be reported";
 }
 
 }  // namespace watchdog
