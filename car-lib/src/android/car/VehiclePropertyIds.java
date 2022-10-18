@@ -671,6 +671,9 @@ public final class VehiclePropertyIds {
     /**
      * Parking brake state.
      *
+     * <p>{@code PARKING_BRAKE_ON} is true indicates that the car's parking brake is currently
+     * engaged. False implies that the car's parking brake is currently disengaged.
+     *
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
@@ -685,6 +688,15 @@ public final class VehiclePropertyIds {
     public static final int PARKING_BRAKE_ON = 287310850;
     /**
      * Auto-apply parking brake.
+     *
+     * <p>{@code PARKING_BRAKE_AUTO_APPLY} is true indicates that the car's automatic parking brake
+     * feature is currently enabled. False indicates that the car's automatic parking brake feature
+     * is currently disabled.
+     *
+     * This property is often confused with PARKING_BRAKE_ON. The difference is that
+     * PARKING_BRAKE_ON describes whether the actual parking brake is currently on/off, whereas
+     * PARKING_BRAKE_AUTO_APPLY describes whether the feature of automatic parking brake is enabled/
+     * disabled, and does not describe the current state of the actual parking brake.
      *
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
