@@ -1188,6 +1188,40 @@ public class VehicleStubTest {
     }
 
     @Test
+    public void testCancelAsyncGetRequests() throws Exception {
+        List<IVehicleCallback.Stub> callbackWrapper = new ArrayList<>();
+        List<GetValueResults> resultsWrapper = new ArrayList<>();
+        mockGetValues(callbackWrapper, resultsWrapper);
+
+        HalPropValue value = testAidlHvacPropValue();
+
+        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest1 = new GetVehicleStubAsyncRequest(
+                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 1000);
+        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest2 = new GetVehicleStubAsyncRequest(
+                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 1000);
+
+        // Send the getAsync request.
+        mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
+                mGetVehicleStubAsyncCallback);
+
+        // Cancel the first request.
+        mAidlVehicleStub.cancelRequests(List.of(0));
+
+        // Trigger the callback.
+        triggerCallback(callbackWrapper, resultsWrapper);
+
+        // We should only receive the result for the second request.
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().size()).isEqualTo(1);
+        assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(
+                1);
+        verify(mGetVehicleStubAsyncCallback, never()).onRequestsTimeout(any());
+    }
+
+    @Test
     public void testGetSyncAidlTimeout() throws Exception {
         mAidlVehicleStub.setSyncOpTimeoutInMs(100);
         doAnswer((invocation) -> {

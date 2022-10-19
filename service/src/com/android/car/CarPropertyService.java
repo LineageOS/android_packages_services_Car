@@ -758,4 +758,13 @@ public class CarPropertyService extends ICarProperty.Stub
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 getAsyncPropertyResultCallback, timeoutInMs);
     }
+
+    /**
+     * Cancel on-going async requests.
+     *
+     * @param serviceRequestIds A list of async get/set property request IDs.
+     */
+    public void cancelRequests(int[] serviceRequestIds) {
+        mPropertyHalService.cancelRequests(serviceRequestIds);
+    }
 }

@@ -132,6 +132,11 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
+    public void cancelRequests(int[] serviceRequestIds) {
+        // Do nothing.
+    }
+
+    @Override
     public String getReadPermission(int propId) throws RemoteException {
         return mConfigs.containsKey(propId) ? mPermissions.getReadPermission(propId) : null;
     }

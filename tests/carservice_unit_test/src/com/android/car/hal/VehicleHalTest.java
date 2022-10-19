@@ -1488,4 +1488,13 @@ public class VehicleHalTest {
         // Assert
         verify(mPowerHalService, never()).onHalEvents(any());
     }
+
+    @Test
+    public void testCancelRequests() throws Exception {
+        List<Integer> requestIds = mock(List.class);
+
+        mVehicleHal.cancelRequests(requestIds);
+
+        verify(mHalClient).cancelRequests(requestIds);
+    }
 }

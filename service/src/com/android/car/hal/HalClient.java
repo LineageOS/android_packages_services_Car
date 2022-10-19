@@ -293,4 +293,11 @@ final class HalClient {
             VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mVehicle.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
+
+    /**
+     * Cancel all the on-going async requests with the given request IDs.
+     */
+    public void cancelRequests(List<Integer> vehicleStubRequestIds) {
+        mVehicle.cancelRequests(vehicleStubRequestIds);
+    }
 }

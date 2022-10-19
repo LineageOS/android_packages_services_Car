@@ -1190,4 +1190,11 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
             VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
+
+    /**
+     * Cancel all the on-going async requests with the given request IDs.
+     */
+    public void cancelRequests(List<Integer> vehicleStubRequestIds) {
+        mHalClient.cancelRequests(vehicleStubRequestIds);
+    }
 }

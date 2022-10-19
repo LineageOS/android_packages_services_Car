@@ -104,6 +104,15 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testCancelRequests() {
+        List<Integer> requestIds = mock(List.class);
+
+        mClient.cancelRequests(requestIds);
+
+        verify(mIVehicle).cancelRequests(requestIds);
+    }
+
+    @Test
     public void testSet_remoteExceptionThenFail() throws Exception {
         doThrow(new RemoteException("Never give up, never surrender!"))
             .doThrow(new RemoteException("D'OH!"))
