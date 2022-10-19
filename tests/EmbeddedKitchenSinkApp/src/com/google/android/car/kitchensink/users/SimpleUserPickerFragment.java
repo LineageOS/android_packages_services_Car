@@ -65,6 +65,8 @@ public final class SimpleUserPickerFragment extends Fragment {
     private Button mStopUserButton;
     private Button mSwitchUserButton;
 
+    private TextView mDisplayIdText;
+    private TextView mUserOnDisplayText;
     private TextView mUserIdText;
     private TextView mZoneInfoText;
     private TextView mStatusMessageText;
@@ -109,6 +111,8 @@ public final class SimpleUserPickerFragment extends Fragment {
         boolean isPassengerView = mDisplayAttached != null
                 && mDisplayAttached.getDisplayId() != driverDisplayId;
 
+        mDisplayIdText = view.findViewById(R.id.textView_display_id);
+        mUserOnDisplayText = view.findViewById(R.id.textView_user_on_display);
         mUserIdText = view.findViewById(R.id.textView_state);
         mZoneInfoText = view.findViewById(R.id.textView_zoneinfo);
         updateTextInfo();
@@ -158,6 +162,14 @@ public final class SimpleUserPickerFragment extends Fragment {
     }
 
     private void updateTextInfo() {
+        int displayId = mDisplayAttached.getDisplayId();
+        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
+        int userId = mZoneManager.getUserForOccupant(zoneInfo);
+        mDisplayIdText.setText("DisplayId: " + displayId + " ZoneId: " + zoneInfo.zoneId);
+        String userString = userId == CarOccupantZoneManager.INVALID_USER_ID
+                ? "unassigned" : Integer.toString(userId);
+        mUserOnDisplayText.setText("User on display: " + userString);
+
         int currentUserId = ActivityManager.getCurrentUser();
         int myUserId = UserHandle.myUserId();
         mUserIdText.setText("Current userId: " + currentUserId + " myUserId:" + myUserId);
@@ -375,7 +387,7 @@ public final class SimpleUserPickerFragment extends Fragment {
             }
 
             if (!isIncluded(u.id, visibleUsers)) {
-                users.add(Integer.toString(u.id) + "," + u.userType);
+                users.add(Integer.toString(u.id) + "," + u.name);
             }
         }
 
