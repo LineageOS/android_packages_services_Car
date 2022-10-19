@@ -67,7 +67,7 @@ public class CarPropertyManagerPublicPermissionTest {
         assertThat(mPropertyManager).isNotNull();
     }
 
-    private synchronized void initAllPropertyIds() {
+    private void initAllPropertyIds() {
         mProps.add(VehiclePropertyIds.DOOR_POS);
         mProps.add(VehiclePropertyIds.DOOR_MOVE);
         mProps.add(VehiclePropertyIds.DOOR_LOCK);
