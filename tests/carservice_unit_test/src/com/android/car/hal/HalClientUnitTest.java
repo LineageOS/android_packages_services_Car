@@ -86,13 +86,13 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         HalPropValue halPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */ 0);
         int serviceRequestId = 1;
 
-        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue,
+        VehicleStub.AsyncGetSetRequest getVehicleStubAsyncRequest =
+                new VehicleStub.AsyncGetSetRequest(serviceRequestId, halPropValue,
                         /* timeoutInMs= */ 0);
 
         mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetVehicleStubAsyncCallback);
 
-        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
+        ArgumentCaptor<List<VehicleStub.AsyncGetSetRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         HalPropValue testHalPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */
                 0);

@@ -45,7 +45,7 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
-import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
+import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -98,11 +98,11 @@ public class PropertyHalService extends HalServiceBase {
             return mTimeoutUptimeMillis;
         }
 
-        public GetVehicleStubAsyncRequest toGetVehicleStubAsyncRequest(
+        public AsyncGetSetRequest toGetVehicleStubAsyncRequest(
                 HalPropValueBuilder propValueBuilder, int serviceRequestId) {
             int halPropertyId = managerToHalPropId(mPropMgrRequest.getPropertyId());
             int areaId = mPropMgrRequest.getAreaId();
-            return new GetVehicleStubAsyncRequest(
+            return new AsyncGetSetRequest(
                     serviceRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
         }
 
@@ -168,7 +168,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         private void retryIfNotExpired(List<AsyncGetRequestInfo> retryRequestInfo) {
-            List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests = new ArrayList<>();
+            List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
             List<GetValueResult> timeoutResults = new ArrayList<>();
             synchronized (mLock) {
                 // Get the current time after obtaining lock since it might take some time to get
@@ -305,12 +305,12 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
-    // Generates a {@link GetVehicleStubAsyncRequest} according to a {@link AsyncGetRequestInfo}.
+    // Generates a {@link AsyncGetSetRequest} according to a {@link AsyncGetRequestInfo}.
     //
     // Generates a new PropertyHalService Request ID. Associate the ID with the request and
-    // returns a {@link GetVehicleStubAsyncRequest} that could be sent to {@link VehicleStub}.
+    // returns a {@link AsyncGetSetRequest} that could be sent to {@link VehicleStub}.
     @GuardedBy("mLock")
-    private GetVehicleStubAsyncRequest generateGetVehicleStubAsyncRequestLocked(
+    private AsyncGetSetRequest generateGetVehicleStubAsyncRequestLocked(
             HalPropValueBuilder propValueBuilder, AsyncGetRequestInfo asyncGetRequestInfo) {
         int newServiceRequestId = mServiceRequestIdCounter.getAndIncrement();
         mServiceRequestIdToAsyncGetRequestInfo.put(newServiceRequestId, asyncGetRequestInfo);
@@ -673,7 +673,7 @@ public class PropertyHalService extends HalServiceBase {
             long timeoutInMs) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
-        List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests = new ArrayList<>();
+        List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
                 GetPropertyServiceRequest getPropertyServiceRequest =
@@ -681,9 +681,8 @@ public class PropertyHalService extends HalServiceBase {
                 AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
                         getPropertyServiceRequest, SystemClock.uptimeMillis() + timeoutInMs,
                         timeoutInMs);
-                GetVehicleStubAsyncRequest vehicleStubRequest =
-                        generateGetVehicleStubAsyncRequestLocked(
-                                mPropValueBuilder, asyncGetRequestInfo);
+                AsyncGetSetRequest vehicleStubRequest = generateGetVehicleStubAsyncRequestLocked(
+                        mPropValueBuilder, asyncGetRequestInfo);
                 getVehicleStubAsyncRequests.add(vehicleStubRequest);
             }
         }

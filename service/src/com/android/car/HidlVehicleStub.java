@@ -229,12 +229,11 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     @Override
-    public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+    public void getAsync(List<AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mExecutor.execute(() -> {
             for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
-                GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                        getVehicleStubAsyncRequests.get(i);
+                AsyncGetSetRequest getVehicleStubAsyncRequest = getVehicleStubAsyncRequests.get(i);
                 int serviceRequestId = getVehicleStubAsyncRequest.getServiceRequestId();
                 try {
                     HalPropValue halPropValue;
@@ -260,6 +259,12 @@ final class HidlVehicleStub extends VehicleStub {
                 }
             }
         });
+    }
+
+    @Override
+    public void setAsync(List<AsyncGetSetRequest> setVehicleStubAsyncRequests,
+            VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
+        // TODO(b/251213448): Implement this.
     }
 
     private void callGetAsyncErrorCallbacks(
