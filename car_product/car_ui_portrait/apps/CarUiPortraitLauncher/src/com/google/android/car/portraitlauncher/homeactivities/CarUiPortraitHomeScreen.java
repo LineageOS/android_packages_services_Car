@@ -146,7 +146,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     @RootAppAreaState
-    private int mRootAppAreaState = STATE_OPEN;
+    private int mRootAppAreaState = STATE_CLOSE;
     private int mGripBarHeight;
     private int mStatusBarHeight;
     private int mBackgroundAppAreaHeightWhenCollapsed;
@@ -174,6 +174,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     // contains the list of activities that will be displayed on feature {@link
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
     private Set<ComponentName> mVoicePlateActivitySet;
+    private boolean mIsLowerPanelInitialized;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     Messenger mService = null;
@@ -380,8 +381,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             setUpRootTaskView(lowerAppArea);
         }
 
-        findViewById(android.R.id.content).post(() ->
-                updateUIState(STATE_CLOSE, /* animate = */ false));
+        requireViewById(android.R.id.content).post(() -> {
+            resetRootTaskViewToDefaultHeight();
+            updateUIState(STATE_CLOSE, /* animate = */ false);
+        });
 
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
 
@@ -570,9 +573,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void updateUIState(int newLowerAppAreaState, boolean animate) {
+        if (!mIsLowerPanelInitialized) {
+            return;
+        }
         int lowerAppAreaTop = 0;
         Runnable onAnimationEnd = null;
-
         if (newLowerAppAreaState == STATE_OPEN) {
             lowerAppAreaTop = mBackgroundAppAreaHeightWhenCollapsed - mGripBarHeight;
 
@@ -665,6 +670,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mRootAppAreaContainer.setLayoutParams(lowerAppAreaParams);
         mControlBarView.setVisibility(VISIBLE);
+        mIsLowerPanelInitialized = true;
     }
 
     private Animation createAnimationForLowerAppArea(int newTop, Runnable onAnimationEnd) {

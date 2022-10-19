@@ -24,13 +24,19 @@
               android:gravity="center"
               android:orientation="vertical">
 
-    <ImageView
-        android:id="@+id/app_icon"
+    <FrameLayout
         android:layout_width="@dimen/app_grid_touch_target_size"
         android:layout_height="@dimen/app_grid_touch_target_size"
-        android:layout_marginTop="@dimen/app_icon_margin_top"
+        android:background="@drawable/app_icon_background"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="@dimen/app_icon_description_margin"/>
+        android:layout_marginBottom="@dimen/app_icon_description_margin"
+        android:layout_marginTop="@dimen/app_icon_margin_top"
+        android:padding="@dimen/app_icon_background_padding">
+        <ImageView
+            android:id="@+id/app_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
 
     <TextView
         android:id="@+id/app_name"
