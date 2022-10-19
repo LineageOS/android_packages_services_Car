@@ -16,4 +16,5 @@
   -->
 <resources>
     <dimen name="car_portrait_ui_button_radius">44dp</dimen>
+    <dimen name="car_portrait_ui_window_rounded_corner_radius">44dp</dimen>
 </resources>
