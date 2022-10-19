@@ -1077,11 +1077,15 @@ public final class CarWatchdogManager extends CarManagerBase {
                 return false;
             }
             ResourceOveruseListenerInfo listenerInfo = (ResourceOveruseListenerInfo) obj;
+            // The ResourceOveruseListenerInfo equality is solely based on the listener because
+            // the clients shouldn't register the same listener multiple times. When checking
+            // whether a listener is previously registered, this equality check is used.
             return listenerInfo.listener == listener;
         }
 
         @Override
         public int hashCode() {
+            // Similar to equality check, the hash generator uses only the listener.
             return Objects.hash(listener);
         }
     }
