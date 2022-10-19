@@ -19,11 +19,12 @@ package com.android.car;
 import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
-import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.builtin.content.ContextHelper;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.content.Context;
@@ -51,6 +52,7 @@ import java.util.List;
 /** Utility class */
 public final class CarServiceUtils {
 
+    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
     /** Empty int array */
     public  static final int[] EMPTY_INT_ARRAY = new int[0];
@@ -441,14 +443,35 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Starts both the home app and SystemUI for a given {@code userId} and {@code displayId}.
+     *
+     * @return {@code true} when starting both SystemUI and home succeeds.
+     */
+    public static boolean startHomeAndSystemUiForUserAndDisplay(Context context,
+            @UserIdInt int userId, int displayId) {
+        if (DBG) {
+            Slogf.d(TAG, "Starting HOME/SysUI for user: %d, display:%d", userId, displayId);
+        }
+        if (!startSystemUiForUser(context, userId)) {
+            return false;
+        }
+        if (!startHomeForUserAndDisplay(context, userId, displayId)) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Starts Activity for the given {@code userId} and {@code displayId}.
      *
      * @return {@code true} when starting activity succeeds. It can fail in situation like secondary
      *         home package not existing.
      */
-    public static boolean startHomeForUserAndDisplay(@NonNull Context context,
+    public static boolean startHomeForUserAndDisplay(Context context,
             @UserIdInt int userId, int displayId) {
-        Slogf.d(TAG, "Starting HOME for user: %d, display:%d", userId, displayId);
+        if (DBG) {
+            Slogf.d(TAG, "Starting HOME for user: %d, display:%d", userId, displayId);
+        }
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
                 : Intent.CATEGORY_SECONDARY_HOME;
@@ -458,10 +481,38 @@ public final class CarServiceUtils {
         try {
             ContextHelper.startActivityAsUser(context, homeIntent, activityOptions.toBundle(),
                     UserHandle.of(userId));
-            Slogf.d(TAG, "Started HOME for user: %d, display:%d", userId, displayId);
+            if (DBG) {
+                Slogf.d(TAG, "Started HOME for user: %d, display:%d", userId, displayId);
+            }
             return true;
         } catch (Exception e) {
             Slogf.w(TAG, e, "Cannot start HOME for user: %d, display:%d", userId, displayId);
+            return false;
+        }
+    }
+
+    /**
+     * Starts SystemUI component for a particular user.
+     *
+     * @return {@code true} when starting service succeeds. It can fail in situation like the
+     * SystemUI service component not being defined.
+     */
+    public static boolean startSystemUiForUser(Context context, @UserIdInt int userId) {
+        boolean isSecondaryUser = userId != UserHandle.SYSTEM.getIdentifier()
+                && userId != ActivityManager.getCurrentUser();
+        if (!isSecondaryUser) {
+            // SystemUI is already started for the system/primary user by the SystemServer
+            return true;
+        }
+        ComponentName sysuiComponent = PackageManagerHelper.getSystemUiServiceComponent(context);
+        Intent sysUIIntent = new Intent().setComponent(sysuiComponent);
+        try {
+            context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0).startService(
+                    sysUIIntent);
+            return true;
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "Cannot start SysUI component %s for user %d", sysuiComponent,
+                    userId);
             return false;
         }
     }
@@ -472,9 +523,11 @@ public final class CarServiceUtils {
      * @return {@code true} when starting activity succeeds. It can fail in situation like
      * package not existing.
      */
-    public static boolean startUserPickerOnDisplay(@NonNull Context context,
+    public static boolean startUserPickerOnDisplay(Context context,
             int displayId, String userPickerActivityPackage) {
-        Slogf.d(TAG, "Starting user picker on display:%d", displayId);
+        if (DBG) {
+            Slogf.d(TAG, "Starting user picker on display:%d", displayId);
+        }
         // FLAG_ACTIVITY_MULTIPLE_TASK ensures the user picker can show up on multiple displays.
         Intent intent = new Intent()
                 .setComponent(ComponentName.unflattenFromString(

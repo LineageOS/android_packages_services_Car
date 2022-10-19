@@ -182,4 +182,17 @@ public final class PackageManagerHelper {
     public static ComponentName getComponentName(ComponentInfo info) {
         return info.getComponentName();
     }
+
+    /** Check PackageManagerInternal#getSystemUiServiceComponent(). */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
+    public static ComponentName getSystemUiServiceComponent(@NonNull Context context) {
+        String flattenName = context.getResources()
+                .getString(com.android.internal.R.string.config_systemUIServiceComponent);
+        if (TextUtils.isEmpty(flattenName)) {
+            throw new IllegalStateException("No "
+                    + "com.android.internal.R.string.config_systemUIServiceComponent resource");
+        }
+        return ComponentName.unflattenFromString(flattenName);
+    }
 }

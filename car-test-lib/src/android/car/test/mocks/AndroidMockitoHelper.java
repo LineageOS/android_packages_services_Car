@@ -458,6 +458,15 @@ public final class AndroidMockitoHelper {
         when(context.checkCallingOrSelfPermission(permission)).thenReturn(permissionResults);
     }
 
+    /**
+     * Mock a call to {@link Context#createContextAsUser(UserHandle, int)}}
+     */
+    public static void mockContextCreateContextAsUser(Context context, Context userContext,
+            @UserIdInt int userId) {
+        when(context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0)).thenReturn(
+                userContext);
+    }
+
     // TODO(b/192307581): add unit tests
     /**
      * Returns the result of the giving {@code callable} in the main thread, preparing the
