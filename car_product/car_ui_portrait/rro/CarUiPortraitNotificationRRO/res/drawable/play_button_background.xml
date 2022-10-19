@@ -28,7 +28,7 @@
             <item>
                 <shape android:shape="rectangle">
                     <corners android:radius="@dimen/action_button_radius"/>
-                    <solid android:color="#91afc6"/>
+                    <solid android:color="@color/primary_action_button_bg_color"/>
                 </shape>
             </item>
         </ripple>
