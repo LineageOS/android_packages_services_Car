@@ -286,11 +286,18 @@ final class HalClient {
 
     /**
      * Query a list of {@link HalPropValue} with a list of
-     * {@link VehicleStub.GetVehicleStubAsyncRequest} asynchronously.
+     * {@link VehicleStub.AsyncGetSetRequest} asynchronously.
      */
     public void getValuesAsync(
-            List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            List<VehicleStub.AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mVehicle.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
+    }
+
+    /**
+     * Cancel all the on-going async requests with the given request IDs.
+     */
+    public void cancelRequests(List<Integer> vehicleStubRequestIds) {
+        mVehicle.cancelRequests(vehicleStubRequestIds);
     }
 }

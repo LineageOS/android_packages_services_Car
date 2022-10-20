@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Denne app er blevet forhindret i at køre i baggrunden. Prioriter appen, hvis den skal fortsætte med køre i baggrunden."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Luk"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioriter app"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> er blevet deaktiveret. Du kan aktivere den igen under Indstillinger."</string>
 </resources>

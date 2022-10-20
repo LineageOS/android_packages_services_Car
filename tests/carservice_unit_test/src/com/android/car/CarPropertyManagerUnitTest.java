@@ -51,6 +51,7 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -243,6 +244,39 @@ public final class CarPropertyManagerUnitTest {
         assertThat(argumentCaptor.getValue().get(0).getPropertyId())
                 .isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(argumentCaptor.getValue().get(0).getAreaId()).isEqualTo(0);
+    }
+
+    @Test
+    public void getPropertiesAsync_cancellationSignalCancelRequests() throws Exception {
+        CarPropertyManager.GetPropertyRequest getPropertyRequest = createPropertyRequest();
+        CancellationSignal cancellationSignal = new CancellationSignal();
+        List<IGetAsyncPropertyResultCallback> callbackWrapper = new ArrayList<>();
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            List getPropertyServiceList = (List) args[0];
+            GetPropertyServiceRequest getPropertyServiceRequest =
+                    (GetPropertyServiceRequest) getPropertyServiceList.get(0);
+            callbackWrapper.add((IGetAsyncPropertyResultCallback) args[1]);
+            return null;
+        }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
+
+        mCarPropertyManager.getPropertiesAsync(List.of(getPropertyRequest), cancellationSignal,
+                /* callbackExecutor= */ null, mGetPropertyCallback);
+
+        // Cancel the pending request.
+        cancellationSignal.cancel();
+
+        verify(mICarProperty).cancelRequests(new int[]{0});
+
+        // Call the manager callback after the request is already cancelled.
+        GetValueResult getValueResult = new GetValueResult(0, null,
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(callbackWrapper.size()).isEqualTo(1);
+        callbackWrapper.get(0).onGetValueResult(List.of(getValueResult));
+
+        // No client callbacks should be called.
+        verify(mGetPropertyCallback, never()).onFailure(any());
+        verify(mGetPropertyCallback, never()).onSuccess(any());
     }
 
     private CarPropertyManager.GetPropertyRequest createPropertyRequest() {

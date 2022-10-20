@@ -66,7 +66,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.SparseArray;
 
-import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
+import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
@@ -126,8 +126,8 @@ public class VehicleStubTest {
         return values;
     }
 
-    private GetVehicleStubAsyncRequest defaultVehicleStubAsyncRequest(HalPropValue value) {
-        return new GetVehicleStubAsyncRequest(/* serviceRequestId=*/ 0, value,
+    private AsyncGetSetRequest defaultVehicleStubAsyncRequest(HalPropValue value) {
+        return new AsyncGetSetRequest(/* serviceRequestId=*/ 0, value,
                 /* timeoutInMs= */ 1000);
     }
 
@@ -582,8 +582,7 @@ public class VehicleStubTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
                 mGetVehicleStubAsyncCallback);
@@ -611,8 +610,7 @@ public class VehicleStubTest {
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
@@ -640,8 +638,7 @@ public class VehicleStubTest {
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
@@ -862,8 +859,7 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
                 mGetVehicleStubAsyncCallback);
@@ -903,8 +899,7 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
                 mGetVehicleStubAsyncCallback);
@@ -922,8 +917,7 @@ public class VehicleStubTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ true);
         HalPropValue value = builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
         ServiceSpecificException exception = new ServiceSpecificException(
                 errorCode);
         doThrow(exception).when(mAidlVehicle).getValues(any(), any());
@@ -1013,8 +1007,7 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         // Send the getAsync request.
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
@@ -1051,8 +1044,7 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         // Send the getAsync request.
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
@@ -1078,8 +1070,7 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
         // Send the getAsync request.
         assertThrows(IllegalStateException.class, () -> {
@@ -1096,9 +1087,9 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest1 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest2 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 10);
 
         // Send the getAsync request.
@@ -1134,9 +1125,9 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest1 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 100);
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest2 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 100);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
@@ -1167,9 +1158,9 @@ public class VehicleStubTest {
 
         HalPropValue value = testAidlHvacPropValue();
 
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest1 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
-        GetVehicleStubAsyncRequest getVehicleStubAsyncRequest2 = new GetVehicleStubAsyncRequest(
+        AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 10);
 
         // Send the getAsync request.
@@ -1185,6 +1176,40 @@ public class VehicleStubTest {
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
         // Request 1 timed-out.
         verify(mGetVehicleStubAsyncCallback, timeout(1000)).onRequestsTimeout(List.of(1));
+    }
+
+    @Test
+    public void testCancelAsyncGetRequests() throws Exception {
+        List<IVehicleCallback.Stub> callbackWrapper = new ArrayList<>();
+        List<GetValueResults> resultsWrapper = new ArrayList<>();
+        mockGetValues(callbackWrapper, resultsWrapper);
+
+        HalPropValue value = testAidlHvacPropValue();
+
+        AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
+                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 1000);
+        AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
+                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 1000);
+
+        // Send the getAsync request.
+        mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
+                mGetVehicleStubAsyncCallback);
+
+        // Cancel the first request.
+        mAidlVehicleStub.cancelRequests(List.of(0));
+
+        // Trigger the callback.
+        triggerCallback(callbackWrapper, resultsWrapper);
+
+        // We should only receive the result for the second request.
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().size()).isEqualTo(1);
+        assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(
+                1);
+        verify(mGetVehicleStubAsyncCallback, never()).onRequestsTimeout(any());
     }
 
     @Test

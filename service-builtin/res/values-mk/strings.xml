@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Апликацијава е спречена да се извршува во заднина. Дајте предност на апликацијата за да продолжи користењето во заднина."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Затвори"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Дајте предност на апликацијата"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> е оневозможена. Може да ја овозможите повторно во „Поставки“."</string>
 </resources>

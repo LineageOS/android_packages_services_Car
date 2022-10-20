@@ -62,4 +62,11 @@ public final class ServiceManagerHelper {
     public static void addService(@NonNull String name, @NonNull IBinder service) {
         ServiceManager.addService(name, service);
     }
+
+    /** Check {@link ServiceManager#getDeclaredInstances(String)} */
+    @Nullable
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static String[] getDeclaredInstances(@NonNull String iface) {
+        return ServiceManager.getDeclaredInstances(iface);
+    }
 }

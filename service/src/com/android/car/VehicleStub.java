@@ -81,7 +81,7 @@ public abstract class VehicleStub {
     /**
      * A request for {@link com.android.car.hal.HalClient#getValuesAsync}
      */
-    public static class GetVehicleStubAsyncRequest {
+    public static class AsyncGetSetRequest {
         private final int mServiceRequestId;
         private final HalPropValue mHalPropValue;
         private final long mTimeoutInMs;
@@ -99,9 +99,9 @@ public abstract class VehicleStub {
         }
 
         /**
-         * Get an instance for GetVehicleStubAsyncRequest.
+         * Get an instance for AsyncGetSetRequest.
          */
-        public GetVehicleStubAsyncRequest(int serviceRequestId, HalPropValue halPropValue,
+        public AsyncGetSetRequest(int serviceRequestId, HalPropValue halPropValue,
                 long timeoutInMs) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = halPropValue;
@@ -154,11 +154,11 @@ public abstract class VehicleStub {
     }
 
     /**
-     * A callback for async {@link VehicleStub#getAsync} when successful.
+     * A callback for asynchronous operations.
      */
     public abstract static class VehicleStubCallbackInterface {
         /**
-         * Method called when {@link GetVehicleStubAsyncResult} returns a result.
+         * Method called when {@link getAsync} returns results.
          */
         public abstract void onGetAsyncResults(
                 List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults);
@@ -177,10 +177,16 @@ public abstract class VehicleStub {
     }
 
     /**
-     * Gets a property in async.
+     * Gets a property asynchronously.
      */
-    public abstract void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+    public abstract void getAsync(List<AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStubCallbackInterface getVehicleStubAsyncCallback);
+
+    /**
+     * Sets a property asynchronously.
+     */
+    public abstract void setAsync(List<AsyncGetSetRequest> setVehicleStubAsyncRequests,
+            VehicleStubCallbackInterface setVehicleStubAsyncCallback);
 
     /**
      * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
@@ -323,4 +329,11 @@ public abstract class VehicleStub {
     public boolean isFakeModeEnabled() {
         return false;
     }
+
+    /**
+     * Cancel all the on-going async requests with the given request IDs.
+     *
+     * @param requestIds a list of async get/set request IDs.
+     */
+    public void cancelRequests(List<Integer> requestIds) {}
 }

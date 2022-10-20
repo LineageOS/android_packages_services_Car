@@ -21,16 +21,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Bottom margin is used equal to the height of the control bar minus the rounded corner
+         radius (240 - 48). This is to make sure we don't draw under the area that has a no chance
+         of being shown. -->
     <FrameLayout
         android:id="@+id/upper_app_area"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/control_bar_height_minus_corner_radius"/>
 
     <LinearLayout
         android:id="@+id/lower_app_area_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:paddingBottom="@dimen/control_bar_height_minus_corner_radius"
         android:animateLayoutChanges="true">
 
         <RelativeLayout
@@ -66,7 +71,8 @@
         android:id="@+id/control_bar_area"
         android:layout_width="match_parent"
         android:layout_gravity="bottom"
-        android:layout_height="136dp"
+        android:layout_height="@dimen/control_bar_height"
+        android:background="@drawable/control_bar_background"
         android:orientation="vertical">
 
         <FrameLayout

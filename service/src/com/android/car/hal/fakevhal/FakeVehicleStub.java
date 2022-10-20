@@ -183,12 +183,24 @@ public final class FakeVehicleStub extends VehicleStub {
      * Gets properties asynchronously.
      *
      * @param getVehicleStubAsyncRequests The async request list.
-     * @param getVehicleStubAsyncCallback The call back for getting property values.
+     * @param getVehicleStubAsyncCallback The callback for getting property values.
      */
     @Override
-    public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+    public void getAsync(List<AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         // TODO(b/238646350)
+    }
+
+    /**
+     * Sets properties asynchronously.
+     *
+     * @param setVehicleStubAsyncRequests The async request list.
+     * @param setVehicleStubAsyncCallback the callback for setting property values.
+     */
+    @Override
+    public void setAsync(List<AsyncGetSetRequest> setVehicleStubAsyncRequests,
+            VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
+        // TODO(b/251213448): Implement this.
     }
 
     /**

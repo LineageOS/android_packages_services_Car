@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Komið hefur verið í veg fyrir að þetta forrit keyri í bakgrunni. Forgangsraðaðu forriti til að halda áfram að nota það í bakgrunni."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Loka"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Forgangsraða forriti"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Slökkt var á <xliff:g id="ID_1">^1</xliff:g>. Þú getur kveikt á því aftur í stillingunum."</string>
 </resources>

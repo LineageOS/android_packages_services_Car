@@ -51,7 +51,7 @@ import android.os.SystemClock;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
-import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
+import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -108,10 +108,10 @@ public class VehicleHalTest {
     private static final int REQUEST_ID_1 = 1;
     private static final int REQUEST_ID_2 = 1;
     private final HalPropValue mHalPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, 0);
-    private final GetVehicleStubAsyncRequest mGetVehicleRequest1 =
-            new GetVehicleStubAsyncRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
-    private final GetVehicleStubAsyncRequest mGetVehicleRequest2 =
-            new GetVehicleStubAsyncRequest(REQUEST_ID_2, mHalPropValue, /* timeoutInMs= */ 0);
+    private final AsyncGetSetRequest mGetVehicleRequest1 =
+            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
+    private final AsyncGetSetRequest mGetVehicleRequest2 =
+            new AsyncGetSetRequest(REQUEST_ID_2, mHalPropValue, /* timeoutInMs= */ 0);
 
     @Rule public final TestName mTestName = new TestName();
 
@@ -156,7 +156,7 @@ public class VehicleHalTest {
     public void testGetAsync() {
         mVehicleHal.getAsync(List.of(mGetVehicleRequest1), mGetVehicleStubAsyncCallback);
 
-        ArgumentCaptor<List<GetVehicleStubAsyncRequest>> captor =
+        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         verify(mHalClient).getValuesAsync(captor.capture(),
                 any(VehicleStub.VehicleStubCallbackInterface.class));
@@ -166,13 +166,13 @@ public class VehicleHalTest {
 
     @Test
     public void testGetAsync_multipleRequests() {
-        List<GetVehicleStubAsyncRequest> getVehicleHalRequests = new ArrayList<>();
+        List<AsyncGetSetRequest> getVehicleHalRequests = new ArrayList<>();
         getVehicleHalRequests.add(mGetVehicleRequest1);
         getVehicleHalRequests.add(mGetVehicleRequest2);
 
         mVehicleHal.getAsync(getVehicleHalRequests, mGetVehicleStubAsyncCallback);
 
-        ArgumentCaptor<List<GetVehicleStubAsyncRequest>> captor =
+        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         verify(mHalClient).getValuesAsync(captor.capture(),
                 any(VehicleStub.VehicleStubCallbackInterface.class));
@@ -1487,5 +1487,14 @@ public class VehicleHalTest {
 
         // Assert
         verify(mPowerHalService, never()).onHalEvents(any());
+    }
+
+    @Test
+    public void testCancelRequests() throws Exception {
+        List<Integer> requestIds = mock(List.class);
+
+        mVehicleHal.cancelRequests(requestIds);
+
+        verify(mHalClient).cancelRequests(requestIds);
     }
 }

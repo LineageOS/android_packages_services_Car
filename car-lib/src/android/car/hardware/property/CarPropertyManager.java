@@ -289,7 +289,8 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 if (getAsyncPropertyClientInfo == null) {
                     Log.w(TAG, "onGetValueResult: Request ID: " + requestId
-                            + " might have been completed or an exception might have been thrown");
+                            + " might have been completed, cancelled or an exception might have "
+                            + "been thrown");
                     continue;
                 }
                 Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
@@ -799,10 +800,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a bool property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
      * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
      * request is failed.
      * <ul>
@@ -812,7 +813,7 @@ public class CarPropertyManager extends CarManagerBase {
      *     <li>{@link PropertyNotAvailableException}
      *     <li>{@link IllegalArgumentException}
      * </ul>
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
      * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions if the call
      * fails.
      * <ul>
@@ -842,10 +843,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a float property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
-     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
      *
      * @param prop Property ID to get
      * @param area Area of the property to get
@@ -869,10 +870,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of an integer property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called form a
+     * <p>This method may take couple seconds to complete, so it needs to be called form a
      * non-main thread.
      *
-     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
      *
      * @param prop Property ID to get
      * @param area Zone of the property to get
@@ -896,10 +897,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of an integer array property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
-     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     * <p>This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
      *
      * @param prop Property ID to get
      * @param area Zone of the property to get
@@ -959,10 +960,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Return CarPropertyValue
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
      * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
      * request is failed.
      * <ul>
@@ -972,7 +973,7 @@ public class CarPropertyManager extends CarManagerBase {
      *     <li>{@link PropertyNotAvailableException}
      *     <li>{@link IllegalArgumentException}
      * </ul>
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
      * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
      * is failed.
      * <ul>
@@ -1013,10 +1014,10 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Query CarPropertyValue with property id and areaId.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
      * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
      * request is failed.
      * <ul>
@@ -1026,7 +1027,7 @@ public class CarPropertyManager extends CarManagerBase {
      *     <li>{@link PropertyNotAvailableException}
      *     <li>{@link IllegalArgumentException}
      * </ul>
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
      * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
      * is failed.
      * <ul>
@@ -1081,10 +1082,10 @@ public class CarPropertyManager extends CarManagerBase {
      * precedence is undefined. Typically, the last set operation (in the order that they are issued
      * to the car's ECU) overrides the previous set operations.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called form a
+     * <p>This method may take couple seconds to complete, so it needs to be called form a
      * non-main thread.
      *
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
      * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
      * request is failed.
      * <ul>
@@ -1094,7 +1095,7 @@ public class CarPropertyManager extends CarManagerBase {
      *     <li>{@link PropertyNotAvailableException}
      *     <li>{@link IllegalArgumentException}
      * </ul>
-     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * <p>Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
      * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions when request
      * is failed.
      * <ul>
@@ -1148,7 +1149,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Modifies a property.  If the property modification doesn't occur, an error event shall be
      * generated and propagated back to the application.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -1163,7 +1164,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set float value of property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -1178,7 +1179,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set int value of property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from a
+     * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -1190,7 +1191,9 @@ public class CarPropertyManager extends CarManagerBase {
         setProperty(Integer.class, prop, areaId, val);
     }
 
-    // Handles ServiceSpecificException in CarService for R and later version.
+    /**
+     *  Handles ServiceSpecificException in CarService for R and later version.
+     */
     private void handleCarServiceSpecificException(
             ServiceSpecificException e, int propId, int areaId) {
         // We are not passing the error message down, so log it here.
@@ -1217,6 +1220,31 @@ public class CarPropertyManager extends CarManagerBase {
                 mRequestIdToClientInfo.remove(getPropertyRequests.get(i).getRequestId());
             }
         }
+    }
+
+    /**
+     * Set an onCancelListener for the cancellation signal.
+     *
+     * <p>When the signal is cancelled, car service will remove the stored state for the specified
+     * pending request IDs and ignore all the future results.
+     */
+    private void setOnCancelListener(CancellationSignal cancellationSignal,
+            List<Integer> requestIds) {
+        cancellationSignal.setOnCancelListener(() -> {
+            int[] requestIdsArray = new int[requestIds.size()];
+            synchronized (mLock) {
+                for (int i = 0; i < requestIds.size(); i++) {
+                    int requestId = requestIds.get(i);
+                    requestIdsArray[i] = requestId;
+                    mRequestIdToClientInfo.remove(requestId);
+                }
+            }
+            try {
+                mService.cancelRequests(requestIdsArray);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        });
     }
 
     /** @hide */
@@ -1275,6 +1303,8 @@ public class CarPropertyManager extends CarManagerBase {
      * executed on the default event handler thread. If the callback is doing heavy work, it is
      * recommended that the {@code callbackExecutor} is provided.
      *
+     * <p>If the operation is cancelled, it is guaranteed that no more callbacks will be called.
+     *
      * @param getPropertyRequests The property ID and the optional area ID for the property to get
      * @param timeoutInMs The timeout for the operation, in milliseconds
      * @param cancellationSignal A signal that could be used to cancel the on-going operation
@@ -1291,7 +1321,6 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
-        // TODO(b/238323816): implement cancellationSignal.
         checkGetAsyncRequirements(getPropertyRequests, getPropertyCallback, timeoutInMs);
         List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
                 getPropertyRequests.size());
@@ -1300,6 +1329,7 @@ public class CarPropertyManager extends CarManagerBase {
         if (callbackExecutor == null) {
             callbackExecutor = new HandlerExecutor(getEventHandler());
         }
+        List<Integer> requestIds = new ArrayList<>();
         for (int i = 0; i < getPropertyRequests.size(); i++) {
             GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);
             int propertyId = getPropertyRequest.getPropertyId();
@@ -1311,6 +1341,7 @@ public class CarPropertyManager extends CarManagerBase {
             GetAsyncPropertyClientInfo getAsyncPropertyClientInfo = new GetAsyncPropertyClientInfo(
                     getPropertyRequest, callbackExecutor, getPropertyCallback);
             int requestId = getPropertyRequest.getRequestId();
+            requestIds.add(requestId);
             synchronized (mLock) {
                 if (mRequestIdToClientInfo.contains(requestId)
                         || currentRequestIdToClientInfo.contains(requestId)) {
@@ -1332,6 +1363,9 @@ public class CarPropertyManager extends CarManagerBase {
         } catch (IllegalArgumentException | SecurityException e) {
             clearRequestIdToClientInfo(getPropertyRequests);
             throw e;
+        }
+        if (cancellationSignal != null) {
+            setOnCancelListener(cancellationSignal, requestIds);
         }
     }
 

@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"اس ایپ کو پس منظر میں چلنے سے روک دیا گیا ہے۔ پس منظر کا استعمال جاری رکھنے کے لیے ایپ کو ترجیح دیں۔"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"بند کریں"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ایپ کی ترتیب کو ترجیح دیں"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> کو غیر فعال کر دیا گیا ہے۔ آپ ترتیبات میں اسے دوبارہ فعال کر سکتے ہیں۔"</string>
 </resources>

@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"កម្មវិធីនេះត្រូវបានទប់ស្កាត់មិនឱ្យដំណើរការនៅផ្ទៃខាងក្រោយ។ សូមផ្ដល់អាទិភាពឱ្យកម្មវិធី ដើម្បីបន្តការប្រើប្រាស់នៅផ្ទៃខាងក្រោយ។"</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"បិទ"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"កំណត់អាទិភាព​កម្មវិធី"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> ត្រូវបានបិទ។ អ្នកអាចបើកវា​ម្ដងទៀតនៅ​ក្នុងការកំណត់។"</string>
 </resources>

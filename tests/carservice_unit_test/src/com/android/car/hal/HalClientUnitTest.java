@@ -86,13 +86,13 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         HalPropValue halPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */ 0);
         int serviceRequestId = 1;
 
-        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
-                new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue,
+        VehicleStub.AsyncGetSetRequest getVehicleStubAsyncRequest =
+                new VehicleStub.AsyncGetSetRequest(serviceRequestId, halPropValue,
                         /* timeoutInMs= */ 0);
 
         mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetVehicleStubAsyncCallback);
 
-        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
+        ArgumentCaptor<List<VehicleStub.AsyncGetSetRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
         HalPropValue testHalPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */
                 0);
@@ -101,6 +101,15 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
                 any(VehicleStub.VehicleStubCallbackInterface.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(serviceRequestId);
         assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(testHalPropValue);
+    }
+
+    @Test
+    public void testCancelRequests() {
+        List<Integer> requestIds = mock(List.class);
+
+        mClient.cancelRequests(requestIds);
+
+        verify(mIVehicle).cancelRequests(requestIds);
     }
 
     @Test

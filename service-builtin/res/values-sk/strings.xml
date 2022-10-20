@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Pre túto aplikáciu je zablokované spustenie na pozadí. Ak ju chcete naďalej používať na pozadí, nastavte ju ako prioritnú."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Zavrieť"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Uprednostniť aplikáciu"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Aplikácia <xliff:g id="ID_1">^1</xliff:g> bola deaktivovaná. Môžete ju znova aktivovať v Nastaveniach."</string>
 </resources>

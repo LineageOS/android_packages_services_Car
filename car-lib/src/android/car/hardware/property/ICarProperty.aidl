@@ -51,4 +51,11 @@ interface ICarProperty {
     void getPropertiesAsync(in List<GetPropertyServiceRequest> getPropertyServiceRequests,
                 in IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
                 long timeoutInMs) = 8;
+
+    /**
+     * Cancel on-going async requests.
+     *
+     * @param serviceRequestIds A list of async get/set property request IDs.
+     */
+    void cancelRequests(in int[] serviceRequestIds) = 9;
 }

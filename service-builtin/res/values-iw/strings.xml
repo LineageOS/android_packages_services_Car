@@ -41,5 +41,4 @@
     <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"האפליקציה הזו נחסמה להפעלה ברקע. כדי שהאפליקציה תמשיך לפעול ברקע צריך לקבוע לה עדיפות גבוהה."</string>
     <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"סגירה"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"קביעת עדיפות לאפליקציה"</string>
-    <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> הושבתה. אפשר להפעיל אותה שוב ב\'הגדרות\'."</string>
 </resources>

@@ -34,7 +34,7 @@
     <dimen name="default_audio_icon_outer_ring_thickness">8dp</dimen>
     <dimen name="default_audio_icon_inner_icon_size">40dp</dimen>
 
-    <dimen name="control_bar_image_background_radius">24dp</dimen>
+    <dimen name="control_bar_image_background_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
 
     <dimen name="button_tap_target_size">88dp</dimen>
     <dimen name="recent_apps_row_height">2dp</dimen>
@@ -43,9 +43,10 @@
     <dimen name="app_grid_row_margin_vertical">27dp</dimen>
     <dimen name="app_grid_row_margin_horizontal">90dp</dimen>
     <dimen name="app_grid_divider_margin_horizontal">30dp</dimen>
-    <dimen name="app_grid_touch_target_size">88dp</dimen>
+    <dimen name="app_grid_touch_target_size">104dp</dimen>
     <dimen name="app_touch_target_padding">32dp</dimen>
     <dimen name="app_touch_target_margin">16dp</dimen>
+    <dimen name="app_icon_background_padding">8dp</dimen>
     <dimen name="app_icon_description_margin">24dp</dimen>
     <dimen name="app_icon_margin_top">40dp</dimen>
     <dimen name="app_item_margin_horizontal">12dp</dimen>
