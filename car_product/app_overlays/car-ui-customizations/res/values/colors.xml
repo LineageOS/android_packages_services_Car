@@ -32,4 +32,6 @@
     <color name="car_ui_seekbar_thumb">#FFFFFF</color>
     <!-- The SeekBar thumb color when disabled. Use for the dark theme. -->
     <color name="car_ui_seekbar_thumb_disabled_on_dark">#757575</color>
+    <!-- The preference category icon color-->
+    <color name="car_ui_preference_icon_color">@color/car_ui_text_color_primary</color>
 </resources>
