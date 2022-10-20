@@ -718,6 +718,11 @@ public final class CarAudioContext {
             mAudioAttributes = audioAttributes;
         }
 
+        static boolean audioAttributeMatches(AudioAttributes audioAttributes,
+                AudioAttributes inputAudioAttribute) {
+            return audioAttributes.getSystemUsage() == inputAudioAttribute.getSystemUsage();
+        }
+
         @Override
         public boolean equals(Object object) {
             if (this == object) return true;
@@ -727,7 +732,7 @@ public final class CarAudioContext {
 
             AudioAttributesWrapper that = (AudioAttributesWrapper) object;
 
-            return mAudioAttributes.getSystemUsage() == that.mAudioAttributes.getSystemUsage();
+            return audioAttributeMatches(mAudioAttributes, that.mAudioAttributes);
         }
 
         @Override

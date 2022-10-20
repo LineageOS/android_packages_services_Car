@@ -33,6 +33,7 @@ import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribut
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.oem.AudioFocusEntry;
@@ -43,6 +44,7 @@ import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
+import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -91,7 +93,9 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // focus or pending), the new request will be REJECTED so as to avoid any confusion about
     // the meaning of subsequent GAIN/LOSS events (which would continue to apply to the focus
     // request that was already active or pending).
+    @GuardedBy("mLock")
     private final ArrayMap<String, FocusEntry> mFocusHolders = new ArrayMap<>();
+    @GuardedBy("mLock")
     private final ArrayMap<String, FocusEntry> mFocusLosers = new ArrayMap<>();
 
     private final Object mLock = new Object();
@@ -806,7 +810,15 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @return list of current focus losers for uid
      */
     ArrayList<AudioFocusInfo> getAudioFocusLosersForUid(int uid) {
-        return getAudioFocusListForUid(uid, mFocusLosers);
+        synchronized (mLock) {
+            return getAudioFocusList(new UidAudioFocusInfoComparator(uid), mFocusLosers);
+        }
+    }
+
+    List<AudioFocusInfo> getAudioFocusHolders() {
+        synchronized (mLock) {
+            return getAudioFocusInfos(mFocusHolders);
+        }
     }
 
     /**
@@ -815,45 +827,15 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @return list of current focus holders that for uid
      */
     ArrayList<AudioFocusInfo> getAudioFocusHoldersForUid(int uid) {
-        return getAudioFocusListForUid(uid, mFocusHolders);
-    }
-
-    List<AudioFocusInfo> getAudioFocusHolders() {
-        return getAudioFocusInfos(mFocusHolders);
+        synchronized (mLock) {
+            return getAudioFocusList(new UidAudioFocusInfoComparator(uid), mFocusHolders);
+        }
     }
 
     List<AudioFocusInfo> getAudioFocusLosers() {
-        return getAudioFocusInfos(mFocusLosers);
-    }
-
-    private List<AudioFocusInfo> getAudioFocusInfos(ArrayMap<String, FocusEntry> focusEntries) {
         synchronized (mLock) {
-            List<AudioFocusInfo> focusInfos = new ArrayList<>(focusEntries.size());
-            for (int index = 0; index < focusEntries.size(); index++) {
-                focusInfos.add(focusEntries.valueAt(index).getAudioFocusInfo());
-            }
-            return focusInfos;
+            return getAudioFocusInfos(mFocusLosers);
         }
-    }
-
-    /**
-     * Query input list for matching uid
-     * @param uid uid to match in map
-     * @param mapToQuery map to query for uid info
-     * @return list of audio focus info that match uid
-     */
-    private ArrayList<AudioFocusInfo> getAudioFocusListForUid(int uid,
-            Map<String, FocusEntry> mapToQuery) {
-        ArrayList<AudioFocusInfo> matchingInfoList = new ArrayList<>();
-        synchronized (mLock) {
-            for (String clientId : mapToQuery.keySet()) {
-                AudioFocusInfo afi = mapToQuery.get(clientId).getAudioFocusInfo();
-                if (afi.getClientUid() == uid) {
-                    matchingInfoList.add(afi);
-                }
-            }
-        }
-        return matchingInfoList;
     }
 
     /**
@@ -988,6 +970,110 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             return new StringBuilder().append("{Changed Entries: ").append(mChangedEntries)
                     .append(", Results: ").append(mAudioFocusEvalResults)
                     .append(" }").toString();
+        }
+    }
+
+    /**
+     * Returns the currently active focus holder for media
+     *
+     * @param userId user id to select
+     * @param audioAttributes audio attributes to query
+     * @return list of currently active focus holder with matching audio attribute
+     */
+    public List<AudioFocusInfo> getActiveAudioFocusForUserAndAudioAttributes(
+            AudioAttributes audioAttributes, @UserIdInt int userId) {
+        Objects.requireNonNull(audioAttributes,
+                "Audio attributes can no be null");
+        synchronized (mLock) {
+            return getAudioFocusList(
+                    new UserIdAndAudioAttributeAudioFocusInfoComparator(audioAttributes, userId),
+                    mFocusHolders);
+        }
+    }
+
+    /**
+     * Returns the currently inactive focus holder for a particular audio attributes
+     *
+     * @param audioAttributes audio attributes to query
+     * @param userId user id to select
+     * @return list of currently inactive focus holder with matching audio attribute
+     */
+    public List<AudioFocusInfo> getInactiveAudioFocusForUserAndAudioAttributes(
+            AudioAttributes audioAttributes, @UserIdInt int userId) {
+        Objects.requireNonNull(audioAttributes,
+                "Audio Attributes can no be null");
+        synchronized (mLock) {
+            List<AudioFocusInfo> inactiveList = getAudioFocusList(
+                    new UserIdAndAudioAttributeAudioFocusInfoComparator(audioAttributes, userId),
+                    mFocusLosers);
+
+            if (mDelayedRequest != null
+                    && CarAudioContext.AudioAttributesWrapper.audioAttributeMatches(
+                            audioAttributes, mDelayedRequest.getAttributes())) {
+                inactiveList.add(mDelayedRequest);
+                mDelayedRequest = null;
+            }
+
+            return inactiveList;
+        }
+    }
+
+    private static List<AudioFocusInfo> getAudioFocusInfos(
+            ArrayMap<String, FocusEntry> focusEntries) {
+        List<AudioFocusInfo> focusInfos = new ArrayList<>(focusEntries.size());
+        for (int index = 0; index < focusEntries.size(); index++) {
+            focusInfos.add(focusEntries.valueAt(index).getAudioFocusInfo());
+        }
+        return focusInfos;
+    }
+
+    private static ArrayList<AudioFocusInfo> getAudioFocusList(AudioFocusInfoComparator comparator,
+            Map<String, FocusEntry> mapToQuery) {
+        ArrayList<AudioFocusInfo> matchingInfoList = new ArrayList<>();
+        for (String clientId : mapToQuery.keySet()) {
+            AudioFocusInfo afi = mapToQuery.get(clientId).getAudioFocusInfo();
+            if (comparator.matches(afi)) {
+                matchingInfoList.add(afi);
+            }
+        }
+        return matchingInfoList;
+    }
+
+    private interface AudioFocusInfoComparator {
+        boolean matches(AudioFocusInfo afi);
+    }
+
+    private static final class UidAudioFocusInfoComparator implements AudioFocusInfoComparator {
+
+        private final int mUid;
+
+        UidAudioFocusInfoComparator(int uid) {
+            mUid = uid;
+        }
+
+        @Override
+        public boolean matches(AudioFocusInfo afi) {
+            return afi.getClientUid() == mUid;
+        }
+    }
+
+    private static final class UserIdAndAudioAttributeAudioFocusInfoComparator
+            implements AudioFocusInfoComparator {
+
+        private final int mUserId;
+        private final AudioAttributes mAudioAttribute;
+
+        UserIdAndAudioAttributeAudioFocusInfoComparator(
+                AudioAttributes audioAttributes, @UserIdInt int userId) {
+            mAudioAttribute = audioAttributes;
+            mUserId = userId;
+        }
+
+        @Override
+        public boolean matches(AudioFocusInfo afi) {
+            return (UserHandle.getUserHandleForUid(afi.getClientUid()).getIdentifier() == mUserId)
+                    && CarAudioContext.AudioAttributesWrapper
+                    .audioAttributeMatches(mAudioAttribute, afi.getAttributes());
         }
     }
 }

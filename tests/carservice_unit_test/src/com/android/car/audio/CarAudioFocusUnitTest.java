@@ -72,7 +72,10 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class CarAudioFocusUnitTest {
-    private static final int CLIENT_UID = 1;
+
+    private static final int USER_10_ID = 10;
+    private static final int USER_10_CLIENT_UID = 1010061;
+    private static final int USER_11_ID = 11;
     private static final String FIRST_CLIENT_ID = "first-client-id";
     private static final String SECOND_CLIENT_ID = "second-client-id";
     private static final String THIRD_CLIENT_ID = "third-client-id";
@@ -1162,6 +1165,115 @@ public class CarAudioFocusUnitTest {
                 mAudioPolicy);
     }
 
+    @Test
+    public void getActiveAudioFocusForUserAndAudioAttributes_forActiveMedia_returnMedia() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_10_ID);
+
+        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+                USER_10_ID, mediaAudioAttribute).that(activeFocus).containsExactly(audioFocusInfo);
+    }
+
+    @Test
+    public void getActiveAudioFocusForUserAndAudioAttributes_forInactiveMedia_returnsEmpty() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_10_ID);
+
+        assertWithMessage(
+                "Inactive focus for user %s focus info with audio attributes %s active focus list",
+                USER_10_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
+    }
+
+    @Test
+    public void getActiveAudioFocusForUserAndAudioAttributes_forActiveMedia_forDifferentUser() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                        /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getActiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_11_ID);
+
+        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+                USER_11_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
+    }
+
+    @Test
+    public void getInactiveAudioFocusForUserAndAudioAttributes_forActiveMedia_returnsEmpty() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_10_ID);
+
+        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+                USER_10_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
+    }
+
+    @Test
+    public void getInactiveAudioFocusForUserAndAudioAttributes_forInactiveMedia_returnsMedia() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo mediaAudioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID,
+                AUDIOFOCUS_GAIN, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(mediaAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_10_ID);
+
+        assertWithMessage(
+                "Inactive focus for user %s focus info with audio attributes %s active focus list",
+                USER_10_ID, mediaAudioAttribute)
+                .that(activeFocus).containsExactly(mediaAudioFocusInfo);
+    }
+
+    @Test
+    public void getInactiveAudioFocusForUserAndAudioAttributes_forActiveMedia_forDifferentUser() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                        /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> activeFocus =
+                carAudioFocus.getInactiveAudioFocusForUserAndAudioAttributes(mediaAudioAttribute,
+                        USER_11_ID);
+
+        assertWithMessage("User %s focus info with audio attributes %s active focus list",
+                USER_11_ID, mediaAudioAttribute).that(activeFocus).isEmpty();
+    }
+
     private AudioFocusInfo setupFocusInfoAndRequestFocusForCall(CarAudioFocus carAudioFocus) {
         return setupFocusInfoAndRequestFocusForCall(carAudioFocus, FIRST_CLIENT_ID);
     }
@@ -1270,8 +1382,14 @@ public class CarAudioFocusUnitTest {
 
     private AudioFocusInfo getInfo(AudioAttributes audioAttributes, String clientId, int gainType,
             boolean acceptsDelayedFocus) {
+        return getInfo(audioAttributes, clientId, gainType,
+                acceptsDelayedFocus, USER_10_CLIENT_UID);
+    }
+
+    private AudioFocusInfo getInfo(AudioAttributes audioAttributes, String clientId, int gainType,
+            boolean acceptsDelayedFocus, int uid) {
         int flags = acceptsDelayedFocus ? AudioManager.AUDIOFOCUS_FLAG_DELAY_OK : AUDIOFOCUS_FLAG;
-        return new AudioFocusInfo(audioAttributes, CLIENT_UID, clientId, PACKAGE_NAME,
+        return new AudioFocusInfo(audioAttributes, uid, clientId, PACKAGE_NAME,
                 gainType, AudioManager.AUDIOFOCUS_NONE,
                 flags, Build.VERSION.SDK_INT);
     }
