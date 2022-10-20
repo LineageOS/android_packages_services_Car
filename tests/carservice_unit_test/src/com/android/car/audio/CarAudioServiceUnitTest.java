@@ -48,7 +48,9 @@ import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING
 import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
 import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
+import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
+import static android.media.AudioManager.AUDIOFOCUS_NONE;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
@@ -120,6 +122,7 @@ import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
 import android.media.audiopolicy.AudioPolicy;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.os.SystemProperties;
@@ -221,6 +224,23 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                     TEST_SECONDARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
                     .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+
+    private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
+            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
+            .setType(TYPE_BUILTIN_MIC)
+            .setIsSource(true)
+            .build();
+    private static final AudioDeviceInfo FM_TUNER_TEST_DEVICE =
+            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
+            .setType(TYPE_FM_TUNER)
+            .setIsSource(true)
+            .build();
+
+    private static final AudioFocusInfo TEST_AUDIO_FOCUS_INFO = new AudioFocusInfo(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION), MEDIA_APP_UID,
+            MEDIA_CLIENT_ID, "com.android.car.audio",
+            AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, AUDIOFOCUS_NONE, /* loss= */ 0,
+            Build.VERSION.SDK_INT);
 
     private CarAudioService mCarAudioService;
     @Mock
@@ -1008,6 +1028,61 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         int zoneId = noZoneMappingAudioService.getZoneIdForUid(MEDIA_APP_UID);
 
         expectWithMessage("Get Zone for UID Audio Zone with Cleared Mapping")
+                .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    public void getZoneIdForAudioFocusInfo_withoutMappedUid_succeeds() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        noZoneMappingAudioService.init();
+
+        int zoneId = noZoneMappingAudioService
+                .getZoneIdForAudioFocusInfo(TEST_AUDIO_FOCUS_INFO);
+
+        expectWithMessage("Mapped audio focus info's zone")
+                .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    public void getZoneIdForAudioFocusInfo_succeeds() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        noZoneMappingAudioService.init();
+
+        noZoneMappingAudioService
+                .setZoneIdForUid(SECONDARY_ZONE_ID, MEDIA_APP_UID);
+
+        int zoneId = noZoneMappingAudioService
+                .getZoneIdForAudioFocusInfo(TEST_AUDIO_FOCUS_INFO);
+
+        expectWithMessage("Mapped audio focus info's zone")
+                .that(zoneId).isEqualTo(SECONDARY_ZONE_ID);
+    }
+
+    @Test
+    public void getZoneIdForAudioFocusInfo_afterSwitchingZones_succeeds() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        noZoneMappingAudioService.init();
+        noZoneMappingAudioService
+                .setZoneIdForUid(SECONDARY_ZONE_ID, MEDIA_APP_UID);
+        noZoneMappingAudioService
+                .setZoneIdForUid(PRIMARY_AUDIO_ZONE, MEDIA_APP_UID);
+
+        int zoneId = noZoneMappingAudioService
+                .getZoneIdForAudioFocusInfo(TEST_AUDIO_FOCUS_INFO);
+
+        expectWithMessage("Remapped audio focus info's zone")
                 .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
     }
 

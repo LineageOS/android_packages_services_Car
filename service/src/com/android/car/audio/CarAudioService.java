@@ -1178,12 +1178,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         synchronized (mImplLock) {
-            if (mUidToZoneMap.containsKey(uid)) {
-                return mUidToZoneMap.get(uid);
-            }
-            int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
-            return getZoneIdForUserIdLocked(userId);
+            return getZoneIdForUidLocked(uid);
         }
+    }
+
+    @GuardedBy("mImplLock")
+    private int getZoneIdForUidLocked(int uid) {
+        if (mUidToZoneMap.containsKey(uid)) {
+            return mUidToZoneMap.get(uid);
+        }
+        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
+        return getZoneIdForUserIdLocked(userId);
     }
 
     @GuardedBy("mImplLock")
@@ -1754,6 +1759,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @VisibleForTesting
     void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
         mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
+    }
+
+    int getZoneIdForAudioFocusInfo(AudioFocusInfo afi) {
+        synchronized (mImplLock) {
+            return getZoneIdForUidLocked(afi.getClientUid());
+        }
     }
 
     private List<AudioAttributes> getAllActiveAttributesForZone(int zoneId) {

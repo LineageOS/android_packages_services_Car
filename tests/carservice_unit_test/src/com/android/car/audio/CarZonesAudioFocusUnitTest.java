@@ -23,6 +23,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.mock;
@@ -324,6 +325,6 @@ public final class CarZonesAudioFocusUnitTest {
     }
 
     private void withUidRoutingToZone(int zoneId) {
-        when(mCarAudioService.getZoneIdForUid(CLIENT_UID)).thenReturn(zoneId);
+        when(mCarAudioService.getZoneIdForAudioFocusInfo(any())).thenReturn(zoneId);
     }
 }
