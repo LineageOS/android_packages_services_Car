@@ -72,6 +72,15 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
                 new PlatformVersion("TIRAMISU_1", Build.VERSION_CODES.TIRAMISU, 1);
 
         /**
+         * Helper object for second minor upgrade of Android 13.
+         */
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_2,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final PlatformVersion TIRAMISU_2 =
+                new PlatformVersion("TIRAMISU_2", Build.VERSION_CODES.TIRAMISU, 2);
+
+        /**
          * Helper object for main version of Android 14.
          */
         @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
