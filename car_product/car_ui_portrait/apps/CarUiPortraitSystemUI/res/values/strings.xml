@@ -21,4 +21,12 @@
 
     <!-- HVAC panel header [CHAR LIMIT=40]-->
     <string name="hvac_panel_header">Comfort controls</string>
+
+    <!-- Default sensor string [CHAR LIMIT=10]-->
+    <string name="default_sensor_string">N/A</string>
+    <!-- Format for temperature in the temperature control view (No decimal) in fahrenheit -->
+    <string name="statusbar_temperature_format_fahrenheit" translatable="false">%.0f\u00B0 F
+    </string>
+    <!-- Format for temperature in the temperature control view (No decimal) in celsius -->
+    <string name="statusbar_temperature_format_celsius" translatable="false">%.0f\u00B0 C</string>
 </resources>

@@ -51,7 +51,7 @@
             android:paddingEnd="@dimen/car_padding_2"
             android:elevation="@dimen/clock_elevation"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.SystemBar.Clock"
+            android:textAppearance="@style/TextAppearance.TopSystemBar.Text"
             systemui:amPmStyle="normal"/>
 
         <LinearLayout
@@ -71,12 +71,13 @@
                      android:layout_width="wrap_content"
                      android:layout_height="match_parent"/>
 
-            <!-- TODO(b/254187125): link this to outside temp from vhal -->
-            <!-- <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            <LinearLayout
+                android:id="@+id/read_only_icons_container"
+                android:gravity="center"
+                android:layout_width="@dimen/statusbar_sensor_text_width"
+                android:layout_height="match_parent"
                 android:layout_marginEnd="@dimen/car_padding_3"
-                android:textAppearance="@style/TextAppearance.SystemBar.Clock"/> -->
+            />
 
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/system_icon_area"
