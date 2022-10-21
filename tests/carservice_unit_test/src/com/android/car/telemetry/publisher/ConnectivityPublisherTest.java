@@ -195,8 +195,8 @@ public class ConnectivityPublisherTest {
             return false;
         }
 
-        return savedResult.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
-                && savedResult.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+        return savedResult.containsKey(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+                && savedResult.getInt(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID)
                 == expectedSessionId;
     }
 
@@ -334,7 +334,7 @@ public class ConnectivityPublisherTest {
         assertThat(mDataSubscriberWifiOemManaged.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifiOemManaged.get(0);
 
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID))
+        assertThat(result.getInt(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID))
                 .isEqualTo(1);
         assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
                 .isEqualTo(2);
@@ -369,8 +369,7 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID))
-                .isEqualTo(1);
+        assertThat(result.getInt(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
         // Matches only UID_1.
         assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
                 .isEqualTo(1);
