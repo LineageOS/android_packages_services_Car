@@ -204,7 +204,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 continue;
             }
             PersistableBundle data = previousSessionData.getPersistableBundle(key);
-            if (!data.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)) {
+            if (!data.containsKey(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID)) {
                 Slogf.e(CarLog.TAG_TELEMETRY,
                         "Session annotations is unexpectedly missing. Skipping this batch.");
                 continue;

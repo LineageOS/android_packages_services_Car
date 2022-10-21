@@ -275,8 +275,8 @@ public class MemoryPublisherTest {
 
         verify(mMockDataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
         PersistableBundle report = mBundleCaptor.getValue();
-        assertThat(report.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(2);
-        assertThat(report.getString(SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON))
+        assertThat(report.getInt(Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(2);
+        assertThat(report.getString(Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON))
                 .isEqualTo("reboot");
     }
 
