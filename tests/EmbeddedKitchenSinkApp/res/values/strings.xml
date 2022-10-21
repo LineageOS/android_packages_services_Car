@@ -379,7 +379,6 @@
     <string name="empty_activity" translatable="false">Empty Activity</string>
     <string name="audio_auto_start_activity" translatable="false">Audio Auto Start Activity</string>
     <string name="occupant_zone_start_activity" translatable="false">Occupant Zone Start Activity</string>
-    <string name="user_picker_activity" translatable="false">User Picker Activity</string>
     <string name="window_insets_test_activity" translatable="false">Window Insets Test Activity</string>
 
     <!-- ExperimentalFeatureTest -->
@@ -387,6 +386,9 @@
 
     <!-- User Profile -->
     <string name="status_message_title">Status Message</string>
+
+    <!-- User Picker -->
+    <string name="user_picker_activity" translatable="false">User Picker Demo</string>
 
     <!-- Fullscreen Activity Test -->
     <string name="nav_to_full_screen" translatable="false">Navigate to Full Screen</string>

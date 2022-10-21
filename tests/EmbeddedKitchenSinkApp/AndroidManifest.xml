@@ -278,6 +278,7 @@
 
         <activity android:name=".UserPickerActivity"
             android:label="@string/user_picker_activity"
+            android:icon="@drawable/ic_user_picker"
             android:exported="true"
             android:launchMode="standard"
             android:showForAllUsers="true">
