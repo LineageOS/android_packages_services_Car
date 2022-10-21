@@ -706,12 +706,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 new String[]{});
         mService.applyPowerPolicy(policyIdEnableAudioWifi);
 
-        assertThat(listenerAudio.getCurrentPowerPolicy()).isNotNull();
+
+        waitForPolicyId(listenerAudio, policyIdEnableAudioWifi,
+                "Current power policy of listenerAudio is not " + policyIdEnableAudioWifi);
         assertThat(
                 mService.getCurrentPowerPolicy().isComponentEnabled(PowerComponent.AUDIO)).isTrue();
-        assertPowerPolicyId(listenerAudio, policyIdEnableAudioWifi,
-                "Current power policy of listenerAudio is not " + policyIdEnableAudioWifi);
-        assertPowerPolicyId(listenerWifi, policyIdEnableAudioWifi,
+
+        waitForPolicyId(listenerWifi, policyIdEnableAudioWifi,
                 "Current power policy of listenerWifi is not " + policyIdEnableAudioWifi);
         assertThat(listenerLocation.getCurrentPowerPolicy()).isNull();
     }
@@ -719,16 +720,20 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testRemovePowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
-        String policyId = "policy_id_enable_audio_disable_wifi";
-        mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
+        String policyId = "policy_id_disable_audio";
+        mService.definePowerPolicy(policyId, new String[]{}, new String[]{"AUDIO", "WIFI"});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener referenceListenerAudio = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.AUDIO).build();
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
+        mService.addPowerPolicyListener(filterAudio, referenceListenerAudio);
         mService.removePowerPolicyListener(listenerAudio);
         mService.applyPowerPolicy(policyId);
 
+        waitForPolicyId(referenceListenerAudio, policyId,
+                "Current power policy of referenceListenerAudio is not " + policyId);
         assertThat(listenerAudio.getCurrentPowerPolicy()).isNull();
     }
 
@@ -950,7 +955,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 });
     }
 
-    private static void assertPowerPolicyId(MockedPowerPolicyListener listener, String policyId,
+    private static void waitForPolicyId(MockedPowerPolicyListener listener, String policyId,
             String errorMsg) throws Exception {
         PollingCheck.check(errorMsg, WAIT_TIMEOUT_LONG_MS,
                 () -> {
