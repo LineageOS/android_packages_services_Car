@@ -43,12 +43,11 @@
     <!-- Toast corner radius -->
     <dimen name="toast_corner_radius">24dp</dimen>
     <!-- Toast margin -->
-    <dimen name="toast_margin">24dp</dimen>
+    <dimen name="car_portrait_ui_toast_margin">24dp</dimen>
     <!-- Toast elevation -->
     <dimen name="toast_elevation">2dp</dimen>
     <!-- Toast max width -->
     <dimen name="toast_width">760dp</dimen>
-    <!-- Toast y offset (should be the same as the height of the audio bar -->
-    <dimen name="toast_y_offset">136dp</dimen>
-    <dimen name="toast_bottom_margin">32dp</dimen>
+    <dimen name="toast_y_offset">168dp</dimen>
+    <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
 </resources>

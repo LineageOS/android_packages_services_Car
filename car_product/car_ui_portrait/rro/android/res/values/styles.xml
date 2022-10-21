@@ -24,17 +24,6 @@
         <item name="android:background">@drawable/car_dialog_button_background</item>
     </style>
 
-    <style name="TextAppearance_Toast">
-        <item name="android:textColorHighlight">?android:textColorHighlight</item>
-        <item name="android:textColorHint">?android:textColorHint</item>
-        <item name="android:textColorLink">?android:textColorLink</item>
-        <item name="android:textStyle">normal</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
-        <item name="android:textSize">28sp</item>
-        <item name="android:lineHeight">36sp</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-    </style>
-
     <!-- Override the default activity transitions. We have to do a full copy and not just inherit
          and override because we're replacing the default style across the system.
     -->

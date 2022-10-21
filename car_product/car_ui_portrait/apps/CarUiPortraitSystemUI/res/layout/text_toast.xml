@@ -24,22 +24,20 @@
     android:maxWidth="@*android:dimen/toast_width"
     android:background="@android:drawable/toast_frame"
     android:elevation="@*android:dimen/toast_elevation"
-    android:paddingEnd="@dimen/toast_margin"
-    android:paddingTop="@dimen/toast_margin"
-    android:paddingBottom="@dimen/toast_margin"
-    android:paddingStart="@dimen/toast_margin"
-    android:layout_marginBottom="@dimen/toast_bottom_margin">
+    android:paddingStart="@dimen/car_portrait_ui_toast_margin"
+    android:paddingEnd="@dimen/car_portrait_ui_toast_margin"
+    android:paddingTop="@dimen/car_portrait_ui_toast_margin"
+    android:paddingBottom="@dimen/car_portrait_ui_toast_margin"
+    android:layout_marginBottom="@dimen/car_portrait_ui_toast_bottom_margin">
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_width="@dimen/toast_icon_dimen"
-        android:layout_height="@dimen/toast_icon_dimen"
-        android:layout_marginEnd="@dimen/toast_margin"/>
+        android:layout_width="@dimen/car_portrait_ui_toast_icon_size"
+        android:layout_height="@dimen/car_portrait_ui_toast_icon_size"
+        android:layout_marginEnd="@dimen/car_portrait_ui_toast_margin"/>
     <TextView
         android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textAppearance="@*android:style/TextAppearance.Toast"/>
+        android:textAppearance="@style/TextAppearance.Car.Toast"/>
 </LinearLayout>
