@@ -1458,8 +1458,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         if (status != PolicyOperationStatus.OK) {
             throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
         }
-        Slogf.d(TAG, "Queueing power policy notification (id: %s) in the handler", policyId);
-        mHandler.handlePowerPolicyNotification(policyId);
     }
 
     /**
@@ -1648,7 +1646,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mCurrentPowerPolicyId = policyId;
         }
         mPowerComponentHandler.applyPowerPolicy(policy);
-        if (!delayNotification) {
+        if (delayNotification) {
+            Slogf.d(TAG, "Queueing power policy notification (id: %s) in the handler", policyId);
+            mHandler.handlePowerPolicyNotification(policyId);
+        } else {
             notifyPowerPolicyChange(policyId, upToDaemon, force);
         }
         Slogf.i(TAG, "The current power policy is %s", policyId);
