@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,9 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources>
-    <color name="clear_all_button_background_color">@color/car_secondary_container</color>
-    <color name="call_accept_button">#75B885</color>
-    <color name="call_decline_button">#D77163</color>
-</resources>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="center">
+        <shape android:shape="rectangle">
+            <corners android:radius="24dp" />
+            <solid android:color="@color/car_ui_preference_primary_switch_background_color" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/car_ui_preference_primary_switch_rotary_highlight" />
+</layer-list>

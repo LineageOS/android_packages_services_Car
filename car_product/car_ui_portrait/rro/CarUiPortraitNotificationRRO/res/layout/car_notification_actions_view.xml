@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,7 +32,8 @@
             android:minWidth="@dimen/action_button_min_width"
             android:paddingBottom="@dimen/action_button_padding_bottom"
             android:paddingTop="@dimen/action_button_padding_top"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:textColor="@color/first_action_button_text_color"/>
 
         <com.android.car.notification.template.CarNotificationActionButton
             android:id="@+id/action_2"
@@ -43,7 +45,8 @@
             android:minWidth="@dimen/action_button_min_width"
             android:paddingBottom="@dimen/action_button_padding_bottom"
             android:paddingTop="@dimen/action_button_padding_top"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:textColor="@color/notification_accent_color"/>
 
         <com.android.car.notification.template.CarNotificationActionButton
             android:id="@+id/action_3"
@@ -55,7 +58,8 @@
             android:minWidth="@dimen/action_button_min_width"
             android:paddingBottom="@dimen/action_button_padding_bottom"
             android:paddingTop="@dimen/action_button_padding_top"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            app:textColor="@color/notification_accent_color"/>
 
     </LinearLayout>
 </merge>

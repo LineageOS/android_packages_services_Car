@@ -19,17 +19,26 @@
         android:id="@+id/notification_body_icon"
         android:layout_width="@dimen/notification_touch_target_size"
         android:layout_height="@dimen/notification_touch_target_size"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginEnd="@dimen/body_big_icon_margin"
+        android:layout_marginStart="@dimen/body_big_icon_margin"
         style="@style/NotificationBodyImageIcon"/>
+
+    <DateTimeView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/notification_body_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="@dimen/time_margin"
+        style="@style/NotificationHeaderText"/>
 
     <TextView
         android:id="@+id/notification_body_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/notification_body_icon"
-        android:layout_alignParentStart="true"
+        android:layout_toEndOf="@id/notification_body_icon"
         android:layout_alignWithParentIfMissing="true"
         android:layout_marginStart="@dimen/card_start_margin"
         android:layout_marginEnd="@dimen/notification_body_title_margin"
@@ -50,11 +59,9 @@
 
     <TextView
         android:id="@+id/notification_body_content"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignLeft="@id/notification_body_title"
-        android:layout_toStartOf="@id/notification_body_icon"
-        android:layout_alignWithParentIfMissing="true"
+        android:layout_alignStart="@id/notification_body_title"
         android:layout_below="@id/notification_body_title"
         android:layout_marginEnd="@dimen/card_end_margin"
         android:layout_marginTop="@dimen/notification_body_content_top_margin"
