@@ -112,6 +112,7 @@ public class KitchenSinkActivity extends FragmentActivity {
     private String mLastFragmentTag = DEFAULT_FRAGMENT_TAG;
     @Nullable
     private Fragment mLastFragment;
+    private int mNotificationId = 1000;
 
     public static final String DUMP_ARG_CMD = "cmd";
     public static final String DUMP_ARG_FRAGMENT = "fragment";
@@ -480,7 +481,7 @@ public class KitchenSinkActivity extends FragmentActivity {
                 case DUMP_ARG_CMD:
                     String[] cmdArgs = new String[args.length - 1];
                     System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
-                    new KitchenSinkShellCommand(this, writer, cmdArgs).run();
+                    new KitchenSinkShellCommand(this, writer, cmdArgs, mNotificationId++).run();
                     return;
                 case DUMP_ARG_FRAGMENT:
                     if (args.length < 2) {
@@ -513,6 +514,7 @@ public class KitchenSinkActivity extends FragmentActivity {
         writer.printf("%smLastFragmentTag: %s\n", innerPrefix, mLastFragmentTag);
         writer.printf("%smLastFragment: %s\n", innerPrefix, mLastFragment);
         writer.printf("%sHeader views: %d\n", innerPrefix, mHeader.getChildCount());
+        writer.printf("%sNext Notification Id: %d\n", innerPrefix, mNotificationId);
 
         if (skipParentState) {
             Log.v(TAG, "dump(): skipping parent state");
