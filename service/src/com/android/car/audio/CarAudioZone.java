@@ -17,9 +17,9 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
@@ -221,22 +221,21 @@ import java.util.Set;
         return mInputAudioDevice;
     }
 
-    public @NonNull List<Integer> findActiveContextsFromPlaybackConfigurations(
-            @NonNull List<AudioPlaybackConfiguration> configurations) {
-        Objects.requireNonNull(configurations);
-        List<Integer> activeContexts = new ArrayList<>();
+    public List<AudioAttributes> findActiveAudioAttributesFromPlaybackConfigurations(
+            List<AudioPlaybackConfiguration> configurations) {
+        Objects.requireNonNull(configurations, "Audio playback configurations can not be null");
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
         for (int index = 0; index < configurations.size(); index++) {
             AudioPlaybackConfiguration configuration = configurations.get(index);
             if (configuration.isActive()) {
                 if (isAudioDeviceInfoValidForZone(configuration.getAudioDeviceInfo())) {
                     // Note that address's context and the context actually supplied could be
                     // different
-                    activeContexts.add(CarAudioContext.getContextForAudioAttribute(
-                            configuration.getAudioAttributes()));
+                    audioAttributes.add(configuration.getAudioAttributes());
                 }
             }
         }
-        return activeContexts;
+        return audioAttributes;
     }
 
     boolean isAudioDeviceInfoValidForZone(AudioDeviceInfo info) {

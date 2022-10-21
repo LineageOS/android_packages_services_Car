@@ -20,9 +20,6 @@ import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
-
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
@@ -56,6 +53,13 @@ public final class CarDuckingTest {
     private static final String PRIMARY_MEDIA_ADDRESS = "primary_media";
     private static final String PRIMARY_NAVIGATION_ADDRESS = "primary_navigation_address";
     private static final String REAR_MEDIA_ADDRESS = "rear_media";
+
+    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
     private final SparseArray<CarAudioZone> mCarAudioZones = generateZoneMocks();
     private final AudioFocusInfo mMediaFocusInfo = generateAudioFocusInfoForUsage(USAGE_MEDIA);
@@ -232,8 +236,10 @@ public final class CarDuckingTest {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         CarAudioZone primaryZone = mock(CarAudioZone.class);
         when(primaryZone.getId()).thenReturn(PRIMARY_ZONE_ID);
-        when(primaryZone.getAddressForContext(MUSIC)).thenReturn(PRIMARY_MEDIA_ADDRESS);
-        when(primaryZone.getAddressForContext(NAVIGATION)).thenReturn(PRIMARY_NAVIGATION_ADDRESS);
+        when(primaryZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
+                .thenReturn(PRIMARY_MEDIA_ADDRESS);
+        when(primaryZone.getAddressForContext(TEST_NAVIGATION_AUDIO_CONTEXT))
+                .thenReturn(PRIMARY_NAVIGATION_ADDRESS);
         zones.append(PRIMARY_ZONE_ID, primaryZone);
 
         CarAudioZone passengerZone = mock(CarAudioZone.class);
@@ -242,7 +248,8 @@ public final class CarDuckingTest {
 
         CarAudioZone rearZone = mock(CarAudioZone.class);
         when(rearZone.getId()).thenReturn(REAR_ZONE_ID);
-        when(rearZone.getAddressForContext(MUSIC)).thenReturn(REAR_MEDIA_ADDRESS);
+        when(rearZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
+                .thenReturn(REAR_MEDIA_ADDRESS);
         zones.append(REAR_ZONE_ID, rearZone);
 
         return zones;

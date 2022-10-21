@@ -16,8 +16,9 @@
 
 package com.android.car.audio;
 
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_MEDIA;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -64,6 +65,13 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     private static final String PRIMARY_NAVIGATION_ADDRESS = "primary_navigation_address";
     private static final String PRIMARY_CALL_ADDRESS = "primary_call_address";
     private static final String REAR_MEDIA_ADDRESS = "rear_media";
+
+    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(
+                    CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+    private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
+            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
     private final SparseArray<CarAudioZone> mCarAudioZones = generateZoneMocks();
 
@@ -402,8 +410,10 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         CarAudioZone primaryZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
         when(primaryZone.getId()).thenReturn(PRIMARY_ZONE_ID);
-        when(primaryZone.getAddressForContext(MUSIC)).thenReturn(PRIMARY_MEDIA_ADDRESS);
-        when(primaryZone.getAddressForContext(NAVIGATION)).thenReturn(PRIMARY_NAVIGATION_ADDRESS);
+        when(primaryZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
+                .thenReturn(PRIMARY_MEDIA_ADDRESS);
+        when(primaryZone.getAddressForContext(TEST_NAVIGATION_AUDIO_CONTEXT))
+                .thenReturn(PRIMARY_NAVIGATION_ADDRESS);
         zones.append(PRIMARY_ZONE_ID, primaryZone);
 
         CarAudioZone passengerZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
@@ -412,7 +422,8 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
 
         CarAudioZone rearZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
         when(rearZone.getId()).thenReturn(REAR_ZONE_ID);
-        when(rearZone.getAddressForContext(MUSIC)).thenReturn(REAR_MEDIA_ADDRESS);
+        when(rearZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
+                .thenReturn(REAR_MEDIA_ADDRESS);
         zones.append(REAR_ZONE_ID, rearZone);
 
         return zones;
