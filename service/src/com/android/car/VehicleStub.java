@@ -26,10 +26,10 @@ import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.car.hal.fakevhal.FakeVehicleStub;
 
 import java.io.FileDescriptor;
@@ -79,7 +79,7 @@ public abstract class VehicleStub {
     public @interface VehicleStubErrorCode {}
 
     /**
-     * A request for {@link com.android.car.hal.HalClient#getValuesAsync}
+     * A request for {@link VehicleStub#getAsync} or {@link VehicleStub#setAsync}.
      */
     public static class AsyncGetSetRequest {
         private final int mServiceRequestId;
@@ -325,7 +325,7 @@ public abstract class VehicleStub {
      * @param callback A callback that could be used to receive events.
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
-    public abstract SubscriptionClient newSubscriptionClient(HalClientCallback callback);
+    public abstract SubscriptionClient newSubscriptionClient(VehicleHalCallback callback);
 
     /**
      * Gets a property.

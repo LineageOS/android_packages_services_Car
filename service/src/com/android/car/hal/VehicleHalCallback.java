@@ -21,9 +21,9 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import java.util.ArrayList;
 
 /**
- * HalClientCallback is the callback functions that HalClient supports.
+ * VehicleHalCallback is the callback functions that VehicleHal supports.
  */
-public interface HalClientCallback {
+public interface VehicleHalCallback {
     /**
      * Called when new property events happen.
      */

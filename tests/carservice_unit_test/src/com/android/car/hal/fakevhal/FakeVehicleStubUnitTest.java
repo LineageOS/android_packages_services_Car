@@ -51,10 +51,10 @@ import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.hal.AidlHalPropConfig;
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.VehicleHalCallback;
 
 import com.google.common.truth.Expect;
 
@@ -853,7 +853,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = buildHalPropValue(
                 /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -898,7 +898,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue2 = buildHalPropValue(
                 /* propId= */ VehicleProperty.NIGHT_MODE, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues2);
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -941,7 +941,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue2 = buildHalPropValue(
                 /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_RIGHT,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -969,8 +969,8 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = buildHalPropValue(
                 /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        HalClientCallback callback1 = mock(HalClientCallback.class);
-        HalClientCallback callback2 = mock(HalClientCallback.class);
+        VehicleHalCallback callback1 = mock(VehicleHalCallback.class);
+        VehicleHalCallback callback2 = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -999,7 +999,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.FUEL_LEVEL;
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1027,7 +1027,7 @@ public class FakeVehicleStubUnitTest {
         option2.propId = VehicleProperty.FUEL_LEVEL;
         option2.sampleRate = 50f;
         SubscribeOptions[] options2 = new SubscribeOptions[]{option2};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1057,7 +1057,7 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 200f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
 
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1080,7 +1080,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.FUEL_LEVEL;
         option.sampleRate = -50f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1101,7 +1101,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = 123;
         option.sampleRate = 0f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
@@ -1126,7 +1126,7 @@ public class FakeVehicleStubUnitTest {
         option.areaIds = new int[]{SEAT_1_LEFT};
         option.sampleRate = 1f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1153,7 +1153,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.INFO_FUEL_CAPACITY;
         option.sampleRate = 0f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1167,7 +1167,7 @@ public class FakeVehicleStubUnitTest {
 
     @Test
     public void testUnsubscribePropIdNotSupport() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
 
@@ -1184,7 +1184,7 @@ public class FakeVehicleStubUnitTest {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_STATIC + "]}";
         List<File> customFileList = createFilenameList(jsonString);
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1212,7 +1212,7 @@ public class FakeVehicleStubUnitTest {
         HalPropValue requestPropValue = buildHalPropValue(
                 /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -1240,7 +1240,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.FUEL_LEVEL;
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1265,8 +1265,8 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.FUEL_LEVEL;
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback1 = mock(HalClientCallback.class);
-        HalClientCallback callback2 = mock(HalClientCallback.class);
+        VehicleHalCallback callback1 = mock(VehicleHalCallback.class);
+        VehicleHalCallback callback2 = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1304,7 +1304,7 @@ public class FakeVehicleStubUnitTest {
         option2.propId = VehicleProperty.EV_BATTERY_LEVEL;
         option2.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option1, option2};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -1355,7 +1355,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.VHAL_HEARTBEAT;
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         SubscriptionClient realClient = mock(SubscriptionClient.class);
@@ -1375,7 +1375,7 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.VHAL_HEARTBEAT;
         option.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>());
         SubscriptionClient realClient = mock(SubscriptionClient.class);

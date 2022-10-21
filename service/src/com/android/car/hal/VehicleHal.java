@@ -16,16 +16,17 @@
 
 package com.android.car.hal;
 
+import static android.os.SystemClock.uptimeMillis;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-
-import static java.lang.Integer.toHexString;
 
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
+import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -47,6 +48,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
+import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
@@ -54,7 +56,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -71,7 +72,7 @@ import java.util.stream.Collectors;
  * implementation. It is the responsibility of {@link HalServiceBase} to convert data to
  * corresponding Car*Service for Car*Manager API.
  */
-public class VehicleHal implements HalClientCallback, CarSystemService {
+public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     private static final boolean DBG = false;
 
@@ -84,8 +85,18 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     public static final int NO_AREA = -1;
     public static final float NO_SAMPLE_RATE = -1;
 
+    /**
+     * If call to vehicle HAL returns StatusCode.TRY_AGAIN, we will retry to invoke that method
+     * again for this amount of milliseconds.
+     */
+    private static final int MAX_DURATION_FOR_RETRIABLE_RESULT_MS = 2000;
+
+    private static final int SLEEP_BETWEEN_RETRIABLE_INVOKES_MS = 100;
+
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
+    private final SubscriptionClient mSubscriptionClient;
+
     private final PowerHalService mPowerHal;
     private final PropertyHalService mPropertyHal;
     private final InputHalService mInputHal;
@@ -100,8 +111,10 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
 
     private final Object mLock = new Object();
 
-    /** Might be re-assigned if Vehicle HAL is reconnected. */
-    private volatile HalClient mHalClient;
+    // Only changed for test.
+    private int mMaxDurationForRetryMs = MAX_DURATION_FOR_RETRIABLE_RESULT_MS;
+    // Only changed for test.
+    private int mSleepBetweenRetryMs = SLEEP_BETWEEN_RETRIABLE_INVOKES_MS;
 
     /** Stores handler for each HAL property. Property events are sent to handler. */
     @GuardedBy("mLock")
@@ -128,13 +141,13 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         this(context, /* powerHal= */ null, /* propertyHal= */ null,
                 /* inputHal= */ null, /* vmsHal= */ null, /* userHal= */ null,
                 /* diagnosticHal= */ null, /* clusterHalService= */ null,
-                /* timeHalService= */ null, /* halClient= */ null,
+                /* timeHalService= */ null,
                 CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()), vehicle);
     }
 
     /**
-     * Constructs a new {@link VehicleHal} object given the services and {@link HalClient} factory
-     * function passed as parameters. This method must be used by tests only.
+     * Constructs a new {@link VehicleHal} object given the services passed as parameters.
+     * This method must be used by tests only.
      */
     @VisibleForTesting
     VehicleHal(Context context,
@@ -146,7 +159,6 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
             DiagnosticHalService diagnosticHal,
             ClusterHalService clusterHalService,
             TimeHalService timeHalService,
-            HalClient halClient,
             HandlerThread handlerThread,
             VehicleStub vehicle) {
         // Must be initialized before HalService so that HalService could use this.
@@ -173,13 +185,21 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
                 mClusterHalService,
                 mEvsHal,
                 mTimeHalService,
+                // mPropertyHal must be the last so that on init/release it can be used for all
+                // other HAL services properties.
                 mPropertyHal);
-        // mPropertyHal must be the last so that on init/release
-        // it can be used for all other HAL services properties.
-        mHalClient = halClient != null
-                ? halClient : new HalClient(vehicle, mHandlerThread.getLooper(),
-                /* callback= */ this);
         mVehicleStub = vehicle;
+        mSubscriptionClient = vehicle.newSubscriptionClient(this);
+    }
+
+    @VisibleForTesting
+    void setMaxDurationForRetryMs(int maxDurationForRetryMs) {
+        mMaxDurationForRetryMs = maxDurationForRetryMs;
+    }
+
+    @VisibleForTesting
+    void setSleepBetweenRetryMs(int sleepBetweenRetryMs) {
+        mSleepBetweenRetryMs = sleepBetweenRetryMs;
     }
 
     private void fetchAllPropConfigs() {
@@ -191,7 +211,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         }
         HalPropConfig[] configs;
         try {
-            configs = mHalClient.getAllPropConfigs();
+            configs = mVehicleStub.getAllPropConfigs();
             if (configs == null || configs.length == 0) {
                 Slogf.e(CarLog.TAG_HAL, "getAllPropConfigs returned empty configs");
                 return;
@@ -204,12 +224,111 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
             // Create map of all properties
             for (HalPropConfig p : configs) {
                 if (DBG) {
-                    Slogf.i(CarLog.TAG_HAL, "Add config for prop:"
-                            + Integer.toHexString(p.getPropId()) + " config:" + p.toString());
+                    Slogf.i(CarLog.TAG_HAL, "Add config for prop: 0x%x config: %s", p.getPropId(),
+                            p.toString());
                 }
                 mAllProperties.put(p.getPropId(), p);
             }
         }
+    }
+
+    private void handleOnPropertyEvent(List<HalPropValue> propValues) {
+        synchronized (mLock) {
+            for (int i = 0; i < propValues.size(); i++) {
+                HalPropValue v = propValues.get(i);
+                int propId = v.getPropId();
+                HalServiceBase service = mPropertyHandlers.get(propId);
+                if (service == null) {
+                    Slogf.e(CarLog.TAG_HAL,
+                            "handleOnPropertyEvent: HalService not found for prop: 0x%x", propId);
+                    continue;
+                }
+                service.getDispatchList().add(v);
+                mServicesToDispatch.add(service);
+                VehiclePropertyEventInfo info = mEventLog.get(propId);
+                if (info == null) {
+                    info = new VehiclePropertyEventInfo(v);
+                    mEventLog.put(propId, info);
+                } else {
+                    info.addNewEvent(v);
+                }
+            }
+        }
+        for (HalServiceBase s : mServicesToDispatch) {
+            s.onHalEvents(s.getDispatchList());
+            s.getDispatchList().clear();
+        }
+        mServicesToDispatch.clear();
+    }
+
+    private void handleOnPropertySetError(List<VehiclePropError> errors) {
+        SparseArray<ArrayList<VehiclePropError>> errorsByPropId =
+                new SparseArray<ArrayList<VehiclePropError>>();
+        for (int i = 0; i < errors.size(); i++) {
+            VehiclePropError error = errors.get(i);
+            int errorCode = error.errorCode;
+            int propId = error.propId;
+            int areaId = error.areaId;
+            Slogf.w(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
+                    errorCode, propId, areaId);
+            if (propId == VehicleProperty.INVALID) {
+                continue;
+            }
+
+            ArrayList<VehiclePropError> propErrors;
+            if (errorsByPropId.get(propId) == null) {
+                propErrors = new ArrayList<VehiclePropError>();
+                errorsByPropId.put(propId, propErrors);
+            } else {
+                propErrors = errorsByPropId.get(propId);
+            }
+            propErrors.add(error);
+        }
+
+        for (int i = 0; i < errorsByPropId.size(); i++) {
+            int propId = errorsByPropId.keyAt(i);
+            HalServiceBase service;
+            synchronized (mLock) {
+                service = mPropertyHandlers.get(propId);
+            }
+            if (service == null) {
+                Slogf.e(CarLog.TAG_HAL,
+                        "handleOnPropertySetError: HalService not found for prop: 0x%x", propId);
+                continue;
+            }
+
+            ArrayList<VehiclePropError> propErrors = errorsByPropId.get(propId);
+            service.onPropertySetError(propErrors);
+        }
+    }
+
+    private static String errorMessage(String action, HalPropValue propValue, String errorMsg) {
+        return String.format("Failed to %s value for: 0x%x, areaId: 0x%x, error: %s", action,
+                propValue.getPropId(), propValue.getAreaId(), errorMsg);
+    }
+
+    private HalPropValue getValueWithRetry(HalPropValue value) {
+        return getValueWithRetry(value, /* maxRetries= */ 0);
+    }
+
+    private HalPropValue getValueWithRetry(HalPropValue value, int maxRetries) {
+        HalPropValue result = invokeRetriable((requestValue) -> {
+            return mVehicleStub.get(requestValue);
+        }, "get", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, maxRetries);
+
+        if (result == null) {
+            // If VHAL returns null result, but the status is OKAY. We treat that as NOT_AVAILABLE.
+            throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
+                    errorMessage("get", value, "VHAL returns null for property value"));
+        }
+        return result;
+    }
+
+    private void setValueWithRetry(HalPropValue value)  {
+        invokeRetriable((requestValue) -> {
+            mVehicleStub.set(requestValue);
+            return null;
+        }, "set", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, /* maxRetries= */ 0);
     }
 
     /**
@@ -281,7 +400,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         }
         for (int i = 0; i < subscribedProperties.size(); i++) {
             try {
-                mHalClient.unsubscribe(subscribedProperties.get(i));
+                mSubscriptionClient.unsubscribe(subscribedProperties.get(i));
             } catch (RemoteException | ServiceSpecificException e) {
                 //  Ignore exceptions on shutdown path.
                 Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
@@ -333,8 +452,8 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     @GuardedBy("mLock")
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
-            throw new IllegalArgumentException("Property 0x" + toHexString(property)
-                    + " is not owned by service: " + service);
+            throw new IllegalArgumentException(String.format(
+                    "Property 0x%x  is not owned by service: %s", property, service));
         }
     }
 
@@ -369,8 +488,8 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         }
 
         if (config == null) {
-            throw new IllegalArgumentException("subscribe error: config is null for property 0x"
-                    + toHexString(property));
+            throw new IllegalArgumentException(
+                    String.format("subscribe error: config is null for property 0x%x", property));
         } else if (isPropertySubscribable(config)) {
             SubscribeOptions opts = new SubscribeOptions();
             opts.propId = property;
@@ -381,7 +500,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
                 mSubscribedProperties.put(property, opts);
             }
             try {
-                mHalClient.subscribe(opts);
+                mSubscriptionClient.subscribe(new SubscribeOptions[]{opts});
             } catch (RemoteException | ServiceSpecificException e) {
                 Slogf.w(CarLog.TAG_HAL, "Failed to subscribe to " + toCarPropertyLog(property),
                         e);
@@ -414,7 +533,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
                 mSubscribedProperties.remove(property);
             }
             try {
-                mHalClient.unsubscribe(property);
+                mSubscriptionClient.unsubscribe(property);
             } catch (RemoteException | ServiceSpecificException e) {
                 Slogf.w(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
                         + toCarPropertyLog(property), e);
@@ -437,30 +556,23 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      * Gets given property with retries.
      *
      * <p>If getting the property fails after all retries, it will throw
-     * {@code IllegalStateException}. If the property does not exist, it will simply return
+     * {@code IllegalStateException}. If the property is not supported, it will simply return
      * {@code null}.
      */
     @Nullable
-    public HalPropValue getIfAvailableOrFail(int propertyId, int numberOfRetries) {
+    public HalPropValue getIfSupportedOrFail(int propertyId, int maxRetries) {
         if (!isPropertySupported(propertyId)) {
             return null;
         }
-        Exception lastException = null;
-        for (int i = 0; i < numberOfRetries; i++) {
-            try {
-                return get(propertyId);
-            } catch (Exception e) {
-                Slogf.w(CarLog.TAG_HAL, "Cannot get " + toCarPropertyLog(propertyId), e);
-                lastException = e;
-            }
+        try {
+            return getValueWithRetry(mPropValueBuilder.build(propertyId, NO_AREA), maxRetries);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
-        throw new IllegalStateException("Cannot get property: 0x" + toHexString(propertyId)
-                + " after " + numberOfRetries + " retries" + ", last exception: "
-                + lastException);
     }
 
     /**
-     * This works similar to {@link #getIfAvailableOrFail(int, int)} except that this can be called
+     * This works similar to {@link #getIfSupportedOrFail(int, int)} except that this can be called
      * before {@code init()} is called.
      *
      * <p>This call will check if requested vhal property is supported by querying directly to vhal
@@ -468,10 +580,9 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      * {@code ICarImpl.init()} phase.
      */
     @Nullable
-    public HalPropValue getIfAvailableOrFailForEarlyStage(int propertyId,
-            int numberOfRetries) {
+    public HalPropValue getIfSupportedOrFailForEarlyStage(int propertyId, int maxRetries) {
         fetchAllPropConfigs();
-        return getIfAvailableOrFail(propertyId, numberOfRetries);
+        return getIfSupportedOrFail(propertyId, maxRetries);
     }
 
     /**
@@ -499,7 +610,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
             Slogf.i(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
                     + toCarAreaLog(areaId));
         }
-        return mHalClient.getValue(mPropValueBuilder.build(propertyId, areaId));
+        return getValueWithRetry(mPropValueBuilder.build(propertyId, areaId));
     }
 
     /**
@@ -537,7 +648,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     public <T> T get(Class clazz, HalPropValue requestedPropValue)
             throws IllegalArgumentException, ServiceSpecificException {
         HalPropValue propValue;
-        propValue = mHalClient.getValue(requestedPropValue);
+        propValue = getValueWithRetry(requestedPropValue);
 
         if (clazz == Long.class || clazz == long.class) {
             Long value = propValue.getInt64Value(0);
@@ -611,7 +722,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      */
     public HalPropValue get(HalPropValue requestedPropValue)
             throws IllegalArgumentException, ServiceSpecificException {
-        return mHalClient.getValue(requestedPropValue);
+        return getValueWithRetry(requestedPropValue);
     }
 
     /**
@@ -640,7 +751,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      */
     public void set(HalPropValue propValue)
             throws IllegalArgumentException, ServiceSpecificException {
-        mHalClient.setValue(propValue);
+        setValueWithRetry(propValue);
     }
 
     @CheckResult
@@ -650,7 +761,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
 
     @CheckResult
     HalPropValueSetter set(int propId, int areaId) {
-        return new HalPropValueSetter(mHalClient, propId, areaId);
+        return new HalPropValueSetter(propId, areaId);
     }
 
     static boolean isPropertySubscribable(HalPropConfig config) {
@@ -679,80 +790,14 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
 
-    // should be posted to the mHandlerThread
     @Override
     public void onPropertyEvent(ArrayList<HalPropValue> propValues) {
-        synchronized (mLock) {
-            for (int i = 0; i < propValues.size(); i++) {
-                HalPropValue v = propValues.get(i);
-                int propId = v.getPropId();
-                HalServiceBase service = mPropertyHandlers.get(propId);
-                if (service == null) {
-                    Slogf.e(CarLog.TAG_HAL, "HalService not found for prop: 0x"
-                            + toHexString(propId));
-                    continue;
-                }
-                service.getDispatchList().add(v);
-                mServicesToDispatch.add(service);
-                VehiclePropertyEventInfo info = mEventLog.get(propId);
-                if (info == null) {
-                    info = new VehiclePropertyEventInfo(v);
-                    mEventLog.put(propId, info);
-                } else {
-                    info.addNewEvent(v);
-                }
-            }
-        }
-        for (HalServiceBase s : mServicesToDispatch) {
-            s.onHalEvents(s.getDispatchList());
-            s.getDispatchList().clear();
-        }
-        mServicesToDispatch.clear();
+        mHandler.post(() -> handleOnPropertyEvent(propValues));
     }
 
-    // should be posted to the mHandlerThread
     @Override
     public void onPropertySetError(ArrayList<VehiclePropError> errors) {
-        SparseArray<ArrayList<VehiclePropError>> errorsByPropId =
-                new SparseArray<ArrayList<VehiclePropError>>();
-        for (int i = 0; i < errors.size(); i++) {
-            VehiclePropError error = errors.get(i);
-            int errorCode = error.errorCode;
-            int propId = error.propId;
-            int areaId = error.areaId;
-            Slogf.w(
-                    CarLog.TAG_HAL,
-                    "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
-                    errorCode,
-                    propId,
-                    areaId);
-            if (propId == VehicleProperty.INVALID) {
-                continue;
-            }
-
-            ArrayList<VehiclePropError> propErrors;
-            if (errorsByPropId.get(propId) == null) {
-                propErrors = new ArrayList<VehiclePropError>();
-                errorsByPropId.put(propId, propErrors);
-            } else {
-                propErrors = errorsByPropId.get(propId);
-            }
-            propErrors.add(error);
-        }
-
-        for (int i = 0; i < errorsByPropId.size(); i++) {
-            int propId = errorsByPropId.keyAt(i);
-            HalServiceBase service;
-            synchronized (mLock) {
-                service = mPropertyHandlers.get(propId);
-            }
-            if (service == null) {
-                continue;
-            }
-
-            ArrayList<VehiclePropError> propErrors = errorsByPropId.get(propId);
-            service.onPropertySetError(propErrors);
-        }
+        mHandler.post(() -> handleOnPropertySetError(errors));
     }
 
     @Override
@@ -977,7 +1022,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         if (v == null) {
             return;
         }
-        mHandler.post(() -> onPropertyEvent(Lists.newArrayList(v)));
+        mHandler.post(() -> handleOnPropertyEvent(Lists.newArrayList(v)));
     }
 
     /**
@@ -1017,7 +1062,7 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
                             + TimeUnit.SECONDS.toNanos(timeDurationInSec);
                     HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, zone,
                             new ArrayList<>(Arrays.asList(value.split(DATA_DELIMITER))), timestamp);
-                    mHandler.post(() -> onPropertyEvent(Lists.newArrayList(v)));
+                    mHandler.post(() -> handleOnPropertyEvent(Lists.newArrayList(v)));
                 }
             }
         }, /* delay= */0, period);
@@ -1080,12 +1125,10 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     }
 
     final class HalPropValueSetter {
-        final WeakReference<HalClient> mClient;
         final int mPropId;
         final int mAreaId;
 
-        private HalPropValueSetter(HalClient client, int propId, int areaId) {
-            mClient = new WeakReference<>(client);
+        private HalPropValueSetter(int propId, int areaId) {
             mPropId = propId;
             mAreaId = areaId;
         }
@@ -1142,14 +1185,11 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
 
         void submit(HalPropValue propValue)
                 throws IllegalArgumentException, ServiceSpecificException {
-            HalClient client = mClient.get();
-            if (client != null) {
-                if (DBG) {
-                    Slogf.i(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropId)
-                            + toCarAreaLog(mAreaId));
-                }
-                client.setValue(propValue);
+            if (DBG) {
+                Slogf.i(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropId)
+                        + toCarAreaLog(mAreaId));
             }
+            setValueWithRetry(propValue);
         }
     }
 
@@ -1181,6 +1221,98 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         return String.format("areaId: %d // 0x%x", areaId, areaId);
     }
 
+    interface RetriableAction {
+        @Nullable HalPropValue run(HalPropValue requestValue)
+                throws ServiceSpecificException, RemoteException;
+    }
+
+    private static HalPropValue invokeRetriable(RetriableAction action,
+            String operation, HalPropValue requestValue, long maxDurationForRetryMs,
+            long sleepBetweenRetryMs, int maxRetries)
+            throws ServiceSpecificException, IllegalArgumentException {
+        Retrier retrier = new Retrier(action, operation, requestValue, maxDurationForRetryMs,
+                sleepBetweenRetryMs, maxRetries);
+        return retrier.invokeAction();
+    }
+
+    private static final class Retrier {
+        private final RetriableAction mAction;
+        private final String mOperation;
+        private final HalPropValue mRequestValue;
+        private final long mMaxDurationForRetryMs;
+        private final long mSleepBetweenRetryMs;
+        private final int mMaxRetries;
+        private final long mStartTime;
+        private int mRetryCount = 0;
+
+        Retrier(RetriableAction action,
+                String operation, HalPropValue requestValue, long maxDurationForRetryMs,
+                long sleepBetweenRetryMs, int maxRetries) {
+            mAction = action;
+            mOperation = operation;
+            mRequestValue = requestValue;
+            mMaxDurationForRetryMs = maxDurationForRetryMs;
+            mSleepBetweenRetryMs = sleepBetweenRetryMs;
+            mMaxRetries = maxRetries;
+            mStartTime = uptimeMillis();
+        }
+
+        HalPropValue invokeAction()
+                throws ServiceSpecificException, IllegalArgumentException {
+            mRetryCount++;
+
+            try {
+                return mAction.run(mRequestValue);
+            } catch (ServiceSpecificException e) {
+                switch (e.errorCode) {
+                    case StatusCode.INVALID_ARG:
+                        throw new IllegalArgumentException(errorMessage(mOperation, mRequestValue,
+                            e.toString()));
+                    case StatusCode.TRY_AGAIN:
+                        return sleepAndTryAgain(e);
+                    default:
+                        throw e;
+                }
+            } catch (RemoteException e) {
+                return sleepAndTryAgain(e);
+            }
+        }
+
+        private HalPropValue sleepAndTryAgain(Exception e)
+                throws ServiceSpecificException, IllegalArgumentException {
+            Slogf.d(CarLog.TAG_HAL, "trying the request: "
+                    + toCarPropertyLog(mRequestValue.getPropId()) + ", "
+                    + toCarAreaLog(mRequestValue.getAreaId()) + " again...");
+            try {
+                Thread.sleep(mSleepBetweenRetryMs);
+            } catch (InterruptedException interruptedException) {
+                Thread.currentThread().interrupt();
+                Slogf.w(CarLog.TAG_HAL, "Thread was interrupted while waiting for vehicle HAL.",
+                        interruptedException);
+                throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                        errorMessage(mOperation, mRequestValue, interruptedException.toString()));
+            }
+
+            if (mMaxRetries != 0) {
+                // If mMaxRetries is specified, check the retry count.
+                if (mMaxRetries == mRetryCount) {
+                    throw new ServiceSpecificException(StatusCode.TRY_AGAIN,
+                            errorMessage(mOperation, mRequestValue,
+                                    "cannot get property after " + mRetryCount + " retires, "
+                                    + "last exception: " + e));
+                }
+            } else if ((uptimeMillis() - mStartTime) >= mMaxDurationForRetryMs) {
+                // Otherwise, check whether we have reached timeout.
+                throw new ServiceSpecificException(StatusCode.TRY_AGAIN,
+                        errorMessage(mOperation, mRequestValue,
+                                "cannot get property within " + mMaxDurationForRetryMs
+                                + "ms, last exception: " + e));
+            }
+            return invokeAction();
+        }
+    }
+
+
     /**
      * Query HalPropValue with list of GetVehicleHalRequest objects.
      *
@@ -1188,13 +1320,13 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      */
     public void getAsync(List<VehicleStub.AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStub.VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
-        mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
+        mVehicleStub.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 
     /**
      * Cancel all the on-going async requests with the given request IDs.
      */
     public void cancelRequests(List<Integer> vehicleStubRequestIds) {
-        mHalClient.cancelRequests(vehicleStubRequestIds);
+        mVehicleStub.cancelRequests(vehicleStubRequestIds);
     }
 }
