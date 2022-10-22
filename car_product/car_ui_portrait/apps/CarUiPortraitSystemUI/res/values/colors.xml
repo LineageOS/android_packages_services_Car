@@ -15,7 +15,7 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="car_nav_icon_fill_color">#FFFFFF</color>
+    <color name="car_nav_icon_fill_color">@color/car_on_surface</color>
     <color name="car_nav_icon_background_color">#12FFFFFF</color>
     <color name="car_nav_icon_background_color_selected">@color/car_neutral_100</color>
     <color name="car_nav_minimize_icon_fill_color">@android:color/black</color>
@@ -25,10 +25,11 @@
     <color name="hvac_temperature_adjust_button_color">@color/car_neutral_0</color>
     <color name="hvac_temperature_decrease_arrow_color">@color/car_neutral_90</color>
     <color name="hvac_temperature_increase_arrow_color">@color/car_neutral_90</color>
-    <color name="system_bar_background_pill_color">#fff</color>
-    <color name="status_icon_panel_bg_color">#fff</color>
+    <color name="system_bar_background_pill_color">@color/car_surface_3</color>
+
     <color name="status_icon_not_highlighted_color">#202124</color>
     <color name="status_icon_selected_button_color">#6BF0FF</color>
+    <color name="privacy_chip_indicator_color">@color/car_surface_3</color>
 
     <color name="status_bar_background_color">#00000000</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>

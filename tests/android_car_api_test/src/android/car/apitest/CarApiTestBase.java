@@ -271,6 +271,26 @@ public abstract class CarApiTestBase extends AbstractExpectableTestCase {
         return false;
     }
 
+    // TODO(b/250914846): Clean this up once the investigation is done.
+    // Same as waitUntil except for not failing the test.
+    protected static boolean waitUntilNoFail(long timeoutMs,
+            BooleanSupplierWithThrow condition) {
+        long deadline = SystemClock.elapsedRealtime() + timeoutMs;
+        do {
+            try {
+                if (condition.getAsBoolean()) {
+                    return true;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception in waitUntilNoFail");
+                throw new RuntimeException(e);
+            }
+            SystemClock.sleep(SMALL_NAP_MS);
+        } while (SystemClock.elapsedRealtime() < deadline);
+
+        return false;
+    }
+
     protected void requireNonUserBuild() {
         assumeFalse("Requires Shell commands that are not available on user builds", Build.IS_USER);
     }

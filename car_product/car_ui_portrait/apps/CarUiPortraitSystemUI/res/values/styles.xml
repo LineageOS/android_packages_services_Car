@@ -44,10 +44,10 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="TextAppearance.SystemBar.Username"
-           parent="@android:style/TextAppearance.DeviceDefault">
+    <style name="TextAppearance.SystemBar.Clock"
+           parent="@*android:style/TextAppearance.StatusBar.Icon">
         <item name="android:textSize">@dimen/car_body1_size</item>
-        <item name="android:textColor">@color/system_bar_text_color</item>
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
     <style name="TextAppearance.QC" parent="android:TextAppearance.DeviceDefault">

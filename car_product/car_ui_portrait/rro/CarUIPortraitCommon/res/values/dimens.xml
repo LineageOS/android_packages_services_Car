@@ -17,4 +17,8 @@
 <resources>
     <dimen name="car_portrait_ui_button_radius">44dp</dimen>
     <dimen name="car_portrait_ui_window_rounded_corner_radius">44dp</dimen>
+
+    <dimen name="car_portrait_ui_toast_margin">24dp</dimen>
+    <dimen name="car_portrait_ui_toast_icon_size">48dp</dimen>
+    <dimen name="car_portrait_ui_toast_bottom_margin">32dp</dimen>
 </resources>
