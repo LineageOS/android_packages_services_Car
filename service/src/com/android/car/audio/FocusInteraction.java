@@ -51,7 +51,6 @@ final class FocusInteraction {
 
     private static final String TAG = CarLog.tagFor(FocusInteraction.class);
 
-    @VisibleForTesting
     static final Uri AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI =
             Settings.Secure.getUriFor(
                     CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL);

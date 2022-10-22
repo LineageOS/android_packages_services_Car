@@ -53,8 +53,10 @@ public class FocusInteractionTest {
     private static final int UNDEFINED_CONTEXT_VALUE = -10;
     private static final int TEST_USER_ID = 100;
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
     private static final @AudioContext int TEST_MEDIA_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
     @Mock
@@ -78,7 +80,9 @@ public class FocusInteractionTest {
     @Test
     public void getInteractionMatrix_returnsNByNMatrix() {
         // One extra for CarAudioContext.getInvalidContext()
-        int n = CarAudioContext.getAllContextsIds().size() + 1;
+        CarAudioContext carAudioContext =
+                new CarAudioContext(CarAudioContext.getAllContextsInfo());
+        int n = carAudioContext.getAllContextsIds().size() + 1;
 
         int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();
 

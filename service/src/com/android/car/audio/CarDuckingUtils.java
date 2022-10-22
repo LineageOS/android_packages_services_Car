@@ -54,7 +54,7 @@ final class CarDuckingUtils {
     static List<String> getAddressesToDuck(List<AudioAttributes> audioAttributes,
             CarAudioZone zone) {
         Set<Integer> uniqueContexts =
-                CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
+                zone.getCarAudioContext().getUniqueContextsForAudioAttributes(audioAttributes);
         Set<Integer> contextsToDuck = getContextsToDuck(uniqueContexts);
         Set<String> addressesToDuck = getAddressesForContexts(contextsToDuck, zone);
 

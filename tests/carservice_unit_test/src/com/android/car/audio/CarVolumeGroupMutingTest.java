@@ -60,20 +60,23 @@ public final class CarVolumeGroupMutingTest {
     private static final int SECONDARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     private static final int TERTIARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 2;
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     private static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANT));
     private static final @CarAudioContext.AudioContext int TEST_EMERGENCY_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
     private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
     private static final @CarAudioContext.AudioContext int TEST_SAFETY_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_SAFETY));
 
     private CarAudioZone mPrimaryAudioZone;

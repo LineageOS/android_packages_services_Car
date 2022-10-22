@@ -67,11 +67,14 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     private static final String PRIMARY_CALL_ADDRESS = "primary_call_address";
     private static final String REAR_MEDIA_ADDRESS = "rear_media";
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
     private final SparseArray<CarAudioZone> mCarAudioZones = generateZoneMocks();

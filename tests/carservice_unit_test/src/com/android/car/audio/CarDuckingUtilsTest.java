@@ -54,17 +54,20 @@ public class CarDuckingUtilsTest {
     private static final String CALL_ADDRESS = "call";
     private static final String NAVIGATION_ADDRESS = "navigation";
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     private static final @CarAudioContext.AudioContext int TEST_EMERGENCY_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
     private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
     private static final @CarAudioContext.AudioContext int TEST_CALL_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_CALL_ASSISTANT));
 
     private static final int ZONE_ID = 0;
@@ -89,8 +92,8 @@ public class CarDuckingUtilsTest {
 
                 for (int duckedContext : duckedContextsToVisit) {
                     assertWithMessage("A cycle exists where %s can duck itself via %s",
-                            CarAudioContext.toString(startingContext),
-                            CarAudioContext.toString(contextToVisit)
+                            TEST_CAR_AUDIO_CONTEXT.toString(startingContext),
+                            TEST_CAR_AUDIO_CONTEXT.toString(contextToVisit)
                     ).that(duckedContext).isNotEqualTo(startingContext);
 
                     if (!visitedContexts.contains(duckedContext)) {
@@ -108,7 +111,7 @@ public class CarDuckingUtilsTest {
             List<Integer> contextsToDuck = CarAudioContext.getContextsToDuck(context);
 
             assertWithMessage("Context to duck for context %s",
-                    CarAudioContext.toString(context))
+                    TEST_CAR_AUDIO_CONTEXT.toString(context))
                     .that(contextsToDuck)
                     .doesNotContain(context);
         }
@@ -363,6 +366,7 @@ public class CarDuckingUtilsTest {
                 .thenReturn(NAVIGATION_ADDRESS);
         when(mockZone.getAddressForContext(CarAudioContext.getInvalidContext()))
                 .thenThrow(new IllegalArgumentException());
+        when(mockZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
 
         return mockZone;
     }
