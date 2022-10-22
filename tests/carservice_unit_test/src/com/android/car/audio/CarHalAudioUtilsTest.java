@@ -63,11 +63,14 @@ public class CarHalAudioUtilsTest {
         AudioUsage.AUDIO_USAGE_MEDIA.toString(), AudioUsage.AUDIO_USAGE_NOTIFICATION.toString()
     };
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     private static final @CarAudioContext.AudioContext int TEST_NOTIFICATION_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_NOTIFICATION));
 
     private final List<PlaybackTrackMetadata> mPlaybackTrackMetadataHoldingFocus =
@@ -90,7 +93,7 @@ public class CarHalAudioUtilsTest {
             ad.type = add;
             ad.address =
                     AudioDeviceAddress.id(mCarAudioZone.getAddressForContext(
-                                    CarAudioContext.getContextForAudioAttribute(
+                            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                                             AUDIO_ATTRIBUTES_HOLDING_FOCUS.get(index))));
             playbackTrackMetadata.sourceDevice = ad;
 
@@ -141,17 +144,14 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void audioAttributeToMetadata_withNullZone_succeeds() {
-        PlaybackTrackMetadata playbackTrackMetadata =
-                CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE,
-                        /* CarAudioZone= */ null);
-        assertWithMessage("Playback Track Metadata usage")
-                .that(playbackTrackMetadata.usage)
-                .isEqualTo(USAGE_MEDIA);
-        String emptyAddress = new String("");
-        assertWithMessage("Playback Track Metadata source device address")
-                .that(playbackTrackMetadata.sourceDevice.address.getId())
-                .isEqualTo(emptyAddress);
+    public void audioAttributeToMetadata_withNullZone_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE,
+                    /* zone= */ null);
+        });
+
+        assertWithMessage("Attribute to metadata null zone exception")
+                .that(thrown).hasMessageThat().contains("Car audio zone");
     }
 
     @Test
@@ -184,29 +184,14 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void audioAttributesToMetadatas_withNullZone_succeeds() {
-        List<PlaybackTrackMetadata> playbackTrackMetadataList = CarHalAudioUtils
-                .audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS, /*CarAudioZone=*/ null);
+    public void audioAttributesToMetadatas_withNullZone_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS,
+                    /*CarAudioZone=*/ null);
+        });
 
-        assertWithMessage(
-                        "Converted PlaybackTrackMetadata size for usages holding focus size %s",
-                        AUDIO_ATTRIBUTES_HOLDING_FOCUS.size())
-                .that(playbackTrackMetadataList.size())
-                .isEqualTo(AUDIO_ATTRIBUTES_HOLDING_FOCUS.size());
-
-        int[] usages = new int[playbackTrackMetadataList.size()];
-        for (int index = 0; index < playbackTrackMetadataList.size(); index++) {
-            PlaybackTrackMetadata playbackTrackMetadata = playbackTrackMetadataList.get(index);
-            usages[index] = playbackTrackMetadata.usage;
-            String emptyAddress = new String("");
-            assertWithMessage("Source device address Id for Usage %s", usages[index])
-                    .that(playbackTrackMetadata.sourceDevice.address.getId())
-                    .isEqualTo(emptyAddress);
-        }
-        assertWithMessage("Converted usages to PlaybackTrackMetadata usages")
-                .that(usages)
-                .asList()
-                .containsExactly(USAGE_MEDIA, USAGE_NOTIFICATION);
+        assertWithMessage("Null audio zone exception")
+                .that(thrown).hasMessageThat().contains("Car audio zone can not be null");
     }
 
     @Test
@@ -271,6 +256,7 @@ public class CarHalAudioUtilsTest {
         when(zone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT)).thenReturn(MEDIA_ADDRESS);
         when(zone.getAddressForContext(TEST_NOTIFICATION_AUDIO_CONTEXT))
                 .thenReturn(NOTIFICATION_ADDRESS);
+        when(zone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         return zone;
     }
 }

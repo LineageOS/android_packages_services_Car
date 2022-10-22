@@ -29,7 +29,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
+import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.util.Slogf;
@@ -41,7 +41,6 @@ import android.media.audiopolicy.AudioPolicy;
 import android.util.ArrayMap;
 
 import com.android.car.CarLog;
-import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
@@ -51,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
@@ -66,8 +66,9 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final FocusInteraction mFocusInteraction;
 
-    private AudioFocusInfo mDelayedRequest;
+    private final CarAudioContext mCarAudioContext;
 
+    private AudioFocusInfo mDelayedRequest;
 
     // We keep track of all the focus requesters in this map, with their clientId as the key.
     // This is used both for focus dispatch and death handling
@@ -89,11 +90,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private boolean mIsFocusRestricted;
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
-            FocusInteraction focusInteraction) {
-        mAudioManager = audioManager;
-        mPackageManager = packageManager;
+            FocusInteraction focusInteraction, CarAudioContext carAudioContext) {
+        mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
+        mPackageManager = Objects.requireNonNull(packageManager, "Package manager can not null");
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
-        mFocusInteraction = focusInteraction;
+        mFocusInteraction = Objects.requireNonNull(focusInteraction,
+                "Focus interactions can not be null");
+        mCarAudioContext = Objects.requireNonNull(carAudioContext,
+                "Car audio context can not be null");
     }
 
 
@@ -115,10 +119,10 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     @GuardedBy("mLock")
     private void abandonNonCriticalFocusLocked() {
         if (mDelayedRequest != null) {
-            int audioContext = CarAudioContext.getContextForAttributes(
-                    mDelayedRequest.getAttributes());
-
-            if (!isCriticalAudioContext(audioContext)) {
+            if (!isCriticalAudioAudioAttribute(mDelayedRequest.getAttributes())) {
+                logFocusEvent(
+                        "abandonNonCriticalFocusLocked abandoning non critical delayed request "
+                                + mDelayedRequest);
                 sendFocusLossLocked(mDelayedRequest, AUDIOFOCUS_LOSS);
                 mDelayedRequest = null;
             }
@@ -132,7 +136,9 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private void abandonNonCriticalEntriesLocked(Map<String, FocusEntry> entries) {
         List<String> clientsToRemove = new ArrayList<>();
         for (FocusEntry holderEntry : entries.values()) {
-            if (isCriticalAudioContext(holderEntry.getAudioContext())) {
+            if (isCriticalAudioAudioAttribute(holderEntry.getAudioFocusInfo().getAttributes())) {
+                Slogf.i(TAG, "abandonNonCriticalEntriesLocked keeping critical focus "
+                        + holderEntry);
                 continue;
             }
 
@@ -181,8 +187,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 + " with usage " + usageToString(afi.getAttributes().getUsage()));
 
         if (mIsFocusRestricted) {
-            int audioContext = CarAudioContext.getContextForAttributes(afi.getAttributes());
-            if (!isCriticalAudioContext(audioContext)) {
+            if (!isCriticalAudioAudioAttribute(afi.getAttributes())) {
                 return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
@@ -200,7 +205,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         boolean delayFocusForCurrentRequest = false;
 
-        int requestedContext = CarAudioContext.getContextForAttributes(afi.getAttributes());
+        int requestedContext = mCarAudioContext.getContextForAttributes(afi.getAttributes());
 
         // If we happen to find entries that this new request should replace, we'll store them here.
         // This happens when a client makes a second AF request on the same listener.
@@ -213,7 +218,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // We don't allow sharing listeners (client IDs) between two concurrent requests
         // (because the app would have no way to know to which request a later event applied)
         if (mDelayedRequest != null && afi.getClientId().equals(mDelayedRequest.getClientId())) {
-            int delayedRequestedContext = CarAudioContext.getContextForAttributes(
+            int delayedRequestedContext = mCarAudioContext.getContextForAttributes(
                     mDelayedRequest.getAttributes());
             // If it is for a different context then reject
             if (delayedRequestedContext != requestedContext) {
@@ -239,7 +244,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // This matches the hardwired behavior in the default audio policy engine which apps
             // might expect (The interaction matrix doesn't have any provision for dealing with
             // override flags like this).
-            if ((requestedContext == CarAudioContext.NOTIFICATION)
+            if (CarAudioContext.isNotificationAudioAttribute(afi.getAttributes())
                     && (entry.getAudioFocusInfo().getGainRequest()
                     == AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AUDIOFOCUS_REQUEST_FAILED;
@@ -250,7 +255,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             if (afi.getClientId().equals(entry.getAudioFocusInfo().getClientId())) {
                 if ((entry.getAudioContext() == requestedContext)
                         || canSwapCallOrRingerClientRequest(afi.getClientId(),
-                        entry.getAudioContext(), requestedContext)) {
+                        entry.getAudioFocusInfo().getAttributes(), afi.getAttributes())) {
                     // This is a request from a current focus holder.
                     // Abandon the previous request (without sending a LOSS notification to it),
                     // and don't check the interaction matrix for it.
@@ -284,7 +289,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             // If this request is for Notifications and a pending focus holder has specified
             // AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE, then reject the request
-            if ((requestedContext == CarAudioContext.NOTIFICATION)
+            if ((CarAudioContext.isNotificationAudioAttribute(afi.getAttributes()))
                     && (entry.getAudioFocusInfo().getGainRequest()
                     == AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)) {
                 return AUDIOFOCUS_REQUEST_FAILED;
@@ -423,15 +428,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private static boolean canSwapCallOrRingerClientRequest(String clientId,
-            @AudioContext int currentAudioContext,
-            @AudioContext int requestedContext) {
+            AudioAttributes currentAttributes, AudioAttributes requestedAttributes) {
         return isCallFocusRequestClientId(clientId)
-                && isRingerOrCallAudioContext(currentAudioContext)
-                && isRingerOrCallAudioContext(requestedContext);
+                && isRingerOrCallAudioAttributes(currentAttributes)
+                && isRingerOrCallAudioAttributes(requestedAttributes);
     }
 
-    private static boolean isRingerOrCallAudioContext(@AudioContext int audioContext) {
-        return CarAudioContext.isRingerOrCallContext(audioContext);
+    private static boolean isRingerOrCallAudioAttributes(AudioAttributes attributes) {
+        return CarAudioContext.isRingerOrCallAudioAttribute(attributes);
     }
 
     @Override

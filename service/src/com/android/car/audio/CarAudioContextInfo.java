@@ -16,8 +16,12 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.media.AudioAttributes;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.Arrays;
@@ -66,5 +70,15 @@ final class CarAudioContextInfo {
         return new StringBuilder().append(mName)
                 .append("[").append(mId).append("] attributes: ")
                 .append(Arrays.toString(mAudioAttributes)).toString();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dump(IndentingPrintWriter writer) {
+        writer.printf("Context %s id %s\n", mName, mId);
+        writer.increaseIndent();
+        for (int index = 0; index < mAudioAttributes.length; index++) {
+            writer.println(mAudioAttributes[index]);
+        }
+        writer.decreaseIndent();
     }
 }

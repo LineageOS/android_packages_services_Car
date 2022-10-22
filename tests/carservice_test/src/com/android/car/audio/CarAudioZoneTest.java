@@ -75,23 +75,27 @@ public class CarAudioZoneTest {
     private static final AudioAttributes TEST_SYSTEM_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_SONIFICATION);
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     @Mock
     private CarVolumeGroup mMockMusicGroup;
     @Mock
     private CarVolumeGroup mMockNavGroup;
     @Mock
     private CarVolumeGroup mMockVoiceGroup;
-    private CarAudioZone mTestAudioZone =
-            new CarAudioZone(CarAudioManager.PRIMARY_AUDIO_ZONE, "Primary zone");
+
+    private CarAudioZone mTestAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, "Primary zone",
+            CarAudioManager.PRIMARY_AUDIO_ZONE);
 
     private static final @AudioContext int TEST_MEDIA_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE);
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE);
     private static final  @AudioContext int TEST_ALARM_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE);
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE);
     private static final  @AudioContext int TEST_ASSISTANT_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE);
-    private static final  @AudioContext int TEST_NAVIGATION_CONTEXT = CarAudioContext
-            .getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE);
+    private static final  @AudioContext int TEST_NAVIGATION_CONTEXT =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE);
 
     @Before
     public void setUp() {

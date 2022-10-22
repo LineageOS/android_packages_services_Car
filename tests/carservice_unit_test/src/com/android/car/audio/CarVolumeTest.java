@@ -29,15 +29,14 @@ import static android.telephony.TelephonyManager.CALL_STATE_IDLE;
 import static android.telephony.TelephonyManager.CALL_STATE_OFFHOOK;
 import static android.telephony.TelephonyManager.CALL_STATE_RINGING;
 
-import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
+import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.media.AudioAttributes;
 
@@ -68,6 +67,9 @@ public class CarVolumeTest {
     private static final int KEY_EVENT_TIMEOUT_MS = 3000;
     private static final int TRIAL_COUNTS = 10;
 
+    public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     public static final AudioAttributes TEST_ASSISTANT_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANT);
     public static final AudioAttributes TEST_ALARM_ATTRIBUTE =
@@ -93,14 +95,15 @@ public class CarVolumeTest {
     @Before
     public void setUp() throws Exception {
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME);
-        mCarVolume = new CarVolume(mMockClock, VERSION_TWO, KEY_EVENT_TIMEOUT_MS);
+        mCarVolume = new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
+                VERSION_TWO, KEY_EVENT_TIMEOUT_MS);
 
     }
 
     @Test
     public void constructor_withVersionLessThanOne_failsTooLow() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
-            new CarVolume(mMockClock, VERSION_ZERO, KEY_EVENT_TIMEOUT_MS);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock, VERSION_ZERO, KEY_EVENT_TIMEOUT_MS);
         });
 
         assertWithMessage("Constructor Exception")
@@ -109,8 +112,8 @@ public class CarVolumeTest {
 
     @Test
     public void constructor_withVersionGreaterThanTwo_failsTooHigh() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
-            new CarVolume(mMockClock, VERSION_THREE, KEY_EVENT_TIMEOUT_MS);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
+            new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock, VERSION_THREE, KEY_EVENT_TIMEOUT_MS);
         });
 
         assertWithMessage("Constructor Exception")
@@ -119,12 +122,22 @@ public class CarVolumeTest {
 
     @Test
     public void constructor_withNullSystemClock_fails() {
-        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
-            new CarVolume(null, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            new CarVolume(TEST_CAR_AUDIO_CONTEXT, null, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
         });
 
         assertWithMessage("Constructor Exception")
                 .that(thrown).hasMessageThat().contains("Clock");
+    }
+
+    @Test
+    public void constructor_withNullCarAudioContext_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            new CarVolume(null, mMockClock, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        });
+
+        assertWithMessage("Constructor with null car audio context exception")
+                .that(thrown).hasMessageThat().contains("Car audio context");
     }
 
     @Test
@@ -147,7 +160,8 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioService.DEFAULT_AUDIO_CONTEXT);
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
     @Test
@@ -159,7 +173,7 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes, CALL_STATE_IDLE,
                         new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAttributes(TEST_ASSISTANT_ATTRIBUTE));
     }
 
@@ -169,20 +183,21 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                         CALL_STATE_OFFHOOK, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
     @Test
 
     public void getSuggestedAudioContext_withV1AndCallStateRinging_returnsCallRingContext() {
-        CarVolume carVolume = new CarVolume(mMockClock, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        CarVolume carVolume = new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
+                VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
 
         @AudioContext int suggestedContext =
                 carVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_RINGING, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_RING_ATTRIBUTE));
     }
 
@@ -196,7 +211,7 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes, CALL_STATE_IDLE,
                         new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
@@ -210,13 +225,14 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
                         CALL_STATE_OFFHOOK, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
     @Test
     public void getSuggestedAudioContext_withV1AndNavigationConfigurationAndCall_returnsNav() {
-        CarVolume carVolume = new CarVolume(mMockClock, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
+        CarVolume carVolume = new CarVolume(TEST_CAR_AUDIO_CONTEXT, mMockClock,
+                VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
         List<AudioAttributes> activePlaybackAttributes = ImmutableList.of(CarAudioContext
                 .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
@@ -224,7 +240,7 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
                         CALL_STATE_OFFHOOK, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_NAVIGATION_ATTRIBUTE));
     }
 
@@ -237,7 +253,7 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
                         CALL_STATE_OFFHOOK, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
@@ -250,7 +266,8 @@ public class CarVolumeTest {
                 .getSuggestedAudioContextAndSaveIfFound(activePlaybackAttributes,
                         CALL_STATE_IDLE, new ArrayList<>());
 
-        assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
     @Test
@@ -263,7 +280,7 @@ public class CarVolumeTest {
                 CALL_STATE_IDLE, activeHalAudioAttributes);
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
     }
 
     @Test
@@ -276,7 +293,8 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, activeHalAudioAttributes);
 
-        assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
     @Test
@@ -290,7 +308,7 @@ public class CarVolumeTest {
                         CALL_STATE_IDLE, activeHalAudioAttributes);
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
     }
 
     @Test
@@ -304,7 +322,7 @@ public class CarVolumeTest {
                         CALL_STATE_IDLE, activeHalAudioAttributes);
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
     }
 
     @Test
@@ -315,7 +333,7 @@ public class CarVolumeTest {
         @AudioContext int suggestedContext = mCarVolume.getSuggestedAudioContextAndSaveIfFound(
                 activePlaybackAttributes, CALL_STATE_OFFHOOK, activeHalAudioAttributes);
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
@@ -330,7 +348,7 @@ public class CarVolumeTest {
                         CALL_STATE_IDLE, activeHalAudioAttributes);
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE));
     }
 
     @Test
@@ -348,7 +366,7 @@ public class CarVolumeTest {
                 CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0));
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
     }
 
     @Test
@@ -369,7 +387,7 @@ public class CarVolumeTest {
                     mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                             CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0));
             assertThat(suggestedContext).isEqualTo(
-                    CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
+                    TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
         }
     }
 
@@ -389,7 +407,7 @@ public class CarVolumeTest {
                 CALL_STATE_OFFHOOK, new ArrayList<>(/* initialCapacity= */ 0));
 
         assertThat(suggestedContext).isEqualTo(
-                CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE));
     }
 
     @Test
@@ -406,7 +424,8 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0));
 
-        assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
     @Test
@@ -424,7 +443,7 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new ArrayList<>(/* initialCapacity= */ 0));
 
-        assertThat(suggestedContext).isEqualTo(CarAudioContext
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
@@ -453,7 +472,7 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new ArrayList<>(/* initialCapacity= */ 0));
 
-        assertThat(newContext).isEqualTo(CarAudioContext
+        assertThat(newContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
                 .getContextForAudioAttribute(TEST_CALL_ATTRIBUTE));
     }
 
@@ -473,107 +492,102 @@ public class CarVolumeTest {
                 mCarVolume.getSuggestedAudioContextAndSaveIfFound(Collections.EMPTY_LIST,
                         CALL_STATE_IDLE, Collections.EMPTY_LIST);
 
-        assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
+        assertThat(suggestedContext).isEqualTo(TEST_CAR_AUDIO_CONTEXT
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE));
     }
 
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMatchedContext_returnsTrue() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
         List<AudioAttributes> activePlaybackAttributes =
                 ImmutableList.of(TEST_ASSISTANT_ATTRIBUTE);
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, activePlaybackAttributes, CALL_STATE_IDLE,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, activePlaybackAttributes,
+                CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
     }
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMismatchedContext_returnsFalse() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
         List<AudioAttributes> activePlaybackAttributes =
                 ImmutableList.of(TEST_ASSISTANT_ATTRIBUTE);
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, activePlaybackAttributes, CALL_STATE_IDLE,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, activePlaybackAttributes,
+                CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
     }
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMultipleContexts_returnsTrue() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE),
-                        CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE),
-                        CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE),
+                        TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE),
+                        TEST_CAR_AUDIO_CONTEXT
+                                 .getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
         List<AudioAttributes> activePlaybackAttributes =
                 ImmutableList.of(TEST_ASSISTANT_ATTRIBUTE);
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, activePlaybackAttributes, CALL_STATE_IDLE,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, activePlaybackAttributes,
+                CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
     }
 
     @Test
     public void isAnyContextActive_withOneConfigurationAndMultipleContexts_returnsFalse() {
         @AudioContext int[] activeContexts = {
-                        CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE),
-                        CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE),
-                        CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)
-                };
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE),
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_ATTRIBUTE),
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)
+        };
         List<AudioAttributes> activePlaybackAttributes =
                 ImmutableList.of(CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, activePlaybackAttributes, CALL_STATE_IDLE,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, activePlaybackAttributes,
+                CALL_STATE_IDLE, new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
     }
 
     @Test
     public void isAnyContextActive_withactiveHalAudioAttributesAndMatchedContext_returnsTrue() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
         List<AudioAttributes> activeHalAudioAttributes =
                 ImmutableList.of(TEST_MEDIA_ATTRIBUTE, TEST_ANNOUNCEMENT_ATTRIBUTE,
                         TEST_ASSISTANT_ATTRIBUTE);
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts,  Collections.EMPTY_LIST, CALL_STATE_IDLE,
-                activeHalAudioAttributes)).isTrue();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts,  Collections.EMPTY_LIST,
+                CALL_STATE_IDLE, activeHalAudioAttributes)).isTrue();
     }
 
     @Test
-    public void isAnyContextActive_withactiveHalAudioAttributesAndMismatchedContext_returnsFalse() {
+    public void
+            isAnyContextActive_withactiveHalAudioAttributesAndMismatchedContext_returnsFalse() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
         List<AudioAttributes> activeHalAudioAttributes =
                 ImmutableList.of(TEST_MEDIA_ATTRIBUTE, TEST_ANNOUNCEMENT_ATTRIBUTE,
                         TEST_ASSISTANT_ATTRIBUTE);
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, Collections.EMPTY_LIST, CALL_STATE_IDLE,
-                activeHalAudioAttributes)).isFalse();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, Collections.EMPTY_LIST,
+                CALL_STATE_IDLE, activeHalAudioAttributes)).isFalse();
     }
 
     @Test
     public void isAnyContextActive_withActiveCallAndMatchedContext_returnsTrue() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_CALL_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_CALL_ATTRIBUTE)};
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, Collections.EMPTY_LIST, CALL_STATE_OFFHOOK,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, Collections.EMPTY_LIST,
+                CALL_STATE_OFFHOOK, new ArrayList<>(/* initialCapacity= */ 0))).isTrue();
     }
 
     @Test
     public void isAnyContextActive_withActiveCallAndMismatchedContext_returnsFalse() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ASSISTANT_ATTRIBUTE)};
 
-        assertThat(CarVolume
-                .isAnyContextActive(activeContexts, Collections.EMPTY_LIST, CALL_STATE_OFFHOOK,
-                        new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
+        assertThat(mCarVolume.isAnyContextActive(activeContexts, Collections.EMPTY_LIST,
+                CALL_STATE_OFFHOOK, new ArrayList<>(/* initialCapacity= */ 0))).isFalse();
     }
 
     @Test
@@ -581,7 +595,7 @@ public class CarVolumeTest {
         @AudioContext int[] activeContexts = null;
 
         assertThrows(NullPointerException.class,
-                () -> CarVolume.isAnyContextActive(activeContexts,
+                () -> mCarVolume.isAnyContextActive(activeContexts,
                         Collections.EMPTY_LIST, CALL_STATE_OFFHOOK, Collections.EMPTY_LIST));
     }
 
@@ -590,18 +604,18 @@ public class CarVolumeTest {
         @AudioContext int[] activeContexts = {};
 
         assertThrows(IllegalArgumentException.class,
-                () -> CarVolume.isAnyContextActive(activeContexts,
+                () -> mCarVolume.isAnyContextActive(activeContexts,
                         Collections.EMPTY_LIST, CALL_STATE_OFFHOOK, Collections.EMPTY_LIST));
     }
 
     @Test
     public void isAnyContextActive_withNullActivePlayback_fails() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
         List<AudioAttributes> activePlaybackAttributes = null;
 
         assertThrows(NullPointerException.class,
-                () -> CarVolume.isAnyContextActive(activeContexts,
+                () -> mCarVolume.isAnyContextActive(activeContexts,
                         activePlaybackAttributes, CALL_STATE_OFFHOOK,
                         Collections.EMPTY_LIST));
     }
@@ -609,10 +623,10 @@ public class CarVolumeTest {
     @Test
     public void isAnyContextActive_withNullHalUsages_fails() {
         @AudioContext int[] activeContexts =
-                {CarAudioContext.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
+                {TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_ALARM_ATTRIBUTE)};
 
         assertThrows(NullPointerException.class,
-                () -> CarVolume.isAnyContextActive(activeContexts,
+                () -> mCarVolume.isAnyContextActive(activeContexts,
                         Collections.EMPTY_LIST, CALL_STATE_OFFHOOK, null));
     }
 }

@@ -213,19 +213,22 @@ abstract class CarZonesAudioFocusTestBase {
     }
 
     protected SparseArray<CarAudioZone> generateAudioZones() {
+        CarAudioContext testCarAudioContext =
+                new CarAudioContext(CarAudioContext.getAllContextsInfo());
         SparseArray<CarAudioZone> zones = new SparseArray<>(2);
-        zones.put(PRIMARY_ZONE_ID, new CarAudioZone(PRIMARY_ZONE_ID, "Primary zone"));
-        zones.put(SECONDARY_ZONE_ID, new CarAudioZone(SECONDARY_ZONE_ID, "Secondary zone"));
+        zones.put(PRIMARY_ZONE_ID,
+                new CarAudioZone(testCarAudioContext, "Primary zone", PRIMARY_ZONE_ID));
+        zones.put(SECONDARY_ZONE_ID,
+                new CarAudioZone(testCarAudioContext, "Secondary zone", SECONDARY_ZONE_ID));
         return zones;
     }
 
     protected CarZonesAudioFocus getCarZonesAudioFocus() {
         CarZonesAudioFocus carZonesAudioFocus =
-                CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager, mMockPackageManager,
-                        mCarAudioZones,
-                        mCarAudioSettings, mMockCarFocusCallback);
+                CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
+                        mMockPackageManager, mCarAudioZones, mCarAudioSettings,
+                        mMockCarFocusCallback);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
-
 
         return carZonesAudioFocus;
     }

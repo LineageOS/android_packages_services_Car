@@ -73,9 +73,11 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
-            CarAudioFocus zoneFocusListener =
-                    new CarAudioFocus(audioManager, packageManager,
-                            new FocusInteraction(carAudioSettings));
+
+            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
+                    packageManager, new FocusInteraction(carAudioSettings),
+                    audioZone.getCarAudioContext());
+
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);
