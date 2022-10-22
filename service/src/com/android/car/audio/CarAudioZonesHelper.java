@@ -17,7 +17,10 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
+import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
+
+import static java.util.Locale.ROOT;
 
 import android.annotation.NonNull;
 import android.media.AudioDeviceAttributes;
@@ -69,17 +72,7 @@ import java.util.stream.Collectors;
     private static final int SUPPORTED_VERSION_2 = 2;
     private static final SparseIntArray SUPPORTED_VERSIONS;
 
-
-    private static final Map<String, Integer> CONTEXT_NAME_MAP;
-
     static {
-        List<CarAudioContextInfo> allContext = CarAudioContext.getAllContextsInfo();
-        CONTEXT_NAME_MAP = new ArrayMap<>(allContext.size());
-        for (int index = 0; index < allContext.size(); index++) {
-            CarAudioContextInfo info = allContext.get(index);
-            CONTEXT_NAME_MAP.put(info.getName().toLowerCase(), info.getId());
-        }
-
         SUPPORTED_VERSIONS = new SparseIntArray(2);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_1, SUPPORTED_VERSION_1);
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_2, SUPPORTED_VERSION_2);
@@ -95,6 +88,7 @@ import java.util.stream.Collectors;
     }
 
     private final CarAudioSettings mCarAudioSettings;
+    private final List<CarAudioContextInfo> mCarAudioContextInfos;
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
     private final Map<String, AudioDeviceInfo> mAddressToInputAudioDeviceInfoForAllInputDevices;
     private final InputStream mInputStream;
@@ -103,6 +97,8 @@ import java.util.stream.Collectors;
     private final Set<String> mAssignedInputAudioDevices;
     private final boolean mUseCarVolumeGroupMute;
 
+    private final ArrayMap<String, Integer> mContextNameToId = new ArrayMap<>();
+    private CarAudioContext mCarAudioContext;
     private int mNextSecondaryZoneId;
     private int mCurrentVersion;
 
@@ -114,6 +110,7 @@ import java.util.stream.Collectors;
             @NonNull InputStream inputStream,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
             @NonNull AudioDeviceInfo[] inputDeviceInfo, boolean useCarVolumeGroupMute) {
+        mCarAudioContextInfos = CarAudioContext.getAllContextsInfo();
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
         mInputStream = Objects.requireNonNull(inputStream);
         Objects.requireNonNull(carAudioDeviceInfos);
@@ -178,6 +175,8 @@ import java.util.stream.Collectors;
 
         mCurrentVersion = versionNumber;
 
+        loadCarAudioContexts();
+
         // Get all zones configured under <zones> tag
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -188,6 +187,14 @@ import java.util.stream.Collectors;
             }
         }
         throw new RuntimeException(TAG_AUDIO_ZONES + " is missing from configuration");
+    }
+
+    private void loadCarAudioContexts() {
+        for (int index = 0; index < mCarAudioContextInfos.size(); index++) {
+            CarAudioContextInfo info = mCarAudioContextInfos.get(index);
+            mContextNameToId.put(info.getName().toLowerCase(ROOT), info.getId());
+        }
+        mCarAudioContext = new CarAudioContext(mCarAudioContextInfos);
     }
 
     private SparseArray<CarAudioZone> parseAudioZones(XmlPullParser parser)
@@ -240,7 +247,7 @@ import java.util.stream.Collectors;
         final String zoneName = parser.getAttributeValue(NAMESPACE, ATTR_ZONE_NAME);
         final int audioZoneId = getZoneId(isPrimary, parser);
         parseOccupantZoneId(audioZoneId, parser);
-        final CarAudioZone zone = new CarAudioZone(audioZoneId, zoneName);
+        final CarAudioZone zone = new CarAudioZone(mCarAudioContext, zoneName, audioZoneId);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect one <volumeGroups> in one audio zone
@@ -383,8 +390,8 @@ import java.util.stream.Collectors;
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
         CarVolumeGroup.Builder groupBuilder =
-                new CarVolumeGroup.Builder(zoneId, groupId, mCarAudioSettings,
-                        mUseCarVolumeGroupMute);
+                new CarVolumeGroup.Builder(mCarAudioSettings, mCarAudioContext,
+                        zoneId, groupId, mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
@@ -412,14 +419,15 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_CONTEXT.equals(parser.getName())) {
-                @AudioContext int carAudioContext = parseCarAudioContext(
+                @AudioContext int carAudioContextId = parseCarAudioContextId(
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
-                validateCarAudioContextSupport(carAudioContext);
+                validateCarAudioContextSupport(carAudioContextId);
                 CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
-                groupBuilder.setDeviceInfoForContext(carAudioContext, info);
+                groupBuilder.setDeviceInfoForContext(carAudioContextId, info);
 
                 // If V1, default new contexts to same device as DEFAULT_AUDIO_USAGE
-                if (isVersionOne() && carAudioContext == CarAudioService.DEFAULT_AUDIO_CONTEXT) {
+                if (isVersionOne() && carAudioContextId == mCarAudioContext
+                        .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE)) {
                     setNonLegacyContexts(groupBuilder, info);
                 }
             }
@@ -449,8 +457,8 @@ import java.util.stream.Collectors;
         }
     }
 
-    private static @AudioContext int parseCarAudioContext(String context) {
-        return CONTEXT_NAME_MAP.getOrDefault(context.toLowerCase(),
+    private @AudioContext int parseCarAudioContextId(String context) {
+        return mContextNameToId.getOrDefault(context.toLowerCase(ROOT),
                 CarAudioContext.getInvalidContext());
     }
 
@@ -459,7 +467,7 @@ import java.util.stream.Collectors;
             throw new IllegalArgumentException(String.format(
                     "Non-legacy audio contexts such as %s are not supported in "
                             + "car_audio_configuration.xml version %d",
-                    CarAudioContext.toString(audioContext), SUPPORTED_VERSION_1));
+                    mCarAudioContext.toString(audioContext), SUPPORTED_VERSION_1));
         }
     }
 
@@ -467,5 +475,9 @@ import java.util.stream.Collectors;
         int zoneId = mNextSecondaryZoneId;
         mNextSecondaryZoneId += 1;
         return zoneId;
+    }
+
+    public CarAudioContext getCarAudioContext() {
+        return mCarAudioContext;
     }
 }

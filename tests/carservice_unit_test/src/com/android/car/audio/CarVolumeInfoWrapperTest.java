@@ -82,7 +82,7 @@ public final class CarVolumeInfoWrapperTest {
     @Test
     public void getVolumeGroupIdForAudioContext_returnsGroupIdForContext() {
         int groupId = mCarVolumeInfoWrapper
-                .getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL);
+                .getVolumeGroupIdForAudioZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car Audio Group Id")
                 .that(groupId).isEqualTo(TEST_GROUP_ID);

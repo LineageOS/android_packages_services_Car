@@ -80,7 +80,7 @@ public class CarAudioPolicyVolumeCallbackTest {
                         mMockVolumeInfoWrapper, false);
         when(mMockVolumeInfoWrapper.getSuggestedAudioContextForPrimaryZone())
                 .thenReturn(VOICE_COMMAND);
-        when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioContext(anyInt(), anyInt()))
+        when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioZone(anyInt()))
                 .thenReturn(TEST_VOLUME_GROUP);
         when(mMockVolumeInfoWrapper.getGroupMaxVolume(anyInt(), anyInt()))
                 .thenReturn(TEST_MAX_VOLUME);
