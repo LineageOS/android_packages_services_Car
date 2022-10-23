@@ -158,6 +158,56 @@ public final class CarAudioManager extends CarManagerBase {
     public static final String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID =
             "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
+    /**
+     * Use to inform media request callbacks about approval of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_APPROVED = 1;
+
+    /**
+     * Use to inform media request callbacks about rejection of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_REJECTED = 2;
+
+    /**
+     * Use to inform media request callbacks about cancellation of a pending request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3;
+
+    /**
+     * Use to inform media request callbacks about the stop of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_STOPPED = 4;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = "AUDIO_REQUEST_STATUS", value = {
+            AUDIO_REQUEST_STATUS_APPROVED,
+            AUDIO_REQUEST_STATUS_REJECTED,
+            AUDIO_REQUEST_STATUS_CANCELLED,
+            AUDIO_REQUEST_STATUS_STOPPED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaAudioRequestStatus {}
+
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final AudioManager mAudioManager;

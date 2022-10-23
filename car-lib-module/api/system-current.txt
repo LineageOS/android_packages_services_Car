@@ -1191,6 +1191,10 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setGroupVolume(int, int, int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void setVolumeGroupMute(int, int, boolean, int);
     field public static final String AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS = "android.car.media.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS";
+    field public static final int AUDIO_REQUEST_STATUS_APPROVED = 1; // 0x1
+    field public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3; // 0x3
+    field public static final int AUDIO_REQUEST_STATUS_REJECTED = 2; // 0x2
+    field public static final int AUDIO_REQUEST_STATUS_STOPPED = 4; // 0x4
     field public static final int INVALID_AUDIO_ZONE = -1; // 0xffffffff
     field public static final int PRIMARY_AUDIO_ZONE = 0; // 0x0
   }
@@ -1241,6 +1245,15 @@ package android.car.media {
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGainIndex(int);
+  }
+
+  public interface MediaAudioRequestStatusCallback {
+    method public void onMediaAudioRequestStatusChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, long, int);
+  }
+
+  public interface PrimaryZoneMediaAudioRequestCallback {
+    method public void onMediaAudioRequestStatusChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, long, int);
+    method public void onRequestMediaOnPrimaryZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, long);
   }
 
 }
