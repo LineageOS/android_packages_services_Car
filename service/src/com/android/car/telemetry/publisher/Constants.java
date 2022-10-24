@@ -30,6 +30,18 @@ package com.android.car.telemetry.publisher;
  * populated.
  */
 public final class Constants {
+    // Session Annotations
+    public static final String ANNOTATION_BUNDLE_KEY_SESSION_ID = "session.sessionId";
+    public static final String ANNOTATION_BUNDLE_KEY_SESSION_STATE = "session.sessionState";
+    public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS =
+            "session.createdAtSinceBootMillis";
+    public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS = "session.createdAtMillis";
+    public static final String ANNOTATION_BUNDLE_KEY_BOOT_REASON = "session.bootReason";
+
+    // StatsPublisher
+    public static final String STATS_BUNDLE_KEY_PREFIX = "stats.";
+    public static final String STATS_BUNDLE_KEY_ELAPSED_TIMESTAMP = "stats.elapsed_timestamp_nanos";
+
     // CarTelemetrydPublisher
     public static final String CAR_TELEMETRYD_BUNDLE_KEY_ID = "ct.id";
     public static final String CAR_TELEMETRYD_BUNDLE_KEY_CONTENT = "ct.content";
