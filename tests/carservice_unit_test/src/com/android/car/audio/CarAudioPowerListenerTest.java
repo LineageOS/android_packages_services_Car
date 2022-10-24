@@ -165,6 +165,20 @@ public class CarAudioPowerListenerTest {
         verify(mMockCarAudioService, never()).setAudioEnabled(true);
     }
 
+    @Test
+    public void stopListeningForPolicyChanges_notNullPowerService() {
+        CarAudioPowerListener listener = new CarAudioPowerListener(mMockCarAudioService,
+                mMockCarPowerService);
+        listener.startListeningForPolicyChanges();
+        ArgumentCaptor<ICarPowerPolicyListener> captor = ArgumentCaptor.forClass(
+                ICarPowerPolicyListener.class);
+        verify(mMockCarPowerService).addPowerPolicyListener(any(), captor.capture());
+
+        listener.stopListeningForPolicyChanges();
+
+        verify(mMockCarPowerService).removePowerPolicyListener(captor.getValue());
+    }
+
     private void withAudioInitiallyEnabled() {
         when(mMockCarPowerService.getCurrentPowerPolicy()).thenReturn(ENABLED_POLICY);
     }
