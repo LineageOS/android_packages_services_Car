@@ -30,8 +30,9 @@ final class CarVolumeInfoWrapper {
         return mCarAudioService.getSuggestedAudioContextForPrimaryZone();
     }
 
-    public int getVolumeGroupIdForAudioContext(int zoneId, int suggestedContext) {
-        return mCarAudioService.getVolumeGroupIdForAudioContext(zoneId, suggestedContext);
+    public int getVolumeGroupIdForAudioZone(int zoneId) {
+        return mCarAudioService.getVolumeGroupIdForAudioContext(zoneId,
+                getSuggestedAudioContextForPrimaryZone());
     }
 
     public int getGroupVolume(int zoneId, int groupId) {

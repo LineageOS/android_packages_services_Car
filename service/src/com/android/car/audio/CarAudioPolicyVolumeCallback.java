@@ -36,7 +36,6 @@ import android.car.builtin.util.Slogf;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 
-import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Objects;
@@ -72,18 +71,14 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
 
     @Override
     public void onVolumeAdjustment(int adjustment) {
-        @AudioContext int suggestedContext = mCarVolumeInfo
-                .getSuggestedAudioContextForPrimaryZone();
-
         int zoneId = PRIMARY_AUDIO_ZONE;
-        int groupId = mCarVolumeInfo.getVolumeGroupIdForAudioContext(zoneId, suggestedContext);
+        int groupId = mCarVolumeInfo.getVolumeGroupIdForAudioZone(zoneId);
         boolean isMuted = isMuted(zoneId, groupId);
 
         if (Slogf.isLoggable(TAG_AUDIO, VERBOSE)) {
             Slogf.v(TAG_AUDIO,
-                    "onVolumeAdjustment: %s suggested audio context: %s "
-                            + "suggested volume group: %s is muted: %b",
-                    adjustToString(adjustment), CarAudioContext.toString(suggestedContext),
+                    "onVolumeAdjustment: %s suggested volume group: %s is muted: %b",
+                    adjustToString(adjustment),
                     groupId, isMuted);
         }
 

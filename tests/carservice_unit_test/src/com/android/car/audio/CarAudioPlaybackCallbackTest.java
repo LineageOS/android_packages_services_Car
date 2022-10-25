@@ -66,12 +66,15 @@ public final class CarAudioPlaybackCallbackTest {
     private static final AudioAttributes TEST_NAVIGATION_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build();
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(TEST_MEDIA_AUDIO_ATTRIBUTE);
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_AUDIO_ATTRIBUTE);
     private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(TEST_NAVIGATION_AUDIO_ATTRIBUTE);
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_AUDIO_ATTRIBUTE);
     private static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANT));
 
     @Mock

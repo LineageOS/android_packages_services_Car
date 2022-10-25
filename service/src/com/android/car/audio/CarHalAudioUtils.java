@@ -18,7 +18,6 @@ package com.android.car.audio;
 
 import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
 
-import android.annotation.Nullable;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.media.AudioAttributes;
@@ -64,7 +63,10 @@ public final class CarHalAudioUtils {
      *
      */
     public static PlaybackTrackMetadata audioAttributeToMetadata(
-            AudioAttributes audioAttributes, @Nullable CarAudioZone zone) {
+            AudioAttributes audioAttributes, CarAudioZone zone) {
+        Objects.requireNonNull(zone, "Car audio zone can not be null");
+        int carAudioContextId = zone.getCarAudioContext()
+                .getContextForAudioAttribute(audioAttributes);
         PlaybackTrackMetadata playbackTrackMetadata = new PlaybackTrackMetadata();
         playbackTrackMetadata.usage = audioAttributes.getSystemUsage();
         playbackTrackMetadata.tags = new String[0];
@@ -74,11 +76,7 @@ public final class CarHalAudioUtils {
         AudioDevice audioDevice = new AudioDevice();
         audioDevice.type = audioDeviceDescription;
         audioDevice.address =
-                AudioDeviceAddress.id(
-                        zone != null
-                                ? zone.getAddressForContext(CarAudioContext
-                                .getContextForAudioAttribute(audioAttributes))
-                                : "");
+                AudioDeviceAddress.id(zone.getAddressForContext(carAudioContextId));
         playbackTrackMetadata.sourceDevice = audioDevice;
         return playbackTrackMetadata;
     }
@@ -89,7 +87,8 @@ public final class CarHalAudioUtils {
      *
      */
     public static List<PlaybackTrackMetadata> audioAttributesToMetadatas(
-            List<AudioAttributes> audioAttributes, @Nullable CarAudioZone zone) {
+            List<AudioAttributes> audioAttributes, CarAudioZone zone) {
+        Objects.requireNonNull(zone, "Car audio zone can not be null");
         List<PlaybackTrackMetadata> playbackTrackMetadataList =
                 new ArrayList<>(audioAttributes.size());
         for (int index = 0; index < audioAttributes.size(); index++) {

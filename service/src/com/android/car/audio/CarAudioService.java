@@ -92,14 +92,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service responsible for interaction with car's audio system.
@@ -108,10 +106,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     static final String TAG = CarLog.TAG_AUDIO;
 
-    static final AudioAttributes DEFAULT_ATTRIBUTE =
+    static final AudioAttributes CAR_DEFAULT_AUDIO_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA);
-    static final @AudioContext int DEFAULT_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(DEFAULT_ATTRIBUTE);
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -135,7 +131,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
-    private final CarVolume mCarVolume;
     private final int mKeyEventTimeoutMs;
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
@@ -179,10 +174,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private SparseIntArray mAudioZoneIdToOccupantZoneIdMapping;
     @GuardedBy("mImplLock")
     private SparseArray<CarAudioZone> mCarAudioZones;
+    @GuardedBy("mImplLock")
+    private CarVolume mCarVolume;
+    @GuardedBy("mImplLock")
+    private CarAudioContext mCarAudioContext;
     private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
     private final SparseIntArray mAudioZoneIdToUserIdMapping;
     private final SystemClockWrapper mClock = new SystemClockWrapper();
-
 
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
@@ -227,8 +225,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
         mAudioVolumeAdjustmentContextsVersion =
                 mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
-        mCarVolume = new CarVolume(mClock,
-                mAudioVolumeAdjustmentContextsVersion, mKeyEventTimeoutMs);
         boolean useCarVolumeGroupMuting = mUseDynamicRouting && mContext.getResources().getBoolean(
                 R.bool.audioUseCarVolumeGroupMuting);
         if (mAudioVolumeAdjustmentContextsVersion != VERSION_TWO && useCarVolumeGroupMuting) {
@@ -329,8 +325,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             writer.printf("Audio Patch APIs enabled? %b\n", areAudioPatchAPIsEnabled());
             writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
             writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
-            writer.printf("Volume context priority list version: %d\n",
-                    mAudioVolumeAdjustmentContextsVersion);
             writer.printf("Volume key event timeout ms: %d\n", mKeyEventTimeoutMs);
             if (mCarAudioConfigurationPath != null) {
                 writer.printf("Car audio configuration path: %s\n", mCarAudioConfigurationPath);
@@ -349,6 +343,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             if (mUseDynamicRouting) {
                 writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
+                writer.println();
+                mCarVolume.dump(writer);
+                writer.println();
+                mCarAudioContext.dump(writer);
+                writer.println();
                 for (int i = 0; i < mCarAudioZones.size(); i++) {
                     CarAudioZone zone = mCarAudioZones.valueAt(i);
                     zone.dump(writer);
@@ -561,7 +560,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
-            return zonesHelper.loadAudioZones();
+            SparseArray<CarAudioZone> zones = zonesHelper.loadAudioZones();
+            mCarAudioContext = zonesHelper.getCarAudioContext();
+            return zones;
         } catch (IOException | XmlPullParserException e) {
             throw new RuntimeException("Failed to parse audio zone configuration", e);
         }
@@ -576,9 +577,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     "Updated version of IAudioControl no longer supports CarAudioZonesHelperLegacy."
                     + " Please provide car_audio_configuration.xml.");
         }
+        mCarAudioContext = new CarAudioContext(CarAudioContext.getAllContextsInfo());
         CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
-                R.xml.car_volume_groups, carAudioDeviceInfos,
-                (AudioControlWrapperV1) audioControlWrapper, mCarAudioSettings, inputDevices);
+                mCarAudioContext, R.xml.car_volume_groups, carAudioDeviceInfos,
+                (AudioControlWrapperV1) audioControlWrapper,
+                mCarAudioSettings, inputDevices);
         return legacyHelper.loadAudioZones();
     }
 
@@ -605,6 +608,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         loadCarAudioZonesLocked();
 
+        mCarVolume = new CarVolume(mCarAudioContext, mClock,
+                mAudioVolumeAdjustmentContextsVersion, mKeyEventTimeoutMs);
+
         for (int i = 0; i < mCarAudioZones.size(); i++) {
             CarAudioZone zone = mCarAudioZones.valueAt(i);
             // Ensure HAL gets our initial value
@@ -612,7 +618,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Slogf.v(TAG, "Processed audio zone: %s", zone);
         }
 
-        CarAudioDynamicRouting.setupAudioDynamicRouting(builder, mCarAudioZones);
+        CarAudioDynamicRouting.setupAudioDynamicRouting(builder, mCarAudioZones,
+                mCarAudioContext);
 
         AudioPolicyVolumeCallbackInternal volumeCallbackInternal =
                 new AudioPolicyVolumeCallbackInternal() {
@@ -904,7 +911,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         @AudioContext int audioContext =
-                CarAudioContext.getContextForAudioAttribute(audioAttributes);
+                mCarAudioContext.getContextForAudioAttribute(audioAttributes);
         return getVolumeGroupIdForAudioContextLocked(zoneId, audioContext);
     }
 
@@ -944,14 +951,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
 
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
-            Set<Integer> contexts =
-                    Arrays.stream(group.getContexts()).boxed().collect(Collectors.toSet());
-            final List<Integer> usages = new ArrayList<>();
-            for (@AudioContext int context : contexts) {
+            int[] contexts = group.getContexts();
+            List<Integer> usages = new ArrayList<>();
+            for (int index = 0; index < contexts.length; index++) {
                 AudioAttributes[] attributesForContext =
-                        CarAudioContext.getAudioAttributesForContext(context);
-                for (int index = 0; index < attributesForContext.length; index++) {
-                    usages.add(attributesForContext[index].getSystemUsage());
+                        mCarAudioContext.getAudioAttributesForContext(contexts[index]);
+                for (int counter = 0; counter < attributesForContext.length; counter++) {
+                    usages.add(attributesForContext[counter].getSystemUsage());
                 }
             }
 
@@ -968,7 +974,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Preconditions.checkArgument(isAudioZoneIdValid(zoneId),
                 "Invalid audio zone id %d", zoneId);
 
-        return CarVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
+        CarVolume carVolume;
+        synchronized (mImplLock) {
+            carVolume = mCarVolume;
+        }
+        return carVolume.isAnyContextActive(getContextsForVolumeGroupId(zoneId, groupId),
                 getActiveAttributesFromPlaybackConfigurations(zoneId),
                 getCallStateForZone(zoneId), getActiveHalAudioAttributesForZone(zoneId));
     }
@@ -1128,7 +1138,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             AudioAttributes audioAttributes) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
-        int contextForUsage = CarAudioContext.getContextForAudioAttribute(audioAttributes);
+        int contextForUsage = mCarAudioContext.getContextForAudioAttribute(audioAttributes);
         Preconditions.checkArgument(!CarAudioContext.isInvalidContextId(contextForUsage),
                 "Invalid audio attribute usage %d", audioAttributes);
         return getCarAudioZoneLocked(zoneId).getAudioDeviceForContext(contextForUsage);
@@ -1139,7 +1149,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         CarAudioContext.checkAudioAttributeUsage(usage);
-        int contextForUsage = CarAudioContext
+        int contextForUsage = getCarAudioContext()
                 .getContextForAudioAttribute(CarAudioContext.getAudioAttributeFromUsage(usage));
         return getCarAudioZone(zoneId).getAddressForContext(contextForUsage);
     }
@@ -1321,7 +1331,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @AudioContext int getSuggestedAudioContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
-        return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+        CarVolume carVolume;
+        synchronized (mImplLock) {
+            carVolume = mCarVolume;
+        }
+        return carVolume.getSuggestedAudioContextAndSaveIfFound(
                 getAllActiveAttributesForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalAudioAttributesForZone(zoneId));
     }
@@ -1573,9 +1587,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     public void resetSelectedVolumeContext() {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-        mCarVolume.resetSelectedVolumeContext();
         synchronized (mImplLock) {
+            mCarVolume.resetSelectedVolumeContext();
             mCarAudioPlaybackCallback.resetStillActiveContexts();
+        }
+    }
+
+    @VisibleForTesting
+    CarAudioContext getCarAudioContext() {
+        synchronized (mImplLock) {
+            return mCarAudioContext;
         }
     }
 
