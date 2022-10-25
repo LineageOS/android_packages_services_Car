@@ -16,6 +16,9 @@
 package com.google.android.car.kitchensink;
 
 import android.annotation.Nullable;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.Handler;
@@ -25,6 +28,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -50,22 +54,26 @@ final class KitchenSinkShellCommand {
     private static final String CMD_SET_UNINSTALL_BLOCKED = "set-uninstall-blocked";
     private static final String CMD_GENERATE_DEVICE_ATTESTATION_KEY_PAIR =
             "generate-device-attestation-key-pair";
+    private static final String CMD_POST_NOTIFICATION = "post-notification";
+    private static final String CMD_POST_TOAST = "post-toast";
 
     private final Context mContext;
     private final @Nullable DevicePolicyManager mDpm;
     private final IndentingPrintWriter mWriter;
     private final String[] mArgs;
+    private final int mNotificationId;
 
     @Nullable // dynamically created on post() method
     private Handler mHandler;
 
     private int mNextArgIndex;
 
-    KitchenSinkShellCommand(Context context, PrintWriter writer, String[] args) {
+    KitchenSinkShellCommand(Context context, PrintWriter writer, String[] args, int id) {
         mContext = context;
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mWriter = new IndentingPrintWriter(writer);
         mArgs = args;
+        mNotificationId = id;
     }
 
     void run() {
@@ -90,6 +98,12 @@ final class KitchenSinkShellCommand {
             case CMD_GENERATE_DEVICE_ATTESTATION_KEY_PAIR:
                 generateDeviceAttestationKeyPair();
                 break;
+            case CMD_POST_NOTIFICATION:
+                postNotification();
+                break;
+            case CMD_POST_TOAST:
+                postToast();
+                break;
             default:
                 showHelp("Invalid command: %s", cmd);
         }
@@ -113,6 +127,10 @@ final class KitchenSinkShellCommand {
                 CMD_SET_UNINSTALL_BLOCKED, "<PKG>", "<true|false>");
         showCommandHelp("Generates a device attestation key.",
                 CMD_GENERATE_DEVICE_ATTESTATION_KEY_PAIR, "<ALIAS>", "[FLAGS]");
+        showCommandHelp("Post Notification.",
+                CMD_POST_NOTIFICATION, "<MESSAGE>");
+        showCommandHelp("Post Toast.",
+                CMD_POST_TOAST, "<MESSAGE>");
         mWriter.decreaseIndent();
     }
 
@@ -171,6 +189,33 @@ final class KitchenSinkShellCommand {
                 + ", flags=" + flags + ")");
         AttestedKeyPair kp = mDpm.generateKeyPair(/* admin= */ null, algorithm, keySpec, flags);
         Log.i(TAG, "key: " + kp);
+    }
+
+    private void postNotification() {
+        String message = getNextArg();
+        String channelId = "importance_high";
+
+        NotificationManager notificationMgr = mContext.getSystemService(NotificationManager.class);
+        notificationMgr.createNotificationChannel(
+                new NotificationChannel(channelId, "Importance High",
+                        NotificationManager.IMPORTANCE_HIGH));
+        Notification notification = new Notification
+                .Builder(mContext, channelId)
+                .setContentTitle("Car Emergency")
+                .setContentText(message)
+                .setCategory(Notification.CATEGORY_CAR_EMERGENCY)
+                .setColor(mContext.getColor(android.R.color.holo_red_light))
+                .setColorized(true)
+                .setSmallIcon(R.drawable.car_ic_mode)
+                .build();
+        notificationMgr.notify(mNotificationId, notification);
+        Log.i(TAG, "Post Notification: id=" + mNotificationId + ", message=" + message);
+    }
+
+    private void postToast() {
+        String message = getNextArg();
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        Log.i(TAG, "Post Toast: " + message);
     }
 
     private void warnAboutAsyncCall() {
