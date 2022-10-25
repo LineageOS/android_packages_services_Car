@@ -16,6 +16,7 @@
 
 package com.android.car.bluetooth;
 
+import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -38,6 +39,8 @@ public final class BluetoothUtils {
         throw new UnsupportedOperationException();
     }
 
+    public static final String A2DP_SOURCE_CONNECTION_STATE_CHANGED =
+            BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED;
     public static final String A2DP_SINK_CONNECTION_STATE_CHANGED =
             BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED;
     public static final String HFP_CLIENT_CONNECTION_STATE_CHANGED =
@@ -122,6 +125,7 @@ public final class BluetoothUtils {
 
         // Profile Names
         sProfileNames.put(BluetoothProfile.PAN, "PAN");
+        sProfileNames.put(BluetoothProfile.A2DP, "A2DP Source");
         sProfileNames.put(BluetoothProfile.A2DP_SINK, "A2DP Sink");
         sProfileNames.put(BluetoothProfile.AVRCP_CONTROLLER, "AVRCP Controller");
         sProfileNames.put(BluetoothProfile.HEADSET_CLIENT, "HFP Client");
@@ -129,6 +133,7 @@ public final class BluetoothUtils {
         sProfileNames.put(BluetoothProfile.MAP_CLIENT, "MAP Client");
 
         // Profile actions to ints
+        sProfileActions.put(A2DP_SOURCE_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP);
         sProfileActions.put(A2DP_SINK_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP_SINK);
         sProfileActions.put(HFP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.HEADSET_CLIENT);
         sProfileActions.put(MAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.MAP_CLIENT);
@@ -225,6 +230,9 @@ public final class BluetoothUtils {
             return false;
         }
         switch (profile) {
+            case BluetoothProfile.A2DP:
+                return BluetoothUuid.containsAnyUuid(ourUuids, A2DP_SOURCE_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, A2DP_SINK_UUIDS);
             case BluetoothProfile.A2DP_SINK:
                 return BluetoothUuid.containsAnyUuid(ourUuids, A2DP_SINK_UUIDS)
                         && BluetoothUuid.containsAnyUuid(uuids, A2DP_SOURCE_UUIDS);

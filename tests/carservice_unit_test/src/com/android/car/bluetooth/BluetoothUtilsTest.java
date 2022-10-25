@@ -87,6 +87,41 @@ public class BluetoothUtilsTest {
     }
 
     @Test
+    public void testIsA2dpSourceProfileSupportedBothSupported_returnsTrue() {
+        when(mMockBluetoothDevice.getUuids()).thenReturn(A2DP_SINK_UUIDS);
+        assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(A2DP_SOURCE_UUIDS),
+                mMockBluetoothDevice, BluetoothProfile.A2DP)).isTrue();
+    }
+
+    @Test
+    public void testIsA2dpSourceProfileSupportedRemoteSupported_returnsFalse() {
+        when(mMockBluetoothDevice.getUuids()).thenReturn(A2DP_SINK_UUIDS);
+        assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(WRONG_UUIDS),
+                mMockBluetoothDevice, BluetoothProfile.A2DP)).isFalse();
+    }
+
+    @Test
+    public void testIsA2dpSourceProfileSupportedLocalSupported_returnsFalse() {
+        when(mMockBluetoothDevice.getUuids()).thenReturn(WRONG_UUIDS);
+        assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(A2DP_SOURCE_UUIDS),
+                mMockBluetoothDevice, BluetoothProfile.A2DP)).isFalse();
+    }
+
+    @Test
+    public void testIsA2dpSourceProfileSupportedBothUnsupported_returnsFalse() {
+        when(mMockBluetoothDevice.getUuids()).thenReturn(WRONG_UUIDS);
+        assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(WRONG_UUIDS),
+                mMockBluetoothDevice, BluetoothProfile.A2DP)).isFalse();
+    }
+
+    @Test
+    public void testIsA2dpSourceProfileSupportedBothSupportSameRole_returnsFalse() {
+        when(mMockBluetoothDevice.getUuids()).thenReturn(A2DP_SOURCE_UUIDS);
+        assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(A2DP_SOURCE_UUIDS),
+                mMockBluetoothDevice, BluetoothProfile.A2DP)).isFalse();
+    }
+
+    @Test
     public void testIsA2dpSinkProfileSupportedBothSupported_returnsTrue() {
         when(mMockBluetoothDevice.getUuids()).thenReturn(A2DP_SOURCE_UUIDS);
         assertThat(BluetoothUtils.isProfileSupported(Arrays.asList(A2DP_SINK_UUIDS),
