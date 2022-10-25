@@ -57,7 +57,8 @@
                 systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
                 systemui:clearBackStack="false"/>
 
-            <com.android.systemui.car.systembar.AssitantButton
+            <!-- TODO(b/255887799): Use AssistantButton instead of CarUiAssistantButton once is fixed.     -->
+            <com.android.systemui.car.systembar.CarUiAssistantButton
                 android:id="@+id/assist"
                 style="@style/SystemBarButton"
                 systemui:icon="@drawable/car_ic_mic"
