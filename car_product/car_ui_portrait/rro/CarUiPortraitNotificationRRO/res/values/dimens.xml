@@ -23,15 +23,21 @@
     <!-- Card View -->
     <dimen name="card_elevation">0dp</dimen>
     <dimen name="notification_card_margin_horizontal">184dp</dimen>
-    <dimen name="card_body_margin_bottom">24dp</dimen>
-    <dimen name="card_body_margin_start">16dp</dimen>
+    <dimen name="card_body_margin_bottom">26dp</dimen>
+    <dimen name="card_body_margin_start">29dp</dimen>
     <dimen name="card_header_margin_bottom">8dp</dimen>
     <dimen name="notification_card_radius">24dp</dimen>
+    <dimen name="hun_card_radius">48dp</dimen>
     <dimen name="headsup_notification_bottom_margin">160dp</dimen>
+    <dimen name="notification_touch_target_size">80dp</dimen>
+    <dimen name="notification_heads_up_icon_size">110dp</dimen>
+    <dimen name="hun_body_content_margin_top">4dp</dimen>
+    <dimen name="hun_body_min_height">168dp</dimen>
+    <dimen name="hun_body_title_margin_top">12dp</dimen>
 
-    <dimen name="play_arrow_width">36dp</dimen>
+    <dimen name="play_arrow_width">30dp</dimen>
     <dimen name="play_arrow_height">36dp</dimen>
-    <dimen name="reply_icon_height">36dp</dimen>
+    <dimen name="reply_icon_height">30dp</dimen>
     <dimen name="reply_icon_width">36dp</dimen>
     <dimen name="mute_icon_height">36dp</dimen>
     <dimen name="mute_icon_width">36dp</dimen>
@@ -39,8 +45,7 @@
     <dimen name="unmute_icon_width">36dp</dimen>
 
     <!-- Icons -->
-    <dimen name="notification_touch_target_size">80dp</dimen>
-    <dimen name="body_big_icon_margin">27dp</dimen>
+    <dimen name="body_big_icon_margin">29dp</dimen>
 
     <!-- Action View -->
     <dimen name="action_button_height">@dimen/button_height</dimen>
