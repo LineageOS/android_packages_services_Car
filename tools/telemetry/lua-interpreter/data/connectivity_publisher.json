@@ -1,7 +1,7 @@
 {
-    "startMillis": 1659991963407,
-    "createdAtSinceBootMillis": 2329408,
-    "txBytes": [
+    "conn.startMillis": 1659991963407,
+    "session.createdAtSinceBootMillis": 2329408,
+    "conn.txBytes": [
         1120,
         7595,
         183,
@@ -19,9 +19,9 @@
         153,
         129
     ],
-    "sessionState": 1,
-    "createdAtMillis": 1660001492815,
-    "tag": [
+    "session.sessionState": 1,
+    "session.createdAtMillis": 1660001492815,
+    "conn.tag": [
         0,
         0,
         0,
@@ -39,7 +39,7 @@
         -126,
         -126
     ],
-    "uid": [
+    "conn.uid": [
         0,
         1020,
         1051,
@@ -57,9 +57,9 @@
         1010114,
         1010180
     ],
-    "size": 16,
-    "sessionId": 3,
-    "packages": [
+    "conn.size": 16,
+    "session.sessionId": 3,
+    "conn.packages": [
         "com.android.networkstack",
         "com.android.cellbroadcastservice",
         "com.android.networkstack.tethering",
@@ -77,8 +77,8 @@
         "com.google.android.gms",
         "com.google.android.gsf"
     ],
-    "endMillis": 1660001493065,
-    "rxBytes": [
+    "conn.endMillis": 1660001493065,
+    "conn.rxBytes": [
         0,
         19046,
         39,
@@ -96,5 +96,5 @@
         309,
         173
     ],
-    "bootReason": "reboot, factory_reset"
+    "session.bootReason": "reboot, factory_reset"
 }
