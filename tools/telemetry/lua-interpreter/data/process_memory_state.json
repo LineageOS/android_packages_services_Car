@@ -1,5 +1,5 @@
 {
-  "cache_in_bytes": [
+  "stats.cache_in_bytes": [
     0,
     0,
     0,
@@ -206,8 +206,7 @@
     0,
     0
   ],
-  "metrics.report.boot_count": 7,
-  "uid": [
+  "stats.uid": [
     1001000,
     10202,
     1010186,
@@ -414,8 +413,7 @@
     1010186,
     1010193
   ],
-  "metrics.report.timestamp_millis": 1665000996126,
-  "swap_in_bytes": [
+  "stats.swap_in_bytes": [
     0,
     0,
     0,
@@ -622,7 +620,7 @@
     0,
     0
   ],
-  "elapsed_timestamp_nanos": [
+  "stats.elapsed_timestamp_nanos": [
     908739366200,
     908739366200,
     908739366200,
@@ -829,7 +827,7 @@
     8045762096628,
     8045762096628
   ],
-  "rss_in_bytes": [
+  "stats.rss_in_bytes": [
     60653568,
     105537536,
     121593856,
@@ -1036,7 +1034,7 @@
     78323712,
     111632384
   ],
-  "oom_adj_score": [
+  "stats.oom_adj_score": [
     500,
     -800,
     100,
@@ -1243,8 +1241,7 @@
     700,
     100
   ],
-  "metrics.report.id": 1,
-  "page_major_fault": [
+  "stats.page_major_fault": [
     152,
     6649,
     4951,
@@ -1451,7 +1448,7 @@
     350,
     777
   ],
-  "page_fault": [
+  "stats.page_fault": [
     4623,
     26644,
     97300,
@@ -1658,7 +1655,7 @@
     4449,
     32510
   ],
-  "process_name": [
+  "stats.process_name": [
     "com.android.emulator.multidisplay",
     "com.android.systemui",
     "com.google.android.gms.persistent",
