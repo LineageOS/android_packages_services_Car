@@ -159,6 +159,7 @@ PRODUCT_PACKAGES += \
     RotaryPlayground \
     android.car.builtin \
     car-frameworks-service \
+    libcarservicehelperjni \
     com.android.car.procfsinspector \
     com.android.permission \
 

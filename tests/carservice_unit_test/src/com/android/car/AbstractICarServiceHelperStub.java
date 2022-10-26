@@ -17,6 +17,7 @@ package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
@@ -118,5 +119,12 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
                 + ")");
 
         return false;
+    }
+
+    @Override
+    public void setProcessProfile(int pid, int uid, @NonNull String profile) {
+        Log.d(TAG, "setProcessProfile(" + pid + "," + uid + "," + profile + ")");
+
+        return;
     }
 }
