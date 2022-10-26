@@ -1030,10 +1030,10 @@ package android.car.hardware.power {
 package android.car.hardware.property {
 
   public final class VehicleTurnSignal {
-    method @NonNull public static String toString(int);
-    field public static final int STATE_LEFT = 2; // 0x2
-    field public static final int STATE_NONE = 0; // 0x0
-    field public static final int STATE_RIGHT = 1; // 0x1
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String toString(int);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_LEFT = 2; // 0x2
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_NONE = 0; // 0x0
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_RIGHT = 1; // 0x1
   }
 
   public final class VehicleVendorPermission {
