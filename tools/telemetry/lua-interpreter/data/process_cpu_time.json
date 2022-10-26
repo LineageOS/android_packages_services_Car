@@ -1,6 +1,5 @@
 {
-  "metrics.report.boot_count": 7,
-  "user_time_millis": [
+  "stats.user_time_millis": [
     0,
     500,
     0,
@@ -789,7 +788,7 @@
     270,
     270
   ],
-  "uid": [
+  "stats.uid": [
     0,
     1010194,
     0,
@@ -1578,8 +1577,7 @@
     1010206,
     1010206
   ],
-  "metrics.report.timestamp_millis": 1665000996179,
-  "elapsed_timestamp_nanos": [
+  "stats.elapsed_timestamp_nanos": [
     3608726426636,
     3608726426636,
     3608726426636,
@@ -2368,8 +2366,7 @@
     7666748553970,
     7808723005061
   ],
-  "metrics.report.id": 1,
-  "system_time_millis": [
+  "stats.system_time_millis": [
     0,
     250,
     0,
@@ -3158,7 +3155,7 @@
     190,
     190
   ],
-  "process_name": [
+  "stats.process_name": [
     "ext4-rsv-conver",
     "com.google.android.apps.automotive.inputmethod",
     "kworker/0:0-events",

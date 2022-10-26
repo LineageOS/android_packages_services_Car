@@ -1,18 +1,20 @@
 {
-    "pid": [
+    "stats.pid": [
         638
     ],
-    "tag": [
+    "stats.tag": [
         "ActivityManager"
     ],
-    "uid": [
+    "stats.uid": [
         1000
     ],
-    "elapsed_timestamp_nanos": 37800058755169,
-    "error_source": [
+    "stats.elapsed_timestamp_nanos": [
+        37800058755169
+    ],
+    "stats.error_source": [
         0
     ],
-    "process_name": [
+    "stats.process_name": [
         "system_server"
     ]
 }
