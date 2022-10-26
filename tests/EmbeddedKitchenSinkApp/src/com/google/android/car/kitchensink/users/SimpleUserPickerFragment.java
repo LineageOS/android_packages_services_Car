@@ -21,6 +21,9 @@ import android.app.IActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.user.CarUserManager;
+import android.car.user.UserCreationResult;
+import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.graphics.Color;
@@ -30,6 +33,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.DisplayAddress;
@@ -38,17 +42,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.UserPickerActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public final class SimpleUserPickerFragment extends Fragment {
 
@@ -58,23 +63,28 @@ public final class SimpleUserPickerFragment extends Fragment {
     private static final int WARN_MESSAGE = 1;
     private static final int INFO_MESSAGE = 2;
 
+    private static final long TIMEOUT_MS = 5_000;
+
     private SpinnerWrapper mUsersSpinner;
     private SpinnerWrapper mDisplaysSpinner;
 
     private Button mStartUserButton;
     private Button mStopUserButton;
     private Button mSwitchUserButton;
+    private Button mCreateUserButton;
 
     private TextView mDisplayIdText;
     private TextView mUserOnDisplayText;
     private TextView mUserIdText;
     private TextView mZoneInfoText;
     private TextView mStatusMessageText;
+    private EditText mNewUserNameText;
 
     private ActivityManager mActivityManager;
     private UserManager mUserManager;
     private DisplayManager mDisplayManager;
     private CarOccupantZoneManager mZoneManager;
+    private CarUserManager mCarUserManager;
 
     // The logical display to which the view's window has been attached.
     private Display mDisplayAttached;
@@ -90,19 +100,12 @@ public final class SimpleUserPickerFragment extends Fragment {
         mUserManager = getContext().getSystemService(UserManager.class);
         mDisplayManager = getContext().getSystemService(DisplayManager.class);
 
-        Object host = getHost();
-        if (host instanceof KitchenSinkActivity) {
-            Car car = ((KitchenSinkActivity) getHost()).getCar();
-            mZoneManager = (CarOccupantZoneManager) car.getCarManager(
-                    Car.CAR_OCCUPANT_ZONE_SERVICE);
-        } else if (host instanceof UserPickerActivity) {
-            mZoneManager = ((UserPickerActivity) host).getCarOccupantZoneManager();
-        } else {
-            Log.e(TAG, "cannot get CarOccupantZoneManager due to unknown activity");
-            throw new RuntimeException("Unknown activity that hosts this fragment");
-        }
+        Car car = ((UserPickerActivity) getHost()).getCar();
+        mZoneManager = car.getCarManager(CarOccupantZoneManager.class);
         mZoneManager.registerOccupantZoneConfigChangeListener(
                 new UserAssignmentChangeListener());
+
+        mCarUserManager = car.getCarManager(CarUserManager.class);
 
         mDisplayAttached = getContext().getDisplay();
         int driverDisplayId = mZoneManager.getDisplayIdForDriver(
@@ -116,6 +119,8 @@ public final class SimpleUserPickerFragment extends Fragment {
         mUserIdText = view.findViewById(R.id.textView_state);
         mZoneInfoText = view.findViewById(R.id.textView_zoneinfo);
         updateTextInfo();
+
+        mNewUserNameText = view.findViewById(R.id.new_user_name);
 
         mUsersSpinner = SpinnerWrapper.create(getContext(),
                 view.findViewById(R.id.spinner_users), getUnassignedUsers());
@@ -143,6 +148,9 @@ public final class SimpleUserPickerFragment extends Fragment {
         if (!isPassengerView) {
             mSwitchUserButton.setVisibility(View.GONE);
         }
+
+        mCreateUserButton = view.findViewById(R.id.button_create_user);
+        mCreateUserButton.setOnClickListener(v -> createUser());
 
         mStatusMessageText = view.findViewById(R.id.status_message_text_view);
     }
@@ -309,6 +317,53 @@ public final class SimpleUserPickerFragment extends Fragment {
         setMessage(INFO_MESSAGE, "Switched to user " + userId + " on display " + displayId);
         mUsersSpinner.updateEntries(getUnassignedUsers());
         updateTextInfo();
+    }
+
+    private void createUser() {
+        String name = mNewUserNameText.getText().toString();
+        if (TextUtils.isEmpty(name)) {
+            setMessage(ERROR_MESSAGE, "Cannot create user without a name");
+            return;
+        }
+
+        AsyncFuture<UserCreationResult> future = mCarUserManager.createUser(name, /* flags= */ 0);
+        setMessage(INFO_MESSAGE, "Creating full secondary user with name " + name + " ...");
+
+        UserCreationResult result = null;
+        try {
+            result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            if (result == null) {
+                Log.e(TAG, "Timed out creating user after " + TIMEOUT_MS + "ms...");
+                setMessage(ERROR_MESSAGE, "Timed out creating user after " + TIMEOUT_MS + "ms...");
+                return;
+            }
+        } catch (InterruptedException e) {
+            Log.e(TAG, "Interrupted waiting for future " + future, e);
+            Thread.currentThread().interrupt();
+            setMessage(ERROR_MESSAGE, "Interrupted while creating user");
+            return;
+        } catch (Exception e) {
+            Log.e(TAG, "Exception getting future " + future, e);
+            setMessage(ERROR_MESSAGE, "Encountered Exception while creating user " + name);
+            return;
+        }
+
+        StringBuilder message = new StringBuilder();
+        if (result.isSuccess()) {
+            message.append("User created: ").append(result.getUser().toString());
+            setMessage(INFO_MESSAGE, message.toString());
+            mUsersSpinner.updateEntries(getUnassignedUsers());
+        } else {
+            int status = result.getStatus();
+            message.append("Failed with code ").append(status).append('(')
+                    .append(UserCreationResult.statusToString(status)).append(')');
+            message.append("\nFull result: ").append(result);
+            String error = result.getErrorMessage();
+            if (error != null) {
+                message.append("\nError message: ").append(error);
+            }
+            setMessage(ERROR_MESSAGE, message.toString());
+        }
     }
 
     // TODO(b/248608281): Use API from CarOccupantZoneManager for convenience.

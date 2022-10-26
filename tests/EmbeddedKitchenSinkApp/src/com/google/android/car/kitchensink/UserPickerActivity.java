@@ -16,13 +16,11 @@
 
 package com.google.android.car.kitchensink;
 
-import static android.car.Car.CAR_OCCUPANT_ZONE_SERVICE;
 import static android.car.Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER;
 import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 import android.car.Car;
-import android.car.CarOccupantZoneManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -37,10 +35,9 @@ public final class UserPickerActivity extends FragmentActivity {
     private static final String TAG = UserPickerActivity.class.getSimpleName();
 
     private Car mCar;
-    private CarOccupantZoneManager mOccupantZoneManager;
 
-    public CarOccupantZoneManager getCarOccupantZoneManager() {
-        return mOccupantZoneManager;
+    public Car getCar() {
+        return mCar;
     }
 
     @Override
@@ -51,7 +48,7 @@ public final class UserPickerActivity extends FragmentActivity {
         Log.i(TAG, "onCreate userid " + myUserId);
         if (myUserId != UserHandle.USER_SYSTEM) {
             // "Trampoline pattern": restarting itself as user 0 so the user picker can stay
-            // when the user launched the user picker logs out of the display.
+            // when the user that launched the user picker logs out of the display.
             Log.i(TAG, "onCreate re-starting self as user 0");
             Intent selfIntent = new Intent(UserPickerActivity.this, UserPickerActivity.class)
                     .addFlags(FLAG_ACTIVITY_MULTIPLE_TASK | FLAG_ACTIVITY_NEW_TASK);
@@ -84,8 +81,6 @@ public final class UserPickerActivity extends FragmentActivity {
                     if (!ready) {
                         return;
                     }
-                    mOccupantZoneManager = (CarOccupantZoneManager)
-                            car.getCarManager(CAR_OCCUPANT_ZONE_SERVICE);
                 });
     }
 }
