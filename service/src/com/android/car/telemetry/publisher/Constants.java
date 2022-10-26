@@ -47,6 +47,7 @@ public final class Constants {
     public static final String CAR_TELEMETRYD_BUNDLE_KEY_CONTENT = "ct.content";
 
     // MemoryPublisher
+    public static final String MEMORY_BUNDLE_KEY_PREFIX = "mem.";
     public static final String MEMORY_BUNDLE_KEY_MEMINFO = "mem.meminfo";
     public static final String MEMORY_BUNDLE_KEY_TIMESTAMP = "mem.timestamp_millis";
     public static final String MEMORY_BUNDLE_KEY_TOTAL_SWAPPABLE_PSS = "mem.total_swappable_pss";
