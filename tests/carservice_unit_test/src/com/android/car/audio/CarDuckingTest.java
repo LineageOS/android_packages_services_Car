@@ -54,11 +54,14 @@ public final class CarDuckingTest {
     private static final String PRIMARY_NAVIGATION_ADDRESS = "primary_navigation_address";
     private static final String REAR_MEDIA_ADDRESS = "rear_media";
 
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
-            CarAudioContext.getContextForAudioAttribute(CarAudioContext
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
     private final SparseArray<CarAudioZone> mCarAudioZones = generateZoneMocks();
@@ -240,16 +243,19 @@ public final class CarDuckingTest {
                 .thenReturn(PRIMARY_MEDIA_ADDRESS);
         when(primaryZone.getAddressForContext(TEST_NAVIGATION_AUDIO_CONTEXT))
                 .thenReturn(PRIMARY_NAVIGATION_ADDRESS);
+        when(primaryZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         zones.append(PRIMARY_ZONE_ID, primaryZone);
 
         CarAudioZone passengerZone = mock(CarAudioZone.class);
         when(passengerZone.getId()).thenReturn(PASSENGER_ZONE_ID);
+        when(passengerZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         zones.append(PASSENGER_ZONE_ID, passengerZone);
 
         CarAudioZone rearZone = mock(CarAudioZone.class);
         when(rearZone.getId()).thenReturn(REAR_ZONE_ID);
         when(rearZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
                 .thenReturn(REAR_MEDIA_ADDRESS);
+        when(rearZone.getCarAudioContext()).thenReturn(TEST_CAR_AUDIO_CONTEXT);
         zones.append(REAR_ZONE_ID, rearZone);
 
         return zones;

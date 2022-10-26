@@ -154,6 +154,41 @@ public abstract class VehicleStub {
     }
 
     /**
+     * A result for {@link VehicleStub#setAsync}.
+     */
+    public static final class SetVehicleStubAsyncResult {
+        private final int mServiceRequestId;
+        @VehicleStubErrorCode
+        private final int mErrorCode;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        @VehicleStubErrorCode
+        public int getErrorCode() {
+            return mErrorCode;
+        }
+
+        /**
+         * Constructs an success result.
+         */
+        public SetVehicleStubAsyncResult(int serviceRequestId) {
+            mServiceRequestId = serviceRequestId;
+            mErrorCode = CarPropertyManager.STATUS_OK;
+        }
+
+        /**
+         * Constructs an error result.
+         */
+        public SetVehicleStubAsyncResult(int serviceRequestId,
+                @VehicleStubErrorCode int errorCode) {
+            mServiceRequestId = serviceRequestId;
+            mErrorCode = errorCode;
+        }
+    }
+
+    /**
      * A callback for asynchronous operations.
      */
     public abstract static class VehicleStubCallbackInterface {
@@ -162,6 +197,12 @@ public abstract class VehicleStub {
          */
         public abstract void onGetAsyncResults(
                 List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults);
+
+        /**
+         * Method called when {@link setAsync} returns results.
+         */
+        public abstract void onSetAsyncResults(
+                List<SetVehicleStubAsyncResult> setVehicleStubAsyncResults);
 
         /**
          * Register a callback that will be called when the callback binder died.

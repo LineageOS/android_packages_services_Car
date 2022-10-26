@@ -47,6 +47,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
+import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
@@ -253,6 +254,12 @@ public class PropertyHalService extends HalServiceBase {
             if (!retryRequestInfo.isEmpty()) {
                 retryIfNotExpired(retryRequestInfo);
             }
+        }
+
+        @Override
+        public void onSetAsyncResults(
+                List<SetVehicleStubAsyncResult> setVehicleStubAsyncResults) {
+            // TODO(b/251213448): Implement this.
         }
 
         @Override
