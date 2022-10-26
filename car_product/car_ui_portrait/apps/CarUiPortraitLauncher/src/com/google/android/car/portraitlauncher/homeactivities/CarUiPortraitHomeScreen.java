@@ -67,6 +67,7 @@ import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
@@ -175,6 +176,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
     private Set<ComponentName> mVoicePlateActivitySet;
     private boolean mIsLowerPanelInitialized;
+    private int mNavBarHeight;
+    private int mControlBarHeightMinusCornerRadius;
+    private int mCornerRadius;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     Messenger mService = null;
@@ -284,9 +288,20 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.car_ui_portrait_launcher);
+        // Make the window fullscreen as GENERIC_OVERLAYS are supplied to the background task view
+        WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
+        // Activity is running fullscreen to allow backgroound task to bleed behind status bar
+        int identifier = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
+        mNavBarHeight = identifier > 0 ? getResources().getDimensionPixelSize(identifier) : 0;
         mGripBarHeight = (int) getResources().getDimension(R.dimen.grip_bar_height);
+        mControlBarHeightMinusCornerRadius = (int) getResources().getDimension(
+                R.dimen.control_bar_height_minus_corner_radius);
+        mCornerRadius = (int) getResources().getDimension(R.dimen.corner_radius);
         mContainer = findViewById(R.id.container);
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mContainer.getLayoutParams();
+        lp.bottomMargin = mNavBarHeight;
+        mContainer.setLayoutParams(lp);
         mBackgroundAppAreaHeightWhenCollapsed =
                 (int) getResources().getDimension(R.dimen.upper_app_area_collapsed_height);
         mTitleBarDragThreshold =
@@ -762,12 +777,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // Set control bar bounds as obscured region on RootTaskview when AppGrid launcher is
             // open.
             mRootTaskView.setObscuredTouchRect(controlBarBounds);
-            applyBottomInsetsToUpperTaskView(mRootAppAreaContainer.getHeight(),
+            applyBottomInsetsToUpperTaskView(
+                    mRootAppAreaContainer.getHeight() - mControlBarHeightMinusCornerRadius,
                     upperAppAreaBounds);
         } else if (newLowerAppAreaState == STATE_FULL) {
-            applyBottomInsetsToUpperTaskView(0, upperAppAreaBounds);
+            applyBottomInsetsToUpperTaskView(mNavBarHeight, upperAppAreaBounds);
         } else {
-            applyBottomInsetsToUpperTaskView(controlBarBounds.height(), upperAppAreaBounds);
+            applyBottomInsetsToUpperTaskView(mCornerRadius, upperAppAreaBounds);
         }
     }
 
