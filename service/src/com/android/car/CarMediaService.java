@@ -36,7 +36,6 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.media.CarMediaManager;
-import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.CarMediaManager.MediaSourceMode;
 import android.car.media.ICarMedia;
 import android.car.media.ICarMediaSourceListener;
@@ -860,12 +859,16 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                     .equals(mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_PLAYBACK])) {
                 mRemovedMediaSourceComponents[MEDIA_SOURCE_MODE_PLAYBACK] = null;
             }
+            startMediaConnectorService(
+                    shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
+                    UserHandle.of(ActivityManager.getCurrentUser()));
+        } else {
+            Slogf.i(
+                    CarLog.TAG_MEDIA,
+                    "Media source is null, skip starting media connector service");
         }
 
         notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK);
-
-        startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
-                UserHandle.of(ActivityManager.getCurrentUser()));
         // Reset current playback state for the new source, in the case that the app is in an error
         // state (e.g. not signed in). This state will be updated from the app callback registered
         // below, to make sure mCurrentPlaybackState reflects the current source only.
