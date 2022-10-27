@@ -81,8 +81,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     // focus or pending), the new request will be REJECTED so as to avoid any confusion about
     // the meaning of subsequent GAIN/LOSS events (which would continue to apply to the focus
     // request that was already active or pending).
-    private final Map<String, FocusEntry> mFocusHolders = new ArrayMap<>();
-    private final Map<String, FocusEntry> mFocusLosers = new ArrayMap<>();
+    private final ArrayMap<String, FocusEntry> mFocusHolders = new ArrayMap<>();
+    private final ArrayMap<String, FocusEntry> mFocusLosers = new ArrayMap<>();
 
     private final Object mLock = new Object();
 
@@ -643,12 +643,20 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     List<AudioFocusInfo> getAudioFocusHolders() {
-        List<AudioFocusInfo> focusHolders = new ArrayList<>();
+        return getAudioFocusInfos(mFocusHolders);
+    }
+
+    List<AudioFocusInfo> getAudioFocusLosers() {
+        return getAudioFocusInfos(mFocusLosers);
+    }
+
+    private List<AudioFocusInfo> getAudioFocusInfos(ArrayMap<String, FocusEntry> focusEntries) {
         synchronized (mLock) {
-            for (FocusEntry entry : mFocusHolders.values()) {
-                focusHolders.add(entry.getAudioFocusInfo());
+            List<AudioFocusInfo> focusInfos = new ArrayList<>(focusEntries.size());
+            for (int index = 0; index < focusEntries.size(); index++) {
+                focusInfos.add(focusEntries.valueAt(index).getAudioFocusInfo());
             }
-            return focusHolders;
+            return focusInfos;
         }
     }
 

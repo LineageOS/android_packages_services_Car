@@ -47,6 +47,9 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.SparseArray;
 
+import com.android.car.oem.CarOemAudioFocusProxyService;
+import com.android.car.oem.CarOemProxyService;
+
 import org.mockito.Mock;
 
 abstract class CarZonesAudioFocusTestBase {
@@ -169,6 +172,10 @@ abstract class CarZonesAudioFocusTestBase {
     @Mock
     protected CarZonesAudioFocus.CarFocusCallback mMockCarFocusCallback;
     @Mock
+    protected CarOemProxyService mMockCarOemProxyService;
+    @Mock
+    protected CarOemAudioFocusProxyService mMockCarOemAudioFocusProxyService;
+    @Mock
     private ContentResolver mContentResolver;
     @Mock
     private CarAudioSettings mCarAudioSettings;
@@ -223,14 +230,19 @@ abstract class CarZonesAudioFocusTestBase {
         return zones;
     }
 
-    protected CarZonesAudioFocus getCarZonesAudioFocus() {
+    protected CarZonesAudioFocus getCarZonesAudioFocus(CarZonesAudioFocus.CarFocusCallback
+            carFocusCallback) {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
                         mMockPackageManager, mCarAudioZones, mCarAudioSettings,
-                        mMockCarFocusCallback);
+                        carFocusCallback);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;
+    }
+
+    protected CarZonesAudioFocus getCarZonesAudioFocus() {
+        return getCarZonesAudioFocus(mMockCarFocusCallback);
     }
 
     protected void setUpRejectNavigationOnCallValue(boolean rejectNavigationOnCall) {

@@ -30,9 +30,12 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
 import android.util.SparseArray;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.oem.CarOemAudioFocusProxyService;
+import com.android.car.oem.CarOemProxyService;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -153,14 +156,14 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             zoneIds[i] = mFocusZones.keyAt(i);
             mFocusZones.valueAt(i).setRestrictFocus(isFocusRestricted);
         }
-        notifyFocusCallback(zoneIds);
+        notifyFocusListeners(zoneIds);
     }
 
     @Override
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
         int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
         getCarAudioFocusForZoneId(zoneId).onAudioFocusRequest(afi, requestResult);
-        notifyFocusCallback(new int[]{zoneId});
+        notifyFocusListeners(new int[]{zoneId});
     }
 
     /**
@@ -172,7 +175,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public void onAudioFocusAbandon(AudioFocusInfo afi) {
         int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
         getCarAudioFocusForZoneId(zoneId).onAudioFocusAbandon(afi);
-        notifyFocusCallback(new int[]{zoneId});
+        notifyFocusListeners(new int[]{zoneId});
     }
 
     @NonNull
@@ -206,18 +209,35 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return zoneId;
     }
 
-    private void notifyFocusCallback(int[] zoneIds) {
+    private void notifyFocusListeners(int[] zoneIds) {
+        SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId = new SparseArray<>(zoneIds.length);
+        for (int i = 0; i < zoneIds.length; i++) {
+            int zoneId = zoneIds[i];
+            focusHoldersByZoneId.put(zoneId, mFocusZones.get(zoneId).getAudioFocusHolders());
+            sendFocusChangeToOemService(getCarAudioFocusForZoneId(zoneId), zoneId);
+        }
+
         if (mCarFocusCallback == null) {
             return;
         }
-        SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId = new SparseArray<>();
-        for (int i = 0; i < zoneIds.length; i++) {
-            int zoneId = zoneIds[i];
-            List<AudioFocusInfo> focusHolders = mFocusZones.get(zoneId).getAudioFocusHolders();
-            focusHoldersByZoneId.put(zoneId, focusHolders);
-        }
-
         mCarFocusCallback.onFocusChange(zoneIds, focusHoldersByZoneId);
+    }
+
+    private CarOemAudioFocusProxyService getOemAudioFocusService() {
+        CarOemProxyService oemProxyService = CarLocalServices.getService(CarOemProxyService.class);
+        if (oemProxyService == null) {
+            return null;
+        }
+        return oemProxyService.getCarOemAudioFocusService();
+    }
+
+    private void sendFocusChangeToOemService(CarAudioFocus carAudioFocus, int zoneId) {
+        CarOemAudioFocusProxyService proxy = getOemAudioFocusService();
+        if (proxy == null) {
+            return;
+        }
+        proxy.audioFocusChanged(carAudioFocus.getAudioFocusHolders(),
+                carAudioFocus.getAudioFocusLosers(), zoneId);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
