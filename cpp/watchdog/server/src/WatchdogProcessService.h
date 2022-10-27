@@ -27,6 +27,7 @@
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
+#include <android/hidl/manager/1.0/IServiceManager.h>
 #include <cutils/multiuser.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
@@ -38,6 +39,7 @@
 #include <IVhalClient.h>
 #include <VehicleHalTypes.h>
 
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -249,6 +251,8 @@ private:
             const aidl::android::hardware::automotive::vehicle::VehiclePropValue& value);
     android::base::Result<void> connectToVhalLocked();
     void subscribeToVhalHeartBeatLocked();
+    std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
+    cacheVhalProcessIdentifier();
     void reportWatchdogAliveToVhal();
     void reportTerminatedProcessToVhal(
             const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
@@ -274,6 +278,10 @@ private:
             const aidl::android::automotive::watchdog::TimeoutLength& timeout);
 
 private:
+    // Used in unit testing to mock the HIDL service manager.
+    inline static android::sp<android::hidl::manager::V1_0::IServiceManager> sHidlServiceManager =
+            android::hidl::manager::V1_0::IServiceManager::getService();
+
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
     ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
@@ -302,6 +310,8 @@ private:
     bool mIsEnabled GUARDED_BY(mMutex);
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService
             GUARDED_BY(mMutex);
+    std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
+            mVhalProcessIdentifier GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
 
