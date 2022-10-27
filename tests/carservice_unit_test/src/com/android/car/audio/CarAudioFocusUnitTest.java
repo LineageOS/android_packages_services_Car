@@ -917,6 +917,61 @@ public class CarAudioFocusUnitTest {
     }
 
     @Test
+    public void getAudioFocusLosers_withNoFocusHolders_returnsEmptyList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+
+        assertThat(carAudioFocus.getAudioFocusLosers()).isEmpty();
+    }
+
+    @Test
+    public void getAudioFocusLosers_withFocusHolders_returnsEmptyList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        requestFocusForMediaWithFirstClient(carAudioFocus);
+        requestConcurrentFocus(carAudioFocus);
+
+        assertThat(carAudioFocus.getAudioFocusLosers()).isEmpty();
+    }
+
+    @Test
+    public void getAudioFocusLosers_doesNotMutateList() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        requestFocusForMediaWithFirstClient(carAudioFocus);
+
+        List<AudioFocusInfo> focusLosers = carAudioFocus.getAudioFocusLosers();
+
+        assertThat(focusLosers).isEmpty();
+
+        requestConcurrentFocus(carAudioFocus);
+
+        assertThat(focusLosers).isEmpty();
+    }
+
+    @Test
+    public void getAudioFocusLosers_withTransientFocusLoser_doesNotIncludeTransientLoser() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo mediaInfo = requestFocusForMediaWithFirstClient(carAudioFocus);
+        AudioFocusInfo callInfo = getInfo(USAGE_VOICE_COMMUNICATION, SECOND_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(callInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> focusLosers = carAudioFocus.getAudioFocusLosers();
+
+        assertThat(focusLosers).containsExactly(mediaInfo);
+    }
+
+    @Test
+    public void getAudioFocusLosers_withDelayedRequest_doesNotIncludeDelayedRequest() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+        AudioFocusInfo delayedFocusInfo = getDelayedExclusiveInfo(AUDIOFOCUS_GAIN);
+        carAudioFocus.onAudioFocusRequest(delayedFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        List<AudioFocusInfo> focusLosers = carAudioFocus.getAudioFocusLosers();
+
+        assertThat(focusLosers).isEmpty();
+    }
+
+    @Test
     public void setRestrictFocusTrue_withNonCriticalDelayedRequest_abandonsIt() {
         CarAudioFocus carAudioFocus = getCarAudioFocus();
         setupFocusInfoAndRequestFocusForCall(carAudioFocus);
