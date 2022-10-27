@@ -18,8 +18,8 @@ package com.android.systemui.wm;
 
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
-import static android.view.InsetsState.ITYPE_NAVIGATION_BAR;
-import static android.view.InsetsState.ITYPE_STATUS_BAR;
+import static android.view.WindowInsets.Type.navigationBars;
+import static android.view.WindowInsets.Type.statusBars;
 
 import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
@@ -31,8 +31,8 @@ import android.os.RemoteException;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.IWindowManager;
-import android.view.InsetsVisibilities;
 import android.view.WindowInsets;
+import android.view.WindowInsets.Type.InsetsType;
 import android.widget.Toast;
 
 import com.android.car.ui.R;
@@ -88,7 +88,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 int size = mCarUiPerDisplaySparseArray.size();
                 for (int i = 0; i < size; i++) {
                     mCarUiPerDisplaySparseArray.valueAt(i)
-                            .updateDisplayWindowRequestedVisibilities();
+                            .updateDisplayWindowRequestedVisibleTypes();
                 }
             });
         }
@@ -161,8 +161,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
     class CarUiPortraitPerDisplay extends DisplaySystemBarsController.PerDisplay {
         private final int[] mImmersiveVisibilities = new int[] {0, WindowInsets.Type.systemBars()};
         private final List<Callback> mCallbacks = new ArrayList<>();
-        private InsetsVisibilities mWindowRequestedVisibilities;
-        private InsetsVisibilities mAppliedVisibilities = new InsetsVisibilities();
+        private @InsetsType int mWindowRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
+        private @InsetsType int mAppRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
         private boolean mImmersiveOverride = false;
         private boolean mImmersiveForSUW = false;
 
@@ -172,24 +172,17 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
 
         @Override
         public void topFocusedWindowChanged(ComponentName component,
-                InsetsVisibilities requestedVisibilities) {
+                @InsetsType int requestedVisibleTypes) {
             boolean requestedVisibilitiesChanged = false;
-            if (requestedVisibilities != null) {
-                if (!requestedVisibilities.equals(mWindowRequestedVisibilities)) {
-                    mWindowRequestedVisibilities = requestedVisibilities;
-                    boolean immersive = !mWindowRequestedVisibilities.getVisibility(
-                            ITYPE_STATUS_BAR) && !mWindowRequestedVisibilities.getVisibility(
-                            ITYPE_NAVIGATION_BAR);
-                    notifyOnImmersiveRequestedChanged(component, immersive);
-                    if (!immersive) {
-                        mImmersiveOverride = false;
-                        requestedVisibilitiesChanged = true;
-                    }
+            if (mWindowRequestedVisibleTypes != requestedVisibleTypes) {
+                mWindowRequestedVisibleTypes = requestedVisibleTypes;
+                boolean immersive =
+                        (mWindowRequestedVisibleTypes & (statusBars() | navigationBars())) == 0;
+                notifyOnImmersiveRequestedChanged(component, immersive);
+                if (!immersive) {
+                    mImmersiveOverride = false;
+                    requestedVisibilitiesChanged = true;
                 }
-            } else if (mWindowRequestedVisibilities != null) {
-                mWindowRequestedVisibilities = null;
-                notifyOnImmersiveRequestedChanged(component, false);
-                requestedVisibilitiesChanged = true;
             }
             String packageName = component != null ? component.getPackageName() : null;
             if (Objects.equals(mPackageName, packageName) && !requestedVisibilitiesChanged) {
@@ -197,25 +190,25 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             }
             mPackageName = packageName;
             mImmersiveOverride = false; // reset override when changing application
-            updateDisplayWindowRequestedVisibilities();
+            updateDisplayWindowRequestedVisibleTypes();
         }
 
         @Override
-        protected void updateDisplayWindowRequestedVisibilities() {
+        protected void updateDisplayWindowRequestedVisibleTypes() {
             if (mPackageName == null && !mImmersiveOverride && !mImmersiveForSUW) {
                 return;
             }
             int[] barVisibilities = mImmersiveOverride || mImmersiveForSUW
                     ? mImmersiveVisibilities
                     : BarControlPolicy.getBarVisibilities(mPackageName);
-            updateRequestedVisibilities(barVisibilities[0], /* visible= */ true);
-            updateRequestedVisibilities(barVisibilities[1], /* visible= */ false);
+            updateRequestedVisibleTypes(barVisibilities[0], /* visible= */ true);
+            updateRequestedVisibleTypes(barVisibilities[1], /* visible= */ false);
 
             // Return if the requested visibility is already applied.
-            if (mAppliedVisibilities.equals(mRequestedVisibilities)) {
+            if (mAppRequestedVisibleTypes == mRequestedVisibleTypes) {
                 return;
             }
-            mAppliedVisibilities.set(mRequestedVisibilities);
+            mAppRequestedVisibleTypes = mRequestedVisibleTypes;
 
             showInsets(barVisibilities[0], /* fromIme= */ false);
             hideInsets(barVisibilities[1], /* fromIme= */ false);
@@ -227,8 +220,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             notifyOnImmersiveStateChanged(immersiveState);
 
             try {
-                mWmService.updateDisplayWindowRequestedVisibilities(mDisplayId,
-                        mRequestedVisibilities);
+                mWmService.updateDisplayWindowRequestedVisibleTypes(mDisplayId,
+                        mRequestedVisibleTypes);
             } catch (RemoteException e) {
                 Slog.w(TAG, "Unable to update window manager service.");
             }
@@ -244,7 +237,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 return;
             }
             mImmersiveOverride = immersive;
-            updateDisplayWindowRequestedVisibilities();
+            updateDisplayWindowRequestedVisibleTypes();
         }
 
         void setImmersiveModeForSUW(boolean immersive) {
@@ -252,7 +245,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 return;
             }
             mImmersiveForSUW = immersive;
-            updateDisplayWindowRequestedVisibilities();
+            updateDisplayWindowRequestedVisibleTypes();
         }
 
         void addCallbackForDisplay(Callback callback) {
@@ -279,7 +272,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         void onDrivingStateChanged() {
             if (mImmersiveOverride && mCurrentDrivingState == DRIVING_STATE_MOVING) {
                 mImmersiveOverride = false;
-                updateDisplayWindowRequestedVisibilities();
+                updateDisplayWindowRequestedVisibleTypes();
             }
         }
     }

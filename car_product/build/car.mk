@@ -120,10 +120,9 @@ PRODUCT_PROPERTY_OVERRIDES := \
 PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
-# TODO(b/205189147): Remove the following change after the proper fix is landed.
-# Uses the local KeyGuard animation to resolve TaskView misalignment issue after display-on.
+# TODO(b/255631687): Enable the shell transition as soon as all CTS issues are resolved.
 PRODUCT_SYSTEM_PROPERTIES += \
-    persist.wm.enable_remote_keyguard_animation=0
+    persist.wm.debug.shell_transit=0
 
 # TODO(b/198516172): Find a better location to add this read only property
 # It is added here to check the functionality, will be updated in next CL

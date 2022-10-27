@@ -18,7 +18,17 @@
 
 #include <aidl/android/hardware/automotive/evs/Rotation.h>
 #include <aidl/android/hardware/automotive/evs/StreamType.h>
+#include <aidl/android/hardware/common/NativeHandle.h>
+#include <aidlcommonsupport/NativeHandle.h>
+#include <android-base/logging.h>
 #include <camera/CameraMetadata.h>
+#include <hardware/gralloc.h>
+
+#include <functional>
+#include <future>
+#include <thread>
+
+#include <system/graphics-base.h>
 
 namespace {
 
@@ -27,6 +37,8 @@ using ::aidl::android::hardware::automotive::evs::CameraDesc;
 using ::aidl::android::hardware::automotive::evs::CameraParam;
 using ::aidl::android::hardware::automotive::evs::DisplayDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
+using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
+using ::aidl::android::hardware::automotive::evs::EvsEventType;
 using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::IEvsCamera;
 using ::aidl::android::hardware::automotive::evs::IEvsCameraStream;
@@ -38,17 +50,68 @@ using ::aidl::android::hardware::automotive::evs::ParameterRange;
 using ::aidl::android::hardware::automotive::evs::Rotation;
 using ::aidl::android::hardware::automotive::evs::Stream;
 using ::aidl::android::hardware::automotive::evs::StreamType;
+using ::aidl::android::hardware::common::NativeHandle;
 using ::aidl::android::hardware::graphics::common::BufferUsage;
+using ::aidl::android::hardware::graphics::common::HardwareBuffer;
 using ::aidl::android::hardware::graphics::common::PixelFormat;
+using ::std::chrono_literals::operator""s;
 
 inline constexpr char kMockCameraDeviceNamePrefix[] = "/dev/mockcamera";
 inline constexpr int32_t kCameraParamDefaultMinValue = -255;
 inline constexpr int32_t kCameraParamDefaultMaxValue = 255;
 inline constexpr int32_t kCameraParamDefaultStepValue = 3;
+inline constexpr size_t kMinimumNumBuffers = 2;
+inline constexpr size_t kMaximumNumBuffers = 10;
+inline constexpr int kExclusiveMainDisplayId = 255;
+
+NativeHandle copyNativeHandle(const NativeHandle& handle, bool doDup) {
+    NativeHandle dup;
+
+    dup.fds = std::vector<::ndk::ScopedFileDescriptor>(handle.fds.size());
+    if (!doDup) {
+        for (auto i = 0; i < handle.fds.size(); ++i) {
+            dup.fds.at(i).set(handle.fds[i].get());
+        }
+    } else {
+        for (auto i = 0; i < handle.fds.size(); ++i) {
+            dup.fds[i] = std::move(handle.fds[i].dup());
+        }
+    }
+    dup.ints = handle.ints;
+
+    return std::move(dup);
+}
+
+HardwareBuffer copyHardwareBuffer(const HardwareBuffer& buffer, bool doDup) {
+    HardwareBuffer copied = {
+            .description = buffer.description,
+            .handle = copyNativeHandle(buffer.handle, doDup),
+    };
+
+    return std::move(copied);
+}
+
+BufferDesc copyBufferDesc(const BufferDesc& src, bool doDup) {
+    BufferDesc copied = {
+            .buffer = copyHardwareBuffer(src.buffer, doDup),
+            .pixelSizeBytes = src.pixelSizeBytes,
+            .bufferId = src.bufferId,
+            .deviceId = src.deviceId,
+            .timestamp = src.timestamp,
+            .metadata = src.metadata,
+    };
+
+    return std::move(copied);
+}
 
 }  // namespace
 
 namespace aidl::android::automotive::evs::implementation {
+
+MockEvsHal::~MockEvsHal() {
+    deinitializeBufferPool();
+    mCameraClient = nullptr;
+}
 
 std::shared_ptr<IEvsEnumerator> MockEvsHal::getEnumerator() {
     if (!mMockEvsEnumerator) {
@@ -60,6 +123,7 @@ std::shared_ptr<IEvsEnumerator> MockEvsHal::getEnumerator() {
 }
 
 void MockEvsHal::initialize() {
+    initializeBufferPool(kMaximumNumBuffers);
     configureCameras(mNumCameras);
     configureDisplays(mNumDisplays);
     configureEnumerator();
@@ -88,6 +152,109 @@ bool MockEvsHal::buildCameraMetadata(int32_t width, int32_t height, int32_t form
     return true;
 }
 
+void MockEvsHal::forwardFrames(size_t numberOfFramesToForward) {
+    for (size_t count = 0; count < numberOfFramesToForward; ++count) {
+        std::unique_lock lock(mLock);
+        if (mBufferPool.empty()) {
+            if (!mBufferAvailableSignal.wait_for(lock, /* rel_time= */ 10s, [this]() {
+                    // Waiting for a buffer to use.
+                    return !mBufferPool.empty();
+                })) {
+                LOG(ERROR) << "Buffer timeout; " << count << "/" << numberOfFramesToForward
+                           << " are sent.";
+                break;
+            }
+        }
+
+        if (!mCameraClient) {
+            LOG(ERROR) << "Failed to forward a frame as no active recipient exists; " << count
+                       << "/" << numberOfFramesToForward << " are sent.";
+            break;
+        }
+
+        // Duplicate a buffer.
+        BufferDesc bufferToUse = std::move(mBufferPool.back());
+        mBufferPool.pop_back();
+
+        BufferDesc bufferToForward = copyBufferDesc(bufferToUse, /* doDup= */ true);
+
+        // Mark a buffer in-use.
+        mBuffersInUse.push_back(std::move(bufferToUse));
+
+        // Forward a duplicated buffer.
+        std::vector<BufferDesc> packet;
+        packet.push_back(std::move(bufferToForward));
+        mCameraClient->deliverFrame(packet);
+        LOG(DEBUG) << count << "/" << numberOfFramesToForward << " frames are sent.";
+    }
+}
+
+size_t MockEvsHal::initializeBufferPool(size_t requested) {
+    for (auto count = 0; count < requested; ++count) {
+        AHardwareBuffer_Desc desc = {
+                .width = 64,
+                .height = 32,
+                .layers = 1,
+                .usage = AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN,
+                .format = HAL_PIXEL_FORMAT_RGBA_8888,
+        };
+        AHardwareBuffer* ahwb;
+        if (AHardwareBuffer_allocate(&desc, &ahwb) != ::android::NO_ERROR) {
+            LOG(ERROR) << "Failed to allocate AHardwareBuffer";
+            return count;
+        }
+        buffer_handle_t memHandle = AHardwareBuffer_getNativeHandle(ahwb);
+        BufferDesc aBuffer = {
+                .buffer =
+                        {
+                                .description =
+                                        {
+                                                .width = 64,
+                                                .height = 32,
+                                                .layers = 1,
+                                                .usage = BufferUsage::CPU_READ_OFTEN,
+                                                .format = PixelFormat::RGBA_8888,
+                                                .stride = 64,
+                                        },
+                                .handle = ::android::dupToAidl(memHandle),
+                        },
+                .pixelSizeBytes = 1,
+                .bufferId = count,
+                .deviceId = "Mock EvsCamera",
+        };
+
+        mBufferRecord.insert_or_assign(count, ahwb);
+        mBufferPool.push_back(std::move(aBuffer));
+    }
+
+    return mBufferPool.size();
+}
+
+void MockEvsHal::deinitializeBufferPool() {
+    for (auto&& descriptor : mBuffersInUse) {
+        auto it = mBufferRecord.find(descriptor.bufferId);
+        if (it == mBufferRecord.end()) {
+            LOG(WARNING) << "Ignoring unknown buffer id, " << descriptor.bufferId;
+        } else {
+            LOG(WARNING) << "Releasing buffer in use, id = " << descriptor.bufferId;
+            AHardwareBuffer_release(it->second);
+            mBufferRecord.erase(it);
+        }
+    }
+    for (auto&& descriptor : mBufferPool) {
+        auto it = mBufferRecord.find(descriptor.bufferId);
+        if (it == mBufferRecord.end()) {
+            LOG(WARNING) << "Ignoring unknown buffer id, " << descriptor.bufferId;
+        } else {
+            AHardwareBuffer_release(it->second);
+            mBufferRecord.erase(it);
+        }
+    }
+
+    mBuffersInUse.clear();
+    mBufferPool.clear();
+}
+
 void MockEvsHal::configureCameras(size_t n) {
     // Builds mock IEvsCamera instances
     std::vector<std::shared_ptr<NiceMockEvsCamera>> cameras(n);
@@ -110,18 +277,26 @@ void MockEvsHal::configureCameras(size_t n) {
                 .WillByDefault([this](const std::vector<BufferDesc>& buffers) {
                     bool success = true;
                     for (auto& b : buffers) {
-                        auto it = std::find(mBuffersInUse.begin(), mBuffersInUse.end(), b.bufferId);
+                        auto it = std::find_if(mBuffersInUse.begin(), mBuffersInUse.end(),
+                                               [id = b.bufferId](const BufferDesc& desc) {
+                                                   return id == desc.bufferId;
+                                               });
                         if (it == mBuffersInUse.end()) {
                             success = false;
                             continue;
                         }
 
+                        mBufferPool.push_back(std::move(*it));
                         mBuffersInUse.erase(it);
                     }
 
-                    return success ? ndk::ScopedAStatus::ok()
-                                   : ndk::ScopedAStatus::fromServiceSpecificError(
-                                             static_cast<int>(EvsResult::INVALID_ARG));
+                    if (success) {
+                        mBufferAvailableSignal.notify_all();
+                        return ndk::ScopedAStatus::ok();
+                    } else {
+                        return ndk::ScopedAStatus::fromServiceSpecificError(
+                                static_cast<int>(EvsResult::INVALID_ARG));
+                    }
                 });
 
         // EVS HAL aceepts only a single client; therefore, this method
@@ -289,7 +464,6 @@ void MockEvsHal::configureCameras(size_t n) {
         // set the size of the buffer pool.
         ON_CALL(*mockCamera, setMaxFramesInFlight).WillByDefault([this](int32_t bufferCount) {
             size_t newSize = mBufferPoolSize + bufferCount;
-            constexpr size_t kMinimumNumBuffers = 2;
             if (newSize < kMinimumNumBuffers) {
                 return ndk::ScopedAStatus::fromServiceSpecificError(
                         static_cast<int>(EvsResult::INVALID_ARG));
@@ -305,15 +479,33 @@ void MockEvsHal::configureCameras(size_t n) {
                 .WillByDefault([this](const std::shared_ptr<IEvsCameraStream>& cb) {
                     // TODO(b/235110887): Notifies a camera loss to the current
                     //                    client.
-                    mCameraClient = cb;
+                    {
+                        std::lock_guard l(mLock);
+                        mCameraClient = cb;
+                    }
 
-                    // Starts circulating buffers.
+                    std::packaged_task<void(MockEvsHal*, size_t)> task(&MockEvsHal::forwardFrames);
+                    std::thread t(std::move(task), this, /* numberOfFramesForward= */ 5);
+                    t.detach();
+
                     return ndk::ScopedAStatus::ok();
                 });
 
         // We simply drop a current client.
         ON_CALL(*mockCamera, stopVideoStream).WillByDefault([this]() {
-            mCameraClient = nullptr;
+            std::shared_ptr<aidlevs::IEvsCameraStream> cb;
+            {
+                std::lock_guard l(mLock);
+                cb = mCameraClient;
+                mCameraClient = nullptr;
+            }
+
+            if (cb) {
+                EvsEventDesc e = {
+                        .aType = EvsEventType::STREAM_STOPPED,
+                };
+                cb->notify(e);
+            }
             return ndk::ScopedAStatus::ok();
         });
 
@@ -522,6 +714,22 @@ void MockEvsHal::configureEnumerator() {
 
     ON_CALL(*mockEnumerator, openDisplay)
             .WillByDefault([this](int32_t id, std::shared_ptr<IEvsDisplay>* out) {
+                if (id == kExclusiveMainDisplayId) {
+                    if (mDisplayOwnedExclusively && !mActiveDisplay.expired()) {
+                        return ndk::ScopedAStatus::fromServiceSpecificError(
+                                static_cast<int>(EvsResult::RESOURCE_BUSY));
+                    }
+
+                    DisplayDesc desc;
+                    if (!mMockEvsDisplays[0]->getDisplayInfo(&desc).isOk()) {
+                        return ndk::ScopedAStatus::fromServiceSpecificError(
+                                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+                    }
+                    id = desc.vendorFlags;  // the first display in the list is
+                                            // the main display.
+                    mDisplayOwnedExclusively = true;
+                }
+
                 auto it = std::find_if(mMockEvsDisplays.begin(), mMockEvsDisplays.end(),
                                        [id](const std::shared_ptr<NiceMockEvsDisplay>& d) {
                                            DisplayDesc desc;

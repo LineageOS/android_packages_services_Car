@@ -95,6 +95,15 @@ public final class AidlVehicleStubUnitTest {
 
     private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
 
+    private static final HalPropValue HVAC_PROP_VALUE;
+    private static final HalPropValue TEST_PROP_VALUE;
+
+    static {
+        HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */true);
+        HVAC_PROP_VALUE =  builder.build(HVAC_TEMPERATURE_SET, /* areaId= */ 0, 17.0f);
+        TEST_PROP_VALUE = builder.build(TEST_PROP, /* areaId= */ 0, TEST_VALUE);
+    }
+
     @Mock
     private IVehicle mAidlVehicle;
     @Mock
@@ -270,8 +279,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         HalPropValue gotValue = mAidlVehicleStub.get(value);
 
@@ -336,8 +344,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         mAidlVehicleStub.get(value);
         assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
@@ -367,8 +374,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         HalPropValue gotValue = mAidlVehicleStub.get(value);
 
@@ -389,11 +395,6 @@ public final class AidlVehicleStubUnitTest {
             results.payloads[i] = result;
         }
         return results;
-    }
-
-    private HalPropValue testAidlHvacPropValue() {
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        return builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
     }
 
     @Test
@@ -419,7 +420,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -458,7 +459,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -474,10 +475,8 @@ public final class AidlVehicleStubUnitTest {
     }
 
     private void createGetAsyncAidlException(int errorCode) throws Exception {
-        HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ true);
-        HalPropValue value = builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
-
-        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                HVAC_PROP_VALUE);
         ServiceSpecificException exception = new ServiceSpecificException(errorCode);
         doThrow(exception).when(mAidlVehicle).getValues(any(), any());
 
@@ -563,7 +562,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAsyncCallback).linkToDeath(any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -599,7 +598,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAsyncCallback).linkToDeath(any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -624,7 +623,7 @@ public final class AidlVehicleStubUnitTest {
     public void testGetAsyncAidlBinderDiedBeforeRegisterCallback() throws Exception {
         doThrow(new RemoteException()).when(mAsyncCallback).linkToDeath(any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
@@ -640,7 +639,7 @@ public final class AidlVehicleStubUnitTest {
         List<GetValueResults> resultsWrapper = new ArrayList<>();
         mockGetValues(callbackWrapper, resultsWrapper);
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
@@ -678,7 +677,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 100);
@@ -711,7 +710,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
@@ -739,7 +738,7 @@ public final class AidlVehicleStubUnitTest {
         List<GetValueResults> resultsWrapper = new ArrayList<>();
         mockGetValues(callbackWrapper, resultsWrapper);
 
-        HalPropValue value = testAidlHvacPropValue();
+        HalPropValue value = HVAC_PROP_VALUE;
 
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
                 /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 1000);
@@ -792,8 +791,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
             mAidlVehicleStub.get(value);
@@ -829,8 +827,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         mAidlVehicleStub.set(value);
 
@@ -891,8 +888,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         mAidlVehicleStub.set(value);
 
@@ -927,8 +923,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         mAidlVehicleStub.set(value);
 
@@ -964,8 +959,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        HalPropValue value = TEST_PROP_VALUE;
 
         ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
             mAidlVehicleStub.set(value);
@@ -1015,7 +1009,7 @@ public final class AidlVehicleStubUnitTest {
             return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
-        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(testAidlHvacPropValue());
+        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(HVAC_PROP_VALUE);
 
         mAidlVehicleStub.setAsync(List.of(request), mAsyncCallback);
 
@@ -1032,7 +1026,7 @@ public final class AidlVehicleStubUnitTest {
     @Test
     public void testSetAsyncRemoteException() throws Exception {
         doThrow(new RemoteException()).when(mAidlVehicle).setValues(any(), any());
-        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(testAidlHvacPropValue());
+        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(HVAC_PROP_VALUE);
 
         mAidlVehicleStub.setAsync(List.of(request), mAsyncCallback);
 
@@ -1049,7 +1043,7 @@ public final class AidlVehicleStubUnitTest {
     public void testSetAsyncServiceSpecificExceptionTryAgain() throws Exception {
         doThrow(new ServiceSpecificException(StatusCode.TRY_AGAIN)).when(mAidlVehicle)
                 .setValues(any(), any());
-        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(testAidlHvacPropValue());
+        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(HVAC_PROP_VALUE);
 
         mAidlVehicleStub.setAsync(List.of(request), mAsyncCallback);
 
@@ -1066,7 +1060,7 @@ public final class AidlVehicleStubUnitTest {
     public void testSetAsyncServiceSpecificExceptionNotAvailable() throws Exception {
         doThrow(new ServiceSpecificException(StatusCode.NOT_AVAILABLE)).when(mAidlVehicle)
                 .setValues(any(), any());
-        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(testAidlHvacPropValue());
+        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(HVAC_PROP_VALUE);
 
         mAidlVehicleStub.setAsync(List.of(request), mAsyncCallback);
 
@@ -1090,12 +1084,11 @@ public final class AidlVehicleStubUnitTest {
         propValue.value = new RawPropValues();
         propValue.value.int32Values = new int[]{TEST_VALUE};
         propValues.payloads = new VehiclePropValue[]{propValue};
-        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue halPropValue = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         aidlCallback.onPropertyEvent(propValues, /*sharedMemoryFileCount=*/0);
 
-        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(halPropValue)));
+        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(
+                TEST_PROP_VALUE)));
     }
 
     @Test

@@ -86,7 +86,6 @@ import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.telemetry.CarTelemetryTestFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.ProfileUserFragment;
-import com.google.android.car.kitchensink.users.SimpleUserPickerFragment;
 import com.google.android.car.kitchensink.users.UserFragment;
 import com.google.android.car.kitchensink.users.UserRestrictionsFragment;
 import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
@@ -245,7 +244,6 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("qc viewer", QCViewerFragment.class),
             new FragmentMenuEntry("rotary", RotaryFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
-            new FragmentMenuEntry("user picker", SimpleUserPickerFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
             new FragmentMenuEntry("storage volumes", StorageVolumesFragment.class),
             new FragmentMenuEntry("system bars", SystemBarsFragment.class),

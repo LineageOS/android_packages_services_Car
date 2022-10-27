@@ -38,6 +38,9 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
             .asInterface(mTestOemCarService.onBind(null));
 
     @Mock
+    private IOemCarServiceCallback mIOemCarServiceCallback;
+
+    @Mock
     private OemCarAudioFocusService mOemCarAudioFocusService;
 
     @Test
@@ -48,7 +51,7 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
         assertThrows(SecurityException.class,
                 () -> mOemCarService.getOemAudioFocusService());
         assertThrows(SecurityException.class,
-                () -> mOemCarService.onCarServiceReady());
+                () -> mOemCarService.onCarServiceReady(mIOemCarServiceCallback));
         assertThrows(SecurityException.class,
                 () -> mOemCarService.isOemServiceReady());
     }
