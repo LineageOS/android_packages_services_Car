@@ -1,5 +1,5 @@
 {
-    "cache_in_bytes": [
+    "stats.cache_in_bytes": [
         0,
         0,
         0,
@@ -13,7 +13,7 @@
         0,
         0
     ],
-    "activity_name": [
+    "stats.activity_name": [
         "com.google.android.car.kitchensink.KitchenSinkActivity",
         "com.android.car.calendar.CarCalendarActivity",
         "com.android.car.carlauncher.CarLauncher",
@@ -27,7 +27,7 @@
         "com.android.car.media.MediaActivity",
         "com.android.car.carlauncher.GASAppGridActivity"
     ],
-    "uid": [
+    "stats.uid": [
         1010112,
         1010148,
         1010100,
@@ -41,7 +41,7 @@
         1010131,
         1010100
     ],
-    "swap_in_bytes": [
+    "stats.swap_in_bytes": [
         0,
         0,
         0,
@@ -55,7 +55,7 @@
         0,
         0
     ],
-    "elapsed_timestamp_nanos": [
+    "stats.elapsed_timestamp_nanos": [
         851176063546,
         828939567141,
         820066943338,
@@ -69,7 +69,7 @@
         521354232115,
         516233079263
     ],
-    "rss_in_bytes": [
+    "stats.rss_in_bytes": [
         80539648,
         117018624,
         98263040,
@@ -83,7 +83,7 @@
         119177216,
         137728000
     ],
-    "page_major_fault": [
+    "stats.page_major_fault": [
         2489,
         341,
         4951,
@@ -97,7 +97,7 @@
         1206,
         954
     ],
-    "page_fault": [
+    "stats.page_fault": [
         12126,
         8819,
         36040,
@@ -111,7 +111,7 @@
         13580,
         22697
     ],
-    "process_name": [
+    "stats.process_name": [
         "com.google.android.car.kitchensink",
         "com.android.car.calendar",
         "com.android.car.carlauncher",

@@ -1,6 +1,5 @@
 {
-  "metrics.report.boot_count": 7,
-  "class_name": [
+  "stats.class_name": [
     ".TextSamples",
     ".MainActivity",
     ".KitchenSinkActivity",
@@ -38,7 +37,7 @@
     ".KitchenSinkActivity",
     ".KitchenSinkActivity"
   ],
-  "uid": [
+  "stats.uid": [
     1010129,
     1010124,
     1010123,
@@ -76,8 +75,7 @@
     1010123,
     1010123
   ],
-  "metrics.report.timestamp_millis": 1665002196356,
-  "state": [
+  "stats.state": [
     0,
     0,
     1,
@@ -115,7 +113,7 @@
     0,
     0
   ],
-  "elapsed_timestamp_nanos": [
+  "stats.elapsed_timestamp_nanos": [
     9181953796483,
     9135276327557,
     9106228563449,
@@ -153,8 +151,7 @@
     9083647140978,
     9124523568749
   ],
-  "metrics.report.id": 1,
-  "pkg_name": [
+  "stats.pkg_name": [
     "com.android.car.themeplayground",
     "com.android.car.ui.paintbooth",
     "com.google.android.car.kitchensink",
