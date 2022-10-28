@@ -44,7 +44,7 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="TextAppearance.SystemBar.Clock"
+    <style name="TextAppearance.TopSystemBar.Text"
            parent="@*android:style/TextAppearance.StatusBar.Icon">
         <item name="android:textSize">@dimen/car_body1_size</item>
         <item name="android:textColor">@color/car_on_surface</item>

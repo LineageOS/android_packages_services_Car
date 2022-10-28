@@ -30,10 +30,13 @@ public:
     template <class T>
     using VhalClientResult = android::frameworks::automotive::vhal::VhalClientResult<T>;
 
-    explicit MockVhalClient(const std::shared_ptr<MockVehicle>& vehicle) { mVehicle = vehicle; }
+    explicit MockVhalClient(const std::shared_ptr<MockVehicle>& vehicle) {
+        mVehicle = vehicle;
+        ON_CALL(*this, isAidlVhal()).WillByDefault(testing::Return(true));
+    }
     ~MockVhalClient() { mVehicle.reset(); }
 
-    inline bool isAidlVhal() { return true; }
+    MOCK_METHOD(bool, isAidlVhal, (), (override));
 
     std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient>
     getSubscriptionClient(

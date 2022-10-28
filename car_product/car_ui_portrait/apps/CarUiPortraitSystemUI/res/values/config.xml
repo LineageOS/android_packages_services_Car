@@ -47,4 +47,8 @@
         com.android.car.notification/.CarNotificationCenterActivity
     </string>
 
+    <string-array name="config_readOnlyIconControllers" translatable="false">
+        <item>com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController</item>
+    </string-array>
+
 </resources>
