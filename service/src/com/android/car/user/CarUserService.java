@@ -37,6 +37,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarVersion;
+import android.car.ICarOccupantZoneCallback;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.PlatformVersion;
@@ -414,7 +415,59 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
         setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions());
+
+        CarLocalServices.getService(CarOccupantZoneService.class).registerCallback(
+                mOccupantZoneCallback);
     }
+
+    private final ICarOccupantZoneCallback mOccupantZoneCallback =
+            new ICarOccupantZoneCallback.Stub() {
+                @Override
+                public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
+                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                        if (DBG) {
+                            String flagString = DebugUtils.flagsToString(
+                                    CarOccupantZoneManager.class, "ZONE_CONFIG_CHANGE_FLAG_",
+                                    flags);
+                            Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
+                                    flagString);
+                        }
+                        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                                CarOccupantZoneService.class);
+                        // Start user picker on displays without user allocation.
+                        List<OccupantZoneInfo> occupantZoneInfos =
+                                zoneService.getAllOccupantZones();
+                        for (int i = 0; i < occupantZoneInfos.size(); i++) {
+                            OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
+                            int zoneId = occupantZoneInfo.zoneId;
+                            int userId = zoneService.getUserForOccupant(zoneId);
+                            if (userId != CarOccupantZoneManager.INVALID_USER_ID) {
+                                // If there is already a user allocated to the zone, skip.
+                                continue;
+                            }
+
+                            int displayId = zoneService.getDisplayForOccupant(zoneId,
+                                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+                            boolean started = CarServiceUtils.startUserPickerOnDisplay(
+                                    mContext, displayId,
+                                    mContext.getResources().getString(
+                                            R.string.config_userPickerActivity));
+                            if (!started) {
+                                Slogf.w(TAG,
+                                        "onOccupantZoneConfigChanged: "
+                                            + "failed to start user picker on display: %d",
+                                        displayId);
+                            } else {
+                                if (DBG) {
+                                    Slogf.d(TAG,
+                                            "onOccupantZoneConfigChanged: "
+                                                + "started user picker on display: %d", displayId);
+                                }
+                            }
+                        }
+                    }
+                }
+            };
 
     @Override
     public void release() {
@@ -424,6 +477,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mCarUxRestrictionService
                 .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
+
+        CarLocalServices.getService(CarOccupantZoneService.class).unregisterCallback(
+                mOccupantZoneCallback);
     }
 
     @Override
