@@ -721,7 +721,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()));
     }
 
-    private static void assertPropertyIdIsSupported(int propertyId,
+    private static void assertConfigIsNotNull(int propertyId,
             CarPropertyConfig<?> carPropertyConfig) {
         Preconditions.checkArgument(carPropertyConfig != null,
                 "property ID is not in carPropertyConfig list, and so it is not supported: %s",
@@ -756,14 +756,14 @@ public class CarPropertyService extends ICarProperty.Stub
 
     private void validateRegisterParameter(int propertyId) {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        assertPropertyIdIsSupported(propertyId, carPropertyConfig);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
         assertPropertyIsReadable(carPropertyConfig);
         assertReadPermissionGranted(propertyId);
     }
 
     private void validateGetParameters(int propertyId, int areaId) {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        assertPropertyIdIsSupported(propertyId, carPropertyConfig);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
         assertPropertyIsReadable(carPropertyConfig);
         assertReadPermissionGranted(propertyId);
         assertAreaIdIsSupported(areaId, carPropertyConfig);
@@ -771,7 +771,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     private <T> void validateSetParameters(int propertyId, int areaId, T valueToSet) {
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        assertPropertyIdIsSupported(propertyId, carPropertyConfig);
+        assertConfigIsNotNull(propertyId, carPropertyConfig);
 
         // Assert property is writable.
         Preconditions.checkArgument(

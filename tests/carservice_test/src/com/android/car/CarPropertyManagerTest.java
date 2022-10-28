@@ -168,6 +168,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     // Use FAKE_PROPERTY_ID to test api return null or throw exception.
     private static final int FAKE_PROPERTY_ID = 0x111;
 
+    // This is a property returned by VHAL, but is unsupported in car service.
+    // It must be filtered out at car service layer.
+    private static final int PROP_UNSUPPORTED =
+            0x0100 | VehiclePropertyGroup.SYSTEM | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+
     private static final int DRIVER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_LEFT
             | VehicleAreaSeat.ROW_2_LEFT;
     private static final int PASSENGER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_RIGHT
@@ -533,6 +538,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThrows(IllegalArgumentException.class,
                 () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.setProperty(Integer.class, PROP_UNSUPPORTED,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
     }
 
     @Test
@@ -618,6 +626,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getProperty(NULL_VALUE_PROP,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+        assertThrows(IllegalArgumentException.class,
+                () -> mManager.getProperty(PROP_UNSUPPORTED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
     }
 
@@ -860,6 +871,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 VENDOR_PERMISSION_CONFIG);
         addAidlProperty(PROP_WITH_READ_ONLY_PERMISSION, handler);
         addAidlProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
+
+        addAidlProperty(PROP_UNSUPPORTED, handler);
     }
 
     private static class PropertyHandler implements VehicleHalPropertyHandler {
