@@ -34,6 +34,7 @@
 #include <android/automotive/watchdog/internal/BnCarWatchdogServiceForSystem.h>
 #include <android/hidl/manager/1.0/IServiceManager.h>
 #include <binder/IPCThreadState.h>
+#include <binder/IServiceManager.h>
 #include <hidl/HidlTransportSupport.h>
 #include <utils/SystemClock.h>
 
@@ -90,6 +91,7 @@ const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
 // TimeoutLength::TIMEOUT_NORMAL.
 const int32_t MSG_VHAL_WATCHDOG_ALIVE = static_cast<int>(TimeoutLength::TIMEOUT_NORMAL) + 1;
 const int32_t MSG_VHAL_HEALTH_CHECK = MSG_VHAL_WATCHDOG_ALIVE + 1;
+const int32_t MSG_CACHE_VHAL_PROCESS_IDENTIFIER = MSG_VHAL_HEALTH_CHECK + 1;
 
 // VHAL is supposed to send heart beat every 3s. Car watchdog checks if there is the latest heart
 // beat from VHAL within 3s, allowing 1s marginal time.
@@ -103,7 +105,9 @@ constexpr int32_t kMissingIntPropertyValue = -1;
 constexpr const char kPropertyVhalCheckInterval[] = "ro.carwatchdog.vhal_healthcheck.interval";
 constexpr const char kPropertyClientCheckInterval[] = "ro.carwatchdog.client_healthcheck.interval";
 constexpr const char kServiceName[] = "WatchdogProcessService";
-constexpr const char kVhalInterfaceName[] = "android.hardware.automotive.vehicle@2.0::IVehicle";
+constexpr const char kHidlVhalInterfaceName[] = "android.hardware.automotive.vehicle@2.0::IVehicle";
+constexpr const char kAidlVhalInterfaceName[] =
+        "android.hardware.automotive.vehicle.IVehicle/default";
 
 std::string toPidString(const std::vector<ProcessIdentifier>& processIdentifiers) {
     size_t size = processIdentifiers.size();
@@ -131,6 +135,42 @@ int64_t getStartTimeForPid(pid_t pid) {
         return elapsedRealtime();
     }
     return pidStat->startTimeMillis;
+}
+
+Result<pid_t> queryHidlServiceManagerForVhalPid() {
+    using android::hidl::manager::V1_0::IServiceManager;
+    pid_t pid = -1;
+    Return<void> ret = IServiceManager::getService()->debugDump([&](auto& hals) {
+        for (const auto& info : hals) {
+            if (info.pid == static_cast<int>(IServiceManager::PidConstant::NO_PID)) {
+                continue;
+            }
+            if (info.interfaceName == kHidlVhalInterfaceName) {
+                pid = info.pid;
+                return;
+            }
+        }
+    });
+
+    if (!ret.isOk()) {
+        return Error() << "Failed to get VHAL process id from HIDL service manager";
+    }
+    if (pid == -1) {
+        return Error() << "No VHAL service registered to HIDL service manager";
+    }
+    return pid;
+}
+
+Result<pid_t> queryAidlServiceManagerForVhalPid() {
+    using ServiceDebugInfo = android::IServiceManager::ServiceDebugInfo;
+    std::vector<ServiceDebugInfo> serviceDebugInfos =
+            defaultServiceManager()->getServiceDebugInfo();
+    for (const auto& serviceDebugInfo : serviceDebugInfos) {
+        if (serviceDebugInfo.name == kAidlVhalInterfaceName) {
+            return serviceDebugInfo.pid;
+        }
+    }
+    return Error() << "No VHAL service registered to AIDL service manager";
 }
 
 }  // namespace
@@ -312,7 +352,7 @@ Status WatchdogProcessService::tellCarWatchdogServiceAlive(
         status = tellClientAliveLocked(BnCarWatchdogServiceForSystem::asBinder(service), sessionId);
     }
     if (status.isOk()) {
-        dumpAndKillAllProcesses(clientsNotResponding, true);
+        dumpAndKillAllProcesses(clientsNotResponding, /*reportToVhal=*/true);
     }
     return status;
 }
@@ -403,6 +443,13 @@ Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args
     WriteStringToFd(StringPrintf("%sVHAL health check interval: %lldms\n", indent,
                                  mVhalHealthCheckWindowMs.count()),
                     fd);
+    if (mVhalProcessIdentifier.has_value()) {
+        WriteStringToFd(StringPrintf("%sVHAL process identifier (PID = %d, Start time millis = "
+                                     "%" PRIi64 ")",
+                                     indent, mVhalProcessIdentifier->pid,
+                                     mVhalProcessIdentifier->startTimeMillis),
+                        fd);
+    }
     return {};
 }
 
@@ -658,7 +705,7 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
     for (const ClientInfo*& clientInfo : clientsToNotify) {
         clientInfo->prepareProcessTermination();
     }
-    return dumpAndKillAllProcesses(processIdentifiers, true);
+    return dumpAndKillAllProcesses(processIdentifiers, /*reportToVhal=*/true);
 }
 
 Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
@@ -868,6 +915,36 @@ void WatchdogProcessService::subscribeToVhalHeartBeatLocked() {
     std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
     mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
                                        Message(MSG_VHAL_HEALTH_CHECK));
+    // VHAL process identifier is required only when termiating the VHAL process. VHAL process is
+    // terminated only when the VHAL is unhealthy. However, caching the process identifier as soon
+    // as connecting to VHAL guarantees the correct PID is cached. Because the VHAL pid is queried
+    // from the service manager, the caching should be performed outside the class level lock. So,
+    // handle the caching in the handler thread after successfully subscribing to the VHAL_HEARTBEAT
+    // property.
+    mHandlerLooper->sendMessage(mMessageHandler, Message(MSG_CACHE_VHAL_PROCESS_IDENTIFIER));
+    return;
+}
+
+bool WatchdogProcessService::cacheVhalProcessIdentifier() {
+    pid_t pid = -1;
+    if (Result<pid_t> hidlResult = queryHidlServiceManagerForVhalPid(); hidlResult.ok()) {
+        pid = *hidlResult;
+        ALOGI("Fetched HIDL VHAL PID %d", pid);
+    } else if (Result<pid_t> aidlResult = queryAidlServiceManagerForVhalPid(); aidlResult.ok()) {
+        pid = *aidlResult;
+        ALOGI("Fetched AIDL VHAL PID %d", pid);
+    } else {
+        ALOGE("Failed to fetch VHAL pid:\n\t%s\n\t%s", hidlResult.error().message().c_str(),
+              aidlResult.error().message().c_str());
+        return false;
+    }
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = pid;
+    processIdentifier.startTimeMillis = mGetStartTimeForPidFunc(pid);
+
+    Mutex::Autolock lock(mMutex);
+    mVhalProcessIdentifier = processIdentifier;
+    return true;
 }
 
 int32_t WatchdogProcessService::getNewSessionId() {
@@ -916,34 +993,25 @@ void WatchdogProcessService::checkVhalHealth() {
 }
 
 void WatchdogProcessService::terminateVhal() {
-    using android::hidl::manager::V1_0::IServiceManager;
-
-    std::vector<ProcessIdentifier> processIdentifiers;
-    sp<IServiceManager> manager = IServiceManager::getService();
-    Return<void> ret = manager->debugDump([&](auto& hals) {
-        for (const auto& info : hals) {
-            if (info.pid == static_cast<int>(IServiceManager::PidConstant::NO_PID)) {
-                continue;
-            }
-            // TODO(b/216735836): terminate AIDL VHAL.
-            if (info.interfaceName == kVhalInterfaceName) {
-                ProcessIdentifier processIdentifier;
-                processIdentifier.pid = info.pid;
-                processIdentifier.startTimeMillis = mGetStartTimeForPidFunc(info.pid);
-                processIdentifiers.push_back(processIdentifier);
-                break;
-            }
+    auto maybeDumpAndKillVhalProcess = [&]() -> bool {
+        std::optional<ProcessIdentifier> processIdentifier;
+        {
+            Mutex::Autolock lock(mMutex);
+            processIdentifier = mVhalProcessIdentifier;
         }
-    });
-
-    if (!ret.isOk()) {
-        ALOGE("Failed to terminate VHAL: could not get VHAL process id");
-        return;
-    } else if (processIdentifiers.empty()) {
-        ALOGE("Failed to terminate VHAL: VHAL is not running");
+        if (!processIdentifier.has_value()) {
+            return false;
+        }
+        dumpAndKillAllProcesses(std::vector<ProcessIdentifier>(1, *processIdentifier),
+                                /*reportToVhal=*/false);
+        return true;
+    };
+    if (maybeDumpAndKillVhalProcess()) {
         return;
     }
-    dumpAndKillAllProcesses(processIdentifiers, false);
+    if (!cacheVhalProcessIdentifier() || !maybeDumpAndKillVhalProcess()) {
+        ALOGE("Failed to termitate VHAL: failed to fetch VHAL PID");
+    }
 }
 
 std::chrono::nanoseconds WatchdogProcessService::getTimeoutDurationNs(
@@ -1065,6 +1133,9 @@ void WatchdogProcessService::MessageHandlerImpl::handleMessage(const Message& me
             break;
         case MSG_VHAL_HEALTH_CHECK:
             mService->checkVhalHealth();
+            break;
+        case MSG_CACHE_VHAL_PROCESS_IDENTIFIER:
+            mService->cacheVhalProcessIdentifier();
             break;
         default:
             ALOGW("Unknown message: %d", message.what);
