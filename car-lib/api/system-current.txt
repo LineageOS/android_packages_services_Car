@@ -1108,6 +1108,23 @@ package android.car.media {
     method public void onMediaSourceChanged(@NonNull android.content.ComponentName);
   }
 
+  public final class CarVolumeGroupInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getId();
+    method @NonNull public String getName();
+    method public int getZoneId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
+  }
+
+  public static final class CarVolumeGroupInfo.Builder {
+    ctor public CarVolumeGroupInfo.Builder(int, int, @NonNull String);
+    method @NonNull public android.car.media.CarVolumeGroupInfo build();
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setId(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setName(@NonNull String);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setZoneId(int);
+  }
+
 }
 
 package android.car.navigation {
@@ -1133,6 +1150,75 @@ package android.car.navigation {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
+  }
+
+}
+
+package android.car.oem {
+
+  public final class AudioFocusEntry implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAudioContextId();
+    method @NonNull public android.media.AudioFocusInfo getAudioFocusInfo();
+    method public int getAudioFocusResult();
+    method public int getAudioVolumeGroupId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.AudioFocusEntry> CREATOR;
+  }
+
+  public static final class AudioFocusEntry.Builder {
+    ctor public AudioFocusEntry.Builder(@NonNull android.media.AudioFocusInfo, int, int, int);
+    method @NonNull public android.car.oem.AudioFocusEntry build();
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioContextId(int);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioFocusInfo(@NonNull android.media.AudioFocusInfo);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioFocusResult(int);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioVolumeGroupId(int);
+  }
+
+  public final class OemCarAudioFocusEvaluationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusRequest();
+    method public int getAudioZoneId();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getFocusHolders();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getFocusLosers();
+    method @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getMutedVolumeGroups();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarAudioFocusEvaluationRequest> CREATOR;
+  }
+
+  public static final class OemCarAudioFocusEvaluationRequest.Builder {
+    ctor public OemCarAudioFocusEvaluationRequest.Builder(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, int);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addFocusHolders(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addFocusLosers(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addMutedVolumeGroups(@NonNull android.car.media.CarVolumeGroupInfo);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest build();
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioFocusRequest(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioZoneId(int);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setFocusHolders(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setFocusLosers(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setMutedVolumeGroups(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>);
+  }
+
+  public final class OemCarAudioFocusResult implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusEntry();
+    method public int getAudioFocusResult();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyBlockedAudioFocusEntries();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyLossAudioFocusEntries();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarAudioFocusResult> CREATOR;
+    field @NonNull public static final android.car.oem.OemCarAudioFocusResult EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+  }
+
+  public static final class OemCarAudioFocusResult.Builder {
+    ctor public OemCarAudioFocusResult.Builder(@NonNull java.util.List<android.car.oem.AudioFocusEntry>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, int);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyBlockedAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyLossAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult build();
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusResult(int);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyBlockedAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyLossAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
   }
 
 }
