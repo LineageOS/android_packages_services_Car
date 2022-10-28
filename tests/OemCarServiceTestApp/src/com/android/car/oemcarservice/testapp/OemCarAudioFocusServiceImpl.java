@@ -16,6 +16,9 @@
 
 package com.android.car.oemcarservice.testapp;
 
+import android.annotation.NonNull;
+import android.car.oem.OemCarAudioFocusEvaluationRequest;
+import android.car.oem.OemCarAudioFocusResult;
 import android.car.oem.OemCarAudioFocusService;
 import android.media.AudioFocusInfo;
 import android.util.Log;
@@ -58,6 +61,14 @@ public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusServic
     public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
         Log.d(TAG, "OemCarAudioFocusServiceImpl audioFocusChanged called");
+    }
+
+    @Override
+    @NonNull
+    public OemCarAudioFocusResult evaluateAudioFocusRequest(
+            @NonNull OemCarAudioFocusEvaluationRequest request) {
+        Log.d(TAG, "OemCarAudioFocusServiceImpl evaluateAudioFocusRequest called: " + request);
+        return OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
     }
 
 }
