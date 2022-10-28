@@ -17,18 +17,10 @@
 
 <resources>
 
-    <string-array name="config_foregroundDAComponents" translatable="false">
-        <item>com.android.car.carlauncher/.AppGridActivity</item>
+    <string-array name="config_drawerActivities" translatable="false">
+        <item>com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
         <item>com.android.car.notification/.CarNotificationCenterActivity</item>
     </string-array>
-
-    <string name="config_homeActivity" translatable="false">
-        com.android.car.carlauncher/.CarLauncher
-    </string>
-
-    <string name="config_controlBarActivity" translatable="false">
-        com.android.car.carlauncher/.ControlBarActivity
-    </string>
 
     <string name="config_backgroundActivity" translatable="false">
         com.google.android.apps.maps/com.google.android.maps.MapsActivity
@@ -53,4 +45,9 @@
 
     <bool name="config_setInsetsOnUpperTaskView">false</bool>
 
+    <!--
+     A list of all the apps that are meant to stay in full-screen.
+    -->
+    <string-array name="config_fullScreenActivities" translatable="false">
+    </string-array>
 </resources>

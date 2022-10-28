@@ -51,4 +51,7 @@
         <item>com.android.systemui.car.statusicon.ui.StatusBarSensorInfoController</item>
     </string-array>
 
+    <string name="config_VoiceAssistantActivity" translatable="false">
+        com.google.android.carassistant/com.google.android.apps.gsa.binaries.auto.app.voiceplate.VoicePlateActivity
+    </string>
 </resources>
