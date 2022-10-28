@@ -25,4 +25,6 @@
     <item target="bool/enable_control_bar_overflow" value="@bool/enable_control_bar_overflow"/>
 
     <item target="drawable/ic_overflow_button" value="@drawable/ic_overflow_button"/>
+
+    <item target="style/Widget.ActionButton.PlayPause" value="@style/Widget.ActionButton.PlayPause" />
 </overlay>

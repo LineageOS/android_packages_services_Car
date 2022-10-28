@@ -21,5 +21,5 @@
         android:viewportHeight="88">
     <path
         android:pathData="M60,44L32,62V26L60,44ZM50.52,44L37.1,35.36V52.64L50.52,44Z"
-        android:fillColor="@color/icon_color"/>
+        android:fillColor="@color/play_pause_icon_color"/>
 </vector>
