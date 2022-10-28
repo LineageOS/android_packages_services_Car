@@ -180,6 +180,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.DOOR_LOCK, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_DOORS,
                 Car.PERMISSION_CONTROL_CAR_DOORS));
+        mHalPropIdToPermissions.put(VehicleProperty.DOOR_CHILD_LOCK_ENABLED, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_DOORS,
+                Car.PERMISSION_CONTROL_CAR_DOORS));
         mHalPropIdToPermissions.put(VehicleProperty.MIRROR_Z_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
