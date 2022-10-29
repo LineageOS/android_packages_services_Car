@@ -26,7 +26,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        app:cardCornerRadius="@dimen/notification_card_radius">
+        app:cardBackgroundColor="@color/hun_background_color"
+        app:cardCornerRadius="@dimen/hun_card_radius">
 
         <RelativeLayout
             android:id="@+id/inner_template_view"
@@ -46,7 +47,7 @@
                 android:id="@+id/notification_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="@dimen/notification_touch_target_size"
+                android:minHeight="@dimen/hun_body_min_height"
                 android:gravity="center_vertical"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
