@@ -178,7 +178,7 @@ public class CarPropertyManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        void onSuccess(@NonNull GetPropertyResult getPropertyResult);
+        void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult);
 
         /**
          * Method called when {@link GetPropertyRequest} returns an error.
@@ -241,13 +241,15 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * A successful result for {@link GetPropertyCallback}.
+     * An error result for {@link GetPropertyCallback}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final class GetPropertyResult {
+    public static final class GetPropertyError {
         private final int mRequestId;
-        private final CarPropertyValue mCarPropertyValue;
+        private final int mPropertyId;
+        private final int mAreaId;
+        private final @CarPropertyAsyncErrorCode int mErrorCode;
 
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -257,14 +259,110 @@ public class CarPropertyManager extends CarManagerBase {
 
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        @NonNull
-        public CarPropertyValue getCarPropertyValue() {
-            return mCarPropertyValue;
+        public int getPropertyId() {
+            return mPropertyId;
         }
 
-        public GetPropertyResult(int requestId, @NonNull CarPropertyValue carPropertyValue) {
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public @CarPropertyAsyncErrorCode int getErrorCode() {
+            return mErrorCode;
+        }
+
+        /**
+         * Creates a new error result for async GetProperty request.
+         *
+         * @param requestId the request ID.
+         * @param propertyId the property ID in the request.
+         * @param areaId the area ID for the property in the request.
+         * @param errorCode the code indicating the error.
+         */
+        GetPropertyError(int requestId, int propertyId, int areaId,
+                @CarPropertyAsyncErrorCode int errorCode) {
             mRequestId = requestId;
-            mCarPropertyValue = carPropertyValue;
+            mPropertyId = propertyId;
+            mAreaId = areaId;
+            mErrorCode = errorCode;
+        }
+    }
+
+    /**
+     * A successful result for {@link GetPropertyCallback}.
+     *
+     * @param <T> The type for the property value, must be one of Object, Boolean, Float, Integer,
+     *      Long, Float[], Integer[], Long[], String, byte[], Object[].
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final class GetPropertyResult<T> {
+        private final int mRequestId;
+        private final int mPropertyId;
+        private final int mAreaId;
+        private final long mTimestampNanos;
+        private final T mValue;
+
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getPropertyId() {
+            return mPropertyId;
+        }
+
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public T getValue() {
+            return mValue;
+        }
+
+        /**
+         * Returns the timestamp in nanoseconds at which the value for the vehicle property
+         * happened. For a given vehicle property, each new timestamp should be monotonically
+         * increasing using the same time base as {@link SystemClock#elapsedRealtimeNanos()}.
+         *
+         * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
+         * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
+         * error should be below 1 millisecond.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public long getTimestampNanos() {
+            return mTimestampNanos;
+        }
+
+        /**
+         * Creates a new value result for async GetProperty request.
+         *
+         * @param requestId the request ID.
+         * @param propertyId the property ID in the request.
+         * @param areaId the area ID for the property in the request.
+         * @param timestampNanos the timestamp in nanoseconds when this property is updated.
+         * @param value the property's value.
+         */
+        GetPropertyResult(int requestId, int propertyId, int areaId, long timestampNanos,
+                 @NonNull T value) {
+            mRequestId = requestId;
+            mPropertyId = propertyId;
+            mAreaId = areaId;
+            mTimestampNanos = timestampNanos;
+            mValue = value;
         }
     }
 
@@ -301,12 +399,22 @@ public class CarPropertyManager extends CarManagerBase {
                 @CarPropertyAsyncErrorCode
                 int errorCode = getValueResult.getErrorCode();
                 if (errorCode == STATUS_OK) {
+                    CarPropertyValue<?> carPropertyValue = getValueResult.getCarPropertyValue();
+                    int propertyId = carPropertyValue.getPropertyId();
+                    int areaId = carPropertyValue.getAreaId();
+
+                    long timestampNanos = carPropertyValue.getTimestamp();
                     callbackExecutor.execute(() -> getPropertyCallback.onSuccess(
-                            new GetPropertyResult(requestId,
-                                    getValueResult.getCarPropertyValue())));
+                            new GetPropertyResult(requestId, propertyId, areaId,
+                                    timestampNanos, carPropertyValue.getValue())));
                 } else {
+                    // We are not receiving property Id and areaId from the result, so we use
+                    // the ones from the request.
+                    int propertyId = getAsyncPropertyClientInfo.getGetPropertyRequest()
+                            .getPropertyId();
+                    int areaId = getAsyncPropertyClientInfo.getGetPropertyRequest().getAreaId();
                     callbackExecutor.execute(() -> getPropertyCallback.onFailure(
-                            new GetPropertyError(requestId, errorCode)));
+                            new GetPropertyError(requestId, propertyId, areaId, errorCode)));
                 }
             }
         }
@@ -340,33 +448,6 @@ public class CarPropertyManager extends CarManagerBase {
             mGetPropertyRequest = getPropertyRequest;
             mCallbackExecutor = callbackExecutor;
             mGetPropertyCallback = getPropertyCallback;
-        }
-    }
-
-    /**
-     * An error result for {@link GetPropertyCallback}.
-     */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final class GetPropertyError {
-        private final int mRequestId;
-        private @CarPropertyAsyncErrorCode int mErrorCode;
-
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public int getRequestId() {
-            return mRequestId;
-        }
-
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public int getErrorCode() {
-            return mErrorCode;
-        }
-
-        public GetPropertyError(int requestId, @CarPropertyAsyncErrorCode int errorCode) {
-            mRequestId = requestId;
-            mErrorCode = errorCode;
         }
     }
 
@@ -1353,6 +1434,12 @@ public class CarPropertyManager extends CarManagerBase {
      * recommended that the {@code callbackExecutor} is provided.
      *
      * <p>If the operation is cancelled, it is guaranteed that no more callbacks will be called.
+     *
+     * <p>For one request, if the property's status is not available,
+     * {@code errorCallback.onFailure} will be called once with {@link STATUS_ERROR_NOT_AVAILABLE}.
+     *
+     * <p>For one request, if the property's status is error,
+     * {@code errorCallback.onFailure} will be called once with {@link STATUS_ERROR_INTERNAL_ERROR}.
      *
      * @param getPropertyRequests The property ID and the optional area ID for the property to get
      * @param timeoutInMs The timeout for the operation, in milliseconds

@@ -138,7 +138,8 @@ public final class CarPropertyValue<T> implements Parcelable {
     public CarPropertyValue(int propertyId, int areaId, int status, long timestampNanos, T value) {
         if (status != STATUS_AVAILABLE) {
             throw new IllegalArgumentException(
-                    "car property value with property ID: " + propertyId + ", areaID: " + areaId
+                    "car property value with property ID: "
+                    + VehiclePropertyIds.toString(propertyId) + ", areaID: " + areaId
                     + " must have available status, this should not happen.");
         }
         mPropertyId = propertyId;

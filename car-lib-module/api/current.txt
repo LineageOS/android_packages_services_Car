@@ -828,12 +828,13 @@ package android.car.hardware.property {
 
   public static interface CarPropertyManager.GetPropertyCallback {
     method public void onFailure(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyError);
-    method public void onSuccess(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyResult);
+    method public void onSuccess(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyResult<?>);
   }
 
   public static final class CarPropertyManager.GetPropertyError {
-    ctor public CarPropertyManager.GetPropertyError(int, int);
+    method public int getAreaId();
     method public int getErrorCode();
+    method public int getPropertyId();
     method public int getRequestId();
   }
 
@@ -843,10 +844,12 @@ package android.car.hardware.property {
     method public int getRequestId();
   }
 
-  public static final class CarPropertyManager.GetPropertyResult {
-    ctor public CarPropertyManager.GetPropertyResult(int, @NonNull android.car.hardware.CarPropertyValue);
-    method @NonNull public android.car.hardware.CarPropertyValue getCarPropertyValue();
+  public static final class CarPropertyManager.GetPropertyResult<T> {
+    method public int getAreaId();
+    method public int getPropertyId();
     method public int getRequestId();
+    method public long getTimestampNanos();
+    method @NonNull public T getValue();
   }
 
   public final class EvChargeState {
