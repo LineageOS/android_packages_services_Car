@@ -18,11 +18,10 @@ package com.android.systemui.car.displayarea;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 
-import android.content.BroadcastReceiver;
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Handler;
@@ -100,7 +99,7 @@ public class DisplayAreaComponent implements CoreStartable {
         String pkg = "com.android.car.portraitlauncher";
         String cls = "com.android.car.caruiportrait.common.service.CarUiPortraitService";
         intent.setComponent(new ComponentName(pkg, cls));
-        UserHandle user = new UserHandle(10);
+        UserHandle user = new UserHandle(ActivityManager.getCurrentUser());
         mContext.bindServiceAsUser(intent, mConnection,
                 Context.BIND_AUTO_CREATE, user);
         mIsBound = true;
@@ -123,39 +122,7 @@ public class DisplayAreaComponent implements CoreStartable {
     public void start() {
         logIfDebuggable("start:");
         if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
-            // Register the DA's
             mCarDisplayAreaController.register();
-
-            IntentFilter filter = new IntentFilter();
-            // add a receiver to listen to ACTION_BOOT_COMPLETED where we will perform tasks that
-            // require system to be ready. For example, search list of activities with a specific
-            // Intent. This cannot be done while the component is created as that is too early in
-            // the lifecycle of system starting and the results returned by package manager is
-            // not reliable. So we want to wait until system is ready before we query for list of
-            // activities.
-            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
-            mContext.registerReceiverForAllUsers(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                        mCarDisplayAreaController.updateVoicePlateActivityMap();
-                    }
-                }
-            }, filter, /* broadcastPermission= */ null, /* scheduler= */ null);
-
-            IntentFilter packageChangeFilter = new IntentFilter();
-            // add a receiver to listen to ACTION_PACKAGE_ADDED to perform any action when a new
-            // application is installed on the system.
-            packageChangeFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
-            packageChangeFilter.addAction(Intent.ACTION_PACKAGE_REPLACED);
-            packageChangeFilter.addDataScheme("package");
-            mContext.registerReceiverForAllUsers(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    mCarDisplayAreaController.updateVoicePlateActivityMap();
-                }
-            }, packageChangeFilter, null, null);
-
             doBindService();
         }
     }

@@ -16,8 +16,6 @@
 
 package com.android.systemui.car.displayarea;
 
-import static android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST;
-
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_SUW_IN_PROGRESS;
@@ -27,25 +25,15 @@ import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCR
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW;
 
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
-import android.app.TaskStackListener;
-import android.car.Car;
-import android.car.app.CarActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.os.Build;
-import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.ArraySet;
 import android.util.Log;
-import android.view.SurfaceControl;
-import android.window.DisplayAreaAppearedInfo;
 import android.window.DisplayAreaOrganizer;
 
 import com.android.systemui.R;
@@ -58,9 +46,6 @@ import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.ShellExecutor;
 
-import java.util.List;
-import java.util.Set;
-
 import javax.inject.Inject;
 
 /**
@@ -70,7 +55,6 @@ import javax.inject.Inject;
 public class CarDisplayAreaController implements ConfigurationController.ConfigurationListener,
         CommandQueue.Callbacks {
 
-    static final int FEATURE_VOICE_PLATE = FEATURE_VENDOR_FIRST + 6;
     private static final String TAG = "CarDisplayAreaController";
     private static final boolean DEBUG = Build.IS_DEBUGGABLE;
     private final DisplayAreaOrganizer mOrganizer;
@@ -82,50 +66,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     private final ComponentName mNotificationCenterComponent;
     private final Context mApplicationContext;
-    // contains the list of activities that will be displayed on feature {@link
-    // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
-    private final Set<ComponentName> mVoicePlateActivitySet;
     private final CarServiceProvider mCarServiceProvider;
-    // true if there are activities still pending to be mapped to the voice plate DA as
-    // Car object was not created.
-    private boolean mIsPendingVoicePlateActivityMappingToDA;
-    private DisplayAreaAppearedInfo mVoicePlateDisplay;
-    private final TaskStackListener mOnActivityRestartAttemptListener = new TaskStackListener() {
-        @Override
-        public void onActivityRestartAttempt(ActivityManager.RunningTaskInfo task,
-                boolean homeTaskVisible, boolean clearedTask, boolean wasVisible)
-                throws RemoteException {
-            super.onActivityRestartAttempt(task, homeTaskVisible, clearedTask, wasVisible);
-            logIfDebuggable("onActivityRestartAttempt: " + task);
-            updateForegroundDaVisibility(task);
-        }
-
-        @Override
-        public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
-                throws RemoteException {
-            super.onTaskMovedToFront(taskInfo);
-            logIfDebuggable("onTaskMovedToFront: " + taskInfo);
-            updateForegroundDaVisibility(taskInfo);
-        }
-    };
-    private final CarFullscreenTaskListener.OnTaskChangeListener mOnTaskChangeListener =
-            new CarFullscreenTaskListener.OnTaskChangeListener() {
-                @Override
-                public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
-                    logIfDebuggable("onTaskAppeared: " + taskInfo);
-                    updateForegroundDaVisibility(taskInfo);
-                }
-
-                @Override
-                public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-                    Log.e(TAG, " onTaskVanished: " + taskInfo);
-
-                    if (taskInfo.displayAreaFeatureId == FEATURE_VOICE_PLATE) {
-                        resetVoicePlateDisplayArea();
-                    }
-                }
-            };
-    private Car mCar;
 
     private final CarUiPortraitDisplaySystemBarsController.Callback
             mCarUiPortraitDisplaySystemBarsControllerCallback =
@@ -178,7 +119,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         Resources resources = applicationContext.getResources();
         mNotificationCenterComponent = ComponentName.unflattenFromString(resources.getString(
                 R.string.config_notificationCenterActivity));
-        mVoicePlateActivitySet = new ArraySet<>();
 
         mCarUiDisplaySystemBarsController = carUiPortraitDisplaySystemBarsController;
         mCarDeviceProvisionedController = deviceProvisionedController;
@@ -186,7 +126,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 mCarUiPortraitDisplaySystemBarsControllerCallback);
 
         commandQueue.addCallback(this);
-
     }
 
     @Override
@@ -223,21 +162,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 TASK_LISTENER_TYPE_MULTI_WINDOW);
 
         taskOrganizer.registerOrganizer();
-        // Register DA organizer.
-        registerOrganizer();
-
-        mCarServiceProvider.addListener(car -> {
-            mCar = car;
-            if (mIsPendingVoicePlateActivityMappingToDA) {
-                mIsPendingVoicePlateActivityMappingToDA = false;
-                updateVoicePlateActivityMap();
-            }
-        });
-
-        ActivityTaskManager.getInstance().registerTaskStackListener(
-                mOnActivityRestartAttemptListener);
-        // add CarFullscreenTaskListener to control the foreground DA when the task appears.
-        mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
 
         mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
         BroadcastReceiver immersiveModeChangeReceiver = new BroadcastReceiver() {
@@ -253,83 +177,5 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         };
         mApplicationContext.registerReceiverForAllUsers(immersiveModeChangeReceiver,
                 new IntentFilter(REQUEST_FROM_LAUNCHER), null, null);
-    }
-
-    void updateVoicePlateActivityMap() {
-        Context currentUserContext = mApplicationContext.createContextAsUser(
-                UserHandle.of(ActivityManager.getCurrentUser()), /* flags= */ 0);
-
-        Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
-        List<ResolveInfo> result = currentUserContext.getPackageManager().queryIntentActivities(
-                voiceIntent, PackageManager.MATCH_ALL);
-        if (!result.isEmpty() && mCar == null) {
-            mIsPendingVoicePlateActivityMappingToDA = true;
-            return;
-        } else if (result.isEmpty()) {
-            return;
-        }
-
-        CarActivityManager carAm = (CarActivityManager) mCar.getCarManager(
-                Car.CAR_ACTIVITY_SERVICE);
-        for (ResolveInfo info : result) {
-            if (mVoicePlateActivitySet.add(info.activityInfo.getComponentName())) {
-                logIfDebuggable("adding the following component to voice plate: "
-                        + info.activityInfo.getComponentName());
-                CarDisplayAreaUtils.setPersistentActivity(carAm,
-                        info.activityInfo.getComponentName(),
-                        FEATURE_VOICE_PLATE, "VoicePlate");
-            }
-        }
-    }
-
-    private void updateForegroundDaVisibility(ActivityManager.RunningTaskInfo taskInfo) {
-        if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
-            return;
-        }
-
-        ComponentName componentName = taskInfo.baseIntent.getComponent();
-
-        // Voice plate will be shown as the top most layer. Also, we don't want to change the
-        // state of the DA's when voice plate is shown.
-        boolean isVoicePlate = mVoicePlateActivitySet.contains(componentName);
-        if (isVoicePlate) {
-            showVoicePlateDisplayArea();
-        }
-    }
-
-    void showVoicePlateDisplayArea() {
-        SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-        tx.show(mVoicePlateDisplay.getLeash());
-        tx.apply(true);
-    }
-
-    void resetVoicePlateDisplayArea() {
-        SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-        tx.hide(mVoicePlateDisplay.getLeash());
-        tx.apply(true);
-    }
-
-    /** Registers DA organizer. */
-    private void registerOrganizer() {
-        List<DisplayAreaAppearedInfo> voicePlateDisplayAreaInfo =
-                mOrganizer.registerOrganizer(FEATURE_VOICE_PLATE);
-        if (voicePlateDisplayAreaInfo.size() != 1) {
-            throw new IllegalStateException("Can't find display to launch voice plate");
-        }
-
-        // As we have only 1 display defined for each display area feature get the 0th index.
-        mVoicePlateDisplay = voicePlateDisplayAreaInfo.get(0);
-
-        SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-        tx.hide(mVoicePlateDisplay.getLeash());
-        tx.apply(true);
-    }
-
-    /** Un-Registers DA organizer. */
-    public void unregister() {
-        mOrganizer.unregisterOrganizer();
-        mVoicePlateDisplay = null;
-        ActivityTaskManager.getInstance()
-                .unregisterTaskStackListener(mOnActivityRestartAttemptListener);
     }
 }

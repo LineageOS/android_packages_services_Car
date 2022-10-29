@@ -52,7 +52,7 @@
     android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_marginBottom="5dp"
-    android:orientation="horizontal" >
+      android:orientation="horizontal" >
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
@@ -100,8 +100,26 @@
         android:id="@+id/button_stop_user"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
         android:text="Stop User"/>
+    <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_marginBottom="5dp"
+                      android:orientation="horizontal" >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="Name: "/>
+        <EditText
+            android:id="@+id/new_user_name"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:maxLength="50"
+            android:text=""/>
+        <Button
+            android:id="@+id/button_create_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create User"/>
+    </LinearLayout>
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
