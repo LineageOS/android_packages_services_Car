@@ -19,8 +19,8 @@
 
     <ImageView
         android:id="@+id/notification_body_icon"
-        android:layout_width="@dimen/notification_touch_target_size"
-        android:layout_height="@dimen/notification_touch_target_size"
+        android:layout_width="@dimen/notification_heads_up_icon_size"
+        android:layout_height="@dimen/notification_heads_up_icon_size"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="@dimen/body_big_icon_margin"
@@ -34,7 +34,7 @@
         android:layout_alignTop="@id/notification_body_icon"
         android:layout_marginStart="@dimen/card_start_margin"
         android:layout_alignWithParentIfMissing="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/hun_body_title_margin_top"
         style="@style/NotificationBodyTitleText"/>
 
     <TextView
@@ -44,7 +44,7 @@
         android:layout_toEndOf="@id/notification_body_icon"
         android:layout_below="@id/notification_body_title"
         android:layout_marginStart="@dimen/card_start_margin"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="@dimen/hun_body_content_margin_top"
         android:layout_alignWithParentIfMissing="true"
         style="@style/NotificationBodyContentText"/>
 </merge>

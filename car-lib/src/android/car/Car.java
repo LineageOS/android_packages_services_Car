@@ -1163,6 +1163,25 @@ public final class Car {
             "android.car.permission.MANAGE_OCCUPANT_ZONE";
 
     /**
+     * Permission necessary to use remote access.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_USE_REMOTE_ACCESS =
+            "android.car.permission.USE_REMOTE_ACCESS";
+
+    /**
+     * Permission necessary to control remote access.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_CONTROL_REMOTE_ACCESS =
+            "android.car.permission.CONTROL_REMOTE_ACCESS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

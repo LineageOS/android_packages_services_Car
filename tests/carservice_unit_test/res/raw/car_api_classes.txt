@@ -197,6 +197,9 @@ android.car.projection.ProjectionStatus
 android.car.projection.ProjectionStatus$Builder
 android.car.projection.ProjectionStatus$MobileDevice
 android.car.projection.ProjectionStatus$MobileDevice$Builder
+android.car.remoteaccess.CarRemoteAccessManager
+android.car.remoteaccess.CarRemoteAccessManager$CompletableRemoteTaskFuture
+android.car.remoteaccess.CarRemoteAccessManager$RemoteTaskClientCallback
 android.car.settings.CarSettings
 android.car.settings.CarSettings$Global
 android.car.settings.CarSettings$Secure

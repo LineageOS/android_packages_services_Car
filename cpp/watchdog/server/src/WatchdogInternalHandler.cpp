@@ -299,6 +299,7 @@ ScopedAStatus WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCy
         case PowerCycle::POWER_CYCLE_SHUTDOWN_ENTER:
             ALOGI("Received SHUTDOWN_ENTER power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            mWatchdogPerfService->onShutdownEnter();
             break;
         case PowerCycle::POWER_CYCLE_SUSPEND_EXIT:
             ALOGI("Received SUSPEND_EXIT power cycle");
