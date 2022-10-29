@@ -131,6 +131,7 @@ bootclasspath_fragment {
             "android.car.oem",
             "android.car.os",
             "android.car.projection",
+            "android.car.remoteaccess",
             "android.car.settings",
             "android.car.storagemonitoring",
             "android.car.telemetry",

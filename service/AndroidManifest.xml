@@ -929,6 +929,23 @@
                 android:label="@string/car_permission_label_manage_occupant_zone"
                 android:description="@string/car_permission_desc_manage_occupant_zone"/>
 
+    <!-- Allows an application to receive remote task requests.
+         <p>Protection level: normal
+    -->
+    <permission android:name="android.car.permission.USE_REMOTE_ACCESS"
+         android:protectionLevel="normal"
+         android:label="@string/car_permission_label_use_remote_access"
+         android:description="@string/car_permission_desc_use_remote_access"/>
+
+    <!-- Allows an application to receive remote task requests and decide to target power state
+         after remote task execution is completed.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_remote_access"
+        android:description="@string/car_permission_desc_control_remote_access"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.

@@ -548,6 +548,16 @@
     <!-- Permission text: apps manage occupant zone [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_manage_occupant_zone">Manage occupant zone.</string>
 
+    <!-- Permission text: apps use remote access [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_use_remote_access">use remote access</string>
+    <!-- Permission text: apps use remote access [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_use_remote_access">Use remote access.</string>
+
+    <!-- Permission text: apps control remote access [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_remote_access">control remote access</string>
+    <!-- Permission text: apps control remote access [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_remote_access">Control remote access.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

@@ -535,6 +535,7 @@ android.car.projection ProjectionOptions.Builder Builder setUiMode(int uiMode)
 android.car.projection ProjectionOptions.Builder Builder setConsentActivity(ComponentName consentActivity)
 android.car.projection ProjectionOptions.Builder Builder setAccessPointMode(int accessPointMode)
 android.car.projection ProjectionOptions.Builder ProjectionOptions build()
+android.car.remoteaccess CarRemoteAccessManager void onCarDisconnected()
 android.car.settings CarSettings int[] DEFAULT_GARAGE_MODE_WAKE_UP_TIME
 android.car.settings CarSettings int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW
 android.car.settings CarSettings.Global String DEFAULT_USER_RESTRICTIONS_SET
