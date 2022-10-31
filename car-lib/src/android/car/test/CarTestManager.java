@@ -130,4 +130,17 @@ public final class CarTestManager extends CarManagerBase {
     public boolean hasAidlVhal() throws RemoteException {
         return mService.hasAidlVhal();
     }
+
+    /**
+     * Returns OEM service name.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public String getOemServiceName() throws RemoteException {
+        return mService.getOemServiceName();
+    }
 }

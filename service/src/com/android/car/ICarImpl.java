@@ -725,9 +725,12 @@ public class ICarImpl extends ICar.Stub {
                 dumpRROs(writer);
                 return;
             case "--oem-service":
-                dumpOemService(writer);
+                if (args.length > 1 && args[1].equalsIgnoreCase("--name-only")) {
+                    writer.println(getOemServiceName());
+                } else {
+                    dumpOemService(writer);
+                }
                 return;
-
             default:
                 execShellCmd(args, writer);
         }
@@ -735,6 +738,10 @@ public class ICarImpl extends ICar.Stub {
 
     private void dumpOemService(IndentingPrintWriter writer) {
         mCarOemService.dump(writer);
+    }
+
+    public String getOemServiceName() {
+        return mCarOemService.getOemServiceName();
     }
 
     private void dumpAll(IndentingPrintWriter writer) {
