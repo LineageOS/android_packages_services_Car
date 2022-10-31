@@ -565,6 +565,7 @@ android.car.test CarTestManager void stopCarService(IBinder token)
 android.car.test CarTestManager void startCarService(IBinder token)
 android.car.test CarTestManager String dumpVhal(List<String> options, long waitTimeoutMs)
 android.car.test CarTestManager boolean hasAidlVhal()
+android.car.test CarTestManager String getOemServiceName()
 android.car.user CarUserManager String TAG
 android.car.user CarUserManager int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED
 android.car.user CarUserManager String BUNDLE_PARAM_ACTION

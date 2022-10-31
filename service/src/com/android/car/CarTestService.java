@@ -131,6 +131,11 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
         return mICarImpl.hasAidlVhal();
     }
 
+    @Override
+    public String getOemServiceName() {
+        return mICarImpl.getOemServiceName();
+    }
+
     private static class FdEventListener implements OnFileDescriptorEventListener {
         private static final int BUFFER_SIZE = 1024;
         private byte[] mBuffer = new byte[BUFFER_SIZE];

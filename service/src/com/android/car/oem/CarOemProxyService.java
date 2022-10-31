@@ -252,9 +252,13 @@ public final class CarOemProxyService implements CarServiceBase {
             writer.printf("OEM_CAR_SERVICE_CONNECTED_TIMEOUT_MS: %s\n",
                     mOemServiceConnectionTimeoutMs);
             writer.printf("OEM_CAR_SERVICE_READY_TIMEOUT_MS: %s\n", mOemServiceReadyTimeoutMs);
-            writer.printf("mComponentName: %s\n", mComponentName);
+            writer.printf("mComponentName: %s\n" , mComponentName);
         }
         writer.decreaseIndent();
+    }
+
+    public String getOemServiceName() {
+        return mComponentName;
     }
 
     /**
