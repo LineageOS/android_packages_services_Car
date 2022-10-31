@@ -52,8 +52,6 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
                 () -> mOemCarService.getOemAudioFocusService());
         assertThrows(SecurityException.class,
                 () -> mOemCarService.onCarServiceReady(mIOemCarServiceCallback));
-        assertThrows(SecurityException.class,
-                () -> mOemCarService.isOemServiceReady());
     }
 
     @Test
@@ -61,13 +59,6 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
         mockCallerPemission();
 
         assertThat(mOemCarService.getSupportedCarVersion()).isEqualTo(mCarVersionForTesting);
-    }
-
-    @Test
-    public void testIsOemServiceReady() throws Exception {
-        mockCallerPemission();
-
-        assertThat(mOemCarService.isOemServiceReady()).isTrue();
     }
 
     @Test
@@ -108,11 +99,6 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
         }
 
         @Override
-        public boolean isOemServiceReady() {
-            return true;
-        }
-
-        @Override
         public OemCarAudioFocusService getOemAudioFocusService() {
             synchronized (mLock) {
                 if (mMockAudioFocusService) {
@@ -140,6 +126,10 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
             synchronized (mLock) {
                 mMockAudioFocusService = true;
             }
+        }
+
+        @Override
+        public void onCarServiceReady() {
         }
     }
 }
