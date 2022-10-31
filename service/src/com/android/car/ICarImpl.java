@@ -744,6 +744,7 @@ public class ICarImpl extends ICar.Stub {
                 dumpAllHals(writer);
                 return;
             }
+
             int length = args.length - 1;
             String[] halNames = new String[length];
             System.arraycopy(args, 1, halNames, 0, length);
@@ -756,7 +757,12 @@ public class ICarImpl extends ICar.Stub {
             dumpDataDir(writer);
             return;
         } else if ("--oem-service".equals(args[0])) {
-            dumpOemService(writer);
+            if (args.length > 1 && args[1].equalsIgnoreCase("--name-only")) {
+                writer.println(getOemServiceName());
+            } else {
+                dumpOemService(writer);
+            }
+            return;
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
@@ -766,6 +772,10 @@ public class ICarImpl extends ICar.Stub {
 
     private void dumpOemService(IndentingPrintWriter writer) {
         mCarOemService.dump(writer);
+    }
+
+    public String getOemServiceName() {
+        return mCarOemService.getOemServiceName();
     }
 
     private void dumpAll(IndentingPrintWriter writer) {
