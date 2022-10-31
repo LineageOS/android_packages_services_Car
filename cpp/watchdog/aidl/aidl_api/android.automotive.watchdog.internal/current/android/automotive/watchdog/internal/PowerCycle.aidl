@@ -37,5 +37,9 @@ enum PowerCycle {
   POWER_CYCLE_SHUTDOWN_PREPARE = 0,
   POWER_CYCLE_SHUTDOWN_ENTER = 1,
   POWER_CYCLE_RESUME = 2,
+  /**
+   * @deprecated Value of enum no longer reflects the true amount of power cycles. Enum should not be used.
+   */
   NUM_POWER_CYLES = 3,
+  POWER_CYCLE_SUSPEND_EXIT = 4,
 }
