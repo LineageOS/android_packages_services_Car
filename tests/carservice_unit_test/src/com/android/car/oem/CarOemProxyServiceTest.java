@@ -257,10 +257,5 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
         public String getAllStackTraces() {
             return "";
         }
-
-        @Override
-        public boolean isOemServiceReady() {
-            return true;
-        }
     }
 }

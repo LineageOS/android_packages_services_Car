@@ -37,12 +37,6 @@ interface IOemCarService {
     void onCarServiceReady(in IOemCarServiceCallback callback);
 
     /*
-     * This is to check if OEM service is ready. This callback should have returned within limited
-     * time else CarService and OemService would be crashed.
-     */
-    boolean isOemServiceReady();
-
-    /*
      * Gets the supported CarVersion for the OEM service. It is possible that CarModule is updated
      * but OEM service is not updated. CarService needs to be aware of that.
      */
