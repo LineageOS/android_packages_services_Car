@@ -205,10 +205,28 @@ public class MemoryPublisherTest {
 
         assertThat(mPublisher.hasDataSubscriber(dataSubscriber)).isTrue();
         verify(dataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
-        assertThat(mBundleCaptor.getValue().keySet().stream().toList()).containsExactly(
+        PersistableBundle bundle = mBundleCaptor.getValue();
+        assertThat(bundle.keySet().stream().toList()).containsExactly(
                 Constants.MEMORY_BUNDLE_KEY_MEMINFO,
                 Constants.MEMORY_BUNDLE_KEY_TIMESTAMP,
                 "com.android.car:0:com.android.car");
+        PersistableBundle processBundle = bundle.getPersistableBundle(
+                "com.android.car:0:com.android.car");
+        assertThat(processBundle.keySet().stream().toList()).containsExactly(
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SWAPPABLE_PSS,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_CLEAN,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_CLEAN,
+                "mem.summary.java-heap",
+                "mem.summary.total-pss",
+                "mem.summary.private-other",
+                "mem.summary.native-heap",
+                "mem.summary.stack",
+                "mem.summary.system",
+                "mem.summary.code",
+                "mem.summary.graphics",
+                "mem.summary.total-swap");
     }
 
     @Test
@@ -233,11 +251,46 @@ public class MemoryPublisherTest {
 
         assertThat(mPublisher.hasDataSubscriber(dataSubscriber)).isTrue();
         verify(dataSubscriber).push(mBundleCaptor.capture(), anyBoolean());
-        assertThat(mBundleCaptor.getValue().keySet().stream().toList()).containsExactly(
+        PersistableBundle bundle = mBundleCaptor.getValue();
+        assertThat(bundle.keySet().stream().toList()).containsExactly(
                 Constants.MEMORY_BUNDLE_KEY_MEMINFO,
                 Constants.MEMORY_BUNDLE_KEY_TIMESTAMP,
                 "com.android.car:12345:com.android.car",
                 "com.android.car:67890:com.android.car");
+        PersistableBundle processBundle1 = bundle.getPersistableBundle(
+                "com.android.car:12345:com.android.car");
+        PersistableBundle processBundle2 = bundle.getPersistableBundle(
+                "com.android.car:67890:com.android.car");
+        assertThat(processBundle1.keySet().stream().toList()).containsExactly(
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SWAPPABLE_PSS,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_CLEAN,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_CLEAN,
+                "mem.summary.java-heap",
+                "mem.summary.total-pss",
+                "mem.summary.private-other",
+                "mem.summary.native-heap",
+                "mem.summary.stack",
+                "mem.summary.system",
+                "mem.summary.code",
+                "mem.summary.graphics",
+                "mem.summary.total-swap");
+        assertThat(processBundle2.keySet().stream().toList()).containsExactly(
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SWAPPABLE_PSS,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_DIRTY,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_CLEAN,
+                Constants.MEMORY_BUNDLE_KEY_TOTAL_SHARED_CLEAN,
+                "mem.summary.java-heap",
+                "mem.summary.total-pss",
+                "mem.summary.private-other",
+                "mem.summary.native-heap",
+                "mem.summary.stack",
+                "mem.summary.system",
+                "mem.summary.code",
+                "mem.summary.graphics",
+                "mem.summary.total-swap");
     }
 
     @Test
