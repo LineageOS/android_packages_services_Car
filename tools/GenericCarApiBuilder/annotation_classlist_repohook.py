@@ -79,7 +79,9 @@ for api in new_hidden_apis:
         modified_or_added_hidden_api.append(api)
 
 if len(modified_or_added_hidden_api) > 0:
-    print("\nHidden APIs can't be added or modified. Following Hidden APIs are modified:")
+    print("\nHidden APIs should not be added or modified. Following Hidden APIs are modified:")
     print("\n".join(modified_or_added_hidden_api))
-    print("\n")
+    print("\nIf adding hidden API is the only way, please run following command to fix repohook error")
+    print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
+          "--update-hidden-api-for-test")
     sys.exit(1)
