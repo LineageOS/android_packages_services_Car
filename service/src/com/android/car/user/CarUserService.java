@@ -2571,7 +2571,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (!CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId)) {
+        if (!CarServiceUtils.startHomeAndSystemUiForUserAndDisplay(mContext, userId, displayId)) {
             Slogf.w(TAG,
                     "Cannot launch home for assigned user %d, display %d, will stop the user",
                     userId, displayId);
