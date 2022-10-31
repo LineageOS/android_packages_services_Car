@@ -58,6 +58,9 @@ import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.MIN_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -1015,6 +1018,33 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Volume group muted after mute")
                 .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isTrue();
+    }
+
+    @Test
+    public void getGroupMaxVolume_forPrimaryZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Group max volume for primary audio zone and group")
+                .that(mCarAudioService.getGroupMaxVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo((MAX_GAIN - MIN_GAIN) / STEP_SIZE);
+    }
+
+    @Test
+    public void getGroupMinVolume_forPrimaryZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Group Min Volume for primary audio zone and group")
+                .that(mCarAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(0);
+    }
+
+    @Test
+    public void getGroupCurrentVolume_forPrimaryZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Current group volume for primary audio zone and group")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo((DEFAULT_GAIN - MIN_GAIN) / STEP_SIZE);
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
