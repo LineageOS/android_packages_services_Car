@@ -62,23 +62,23 @@ import java.util.Set;
  *
  * <p>The published data format is:
  * <code>
- * - timestamp_millis :              long
- * - meminfo :                       string (device meminfo)
+ * - mem.timestamp_millis :              long
+ * - mem.meminfo :                       string (device meminfo)
  * - package_name:uid:process_name : PersistableBundle (parsed from Debug.MemInfo, listed below)
- *   - summary.total-pss : int
- *   - summary.java-heap : int
- *   - summary.native-heap : int
- *   - summary.stack=44 : int
- *   - summary.system : int
- *   - summary.code : int
- *   - summary.graphics=0,
- *   - summary.private-other : int
- *   - summary.total-swap=31904
- *   - total_shared_clean : int
- *   - total_shared_dirty : int
- *   - total_private_clean : int
- *   - total_private_dirty : int
- *   - total_swappable_pss : int
+ *   - mem.summary.total-pss : int
+ *   - mem.summary.java-heap : int
+ *   - mem.summary.native-heap : int
+ *   - mem.summary.stack : int
+ *   - mem.summary.system : int
+ *   - mem.summary.code : int
+ *   - mem.summary.graphics : int
+ *   - mem.summary.private-other : int
+ *   - mem.summary.total-swap : int
+ *   - mem.total_shared_clean : int
+ *   - mem.total_shared_dirty : int
+ *   - mem.total_private_clean : int
+ *   - mem.total_private_dirty : int
+ *   - mem.total_swappable_pss : int
  * </code>
  */
 public class MemoryPublisher extends AbstractPublisher {
@@ -327,7 +327,8 @@ public class MemoryPublisher extends AbstractPublisher {
                     Integer.valueOf(mi.getTotalSharedClean()));
             Map<String, String> map = mi.getMemoryStats();
             for (Map.Entry<String, String> entry : map.entrySet()) {
-                processMeminfoBundle.putInt(entry.getKey(), Integer.valueOf(entry.getValue()));
+                processMeminfoBundle.putInt(Constants.MEMORY_BUNDLE_KEY_PREFIX + entry.getKey(),
+                        Integer.valueOf(entry.getValue()));
             }
             data.putPersistableBundle(bundleKeys.get(i), processMeminfoBundle);
         }

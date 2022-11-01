@@ -23,6 +23,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
+import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
@@ -297,5 +298,17 @@ public final class AndroidMockitoHelperTest {
 
         assertThat(context.checkCallingOrSelfPermission(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS))
                 .isEqualTo(PERMISSION_DENIED);
+    }
+
+    @Test
+    public void testMockContextCreateContextAsUser() {
+        Context context = mock(Context.class);
+        Context userContext = mock(Context.class);
+        int userId = 1000;
+
+        mockContextCreateContextAsUser(context, userContext, userId);
+
+        assertThat(context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0)).isEqualTo(
+                userContext);
     }
 }
