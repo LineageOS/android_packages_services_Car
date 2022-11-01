@@ -71,6 +71,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -105,6 +106,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlFactory;
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
 import com.android.car.test.utils.TemporaryFile;
 
@@ -143,6 +145,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_PRIMARY_GROUP = 0;
     private static final int TEST_PRIMARY_GROUP_INDEX = 0;
     private static final int TEST_FLAGS = 0;
+    private static final float TEST_VALUE = -.75f;
+    private static final float INVALID_TEST_VALUE = -1.5f;
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -179,6 +183,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private IAudioService mMockAudioService;
     @Mock
     private Uri mNavSettingUri;
+    @Mock
+    private AudioControlWrapperAidl mAudioControlWrapperAidl;
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
@@ -188,7 +194,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private Context mContext;
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
     private AudioDeviceInfo mTunerDevice;
     private AudioDeviceInfo mMediaOutputDevice;
 
@@ -247,7 +252,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void setupAudioControlHAL() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
         doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        mAudioControlWrapperAidl = new AudioControlWrapperAidl(mBinder);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)).thenReturn(true);
         doReturn(mAudioControlWrapperAidl)
                 .when(() -> AudioControlFactory.newAudioControl());
     }
@@ -1045,6 +1057,48 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Current group volume for primary audio zone and group")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isEqualTo((DEFAULT_GAIN - MIN_GAIN) / STEP_SIZE);
+    }
+
+    @Test
+    public void setBalanceTowardRight_nonNullValue() {
+        mCarAudioService.init();
+
+        mCarAudioService.setBalanceTowardRight(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setBalanceTowardRight(TEST_VALUE);
+    }
+
+    @Test
+    public void setBalanceTowardRight_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
+                -> mCarAudioService.setBalanceTowardRight(INVALID_TEST_VALUE));
+
+        assertWithMessage("Out of bounds balance")
+                .that(thrown).hasMessageThat()
+                .contains(String.format("Balance is out of range of [%f, %f]", -1f, 1f));
+    }
+
+    @Test
+    public void setFadeTowardFront_nonNullValue() {
+        mCarAudioService.init();
+
+        mCarAudioService.setFadeTowardFront(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setFadeTowardFront(TEST_VALUE);
+    }
+
+    @Test
+    public void setFadeTowardFront_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
+                -> mCarAudioService.setFadeTowardFront(INVALID_TEST_VALUE));
+
+        assertWithMessage("Out of bounds fade")
+                .that(thrown).hasMessageThat()
+                .contains(String.format("Fade is out of range of [%f, %f]", -1f, 1f));
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {

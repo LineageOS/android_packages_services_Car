@@ -339,6 +339,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @param value in the range -1.0 to 1.0 for fully toward the back through
      *              fully toward the front.  0.0 means evenly balanced.
      *
+     * @throws IllegalArgumentException if {@code value} is less than -1.0 or
+     *                                  greater than 1.0
      * @see #setBalanceTowardRight(float)
      * @hide
      */
@@ -359,6 +361,8 @@ public final class CarAudioManager extends CarManagerBase {
      * @param value in the range -1.0 to 1.0 for fully toward the left through
      *              fully toward the right.  0.0 means evenly balanced.
      *
+     * @throws IllegalArgumentException if {@code value} is less than -1.0 or
+     *                                  greater than 1.0
      * @see #setFadeTowardFront(float)
      * @hide
      */

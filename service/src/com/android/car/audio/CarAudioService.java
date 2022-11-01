@@ -743,6 +743,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setFadeTowardFront(float value) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            requireValidFadeRange(value);
             getAudioControlWrapperLocked().setFadeTowardFront(value);
         }
     }
@@ -751,6 +752,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setBalanceTowardRight(float value) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            requireValidBalanceRange(value);
             getAudioControlWrapperLocked().setBalanceTowardRight(value);
         }
     }
@@ -1319,6 +1321,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void requireVolumeGroupMuting() {
         Preconditions.checkState(mUseCarVolumeGroupMuting,
                 "Car Volume Group Muting is required");
+    }
+
+    private void requireValidFadeRange(float value) {
+        Preconditions.checkArgumentInRange(value, -1f, 1f, "Fade");
+    }
+
+    private void requireValidBalanceRange(float value) {
+        Preconditions.checkArgumentInRange(value, -1f, 1f, "Balance");
     }
 
     @GuardedBy("mImplLock")
