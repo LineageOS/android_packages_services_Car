@@ -499,7 +499,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                 + " took " + reflectionTime + " ms");
                     }
                 } catch (IllegalAccessException | InstantiationException
-                         | ClassNotFoundException e) {
+                        | ClassNotFoundException e) {
                     Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
                 }
             }
@@ -669,10 +669,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams)
                 mRootAppAreaContainer.getLayoutParams();
 
+        // Set margin and padding to 0 so the SUW shows full screen
         lp.height = mContainer.getMeasuredHeight();
         lp.topMargin = 0;
         mRootAppAreaContainer.setLayoutParams(lp);
-
+        mRootAppAreaContainer.setPadding(0, 0, 0, 0);
         mControlBarView.setVisibility(INVISIBLE);
     }
 
@@ -686,6 +687,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         lowerAppAreaParams.topMargin = lowerAppAreaTop;
 
         mRootAppAreaContainer.setLayoutParams(lowerAppAreaParams);
+
+        // Set bottom padding to be height of controller bar, so they won't overlap
+        int rootAppAreaContainerBottomPadding =
+                getApplicationContext().getResources().getDimensionPixelSize(
+                        R.dimen.control_bar_height);
+        mRootAppAreaContainer.setPadding(0, 0, 0, rootAppAreaContainerBottomPadding);
+
         mControlBarView.setVisibility(VISIBLE);
         mIsLowerPanelInitialized = true;
     }
@@ -783,6 +791,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mRootAppAreaContainer.getHeight() - mControlBarHeightMinusCornerRadius,
                     upperAppAreaBounds);
         } else if (newLowerAppAreaState == STATE_FULL) {
+            mRootTaskView.setObscuredTouchRect(null);
             applyBottomInsetsToUpperTaskView(mNavBarHeight, upperAppAreaBounds);
         } else {
             applyBottomInsetsToUpperTaskView(mCornerRadius, upperAppAreaBounds);
