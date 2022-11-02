@@ -398,6 +398,20 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToResume) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToSuspendExit) {
+    setSystemCallingUid();
+
+    EXPECT_CALL(*mMockWatchdogPerfService, onSuspendExit()).Times(1);
+
+    auto status = mWatchdogInternalHandler
+                          ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
+                                                    static_cast<int32_t>(
+                                                            PowerCycle::POWER_CYCLE_SUSPEND_EXIT),
+                                                    -1);
+
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifyPowerCycleChangeWithInvalidArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
     EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
