@@ -88,10 +88,13 @@ public final class CarTestServiceUnitTest {
 
     @Test
     public void testDumpVhal_VhalNotClosingFd() throws Exception {
+        // A holder for ParcelFileDescriptor to keep it alive.
+        ParcelFileDescriptor[] fdHolder = new ParcelFileDescriptor[1];
         doAnswer(invocation -> {
             ParcelFileDescriptor fd = (ParcelFileDescriptor) invocation.getArgument(0);
-            // Duplicate the fd and never close it.
-            fd.dup();
+            // Duplicate the fd and never close it. Make sure the copied fd is not closed until
+            // the end of the test by storing it.
+            fdHolder[0] = fd.dup();
             return null;
         }).when(mCarImpl).dumpVhal(any(), any());
 
