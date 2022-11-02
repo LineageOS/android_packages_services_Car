@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -26,6 +28,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Arrays;
 import java.util.List;
@@ -108,5 +111,10 @@ final class CarAudioDynamicRouting {
                 builder.addMix(audioMix);
             }
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
+    private CarAudioDynamicRouting() {
+        throw new UnsupportedOperationException("contains only static methods");
     }
 }
