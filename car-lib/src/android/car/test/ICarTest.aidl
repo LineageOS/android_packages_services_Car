@@ -47,4 +47,9 @@ interface ICarTest {
      * Returns whether AIDL VHAL is used for VHAL backend.
      */
     boolean hasAidlVhal() = 4;
+
+    /**
+     * Returns OEM service name.
+     */
+    String getOemServiceName() = 5;
 }
