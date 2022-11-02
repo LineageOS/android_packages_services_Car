@@ -29,13 +29,17 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Process;
 
+import com.android.car.R;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.concurrent.TimeoutException;
 
-public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCase {
+public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCase {
+    private static final String CALLER_TAG = "test";
+
     @Mock
     private Context mContext;
     @Mock
@@ -46,7 +50,7 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
     @Before
     public void setUp() throws Exception {
         when(mContext.getResources()).thenReturn(mResources);
-        when(mResources.getInteger(anyInt())).thenReturn(5000);
+        mockCallTimeout(/* timeoutMs= */ 5000);
         mCarOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
     }
 
@@ -57,16 +61,16 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testDoBinderTimedCallWithDefault_returnCalculatedValue() throws Exception {
-        assertThat(mCarOemProxyServiceHelper.doBinderTimedCall(() -> "value",
-                /* defaultValue= */ "default")).isEqualTo("value");
+        assertThat(mCarOemProxyServiceHelper.doBinderTimedCallWithDefaultValue(CALLER_TAG,
+                () -> "value", /* defaultValue= */ "default")).isEqualTo("value");
     }
 
     @Test
     public void testDoBinderTimedCallWithDefault_returnDefaultValue() throws Exception {
-        when(mResources.getInteger(anyInt())).thenReturn(10);
+        mockCallTimeout(/* timeoutMs= */ 10);
         CarOemProxyServiceHelper carOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
 
-        assertThat(carOemProxyServiceHelper.doBinderTimedCall(() -> {
+        assertThat(carOemProxyServiceHelper.doBinderTimedCallWithDefaultValue(CALLER_TAG, () -> {
             Thread.sleep(1000); // test will not wait for this timeout
             return "value";
         }, /* defaultValue= */ "default")).isEqualTo("default");
@@ -76,7 +80,7 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testDoBinderTimedCall_timeoutException() throws Exception {
         assertThrows(TimeoutException.class, () -> {
-            mCarOemProxyServiceHelper.doBinderTimedCall(() -> {
+            mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, () -> {
                 Thread.sleep(1000); // test will not wait for this timeout
                 return 42;
             }, /* timeout= */ 10);
@@ -85,13 +89,14 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testDoBinderTimedCall_returnCalculatedValue() throws Exception {
-        assertThat(mCarOemProxyServiceHelper.doBinderTimedCall(() -> 42,
+        assertThat(mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, () -> 42,
                 /* timeout= */ 1000)).isEqualTo(42);
     }
 
     @Test
     public void testDoBinderCallTimeoutCrash_returnCalculatedValue() throws Exception {
-        assertThat(mCarOemProxyServiceHelper.doBinderCallWithTimeoutCrash(() -> 42)).isEqualTo(42);
+        assertThat(mCarOemProxyServiceHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> 42))
+                .isEqualTo(42);
     }
 
     @Test
@@ -100,11 +105,11 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
             throw new IllegalStateException();
         }).when(() -> Process.killProcess(anyInt()));
 
-        when(mResources.getInteger(anyInt())).thenReturn(10);
+        mockCallTimeout(/* timeoutMs= */ 10);
         CarOemProxyServiceHelper carOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
 
         assertThrows(IllegalStateException.class, () -> {
-            carOemProxyServiceHelper.doBinderCallWithTimeoutCrash(() -> {
+            carOemProxyServiceHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> {
                 Thread.sleep(1000); // test will not wait for this timeout
                 return 42;
             });
@@ -121,4 +126,10 @@ public class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCas
                 () -> mCarOemProxyServiceHelper.crashCarService(""));
     }
 
+    private void mockCallTimeout(int timeoutMs) {
+        when(mResources.getInteger(R.integer.config_oemCarService_regularCall_timeout_ms))
+                .thenReturn(timeoutMs);
+        when(mResources.getInteger(R.integer.config_oemCarService_crashCall_timeout_ms))
+                .thenReturn(timeoutMs);
+    }
 }
