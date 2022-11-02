@@ -29,6 +29,7 @@ import com.android.car.CarLog;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality of the OEM Audio Focus Service.
@@ -61,7 +62,6 @@ public final class CarOemAudioFocusProxyService {
                         "audioFocusChanged call received RemoteException- currentFocusHolders:%s, "
                         + "currentFocusLosers:%s, ZoneId: %s, , calling to crash CarService",
                         currentFocusHolders, currentFocusLosers, zoneId);
-                mHelper.crashCarService("Remote Exception");
             }
         });
     }
@@ -78,15 +78,20 @@ public final class CarOemAudioFocusProxyService {
             @NonNull OemCarAudioFocusEvaluationRequest request) {
         Preconditions.checkArgument(request != null,
                 "Audio focus evaluation request can not be null");
-        return mHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> {
-            try {
-                return mOemCarAudioFocusService.evaluateAudioFocusRequest(request);
-            } catch (RemoteException e) {
-                Slogf.e(TAG, e,
-                        "evaluateAudioFocusRequest with request " + request);
-                mHelper.crashCarService("Remote Exception");
-            }
+        Optional<OemCarAudioFocusResult> result = mHelper.doBinderCallWithTimeoutCrash(CALLER_TAG,
+                () -> {
+                    try {
+                        return mOemCarAudioFocusService.evaluateAudioFocusRequest(request);
+                    } catch (RemoteException e) {
+                        Slogf.e(TAG, e,
+                                "evaluateAudioFocusRequest with request " + request);
+                    }
+                    return EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+                });
+        if (result.isEmpty()) {
             return EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
-        });
+        }
+
+        return result.get();
     }
 }

@@ -25,16 +25,21 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Process;
+import android.os.RemoteException;
 
 import com.android.car.R;
+import com.android.car.oem.CarOemProxyServiceHelper.CallbackForDelayedResult;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 
 public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCase {
@@ -95,8 +100,9 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
 
     @Test
     public void testDoBinderCallTimeoutCrash_returnCalculatedValue() throws Exception {
-        assertThat(mCarOemProxyServiceHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> 42))
-                .isEqualTo(42);
+        assertThat(
+                mCarOemProxyServiceHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> 42).get())
+                        .isEqualTo(42);
     }
 
     @Test
@@ -114,6 +120,36 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
                 return 42;
             });
         });
+    }
+
+    @Test
+    public void testDoBinderCallTimeoutCrash_withExecutionException() throws Exception {
+        assertThat(mCarOemProxyServiceHelper.doBinderCallWithTimeoutCrash(CALLER_TAG, () -> {
+            if (true) {
+                throw new RemoteException();
+            }
+            return 42;
+        }).isEmpty()).isTrue();
+    }
+
+    @Test
+    public void testDoBinderCallWithDefaultValueAndDelayedWaitAndCrash() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        int delayFromOemCallMs  = 100;
+        CallbackForDelayedResult<String> callback = (result) -> latch.countDown();
+
+        Optional<String> result = mCarOemProxyServiceHelper
+                .doBinderCallWithDefaultValueAndDelayedWaitAndCrash(
+                        CALLER_TAG,
+                        () -> {
+                            Thread.sleep(delayFromOemCallMs);
+                            return "result";
+                        },
+                        /* defaultTimeoutMs= */ 10,
+                        callback);
+        assertThat(result.isEmpty()).isTrue();
+        JavaMockitoHelper.await(latch, 1000); //latch would be waiting at max delayFromOemCallMs
+        assertThat(latch.getCount()).isEqualTo(0);
     }
 
     @Test
