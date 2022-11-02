@@ -23,6 +23,7 @@ import android.os.RemoteException;
 import com.android.car.CarLog;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides functionality of the OEM Audio Focus Service.
@@ -55,7 +56,6 @@ public final class CarOemAudioFocusProxyService {
                         "audioFocusChanged call received RemoteException- currentFocusHolders:%s, "
                         + "currentFocusLosers:%s, ZoneId: %s, , calling to crash CarService",
                         currentFocusHolders, currentFocusLosers, zoneId);
-                mHelper.crashCarService("Remote Exception");
             }
         });
     }
