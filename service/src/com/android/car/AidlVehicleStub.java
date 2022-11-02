@@ -1028,7 +1028,12 @@ final class AidlVehicleStub extends VehicleStub {
             // added and then remove them all.
             try {
                 clientCallback.linkToDeath(() -> {
-                    mPendingAsyncRequestPool.removeRequestsForCallback(clientCallback);
+                    // This function will be invoked from a different thread. It needs to be
+                    // guarded by a lock so that the whole 'prepareAndConvertAsyncRequests' finishes
+                    // before we remove the callback.
+                    synchronized (mLock) {
+                        mPendingAsyncRequestPool.removeRequestsForCallback(clientCallback);
+                    }
                 });
             } catch (RemoteException e) {
                 // The binder is already died.
