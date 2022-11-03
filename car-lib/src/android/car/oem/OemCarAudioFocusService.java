@@ -33,11 +33,11 @@ import java.util.List;
  */
 public interface OemCarAudioFocusService extends OemCarServiceComponent {
     /**
-     * Updates audio focus change. It is one way call for OEM Service.
+     * Notifies of audio focus changes in car focus stack. It is one way call for OEM Service.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    void audioFocusChanged(@NonNull List<AudioFocusInfo> currentFocusHolders,
+    void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId);
 
     /**

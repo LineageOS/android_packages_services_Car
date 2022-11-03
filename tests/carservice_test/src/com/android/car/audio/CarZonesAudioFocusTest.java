@@ -431,7 +431,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        verify(mMockCarOemAudioFocusProxyService).audioFocusChanged(
+        verify(mMockCarOemAudioFocusProxyService).notifyAudioFocusChange(
                 focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
         expect.withMessage("Audio focus request with null callback OEM service focus holders").that(
                 focusHoldersCaptor.getValue()).containsExactly(audioFocusInfo);
@@ -453,7 +453,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        verify(mMockCarOemAudioFocusProxyService).audioFocusChanged(
+        verify(mMockCarOemAudioFocusProxyService).notifyAudioFocusChange(
                 focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
         expect.withMessage("Audio focus request OEM service focus holders").that(
                 focusHoldersCaptor.getValue()).containsExactly(audioFocusInfo);
@@ -476,7 +476,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         carZonesAudioFocus.onAudioFocusAbandon(audioFocusInfo);
 
-        verify(mMockCarOemAudioFocusProxyService, times(2)).audioFocusChanged(
+        verify(mMockCarOemAudioFocusProxyService, times(2)).notifyAudioFocusChange(
                 focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
         expect.withMessage("Audio focus abandon OEM service focus holders").that(
                 focusHoldersCaptor.getValue()).isEmpty();
@@ -500,7 +500,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         carZonesAudioFocus.onAudioFocusRequest(callAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        verify(mMockCarOemAudioFocusProxyService, times(2)).audioFocusChanged(
+        verify(mMockCarOemAudioFocusProxyService, times(2)).notifyAudioFocusChange(
                 focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
         expect.withMessage("Call audio focus request OEM service focus holders").that(
                 focusHoldersCaptor.getValue()).containsExactly(callAudioFocusInfo);

@@ -42,9 +42,9 @@ final class OemCarAudioFocusServiceImpl extends IOemCarAudioFocusService.Stub
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public void audioFocusChanged(@NonNull List<AudioFocusInfo> currentFocusHolders,
+    public void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId) {
-        mOemCarAudioFocusService.audioFocusChanged(currentFocusHolders, currentFocusLosers,
+        mOemCarAudioFocusService.notifyAudioFocusChange(currentFocusHolders, currentFocusLosers,
                 zoneId);
     }
 

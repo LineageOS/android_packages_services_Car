@@ -22,7 +22,7 @@ import android.car.oem.OemCarAudioFocusEvaluationRequest;
 
 /** @hide */
 interface IOemCarAudioFocusService {
-    void audioFocusChanged(in List<AudioFocusInfo> currentFocusHolders,
+    oneway void notifyAudioFocusChange(in List<AudioFocusInfo> currentFocusHolders,
            in List<AudioFocusInfo> currentFocusLosers, int zoneId);
 
     OemCarAudioFocusResult evaluateAudioFocusRequest(in
