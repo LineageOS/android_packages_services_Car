@@ -142,6 +142,7 @@ public:
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mUserSwitchCollections({}),
+          mWakeUpCollection({}),
           mCustomCollection({}),
           mLastMajorFaults(0) {}
 
@@ -150,7 +151,13 @@ public:
     std::string name() const override { return "IoPerfCollection"; }
 
     // Implements DataProcessorInterface.
+    android::base::Result<void> onSystemStartup() override;
+
     android::base::Result<void> onBoottimeCollection(
+            time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+
+    android::base::Result<void> onWakeUpCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
@@ -163,16 +170,6 @@ public:
             time_t time, userid_t from, userid_t to,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
-
-    android::base::Result<void> onWakeUpCollection(
-            [[maybe_unused]] time_t time,
-            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
-            override {
-        // TODO(b/236876940): Cache the system resource data during a wake up event. Clear any
-        //  previous wakeup collections when starting a new wake up event.
-        return {};
-    }
 
     android::base::Result<void> onCustomCollection(
             time_t time, SystemState systemState,
@@ -231,7 +228,8 @@ private:
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
 
-    // Info for the boot-time collection event. The cache is persisted until system shutdown/reboot.
+    // Info for the boot-time collection event. The cache is persisted until system shutdown/reboot
+    // or a wake-up collection occurs.
     CollectionInfo mBoottimeCollection GUARDED_BY(mMutex);
 
     // Info for the periodic collection event. The cache size is limited by
@@ -240,6 +238,9 @@ private:
 
     // Cache for user switch collection events. Events are cached from oldest to newest.
     std::vector<UserSwitchCollectionInfo> mUserSwitchCollections GUARDED_BY(mMutex);
+
+    // Info for the wake-up collection event. Only the latest wake-up collection is cached.
+    CollectionInfo mWakeUpCollection GUARDED_BY(mMutex);
 
     // Info for the custom collection event. The info is cleared at the end of every custom
     // collection.

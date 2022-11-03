@@ -82,8 +82,15 @@ public:
     virtual android::base::Result<void> init() = 0;
     // Callback to terminate the data processor.
     virtual void terminate() = 0;
+    // Callback to perform actions (such as clearing stats from previous system startup events)
+    // before starting boot-time or wake-up collections.
+    virtual android::base::Result<void> onSystemStartup() = 0;
     // Callback to process the data collected during boot-time.
     virtual android::base::Result<void> onBoottimeCollection(
+            time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+    // Callback to process the data collected during a wake-up event.
+    virtual android::base::Result<void> onWakeUpCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
     // Callback to process the data collected periodically post boot complete.
@@ -95,10 +102,6 @@ public:
     virtual android::base::Result<void> onUserSwitchCollection(
             time_t time, userid_t from, userid_t to,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
-    // Callback to process the data collected during a wake-up event.
-    virtual android::base::Result<void> onWakeUpCollection(
-            time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
 
     /**
@@ -195,6 +198,7 @@ public:
     virtual android::base::Result<void> onUserStateChange(
             userid_t userId,
             const android::automotive::watchdog::internal::UserState& userState) = 0;
+    // Starts wake-up collection. Any running collection is stopped, except for custom collections.
     virtual android::base::Result<void> onSuspendExit() = 0;
 
     /**
@@ -320,6 +324,11 @@ private:
 
     // Processes the monitor events received by |handleMessage|.
     android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
+
+    // Notifies all registered data processors that either boot-time or wake-up collection will
+    // start. Individual implementations of data processors may clear stats collected during
+    // previous system startup events.
+    android::base::Result<void> notifySystemStartUpLocked();
 
     /**
      * Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns

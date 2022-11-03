@@ -53,6 +53,7 @@ constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performanc
 constexpr const char kUserSwitchCollectionTitle[] =
         "%s\nUser-switch events performance report:\n%s\n";
 constexpr const char kUserSwitchCollectionSubtitle[] = "Number of user switch events: %zu\n";
+constexpr const char kWakeUpCollectionTitle[] = "%s\nWake-up performance report:\n%s\n";
 constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data report:\n%s\n";
 constexpr const char kUserSwitchEventTitle[] = "\nEvent %zu: From: %d To: %d\n%s\n";
 constexpr const char kCollectionTitle[] =
@@ -368,6 +369,10 @@ Result<void> IoPerfCollection::init() {
             .maxCacheSize = periodicCollectionBufferSize,
             .records = {},
     };
+    mWakeUpCollection = {
+            .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+            .records = {},
+    };
     mCustomCollection = {
             .maxCacheSize = std::numeric_limits<std::size_t>::max(),
             .records = {},
@@ -400,6 +405,12 @@ Result<void> IoPerfCollection::onDump(int fd) const {
         !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
         return Error(FAILED_TRANSACTION) << "Failed to dump the boot-time collection report.";
     }
+    if (!WriteStringToFd(StringPrintf(kWakeUpCollectionTitle, std::string(75, '-').c_str(),
+                                      std::string(27, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(mWakeUpCollection.toString(), fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the wake-up collection report.";
+    }
     if (const auto& result = onUserSwitchCollectionDump(fd); !result.ok()) {
         return result.error();
     }
@@ -430,6 +441,13 @@ Result<void> IoPerfCollection::onCustomCollectionDump(int fd) {
         return Error(FAILED_TRANSACTION) << "Failed to write custom I/O collection report.";
     }
 
+    return {};
+}
+
+Result<void> IoPerfCollection::onSystemStartup() {
+    Mutex::Autolock lock(mMutex);
+    mBoottimeCollection.records.clear();
+    mWakeUpCollection.records.clear();
     return {};
 }
 
@@ -490,6 +508,20 @@ Result<void> IoPerfCollection::onUserSwitchCollection(
     }
     return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
                          procStatCollectorSp, &mUserSwitchCollections.back());
+}
+
+Result<void> IoPerfCollection::onWakeUpCollection(
+        time_t time, const wp<UidStatsCollectorInterface>& uidStatsCollector,
+        const wp<ProcStatCollectorInterface>& procStatCollector) {
+    const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
+    const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
+    auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
+    if (!result.ok()) {
+        return result;
+    }
+    Mutex::Autolock lock(mMutex);
+    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
+                         procStatCollectorSp, &mWakeUpCollection);
 }
 
 Result<void> IoPerfCollection::onCustomCollection(
