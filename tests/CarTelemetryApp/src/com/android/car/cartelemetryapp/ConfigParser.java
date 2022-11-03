@@ -118,6 +118,7 @@ public class ConfigParser {
             log("Error parsing XML file! " + parser.getPositionDescription()
                     + " Error: " + e.getMessage());
         }
+        log("Finished parsing configs: " + configs.size());
         return configs;
     }
 

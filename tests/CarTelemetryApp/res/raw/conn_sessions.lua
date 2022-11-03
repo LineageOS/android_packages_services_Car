@@ -22,7 +22,7 @@ function onConnectivityDataWithSession(published_data, state)
     if published_data['packages'] == nil then
         -- on_metrics_report(r) sends r as finished result table
         -- on_metrics_report(r, s) sends r as finished result table while also sending
-        -- s as intermediate result that will be sent received time as 'state' param
+        -- s as intermediate result that will be received next time as 'state' param
         log("packages is nil, only sessions data available.")
         on_metrics_report(res)
         do return end
