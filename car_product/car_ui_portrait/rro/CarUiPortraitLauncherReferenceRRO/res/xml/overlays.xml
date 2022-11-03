@@ -71,8 +71,6 @@
     <item target="dimen/app_touch_target_margin" value="@dimen/app_touch_target_margin"/>
     <item target="dimen/app_icon_description_margin" value="@dimen/app_icon_description_margin"/>
 
-    <item target="drawable/control_bar_contact_image_background" value="@drawable/control_bar_contact_image_background"/>
-    <item target="drawable/control_bar_image_background" value="@drawable/control_bar_image_background"/>
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
