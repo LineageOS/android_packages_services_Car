@@ -22,8 +22,9 @@
           android:sharedUserId="android.uid.system">
 
     <application android:label="@string/development_settings_title"
+                 android:theme="@style/Theme.CDOBaseTheme"
                  tools:node="merge"
-                 tools:replace="android:label">
+                 tools:replace="android:label,android:theme">
 
         <activity
             android:name=".CarDevelopmentSettingsDashboardActivity"
