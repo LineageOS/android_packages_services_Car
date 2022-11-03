@@ -35,7 +35,7 @@ namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class MockEvsCamera : public aidlevs::BnEvsCamera {
 public:
-    MockEvsCamera() = default;
+    MockEvsCamera(const std::string& deviceId) : mDeviceId(deviceId) {}
     virtual ~MockEvsCamera() = default;
 
     MOCK_METHOD(::ndk::ScopedAStatus, doneWithFrame,
@@ -70,6 +70,11 @@ public:
                 (const std::shared_ptr<aidlevs::IEvsCameraStream>& receiver), (override));
     MOCK_METHOD(::ndk::ScopedAStatus, stopVideoStream, (), (override));
     MOCK_METHOD(::ndk::ScopedAStatus, unsetPrimaryClient, (), (override));
+
+    std::string getId() const { return mDeviceId; }
+
+private:
+    std::string mDeviceId;
 };
 
 using NiceMockEvsCamera = ::testing::NiceMock<MockEvsCamera>;
