@@ -38,7 +38,13 @@ import android.media.AudioFocusInfo;
 import android.os.Bundle;
 import android.util.SparseArray;
 
+import com.android.car.CarLocalServices;
+import com.android.car.oem.CarOemProxyService;
+
+import com.google.common.truth.Expect;
+
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -48,10 +54,16 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
+
+    @Rule
+    public final Expect expect = Expect.create();
+
     @Before
     public void setUp() {
         mCarAudioZones = generateAudioZones();
         when(mCarAudioService.getZoneIdForUid(MEDIA_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
     }
 
     @Test
@@ -384,5 +396,115 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         verify(mMockCarFocusCallback).onFocusChange(eq(new int[]{PRIMARY_ZONE_ID}),
                 focusHoldersCaptor.capture());
         assertThat(focusHoldersCaptor.getValue().get(PRIMARY_ZONE_ID)).isEmpty();
+    }
+
+    @Test
+    public void onAudioFocusRequest_withNullOemService_notifiesFocusCallback() {
+        ArgumentCaptor<SparseArray<List<AudioFocusInfo>>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(SparseArray.class);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(null);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+
+        carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockCarFocusCallback).onFocusChange(eq(new int[]{PRIMARY_ZONE_ID}),
+                focusHoldersCaptor.capture());
+        assertThat(focusHoldersCaptor.getValue().get(PRIMARY_ZONE_ID))
+                .containsExactly(audioFocusInfo);
+    }
+
+    @Test
+    public void onAudioFocusAbandon_withNullCallback_notifiesCarOemAudioFocusService() {
+        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
+        CarZonesAudioFocus carZonesAudioFocus =
+                getCarZonesAudioFocus(/* carFocusCallback= */ null);
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+
+        carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockCarOemAudioFocusProxyService).audioFocusChanged(
+                focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
+        expect.withMessage("Audio focus request with null callback OEM service focus holders").that(
+                focusHoldersCaptor.getValue()).containsExactly(audioFocusInfo);
+        expect.withMessage("Audio focus request with null callback focus losers").that(
+                focusLosersCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    public void onAudioFocusRequest_notifiesCarOemAudioFocusService() {
+        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+
+        carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockCarOemAudioFocusProxyService).audioFocusChanged(
+                focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
+        expect.withMessage("Audio focus request OEM service focus holders").that(
+                focusHoldersCaptor.getValue()).containsExactly(audioFocusInfo);
+        expect.withMessage("Audio focus request OEM service focus losers").that(
+                focusLosersCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    public void onAudioAbandon_notifiesCarOemAudioFocusService() {
+        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+        carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        carZonesAudioFocus.onAudioFocusAbandon(audioFocusInfo);
+
+        verify(mMockCarOemAudioFocusProxyService, times(2)).audioFocusChanged(
+                focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
+        expect.withMessage("Audio focus abandon OEM service focus holders").that(
+                focusHoldersCaptor.getValue()).isEmpty();
+        expect.withMessage("Audio focus abandon OEM service focus losers").that(
+                focusLosersCaptor.getValue()).isEmpty();
+    }
+
+    @Test
+    public void onAudioRequest_withCall_notifiesCarOemAudioFocusService() {
+        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
+                ArgumentCaptor.forClass(List.class);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
+        AudioFocusInfo mediaAudioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+        AudioFocusInfo callAudioFocusInfo = generateCallRequestForPrimaryZone();
+        carZonesAudioFocus.onAudioFocusRequest(mediaAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        carZonesAudioFocus.onAudioFocusRequest(callAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockCarOemAudioFocusProxyService, times(2)).audioFocusChanged(
+                focusHoldersCaptor.capture(), focusLosersCaptor.capture(), eq(PRIMARY_ZONE_ID));
+        expect.withMessage("Call audio focus request OEM service focus holders").that(
+                focusHoldersCaptor.getValue()).containsExactly(callAudioFocusInfo);
+        expect.withMessage("Call audio focus request OEM service focus losers").that(
+                focusLosersCaptor.getValue()).containsExactly(mediaAudioFocusInfo);
     }
 }

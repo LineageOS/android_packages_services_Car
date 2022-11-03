@@ -55,6 +55,13 @@ public class CarEvsCameraPreviewActivity extends Activity
         implements CarEvsGLSurfaceView.BufferCallback {
 
     private static final String TAG = CarEvsCameraPreviewActivity.class.getSimpleName();
+    /**
+     * ActivityManagerService encodes the reason for a request to close system dialogs with this
+     * key.
+     */
+    private final static String EXTRA_DIALOG_CLOSE_REASON = "reason";
+    /** This string literal is from VoiceInteractionManagerServiceImpl class. */
+    private final static String DIALOG_CLOSE_REASON_VOICE_INTERACTION = "voiceinteraction";
 
     /**
      * Defines internal states.
@@ -204,6 +211,16 @@ public class CarEvsCameraPreviewActivity extends Activity
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    String reason = extras.getString(EXTRA_DIALOG_CLOSE_REASON);
+                    if (DIALOG_CLOSE_REASON_VOICE_INTERACTION.equals(reason)) {
+                        Log.i(TAG, "Ignore a request to close the system dialog for the voice " +
+                                   "interaction.");
+                        return;
+                    }
+                    Log.d(TAG, "Requested to close the dialog, reason = " + reason);
+                }
                 finish();
             } else {
                 Log.e(TAG, "Unexpected intent " + intent);

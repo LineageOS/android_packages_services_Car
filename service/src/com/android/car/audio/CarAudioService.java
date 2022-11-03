@@ -37,7 +37,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
-import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
+import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver;
@@ -140,8 +140,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private CarOccupantZoneService mOccupantZoneService;
 
-    private CarOccupantZoneManager mOccupantZoneManager;
-
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
      * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
@@ -185,8 +183,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
     private Map<Integer, Integer> mUidToZoneMap;
-    private OccupantZoneConfigChangeListener
-            mOccupantZoneConfigChangeListener = new CarAudioOccupantConfigChangeListener();
     private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
     private CarAudioPowerListener mCarAudioPowerListener;
 
@@ -198,6 +194,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     synchronized (mImplLock) {
                         handleAudioDeviceGainsChangedLocked(halReasons, gains);
                     }
+                }
+            };
+
+    private final ICarOccupantZoneCallback mOccupantZoneCallback =
+            new ICarOccupantZoneCallback.Stub() {
+                @Override
+                public void onOccupantZoneConfigChanged(int flags) {
+                    Slogf.d(TAG, "onOccupantZoneConfigChanged(%d)", flags);
+                    if (((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)
+                            != CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)
+                            && ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)
+                            != CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)) {
+                        return;
+                    }
+                    handleOccupantZoneUserChanged();
                 }
             };
 
@@ -245,8 +256,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void init() {
         synchronized (mImplLock) {
             mOccupantZoneService = CarLocalServices.getService(CarOccupantZoneService.class);
-            Car car = new Car(mContext, /* service= */null, /* handler= */ null);
-            mOccupantZoneManager = new CarOccupantZoneManager(car, mOccupantZoneService);
             if (mUseDynamicRouting) {
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
@@ -296,6 +305,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
 
             mCarVolumeCallbackHandler.release();
+            mOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
 
             if (mHalAudioFocus != null) {
                 mHalAudioFocus.unregisterFocusListener();
@@ -675,7 +685,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             throw new RuntimeException("registerAudioPolicy failed " + r);
         }
 
-        setupOccupantZoneInfo();
+        setupOccupantZoneInfoLocked();
     }
 
     @GuardedBy("mImplLock")
@@ -686,19 +696,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager.registerAudioPlaybackCallback(mCarAudioPlaybackCallback, null);
     }
 
-    private void setupOccupantZoneInfo() {
+    @GuardedBy("mImplLock")
+    private void setupOccupantZoneInfoLocked() {
         CarOccupantZoneService occupantZoneService;
-        CarOccupantZoneManager occupantZoneManager;
         SparseIntArray audioZoneIdToOccupantZoneMapping;
-        OccupantZoneConfigChangeListener listener;
-        synchronized (mImplLock) {
-            audioZoneIdToOccupantZoneMapping = mAudioZoneIdToOccupantZoneIdMapping;
-            occupantZoneService = mOccupantZoneService;
-            occupantZoneManager = mOccupantZoneManager;
-            listener = mOccupantZoneConfigChangeListener;
-        }
+        audioZoneIdToOccupantZoneMapping = mAudioZoneIdToOccupantZoneIdMapping;
+        occupantZoneService = mOccupantZoneService;
         occupantZoneService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
-        occupantZoneManager.registerOccupantZoneConfigChangeListener(listener);
+        occupantZoneService.registerCallback(mOccupantZoneCallback);
     }
 
     @GuardedBy("mImplLock")
@@ -743,6 +748,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setFadeTowardFront(float value) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            requireValidFadeRange(value);
             getAudioControlWrapperLocked().setFadeTowardFront(value);
         }
     }
@@ -751,6 +757,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setBalanceTowardRight(float value) {
         synchronized (mImplLock) {
             enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+            requireValidBalanceRange(value);
             getAudioControlWrapperLocked().setBalanceTowardRight(value);
         }
     }
@@ -1321,6 +1328,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 "Car Volume Group Muting is required");
     }
 
+    private void requireValidFadeRange(float value) {
+        Preconditions.checkArgumentInRange(value, -1f, 1f, "Fade");
+    }
+
+    private void requireValidBalanceRange(float value) {
+        Preconditions.checkArgumentInRange(value, -1f, 1f, "Balance");
+    }
+
     @GuardedBy("mImplLock")
     private void requiredOccupantZoneMappingDisabledLocked() {
         if (isOccupantZoneMappingAvailableLocked()) {
@@ -1468,7 +1483,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private int getOccupantZoneIdForDriver() {
         List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
-                mOccupantZoneManager.getAllOccupantZones();
+                mOccupantZoneService.getAllOccupantZones();
         for (CarOccupantZoneManager.OccupantZoneInfo info: occupantZoneInfos) {
             if (info.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
                 return info.zoneId;
@@ -1506,6 +1521,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (!mAudioPolicy.removeUserIdDeviceAffinity(userId)) {
             Slogf.e(TAG, "removeUserIdDeviceAffinities(%d) Failed", userId);
             return;
+        }
+    }
+
+    @VisibleForTesting
+    @UserIdInt int getUserIdForZone(int audioZoneId) {
+        synchronized (mImplLock) {
+            return getUserIdForZoneLocked(audioZoneId);
         }
     }
 
@@ -1603,19 +1625,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @VisibleForTesting
     void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
         mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
-    }
-
-    private class CarAudioOccupantConfigChangeListener implements OccupantZoneConfigChangeListener {
-        @Override
-        public void onOccupantZoneConfigChanged(int flags) {
-            Slogf.d(TAG, "onOccupantZoneConfigChanged(%d)", flags);
-            if (((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)
-                    == CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)
-                    || ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)
-                    == CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY)) {
-                handleOccupantZoneUserChanged();
-            }
-        }
     }
 
     private List<AudioAttributes> getAllActiveAttributesForPrimaryZone() {

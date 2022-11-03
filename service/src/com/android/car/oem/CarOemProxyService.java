@@ -63,6 +63,7 @@ import java.util.concurrent.TimeUnit;
 public final class CarOemProxyService implements CarServiceBase {
 
     private static final String TAG = CarOemProxyService.class.getSimpleName();
+    private static final String CALL_TAG = CarOemProxyService.class.getSimpleName();
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     // mock component name for testing if system property is set.
     private static final String PROPERTY_EMULATED_OEM_CAR_SERVICE =
@@ -88,6 +89,7 @@ public final class CarOemProxyService implements CarServiceBase {
     // communication. OEM service may still not be ready.
     @GuardedBy("mLock")
     private boolean mIsOemServiceConnected;
+
     @GuardedBy("mLock")
     private boolean mInitComplete;
     @GuardedBy("mLock")
@@ -252,7 +254,9 @@ public final class CarOemProxyService implements CarServiceBase {
             writer.printf("OEM_CAR_SERVICE_CONNECTED_TIMEOUT_MS: %s\n",
                     mOemServiceConnectionTimeoutMs);
             writer.printf("OEM_CAR_SERVICE_READY_TIMEOUT_MS: %s\n", mOemServiceReadyTimeoutMs);
-            writer.printf("mComponentName: %s\n" , mComponentName);
+            writer.printf("mComponentName: %s\n", mComponentName);
+            // Dump helper
+            mHelper.dump(writer);
         }
         writer.decreaseIndent();
     }
@@ -283,8 +287,9 @@ public final class CarOemProxyService implements CarServiceBase {
         waitForOemService();
 
         // TODO(b/240615622): Domain owner to decide if retry or default or crash.
-        IOemCarAudioFocusService oemAudioFocusService = mHelper.doBinderTimedCall(
-                () -> getOemService().getOemAudioFocusService(), /* defaultValue= */ null);
+        IOemCarAudioFocusService oemAudioFocusService = mHelper.doBinderTimedCallWithDefaultValue(
+                CALL_TAG, () -> getOemService().getOemAudioFocusService(),
+                /* defaultValue= */ null);
 
         if (oemAudioFocusService == null) {
             if (DBG) {
@@ -296,7 +301,6 @@ public final class CarOemProxyService implements CarServiceBase {
 
         CarOemAudioFocusProxyService carOemAudioFocusProxyService =
                 new CarOemAudioFocusProxyService(mHelper, oemAudioFocusService);
-
         synchronized (mLock) {
             if (mCarOemAudioFocusProxyService != null) {
                 return mCarOemAudioFocusProxyService;
@@ -313,7 +317,7 @@ public final class CarOemProxyService implements CarServiceBase {
      */
     public void onCarServiceReady() {
         waitForOemServiceConnected();
-        mHelper.doBinderOneWayCall(() -> {
+        mHelper.doBinderOneWayCall(CALL_TAG, () -> {
             try {
                 getOemService().onCarServiceReady(mOemCarServiceCallback);
             } catch (RemoteException ex) {
@@ -433,7 +437,9 @@ public final class CarOemProxyService implements CarServiceBase {
             }
             mOemServiceReadyLatch.countDown();
             int pid = Binder.getCallingPid();
-            Slogf.i(TAG, "OEM service PID: %d", pid);
+            Slogf.i(TAG, "OEM Car service is ready and running. Process ID of OEM Car Service is:"
+                    + " %d", pid);
+            mHelper.updateOemPid(pid);
             // Initialize other components on handler thread so that main thread is not
             // blocked
             mHandler.post(() -> initOemServiceComponents());

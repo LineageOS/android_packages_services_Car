@@ -18,6 +18,8 @@ package com.android.car.audio;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
@@ -71,11 +73,15 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
+import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.media.CarAudioPatchHandle;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -105,6 +111,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlFactory;
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
 import com.android.car.test.utils.TemporaryFile;
 
@@ -112,6 +119,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -143,6 +151,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_PRIMARY_GROUP = 0;
     private static final int TEST_PRIMARY_GROUP_INDEX = 0;
     private static final int TEST_FLAGS = 0;
+    private static final float TEST_VALUE = -.75f;
+    private static final float INVALID_TEST_VALUE = -1.5f;
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -155,6 +165,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int MEDIA_VOLUME_GROUP_ID = 0;
     private static final int NAVIGATION_VOLUME_GROUP_ID = 1;
     private static final int INVALID_USAGE = -1;
+    private static final int INVALID_AUDIO_FEATURE = -1;
+    private static final int TEST_DRIVER_USER_ID = 10;
+    private static final int TEST_USER_ID = 11;
+    private static final int TEST_USER_ID_SECONDARY = 12;
 
     private CarAudioService mCarAudioService;
     @Mock
@@ -179,16 +193,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private IAudioService mMockAudioService;
     @Mock
     private Uri mNavSettingUri;
+    @Mock
+    private AudioControlWrapperAidl mAudioControlWrapperAidl;
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
     private boolean mUseHalAudioDucking = true;
-    private boolean mUserCarVolumeGroupMuting = true;
+    private boolean mUseCarVolumeGroupMuting = true;
 
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private Context mContext;
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
     private AudioDeviceInfo mTunerDevice;
     private AudioDeviceInfo mMediaOutputDevice;
 
@@ -247,7 +262,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void setupAudioControlHAL() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
         doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        mAudioControlWrapperAidl = new AudioControlWrapperAidl(mBinder);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)).thenReturn(true);
         doReturn(mAudioControlWrapperAidl)
                 .when(() -> AudioControlFactory.newAudioControl());
     }
@@ -302,7 +324,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(VOLUME_KEY_EVENT_TIMEOUT_MS);
         when(mMockResources.getBoolean(audioUseHalDuckingSignals)).thenReturn(mUseHalAudioDucking);
         when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
-                .thenReturn(mUserCarVolumeGroupMuting);
+                .thenReturn(mUseCarVolumeGroupMuting);
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
                 .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
@@ -1045,6 +1067,179 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Current group volume for primary audio zone and group")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isEqualTo((DEFAULT_GAIN - MIN_GAIN) / STEP_SIZE);
+    }
+
+    @Test
+    public void setBalanceTowardRight_nonNullValue() {
+        mCarAudioService.init();
+
+        mCarAudioService.setBalanceTowardRight(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setBalanceTowardRight(TEST_VALUE);
+    }
+
+    @Test
+    public void setBalanceTowardRight_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
+                -> mCarAudioService.setBalanceTowardRight(INVALID_TEST_VALUE));
+
+        assertWithMessage("Out of bounds balance")
+                .that(thrown).hasMessageThat()
+                .contains(String.format("Balance is out of range of [%f, %f]", -1f, 1f));
+    }
+
+    @Test
+    public void setFadeTowardFront_nonNullValue() {
+        mCarAudioService.init();
+
+        mCarAudioService.setFadeTowardFront(TEST_VALUE);
+
+        verify(mAudioControlWrapperAidl).setFadeTowardFront(TEST_VALUE);
+    }
+
+    @Test
+    public void setFadeTowardFront_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, ()
+                -> mCarAudioService.setFadeTowardFront(INVALID_TEST_VALUE));
+
+        assertWithMessage("Out of bounds fade")
+                .that(thrown).hasMessageThat()
+                .contains(String.format("Fade is out of range of [%f, %f]", -1f, 1f));
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDynamicRouting() {
+        mCarAudioService.init();
+
+        assertWithMessage("Dynamic routing audio feature")
+                .that(mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
+                .isEqualTo(mUseDynamicRouting);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonDynamicAudioService.init();
+
+        assertWithMessage("Disabled dynamic routing audio feature")
+                .that(nonDynamicAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
+                .isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forVolumeGroupMuting() {
+        mCarAudioService.init();
+
+        assertWithMessage("Group muting audio feature")
+                .that(mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_VOLUME_GROUP_MUTING))
+                .isEqualTo(mUseCarVolumeGroupMuting);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledVolumeGroupMuting() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
+                .thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonVolumeGroupMutingAudioService.init();
+
+        assertWithMessage("Disabled group muting audio feature")
+                .that(nonVolumeGroupMutingAudioService
+                        .isAudioFeatureEnabled(AUDIO_FEATURE_VOLUME_GROUP_MUTING))
+                .isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forUnrecognizableAudioFeature_throws() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mCarAudioService.isAudioFeatureEnabled(INVALID_AUDIO_FEATURE));
+
+        assertWithMessage("Unknown audio feature")
+                .that(thrown).hasMessageThat()
+                .contains("Unknown Audio Feature type: " + INVALID_AUDIO_FEATURE);
+    }
+
+    @Test
+    public void onOccupantZoneConfigChanged_noUserAssignedToPrimaryZone() throws Exception {
+        mCarAudioService.init();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(UserManagerHelper.USER_NULL);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(UserManagerHelper.USER_NULL);
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+        int prevUserId = mCarAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE);
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        assertWithMessage("User ID before config changed")
+                .that(mCarAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(prevUserId);
+    }
+
+    @Test
+    public void onOccupantZoneConfigChanged_userAssignedToPrimaryZone() throws Exception {
+        mCarAudioService.init();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(TEST_USER_ID);
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        assertWithMessage("User ID after config changed")
+                .that(mCarAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(TEST_USER_ID);
+    }
+
+    @Test
+    public void onOccupantZoneConfigChanged_afterResettingUser_returnNoUser() throws Exception {
+        mCarAudioService.init();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(TEST_USER_ID);
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(UserManagerHelper.USER_NULL);
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        assertWithMessage("User ID config changed to null")
+                .that(mCarAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(UserManagerHelper.USER_NULL);
+    }
+
+    @Test
+    public void onOccupantZoneConfigChanged_multipleZones() throws Exception {
+        mCarAudioService.init();
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(anyInt()))
+                .thenReturn(TEST_USER_ID, TEST_USER_ID_SECONDARY);
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        assertWithMessage("User ID for primary and secondary zone after config changed")
+                .that(mCarAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isNotEqualTo(mCarAudioService.getUserIdForZone(SECONDARY_ZONE_ID));
+        assertWithMessage("Secondary user ID config changed")
+                .that(mCarAudioService.getUserIdForZone(SECONDARY_ZONE_ID))
+                .isEqualTo(TEST_USER_ID_SECONDARY);
+    }
+
+    private ICarOccupantZoneCallback getOccupantZoneCallback() {
+        ArgumentCaptor<ICarOccupantZoneCallback> captor =
+                ArgumentCaptor.forClass(ICarOccupantZoneCallback.class);
+        verify(mMockOccupantZoneService).registerCallback(captor.capture());
+        return captor.getValue();
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
