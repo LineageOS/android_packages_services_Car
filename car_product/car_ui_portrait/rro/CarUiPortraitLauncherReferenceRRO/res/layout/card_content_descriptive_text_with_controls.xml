@@ -18,19 +18,25 @@
 <!-- Layout for a DescriptiveTextWithControlsView. Required by HomeCardFragment, but currently not used by the CarUiPortrait launcher. -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="bottom">
 
-    <include layout="@layout/descriptive_text"
-             android:layout_height="match_parent"
-             android:layout_width="0dp"
-             android:layout_weight="1"
-             android:layout_gravity="start|center_vertical"/>
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="@dimen/media_descriptive_text_container_height"
+        android:layout_weight="1">
+
+        <include layout="@layout/descriptive_text"
+            android:id="@+id/media_descriptive_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/button_trio"
         android:gravity="center"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:orientation="horizontal"

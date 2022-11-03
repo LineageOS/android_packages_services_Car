@@ -156,6 +156,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private View mRootAppAreaContainer;
     private View mGripBar;
     private View mGripBarView;
+    private ViewGroup mUpperAppArea;
+    private ViewGroup mRootAppArea;
     private ImageView mImmersiveButtonView;
     private boolean mIsRootTaskViewFullScreen;
     private boolean mShouldSetInsetsOnUpperTaskView;
@@ -287,6 +289,32 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
+    private final View.OnLayoutChangeListener mControlBarOnLayoutChangeListener =
+            (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
+                if (bottom == oldBottom && top == oldTop) {
+                    return;
+                }
+                mControlBarHeightMinusCornerRadius =
+                        mControlBarView.getHeight() - mCornerRadius;
+                updateBottomOverlap(mRootAppAreaState);
+
+                if (mShouldSetInsetsOnUpperTaskView) {
+                    return;
+                }
+                if (mUpperAppArea != null) {
+                    ViewGroup.MarginLayoutParams upperAppAreaLayoutParams =
+                            (ViewGroup.MarginLayoutParams) mUpperAppArea.getLayoutParams();
+                    if (upperAppAreaLayoutParams != null) {
+                        upperAppAreaLayoutParams.setMargins(/* left= */ 0, /* top= */
+                                0, /* right= */ 0, mControlBarHeightMinusCornerRadius);
+                    }
+                }
+                if (mRootAppAreaContainer != null) {
+                    mRootAppAreaContainer.setPadding(/* start= */ 0, /* top= */ 0, /* end= */ 0,
+                            mControlBarHeightMinusCornerRadius);
+                }
+            };
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -299,8 +327,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         int identifier = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
         mNavBarHeight = identifier > 0 ? getResources().getDimensionPixelSize(identifier) : 0;
         mGripBarHeight = (int) getResources().getDimension(R.dimen.grip_bar_height);
-        mControlBarHeightMinusCornerRadius = (int) getResources().getDimension(
-                R.dimen.control_bar_height_minus_corner_radius);
         mCornerRadius = (int) getResources().getDimension(R.dimen.corner_radius);
         mContainer = findViewById(R.id.container);
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mContainer.getLayoutParams();
@@ -312,6 +338,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 (int) getResources().getDimension(
                         R.dimen.title_bar_display_area_touch_drag_threshold);
         mRootAppAreaContainer = findViewById(R.id.lower_app_area_container);
+        mRootAppArea = findViewById(R.id.lower_app_area);
+        mUpperAppArea = findViewById(R.id.upper_app_area);
         mBackgroundActivityComponent = ComponentName.unflattenFromString(getResources().getString(
                 R.string.config_backgroundActivity));
         mFullScreenActivities = convertToComponentNames(getResources()
@@ -353,6 +381,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 com.android.internal.R.dimen.status_bar_height);
 
         mControlBarView = findViewById(R.id.control_bar_area);
+        mControlBarHeightMinusCornerRadius = mControlBarView.getHeight() - mCornerRadius;
+        mControlBarView.addOnLayoutChangeListener(mControlBarOnLayoutChangeListener);
         String[] ignoreOpeningForegroundDACmp = getResources().getStringArray(
                 R.array.config_ignoreOpeningForegroundDA);
         mIgnoreOpeningRootTaskViewComponentsSet = new ArraySet<>();
@@ -386,14 +416,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mTaskViewManager = new TaskViewManager(this, getMainThreadHandler());
         }
 
-        ViewGroup lowerAppArea = findViewById(R.id.lower_app_area);
-        if (lowerAppArea != null) {
-            setUpRootTaskView(lowerAppArea);
+        if (mRootAppArea != null) {
+            setUpRootTaskView(mRootAppArea);
         }
 
-        ViewGroup upperAppArea = findViewById(R.id.upper_app_area);
-        if (upperAppArea != null) {
-            setUpBackgroundTaskView(upperAppArea);
+        if (mUpperAppArea != null) {
+            setUpBackgroundTaskView(mUpperAppArea);
         }
 
         ViewGroup fullscreenContainer = findViewById(R.id.fullscreen_container);
@@ -701,11 +729,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mRootAppAreaContainer.setLayoutParams(rootAppAreaParams);
 
-        // Set bottom padding to be height of controller bar, so they won't overlap
-        int rootAppAreaContainerBottomPadding =
-                getApplicationContext().getResources().getDimensionPixelSize(
-                        R.dimen.control_bar_height);
-        mRootAppAreaContainer.setPadding(0, 0, 0, rootAppAreaContainerBottomPadding);
+        // Set bottom padding to be height of controller bar - corner radius of control bar,
+        // so they won't overlap
+        mRootAppAreaContainer.setPadding(0, 0, 0, mControlBarHeightMinusCornerRadius);
 
         mControlBarView.setVisibility(VISIBLE);
     }

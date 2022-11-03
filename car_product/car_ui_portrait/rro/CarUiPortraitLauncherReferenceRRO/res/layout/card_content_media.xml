@@ -18,27 +18,30 @@
 <!-- Layout specifically for the media card, which uses media-specific playback_controls.xml -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:orientation="horizontal">
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="bottom">
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="@dimen/media_descriptive_text_container_height"
+        android:layout_weight="1">
 
-    <include layout="@layout/descriptive_text"
-             android:id="@+id/media_descriptive_text"
-             android:layout_height="match_parent"
-             android:layout_width="0dp"
-             android:layout_weight="1"
-             android:layout_gravity="start"/>
+        <include layout="@layout/descriptive_text"
+            android:id="@+id/media_descriptive_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </FrameLayout>
 
     <FrameLayout
-        android:layout_height="match_parent"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_gravity="end">
 
         <com.android.car.media.common.PlaybackControlsActionBar
             android:id="@+id/media_playback_controls_bar"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
     </FrameLayout>
 </LinearLayout>
