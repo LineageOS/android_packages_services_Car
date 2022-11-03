@@ -51,12 +51,12 @@ public final class CarOemAudioFocusProxyService {
     /**
      * Updates audio focus changes.
      */
-    public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
+    public void notifyAudioFocusChange(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
         mHelper.doBinderOneWayCall(CALLER_TAG, () -> {
             try {
                 mOemCarAudioFocusService
-                        .audioFocusChanged(currentFocusHolders, currentFocusLosers, zoneId);
+                        .notifyAudioFocusChange(currentFocusHolders, currentFocusLosers, zoneId);
             } catch (RemoteException e) {
                 Slogf.e(TAG, e,
                         "audioFocusChanged call received RemoteException- currentFocusHolders:%s, "
