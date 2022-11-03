@@ -1780,6 +1780,40 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_FORE_AFT_MOVE = 356518810;
     /**
+     * Represents property for state of the footwell lights.
+     *
+     * SEAT_FOOTWELL_LIGHTS_STATE reflects the current state of the lights at any point in time.
+     * This is different from the function of {@link SEAT_FOOTWELL_LIGHTS_SWITCH} which represents
+     * the position of the switch controlling the lights. Therefore, SEAT_FOOTWELL_LIGHTS_STATE may
+     * not match the value of SEAT_FOOTWELL_LIGHTS_SWITCH (e.g.
+     * SEAT_FOOTWELL_LIGHTS_SWITCH=AUTOMATIC and SEAT_FOOTWELL_LIGHTS_STATE=ON).
+     *
+     * This property will only be implemented if SEAT_FOOTWELL_LIGHTS_STATE's value may be different
+     * from that of {@link CABIN_LIGHTS_STATE}.
+     *
+     * For each supported area ID, the {@link AreaIdConfig#getSupportedEnumValues()} obtained from
+     * {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from
+     * {@link VehicleLightState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_INTERIOR_LIGHTS} to read
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_FOOTWELL_LIGHTS_STATE = 356518811;
+    /**
      * Represents property for Seat easy access feature.
      *
      * If true, the seat will automatically adjust to make it easier for the occupant to enter and
