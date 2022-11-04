@@ -428,6 +428,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 Slogf.wtf(TAG, "getCurrentUxRestrictions() called before init()");
                 return null;
             }
+
+            if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
+                Slogf.d(TAG, "Returning unrestricted UX Restriction due to setting");
+                return createUnrestrictedRestrictions();
+            }
             restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
         }
         if (restrictions == null) {
