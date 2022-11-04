@@ -1331,7 +1331,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @GuardedBy("mLock")
     private void handleActiveDisplaysLocked() {
-        mActiveOccupantConfigs.clear();
+        // Clear display info for each zone in preparation for re-populating display info.
+        for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+            OccupantConfig occupantConfig = mActiveOccupantConfigs.valueAt(i);
+            occupantConfig.displayInfos.clear();
+        }
+
         boolean hasDefaultDisplayConfig = false;
         for (Display display : mDisplayManager.getDisplays()) {
             DisplayConfig displayConfig = findDisplayConfigForDisplayLocked(display);
@@ -1350,6 +1355,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             addDisplayInfoToOccupantZoneLocked(displayConfig.occupantZoneId,
                     new DisplayInfo(display, displayConfig.displayType));
         }
+
+        // Remove OccupantConfig in zones without displays.
+        for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+            OccupantConfig occupantConfig = mActiveOccupantConfigs.valueAt(i);
+            if (occupantConfig.displayInfos.size() == 0) {
+                Slogf.i(TAG, "handleActiveDisplaysLocked: removing zone %d due to no display",
+                        mActiveOccupantConfigs.keyAt(i));
+                mActiveOccupantConfigs.removeAt(i);
+            }
+        }
+
         if (!hasDefaultDisplayConfig) {
             // This shouldn't happen, since we added the default display config in
             // parseDisplayConfigsLocked().

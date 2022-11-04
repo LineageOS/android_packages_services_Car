@@ -486,6 +486,31 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
+    public void testKeepVisibleUserAfterDisplayChange() throws Exception {
+        setUpServiceWithProfileSupportEnabled();
+        mVisibleUsers.add(VISIBLE_USER);
+        mService.init();
+        mService.setCarServiceHelper(mICarServiceHelper);
+
+        // Assign VISIBLE_USER to a zone.
+        assertWithMessage("Assigning visible user to zone succeeds").that(
+                mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
+                UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
+                CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+
+        // Check zone assignment.
+        assertUserForThreeZones(CURRENT_USER, VISIBLE_USER,
+                CarOccupantZoneManager.INVALID_USER_ID);
+
+        // Make some display changes by adding a display.
+        mService.mDisplayListener.onDisplayAdded(4);
+
+        // Check zone assignment again to make sure VISIBLE_USER is still assigned to the zone.
+        assertUserForThreeZones(CURRENT_USER, VISIBLE_USER,
+                CarOccupantZoneManager.INVALID_USER_ID);
+    }
+
+    @Test
     public void testKeepVisibleUserAfterUserSwitch() throws Exception {
         assertVisibleUserAssignment();
 
