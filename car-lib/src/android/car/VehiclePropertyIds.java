@@ -1676,6 +1676,32 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int WINDOW_LOCK = 320867268;
     /**
+     * Steering wheel depth position
+     *
+     * <p>Returns how close the steering wheel is to the driver. This value is not in any
+     * particular unit but in a specified range of steps. The max value indicates the wheel
+     * position closest to the driver. See {@link CarPropertyConfig#getMaxValue(int)} and
+     * {@link CarPropertyConfig#getMinValue(int)} for the range of possible positions.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  and write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int STEERING_WHEEL_DEPTH_POS = 289410016;
+    /**
      * Vehicle Maps Service (VMS) message
      * The property is protected by the signature permissions:
      * android.car.permission.VMS_PUBLISHER and android.car.permission.VMS_SUBSCRIBER.

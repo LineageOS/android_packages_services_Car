@@ -553,6 +553,11 @@
     <!-- Permission text: apps control remote access [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_remote_access">Control remote access.</string>
 
+    <!-- Permission text: apps can control car steering wheel [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_steering_wheel">control car\u2019s steering wheel</string>
+    <!-- Permission text: apps can control car steering wheel [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_steering_wheel">Control car\u2019s steering wheel.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

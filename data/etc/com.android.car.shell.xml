@@ -71,5 +71,6 @@
         <permission name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS" />
         <permission name="android.car.permission.ADJUST_RANGE_REMAINING" />
         <permission name="android.car.permission.MANAGE_OCCUPANT_ZONE"/>
+        <permission name="android.car.permission.CONTROL_STEERING_WHEEL"/>
     </privapp-permissions>
 </permissions>
