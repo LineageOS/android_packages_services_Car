@@ -14,15 +14,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="will.be.replaced">
-    <application android:hasCode="false"/>
-    <overlay android:priority="10"
-             android:targetName="car-ui-lib"
-             android:targetPackage="will.be.replaced.too"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true"
-             android:requiredSystemPropertyName="ro.build.car_ui_rros_enabled"
-             android:requiredSystemPropertyValue="true"/>
-</manifest>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_activated="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/tab_background_color"/>
+        </shape>
+    </item>
+    <item android:state_activated="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent"/>
+        </shape>
+    </item>
+</selector>

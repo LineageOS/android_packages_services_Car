@@ -38,6 +38,7 @@
             android:id="@+id/control_bar_image_container"
             android:layout_height="@dimen/control_bar_image_size"
             android:layout_width="@dimen/control_bar_image_size"
+            android:layout_gravity="center"
             android:layout_centerVertical="true"
             android:layout_marginTop="8dp"
             android:layout_marginStart="8dp">

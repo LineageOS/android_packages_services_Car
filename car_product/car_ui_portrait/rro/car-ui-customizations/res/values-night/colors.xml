@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,15 +14,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="will.be.replaced">
-    <application android:hasCode="false"/>
-    <overlay android:priority="10"
-             android:targetName="car-ui-lib"
-             android:targetPackage="will.be.replaced.too"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true"
-             android:requiredSystemPropertyName="ro.build.car_ui_rros_enabled"
-             android:requiredSystemPropertyValue="true"/>
-</manifest>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <color name="divider_color">#2e3134</color>
+</resources>

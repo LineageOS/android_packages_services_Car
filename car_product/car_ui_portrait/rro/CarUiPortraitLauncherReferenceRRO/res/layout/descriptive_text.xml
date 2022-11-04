@@ -36,8 +36,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:singleLine="true"
-        android:textAppearance="@style/TextAppearance.Car.Body.Large"
-        android:textColor="@color/car_on_surface"/>
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -51,8 +50,7 @@
             android:visibility="gone"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:textAppearance="@style/TextAppearance.Car.Body.Small"
-            android:textColor="@color/car_on_surface_variant"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
             android:id="@+id/optional_timer_separator"
@@ -60,15 +58,13 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/ongoing_call_duration_text_separator"
-            android:textAppearance="@style/TextAppearance.Car.Body.Small"
-            android:textColor="@color/car_on_surface_variant"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
         <TextView
             android:id="@+id/secondary_text"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:singleLine="true"
-            android:textAppearance="@style/TextAppearance.Car.Body.Small"
-            android:textColor="@color/car_on_surface_variant"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
     </LinearLayout>
 </LinearLayout>
