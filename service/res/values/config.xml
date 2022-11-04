@@ -244,9 +244,11 @@
                startForeground - start service with Context#startForegroundService
                If service was bound it will be restarted unless it is constantly crashing.
                The default value is 'start'
-         user: all - the service will be bound/started for system and all foreground users
+         user: all - the service will be bound/started for system and all visible users
                system - the service will be started/bound only for system user (u0)
                foreground - the service will be bound/started only for foreground users
+               visible - the service will be bound/started only for visible users (as defined by
+                         `UserManager#isUserVisible()`).
                The default value is 'all'
          trigger: indicates when the service needs to be started/bound
                asap - the service might be bound when user is not fully loaded, be careful with
