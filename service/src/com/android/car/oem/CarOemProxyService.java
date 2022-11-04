@@ -47,6 +47,7 @@ import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -79,6 +80,9 @@ public final class CarOemProxyService implements CarServiceBase {
     private final CarOemProxyServiceHelper mHelper;
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
+    @GuardedBy("mLock")
+    private final ArrayList<CarOemProxyServiceCallback> mCallbacks = new ArrayList<>();
+
 
     private String mComponentName;
 
@@ -228,6 +232,36 @@ public final class CarOemProxyService implements CarServiceBase {
         return false;
     }
 
+    /**
+     * Registers callback to be called once OEM service is ready.
+     *
+     * <p>Other CarService components cannot call OEM service. But they can register a callback
+     * which would be called as soon as OEM Service is ready./
+     */
+    public void registerCallback(CarOemProxyServiceCallback callback) {
+        synchronized (mLock) {
+            mCallbacks.add(callback);
+        }
+    }
+
+    /**
+     * Informs if OEM service is enabled.
+     */
+    public boolean isOemServiceEnabled() {
+        synchronized (mLock) {
+            return mIsFeatureEnabled;
+        }
+    }
+
+    /**
+     * Informs if OEM service is ready.
+     */
+    public boolean isOemServiceReady() {
+        synchronized (mLock) {
+            return mIsOemServiceReady;
+        }
+    }
+
     @Override
     public void init() {
         // Nothing to be done as OemCarService was initialized in the constructor.
@@ -256,6 +290,7 @@ public final class CarOemProxyService implements CarServiceBase {
                     mOemServiceConnectionTimeoutMs);
             writer.printf("OEM_CAR_SERVICE_READY_TIMEOUT_MS: %s\n", mOemServiceReadyTimeoutMs);
             writer.printf("mComponentName: %s\n", mComponentName);
+            writer.printf("mCallbacks size: %d\n", mCallbacks.size());
             // Dump OEM service stack
             if (mIsOemServiceReady) {
                 writer.printf("OEM callstack\n");
@@ -411,7 +446,19 @@ public final class CarOemProxyService implements CarServiceBase {
 
     // Initialize all OEM related components.
     private void initOemServiceComponents() {
+        // Initialize all Oem Service components
         getCarOemAudioFocusService();
+
+        // Callback registered Car Service components for OEM service.
+        callCarServiceComponents();
+    }
+
+    private void callCarServiceComponents() {
+        synchronized (mLock) {
+            for (int i = 0; i < mCallbacks.size(); i++) {
+                mCallbacks.get(i).onOemServiceReady();
+            }
+        }
     }
 
     /**
