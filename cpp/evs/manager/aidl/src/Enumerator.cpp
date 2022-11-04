@@ -855,6 +855,13 @@ ScopedAStatus Enumerator::EvsDeviceStatusCallbackImpl::deviceStatusChanged(
 bool Enumerator::init(std::shared_ptr<IEvsEnumerator>& hwEnumerator, bool enableMonitor) {
     LOG(DEBUG) << __FUNCTION__;
 
+    // Register a device status callback
+    mDeviceStatusCallback =
+            ::ndk::SharedRefBase::make<EvsDeviceStatusCallbackImpl>(ref<Enumerator>());
+    if (!hwEnumerator->registerStatusCallback(mDeviceStatusCallback).isOk()) {
+        LOG(WARNING) << "Failed to register a device status callback";
+    }
+
     // Get a list of available displays and identify the internal display
     if (!hwEnumerator->getDisplayIdList(&mDisplayPorts).isOk() || mDisplayPorts.empty()) {
         LOG(ERROR) << "Failed to get a list of available displays";

@@ -82,7 +82,6 @@ import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
-import com.android.wm.shell.common.HandlerExecutor;
 
 import java.util.List;
 import java.util.Set;
@@ -383,8 +382,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         if (mTaskViewManager == null) {
-            mTaskViewManager = new TaskViewManager(this,
-                    new HandlerExecutor(getMainThreadHandler()));
+            mTaskViewManager = new TaskViewManager(this, getMainThreadHandler());
         }
         ViewGroup upperAppArea = findViewById(R.id.upper_app_area);
         if (upperAppArea != null) {

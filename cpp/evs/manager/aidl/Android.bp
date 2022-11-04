@@ -167,6 +167,7 @@ cc_test_library {
         "libcutils",
         "libnativewindow",
         "libui",
+        "libutils",
     ],
     static_libs: [
         "android.hardware.automotive.evs-V1-ndk",

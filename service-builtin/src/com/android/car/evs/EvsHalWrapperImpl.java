@@ -20,6 +20,7 @@ import android.hardware.HardwareBuffer;
 
 import com.android.car.internal.evs.EvsHalWrapper;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 /**
  * EvaHalWrapper impl used by updatable car service.
@@ -49,6 +50,17 @@ public final class EvsHalWrapperImpl extends EvsHalWrapper {
     public EvsHalWrapperImpl(EvsHalWrapper.HalEventCallback callback) {
         super();
         mCallback = callback;
+    }
+
+    /**
+     * Create a {@code EvsHalWrapperImpl} object with a given JNI library that implements native
+     * methods.
+     */
+    @VisibleForTesting
+    static EvsHalWrapperImpl create(EvsHalWrapper.HalEventCallback callback,
+            String jniLibraryName) {
+        System.loadLibrary(jniLibraryName);
+        return new EvsHalWrapperImpl(callback);
     }
 
     @Override
@@ -120,6 +132,33 @@ public final class EvsHalWrapperImpl extends EvsHalWrapper {
         nativeDoneWithFrame(getNativeHandle(), bufferId);
     }
 
+    @VisibleForTesting
+    boolean setServiceHandle(long handleToUse) {
+        if (handleToUse == 0) {
+            return false;
+        }
+
+        long handleToDestroy;
+        synchronized (mLock) {
+            handleToDestroy = mNativeEvsServiceObj;
+            mNativeEvsServiceObj = handleToUse;
+        }
+
+        nativeDestroyServiceHandle(handleToDestroy);
+        return true;
+    }
+
+    @VisibleForTesting
+    long createServiceHandleForTest() {
+        return nativeCreateServiceHandleForTest();
+    }
+
+
+    @VisibleForTesting
+    void triggerBinderDied() {
+        nativeTriggerBinderDied(getNativeHandle());
+    }
+
     private long getNativeHandle() {
         synchronized (mLock) {
             return mNativeEvsServiceObj;
@@ -162,8 +201,14 @@ public final class EvsHalWrapperImpl extends EvsHalWrapper {
     /** Request to return an used buffer */
     private native void nativeDoneWithFrame(long handle, int bufferId);
 
+    /** Trigger a onBinderDied callback for tests */
+    private native void nativeTriggerBinderDied(long handle);
+
     /** Creates a EVS service handle */
     private static native long nativeCreateServiceHandle();
+
+    /** Creates a EVS service handle for tests */
+    private static native long nativeCreateServiceHandleForTest();
 
     /** Destroys a EVS service handle */
     private static native void nativeDestroyServiceHandle(long handle);

@@ -553,13 +553,13 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
 }
 
 ScopedAStatus VirtualCamera::stopVideoStream() {
+    if (!mStream || mStreamState != RUNNING) {
+        // Safely ignore a request to stop video stream
+        return ScopedAStatus::ok();
+    }
+
     {
         std::lock_guard lock(mMutex);
-
-        if (!mStream || mStreamState != RUNNING) {
-            // Safely ignore a request to stop video stream
-            return ScopedAStatus::ok();
-        }
 
         // Tell the frame delivery pipeline we don't want any more frames
         mStreamState = STOPPING;
@@ -770,7 +770,7 @@ bool VirtualCamera::notify(const EvsEventDesc& event) {
     }
 
     // Forward a received event to the v1.1 client
-    if (!mStream->notify(event).isOk()) {
+    if (mStream && !mStream->notify(event).isOk()) {
         LOG(ERROR) << "Failed to forward an event";
         return false;
     }

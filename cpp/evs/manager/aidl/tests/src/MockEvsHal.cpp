@@ -23,18 +23,19 @@
 #include <android-base/logging.h>
 #include <camera/CameraMetadata.h>
 #include <hardware/gralloc.h>
+#include <system/graphics-base.h>
+#include <utils/SystemClock.h>
 
 #include <functional>
 #include <future>
-#include <thread>
-
-#include <system/graphics-base.h>
 
 namespace {
 
 using ::aidl::android::hardware::automotive::evs::BufferDesc;
 using ::aidl::android::hardware::automotive::evs::CameraDesc;
 using ::aidl::android::hardware::automotive::evs::CameraParam;
+using ::aidl::android::hardware::automotive::evs::DeviceStatus;
+using ::aidl::android::hardware::automotive::evs::DeviceStatusType;
 using ::aidl::android::hardware::automotive::evs::DisplayDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
 using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
@@ -54,6 +55,7 @@ using ::aidl::android::hardware::common::NativeHandle;
 using ::aidl::android::hardware::graphics::common::BufferUsage;
 using ::aidl::android::hardware::graphics::common::HardwareBuffer;
 using ::aidl::android::hardware::graphics::common::PixelFormat;
+using ::std::chrono_literals::operator""ms;
 using ::std::chrono_literals::operator""s;
 
 inline constexpr char kMockCameraDeviceNamePrefix[] = "/dev/mockcamera";
@@ -67,7 +69,7 @@ inline constexpr int kExclusiveMainDisplayId = 255;
 NativeHandle copyNativeHandle(const NativeHandle& handle, bool doDup) {
     NativeHandle dup;
 
-    dup.fds = std::vector<::ndk::ScopedFileDescriptor>(handle.fds.size());
+    dup.fds = std::vector<ndk::ScopedFileDescriptor>(handle.fds.size());
     if (!doDup) {
         for (auto i = 0; i < handle.fds.size(); ++i) {
             dup.fds.at(i).set(handle.fds[i].get());
@@ -109,8 +111,19 @@ BufferDesc copyBufferDesc(const BufferDesc& src, bool doDup) {
 namespace aidl::android::automotive::evs::implementation {
 
 MockEvsHal::~MockEvsHal() {
-    deinitializeBufferPool();
-    mCameraClient = nullptr;
+    std::lock_guard lock(mLock);
+    for (auto& [id, state] : mStreamState) {
+        auto it = mCameraFrameThread.find(id);
+        if (it == mCameraFrameThread.end() || !it->second.joinable()) {
+            continue;
+        }
+
+        state = StreamState::kStopping;
+        it->second.join();
+    }
+
+    deinitializeBufferPoolLocked();
+    mCameraClient.clear();
 }
 
 std::shared_ptr<IEvsEnumerator> MockEvsHal::getEnumerator() {
@@ -152,12 +165,23 @@ bool MockEvsHal::buildCameraMetadata(int32_t width, int32_t height, int32_t form
     return true;
 }
 
-void MockEvsHal::forwardFrames(size_t numberOfFramesToForward) {
-    for (size_t count = 0; count < numberOfFramesToForward; ++count) {
-        std::unique_lock lock(mLock);
+void MockEvsHal::forwardFrames(size_t numberOfFramesToForward, const std::string& deviceId) {
+    std::unique_lock l(mLock);
+    ::android::base::ScopedLockAssertion lock_assertion(mLock);
+    auto it = mStreamState.find(deviceId);
+    if (it != mStreamState.end() && it->second != StreamState::kStopped) {
+        LOG(WARNING) << "A mock video stream is already active.";
+        return;
+    }
+    mStreamState.insert_or_assign(deviceId, StreamState::kRunning);
+
+    for (size_t count = 0;
+         mStreamState[deviceId] == StreamState::kRunning && count < numberOfFramesToForward;
+         ++count) {
         if (mBufferPool.empty()) {
-            if (!mBufferAvailableSignal.wait_for(lock, /* rel_time= */ 10s, [this]() {
+            if (!mBufferAvailableSignal.wait_for(l, /* rel_time= */ 10s, [this]() {
                     // Waiting for a buffer to use.
+                    ::android::base::ScopedLockAssertion lock_assertion(mLock);
                     return !mBufferPool.empty();
                 })) {
                 LOG(ERROR) << "Buffer timeout; " << count << "/" << numberOfFramesToForward
@@ -166,7 +190,8 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward) {
             }
         }
 
-        if (!mCameraClient) {
+        auto it = mCameraClient.find(deviceId);
+        if (it == mCameraClient.end() || it->second == nullptr) {
             LOG(ERROR) << "Failed to forward a frame as no active recipient exists; " << count
                        << "/" << numberOfFramesToForward << " are sent.";
             break;
@@ -177,19 +202,33 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward) {
         mBufferPool.pop_back();
 
         BufferDesc bufferToForward = copyBufferDesc(bufferToUse, /* doDup= */ true);
+        bufferToForward.timestamp = static_cast<int64_t>(::android::elapsedRealtimeNano() * 1e+3);
+        bufferToForward.deviceId = deviceId;
 
         // Mark a buffer in-use.
         mBuffersInUse.push_back(std::move(bufferToUse));
+        l.unlock();
 
-        // Forward a duplicated buffer.
+        // Forward a duplicated buffer.  This must be done without a lock
+        // because a shared data will be modified in doneWithFrame().
         std::vector<BufferDesc> packet;
         packet.push_back(std::move(bufferToForward));
-        mCameraClient->deliverFrame(packet);
-        LOG(DEBUG) << count << "/" << numberOfFramesToForward << " frames are sent.";
+        it->second->deliverFrame(packet);
+
+        LOG(ERROR) << deviceId << ": " << (count + 1) << "/" << numberOfFramesToForward
+                   << " frames are sent";
+        std::this_thread::sleep_for(33ms);  // 30 frames per seconds
+        l.lock();
+    }
+
+    if (mStreamState.find(deviceId) != mStreamState.end()) {
+        mStreamState[deviceId] = StreamState::kStopped;
+
     }
 }
 
 size_t MockEvsHal::initializeBufferPool(size_t requested) {
+    std::lock_guard lock(mLock);
     for (auto count = 0; count < requested; ++count) {
         AHardwareBuffer_Desc desc = {
                 .width = 64,
@@ -230,7 +269,7 @@ size_t MockEvsHal::initializeBufferPool(size_t requested) {
     return mBufferPool.size();
 }
 
-void MockEvsHal::deinitializeBufferPool() {
+void MockEvsHal::deinitializeBufferPoolLocked() {
     for (auto&& descriptor : mBuffersInUse) {
         auto it = mBufferRecord.find(descriptor.bufferId);
         if (it == mBufferRecord.end()) {
@@ -256,9 +295,6 @@ void MockEvsHal::deinitializeBufferPool() {
 }
 
 void MockEvsHal::configureCameras(size_t n) {
-    // Builds mock IEvsCamera instances
-    std::vector<std::shared_ptr<NiceMockEvsCamera>> cameras(n);
-
     // Initializes a list of the camera parameters each mock camera
     // supports with their default values.
     mCameraParams = {{CameraParam::BRIGHTNESS, 80},
@@ -267,258 +303,333 @@ void MockEvsHal::configureCameras(size_t n) {
                      {CameraParam::AUTO_EXPOSURE, 1}};
 
     for (auto i = 0; i < n; ++i) {
-        std::shared_ptr<NiceMockEvsCamera> mockCamera =
-                ndk::SharedRefBase::make<NiceMockEvsCamera>();
+        (void)addMockCameraDevice(kMockCameraDeviceNamePrefix + std::to_string(i));
+    }
+}
 
-        // For the testing purpose, this method will return
-        // EvsResult::INVALID_ARG if the client returns any buffer with
-        // unknown identifier.
-        ON_CALL(*mockCamera, doneWithFrame)
-                .WillByDefault([this](const std::vector<BufferDesc>& buffers) {
-                    bool success = true;
-                    for (auto& b : buffers) {
-                        auto it = std::find_if(mBuffersInUse.begin(), mBuffersInUse.end(),
-                                               [id = b.bufferId](const BufferDesc& desc) {
-                                                   return id == desc.bufferId;
-                                               });
-                        if (it == mBuffersInUse.end()) {
-                            success = false;
-                            continue;
-                        }
+bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
+    std::shared_ptr<NiceMockEvsCamera> mockCamera =
+            ndk::SharedRefBase::make<NiceMockEvsCamera>(deviceId);
 
-                        mBufferPool.push_back(std::move(*it));
-                        mBuffersInUse.erase(it);
+    // For the testing purpose, this method will return
+    // EvsResult::INVALID_ARG if the client returns any buffer with
+    // unknown identifier.
+    ON_CALL(*mockCamera, doneWithFrame)
+            .WillByDefault([this](const std::vector<BufferDesc>& buffers) {
+                size_t returned = 0;
+                std::lock_guard lock(mLock);
+                for (auto& b : buffers) {
+                    auto it = std::find_if(mBuffersInUse.begin(), mBuffersInUse.end(),
+                                           [id = b.bufferId](const BufferDesc& desc) {
+                                               return id == desc.bufferId;
+                                           });
+                    if (it == mBuffersInUse.end()) {
+                        continue;
                     }
 
-                    if (success) {
-                        mBufferAvailableSignal.notify_all();
-                        return ndk::ScopedAStatus::ok();
-                    } else {
-                        return ndk::ScopedAStatus::fromServiceSpecificError(
-                                static_cast<int>(EvsResult::INVALID_ARG));
-                    }
-                });
+                    ++returned;
+                    mBufferPool.push_back(std::move(*it));
+                    mBuffersInUse.erase(it);
+                }
 
-        // EVS HAL aceepts only a single client; therefore, this method
-        // returns a success always.
-        ON_CALL(*mockCamera, forcePrimaryClient)
-                .WillByDefault([](const std::shared_ptr<IEvsDisplay>&) {
+                if (returned > 0) {
+                    mBufferAvailableSignal.notify_all();
                     return ndk::ScopedAStatus::ok();
-                });
+                } else {
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
+            });
 
-        // We return a mock camera descriptor with the metadata but empty vendor
-        // flag.
-        ON_CALL(*mockCamera, getCameraInfo).WillByDefault([i, this](CameraDesc* desc) {
-            CameraDesc mockDesc = {
-                    .id = kMockCameraDeviceNamePrefix + std::to_string(i),
-                    .vendorFlags = 0x0,
-            };
+    // EVS HAL accepts only a single client; therefore, this method
+    // returns a success always.
+    ON_CALL(*mockCamera, forcePrimaryClient).WillByDefault([](const std::shared_ptr<IEvsDisplay>&) {
+        return ndk::ScopedAStatus::ok();
+    });
 
-            if (!buildCameraMetadata(/* width= */ 640, /* height= */ 480,
-                                     /* format= */ HAL_PIXEL_FORMAT_RGBA_8888,
-                                     &mockDesc.metadata)) {
-                return ndk::ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
-            }
+    // We return a mock camera descriptor with the metadata but empty vendor
+    // flag.
+    ON_CALL(*mockCamera, getCameraInfo).WillByDefault([deviceId, this](CameraDesc* desc) {
+        CameraDesc mockDesc = {
+                .id = deviceId,
+                .vendorFlags = 0x0,
+        };
 
-            *desc = std::move(mockDesc);
-            return ndk::ScopedAStatus::ok();
-        });
+        if (!buildCameraMetadata(/* width= */ 640, /* height= */ 480,
+                                 /* format= */ HAL_PIXEL_FORMAT_RGBA_8888, &mockDesc.metadata)) {
+            return ndk::ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
 
-        // This method will return a value associated with a given
-        // identifier if exists.
-        ON_CALL(*mockCamera, getExtendedInfo)
-                .WillByDefault([this](int32_t id, std::vector<uint8_t>* v) {
-                    auto it = mCameraExtendedInfo.find(id);
-                    if (it == mCameraExtendedInfo.end()) {
-                        // A requested information does not exist.
-                        return ndk::ScopedAStatus::fromServiceSpecificError(
-                                static_cast<int>(EvsResult::INVALID_ARG));
-                    }
+        *desc = std::move(mockDesc);
+        return ndk::ScopedAStatus::ok();
+    });
 
-                    *v = it->second;
-                    return ndk::ScopedAStatus::ok();
-                });
+    // This method will return a value associated with a given
+    // identifier if exists.
+    ON_CALL(*mockCamera, getExtendedInfo)
+            .WillByDefault([this](int32_t id, std::vector<uint8_t>* v) {
+                auto it = mCameraExtendedInfo.find(id);
+                if (it == mCameraExtendedInfo.end()) {
+                    // A requested information does not exist.
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
 
-        // This method will return a value of a requested camera parameter
-        // if it is supported by a mock EVS camera.
-        ON_CALL(*mockCamera, getIntParameter)
-                .WillByDefault([this](CameraParam id, std::vector<int32_t>* v) {
-                    auto it = mCameraParams.find(id);
-                    if (it == mCameraParams.end()) {
-                        return ndk::ScopedAStatus::fromServiceSpecificError(
-                                static_cast<int>(EvsResult::INVALID_ARG));
-                    }
+                *v = it->second;
+                return ndk::ScopedAStatus::ok();
+            });
 
-                    // EVS HAL always returns a single integer value.
-                    v->push_back(it->second);
-                    return ndk::ScopedAStatus::ok();
-                });
+    // This method will return a value of a requested camera parameter
+    // if it is supported by a mock EVS camera.
+    ON_CALL(*mockCamera, getIntParameter)
+            .WillByDefault([this](CameraParam id, std::vector<int32_t>* v) {
+                auto it = mCameraParams.find(id);
+                if (it == mCameraParams.end()) {
+                    LOG(ERROR) << "Ignore a request to read an unsupported parameter, " << (int)id;
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
 
-        // This method returns the same range values if a requested camera
-        // parameter is supported by a mock EVS camera.
-        ON_CALL(*mockCamera, getIntParameterRange)
-                .WillByDefault([this](CameraParam id, ParameterRange* range) {
-                    auto it = mCameraParams.find(id);
-                    if (it == mCameraParams.end()) {
-                        return ndk::ScopedAStatus::fromServiceSpecificError(
-                                static_cast<int>(EvsResult::INVALID_ARG));
-                    }
+                // EVS HAL always returns a single integer value.
+                v->push_back(it->second);
+                return ndk::ScopedAStatus::ok();
+            });
 
-                    // For the testing purpose, this mock EVS HAL always returns the
-                    // same values.
-                    range->min = kCameraParamDefaultMinValue;
-                    range->max = kCameraParamDefaultMaxValue;
-                    range->step = kCameraParamDefaultStepValue;
-                    return ndk::ScopedAStatus::ok();
-                });
+    // This method returns the same range values if a requested camera
+    // parameter is supported by a mock EVS camera.
+    ON_CALL(*mockCamera, getIntParameterRange)
+            .WillByDefault([this](CameraParam id, ParameterRange* range) {
+                auto it = mCameraParams.find(id);
+                if (it == mCameraParams.end()) {
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
 
-        // This method returns a list of camera parameters supported by a
-        // mock EVS camera.
-        ON_CALL(*mockCamera, getParameterList)
-                .WillByDefault([this](std::vector<CameraParam>* list) {
-                    for (auto& [k, _] : mCameraParams) {
-                        list->push_back(k);
-                    }
-                    return ndk::ScopedAStatus::ok();
-                });
+                // For the testing purpose, this mock EVS HAL always returns the
+                // same values.
+                range->min = kCameraParamDefaultMinValue;
+                range->max = kCameraParamDefaultMaxValue;
+                range->step = kCameraParamDefaultStepValue;
+                return ndk::ScopedAStatus::ok();
+            });
 
-        // This method behaves exactly the same as getCameraInfo() because
-        // the EVS HAL does not support a concept of the group (or logical)
-        // camera.
-        ON_CALL(*mockCamera, getPhysicalCameraInfo)
-                .WillByDefault([&](const std::string&, CameraDesc* desc) {
-                    CameraDesc mockDesc = {
-                            .id = kMockCameraDeviceNamePrefix + std::to_string(i),
-                            .vendorFlags = 0x0,
-                            .metadata = {},
-                    };
+    // This method returns a list of camera parameters supported by a
+    // mock EVS camera.
+    ON_CALL(*mockCamera, getParameterList).WillByDefault([this](std::vector<CameraParam>* list) {
+        for (auto& [k, _] : mCameraParams) {
+            list->push_back(k);
+        }
+        return ndk::ScopedAStatus::ok();
+    });
 
-                    *desc = std::move(mockDesc);
-                    return ndk::ScopedAStatus::ok();
-                });
-
-        // This method adds given buffer descriptors to the internal buffer
-        // pool if their identifiers do not conflict to existing ones.
-        ON_CALL(*mockCamera, importExternalBuffers)
-                .WillByDefault([this](const std::vector<BufferDesc>& buffers, int32_t* num) {
-                    for (auto i = 0; i < buffers.size(); ++i) {
-                        auto it = std::find_if(mBufferPool.begin(), mBufferPool.end(),
-                                               [&](const BufferDesc& b) {
-                                                   return b.bufferId == buffers[i].bufferId;
-                                               });
-                        if (it != mBufferPool.end()) {
-                            // Ignores external buffers with a conflicting
-                            // identifier.
-                            continue;
-                        }
-
-                        // TODO(b/235110887): Explicitly copies external buffers
-                        //                    stores them in mBufferPool.
-                    }
-
-                    *num = mBufferPool.size();
-                    return ndk::ScopedAStatus::ok();
-                });
-
-        ON_CALL(*mockCamera, pauseVideoStream).WillByDefault([]() {
-            return ndk::ScopedAStatus::ok();
-        });
-
-        ON_CALL(*mockCamera, resumeVideoStream).WillByDefault([]() {
-            return ndk::ScopedAStatus::ok();
-        });
-
-        // This method stores a given vector with id.
-        ON_CALL(*mockCamera, setExtendedInfo)
-                .WillByDefault([this](int32_t id, const std::vector<uint8_t>& v) {
-                    mCameraExtendedInfo.insert_or_assign(id, v);
-                    return ndk::ScopedAStatus::ok();
-                });
-
-        // This method updates a parameter value if exists.
-        ON_CALL(*mockCamera, setIntParameter)
-                .WillByDefault([this](CameraParam id, int32_t in, std::vector<int32_t>* out) {
-                    auto it = mCameraParams.find(id);
-                    if (it == mCameraParams.end()) {
-                        return ndk::ScopedAStatus::fromServiceSpecificError(
-                                static_cast<int>(EvsResult::INVALID_ARG));
-                    }
-
-                    in = in > kCameraParamDefaultMaxValue      ? kCameraParamDefaultMaxValue
-                            : in < kCameraParamDefaultMinValue ? kCameraParamDefaultMinValue
-                                                               : in;
-                    mCameraParams.insert_or_assign(id, in);
-                    out->push_back(in);
-
-                    return ndk::ScopedAStatus::ok();
-                });
-
-        // We always return a success because EVS HAL does not allow
-        // multiple camera clients exist.
-        ON_CALL(*mockCamera, setPrimaryClient).WillByDefault([]() {
-            return ndk::ScopedAStatus::ok();
-        });
-
-        // Because EVS HAL does allow multiple camera clients exist, we simply
-        // set the size of the buffer pool.
-        ON_CALL(*mockCamera, setMaxFramesInFlight).WillByDefault([this](int32_t bufferCount) {
-            size_t newSize = mBufferPoolSize + bufferCount;
-            if (newSize < kMinimumNumBuffers) {
-                return ndk::ScopedAStatus::fromServiceSpecificError(
-                        static_cast<int>(EvsResult::INVALID_ARG));
-            }
-
-            mBufferPoolSize = newSize;
-            return ndk::ScopedAStatus::ok();
-        });
-
-        // We manage the camera ownership on recency-basis; therefore we simply
-        // replace the client in this method.
-        ON_CALL(*mockCamera, startVideoStream)
-                .WillByDefault([this](const std::shared_ptr<IEvsCameraStream>& cb) {
-                    // TODO(b/235110887): Notifies a camera loss to the current
-                    //                    client.
-                    {
-                        std::lock_guard l(mLock);
-                        mCameraClient = cb;
-                    }
-
-                    std::packaged_task<void(MockEvsHal*, size_t)> task(&MockEvsHal::forwardFrames);
-                    std::thread t(std::move(task), this, /* numberOfFramesForward= */ 5);
-                    t.detach();
-
-                    return ndk::ScopedAStatus::ok();
-                });
-
-        // We simply drop a current client.
-        ON_CALL(*mockCamera, stopVideoStream).WillByDefault([this]() {
-            std::shared_ptr<aidlevs::IEvsCameraStream> cb;
-            {
-                std::lock_guard l(mLock);
-                cb = mCameraClient;
-                mCameraClient = nullptr;
-            }
-
-            if (cb) {
-                EvsEventDesc e = {
-                        .aType = EvsEventType::STREAM_STOPPED,
+    // This method behaves exactly the same as getCameraInfo() because
+    // the EVS HAL does not support a concept of the group (or logical)
+    // camera.
+    ON_CALL(*mockCamera, getPhysicalCameraInfo)
+            .WillByDefault([deviceId](const std::string&, CameraDesc* desc) {
+                CameraDesc mockDesc = {
+                        .id = deviceId,
+                        .vendorFlags = 0x0,
+                        .metadata = {},
                 };
-                cb->notify(e);
+
+                *desc = std::move(mockDesc);
+                return ndk::ScopedAStatus::ok();
+            });
+
+    // This method adds given buffer descriptors to the internal buffer
+    // pool if their identifiers do not conflict to existing ones.
+    ON_CALL(*mockCamera, importExternalBuffers)
+            .WillByDefault([this](const std::vector<BufferDesc>& buffers, int32_t* num) {
+                std::lock_guard l(mLock);
+                for (auto i = 0; i < buffers.size(); ++i) {
+                    auto it = std::find_if(mBufferPool.begin(), mBufferPool.end(),
+                                           [&](const BufferDesc& b) {
+                                               return b.bufferId == buffers[i].bufferId;
+                                           });
+                    if (it != mBufferPool.end()) {
+                        // Ignores external buffers with a conflicting
+                        // identifier.
+                        continue;
+                    }
+
+                    // TODO(b/235110887): Explicitly copies external buffers
+                    //                    stores them in mBufferPool.
+                }
+
+                *num = mBufferPool.size();
+                return ndk::ScopedAStatus::ok();
+            });
+
+    ON_CALL(*mockCamera, pauseVideoStream).WillByDefault([]() { return ndk::ScopedAStatus::ok(); });
+
+    ON_CALL(*mockCamera, resumeVideoStream).WillByDefault([]() {
+        return ndk::ScopedAStatus::ok();
+    });
+
+    // This method stores a given vector with id.
+    ON_CALL(*mockCamera, setExtendedInfo)
+            .WillByDefault([this](int32_t id, const std::vector<uint8_t>& v) {
+                mCameraExtendedInfo.insert_or_assign(id, v);
+                return ndk::ScopedAStatus::ok();
+            });
+
+    // This method updates a parameter value if exists.
+    ON_CALL(*mockCamera, setIntParameter)
+            .WillByDefault([this](CameraParam id, int32_t in, std::vector<int32_t>* out) {
+                auto it = mCameraParams.find(id);
+                if (it == mCameraParams.end()) {
+                    LOG(ERROR) << "Ignore a request to program an unsupported parameter, "
+                               << (int)id;
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
+
+                in = in > kCameraParamDefaultMaxValue      ? kCameraParamDefaultMaxValue
+                        : in < kCameraParamDefaultMinValue ? kCameraParamDefaultMinValue
+                                                           : in;
+                mCameraParams.insert_or_assign(id, in);
+                out->push_back(in);
+
+                return ndk::ScopedAStatus::ok();
+            });
+
+    // We always return a success because EVS HAL does not allow
+    // multiple camera clients exist.
+    ON_CALL(*mockCamera, setPrimaryClient).WillByDefault([]() { return ndk::ScopedAStatus::ok(); });
+
+    // Because EVS HAL does allow multiple camera clients exist, we simply
+    // set the size of the buffer pool.
+    ON_CALL(*mockCamera, setMaxFramesInFlight)
+            .WillByDefault([this, id = mockCamera->getId()](int32_t bufferCount) {
+                std::lock_guard l(mLock);
+                size_t totalSize = mBufferPoolSize + bufferCount;
+                if (totalSize < kMinimumNumBuffers) {
+                    LOG(WARNING) << "Requested buffer pool size is too small to run a camera; "
+                                    "adjusting the pool size to "
+                                 << kMinimumNumBuffers;
+                    totalSize = kMinimumNumBuffers;
+                } else if (totalSize > kMaximumNumBuffers) {
+                    LOG(ERROR) << "Requested size, " << totalSize << ", exceeds the limitation.";
+                    return ndk::ScopedAStatus::fromServiceSpecificError(
+                            static_cast<int>(EvsResult::INVALID_ARG));
+                }
+
+                mBufferPoolSize = totalSize;
+                auto it = mCameraBufferPoolSize.find(id);
+                if (it != mCameraBufferPoolSize.end()) {
+                    bufferCount += it->second;
+                }
+                mCameraBufferPoolSize.insert_or_assign(id, bufferCount);
+                return ndk::ScopedAStatus::ok();
+            });
+
+    // We manage the camera ownership on recency-basis; therefore we simply
+    // replace the client in this method.
+    ON_CALL(*mockCamera, startVideoStream)
+            .WillByDefault(
+                    [this, id = mockCamera->getId()](const std::shared_ptr<IEvsCameraStream>& cb) {
+                        // TODO(b/235110887): Notifies a camera loss to the current
+                        //                    client.
+                        size_t n = 0;
+                        {
+                            std::lock_guard l(mLock);
+                            mCameraClient.insert_or_assign(id, cb);
+                            n = mNumberOfFramesToSend;
+                        }
+
+                        std::packaged_task<void(MockEvsHal*, size_t, const std::string&)> task(
+                                &MockEvsHal::forwardFrames);
+                        std::thread t(std::move(task), this, /* numberOfFramesForward= */ n, id);
+                        std::lock_guard l(mLock);
+                        mCameraFrameThread.insert_or_assign(id, std::move(t));
+
+                        return ndk::ScopedAStatus::ok();
+                    });
+
+    // We simply drop a current client.
+    ON_CALL(*mockCamera, stopVideoStream).WillByDefault([this, id = mockCamera->getId()]() {
+        std::shared_ptr<aidlevs::IEvsCameraStream> cb;
+        std::thread threadToJoin;
+        {
+            std::lock_guard l(mLock);
+            auto state = mStreamState.find(id);
+            if (state == mStreamState.end() || state->second != StreamState::kRunning) {
+                return ndk::ScopedAStatus::ok();
             }
-            return ndk::ScopedAStatus::ok();
-        });
 
-        // We don't take any action because EVS HAL allows only a single camera
-        // client exists at a time.
-        ON_CALL(*mockCamera, unsetPrimaryClient).WillByDefault([]() {
-            return ndk::ScopedAStatus::ok();
-        });
+            auto callback = mCameraClient.find(id);
+            if (callback == mCameraClient.end()) {
+                return ndk::ScopedAStatus::ok();
+            }
 
-        cameras[i] = std::move(mockCamera);
+            cb = callback->second;
+            callback->second = nullptr;
+            state->second = StreamState::kStopping;
+
+            auto it = mCameraFrameThread.find(id);
+            if (it == mCameraFrameThread.end() || !it->second.joinable()) {
+                return ndk::ScopedAStatus::ok();
+            }
+
+            threadToJoin = std::move(it->second);
+            mCameraFrameThread.erase(it);
+        }
+
+        if (cb) {
+            EvsEventDesc e = {
+                    .deviceId = id,
+                    .aType = EvsEventType::STREAM_STOPPED,
+            };
+            cb->notify(e);
+        }
+
+        // Join a frame-forward thread
+        threadToJoin.join();
+        return ndk::ScopedAStatus::ok();
+    });
+
+    // We don't take any action because EVS HAL allows only a single camera
+    // client exists at a time.
+    ON_CALL(*mockCamera, unsetPrimaryClient).WillByDefault([]() {
+        return ndk::ScopedAStatus::ok();
+    });
+
+    std::lock_guard l(mLock);
+    mMockEvsCameras.push_back(std::move(mockCamera));
+    mMockDeviceStatus.insert_or_assign(deviceId, DeviceStatusType::CAMERA_AVAILABLE);
+
+    std::vector<DeviceStatus> msg(1);
+    msg[0] = {
+            .id = deviceId,
+            .status = DeviceStatusType::CAMERA_AVAILABLE,
+    };
+    for (auto callback : mDeviceStatusCallbacks) {
+        callback->deviceStatusChanged(msg);
     }
 
-    mMockEvsCameras = std::move(cameras);
+    return true;
+}
+
+void MockEvsHal::removeMockCameraDevice(const std::string& deviceId) {
+    std::lock_guard l(mLock);
+    auto it = mMockDeviceStatus.find(deviceId);
+    if (it == mMockDeviceStatus.end()) {
+        // Nothing to do.
+        return;
+    }
+
+    mMockDeviceStatus[deviceId] = DeviceStatusType::CAMERA_NOT_AVAILABLE;
+
+    std::vector<DeviceStatus> msg(1);
+    msg[0] = {
+            .id = deviceId,
+            .status = DeviceStatusType::CAMERA_NOT_AVAILABLE,
+    };
+    for (auto callback : mDeviceStatusCallbacks) {
+        callback->deviceStatusChanged(msg);
+    }
 }
 
 void MockEvsHal::configureDisplays(size_t n) {
@@ -526,57 +637,119 @@ void MockEvsHal::configureDisplays(size_t n) {
     std::vector<std::shared_ptr<NiceMockEvsDisplay>> displays(n);
 
     for (auto i = 0; i < n; ++i) {
-        std::shared_ptr<NiceMockEvsDisplay> mockDisplay =
-                ndk::SharedRefBase::make<NiceMockEvsDisplay>();
+        (void)addMockDisplayDevice(i);
+    }
+}
 
-        ON_CALL(*mockDisplay, getDisplayInfo).WillByDefault([i](DisplayDesc* out) {
-            DisplayDesc desc = {
-                    .width = 1920,
-                    .height = 1080,
-                    .orientation = Rotation::ROTATION_0,
-                    .id = "MockDisplay" + std::to_string(i),
-                    .vendorFlags = i,  // For the testing purpose, we put a display id in the vendor
-                                       // flag field.
-            };
-            *out = std::move(desc);
-            return ndk::ScopedAStatus::ok();
-        });
+bool MockEvsHal::addMockDisplayDevice(int id) {
+    std::shared_ptr<NiceMockEvsDisplay> mockDisplay =
+            ndk::SharedRefBase::make<NiceMockEvsDisplay>();
 
-        ON_CALL(*mockDisplay, getDisplayState).WillByDefault([this](DisplayState* out) {
-            *out = mCurrentDisplayState;
-            return ndk::ScopedAStatus::ok();
-        });
+    ON_CALL(*mockDisplay, getDisplayInfo).WillByDefault([id](DisplayDesc* out) {
+        DisplayDesc desc = {
+                .width = 1920,
+                .height = 1080,
+                .orientation = Rotation::ROTATION_0,
+                .id = "MockDisplay" + std::to_string(id),
+                .vendorFlags = id,  // For the testing purpose, we put a display id in the vendor
+                                    // flag field.
+        };
+        *out = std::move(desc);
+        return ndk::ScopedAStatus::ok();
+    });
 
-        ON_CALL(*mockDisplay, getTargetBuffer).WillByDefault([](BufferDesc* out) {
-            (void)out;
-            return ndk::ScopedAStatus::ok();
-        });
+    ON_CALL(*mockDisplay, getDisplayState).WillByDefault([this](DisplayState* out) {
+        *out = mCurrentDisplayState;
+        return ndk::ScopedAStatus::ok();
+    });
 
-        ON_CALL(*mockDisplay, returnTargetBufferForDisplay).WillByDefault([](const BufferDesc& in) {
-            (void)in;
-            return ndk::ScopedAStatus::ok();
-        });
+    ON_CALL(*mockDisplay, getTargetBuffer).WillByDefault([](BufferDesc* out) {
+        (void)out;
+        return ndk::ScopedAStatus::ok();
+    });
 
-        ON_CALL(*mockDisplay, setDisplayState).WillByDefault([this](DisplayState in) {
-            mCurrentDisplayState = in;
-            return ndk::ScopedAStatus::ok();
-        });
+    ON_CALL(*mockDisplay, returnTargetBufferForDisplay).WillByDefault([](const BufferDesc& in) {
+        (void)in;
+        return ndk::ScopedAStatus::ok();
+    });
 
-        displays[i] = std::move(mockDisplay);
+    ON_CALL(*mockDisplay, setDisplayState).WillByDefault([this](DisplayState in) {
+        mCurrentDisplayState = in;
+        return ndk::ScopedAStatus::ok();
+    });
+
+    std::lock_guard l(mLock);
+    mMockEvsDisplays.push_back(std::move(mockDisplay));
+    mMockDeviceStatus.insert_or_assign(std::to_string(id), DeviceStatusType::DISPLAY_AVAILABLE);
+
+    std::vector<DeviceStatus> msg(1);
+    msg[0] = {
+            .id = std::to_string(id),
+            .status = DeviceStatusType::DISPLAY_AVAILABLE,
+    };
+    for (auto callback : mDeviceStatusCallbacks) {
+        callback->deviceStatusChanged(msg);
     }
 
-    mMockEvsDisplays = std::move(displays);
+    return true;
+}
+
+void MockEvsHal::removeMockDisplayDevice(int id) {
+    std::lock_guard l(mLock);
+    auto key = std::to_string(id);
+    auto it = mMockDeviceStatus.find(key);
+    if (it == mMockDeviceStatus.end()) {
+        // Nothing to do.
+        return;
+    }
+
+    mMockDeviceStatus[key] = DeviceStatusType::DISPLAY_NOT_AVAILABLE;
+
+    std::vector<DeviceStatus> msg(1);
+    msg[0] = {
+            .id = key,
+            .status = DeviceStatusType::DISPLAY_NOT_AVAILABLE,
+    };
+    for (auto callback : mDeviceStatusCallbacks) {
+        callback->deviceStatusChanged(msg);
+    }
+}
+
+size_t MockEvsHal::setNumberOfFramesToSend(size_t n) {
+    std::lock_guard l(mLock);
+    return mNumberOfFramesToSend = n;
 }
 
 void MockEvsHal::configureEnumerator() {
     std::shared_ptr<NiceMockEvsEnumerator> mockEnumerator =
             ndk::SharedRefBase::make<NiceMockEvsEnumerator>();
 
-    ON_CALL(*mockEnumerator, closeCamera).WillByDefault([](const std::shared_ptr<IEvsCamera>&) {
-        // Mock EVS HAL always returns a success because it safely
-        // ignores a request to close unknown cameras.
-        return ndk::ScopedAStatus::ok();
-    });
+    ON_CALL(*mockEnumerator, closeCamera)
+            .WillByDefault([this](const std::shared_ptr<IEvsCamera>& c) {
+                CameraDesc desc;
+                if (!c->getCameraInfo(&desc).isOk()) {
+                    // Safely ignore a request to close a camera if we fail to read a
+                    // camera descriptor.
+                    return ndk::ScopedAStatus::ok();
+                }
+
+                std::lock_guard l(mLock);
+                auto it = mCameraBufferPoolSize.find(desc.id);
+                if (it == mCameraBufferPoolSize.end()) {
+                    // Safely ignore a request if we fail to find a corresponding mock
+                    // camera.
+                    return ndk::ScopedAStatus::ok();
+                }
+
+                mBufferPoolSize -= it->second;
+                if (mBufferPoolSize < 0) {
+                    LOG(WARNING) << "mBuffeRPoolSize should not have a negative value, "
+                                 << mBufferPoolSize;
+                    mBufferPoolSize = 0;
+                }
+                mCameraBufferPoolSize.insert_or_assign(desc.id, 0);
+                return ndk::ScopedAStatus::ok();
+            });
 
     ON_CALL(*mockEnumerator, closeDisplay)
             .WillByDefault([this]([[maybe_unused]] const std::shared_ptr<IEvsDisplay>& displayObj) {
@@ -755,8 +928,13 @@ void MockEvsHal::configureEnumerator() {
             });
 
     ON_CALL(*mockEnumerator, registerStatusCallback)
-            .WillByDefault([](const std::shared_ptr<IEvsEnumeratorStatusCallback>& cb) {
-                (void)cb;
+            .WillByDefault([this](const std::shared_ptr<IEvsEnumeratorStatusCallback>& cb) {
+                if (!cb) {
+                    return ndk::ScopedAStatus::ok();
+                }
+
+                std::lock_guard l(mLock);
+                mDeviceStatusCallbacks.insert(cb);
                 return ndk::ScopedAStatus::ok();
             });
 
