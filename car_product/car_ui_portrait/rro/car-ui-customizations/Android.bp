@@ -22,6 +22,8 @@ runtime_resource_overlay {
     resource_dirs: ["res"],
     static_libs: [
         "car-portrait-ui-common",
+        "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
     ],
 }
 
