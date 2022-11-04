@@ -256,9 +256,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     @Test
     public void testGetMixTypeProperty() {
         mManager.setProperty(Object[].class, CUSTOM_SEAT_MIXED_PROP_ID_1,
-                0, EXPECTED_VALUE_1);
+                DRIVER_SIDE_AREA_ID, EXPECTED_VALUE_1);
         CarPropertyValue<Object[]> result = mManager.getProperty(
-                CUSTOM_SEAT_MIXED_PROP_ID_1, 0);
+                CUSTOM_SEAT_MIXED_PROP_ID_1, DRIVER_SIDE_AREA_ID);
         assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_1);
 
         mManager.setProperty(Object[].class, CUSTOM_GLOBAL_MIXED_PROP_ID_2,
@@ -279,11 +279,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      */
     @Test
     public void testGetIntArrayProperty() {
-        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL,
+        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, 0,
                 FAKE_INT_ARRAY_VALUE);
 
-        int[] result = mManager.getIntArrayProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP,
-                VehicleArea.GLOBAL);
+        int[] result = mManager.getIntArrayProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, 0);
         assertThat(result).asList().containsExactlyElementsIn(FAKE_INT_ARRAY_VALUE);
     }
 
@@ -296,10 +295,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isGreaterThan(Build.VERSION_CODES.R);
         mManager.setProperty(Integer[].class, INT_ARRAY_PROP_STATUS_ERROR,
-                VehicleArea.GLOBAL, FAKE_INT_ARRAY_VALUE);
+                0, FAKE_INT_ARRAY_VALUE);
         assertThrows(CarInternalErrorException.class,
                 () -> mManager.getIntArrayProperty(INT_ARRAY_PROP_STATUS_ERROR,
-                        VehicleArea.GLOBAL));
+                        0));
     }
 
     /**
@@ -311,9 +310,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isGreaterThan(Build.VERSION_CODES.R);
         mManager.setProperty(Integer.class, INT_PROP_STATUS_UNAVAILABLE,
-                VehicleArea.GLOBAL, FAKE_INT_PROPERTY_VALUE);
+                0, FAKE_INT_PROPERTY_VALUE);
         assertThrows(PropertyNotAvailableException.class,
-                () -> mManager.getIntProperty(INT_PROP_STATUS_UNAVAILABLE, VehicleArea.GLOBAL));
+                () -> mManager.getIntProperty(INT_PROP_STATUS_UNAVAILABLE, 0));
 
     }
 
@@ -326,9 +325,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isGreaterThan(Build.VERSION_CODES.R);
         mManager.setProperty(Boolean.class, BOOLEAN_PROP_STATUS_ERROR,
-                VehicleArea.GLOBAL, FAKE_BOOLEAN_PROPERTY_VALUE);
+                0, FAKE_BOOLEAN_PROPERTY_VALUE);
         assertThrows(CarInternalErrorException.class,
-                () -> mManager.getBooleanProperty(BOOLEAN_PROP_STATUS_ERROR, VehicleArea.GLOBAL));
+                () -> mManager.getBooleanProperty(BOOLEAN_PROP_STATUS_ERROR, 0));
     }
 
     /**
@@ -340,9 +339,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isGreaterThan(Build.VERSION_CODES.R);
         mManager.setProperty(Float.class, FLOAT_PROP_STATUS_UNAVAILABLE,
-                VehicleArea.GLOBAL, FAKE_FLOAT_PROPERTY_VALUE);
+                0, FAKE_FLOAT_PROPERTY_VALUE);
         assertThrows(PropertyNotAvailableException.class,
-                () -> mManager.getFloatProperty(FLOAT_PROP_STATUS_UNAVAILABLE, VehicleArea.GLOBAL));
+                () -> mManager.getFloatProperty(FLOAT_PROP_STATUS_UNAVAILABLE, 0));
     }
 
     /**
@@ -350,11 +349,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      */
     @Test
     public void testGetPropertyWithClass() {
-        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL,
+        mManager.setProperty(Integer[].class, CUSTOM_GLOBAL_INT_ARRAY_PROP, 0,
                 FAKE_INT_ARRAY_VALUE);
 
         CarPropertyValue<Integer[]> result = mManager.getProperty(Integer[].class,
-                CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL);
+                CUSTOM_GLOBAL_INT_ARRAY_PROP, 0);
         assertThat(result.getValue()).asList().containsExactlyElementsIn(FAKE_INT_ARRAY_VALUE);
     }
 
@@ -363,8 +362,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      */
     @Test
     public void testIsPropertyAvailable() {
-        assertThat(mManager.isPropertyAvailable(FAKE_PROPERTY_ID, VehicleArea.GLOBAL)).isFalse();
-        assertThat(mManager.isPropertyAvailable(CUSTOM_GLOBAL_INT_ARRAY_PROP, VehicleArea.GLOBAL))
+        assertThat(mManager.isPropertyAvailable(CUSTOM_GLOBAL_INT_ARRAY_PROP, 0))
                 .isTrue();
     }
 

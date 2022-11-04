@@ -28,6 +28,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback;
 import android.car.hardware.hvac.CarHvacManager.PropertyId;
+import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleAreaWindow;
 import android.hardware.automotive.vehicle.VehiclePropValue;
@@ -79,6 +80,10 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 .setChangeMode(VehiclePropertyChangeMode.CONTINUOUS)
                 .setAccess(VehiclePropertyAccess.READ)
                 .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, 0, 0);
+        addAidlProperty(VehicleProperty.HVAC_AC_ON, AidlVehiclePropValueBuilder.newBuilder(
+                VehicleProperty.HVAC_AC_ON).setAreaId(VehicleAreaSeat.ROW_1_CENTER).setStatus(
+                StatusCode.NOT_AVAILABLE).setBooleanValue(true).build()).addAreaConfig(
+                VehicleAreaSeat.ROW_1_CENTER);
     }
 
     @Override
@@ -188,6 +193,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
 
         // Inject a boolean event and wait for its callback in onPropertySet.
         VehiclePropValue v = AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HVAC_DEFROSTER)
@@ -237,6 +243,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
         EventListener listener = new EventListener();
         mCarHvacManager.registerCallback(listener);
         // Wait for events generated on registration
+        assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));

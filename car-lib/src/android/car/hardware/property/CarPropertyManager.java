@@ -45,6 +45,7 @@ import android.util.SparseArray;
 import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -542,29 +543,24 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @param carPropertyEventCallback CarPropertyEventCallback to be registered.
      * @param propertyId               PropertyId to subscribe
-     * @param rate                     how fast the property events are delivered in Hz.
+     * @param updateRateHz             how fast the property events are delivered in Hz.
      * @return {@code true} if the listener is successfully registered.
      * @throws SecurityException if missing the appropriate permission.
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
-            int propertyId, @FloatRange(from = 0.0, to = 100.0) float rate) {
+            int propertyId, @FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
         requireNonNull(carPropertyEventCallback);
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
-        float updateRateHz = rate;
         if (carPropertyConfig == null) {
             Log.e(TAG, "registerListener:  propId is not in carPropertyConfig list:  "
                     + VehiclePropertyIds.toString(propertyId));
             return false;
         }
-        if (carPropertyConfig.getChangeMode()
-                != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
-            updateRateHz = SENSOR_RATE_ONCHANGE;
-        } else if (updateRateHz > carPropertyConfig.getMaxSampleRate()) {
-            updateRateHz = carPropertyConfig.getMaxSampleRate();
-        } else if (updateRateHz < carPropertyConfig.getMinSampleRate()) {
-            updateRateHz = carPropertyConfig.getMinSampleRate();
-        }
+
+        float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
+                updateRateHz);
+
         CarPropertyEventCallbackController carPropertyEventCallbackController;
         synchronized (mLock) {
             carPropertyEventCallbackController =
@@ -576,7 +572,8 @@ public class CarPropertyManager extends CarManagerBase {
                         carPropertyEventCallbackController);
             }
         }
-        return carPropertyEventCallbackController.add(carPropertyEventCallback, updateRateHz);
+        return carPropertyEventCallbackController.add(carPropertyEventCallback,
+                sanitizedUpdateRateHz);
     }
 
     private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
