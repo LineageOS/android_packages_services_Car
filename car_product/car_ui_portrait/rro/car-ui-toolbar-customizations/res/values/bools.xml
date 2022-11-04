@@ -15,14 +15,8 @@
   ~ limitations under the License.
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="will.be.replaced">
-    <application android:hasCode="false"/>
-    <overlay android:priority="10"
-             android:targetName="car-ui-lib"
-             android:targetPackage="will.be.replaced.too"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true"
-             android:requiredSystemPropertyName="ro.build.car_ui_rros_enabled"
-             android:requiredSystemPropertyValue="true"/>
-</manifest>
+<resources>
+
+    <bool name="car_ui_toolbar_tabs_on_second_row">true</bool>
+
+</resources>

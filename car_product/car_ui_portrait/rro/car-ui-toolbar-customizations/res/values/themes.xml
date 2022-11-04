@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,15 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<resources>
+    <style name="TextAppearance.CarUi.Widget" parent="android:TextAppearance.Material.Widget">
+        <item name="android:textAlignment">viewStart</item>
+    </style>
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="will.be.replaced">
-    <application android:hasCode="false"/>
-    <overlay android:priority="10"
-             android:targetName="car-ui-lib"
-             android:targetPackage="will.be.replaced.too"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true"
-             android:requiredSystemPropertyName="ro.build.car_ui_rros_enabled"
-             android:requiredSystemPropertyValue="true"/>
-</manifest>
+    <style name="TextAppearance.CarUi.Widget.Toolbar"/>
+
+    <style name="TextAppearance.CarUi.Widget.Toolbar.Title">
+    <item name="android:singleLine">true</item>
+    <item name="android:textSize">32sp</item>
+    </style>
+</resources>

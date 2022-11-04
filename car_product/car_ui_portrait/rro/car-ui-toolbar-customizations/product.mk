@@ -14,16 +14,12 @@
 # limitations under the License.
 #
 
-# All apps that should be included in CarUiPortrait builds
+# Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
+# Include generated RROs
 PRODUCT_PACKAGES += \
-    CarUiPortraitSettings \
-    CarUiPortraitSystemUI \
-    CarNotification \
-    car-ui-lib-diagnostic-plugin \
-    PaintBooth \
-    CarUiPortraitLauncher \
-    CarUiPortraitCommon
+    generated_caruiportrait_toolbar-com-android-car-media \
+    generated_caruiportrait_toolbar-com-android-car-dialer \
 
-# All apps to be excluded in car_ui_portrait builds should be specified as part of CarUiPortraitHideApps.
-PRODUCT_PACKAGES += \
-    CarUiPortraitHideApps
+# This system property is used to enable the RROs on startup via
+# the requiredSystemPropertyName/Value attributes in the manifest
+PRODUCT_PRODUCT_PROPERTIES += ro.build.car_ui_rros_enabled=true

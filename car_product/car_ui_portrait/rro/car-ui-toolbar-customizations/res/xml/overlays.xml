@@ -15,51 +15,13 @@
   limitations under the License.
   -->
 <overlay>
-    <item target="layout/car_ui_alert_dialog_title_with_subtitle" value="@layout/car_ui_alert_dialog_title_with_subtitle"/>
-
-    <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
-    <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
-    <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
-
-    <item target="dimen/car_ui_body1_size" value="@dimen/car_ui_body1_size"/>
-    <item target="dimen/car_ui_body3_size" value="@dimen/car_ui_body3_size"/>
-    <item target="dimen/alert_dialog_margin" value="@dimen/alert_dialog_margin"/>
-    <item target="dimen/car_ui_header_list_item_text_start_margin" value="@dimen/car_ui_header_list_item_text_start_margin"/>
-    <item target="dimen/car_ui_preference_icon_size" value="@dimen/car_ui_preference_icon_size"/>
-
-    <item target="drawable/car_ui_recyclerview_ic_up" value="@drawable/car_ui_recyclerview_ic_up" />
-    <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />
-    <item target="drawable/car_ui_recyclerview_scrollbar_thumb" value="@drawable/car_ui_recyclerview_scrollbar_thumb" />
-    <item target="drawable/car_ui_activity_background" value="@drawable/car_ui_activity_background" />
-    <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background" />
-
-    <item target="color/car_ui_text_color_primary" value="@color/car_ui_text_color_primary" />
-    <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary" />
-    <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector" />
-
-    <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background" />
-    <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
-    <item target="drawable/car_ui_toolbar_menu_item_divider" value="@drawable/car_ui_toolbar_menu_item_divider" />
-    <item target="drawable/car_ui_toolbar_menu_item_icon_ripple" value="@drawable/car_ui_toolbar_menu_item_icon_ripple" />
-    <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
-    <item target="bool/car_ui_is_light_theme" value="@bool/car_ui_is_light_theme" />
-
-    <item target="style/TextAppearance_CarUi_AlertDialog_Title" value="@style/TextAppearance_CarUi_AlertDialog_Title" />
-    <item target="style/TextAppearance_CarUi_AlertDialog_Subtitle" value="@style/TextAppearance_CarUi_AlertDialog_Subtitle" />
-    <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle" />
-    <item target="style/TextAppearance.CarUi.PreferenceSummary" value="@style/TextAppearance.CarUi.PreferenceSummary" />
-    <item target="style/TextAppearance.CarUi.PreferenceTitle" value="@style/TextAppearance.CarUi.PreferenceTitle" />
-    <item target="style/TextAppearance.CarUi.Widget" value="@style/TextAppearance.CarUi.Widget" />
-    <item target="style/TextAppearance.CarUi.Widget.Toolbar" value="@style/TextAppearance.CarUi.Widget.Toolbar" />
-    <item target="style/TextAppearance.CarUi.Widget.Toolbar.Title" value="@style/TextAppearance.CarUi.Widget.Toolbar.Title" />
-
-    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
-
-    <!-- Toolbar -->
     <item target="layout/car_ui_base_layout_toolbar" value="@layout/car_ui_base_layout_toolbar"/>
+    <item target="layout/car_ui_toolbar_tab_item" value="@layout/car_ui_toolbar_tab_item"/>
 
     <item target="bool/car_ui_toolbar_logo_fills_nav_icon_space" value="@bool/car_ui_toolbar_logo_fills_nav_icon_space" />
     <item target="bool/car_ui_toolbar_tab_flexible_layout" value="@bool/car_ui_toolbar_tab_flexible_layout" />
+    <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
+    <item target="bool/car_ui_toolbar_tabs_on_second_row" value="@bool/car_ui_toolbar_tabs_on_second_row" />
 
     <item target="id/car_ui_toolbar_nav_icon_container" value="@id/car_ui_toolbar_nav_icon_container" />
     <item target="id/car_ui_toolbar_nav_icon" value="@id/car_ui_toolbar_nav_icon" />
@@ -74,6 +36,8 @@
     <item target="id/car_ui_toolbar_search_view_container" value="@id/car_ui_toolbar_search_view_container" />
     <item target="id/car_ui_toolbar_progress_bar" value="@id/car_ui_toolbar_progress_bar" />
     <item target="id/car_ui_base_layout_content_container" value="@id/car_ui_base_layout_content_container" />
+    <item target="id/car_ui_toolbar_tab_item_icon" value="@id/car_ui_toolbar_tab_item_icon" />
+    <item target="id/car_ui_toolbar_tab_item_text" value="@id/car_ui_toolbar_tab_item_text" />
 
     <item target="attr/layout_constraintGuide_begin" value="@attr/layout_constraintGuide_begin"/>
     <item target="attr/layout_constraintGuide_end" value="@attr/layout_constraintGuide_end"/>
@@ -97,4 +61,5 @@
     <item target="attr/layout_goneMarginStart" value="@attr/layout_goneMarginStart"/>
     <item target="attr/layout_goneMarginEnd" value="@attr/layout_goneMarginEnd"/>
     <item target="attr/layout_constraintHorizontal_chainStyle" value="@attr/layout_constraintHorizontal_chainStyle"/>
+    <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 </overlay>
