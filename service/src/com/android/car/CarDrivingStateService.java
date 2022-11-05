@@ -128,7 +128,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @Override
     public void release() {
         for (int property : REQUIRED_PROPERTIES) {
-            mPropertyService.unregisterListener(property, mICarPropertyEventListener);
+            mPropertyService.unregisterListenerSafe(property, mICarPropertyEventListener);
         }
         while (mDrivingStateClients.getRegisteredCallbackCount() > 0) {
             for (int i = mDrivingStateClients.getRegisteredCallbackCount() - 1; i >= 0; i--) {
@@ -175,7 +175,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     private void subscribeToProperties() {
         for (int propertyId : REQUIRED_PROPERTIES) {
-            mPropertyService.registerListener(propertyId, PROPERTY_UPDATE_RATE,
+            mPropertyService.registerListenerSafe(propertyId, PROPERTY_UPDATE_RATE,
                     mICarPropertyEventListener);
         }
 

@@ -21,7 +21,6 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -43,7 +42,6 @@ import android.provider.Settings;
 import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
-import androidx.test.filters.RequiresDevice;
 
 import com.android.car.CarDrivingStateService;
 import com.android.car.CarLocalServices;
@@ -69,7 +67,6 @@ import java.util.Arrays;
  * Run:
  * atest BluetoothDeviceConnectionPolicyTest
  */
-@RequiresDevice
 @RunWith(MockitoJUnitRunner.class)
 public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = BluetoothDeviceConnectionPolicyTest.class.getSimpleName();
@@ -161,8 +158,8 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         Assert.assertTrue(mPolicy != null);
 
         // Get the seat occupancy listener
-        doNothing().when(mMockCarPropertyService)
-                .registerListener(anyInt(), anyFloat(), mSeatListenerCaptor.capture());
+        when(mMockCarPropertyService.registerListenerSafe(anyInt(), anyFloat(),
+                mSeatListenerCaptor.capture())).thenReturn(true);
     }
 
     @After

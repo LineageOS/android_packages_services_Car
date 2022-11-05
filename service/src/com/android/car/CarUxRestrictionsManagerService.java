@@ -227,7 +227,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
         // subscribe to property service for speed
-        mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
+        mCarPropertyService.registerListenerSafe(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
 
         initializeUxRestrictions();
@@ -427,6 +427,11 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             if (mCurrentUxRestrictions == null) {
                 Slogf.wtf(TAG, "getCurrentUxRestrictions() called before init()");
                 return null;
+            }
+
+            if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
+                Slogf.d(TAG, "Returning unrestricted UX Restriction due to setting");
+                return createUnrestrictedRestrictions();
             }
             restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
         }

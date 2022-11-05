@@ -142,6 +142,14 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
 
     /** dump */
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
+                != PackageManager.PERMISSION_GRANTED) {
+            writer.println("Permission Denial: can't dump ExperimentalCarService from from pid="
+                    + Binder.getCallingPid() + ", uid=" + Binder.getCallingUid()
+                    + " without permission " + android.Manifest.permission.DUMP);
+            return;
+        }
+
         try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
             ArrayList<CarServiceBase> services;
             synchronized (mLock) {

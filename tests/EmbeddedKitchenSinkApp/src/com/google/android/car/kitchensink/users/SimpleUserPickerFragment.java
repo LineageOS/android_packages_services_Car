@@ -23,6 +23,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -103,7 +104,7 @@ public final class SimpleUserPickerFragment extends Fragment {
         Car car = ((UserPickerActivity) getHost()).getCar();
         mZoneManager = car.getCarManager(CarOccupantZoneManager.class);
         mZoneManager.registerOccupantZoneConfigChangeListener(
-                new UserAssignmentChangeListener());
+                new ZoneChangeListener());
 
         mCarUserManager = car.getCarManager(CarUserManager.class);
 
@@ -124,6 +125,14 @@ public final class SimpleUserPickerFragment extends Fragment {
 
         mUsersSpinner = SpinnerWrapper.create(getContext(),
                 view.findViewById(R.id.spinner_users), getUnassignedUsers());
+        // Listen to user created and removed events to refresh the user Spinner.
+        UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED)
+                .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED).build();
+        mCarUserManager.addListener(getContext().getMainExecutor(), filter, (event) ->
+                mUsersSpinner.updateEntries(getUnassignedUsers())
+        );
+
         mDisplaysSpinner = SpinnerWrapper.create(getContext(),
                 view.findViewById(R.id.spinner_displays), getDisplays());
         if (isPassengerView) {
@@ -155,17 +164,24 @@ public final class SimpleUserPickerFragment extends Fragment {
         mStatusMessageText = view.findViewById(R.id.status_message_text_view);
     }
 
-    private final class UserAssignmentChangeListener implements
+    private final class ZoneChangeListener implements
             CarOccupantZoneManager.OccupantZoneConfigChangeListener {
         @Override
         public void onOccupantZoneConfigChanged(int changeFlags) {
-            Log.d(TAG, "onOccupantZoneConfigChanged changeFlags=" + changeFlags);
-            if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) == 0) {
-                return;
+            Log.i(TAG, "onOccupantZoneConfigChanged changeFlags=" + changeFlags);
+            if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                Log.i(TAG, "Detected changes in display to zone assignment");
+                mDisplaysSpinner.updateEntries(getDisplays());
+                // When a display is removed, user on the display should be stopped.
+                mUsersSpinner.updateEntries(getUnassignedUsers());
+                updateTextInfo();
             }
 
-            mUsersSpinner.updateEntries(getUnassignedUsers());
-            updateTextInfo();
+            if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
+                Log.i(TAG, "Detected changes in user to zone assignment");
+                mUsersSpinner.updateEntries(getUnassignedUsers());
+                updateTextInfo();
+            }
         }
     }
 

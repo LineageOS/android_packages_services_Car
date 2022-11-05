@@ -961,6 +961,14 @@ package android.car.hardware.power {
 
 package android.car.hardware.property {
 
+  public final class VehicleLightSwitch {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_AUTOMATIC = 256; // 0x100
+    field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
+    field public static final int STATE_OFF = 0; // 0x0
+    field public static final int STATE_ON = 1; // 0x1
+  }
+
   public final class VehicleTurnSignal {
     method @NonNull public static String toString(int);
     field public static final int STATE_LEFT = 2; // 0x2

@@ -52,8 +52,8 @@
 
             <ImageView
                 android:id="@+id/card_icon"
-                android:layout_width="@dimen/control_bar_app_icon_size"
-                android:layout_height="@dimen/control_bar_app_icon_size"
+                android:layout_height="@dimen/control_bar_image_size"
+                android:layout_width="@dimen/control_bar_image_size"
                 android:layout_gravity="bottom|end"
                 android:scaleType="centerInside"/>
         </FrameLayout>
