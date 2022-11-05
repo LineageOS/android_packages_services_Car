@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package android.car.oem;
+package android.car.media;
 
-import android.media.AudioFocusInfo;
-import android.car.oem.OemCarAudioFocusResult;
-import android.car.oem.OemCarAudioFocusEvaluationRequest;
-
-/** @hide */
-interface IOemCarAudioFocusService {
-    void audioFocusChanged(in List<AudioFocusInfo> currentFocusHolders,
-           in List<AudioFocusInfo> currentFocusLosers, int zoneId);
-
-    OemCarAudioFocusResult evaluateAudioFocusRequest(in
-           OemCarAudioFocusEvaluationRequest request);
-}
+/**
+ * Class to encapsulate car volume group information.
+ * @hide
+ */
+parcelable CarVolumeGroupInfo;
