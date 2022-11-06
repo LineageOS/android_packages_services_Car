@@ -168,6 +168,10 @@
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"थ्रेडशी संबंधित प्राधान्य व्यवस्थापित करा."</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"निवासी झोन व्यवस्थापित करा"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"निवासी झोन व्यवस्थापित करा"</string>
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"रिमोटचा अ‍ॅक्सेस वापरा"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"रिमोटचा अ‍ॅक्सेस वापरा."</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"रिमोटचा अ‍ॅक्सेस नियंत्रित करा"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"रिमोटचा अ‍ॅक्सेस नियंत्रित करा."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>
