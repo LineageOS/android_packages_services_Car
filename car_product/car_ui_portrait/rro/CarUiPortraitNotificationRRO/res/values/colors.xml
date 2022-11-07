@@ -27,8 +27,8 @@
     <color name="icon_tint">@color/car_on_secondary_container</color>
     <color name="notification_accent_color">@color/car_on_secondary_container</color>
     <color name="dark_icon_tint">@color/car_on_primary</color>
-    <color name="call_accept_button">#418544</color>
-    <color name="call_decline_button">#C84031</color>
+    <color name="call_accept_button">@color/car_green_color</color>
+    <color name="call_decline_button">@color/car_red_color</color>
     <color name="primary_action_button_bg_color">@color/car_primary</color>
     <color name="first_action_button_text_color">@color/car_on_primary</color>
     <color name="play_icon_tint">@color/first_action_button_text_color</color>
