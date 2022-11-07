@@ -74,6 +74,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 
@@ -1310,6 +1311,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("External input device addresses")
                 .that(mCarAudioService.getExternalSources())
                 .asList().containsExactly(inputDevices[1].getAddress());
+    }
+
+    @Test
+    public void setAudioEnabled_forEnabledVolumeGroupMuting() {
+        mCarAudioService.init();
+
+        mCarAudioService.setAudioEnabled(/* enabled= */ true);
+
+        verify(mAudioControlWrapperAidl).onDevicesToMuteChange(any());
+    }
+
+    @Test
+    public void setAudioEnabled_forDisabledVolumeGroupMuting() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
+                .thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonVolumeGroupMutingAudioService.init();
+
+        nonVolumeGroupMutingAudioService.setAudioEnabled(/* enabled= */ true);
+
+        verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
