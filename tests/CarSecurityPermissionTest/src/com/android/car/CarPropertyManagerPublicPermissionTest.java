@@ -198,7 +198,6 @@ public class CarPropertyManagerPublicPermissionTest {
         mProps.add(VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
         // Properties in S
         mProps.add(VehiclePropertyIds.EPOCH_TIME);
-        mProps.add(VehiclePropertyIds.STORAGE_ENCRYPTION_BINDING_SEED);
     }
 
     @After

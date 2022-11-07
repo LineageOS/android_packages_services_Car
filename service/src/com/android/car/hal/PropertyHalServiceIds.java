@@ -554,9 +554,6 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
                 null,
                 Car.PERMISSION_CAR_EPOCH_TIME));
-        mHalPropIdToPermissions.put(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED, new Pair<>(
-                Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED,
-                Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED));
         // Display_Units
         mHalPropIdToPermissions.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,

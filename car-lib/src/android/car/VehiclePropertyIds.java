@@ -2011,18 +2011,6 @@ public final class VehiclePropertyIds {
     public static final int EPOCH_TIME = 290457094;
 
     /**
-     * External encryption binding seed.
-     *
-     * <p>This value is mixed with the local storage encryption seed. This property holds 16 bytes,
-     * and is expected to be persisted on an ECU separate from the IVI. The property is initially
-     * set by AAOS, who generates it using a CSRNG. AAOS will then read the property on subsequent
-     * boots.
-     */
-    @RequiresPermission(Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED)
-    @AddedInOrBefore(majorVersion = 33)
-    public static final int STORAGE_ENCRYPTION_BINDING_SEED = 292554247;
-
-    /**
      * Electronic Toll Collection card type.
      *
      * <p>This property indicates the type of ETC(Electronic Toll Collection) card in the vehicle.
