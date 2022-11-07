@@ -17,6 +17,4 @@
 
 <resources>
     <color name="clear_all_button_background_color">@color/car_secondary_container</color>
-    <color name="call_accept_button">#75B885</color>
-    <color name="call_decline_button">#D77163</color>
 </resources>
