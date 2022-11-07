@@ -59,6 +59,10 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_SUW_IN_PROGRESS =
             "INTENT_EXTRA_SUW_IN_PROGRESS";
 
+    // key name for the intent's extra that tells if task views are ready
+    public static final String INTENT_EXTRA_FG_TASK_VIEW_READY =
+            "INTENT_EXTRA_TASK_VIEW_READY";
+
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
@@ -98,6 +102,11 @@ public class CarUiPortraitService extends Service {
      */
     public static final int MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE = 6;
 
+    /**
+     * Command to service to notify when task views are ready.
+     */
+    public static final int MSG_FG_TASK_VIEW_READY = 7;
+
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
 
@@ -126,6 +135,12 @@ public class CarUiPortraitService extends Service {
                     hideSysBarIntent.putExtra(INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE,
                             intToBoolean(val));
                     CarUiPortraitService.this.sendBroadcast(hideSysBarIntent);
+                    break;
+                case MSG_FG_TASK_VIEW_READY:
+                    Intent taskViewReadyIntent = new Intent(REQUEST_FROM_LAUNCHER);
+                    taskViewReadyIntent.putExtra(INTENT_EXTRA_FG_TASK_VIEW_READY,
+                            intToBoolean(msg.arg1));
+                    CarUiPortraitService.this.sendBroadcast(taskViewReadyIntent);
                     break;
                 default:
                     super.handleMessage(msg);
