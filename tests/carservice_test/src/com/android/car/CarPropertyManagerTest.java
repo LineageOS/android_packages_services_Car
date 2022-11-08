@@ -867,7 +867,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
-            // Simulate HalClient.set() behavior.
+            // Simulate VehicleHal.set() behavior.
             int statusCode = mapPropertyToVhalStatusCode(value.prop);
             if (statusCode != VehicleHalStatusCode.STATUS_OK) {
                 // The ServiceSpecificException here would pass the statusCode back to caller.
@@ -879,7 +879,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
-            // Simulate HalClient.get() behavior.
+            // Simulate VehicleHal.get() behavior.
             int vhalStatusCode = mapPropertyToVhalStatusCode(value.prop);
             if (vhalStatusCode != VehicleHalStatusCode.STATUS_OK) {
                 // The ServiceSpecificException here would pass the statusCode back to caller.

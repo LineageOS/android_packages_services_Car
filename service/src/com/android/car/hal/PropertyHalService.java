@@ -122,7 +122,7 @@ public class PropertyHalService extends HalServiceBase {
     // The request ID passed by CarPropertyService (ManagerRequestId) is directly passed from
     // CarPropertyManager. Multiple CarPropertyManagers use the same car service instance, thus,
     // the ManagerRequestId is not unique. We have to create another unique ID called
-    // ServiceRequestId and pass it to underlying layer (VehicleHal, HalClient and VehicleStub).
+    // ServiceRequestId and pass it to underlying layer (VehicleHal and VehicleStub).
     // Internally, we will map ManagerRequestId to ServiceRequestId.
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.

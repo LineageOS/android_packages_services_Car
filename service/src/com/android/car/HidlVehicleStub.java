@@ -35,11 +35,11 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemProperties;
 
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
@@ -185,7 +185,7 @@ final class HidlVehicleStub extends VehicleStub {
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+    public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
         return new HidlSubscriptionClient(callback, mPropValueBuilder);
     }
 
@@ -347,10 +347,10 @@ final class HidlVehicleStub extends VehicleStub {
 
     private class HidlSubscriptionClient extends IVehicleCallback.Stub
             implements SubscriptionClient {
-        private final HalClientCallback mCallback;
+        private final VehicleHalCallback mCallback;
         private final HalPropValueBuilder mBuilder;
 
-        HidlSubscriptionClient(HalClientCallback callback, HalPropValueBuilder builder) {
+        HidlSubscriptionClient(VehicleHalCallback callback, HalPropValueBuilder builder) {
             mCallback = callback;
             mBuilder = builder;
         }
