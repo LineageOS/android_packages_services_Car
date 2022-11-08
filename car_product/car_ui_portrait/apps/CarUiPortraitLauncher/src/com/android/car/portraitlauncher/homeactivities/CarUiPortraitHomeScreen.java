@@ -384,14 +384,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         if (mTaskViewManager == null) {
             mTaskViewManager = new TaskViewManager(this, getMainThreadHandler());
         }
-        ViewGroup upperAppArea = findViewById(R.id.upper_app_area);
-        if (upperAppArea != null) {
-            setUpUpperTaskView(upperAppArea);
-        }
 
         ViewGroup lowerAppArea = findViewById(R.id.lower_app_area);
         if (lowerAppArea != null) {
             setUpRootTaskView(lowerAppArea);
+        }
+
+        ViewGroup upperAppArea = findViewById(R.id.upper_app_area);
+        if (upperAppArea != null) {
+            setUpBackgroundTaskView(upperAppArea);
         }
 
         ViewGroup fullscreenContainer = findViewById(R.id.fullscreen_container);
@@ -827,7 +828,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private void setUpUpperTaskView(ViewGroup parent) {
+    private void setUpBackgroundTaskView(ViewGroup parent) {
         mTaskViewManager.createControlledCarTaskView(getMainExecutor(),
                 CarLauncherUtils.getMapsIntent(getApplicationContext()),
                 true,
