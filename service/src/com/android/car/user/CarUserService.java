@@ -41,6 +41,7 @@ import android.car.ICarOccupantZoneCallback;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.PlatformVersion;
+import android.car.VehicleAreaSeat;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
@@ -432,14 +433,28 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
                                     flagString);
                         }
+                        // TODO(b/254335743): Refactor startOtherUsers and call startOtherUsers
+                        // instead. Then we can respect the user=>zone mapping based on CarSettings.
                         CarOccupantZoneService zoneService = CarLocalServices.getService(
                                 CarOccupantZoneService.class);
+                        int driverZoneId = OccupantZoneInfo.INVALID_ZONE_ID;
+                        boolean hasDriverZone = zoneService.hasDriverZone();
+                        if (hasDriverZone) {
+                            driverZoneId = zoneService.getOccupantZone(
+                                    CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                                    VehicleAreaSeat.SEAT_UNKNOWN).zoneId;
+                        }
                         // Start user picker on displays without user allocation.
                         List<OccupantZoneInfo> occupantZoneInfos =
                                 zoneService.getAllOccupantZones();
                         for (int i = 0; i < occupantZoneInfos.size(); i++) {
                             OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
                             int zoneId = occupantZoneInfo.zoneId;
+                            // Skip driver zone.
+                            if (hasDriverZone && zoneId == driverZoneId) {
+                                continue;
+                            }
+
                             int userId = zoneService.getUserForOccupant(zoneId);
                             if (userId != CarOccupantZoneManager.INVALID_USER_ID) {
                                 // If there is already a user allocated to the zone, skip.
@@ -2460,7 +2475,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         boolean hasDriverZone = zoneService.hasDriverZone();
         if (hasDriverZone) {
             driverZoneId = zoneService.getOccupantZone(
-                    CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER, /* seat= */ 0).zoneId;
+                    CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                    VehicleAreaSeat.SEAT_UNKNOWN).zoneId;
         }
         // After this, mapping only keep the valid zone - user pair
         for (int i = mapping.size() - 1; i >= 0; i--) {
@@ -2508,6 +2524,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             int userId = mapping.valueAt(i);
             int displayId = zoneService.getDisplayForOccupant(zoneId,
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            if (displayId == Display.INVALID_DISPLAY) {
+                // TODO(b/254335743): Attempt this zone assignment once the display becomes
+                // available.
+                Slogf.i(TAG, "startOtherUsers(): cannot start user %d on the display in zone %d"
+                        + " because display is not available yet", userId, zoneId);
+                continue;
+            }
             boolean userStarted = false;
             Slogf.i(TAG, "startOtherUsers(): start user %d for display %d", userId,
                     displayId);
