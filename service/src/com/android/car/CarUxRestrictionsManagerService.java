@@ -422,7 +422,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     @Override
     public CarUxRestrictions getCurrentUxRestrictions(int displayId) {
-        CarUxRestrictions restrictions;
+        CarUxRestrictions restrictions = null;
+        int physicalPort = DisplayHelper.INVALID_PORT;
         synchronized (mLock) {
             if (mCurrentUxRestrictions == null) {
                 Slogf.wtf(TAG, "getCurrentUxRestrictions() called before init()");
@@ -433,11 +434,21 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 Slogf.d(TAG, "Returning unrestricted UX Restriction due to setting");
                 return createUnrestrictedRestrictions();
             }
-            restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
+            physicalPort = getPhysicalPortLocked(displayId);
+            if (physicalPort != DisplayHelper.INVALID_PORT) {
+                restrictions = mCurrentUxRestrictions.get(physicalPort);
+            }
         }
+
         if (restrictions == null) {
-            Slogf.e(TAG, "Restrictions are null for displayId:" + displayId
-                    + ". Returning full restrictions.");
+            if (physicalPort == DisplayHelper.INVALID_PORT) {
+                Slogf.e(TAG, "Invalid physical port for displayId: " + displayId
+                        + ". Returning full restrictions.");
+
+            } else {
+                Slogf.e(TAG, "Cannot find restrictions for displayId: %d with physical port %d"
+                        + ". Returning full restrictions.", displayId, physicalPort);
+            }
             restrictions = createFullyRestrictedRestrictions();
         }
         return restrictions;
@@ -1006,8 +1017,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             int port = DisplayHelper.getPhysicalPort(display);
             if (port != DisplayHelper.INVALID_PORT) {
                 mPortLookup.put(displayId, port);
-                return port;
             }
+            // Both valid port and invalid port will be returned here.
+            return port;
         }
         return mPortLookup.valueAt(index);
     }
