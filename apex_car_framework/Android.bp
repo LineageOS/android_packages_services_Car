@@ -128,6 +128,7 @@ bootclasspath_fragment {
             "android.car.media",
             "android.car.navigation",
             "android.car.occupantawareness",
+            "android.car.oem",
             "android.car.os",
             "android.car.projection",
             "android.car.settings",
