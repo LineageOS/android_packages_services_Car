@@ -430,6 +430,18 @@ Result<void> WatchdogPerfService::onSuspendExit() {
     return {};
 }
 
+Result<void> WatchdogPerfService::onShutdownEnter() {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        ALOGI("Unable to switch to %s during shutdown enter. Current performance data collection "
+              "event: %s",
+              toString(EventType::PERIODIC_COLLECTION), toString(mCurrCollectionEvent));
+        return {};
+    }
+    switchToPeriodicLocked(/*startNow=*/true);
+    return {};
+}
+
 Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String16>& args) {
     if (args.empty()) {
         return Error(BAD_VALUE) << "No custom collection dump arguments";
@@ -648,27 +660,32 @@ Result<void> WatchdogPerfService::endCustomCollection(int fd) {
     return {};
 }
 
+void WatchdogPerfService::switchToPeriodicLocked(bool startNow) {
+    if (mCurrCollectionEvent == EventType::PERIODIC_COLLECTION) {
+        ALOGW("The current performance data collection event is already %s",
+              toString(mCurrCollectionEvent));
+        return;
+    }
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
+    mCurrCollectionEvent = EventType::PERIODIC_COLLECTION;
+    mPeriodicCollection.lastUptime = mHandlerLooper->now();
+    if (startNow) {
+        mHandlerLooper->sendMessage(thiz, EventType::PERIODIC_COLLECTION);
+    } else {
+        mPeriodicCollection.lastUptime += mPeriodicCollection.interval.count();
+        mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastUptime, thiz,
+                                          EventType::PERIODIC_COLLECTION);
+    }
+    mPeriodicMonitor.lastUptime = mHandlerLooper->now() + mPeriodicMonitor.interval.count();
+    mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastUptime, thiz,
+                                      EventType::PERIODIC_MONITOR);
+    ALOGI("Switching to %s and %s", toString(mCurrCollectionEvent),
+          toString(EventType::PERIODIC_MONITOR));
+}
+
 void WatchdogPerfService::handleMessage(const Message& message) {
     Result<void> result;
-
-    auto switchToPeriodicLocked = [&](bool startNow) {
-        auto thiz = sp<WatchdogPerfService>::fromExisting(this);
-        mHandlerLooper->removeMessages(thiz);
-        mCurrCollectionEvent = EventType::PERIODIC_COLLECTION;
-        mPeriodicCollection.lastUptime = mHandlerLooper->now();
-        if (startNow) {
-            mHandlerLooper->sendMessage(thiz, EventType::PERIODIC_COLLECTION);
-        } else {
-            mPeriodicCollection.lastUptime += mPeriodicCollection.interval.count();
-            mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastUptime, thiz,
-                                              EventType::PERIODIC_COLLECTION);
-        }
-        mPeriodicMonitor.lastUptime = mHandlerLooper->now() + mPeriodicMonitor.interval.count();
-        mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastUptime, thiz,
-                                          EventType::PERIODIC_MONITOR);
-        ALOGI("Switching to %s and %s", toString(mCurrCollectionEvent),
-              toString(EventType::PERIODIC_MONITOR));
-    };
 
     switch (message.what) {
         case static_cast<int>(EventType::BOOT_TIME_COLLECTION):

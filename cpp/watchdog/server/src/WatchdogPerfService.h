@@ -200,6 +200,8 @@ public:
             const android::automotive::watchdog::internal::UserState& userState) = 0;
     // Starts wake-up collection. Any running collection is stopped, except for custom collections.
     virtual android::base::Result<void> onSuspendExit() = 0;
+    // Called on shutdown enter, suspend enter and hibernation enter.
+    virtual android::base::Result<void> onShutdownEnter() = 0;
 
     /**
      * Depending on the arguments, it either:
@@ -257,6 +259,8 @@ public:
 
     android::base::Result<void> onSuspendExit() override;
 
+    android::base::Result<void> onShutdownEnter() override;
+
     android::base::Result<void> onCustomCollection(int fd,
                                                    const Vector<android::String16>& args) override;
 
@@ -312,6 +316,9 @@ private:
 
     // Start a user switch collection.
     android::base::Result<void> startUserSwitchCollection();
+
+    // Switch to periodic collection and periodic monitor.
+    void switchToPeriodicLocked(bool startNow);
 
     // Handles the messages received by the lopper.
     void handleMessage(const Message& message) override;
