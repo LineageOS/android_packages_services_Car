@@ -48,7 +48,8 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
                     "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION",
-                    "SUPPORTED_PROPERTY_IDS");
+                    "SUPPORTED_PROPERTY_IDS",
+                    "STORAGE_ENCRYPTION_BINDING_SEED");
 
     // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
     @Override
@@ -307,8 +308,6 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
         propsToString.put(VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY, "CLUSTER_REQUEST_DISPLAY");
         propsToString.put(VehiclePropertyIds.CLUSTER_NAVIGATION_STATE, "CLUSTER_NAVIGATION_STATE");
         propsToString.put(VehiclePropertyIds.EPOCH_TIME, "EPOCH_TIME");
-        propsToString.put(VehiclePropertyIds.STORAGE_ENCRYPTION_BINDING_SEED,
-                "STORAGE_ENCRYPTION_BINDING_SEED");
         propsToString.put(VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
                 "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS");
         propsToString.put(VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,

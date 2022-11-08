@@ -744,16 +744,6 @@ public final class Car {
     public static final String PERMISSION_CAR_EPOCH_TIME = "android.car.permission.CAR_EPOCH_TIME";
 
     /**
-     * Permission necessary to access car's property
-     * {@link VehiclePropertyIds#STORAGE_ENCRYPTION_BINDING_SEED}.
-     * @hide
-     */
-    @SystemApi
-    @AddedInOrBefore(majorVersion = 33)
-    public static final String PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED =
-            "android.car.permission.STORAGE_ENCRYPTION_BINDING_SEED";
-
-    /**
      * Permission necessary to access car's steering angle information.
      */
     @AddedInOrBefore(majorVersion = 33)
