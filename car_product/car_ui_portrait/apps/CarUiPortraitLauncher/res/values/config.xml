@@ -27,15 +27,18 @@
     </string>
 
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
-        <item>com.android.car.settings/.FallbackHome</item>
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
-        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
-        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
-        <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
-        <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
+        <item>com.android.car.portraitlauncher/.homeactivities.CarUiPortraitHomeScreen</item>
+        <item>com.android.car.settings/.FallbackHome</item>
+        <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
         <item>com.android.sdksetup/.DefaultActivity</item>
         <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
-        <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardMiniFlowActivity</item>
+        <item>com.google.android.car.setupwizard/.deferred.DeferredCarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
+        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
     </string-array>
 
     <!-- A list of package names that provide the cards to display on the home screen -->
