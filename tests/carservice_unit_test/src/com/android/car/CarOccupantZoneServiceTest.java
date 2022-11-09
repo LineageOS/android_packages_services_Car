@@ -570,7 +570,7 @@ public class CarOccupantZoneServiceTest {
                 expectThrows(IllegalArgumentException.class,
                         () -> mService.setAudioZoneIdsForOccupantZoneIds(
                                 audioZoneIdToOccupantZoneMapping));
-        thrown.getMessage().contains("does not exist");
+        assertThat(thrown).hasMessageThat().contains("does not exist");
     }
 
     @Test
