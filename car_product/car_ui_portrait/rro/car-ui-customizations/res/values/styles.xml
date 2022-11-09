@@ -16,28 +16,22 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="TextAppearance_CarUi_AlertDialog_Title" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textSize">36sp</item>
-        <item name="android:textStyle">bold</item>
+    <style name="TextAppearance_CarUi_AlertDialog_Title" parent="TextAppearance.Car.Subhead.Large">
     </style>
-    <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textSize">24sp</item>
+    <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="TextAppearance.Car.Body.Medium">
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceCategoryTitle" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:textColor">?android:attr/colorAccent</item>
-        <item name="android:textSize">24sp</item>
+    <style name="TextAppearance.CarUi.PreferenceCategoryTitle"
+           parent="TextAppearance.Car.Subhead.Medium">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceSummary" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textColor">?android:attr/textColorSecondary</item>
-        <item name="android:textSize">24sp</item>
+    <style name="TextAppearance.CarUi.PreferenceSummary" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
-    <style name="TextAppearance.CarUi.PreferenceTitle" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">32sp</item>
+    <style name="TextAppearance.CarUi.PreferenceTitle" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 
     <style name="TextAppearance.CarUi.Widget" parent="android:TextAppearance.DeviceDefault.Widget">
@@ -46,9 +40,10 @@
 
     <style name="TextAppearance.CarUi.Widget.Toolbar"/>
 
-    <style name="TextAppearance.CarUi.Widget.Toolbar.Title">
+    <style name="TextAppearance.CarUi.Widget.Toolbar.Title"
+           parent="TextAppearance.Car.Subhead.Large">
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
     <style name="Widget.CarUi.Toolbar.Container"/>
@@ -60,7 +55,7 @@
         <item name="android:showDividers">beginning|middle|end</item>
     </style>
     <style name="Widget.CarUi.Toolbar.Subtitle">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Subhead.Medium</item>
         <item name="android:textAlignment">viewStart</item>
     </style>
     <style name="Widget.CarUi.Toolbar.Title">
@@ -75,7 +70,7 @@
     <style name="Widget.CarUi" parent="android:Widget.DeviceDefault"/>
     <style name="Widget.CarUi.Toolbar.MenuItem"/>
     <style name="Widget.CarUi.Toolbar.NavIcon">
-        <item name="android:tint">@color/car_ui_toolbar_nav_icon_color</item>
+        <item name="android:tint">@color/car_on_surface</item>
         <item name="android:background">@drawable/car_ui_toolbar_menu_item_icon_ripple</item>
     </style>
 </resources>
