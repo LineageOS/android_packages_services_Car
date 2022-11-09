@@ -159,15 +159,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
 
-            <!-- Hairline across bottom of toolbar -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/divider_color"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
-
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.android.car.ui.FocusArea>
 
@@ -190,9 +181,9 @@
     <!-- Hairline to the right of the tabs -->
     <View
         android:id="@+id/car_ui_base_layout_divider"
-        android:layout_width="2dp"
+        android:layout_width="1dp"
         android:layout_height="0dp"
-        android:background="@color/divider_color"
+        android:background="@android:color/transparent"
         android:focusable="false"
         android:tag="car_ui_left_inset"
         app:layout_constraintLeft_toRightOf="@id/left_part_of_toolbar_focus_area"
