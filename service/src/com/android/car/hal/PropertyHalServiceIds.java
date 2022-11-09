@@ -303,6 +303,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_HEIGHT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_STEERING_WHEEL,
                 Car.PERMISSION_CONTROL_STEERING_WHEEL));
+        mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_HEIGHT_MOVE, new Pair<>(
+                Car.PERMISSION_CONTROL_STEERING_WHEEL,
+                Car.PERMISSION_CONTROL_STEERING_WHEEL));
 
         // HVAC properties
         mHalPropIdToPermissions.put(VehicleProperty.HVAC_FAN_SPEED, new Pair<>(
