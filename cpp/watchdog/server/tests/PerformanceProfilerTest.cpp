@@ -58,6 +58,7 @@ using ::testing::VariantWith;
 constexpr int kTestTopNStatsPerCategory = 5;
 constexpr int kTestTopNStatsPerSubcategory = 5;
 constexpr int kTestMaxUserSwitchEvents = 3;
+constexpr std::chrono::seconds kTestSystemEventDataCacheDurationSec = 60s;
 
 MATCHER_P(IoStatsEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStats::bytes,
@@ -442,6 +443,10 @@ public:
 
     void setMaxUserSwitchEvents(int value) { mCollector->mMaxUserSwitchEvents = value; }
 
+    void setSystemEventDataCacheDuration(std::chrono::seconds value) {
+        mCollector->mSystemEventDataCacheDurationSec = value;
+    }
+
     const CollectionInfo& getBoottimeCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mBoottimeCollection;
@@ -484,6 +489,7 @@ protected:
         mCollectorPeer->setTopNStatsPerCategory(kTestTopNStatsPerCategory);
         mCollectorPeer->setTopNStatsPerSubcategory(kTestTopNStatsPerSubcategory);
         mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
+        mCollectorPeer->setSystemEventDataCacheDuration(kTestSystemEventDataCacheDurationSec);
     }
 
     void TearDown() override {
@@ -1029,6 +1035,94 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
 
     ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/3))
             << "Boot-time, wake-up and user-switch collection shouldn't be reported";
+}
+
+TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
+    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            mCollector->onBoottimeCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+
+    auto actual = mCollectorPeer->getBoottimeCollectionInfo();
+
+    EXPECT_THAT(actual.records.size(), 1) << "Boot-time collection info doesn't have size 1";
+
+    // Call |onPeriodicCollection| 1 hour past the last boot-time collection event.
+    ASSERT_RESULT_OK(
+            mCollector->onPeriodicCollection(now + kTestSystemEventDataCacheDurationSec.count(),
+                                             SystemState::NORMAL_MODE, mMockUidStatsCollector,
+                                             mMockProcStatCollector));
+
+    actual = mCollectorPeer->getBoottimeCollectionInfo();
+
+    EXPECT_THAT(actual.records.empty(), true) << "Boot-time collection info records are not empty";
+}
+
+TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
+    const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(
+            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+
+    auto actual = mCollectorPeer->getWakeUpCollectionInfo();
+
+    EXPECT_THAT(actual.records.size(), 1) << "Wake-up collection info doesn't have size 1";
+
+    // Call |onPeriodicCollection| 1 hour past the last wake-up collection event.
+    ASSERT_RESULT_OK(
+            mCollector->onPeriodicCollection(now + kTestSystemEventDataCacheDurationSec.count(),
+                                             SystemState::NORMAL_MODE, mMockUidStatsCollector,
+                                             mMockProcStatCollector));
+
+    actual = mCollectorPeer->getWakeUpCollectionInfo();
+
+    EXPECT_THAT(actual.records.empty(), true) << "Wake-up collection info records are not empty";
+}
+
+TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
+    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    time_t updatedNow = now;
+
+    for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
+        ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(updatedNow, userId, userId + 1,
+                                                            mMockUidStatsCollector,
+                                                            mMockProcStatCollector));
+        updatedNow += kTestSystemEventDataCacheDurationSec.count();
+    }
+
+    const auto& actual = mCollectorPeer->getUserSwitchCollectionInfos();
+
+    EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents);
+
+    updatedNow = now + kTestSystemEventDataCacheDurationSec.count();
+    for (int i = 1; i <= kTestMaxUserSwitchEvents; ++i) {
+        ASSERT_RESULT_OK(mCollector->onPeriodicCollection(updatedNow, SystemState::NORMAL_MODE,
+                                                          mMockUidStatsCollector,
+                                                          mMockProcStatCollector));
+
+        const auto& actual = mCollectorPeer->getUserSwitchCollectionInfos();
+
+        EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents - i)
+                << "User-switch collection size is incorrect";
+
+        updatedNow += kTestSystemEventDataCacheDurationSec.count();
+    }
 }
 
 }  // namespace watchdog

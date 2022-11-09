@@ -62,6 +62,9 @@ on init
     # Cache size for the user switch events
     setprop ro.carwatchdog.max_user_switch_events 5
 
+    # Duration in seconds that a system event's data is cached
+    setprop ro.carwatchdog.system_event_data_cache_duration 3600
+
     # Cache size for the periodically collected records
     setprop ro.carwatchdog.periodic_collection_buffer_size 180
 
