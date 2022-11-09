@@ -33,6 +33,7 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.VehicleAreaType;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
@@ -846,12 +847,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         Map<Integer, CarUxRestrictions> newUxRestrictions = new HashMap<>();
         for (int port : mPhysicalPorts) {
             CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(port);
+            CarUxRestrictions uxRestrictions;
             if (config == null) {
-                continue;
+                // If UxR config is not found for a physical port, assume it's fully restricted.
+                uxRestrictions = createFullyRestrictedRestrictions();
+            } else {
+                uxRestrictions = config.getUxRestrictions(
+                        currentDrivingState, speed, mRestrictionMode);
             }
-
-            CarUxRestrictions uxRestrictions = config.getUxRestrictions(
-                    currentDrivingState, speed, mRestrictionMode);
             logd(String.format("Display port 0x%02x\tDO old->new: %b -> %b",
                     port,
                     mCurrentUxRestrictions.get(port).isRequiresDistractionOptimization(),
@@ -924,16 +927,40 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @GuardedBy("mLock")
     private void initPhysicalPortLocked() {
-        IntArray displayIds = mCarOccupantZoneService.getAllDisplayIdsForDriver(DISPLAY_TYPE_MAIN);
-        Slogf.d(TAG, "displayIds: " + Arrays.toString(displayIds.toArray()));
-
-        for (int i = 0; i < displayIds.size(); ++i) {
-            int port = getPhysicalPortLocked(displayIds.get(i));
-            if (i == 0) {
-                // The first port will be the default port.
-                mDefaultDisplayPhysicalPort = port;
+        // Populate the physical ports of all displays in all occupant zones.
+        List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
+                mCarOccupantZoneService.getAllOccupantZones();
+        for (int i = 0; i < occupantZoneInfos.size(); i++) {
+            CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
+            int zoneId = occupantZoneInfo.zoneId;
+            int[] displayIds = mCarOccupantZoneService.getAllDisplaysForOccupantZone(zoneId);
+            for (int j = 0; j < displayIds.length; j++) {
+                int displayId = displayIds[j];
+                int port = getPhysicalPortLocked(displayId);
+                if (port == DisplayHelper.INVALID_PORT) {
+                    Slogf.w(TAG, "Invalid physical port for display id %d", displayId);
+                    // Skip if the display id can not be mapped back to a physical port.
+                    continue;
+                }
+                mPhysicalPorts.add(port);
             }
-            mPhysicalPorts.add(port);
+        }
+
+        // Find the default physical port from driver main display.
+        IntArray displayIds = mCarOccupantZoneService.getAllDisplayIdsForDriver(DISPLAY_TYPE_MAIN);
+        Slogf.d(TAG, "Driver displayIds: " + Arrays.toString(displayIds.toArray()));
+        if (displayIds.size() > 0) {
+            int driverMain = displayIds.get(0);
+            int port = getPhysicalPortLocked(driverMain);
+            if (port == DisplayHelper.INVALID_PORT) {
+                Slogf.w(TAG, "Invalid port for driver main display id %d", driverMain);
+            }
+            // The first port from the driver displays will be the default port.
+            Slogf.i(TAG, "Setting default port to %d", port);
+            mDefaultDisplayPhysicalPort = port;
+        } else {
+            Slogf.w(TAG, "Driver main display not found");
+            mDefaultDisplayPhysicalPort = DisplayHelper.INVALID_PORT;
         }
     }
 
@@ -945,6 +972,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         if (configs.size() == 1) {
             CarUxRestrictionsConfiguration config = configs.get(0);
             synchronized (mLock) {
+                // When there is only one UxR mapping and it doesn't have physical port specified,
+                // the default physical port from the driver display will be assumed.
                 int port = config.getPhysicalPort() == null
                         ? mDefaultDisplayPhysicalPort
                         : config.getPhysicalPort();
