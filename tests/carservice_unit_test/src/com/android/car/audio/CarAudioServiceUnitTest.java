@@ -1302,6 +1302,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .containsExactly(new AudioDeviceAttributes(MICROPHONE_TEST_DEVICE));
     }
 
+    @Test
+    public void getExternalSources_forSingleDevice() {
+        mCarAudioService.init();
+        AudioDeviceInfo[] inputDevices = generateInputDeviceInfos();
+
+        assertWithMessage("External input device addresses")
+                .that(mCarAudioService.getExternalSources())
+                .asList().containsExactly(inputDevices[1].getAddress());
+    }
+
     private void mockGrantCarControlAudioSettingsPermission() {
         mockContextCheckCallingOrSelfPermission(mMockContext,
                 PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_GRANTED);
