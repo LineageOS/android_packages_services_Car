@@ -812,6 +812,18 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_CLIMATE";
 
     /**
+     * Permission necessary to enable/disable a seat's ability to deploy airbag(s) when triggered
+     * (e.g. by a crash).
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_CAR_AIRBAGS =
+            "android.car.permission.CONTROL_AIRBAG";
+
+
+    /**
      * Permission necessary to access restrictive car power management APIs.
      * @hide
      */
