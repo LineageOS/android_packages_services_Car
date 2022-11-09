@@ -1711,6 +1711,33 @@ public final class VehiclePropertyIds {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SEAT_EASY_ACCESS_ENABLED = 354421661;
     /**
+     * Represents property for seat’s hipside (bottom cushion’s side) support position.
+     *
+     * This value is not in any particular unit but in a specified range of steps. The max value
+     * indicates the widest cushion side support setting (i.e. least support). The min value
+     * indicates the thinnest cushion side support setting (i.e most support). See {@link
+     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
+     * range of possible positions. All integers between min and max value are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Int32} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815;
+    /**
      * Seat Occupancy
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_SEATS.
