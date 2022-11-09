@@ -1172,7 +1172,7 @@ public final class UserHalService extends HalServiceBase {
             if (numberPendingCallbacks == 0) {
                 writer.println("no pending callbacks");
             } else {
-                writer.printf("%d pending callbacks: %s\n", numberPendingCallbacks);
+                writer.printf("%d pending callbacks:\n", numberPendingCallbacks);
                 for (int i = 0; i < numberPendingCallbacks; i++) {
                     writer.print(indent);
                     mPendingRequests.valueAt(i).dump(writer);
