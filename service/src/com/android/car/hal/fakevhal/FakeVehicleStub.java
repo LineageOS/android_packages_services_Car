@@ -44,10 +44,10 @@ import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.hal.AidlHalPropConfig;
 import com.android.car.hal.HalAreaConfig;
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -265,7 +265,7 @@ public final class FakeVehicleStub extends VehicleStub {
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+    public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
         return new FakeVhalSubscriptionClient(callback,
                 mRealVehicle.newSubscriptionClient(callback));
     }
@@ -395,10 +395,10 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
-        private final HalClientCallback mCallBack;
+        private final VehicleHalCallback mCallBack;
         private final SubscriptionClient mRealClient;
 
-        FakeVhalSubscriptionClient(HalClientCallback callback,
+        FakeVhalSubscriptionClient(VehicleHalCallback callback,
                 SubscriptionClient realVehicleClient) {
             mCallBack = callback;
             mRealClient = realVehicleClient;

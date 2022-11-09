@@ -48,10 +48,10 @@ import android.util.ArraySet;
 import android.util.LongSparseArray;
 
 import com.android.car.hal.AidlHalPropConfig;
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.LargeParcelable;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -244,7 +244,7 @@ final class AidlVehicleStub extends VehicleStub {
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+    public SubscriptionClient newSubscriptionClient(VehicleHalCallback callback) {
         return new AidlSubscriptionClient(callback, mPropValueBuilder);
     }
 
@@ -524,10 +524,10 @@ final class AidlVehicleStub extends VehicleStub {
 
     private class AidlSubscriptionClient extends IVehicleCallback.Stub
             implements SubscriptionClient {
-        private final HalClientCallback mCallback;
+        private final VehicleHalCallback mCallback;
         private final HalPropValueBuilder mBuilder;
 
-        AidlSubscriptionClient(HalClientCallback callback, HalPropValueBuilder builder) {
+        AidlSubscriptionClient(VehicleHalCallback callback, HalPropValueBuilder builder) {
             mCallback = callback;
             mBuilder = builder;
         }
@@ -1028,7 +1028,12 @@ final class AidlVehicleStub extends VehicleStub {
             // added and then remove them all.
             try {
                 clientCallback.linkToDeath(() -> {
-                    mPendingAsyncRequestPool.removeRequestsForCallback(clientCallback);
+                    // This function will be invoked from a different thread. It needs to be
+                    // guarded by a lock so that the whole 'prepareAndConvertAsyncRequests' finishes
+                    // before we remove the callback.
+                    synchronized (mLock) {
+                        mPendingAsyncRequestPool.removeRequestsForCallback(clientCallback);
+                    }
                 });
             } catch (RemoteException e) {
                 // The binder is already died.

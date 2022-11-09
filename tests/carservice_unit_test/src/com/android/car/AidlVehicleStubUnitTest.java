@@ -62,10 +62,10 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.VehicleHalCallback;
 import com.android.car.internal.LargeParcelable;
 import com.android.compatibility.common.util.PollingCheck;
 
@@ -243,7 +243,7 @@ public final class AidlVehicleStubUnitTest {
         option.sampleRate = TEST_SAMPLE_RATE;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
 
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
 
         client.subscribe(options);
@@ -254,7 +254,7 @@ public final class AidlVehicleStubUnitTest {
 
     @Test
     public void testUnsubscribeAidl() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
 
         client.unsubscribe(TEST_PROP);
@@ -1075,7 +1075,7 @@ public final class AidlVehicleStubUnitTest {
 
     @Test
     public void testAidlVehicleCallbackOnPropertyEventSmallData() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback aidlCallback = (IVehicleCallback) client;
         VehiclePropValues propValues = new VehiclePropValues();
@@ -1093,7 +1093,7 @@ public final class AidlVehicleStubUnitTest {
 
     @Test
     public void testAidlVehicleCallbackOnPropertyEventLargeData() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback aidlCallback = (IVehicleCallback) client;
         VehiclePropValues propValues = new VehiclePropValues();
@@ -1121,7 +1121,7 @@ public final class AidlVehicleStubUnitTest {
 
     @Test
     public void testAidlVehicleCallbackOnPropertySetErrorSmallData() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback aidlCallback = (IVehicleCallback) client;
         VehiclePropErrors errors = new VehiclePropErrors();
@@ -1138,7 +1138,7 @@ public final class AidlVehicleStubUnitTest {
 
     @Test
     public void testAidlVehicleCallbackOnPropertySetErrorLargeData() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback aidlCallback = (IVehicleCallback) client;
         VehiclePropErrors errors = new VehiclePropErrors();

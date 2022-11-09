@@ -33,6 +33,11 @@ interface ICarTest {
     void startCarService(IBinder token) = 2;
 
     /**
+     * Returns OEM service name.
+     */
+    String getOemServiceName() = 3;
+
+    /**
      * Dumps VHAL's information or debug VHAL.
      *
      * {@code waitTimeoutMs} specifies the longest time CarTestService will wait to receive all
@@ -41,15 +46,10 @@ interface ICarTest {
      * how long CarTestService would wait before it determines that VHAL is dead or stuck and
      * returns error.
      */
-    String dumpVhal(in List<String> options, long waitTimeoutMs) = 3;
+    String dumpVhal(in List<String> options, long waitTimeoutMs) = 4;
 
     /**
      * Returns whether AIDL VHAL is used for VHAL backend.
      */
-    boolean hasAidlVhal() = 4;
-
-    /**
-     * Returns OEM service name.
-     */
-    String getOemServiceName() = 5;
+    boolean hasAidlVhal() = 5;
 }

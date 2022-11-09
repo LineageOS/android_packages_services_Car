@@ -46,11 +46,11 @@ import android.os.ServiceSpecificException;
 import android.util.SparseArray;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
-import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
+import com.android.car.hal.VehicleHalCallback;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -360,7 +360,7 @@ public final class HidlVehicleStubUnitTest {
         hidlOptions.sampleRate = TEST_SAMPLE_RATE;
         hidlOptions.flags = android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_CAR;
 
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
 
         client.subscribe(new SubscribeOptions[]{aidlOptions});
@@ -373,7 +373,7 @@ public final class HidlVehicleStubUnitTest {
 
     @Test
     public void testUnsubscribeHidl() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
 
         client.unsubscribe(TEST_PROP);
@@ -632,7 +632,7 @@ public final class HidlVehicleStubUnitTest {
 
     @Test
     public void testHidlVehicleCallbackOnPropertyEvent() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback.Stub hidlCallback = (IVehicleCallback.Stub) client;
 
@@ -645,7 +645,7 @@ public final class HidlVehicleStubUnitTest {
 
     @Test
     public void testHidlVehicleCallbackOnPropertySetError() throws Exception {
-        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback.Stub hidlCallback = (IVehicleCallback.Stub) client;
         VehiclePropError error = new VehiclePropError();

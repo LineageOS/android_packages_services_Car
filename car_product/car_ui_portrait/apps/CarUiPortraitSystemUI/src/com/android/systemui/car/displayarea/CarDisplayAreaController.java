@@ -96,6 +96,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     intent.putExtra(INTENT_EXTRA_SUW_IN_PROGRESS, userSetupInProgress);
                     mApplicationContext.sendBroadcastAsUser(intent,
                             new UserHandle(ActivityManager.getCurrentUser()));
+
+                    mCarUiDisplaySystemBarsController.requestImmersiveModeForSUW(
+                            mApplicationContext.getDisplayId(), userSetupInProgress);
+
                 }
             };
 
