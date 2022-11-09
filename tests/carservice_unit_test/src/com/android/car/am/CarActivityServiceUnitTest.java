@@ -34,8 +34,12 @@ import android.content.pm.PackageManager;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
+import com.android.car.CarLocalServices;
+import com.android.car.CarServiceHelperWrapper;
+import com.android.car.CarServiceHelperWrapperUnitTest;
 import com.android.car.internal.ICarServiceHelper;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,10 +74,21 @@ public class CarActivityServiceUnitTest {
         boolean isNonCurrentUserTest = mTestName.getMethodName().contains("NonCurrentUser");
         int callerId = isNonCurrentUserTest ? nonCurrentUserId : UserHandle.USER_SYSTEM;
         when(mCarActivityService.getCaller()).thenReturn(callerId);
+
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mICarServiceHelper);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test
     public void setPersistentActivityThrowsException_ifICarServiceHelperIsNotSet() {
+        // Remove already create one and reset to not set state.
+        CarServiceHelperWrapperUnitTest.createWithImmediateTimeout();
+
         assertThrows(IllegalStateException.class,
                 () -> mCarActivityService.setPersistentActivity(
                         mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER));
@@ -81,7 +96,6 @@ public class CarActivityServiceUnitTest {
 
     @Test
     public void setPersistentActivityThrowsException_withoutPermission() {
-        mCarActivityService.setICarServiceHelper(mICarServiceHelper);
         when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
@@ -93,9 +107,6 @@ public class CarActivityServiceUnitTest {
     @Test
     public void setPersistentActivityInvokesICarServiceHelper() throws RemoteException {
         int displayId = 9;
-
-        mCarActivityService.setICarServiceHelper(mICarServiceHelper);
-
         int ret = mCarActivityService.setPersistentActivity(
                 mTestActivity, displayId, FEATURE_DEFAULT_TASK_CONTAINER);
         assertThat(ret).isEqualTo(CarActivityManager.RESULT_SUCCESS);
@@ -113,8 +124,6 @@ public class CarActivityServiceUnitTest {
 
     @Test
     public void setPersistentActivityReturnsErrorForNonCurrentUser() throws RemoteException {
-        mCarActivityService.setICarServiceHelper(mICarServiceHelper);
-
         int ret = mCarActivityService.setPersistentActivity(
                 mTestActivity, DEFAULT_DISPLAY, FEATURE_DEFAULT_TASK_CONTAINER);
         assertThat(ret).isEqualTo(CarActivityManager.RESULT_INVALID_USER);

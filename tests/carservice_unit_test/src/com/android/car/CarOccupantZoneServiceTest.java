@@ -267,12 +267,16 @@ public class CarOccupantZoneServiceTest {
 
         Car car = new Car(mContext, /* service= */ null, /* handler= */ null);
         mManager = new CarOccupantZoneManager(car, mService);
+
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mICarServiceHelper);
     }
 
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.removeServiceForTest(CarPropertyService.class);
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test
@@ -395,7 +399,6 @@ public class CarOccupantZoneServiceTest {
     public void testAssignProfileUserOnce() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertPassengerDisplaysFromDefaultConfig();
 
@@ -411,7 +414,6 @@ public class CarOccupantZoneServiceTest {
     public void testAssignProfileUserFailForStoppedUser() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertPassengerDisplaysFromDefaultConfig();
 
@@ -425,7 +427,6 @@ public class CarOccupantZoneServiceTest {
     public void testAssignProfileUserSwitch() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isTrue();
@@ -446,7 +447,6 @@ public class CarOccupantZoneServiceTest {
     public void testAssignProfileFollowedByUserSwitch() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isTrue();
@@ -470,7 +470,6 @@ public class CarOccupantZoneServiceTest {
         setUpServiceWithProfileSupportEnabled();
         mVisibleUsers.add(VISIBLE_USER);
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertWithMessage("Visible user assigning should work").that(
                 mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
@@ -490,7 +489,6 @@ public class CarOccupantZoneServiceTest {
         setUpServiceWithProfileSupportEnabled();
         mVisibleUsers.add(VISIBLE_USER);
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         // Assign VISIBLE_USER to a zone.
         assertWithMessage("Assigning visible user to zone succeeds").that(
@@ -547,7 +545,6 @@ public class CarOccupantZoneServiceTest {
     public void testAssignProfileFollowedByNullUserAssignment() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isTrue();
@@ -567,7 +564,6 @@ public class CarOccupantZoneServiceTest {
     public void testCarServiceHelperInitialUpdate() throws Exception {
         setUpServiceWithProfileSupportEnabled();
         mService.init();
-        mService.setCarServiceHelper(mICarServiceHelper);
 
         assertPassengerDisplaysFromDefaultConfig();
         assertThat(mICarServiceHelper.mAllowlists).isEmpty();

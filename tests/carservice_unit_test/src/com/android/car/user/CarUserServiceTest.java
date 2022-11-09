@@ -157,7 +157,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testSendInitialUserToSystemServer() throws Exception {
         UserHandle user = UserHandle.of(101);
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
 
         mCarUserService.setInitialUser(user);
 
@@ -185,11 +184,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockGetUxRestrictions(/* restricted= */ true);
         ICarUxRestrictionsChangeListener listener = initService();
 
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         verify(mICarServiceHelper).setSafetyMode(false);
 
         updateUxRestrictions(listener, /* restricted= */ false);
+
         verify(mICarServiceHelper).setSafetyMode(true);
+
+        updateUxRestrictions(listener, /* restricted= */ true);
+        verify(mICarServiceHelper, times(2)).setSafetyMode(false);
     }
 
     @Test
@@ -197,7 +199,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockGetUxRestrictions(/* restricted= */ false);
         ICarUxRestrictionsChangeListener listener = initService();
 
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         verify(mICarServiceHelper).setSafetyMode(true);
 
         updateUxRestrictions(listener, /* restricted= */ true);
@@ -1977,18 +1978,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    @ExpectWtf
-    public void testCreateUserEvenWhenDisallowed_noHelper() throws Exception {
-        UserHandle userHandle = mCarUserService.createUserEvenWhenDisallowed("name",
-                UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_ADMIN);
-        waitForHandlerThreadToFinish();
-
-        assertThat(userHandle).isNull();
-    }
-
-    @Test
     public void testCreateUserEvenWhenDisallowed_remoteException() throws Exception {
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.createUserEvenWhenDisallowed(any(), any(), anyInt()))
                 .thenThrow(new RemoteException("D'OH!"));
 
@@ -2002,7 +1992,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testCreateUserEvenWhenDisallowed_success() throws Exception {
         UserHandle user = UserHandle.of(100);
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.createUserEvenWhenDisallowed("name",
                 UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_ADMIN))
                         .thenReturn(user);
@@ -2536,16 +2525,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    @ExpectWtf
-    public void testIsUserVisible_helperNotSet() throws Exception {
-        boolean visible = mCarUserService.isUserVisible(42);
-
-        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
-    }
-
-    @Test
     public void testIsUserVisible_helperNotSet_remoteException() throws Exception {
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.getDisplayAssignedToUser(42))
                 .thenThrow(new RemoteException("D'OH!"));
 
@@ -2556,7 +2536,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible() throws Exception {
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
 
         boolean visible = mCarUserService.isUserVisible(42);
@@ -2566,7 +2545,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible_nope() throws Exception {
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(Display.INVALID_DISPLAY);
 
         boolean visible = mCarUserService.isUserVisible(42);

@@ -114,6 +114,8 @@ public class ICarImpl extends ICar.Stub {
     private final Context mCarServiceBuiltinPackageContext;
     private final VehicleHal mHal;
 
+    private final CarServiceHelperWrapper mCarServiceHelperWrapper;
+
     private final CarFeatureController mFeatureController;
 
     private final SystemInterface mSystemInterface;
@@ -204,6 +206,8 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarServiceBuiltinPackageContext = builtinContext;
         }
+
+        mCarServiceHelperWrapper = CarServiceHelperWrapper.create();
 
         // Currently there are ~35 services, hence using 40 as the initial capacity.
         List<CarSystemService> allServices = new ArrayList<>(40);
@@ -472,11 +476,8 @@ public class ICarImpl extends ICar.Stub {
         try {
             EventLogHelper.writeCarServiceSetCarServiceHelper(Binder.getCallingPid());
             assertCallingFromSystemProcess();
-            // TODO(b/173030628) create a proxy wrapping access to CarServiceHelper instead
-            mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
-            mCarUserService.setCarServiceHelper(carServiceHelper);
-            mCarActivityService.setICarServiceHelper(carServiceHelper);
-            CarLocalServices.addService(ICarServiceHelper.class, carServiceHelper);
+
+            mCarServiceHelperWrapper.setCarServiceHelper(carServiceHelper);
 
             bundle = new Bundle();
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
