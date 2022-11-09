@@ -318,7 +318,8 @@ void EvsServiceContext::closeCamera() {
         LOG(WARNING) << "Failed to close a current camera device.";
     }
 
-    // Reset a camera id in use.
+    // Reset a camera reference and id in use.
+    mCamera.reset();
     mCameraIdInUse.clear();
 }
 
