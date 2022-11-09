@@ -273,6 +273,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_SET_PROCESS_GROUP = "set-process-group";
     private static final String COMMAND_GET_PROCESS_GROUP = "get-process-group";
+    private static final String COMMAND_SET_PROCESS_PROFILE = "set-process-profile";
 
     private static final String COMMAND_GET_DISPLAY_BY_USER = "get-display-by-user";
     private static final String COMMAND_GET_USER_BY_DISPLAY = "get-user-by-display";
@@ -800,6 +801,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s <PID>", COMMAND_GET_PROCESS_GROUP);
         pw.println("\t Get the CPU group of a process. Check android.os.Process.getProcessGroup "
                 + "for details on the parameters.");
+        pw.printf("\t%s <PID> <UID> <CPU_PROFILE>", COMMAND_SET_PROCESS_PROFILE);
+        pw.println("\t Change CPU profile (=CPUSet) of a process. Check "
+                + "android.os.Process.setProcessProfile for details on the parameters.");
 
         pw.printf("\t%s <USER>", COMMAND_GET_DISPLAY_BY_USER);
         pw.println("\t Gets the display associated to the given user");
@@ -1193,6 +1197,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_PROCESS_GROUP:
                 getProcessGroup(args, writer);
+                break;
+            case COMMAND_SET_PROCESS_PROFILE:
+                setProcessProfile(args, writer);
                 break;
             case COMMAND_GET_DISPLAY_BY_USER:
                 getDisplayByUser(args, writer);
@@ -3437,6 +3444,32 @@ final class CarShellCommand extends BasicShellCommandHandler {
             throw new RuntimeException(e);
         }
         writer.printf("%d\n", group);
+    }
+
+    private void setProcessProfile(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 4) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        int pid = Integer.parseInt(args[1]);
+        int uid = Integer.parseInt(args[2]);
+        String profile = args[3];
+
+        Slogf.d(TAG, "Setting process profile for pid %d, uid %d, profile %s", pid, uid, profile);
+
+        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
+        if (helper == null) {
+            writer.printf("  CarServiceHelper not connected yet");
+            return;
+        }
+        try {
+            helper.setProcessProfile(pid, uid, profile);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+        writer.printf("  Successfully set pid %d uid %d to profile %s\n", pid, uid, profile);
     }
 
     private void getDisplayByUser(String[] args, IndentingPrintWriter writer) {

@@ -84,4 +84,7 @@ interface ICarServiceHelper {
      * Check {@link android.app.AcitivityManager#startUserInBackgroundOnSecondaryDisplay(int, int)}
      */
     boolean startUserInBackgroundOnSecondaryDisplay(int userId, int displayId) = 11;
+
+    /** Check {@link android.os.Process#setProcessProfile(int, int, String)}. */
+    void setProcessProfile(int pid, int uid, in String profile) = 12;
 }
