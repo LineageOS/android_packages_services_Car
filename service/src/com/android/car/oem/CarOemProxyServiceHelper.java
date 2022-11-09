@@ -95,6 +95,8 @@ public final class CarOemProxyServiceHelper {
 
     private final ExecutorService mThreadPool;
     @GuardedBy("mLock")
+    private Callable<String> mOemStackTracer;
+    @GuardedBy("mLock")
     private int mTotalCircularCallsInProcess;
     @GuardedBy("mLock")
     private int mOemCarServicePid;
@@ -355,12 +357,38 @@ public final class CarOemProxyServiceHelper {
      * Crashes CarService and OEM Service.
      */
     public void crashCarService(String reason) {
-        // TODO(b/239607309):Dump call stack and crash OEM service first. To crash OEM service
-        // get OEM Service PID and crash the service. Follow similar dump and crash in
-        // CarServiceHelperService for the requests received from CarWatchDog
-        int processId = Process.myPid();
-        Slogf.e(TAG, "****Crashing CarService because %s. PID: %s****", reason, processId);
-        Process.killProcess(processId);
+        Slogf.e(TAG, "****Crashing CarService and OEM service because %s****", reason);
+        Slogf.e(TAG, "Car Service stack-");
+        Slogf.e(TAG, Log.getStackTraceString(new Exception()));
+
+        Callable<String> oemStackTracer = null;
+        synchronized (mLock) {
+            oemStackTracer = mOemStackTracer;
+        }
+
+        if (oemStackTracer != null) {
+            Slogf.e(TAG, "OEM Service stack-");
+            int timeoutMs = 2000;
+            try {
+                String stack = doBinderTimedCallWithTimeout(TAG, oemStackTracer, timeoutMs);
+                Slogf.e(TAG, stack);
+            } catch (TimeoutException e) {
+                Slogf.e(TAG, "Didn't received OEM stack within %d milliseconds.\n", timeoutMs);
+            }
+        }
+
+        int carServicePid = Process.myPid();
+        int oemCarServicePid;
+        synchronized (mLock) {
+            oemCarServicePid = mOemCarServicePid;
+        }
+
+        if (oemCarServicePid != 0) {
+            Slogf.e(TAG, "Killing OEM service process with PID %d.", oemCarServicePid);
+            Process.killProcess(oemCarServicePid);
+        }
+        Slogf.e(TAG, "Killing Car service process with PID %d.", carServicePid);
+        Process.killProcess(carServicePid);
         System.exit(EXIT_FLAG);
     }
 
@@ -392,5 +420,14 @@ public final class CarOemProxyServiceHelper {
             }
         }
         writer.decreaseIndent();
+    }
+
+    /**
+     * Updates call for getting OEM stack trace.
+     */
+    public void updateOemStackCall(Callable<String> oemStackTracer) {
+        synchronized (mLock) {
+            mOemStackTracer = oemStackTracer;
+        }
     }
 }

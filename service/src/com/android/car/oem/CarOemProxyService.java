@@ -50,6 +50,7 @@ import com.android.internal.annotations.GuardedBy;
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Manages access to OemCarService.
@@ -289,7 +290,17 @@ public final class CarOemProxyService implements CarServiceBase {
                     mOemServiceConnectionTimeoutMs);
             writer.printf("OEM_CAR_SERVICE_READY_TIMEOUT_MS: %s\n", mOemServiceReadyTimeoutMs);
             writer.printf("mComponentName: %s\n", mComponentName);
-            writer.printf("mCallbacks size: %d\n", mCallbacks.size());
+            // Dump OEM service stack
+            if (mIsOemServiceReady) {
+                writer.printf("OEM callstack\n");
+                int timeoutMs = 2000;
+                try {
+                    writer.printf(mHelper.doBinderTimedCallWithTimeout(CALL_TAG,
+                            () -> getOemService().getAllStackTraces(), timeoutMs));
+                } catch (TimeoutException e) {
+                    writer.printf("Didn't received OEM stack within %d milliseconds.\n", timeoutMs);
+                }
+            }
             // Dump helper
             mHelper.dump(writer);
         }
@@ -487,6 +498,7 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.i(TAG, "OEM Car service is ready and running. Process ID of OEM Car Service is:"
                     + " %d", pid);
             mHelper.updateOemPid(pid);
+            mHelper.updateOemStackCall(() -> getOemService().getAllStackTraces());
             // Initialize other components on handler thread so that main thread is not
             // blocked
             mHandler.post(() -> initOemServiceComponents());
