@@ -46,6 +46,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -132,7 +133,17 @@ public final class CarOemProxyService implements CarServiceBase {
 
     private final IOemCarServiceCallback mOemCarServiceCallback = new IOemCarServiceCallbackImpl();
 
+    @VisibleForTesting
     public CarOemProxyService(Context context) {
+        this(context, null);
+    }
+
+    @VisibleForTesting
+    public CarOemProxyService(Context context, CarOemProxyServiceHelper helper) {
+        this(context, helper, null);
+    }
+
+    public CarOemProxyService(Context context, CarOemProxyServiceHelper helper, Handler handler) {
         // Bind to the OemCarService
         mContext = context;
         Resources res = mContext.getResources();
@@ -177,7 +188,7 @@ public final class CarOemProxyService implements CarServiceBase {
 
         Slogf.i(TAG, "Binding to Oem Service with intent: %s", intent);
         mHandlerThread = CarServiceUtils.getHandlerThread("car_oem_service");
-        mHandler = new Handler(mHandlerThread.getLooper());
+        mHandler = handler == null ? new Handler(mHandlerThread.getLooper()) : handler;
 
         mIsOemServiceBound = mContext.bindServiceAsUser(intent, mCarOemServiceConnection,
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, UserHandle.SYSTEM);
@@ -190,7 +201,7 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.e(TAG,
                     "Couldn't bound to OemCarService. Oem service feature is marked disabled.");
         }
-        mHelper = new CarOemProxyServiceHelper(mContext);
+        mHelper = helper ==  null ? new CarOemProxyServiceHelper(mContext) : helper;
     }
 
     private boolean isInvalidComponentName(Context context, String componentName) {
@@ -411,7 +422,7 @@ public final class CarOemProxyService implements CarServiceBase {
         if (!mIsOemServiceConnected) {
             Slogf.e(TAG, "OEM Service is not connected within: %dms, calling to crash CarService",
                     mOemServiceConnectionTimeoutMs);
-            mHelper.crashCarService("Timeout Exception");
+            mHelper.crashCarService("OEM Service not connected");
         }
     }
 
@@ -438,7 +449,7 @@ public final class CarOemProxyService implements CarServiceBase {
             if (!mIsOemServiceReady) {
                 Slogf.e(TAG, "OEM Service is not ready within: " + mOemServiceReadyTimeoutMs
                         + "ms, calling to crash CarService");
-                mHelper.crashCarService("Service not ready");
+                mHelper.crashCarService("OEM Service not ready");
             }
         }
         Slogf.i(TAG, "OEM Service is ready.");
