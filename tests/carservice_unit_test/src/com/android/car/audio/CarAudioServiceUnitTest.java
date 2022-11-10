@@ -199,6 +199,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     IBinder mBinder;
     @Mock
+    IBinder mVolumeCallbackBinder;
+    @Mock
     IAudioControl mAudioControl;
     @Mock
     private PackageManager mMockPackageManager;
@@ -210,6 +212,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private Uri mNavSettingUri;
     @Mock
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
+    @Mock
+    private CarVolumeCallbackHandler mCarVolumeCallbackHandler;
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
@@ -306,7 +310,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         mCarAudioService =
                 new CarAudioService(mMockContext,
-                        mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                        mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                        mCarVolumeCallbackHandler);
     }
 
     private void setupAudioManager() throws Exception {
@@ -357,7 +362,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void constructor_withNullContextAndNullPath_fails() {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
-                        () -> new CarAudioService(null, null));
+                        () -> new CarAudioService(/* context= */null,
+                                /* audioConfigurationPath= */ null,
+                                /* carVolumeCallbackHandler= */ null));
 
         assertWithMessage("Car Audio Service Construction")
                 .that(thrown).hasMessageThat().contains("Context");
@@ -399,7 +406,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         assertWithMessage("Non dynamic routing primary zone car volume group count")
@@ -421,7 +429,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         assertWithMessage("Non dynamic routing primary zone's media car volume group id")
@@ -444,7 +453,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         assertWithMessage("Non dynamic routing primary zone's navigation car volume group id")
@@ -468,7 +478,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         assertWithMessage("Non dynamic routing primary zone's invalid car volume group id")
@@ -675,7 +686,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
@@ -727,7 +739,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         boolean results = noZoneMappingAudioService
@@ -741,7 +754,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         noZoneMappingAudioService
@@ -759,7 +773,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
         AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia();
 
@@ -781,7 +796,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         int zoneId = noZoneMappingAudioService
@@ -796,7 +812,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         noZoneMappingAudioService
@@ -814,7 +831,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         noZoneMappingAudioService
@@ -849,7 +867,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
@@ -875,7 +894,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void clearZoneIdForUid_forNonMappedUid_succeeds() throws Exception {
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         boolean status = noZoneMappingAudioService
@@ -890,7 +910,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         noZoneMappingAudioService
@@ -907,7 +928,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
         CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         noZoneMappingAudioService.init();
 
         noZoneMappingAudioService
@@ -952,7 +974,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
@@ -1139,7 +1162,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseDynamicRouting))
                 .thenReturn(/* useDynamicRouting= */ false);
         CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
         assertWithMessage("Disabled dynamic routing audio feature")
@@ -1161,7 +1185,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
                 .thenReturn(false);
         CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonVolumeGroupMutingAudioService.init();
 
         assertWithMessage("Disabled group muting audio feature")
@@ -1327,12 +1352,31 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
                 .thenReturn(false);
         CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
-                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
         nonVolumeGroupMutingAudioService.init();
 
         nonVolumeGroupMutingAudioService.setAudioEnabled(/* enabled= */ true);
 
         verify(mAudioControlWrapperAidl, never()).onDevicesToMuteChange(any());
+    }
+
+    @Test
+    public void registerVolumeCallback_verifyCallbackHandler() {
+        mCarAudioService.init();
+
+        mCarAudioService.registerVolumeCallback(mVolumeCallbackBinder);
+
+        verify(mCarVolumeCallbackHandler).registerCallback(mVolumeCallbackBinder);
+    }
+
+    @Test
+    public void test() {
+        mCarAudioService.init();
+
+        mCarAudioService.unregisterVolumeCallback(mVolumeCallbackBinder);
+
+        verify(mCarVolumeCallbackHandler).unregisterCallback(mVolumeCallbackBinder);
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {

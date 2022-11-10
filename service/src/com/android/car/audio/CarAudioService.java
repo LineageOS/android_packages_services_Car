@@ -30,6 +30,8 @@ import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -213,11 +215,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             };
 
     public CarAudioService(Context context) {
-        this(context, getAudioConfigurationPath());
+        this(context, getAudioConfigurationPath(), new CarVolumeCallbackHandler());
     }
 
     @VisibleForTesting
-    CarAudioService(Context context, @Nullable String audioConfigurationPath) {
+    CarAudioService(Context context, @Nullable String audioConfigurationPath,
+            CarVolumeCallbackHandler carVolumeCallbackHandler) {
         mContext = Objects.requireNonNull(context,
                 "Context to create car audio service can not be null");
         mCarAudioConfigurationPath = audioConfigurationPath;
@@ -231,7 +234,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 R.bool.audioUseHalDuckingSignals);
 
         mUidToZoneMap = new HashMap<>();
-        mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
+        mCarVolumeCallbackHandler = carVolumeCallbackHandler;
         mCarAudioSettings = new CarAudioSettings(mContext);
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
         mAudioVolumeAdjustmentContextsVersion =
@@ -579,6 +582,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @GuardedBy("mImplLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     private SparseArray<CarAudioZone> loadVolumeGroupConfigurationWithAudioControlLocked(
             List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
@@ -1607,6 +1611,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     /**
      * Resets the last selected volume context.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     public void resetSelectedVolumeContext() {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         synchronized (mImplLock) {
