@@ -18,6 +18,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="hvac_panel_header" msgid="1299061170810305529">"Στοιχεία ελέγχου Άνεσης"</string>
-    <!-- no translation found for default_sensor_string (3994996854548513870) -->
-    <skip />
+    <string name="default_sensor_string" msgid="3994996854548513870">"Δ/Ι"</string>
 </resources>

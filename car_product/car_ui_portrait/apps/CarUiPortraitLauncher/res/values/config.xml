@@ -33,8 +33,6 @@
         <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
         <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
         <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
-        <item>com.google.android.car.setupwizard/.deferred.DeferredCarSetupWizardActivity</item>
-        <item>com.google.android.car.setupwizard/.CarSetupWizardMiniFlowActivity</item>
         <item>com.android.sdksetup/.DefaultActivity</item>
         <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
         <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
