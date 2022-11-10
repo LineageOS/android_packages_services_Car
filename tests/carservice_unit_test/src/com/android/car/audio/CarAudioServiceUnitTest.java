@@ -103,6 +103,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
+import com.android.car.oem.CarOemProxyService;
 import com.android.car.test.utils.TemporaryFile;
 
 import org.junit.After;
@@ -173,6 +174,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private CarOccupantZoneService mMockOccupantZoneService;
     @Mock
+    private CarOemProxyService mMockCarOemProxyService;
+    @Mock
     private IAudioService mMockAudioService;
     @Mock
     private Uri mNavSettingUri;
@@ -198,7 +201,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         session
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapperAidl.class)
-                .spyStatic(CarLocalServices.class)
                 .spyStatic(AudioControlFactory.class)
                 .spyStatic(SystemProperties.class)
                 .spyStatic(ServiceManager.class);
@@ -239,6 +241,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void tearDown() throws Exception {
         mTemporaryAudioConfigurationFile.close();
         mTemporaryAudioConfigurationWithoutZoneMappingFile.close();
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
     }
 
     private void setupAudioControlHAL() {
@@ -256,10 +260,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         doReturn(true)
                 .when(() -> AudioManagerHelper
                         .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
-        doReturn(mMockOccupantZoneService)
-                .when(() ->  CarLocalServices.getService(CarOccupantZoneService.class));
         doReturn(true)
                 .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
+
+        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
+        CarLocalServices.addService(CarOccupantZoneService.class, mMockOccupantZoneService);
+
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
 
         setupAudioManager();
 

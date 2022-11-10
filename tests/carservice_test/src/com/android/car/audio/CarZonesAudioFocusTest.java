@@ -38,11 +38,9 @@ import android.media.AudioFocusInfo;
 import android.os.Bundle;
 import android.util.SparseArray;
 
-import com.android.car.CarLocalServices;
-import com.android.car.oem.CarOemProxyService;
-
 import com.google.common.truth.Expect;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -59,11 +57,16 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
     public final Expect expect = Expect.create();
 
     @Before
+    @Override
     public void setUp() {
-        mCarAudioZones = generateAudioZones();
+        super.setUp();
         when(mCarAudioService.getZoneIdForUid(MEDIA_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
-        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
-        CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
+    }
+
+    @After
+    @Override
+    public void tearDown() {
+        super.tearDown();
     }
 
     @Test

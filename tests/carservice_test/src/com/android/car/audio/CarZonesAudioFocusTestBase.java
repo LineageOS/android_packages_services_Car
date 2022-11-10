@@ -47,6 +47,7 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.SparseArray;
 
+import com.android.car.CarLocalServices;
 import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemProxyService;
 
@@ -183,6 +184,18 @@ abstract class CarZonesAudioFocusTestBase {
     private PackageManager mMockPackageManager;
 
     protected SparseArray<CarAudioZone> mCarAudioZones;
+
+    public void setUp() {
+        mCarAudioZones = generateAudioZones();
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+    }
+
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+    }
 
     protected AudioFocusInfo generateCallRequestForPrimaryZone() {
         return new AudioFocusInfoBuilder().setUsage(USAGE_VOICE_COMMUNICATION)
