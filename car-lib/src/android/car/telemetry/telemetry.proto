@@ -84,6 +84,7 @@ message StatsPublisher {
     // Collects all the app start events with the initial used RSS/CACHE/SWAP memory.
     APP_START_MEMORY_STATE_CAPTURED = 1;
     // Collects memory state of processes in 5-minute buckets (1 memory measurement per bucket).
+    // Consider using PROCESS_MEMORY_SNAPSHOT instead for smaller data size.
     PROCESS_MEMORY_STATE = 2;
     // Collects activity foreground/background transition events.
     ACTIVITY_FOREGROUND_STATE_CHANGED = 3;
@@ -95,6 +96,10 @@ message StatsPublisher {
     ANR_OCCURRED = 6;
     // Collects "wtf"-level log events.
     WTF_OCCURRED = 7;
+    // Collects memory snapshot of processes in 5-minute buckets (1 memory measurement per bucket).
+    // It differs from PROCESS_MEMORY_STATE in that the snapshot can be used for leaked memory
+    // detection by tracking anon RSS + swap usage.
+    PROCESS_MEMORY_SNAPSHOT = 8;
   }
 
   // Required.
