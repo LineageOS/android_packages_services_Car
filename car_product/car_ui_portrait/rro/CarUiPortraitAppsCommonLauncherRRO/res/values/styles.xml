@@ -16,7 +16,11 @@
   -->
 
 <resources>
-    <color name="icon_color">#E8EAED</color>
-    <color name="disabled_icon_color">#80868B</color>
-    <color name="play_pause_ic_bg_color">#000000</color>
+    <!-- Styles for play/pause action buttons -->
+    <style name="Widget.ActionButton.PlayPause">
+        <item name="android:layout_width">@dimen/play_pause_image_size</item>
+        <item name="android:layout_height">@dimen/play_pause_image_size</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@color/action_button_icon_tint</item>
+    </style>
 </resources>
