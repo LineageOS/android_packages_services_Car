@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
@@ -377,9 +378,9 @@ public final class AndroidMockitoHelper {
      * returns {@link UserHandle UserHandles} with the given {@code userIds}.
      */
     public static void mockUmGetVisibleUsers(UserManager um, @UserIdInt int...userIds) {
-        List<UserHandle> users = Arrays.stream(userIds).mapToObj(u -> UserHandle.of(u))
-                .collect(Collectors.toList());
-        Log.v(TAG, "mockUmGetUserSwitchability(" + Arrays.toString(userIds) + ": returning "
+        Set<UserHandle> users = Arrays.stream(userIds).mapToObj(u -> UserHandle.of(u))
+                .collect(Collectors.toSet());
+        Log.v(TAG, "mockUmGetVisibleUsers(" + Arrays.toString(userIds) + ": returning "
                 + users);
         when(um.getVisibleUsers()).thenReturn(users);
     }
