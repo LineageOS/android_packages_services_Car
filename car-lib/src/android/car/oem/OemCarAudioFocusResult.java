@@ -36,7 +36,7 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class OemCarAudioFocusResult implements Parcelable {
     private final @Nullable AudioFocusEntry mAudioFocusEntry;
@@ -66,7 +66,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
      * re-evaluated once any of the current focus holders abandons focus. For failed request,
      * the car audio focus stack will not change and the current request will not gain focus.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @Nullable AudioFocusEntry getAudioFocusEntry() {
         return mAudioFocusEntry;
@@ -80,7 +80,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
      * For transient losses, the new entry will be added as a blocker but will only receive
      * transient focus loss.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getNewlyLossAudioFocusEntries() {
         return mNewlyLossAudioFocusEntries;
@@ -94,7 +94,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
      * For transient losses, the new entry will be added as a blocker but will only receive
      * transient focus loss.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getNewlyBlockedAudioFocusEntries() {
         return mNewlyBlockedAudioFocusEntries;
@@ -105,14 +105,14 @@ public final class OemCarAudioFocusResult implements Parcelable {
      * {@link AudioManager.AUDIOFOCUS_LOSS}, {@link AudioManager.AUDIOFOCUS_LOSS_TRANSIENT},
      * {@link AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAudioFocusResult() {
         return mAudioFocusResult;
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusResult { audioFocusEntry = ")
@@ -125,7 +125,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         byte flg = 0;
@@ -140,7 +140,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
@@ -164,7 +164,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         this.mAudioFocusResult = audioFocusResult;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final OemCarAudioFocusResult EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS =
@@ -173,7 +173,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
                     /* newlyBlockedAudioFocusEntries= */ new ArrayList<>(/* initialCapacity= */ 0),
                     AUDIOFOCUS_REQUEST_FAILED);
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<OemCarAudioFocusResult> CREATOR =
@@ -221,7 +221,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see OemCarAudioFocusResult#getAudioFocusEntry */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setAudioFocusEntry(@NonNull AudioFocusEntry focusEntry) {
@@ -234,7 +234,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see OemCarAudioFocusResult#getNewlyLossAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setNewlyLossAudioFocusEntries(
@@ -248,7 +248,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see #setNewlyLossAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder addNewlyLossAudioFocusEntry(@NonNull AudioFocusEntry lossEntry) {
@@ -262,7 +262,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see OemCarAudioFocusResult#getNewlyBlockedAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setNewlyBlockedAudioFocusEntries(
@@ -276,7 +276,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see #setNewlyBlockedAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder addNewlyBlockedAudioFocusEntry(
@@ -291,7 +291,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** @see OemCarAudioFocusResult#getAudioFocusResult */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setAudioFocusResult(int audioFocusResult) {
@@ -301,7 +301,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public OemCarAudioFocusResult build() {

@@ -38,7 +38,7 @@ public interface OemCarServiceComponent {
      * <p>This is called for each service component during {@link OemCarService#onCreate()}
      * call of OemCarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void init();
 
@@ -48,7 +48,7 @@ public interface OemCarServiceComponent {
      * <p>This is called for each service component during {@link OemCarService#onDestroy()}
      * call of OemCarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void release();
 
@@ -58,7 +58,7 @@ public interface OemCarServiceComponent {
      * <p>Each service component should implement a dump command to dump. It is called from
      * {@link OemCarService#dump(java.io.FileDescriptor, PrintWriter, String[])} call.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void dump(@Nullable PrintWriter writer, @Nullable String[] args);
 
@@ -68,7 +68,7 @@ public interface OemCarServiceComponent {
      * <p> Each service component should do the necessary initialization depending on CarService. It
      * is called from {@link OemCarService#onCarServiceReady()} call.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void onCarServiceReady();
 }
