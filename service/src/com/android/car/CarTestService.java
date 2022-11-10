@@ -103,6 +103,11 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
         releaseToken(token);
     }
 
+    @Override
+    public String getOemServiceName() {
+        return mICarImpl.getOemServiceName();
+    }
+
     private void releaseToken(IBinder token) {
         Slogf.d(TAG, "releaseToken, token: " + token);
         synchronized (mLock) {
