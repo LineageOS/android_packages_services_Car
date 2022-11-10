@@ -189,6 +189,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
+        when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))
+                .thenReturn(WAKE_UP_DELAY);
         doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
         doAnswer(invocation -> {
             mVoiceInteractionEnabled = (boolean) invocation.getArguments()[0];
@@ -785,6 +787,24 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testSuspendFailure() throws Exception {
+        suspendWithFailure(/* nextPowerState= */ null);
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSuspendFailureWithForbiddenTransition() throws Exception {
+        suspendWithFailure(/* nextPowerState= */ VehicleApPowerStateReq.ON);
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testSuspendFailureWithAllowedTransition() throws Exception {
+        suspendWithFailure(/* nextPowerState= */ VehicleApPowerStateReq.CANCEL_SHUTDOWN);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_MS);
+    }
+
+    @Test
     public void testPowerPolicyOnSilentBoot() throws Exception {
         grantPowerPolicyPermission();
         mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_SILENT);
@@ -804,6 +824,31 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         assertThat(mService.getCurrentPowerPolicy().getPolicyId())
                 .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
+    }
+
+    private void suspendWithFailure(Integer nextPowerState) throws Exception {
+        mSystemStateInterface.setSleepEntryResult(false);
+        mSystemStateInterface.setSimulateSleep(false);
+
+        // Transition to ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
+        assertThat(mService.garageModeShouldExitImmediately()).isTrue();
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_WAIT_FOR_VHAL, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+
+        mSystemStateInterface.waitForDeepSleepEntry(WAIT_TIMEOUT_MS);
+
+        if (nextPowerState != null) {
+            mPowerHal.setCurrentPowerState(new PowerState(nextPowerState, 0));
+        }
     }
 
     private void suspendAndResume() throws Exception {
@@ -1001,6 +1046,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         private final Semaphore mShutdownWait = new Semaphore(0);
         private final Semaphore mSleepWait = new Semaphore(0);
         private final Semaphore mSleepExitWait = new Semaphore(0);
+
+        private boolean mSleepEntryResult = true;
+        private boolean mSimulateSleep = true;
+
         private boolean mWakeupCausedByTimer = false;
 
         @Override
@@ -1014,7 +1063,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         @Override
         public boolean enterDeepSleep() {
-            return simulateSleep();
+            if (mSimulateSleep) {
+                return simulateSleep();
+            }
+
+            mSleepWait.release();
+            return mSleepEntryResult;
         }
 
         @Override
@@ -1025,10 +1079,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         private boolean simulateSleep() {
             mSleepWait.release();
             try {
-                mSleepExitWait.acquire();
+                mSleepExitWait.tryAcquire(WAIT_TIMEOUT_MS , TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
             }
-            return true;
+            return mSleepEntryResult;
         }
 
         public void waitForSleepEntryAndWakeup(long timeoutMs) throws Exception {
@@ -1057,6 +1111,18 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         @Override
         public boolean isSystemSupportingHibernation() {
             return true;
+        }
+
+        public void setSleepEntryResult(boolean sleepEntryResult) {
+            mSleepEntryResult = sleepEntryResult;
+        }
+
+        public void setSimulateSleep(boolean simulateSleep) {
+            mSimulateSleep = simulateSleep;
+        }
+
+        public void waitForDeepSleepEntry(long waitTimeoutMs) throws InterruptedException {
+            waitForSemaphore(mSleepWait, waitTimeoutMs);
         }
     }
 
@@ -1108,12 +1174,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             mSemaphores.put(PowerHalService.SET_SHUTDOWN_START, new Semaphore(0));
             mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_ENTRY, new Semaphore(0));
             mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_EXIT, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_WAIT_FOR_VHAL, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_SHUTDOWN_CANCELLED, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_HIBERNATION_ENTRY, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_HIBERNATION_EXIT, new Semaphore(0));
         }
 
         public void waitFor(int signal, long timeoutMs) throws Exception {
             Semaphore semaphore = mSemaphores.get(signal);
             if (semaphore == null) {
-                return;
+                throw new IllegalArgumentException("no semaphore registered for event = " + signal);
             }
             waitForSemaphore(semaphore, timeoutMs);
         }
@@ -1129,7 +1199,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     static final class FakeCarPowerPolicyDaemon extends ICarPowerPolicySystemNotification.Stub {
-        private String mLastNofitiedPolicyId;
+        private String mLastNotifiedPolicyId;
         private String mLastDefinedPolicyId;
 
         @Override
@@ -1140,7 +1210,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         @Override
         public void notifyPowerPolicyChange(String policyId, boolean force) {
-            mLastNofitiedPolicyId = policyId;
+            mLastNotifiedPolicyId = policyId;
         }
 
         @Override
@@ -1150,7 +1220,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         }
 
         public String getLastNotifiedPolicyId() {
-            return mLastNofitiedPolicyId;
+            return mLastNotifiedPolicyId;
         }
 
         public String getLastDefinedPolicyId() {

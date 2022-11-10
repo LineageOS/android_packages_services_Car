@@ -1985,23 +1985,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             // We failed to suspend. Block the thread briefly and try again.
             synchronized (mLock) {
-                if (mPendingPowerStates.isEmpty()) {
-                    Slogf.w(TAG, "Failed to Suspend; will retry after %dms", retryIntervalMs);
-                    try {
-                        mLock.wait(retryIntervalMs);
-                    } catch (InterruptedException ignored) {
-                        Thread.currentThread().interrupt();
-                    }
-                    totalWaitDurationMs += retryIntervalMs;
-                    retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
-                } else {
+                if (!mPendingPowerStates.isEmpty()) {
                     // Check for a new power state now, before going around the loop again.
                     CpmsState state = mPendingPowerStates.peekFirst();
                     if (state != null && needPowerStateChangeLocked(state)) {
-                        Slogf.i(TAG, "Terminating the attempt to %s", suspendTarget);
+                        Slogf.i(TAG, "Terminating the attempt to suspend target = %s,"
+                                        + " currentState = %s, pendingState = %s", suspendTarget,
+                                mCurrentState.stateToString(), state.stateToString());
                         return false;
                     }
                 }
+
+                Slogf.w(TAG, "Failed to Suspend; will retry after %dms", retryIntervalMs);
+                try {
+                    mLock.wait(retryIntervalMs);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+                totalWaitDurationMs += retryIntervalMs;
+                retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
             }
         }
         // Too many failures trying to suspend. Shut down.
