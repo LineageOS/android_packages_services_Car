@@ -20,6 +20,6 @@ import android.media.AudioFocusInfo;
 
 /** @hide */
 interface IOemCarAudioFocusService {
-    oneway void audioFocusChanged(in List<AudioFocusInfo> currentFocusHolders,
+    void audioFocusChanged(in List<AudioFocusInfo> currentFocusHolders,
            in List<AudioFocusInfo> currentFocusLosers, int zoneId);
 }
