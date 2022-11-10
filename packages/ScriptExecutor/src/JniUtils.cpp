@@ -55,12 +55,11 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
     ScopedLocalRef<jclass> longClass(env, env->FindClass("java/lang/Long"));
     ScopedLocalRef<jclass> numberClass(env, env->FindClass("java/lang/Number"));
     ScopedLocalRef<jclass> stringClass(env, env->FindClass("java/lang/String"));
+    ScopedLocalRef<jclass> booleanArrayClass(env, env->FindClass("[Z"));
     ScopedLocalRef<jclass> intArrayClass(env, env->FindClass("[I"));
     ScopedLocalRef<jclass> longArrayClass(env, env->FindClass("[J"));
     ScopedLocalRef<jclass> doubleArrayClass(env, env->FindClass("[D"));
     ScopedLocalRef<jclass> stringArrayClass(env, env->FindClass("[Ljava/lang/String;"));
-    // TODO(b/188816922): Handle more types such as float and integer arrays,
-    // and perhaps nested Bundles.
 
     jmethodID getMethod = env->GetMethodID(persistableBundleClass.get(), "get",
                                            "(Ljava/lang/String;)Ljava/lang/Object;");
@@ -100,6 +99,23 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
                     env->GetStringUTFChars(static_cast<jstring>(value.get()), nullptr);
             lua_pushstring(lua, rawStringValue);
             env->ReleaseStringUTFChars(static_cast<jstring>(value.get()), rawStringValue);
+        } else if (env->IsInstanceOf(value.get(), booleanArrayClass.get())) {
+            jbooleanArray booleanArray = static_cast<jbooleanArray>(value.get());
+            const auto kLength = env->GetArrayLength(booleanArray);
+            // Arrays are represented as a table of sequential elements in Lua.
+            // We are creating a nested table to represent this array. We specify number of elements
+            // in the Java array to preallocate memory accordingly.
+            lua_createtable(lua, kLength, 0);
+            jboolean* rawBooleanArray = env->GetBooleanArrayElements(booleanArray, nullptr);
+            // Fills in the table at stack idx -2 with key value pairs, where key is a
+            // Lua index and value is an integer from the long array at that index
+            for (int i = 0; i < kLength; i++) {
+                lua_pushboolean(lua, rawBooleanArray[i]);
+                lua_rawseti(lua, /* idx= */ -2,
+                            i + 1);  // lua index starts from 1
+            }
+            // JNI_ABORT is used because we do not need to copy back elements.
+            env->ReleaseBooleanArrayElements(booleanArray, rawBooleanArray, JNI_ABORT);
         } else if (env->IsInstanceOf(value.get(), intArrayClass.get())) {
             jintArray intArray = static_cast<jintArray>(value.get());
             const auto kLength = env->GetArrayLength(intArray);
@@ -264,6 +280,8 @@ Result<void> convertLuaTableToBundle(JNIEnv* env, lua_State* lua, BundleWrapper*
                            "is unrecoverable.";
             }
 
+            std::vector<unsigned char> boolArray;
+            std::vector<double> doubleArray;
             std::vector<int64_t> longArray;
             std::vector<std::string> stringArray;
             int originalLuaType = LUA_TNIL;
@@ -289,13 +307,15 @@ Result<void> convertLuaTableToBundle(JNIEnv* env, lua_State* lua, BundleWrapper*
                                "unrecoverable.";
                 }
                 switch (currentType) {
+                    case LUA_TBOOLEAN:
+                        boolArray.push_back(
+                                static_cast<unsigned char>(lua_toboolean(lua, /* index = */ -1)));
+                        break;
                     case LUA_TNUMBER:
-                        if (!lua_isinteger(lua, /* index = */ -1)) {
-                            return Error() << "Returned value for key=" << key
-                                           << " contains a floating number array, which is not "
-                                              "supported yet.";
-                        } else {
+                        if (lua_isinteger(lua, /* index = */ -1)) {
                             longArray.push_back(lua_tointeger(lua, /* index = */ -1));
+                        } else {
+                            doubleArray.push_back(lua_tonumber(lua, /* index = */ -1));
                         }
                         break;
                     case LUA_TSTRING:
@@ -313,8 +333,15 @@ Result<void> convertLuaTableToBundle(JNIEnv* env, lua_State* lua, BundleWrapper*
                 lua_pop(lua, 1);
             }
             switch (originalLuaType) {
+                case LUA_TBOOLEAN:
+                    bundleInsertionResult = bundleWrapper->putBooleanArray(key, boolArray);
+                    break;
                 case LUA_TNUMBER:
-                    bundleInsertionResult = bundleWrapper->putLongArray(key, longArray);
+                    if (longArray.size() > 0) {
+                        bundleInsertionResult = bundleWrapper->putLongArray(key, longArray);
+                    } else {
+                        bundleInsertionResult = bundleWrapper->putDoubleArray(key, doubleArray);
+                    }
                     break;
                 case LUA_TSTRING:
                     bundleInsertionResult = bundleWrapper->putStringArray(key, stringArray);

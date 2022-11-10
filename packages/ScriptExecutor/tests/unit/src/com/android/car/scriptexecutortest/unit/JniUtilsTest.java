@@ -38,6 +38,7 @@ public final class JniUtilsTest {
     private static final String INT_KEY = "int_key";
     private static final String STRING_KEY = "string_key";
     private static final String NUMBER_KEY = "number_key";
+    private static final String BOOLEAN_ARRAY_KEY = "boolean_array_key";
     private static final String INT_ARRAY_KEY = "int_array_key";
     private static final String LONG_ARRAY_KEY = "long_array_key";
     private static final String DOUBLE_ARRAY_KEY = "double_array_key";
@@ -48,6 +49,7 @@ public final class JniUtilsTest {
     private static final int INT_VALUE = 10;
     private static final int INT_VALUE_2 = 20;
     private static final String STRING_VALUE = "test";
+    private static final boolean[] BOOLEAN_ARRAY_VALUE = new boolean[]{true, false, true};
     private static final int[] INT_ARRAY_VALUE = new int[]{1, 2, 3};
     private static final long[] LONG_ARRAY_VALUE = new long[]{1, 2, 3, 4};
     private static final double[] DOUBLE_ARRAY_VALUE = new double[]{1.1d, 2.2d, 3.3d, 4.4d};
@@ -96,6 +98,9 @@ public final class JniUtilsTest {
     private native boolean nativeHasStringValue(long luaEnginePtr, String key, String value);
 
     private native boolean nativeHasIntValue(long luaEnginePtr, String key, int value);
+
+    private native boolean nativeHasBooleanArrayValue(
+            long luaEnginePtr, String key, boolean[] value);
 
     private native boolean nativeHasDoubleValue(long luaEnginePtr, String key, double value);
 
@@ -163,6 +168,7 @@ public final class JniUtilsTest {
     @Test
     public void pushBundleToLuaTable_arrays() {
         PersistableBundle bundle = new PersistableBundle();
+        bundle.putBooleanArray(BOOLEAN_ARRAY_KEY, BOOLEAN_ARRAY_VALUE);
         bundle.putIntArray(INT_ARRAY_KEY, INT_ARRAY_VALUE);
         bundle.putLongArray(LONG_ARRAY_KEY, LONG_ARRAY_VALUE);
         bundle.putDoubleArray(DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE);
@@ -174,6 +180,8 @@ public final class JniUtilsTest {
         // Check contents of Lua table.
         // Java int and long arrays both end up being arrays of Lua's Integer type,
         // which is interpreted as a 8-byte int type.
+        assertThat(nativeHasBooleanArrayValue(
+                mLuaEnginePtr, BOOLEAN_ARRAY_KEY, BOOLEAN_ARRAY_VALUE)).isTrue();
         assertThat(nativeHasIntArrayValue(mLuaEnginePtr, INT_ARRAY_KEY, INT_ARRAY_VALUE)).isTrue();
         assertThat(nativeHasLongArrayValue(mLuaEnginePtr, LONG_ARRAY_KEY, LONG_ARRAY_VALUE))
                 .isTrue();

@@ -222,8 +222,7 @@ public class StatsPublisher extends AbstractPublisher {
 
         if (!mIsPullingReports) {
             if (DEBUG) {
-                Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
-                        + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+                Slogf.d(CarLog.TAG_TELEMETRY, "Triggering pull stats reports");
             }
             mIsPullingReports = true;
             mTelemetryHandler.post(mPullReportsPeriodically);
