@@ -222,6 +222,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdown() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -241,6 +243,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testCanHibernate() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
@@ -261,6 +266,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testHibernateImmediately() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_HIBERNATION_EXIT);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
@@ -281,6 +289,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdownImmediately() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -302,6 +312,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testSuspend() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -317,6 +328,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdownOnSuspend() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -348,6 +361,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdownCancel() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -370,6 +384,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testSleepImmediately() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -391,6 +408,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testShutdownWithProcessing() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
         mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
@@ -401,6 +419,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testSleepEntryAndWakeup() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
@@ -415,6 +435,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testShutdownPostponeAfterSuspend() throws Exception {
         grantPowerPolicyPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
@@ -466,6 +489,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testRegisterListenerWithCompletion() throws Exception {
         grantAdjustShutdownProcessPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         SparseBooleanArray stateMapToCompletion = new SparseBooleanArray();
         ICarPowerStateListener listenerRegistered = new ICarPowerStateListener.Stub() {
             @Override
@@ -505,6 +530,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testUnregisterListenerWithCompletion() throws Exception {
         grantAdjustShutdownProcessPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         ICarPowerStateListener listenerUnregistered = new ICarPowerStateListener.Stub() {
             @Override
             public void onStateChanged(int state, long expirationTimeMs) {
@@ -528,6 +555,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testShutdownPrepareWithCompletion_timeout() throws Exception {
         grantAdjustShutdownProcessPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         // Shortens the timeout for listen completion
         when(mResources.getInteger(R.integer.config_preShutdownPrepareTimeout))
                 .thenReturn(10);
@@ -595,9 +624,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         mService.applyPowerPolicy(policyId);
 
-        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
-        assertThat(policy).isNotNull();
-        assertThat(policy.getPolicyId()).isEqualTo(policyId);
+        waitForPowerPolicy(policyId);
         assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
         assertThat(listenerToWait.getCurrentPowerPolicy()).isNotNull();
         assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
@@ -696,6 +723,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.definePowerPolicy(policyIdAllOff, new String[]{},
                 new String[]{"AUDIO", "WIFI", "DISPLAY"});
         mService.applyPowerPolicy(policyIdAllOff);
+        waitForPowerPolicy(policyIdAllOff);
 
         assertThat(mService.getCurrentPowerPolicy().isComponentEnabled(
                 PowerComponent.AUDIO)).isFalse();
@@ -767,6 +795,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testPowerPolicyAfterShutdownCancel() throws Exception {
         grantPowerPolicyPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_START);
         assertThat(mService.getCurrentPowerPolicy().getPolicyId())
                 .isEqualTo(SYSTEM_POWER_POLICY_INITIAL_ON);
         mPowerHal.setCurrentPowerState(
@@ -779,18 +809,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, /* param= */ 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_CANCELLED);
 
-        mPowerSignalListener.waitFor(PowerHalService.SET_WAIT_FOR_VHAL, WAIT_TIMEOUT_MS);
-
-        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
-                .isEqualTo(SYSTEM_POWER_POLICY_INITIAL_ON);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_INITIAL_ON);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
 
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
-        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
-                .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
+        waitForPowerPolicy(SYSTEM_POWER_POLICY_ALL_ON);
     }
 
     @Test
@@ -807,6 +833,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     @Test
     public void testSuspendFailureWithAllowedTransition() throws Exception {
+        mPowerSignalListener.addEventListener(PowerHalService.SET_SHUTDOWN_CANCELLED);
         suspendWithFailure(/* nextPowerState= */ VehicleApPowerStateReq.CANCEL_SHUTDOWN);
         mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_CANCELLED, WAIT_TIMEOUT_MS);
     }
@@ -814,6 +841,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testPowerPolicyOnSilentBoot() throws Exception {
         grantPowerPolicyPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
         mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_SILENT);
 
         assertThat(mService.getCurrentPowerPolicy().getPolicyId())
@@ -836,6 +864,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private void suspendWithFailure(Integer nextPowerState) throws Exception {
         mSystemStateInterface.setSleepEntryResult(false);
         mSystemStateInterface.setSimulateSleep(false);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_ON);
 
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
@@ -848,7 +877,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
 
-        mPowerSignalListener.waitFor(PowerHalService.SET_WAIT_FOR_VHAL, WAIT_TIMEOUT_MS);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
 
         mSystemStateInterface.waitForDeepSleepEntry(WAIT_TIMEOUT_MS);
@@ -860,6 +888,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private void suspendAndResume() throws Exception {
         grantPowerPolicyPermission();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
         Log.d(TAG, "suspend()");
         mVoiceInteractionEnabled = true;
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -955,6 +985,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         PollingCheck.check("Voice interaction is not disabled", WAIT_TIMEOUT_LONG_MS,
                 () -> {
                     return !mVoiceInteractionEnabled;
+                });
+    }
+
+    private void waitForPowerPolicy(String policyId) throws Exception {
+        PollingCheck.check("Policy id is not " + policyId, WAIT_TIMEOUT_LONG_MS,
+                () -> {
+                    CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+                    return policy != null && policyId.equals(policy.getPolicyId());
                 });
     }
 
@@ -1186,14 +1224,10 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         private PowerSignalListener() {
             mSemaphores = new SparseArray<>();
-            mSemaphores.put(PowerHalService.SET_ON, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_SHUTDOWN_START, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_ENTRY, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_EXIT, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_WAIT_FOR_VHAL, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_SHUTDOWN_CANCELLED, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_HIBERNATION_ENTRY, new Semaphore(0));
-            mSemaphores.put(PowerHalService.SET_HIBERNATION_EXIT, new Semaphore(0));
+        }
+
+        public void addEventListener(int eventId) {
+            mSemaphores.put(eventId, new Semaphore(0));
         }
 
         public void waitFor(int signal, long timeoutMs) throws Exception {
