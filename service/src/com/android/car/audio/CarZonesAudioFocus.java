@@ -34,7 +34,6 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemProxyService;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -223,21 +222,15 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         mCarFocusCallback.onFocusChange(zoneIds, focusHoldersByZoneId);
     }
 
-    private CarOemAudioFocusProxyService getOemAudioFocusService() {
-        CarOemProxyService oemProxyService = CarLocalServices.getService(CarOemProxyService.class);
-        if (oemProxyService == null) {
-            return null;
-        }
-        return oemProxyService.getCarOemAudioFocusService();
-    }
-
     private void sendFocusChangeToOemService(CarAudioFocus carAudioFocus, int zoneId) {
-        CarOemAudioFocusProxyService proxy = getOemAudioFocusService();
-        if (proxy == null) {
+        CarOemProxyService proxy = CarLocalServices.getService(CarOemProxyService.class);
+        if (proxy == null || !proxy.isOemServiceEnabled() || !proxy.isOemServiceReady()
+                || proxy.getCarOemAudioFocusService() == null) {
             return;
         }
-        proxy.notifyAudioFocusChange(carAudioFocus.getAudioFocusHolders(),
-                carAudioFocus.getAudioFocusLosers(), zoneId);
+
+        proxy.getCarOemAudioFocusService().notifyAudioFocusChange(
+                carAudioFocus.getAudioFocusHolders(), carAudioFocus.getAudioFocusLosers(), zoneId);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
