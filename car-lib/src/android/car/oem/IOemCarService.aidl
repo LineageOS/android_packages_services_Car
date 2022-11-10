@@ -18,6 +18,7 @@ package android.car.oem;
 
 import android.car.CarVersion;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.IOemCarServiceCallback;
 
 /*
  * Binder for communicating with OEM Car Service.
@@ -29,12 +30,15 @@ interface IOemCarService {
     /*
      * Called when CarService is ready to take request. OemCarService is initialized before
      * Car Service is ready. This signals OEM Service that CarService is ready.
+     * OemCarServiceCallback is passed from Car Service to OEM Service. One important call in the
+     * callback is sendOemCarServiceReady() which should be called to inform that OEM service is
+     * ready.
      */
-    void onCarServiceReady();
+    void onCarServiceReady(in IOemCarServiceCallback callback);
 
     /*
-     * This is to check if OEM service is ready. This call should have returned true within limited
-     * time. Else CarService and OemService would be crashed.
+     * This is to check if OEM service is ready. This callback should have returned within limited
+     * time else CarService and OemService would be crashed.
      */
     boolean isOemServiceReady();
 

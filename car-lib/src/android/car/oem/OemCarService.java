@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -77,9 +78,10 @@ public abstract class OemCarService extends Service {
         }
 
         @Override
-        public void onCarServiceReady() {
+        public void onCarServiceReady(IOemCarServiceCallback callback) throws RemoteException {
             assertPermission();
             OemCarService.this.onCarServiceReady();
+            callback.sendOemCarServiceReady();
         }
 
         @Override
