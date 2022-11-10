@@ -16,6 +16,10 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,21 +31,25 @@ public final class TestCarAudioZoneBuilder {
     private CarAudioContext mCarAudioContext =
             new CarAudioContext(CarAudioContext.getAllContextsInfo());
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     public TestCarAudioZoneBuilder(String audioZoneName, int audioZoneId) {
         mAudioZoneId = audioZoneId;
         mAudioZoneName = audioZoneName;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     TestCarAudioZoneBuilder addVolumeGroup(CarVolumeGroup group) {
         mCarVolumeGroups.add(group);
         return this;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     TestCarAudioZoneBuilder setCarAudioContexts(CarAudioContext carAudioContext) {
         mCarAudioContext = carAudioContext;
         return this;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     CarAudioZone build() {
         return mCarVolumeGroups.stream().collect(
                 ()->new CarAudioZone(mCarAudioContext, mAudioZoneName, mAudioZoneId),
