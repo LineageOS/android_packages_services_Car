@@ -21,6 +21,7 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -89,5 +90,18 @@ public final class CarTestManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
+    }
+
+    /**
+     * Returns OEM service name.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public String getOemServiceName() throws RemoteException {
+        return mService.getOemServiceName();
     }
 }

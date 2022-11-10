@@ -31,4 +31,12 @@ interface ICarTest {
 
     /** Re initializes car services that was previously released by #releaseCarService method. */
     void startCarService(IBinder token) = 2;
+
+    // 3 and 4 are used in master branch by other calls.
+    // TODO(b/226406223): update getOemServiceName number for tm-qpr-dev and master
+
+    /**
+     * Returns OEM service name.
+     */
+    String getOemServiceName() = 5;
 }
