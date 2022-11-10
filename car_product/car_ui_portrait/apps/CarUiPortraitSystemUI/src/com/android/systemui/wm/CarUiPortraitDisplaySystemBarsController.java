@@ -211,7 +211,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             mAppRequestedVisibleTypes = mRequestedVisibleTypes;
 
             showInsets(barVisibilities[0], /* fromIme= */ false, /* statsToken= */ null);
-            hideInsets(barVisibilities[1], /* fromIme= */ false, /* statsToken= */ null);
+            hideInsets(barVisibilities[1], /* fromIme= */ false);
 
             boolean immersiveState = mImmersiveOverride || mImmersiveForSUW || (
                     (barVisibilities[1] & (WindowInsets.Type.statusBars()
