@@ -58,7 +58,7 @@ public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusServic
     }
 
     @Override
-    public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
+    public void notifyAudioFocusChange(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
         Log.d(TAG, "OemCarAudioFocusServiceImpl audioFocusChanged called");
     }

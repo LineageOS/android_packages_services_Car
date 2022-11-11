@@ -1246,8 +1246,8 @@ package android.car.oem {
   }
 
   public interface OemCarAudioFocusService extends android.car.oem.OemCarServiceComponent {
-    method public void audioFocusChanged(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
     method @NonNull public android.car.oem.OemCarAudioFocusResult evaluateAudioFocusRequest(@NonNull android.car.oem.OemCarAudioFocusEvaluationRequest);
+    method public void notifyAudioFocusChange(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
   }
 
   public abstract class OemCarService extends android.app.Service {

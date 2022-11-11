@@ -469,11 +469,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         return ERROR_BUSY;
                     }
 
-                    if (callback != null) {
-                        stopVideoStreamAndUnregisterCallback(callback);
-                    } else {
-                        stopService();
-                    }
+                    stopService(callback);
                     break;
 
                 default:
@@ -602,6 +598,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     if (mStreamCallback != null) {
                         // keep old reference for Runnable.
                         ICarEvsStreamCallback previousCallback = mStreamCallback;
+                        mStreamCallback = null;
                         mHandler.post(() -> notifyStreamStopped(previousCallback));
                     }
 
@@ -685,7 +682,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     // Stops a current video stream and unregisters a callback
     private void stopVideoStreamAndUnregisterCallback(ICarEvsStreamCallback callback) {
         synchronized (mLock) {
-            if (callback.asBinder() != mStreamCallback.asBinder()) {
+            if (callback == null || callback.asBinder() != mStreamCallback.asBinder()) {
                 Slogf.i(TAG_EVS, "Declines a request to stop a video not from a current client.");
                 return;
             }
@@ -1024,7 +1021,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public void stopVideoStream(@NonNull ICarEvsStreamCallback callback) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
-
         synchronized (mLock) {
             if (mStreamCallback == null || callback.asBinder() != mStreamCallback.asBinder()) {
                 Slogf.i(TAG_EVS, "Ignores a video stream request not from current stream client.");
@@ -1282,16 +1278,32 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     /** Stops a current service */
     private void stopService() {
+        stopService(/* callback= */ null);
+    }
+
+    private void stopService(ICarEvsStreamCallback callback) {
         try {
+            synchronized (mLock) {
+                if (callback != null && callback.asBinder() != mStreamCallback.asBinder()) {
+                    Slogf.w(TAG_EVS, "Decline a request to stop a video from an unknown client.");
+                    return;
+                }
+
+                unlinkToDeathStreamCallbackLocked();
+                mStreamCallback = null;
+            }
+            Slogf.i(TAG_EVS, "Last stream client has been disconnected.");
+
+            // Notify the client that the stream has ended.
+            if (callback != null) {
+                notifyStreamStopped(callback);
+            }
+
+            // Request to stop a video stream if it is active.
             mHalWrapper.requestToStopVideoStream();
         } catch (RuntimeException e) {
             Slogf.w(TAG_EVS, Log.getStackTraceString(e));
         } finally {
-            // Unregister all stream callbacks.
-            synchronized (mLock) {
-                mStreamCallback = null;
-            }
-
             // We simply drop all buffer records; the native method will return all pending buffers
             // to the native Extended System View service if it is alive.
             synchronized (mBufferRecords) {
@@ -1300,6 +1312,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
             // Cancel a pending message to check a request timeout
             mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
+
+            // Close current camera
+            mHalWrapper.closeCamera();
         }
     }
 

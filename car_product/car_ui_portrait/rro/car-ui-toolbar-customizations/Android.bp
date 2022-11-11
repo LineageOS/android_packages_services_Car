@@ -20,6 +20,9 @@ runtime_resource_overlay {
     name: "GoogleCarUiPortraitToolbarBase",
     manifest: "AndroidManifest.xml",
     resource_dirs: ["res"],
+    static_libs: [
+        "car-portrait-ui-common"
+    ],
 }
 
 override_runtime_resource_overlay {
@@ -27,6 +30,7 @@ override_runtime_resource_overlay {
     base: "GoogleCarUiPortraitToolbarBase",
     package_name: "com.android.car.media.googlecaruiportrait.toolbar.rro",
     target_package_name: "com.android.car.media",
+    category: "caruiportrait.toolbar.media",
 }
 
 override_runtime_resource_overlay {
@@ -34,4 +38,5 @@ override_runtime_resource_overlay {
     base: "GoogleCarUiPortraitToolbarBase",
     package_name: "com.android.car.dialer.googlecaruiportrait.toolbar.rro",
     target_package_name: "com.android.car.dialer",
+    category: "caruiportrait.toolbar.dialer",
 }

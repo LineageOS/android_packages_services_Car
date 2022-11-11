@@ -427,13 +427,17 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
     }
 
     // Create a new display interface and return it
-    if (sDisplayPortList.find(id) == sDisplayPortList.end()) {
-        LOG(ERROR) << "No display is available on the port " << static_cast<int32_t>(id);
-        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    uint64_t targetDisplayId = mInternalDisplayId;
+    auto it = sDisplayPortList.find(id);
+    if (it != sDisplayPortList.end()) {
+        targetDisplayId = it->second;
+    } else {
+        LOG(WARNING) << "No display is available on the port " << static_cast<int32_t>(id)
+                     << ". The main display " << mInternalDisplayId << " will be used instead";
     }
 
     // Create a new display interface and return it.
-    pActiveDisplay = ::ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, mInternalDisplayId);
+    pActiveDisplay = ::ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, targetDisplayId);
     sActiveDisplay = pActiveDisplay;
 
     LOG(DEBUG) << "Returning new EvsGlDisplay object " << pActiveDisplay.get();

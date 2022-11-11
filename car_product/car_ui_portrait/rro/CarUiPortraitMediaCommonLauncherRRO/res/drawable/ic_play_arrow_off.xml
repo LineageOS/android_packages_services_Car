@@ -18,8 +18,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/play_pause_ic_bg_color"/>
-            <corners android:radius="@dimen/play_pause_button_bg_radius"/>
+            <solid android:color="@color/disabled_ic_bg_color"/>
+            <corners android:radius="@dimen/play_pause_disabled_button_bg_radius"/>
         </shape>
     </item>
     <item android:gravity="center"

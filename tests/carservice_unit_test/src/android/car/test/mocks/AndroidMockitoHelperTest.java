@@ -32,6 +32,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetVisibleUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
@@ -199,6 +200,16 @@ public final class AndroidMockitoHelperTest {
                 /* overrideDevicePolicy= */ true);
 
         assertThat(visitor.mVisited).isEqualTo(mTestUserInfo);
+    }
+
+    @Test
+    public void testMockUmGetVisibleUsers() {
+        UserHandle user1 = UserHandle.of(100);
+        UserHandle user2 = UserHandle.of(200);
+
+        mockUmGetVisibleUsers(mMockedUserManager, 100, 200);
+
+        assertThat(mMockedUserManager.getVisibleUsers()).containsExactly(user1, user2);
     }
 
     @Test

@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
-package android.car.oem;
+package com.android.systemui.car.qc;
 
-import android.media.AudioFocusInfo;
-import android.car.oem.OemCarAudioFocusResult;
-import android.car.oem.OemCarAudioFocusEvaluationRequest;
+import com.android.car.qc.provider.BaseLocalQCProvider;
 
-/** @hide */
-interface IOemCarAudioFocusService {
-    oneway void notifyAudioFocusChange(in List<AudioFocusInfo> currentFocusHolders,
-           in List<AudioFocusInfo> currentFocusLosers, int zoneId);
+import dagger.Binds;
+import dagger.Module;
+import dagger.multibindings.ClassKey;
+import dagger.multibindings.IntoMap;
 
-    OemCarAudioFocusResult evaluateAudioFocusRequest(in
-           OemCarAudioFocusEvaluationRequest request);
+/**
+ * Dagger injection module for {@link SystemUIQCViewController}
+ */
+@Module
+public abstract class CarUiPortraitQuickControlsModule {
+    /** Injects CarUiPortraitProfileSwitcher. */
+    @Binds
+    @IntoMap
+    @ClassKey(CarUiPortraitProfileSwitcher.class)
+    public abstract BaseLocalQCProvider bindCarUiPortraitProfileSwitcher(
+            CarUiPortraitProfileSwitcher carUiPortraitProfileSwitcher);
 }

@@ -59,11 +59,14 @@ import android.util.Log;
 import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Provides common Mockito calls for core Android classes.
@@ -368,6 +371,18 @@ public final class AndroidMockitoHelper {
     public static void mockUmGetUserSwitchability(UserManager um,
             @UserSwitchabilityResult int result) {
         when(um.getUserSwitchability()).thenReturn(result);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#getVisibleUsers()} that
+     * returns {@link UserHandle UserHandles} with the given {@code userIds}.
+     */
+    public static void mockUmGetVisibleUsers(UserManager um, @UserIdInt int...userIds) {
+        Set<UserHandle> users = Arrays.stream(userIds).mapToObj(u -> UserHandle.of(u))
+                .collect(Collectors.toSet());
+        Log.v(TAG, "mockUmGetVisibleUsers(" + Arrays.toString(userIds) + ": returning "
+                + users);
+        when(um.getVisibleUsers()).thenReturn(users);
     }
 
     /**

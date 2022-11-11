@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,6 +14,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="top_level_preference_highlight_background_color">#E8EAED</color>
+
+<resources>
+    <!-- Styles for play/pause action buttons -->
+    <style name="Widget.ActionButton.PlayPause">
+        <item name="android:layout_width">@dimen/play_pause_image_size</item>
+        <item name="android:layout_height">@dimen/play_pause_image_size</item>
+        <item name="android:scaleType">fitCenter</item>
+        <item name="android:tint">@color/action_button_icon_tint</item>
+    </style>
 </resources>

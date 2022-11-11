@@ -237,7 +237,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         if (proxy == null) {
             return;
         }
-        proxy.audioFocusChanged(carAudioFocus.getAudioFocusHolders(),
+        proxy.notifyAudioFocusChange(carAudioFocus.getAudioFocusHolders(),
                 carAudioFocus.getAudioFocusLosers(), zoneId);
     }
 

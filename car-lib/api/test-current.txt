@@ -1316,8 +1316,8 @@ package android.car.oem {
   }
 
   public interface OemCarAudioFocusService extends android.car.oem.OemCarServiceComponent {
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public void audioFocusChanged(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.oem.OemCarAudioFocusResult evaluateAudioFocusRequest(@NonNull android.car.oem.OemCarAudioFocusEvaluationRequest);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public void notifyAudioFocusChange(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
   }
 
   public abstract class OemCarService extends android.app.Service {

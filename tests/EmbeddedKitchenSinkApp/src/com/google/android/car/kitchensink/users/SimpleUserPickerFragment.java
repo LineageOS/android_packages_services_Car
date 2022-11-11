@@ -53,7 +53,9 @@ import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.UserPickerActivity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public final class SimpleUserPickerFragment extends Fragment {
@@ -449,7 +451,7 @@ public final class SimpleUserPickerFragment extends Fragment {
     private ArrayList<String> getUnassignedUsers() {
         ArrayList<String> users = new ArrayList<>();
         List<UserInfo> aliveUsers = mUserManager.getAliveUsers();
-        List<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+        Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
         // Exclude visible users and only show unassigned users.
         for (int i = 0; i < aliveUsers.size(); ++i) {
             UserInfo u = aliveUsers.get(i);
@@ -487,13 +489,8 @@ public final class SimpleUserPickerFragment extends Fragment {
         return displays;
     }
 
-    private static boolean isIncluded(int userId, List<UserHandle> visibleUsers) {
-        for (int i = 0; i < visibleUsers.size(); ++i) {
-            if (userId == visibleUsers.get(i).getIdentifier()) {
-                return true;
-            }
-        }
-        return false;
+    private static boolean isIncluded(int userId, Collection<UserHandle> users) {
+        return users.stream().anyMatch(u -> u.getIdentifier() == userId);
     }
 
     private static final class SpinnerWrapper {

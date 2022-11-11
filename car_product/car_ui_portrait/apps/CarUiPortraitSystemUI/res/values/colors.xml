@@ -29,6 +29,7 @@
 
     <color name="status_icon_not_highlighted_color">#202124</color>
     <color name="status_icon_selected_button_color">#6BF0FF</color>
+    <color name="status_icon_panel_bg_color">@color/car_surface_2</color>
     <color name="privacy_chip_indicator_color">@color/car_surface_3</color>
 
     <color name="status_bar_background_color">#00000000</color>

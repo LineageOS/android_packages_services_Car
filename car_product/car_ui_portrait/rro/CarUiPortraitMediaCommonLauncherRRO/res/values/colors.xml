@@ -16,7 +16,9 @@
   -->
 
 <resources>
-    <color name="icon_color">#202124</color>
-    <color name="disabled_icon_color">#9AA0A6</color>
-    <color name="play_pause_ic_bg_color">#ffffff</color>
+    <color name="icon_color">@color/car_on_surface</color>
+    <color name="disabled_icon_color">@color/car_on_secondary_container</color>
+    <color name="disabled_ic_bg_color">@color/car_secondary_container</color>
+    <color name="play_pause_ic_bg_color">@color/car_primary</color>
+    <color name="play_pause_icon_color">@color/car_on_primary</color>
 </resources>
