@@ -1257,6 +1257,38 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void onOccupantZoneConfigChanged_noOccupantZoneMapping() throws Exception {
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        noZoneMappingAudioService.init();
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        verify(mMockOccupantZoneService, never()).getUserForOccupant(anyInt());
+    }
+
+    @Test
+    public void onOccupantZoneConfigChanged_noOccupantZoneMapping_alreadyAssigned()
+            throws Exception {
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
+        noZoneMappingAudioService.init();
+        ICarOccupantZoneCallback callback = getOccupantZoneCallback();
+
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        verify(mMockOccupantZoneService, never()).getUserForOccupant(anyInt());
+        assertWithMessage("Occupant Zone for primary zone")
+                .that(noZoneMappingAudioService.getUserIdForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(TEST_DRIVER_USER_ID);
+    }
+
+    @Test
     public void onOccupantZoneConfigChanged_multipleZones() throws Exception {
         mCarAudioService.init();
         when(mMockOccupantZoneService.getDriverUserId()).thenReturn(TEST_DRIVER_USER_ID);
