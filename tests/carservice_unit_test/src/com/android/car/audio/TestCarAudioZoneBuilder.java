@@ -51,11 +51,11 @@ public final class TestCarAudioZoneBuilder {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     CarAudioZone build() {
-        return mCarVolumeGroups.stream().collect(
-                ()->new CarAudioZone(mCarAudioContext, mAudioZoneName, mAudioZoneId),
-                (x, y) -> x.addVolumeGroup(y), (a, b) -> {
-                    for (CarVolumeGroup group: b.getVolumeGroups()) {
-                    a.addVolumeGroup(group);
-                }});
+        CarAudioZone carAudioZone =
+                new CarAudioZone(mCarAudioContext, mAudioZoneName, mAudioZoneId);
+        for (int i = 0; i < mCarVolumeGroups.size(); i++) {
+            carAudioZone.addVolumeGroup(mCarVolumeGroups.get(i));
+        }
+        return carAudioZone;
     }
 }
