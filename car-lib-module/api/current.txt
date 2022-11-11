@@ -444,6 +444,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_VERTICAL_POS = 356518817; // 0x15400ba1
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SET = 356518785; // 0x15400b81
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_OCCUPANCY = 356518832; // 0x15400bb0
