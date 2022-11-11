@@ -58,5 +58,14 @@
     ],
     "stats.process_name": [
         "com.android.systemui"
+    ],
+    "stats.is_incremental": [
+        false
+    ],
+    "stats.read_logs_enabled": [
+        false
+    ],
+    "stats.loading_progress": [
+        1.0
     ]
 }
