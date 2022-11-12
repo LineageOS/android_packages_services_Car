@@ -39,6 +39,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 
+import com.android.car.CarLocalServices;
+import com.android.car.oem.CarOemProxyService;
+
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,12 +76,21 @@ public final class CarZonesAudioFocusUnitTest {
     private CarZonesAudioFocus.CarFocusCallback mMockCarFocusCallback;
     @Mock
     private PackageManager mMockPackageManager;
+    @Mock
+    private CarOemProxyService mMockCarOemProxyService;
 
     private CarZonesAudioFocus mCarZonesAudioFocus;
 
     @Before
     public void setUp() {
         mCarZonesAudioFocus = getCarZonesAudioFocus();
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
+        CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarOemProxyService.class);
     }
 
     @Test

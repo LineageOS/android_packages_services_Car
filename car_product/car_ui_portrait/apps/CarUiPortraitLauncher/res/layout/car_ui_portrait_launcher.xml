@@ -41,7 +41,6 @@
         <RelativeLayout
             android:id="@+id/grip_bar"
             android:layout_width="match_parent"
-            android:visibility="invisible"
             android:layout_height="@dimen/grip_bar_height"
             android:background="@drawable/title_bar_background">
             <View
