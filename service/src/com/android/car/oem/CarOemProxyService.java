@@ -68,7 +68,7 @@ public final class CarOemProxyService implements CarServiceBase {
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     // mock component name for testing if system property is set.
     private static final String PROPERTY_EMULATED_OEM_CAR_SERVICE =
-            "com.android.car.internal.debug.oem_car_service";
+            "persist.com.android.car.internal.debug.oem_car_service";
 
     private final int mOemServiceConnectionTimeoutMs;
     private final int mOemServiceReadyTimeoutMs;
