@@ -1170,7 +1170,15 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String PERMISSION_CONTROL_REMOTE_ACCESS =
             "android.car.permission.CONTROL_REMOTE_ACCESS";
-
+    /**
+     * Permission necessary to control car's steering wheel.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_STEERING_WHEEL =
+            "android.car.permission.CONTROL_STEERING_WHEEL";
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
