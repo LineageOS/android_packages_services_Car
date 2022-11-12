@@ -48,6 +48,12 @@ interface IOemCarService {
      */
     CarVersion getSupportedCarVersion();
 
+    /*
+     * Gets the supported CarVersion for the OEM service. It is possible that CarModule is updated
+     * but OEM service is not updated. CarService needs to be aware of that.
+     */
+    String getAllStackTraces();
+
     // Component services
     IOemCarAudioFocusService getOemAudioFocusService();
 }

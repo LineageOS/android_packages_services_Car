@@ -36,6 +36,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.Map;
 
 // TODO(b/241294844): Expose Slogf as system API and use it here.
 /**
@@ -94,6 +95,24 @@ public abstract class OemCarService extends Service {
         public CarVersion getSupportedCarVersion() {
             assertPermission();
             return OemCarService.this.getSupportedCarVersion();
+        }
+
+        @Override
+        public String getAllStackTraces() {
+            assertPermission();
+            Map<Thread, StackTraceElement[]> tracesMap = Thread.getAllStackTraces();
+            StringBuilder sb = new StringBuilder();
+            sb.append("OemService stack trace:\n");
+            int i = 0;
+            for (Map.Entry<Thread, StackTraceElement[]> entry : tracesMap.entrySet()) {
+                sb.append("Thread: ").append(i++).append('\n');
+                StackTraceElement[] stack = entry.getValue();
+                for (int j = 0; j < stack.length; j++) {
+                    sb.append(stack[j].toString()).append('\n');
+                }
+            }
+
+            return sb.toString();
         }
 
         private void assertPermission() {
