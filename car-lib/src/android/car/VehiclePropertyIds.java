@@ -2358,6 +2358,42 @@ public final class VehiclePropertyIds {
     public static final int READING_LIGHTS_SWITCH = 356519684;
 
     /**
+     * Steering wheel lights state.
+     *
+     * <p>Returns the current state of the steering wheel lights. This is different from {@link
+     * #STEERING_WHEEL_LIGHTS_SWITCH} which represents the position of the switch controlling
+     * the lights. Therefore, {@code STEERING_WHEEL_LIGHTS_STATE} may not match the value of
+     * {@link #STEERING_WHEEL_LIGHTS_SWITCH} (e.g. STEERING_WHEEL_LIGHTS_SWITCH=AUTOMATIC
+     * and STEERING_WHEEL_LIGHTS_STATE=ON).
+     *
+     * <p>This property will only be implemented if {@code STEERING_WHEEL_LIGHTS_STATE}'s value may
+     * be different from that of {@link #CABIN_LIGHTS_STATE}.
+     *
+     * <p>For the global area ID (0), the {@link AreaIdConfig#getSupportedEnumValues()} obtained
+     * from {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from {@link
+     * VehicleLightState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_INTERIOR_LIGHTS} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int STEERING_WHEEL_LIGHTS_STATE = 289410828;
+
+    /**
      * Property to get the initial settings for multi-user management (such as initial user).
      *
      * <p>Doesn't require permission because it's not exposed through

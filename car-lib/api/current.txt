@@ -465,6 +465,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_EASY_ACCESS_ENABLED = 287312870; // 0x11200be6
     field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_HEIGHT_MOVE = 289410019; // 0x11400be3
     field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_HEIGHT_POS = 289410018; // 0x11400be2
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS)) public static final int STEERING_WHEEL_LIGHTS_STATE = 289410828; // 0x11400f0c
     field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_LOCKED = 287312869; // 0x11200be5
     field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868; // 0x11200be4
     field @RequiresPermission("android.car.permission.CAR_TIRES") public static final int TIRE_PRESSURE = 392168201; // 0x17600309
