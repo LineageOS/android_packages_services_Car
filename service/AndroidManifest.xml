@@ -938,6 +938,14 @@
         android:label="@string/car_permission_label_control_remote_access"
         android:description="@string/car_permission_desc_control_remote_access"/>
 
+     <!-- Allows an application to control the vehicle's steering wheel.
+         <p>Protection level: signature|privileged
+      -->
+     <permission android:name="android.car.permission.CONTROL_STEERING_WHEEL"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_steering_wheel"
+        android:description="@string/car_permission_desc_control_steering_wheel"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.

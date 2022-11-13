@@ -92,6 +92,7 @@
         <permission name="android.car.permission.READ_CAR_STEERING"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_INFO"/>
         <permission name="android.car.permission.STORAGE_MONITORING"/>
+        <permission name="android.car.permission.CONTROL_STEERING_WHEEL"/>
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>
         <permission name="android.car.permission.VMS_PUBLISHER"/>
