@@ -63,15 +63,22 @@ public final class CarOemProxyServiceHelper {
 
     private static final int MAX_CIRCULAR_CALLS_PER_CALLER = 5;
     private static final int MAX_CIRCULAR_CALL_TOTAL = 10;
+    private static final int MAX_THREAD_POOL_SIZE = 16;
+    private static final int MIN_THREAD_POOL_SIZE = 18;
 
     private final Object mLock = new Object();
 
-    // TODO(b/239607518):Resize threadpool using system property or dynamically if too many calls
-    // are getting timed out.
-    private static final int THREAD_POOL_SIZE = 5;
-
     private final int mRegularCallTimeoutMs;
     private final int mCrashCallTimeoutMs;
+    // Kept for dumping
+    private final int mThreadPoolSizeFromRRO;
+
+    // Thread pool size will be read from resource overlay. The default value is 8. The maximum
+    // and minimum thread pool size can be MAX_THREAD_POOL_SIZE and MIN_THREAD_POOL_SIZE
+    // respectively. If resource overlay value is more than MAX_THREAD_POOL_SIZE, then thread
+    // pool size will be MAX_THREAD_POOL_SIZE. If resource overlay value is less than
+    // MIN_THREAD_POOL_SIZE, then thread pool size will be MIN_THREAD_POOL_SIZE.
+    private final int mBinderDispatchThreadPoolSize;
 
     /**
      * This map would keep track of possible circular calls
@@ -102,13 +109,26 @@ public final class CarOemProxyServiceHelper {
     private int mOemCarServicePid;
 
     public CarOemProxyServiceHelper(Context context) {
-        Slogf.i(TAG, "Creating thread pool of size %d", THREAD_POOL_SIZE);
-        mThreadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         Resources res = context.getResources();
         mRegularCallTimeoutMs = res
                 .getInteger(R.integer.config_oemCarService_regularCall_timeout_ms);
         mCrashCallTimeoutMs = res
                 .getInteger(R.integer.config_oemCarService_crashCall_timeout_ms);
+        mThreadPoolSizeFromRRO = res
+                .getInteger(R.integer.config_oemCarService_thread_pool_size);
+        if (mThreadPoolSizeFromRRO > MAX_THREAD_POOL_SIZE) {
+            mBinderDispatchThreadPoolSize = MAX_THREAD_POOL_SIZE;
+        } else if (mThreadPoolSizeFromRRO < MIN_THREAD_POOL_SIZE) {
+            mBinderDispatchThreadPoolSize = MIN_THREAD_POOL_SIZE;
+        } else {
+            mBinderDispatchThreadPoolSize = mThreadPoolSizeFromRRO;
+        }
+
+        mThreadPool = Executors.newFixedThreadPool(mBinderDispatchThreadPoolSize);
+
+        Slogf.i(TAG, "RegularCallTimeoutMs: %d, CrashCallTimeoutMs: %d, ThreadPoolSizeFromRRO: %d,"
+                + " ThreadPoolSize: %d.", mRegularCallTimeoutMs,
+                mCrashCallTimeoutMs, mThreadPoolSizeFromRRO, mBinderDispatchThreadPoolSize);
     }
 
     /**
@@ -244,8 +264,6 @@ public final class CarOemProxyServiceHelper {
             Slogf.e(TAG, "Current Circular Calls for %s is %d which is more than the limit %d."
                     + " Calling to crash CarService", callerTag, (currentCircularCallForTag + 1),
                     MAX_CIRCULAR_CALLS_PER_CALLER);
-            // TODO(b/239607309): Research how to dump stack on OEM service for debugging if
-            // possible. One way is to get the OEM service stack as string from OEM service.
             crashCarService("Max Circular call for " + callerTag);
         }
 
@@ -418,6 +436,10 @@ public final class CarOemProxyServiceHelper {
                 }
                 writer.decreaseIndent();
             }
+            writer.printf("mRegularCallTimeoutMs: %d\n", mRegularCallTimeoutMs);
+            writer.printf("mCrashCallTimeoutMs: %d\n", mCrashCallTimeoutMs);
+            writer.printf("mBinderDispatchThreadPoolSize: %d\n", mBinderDispatchThreadPoolSize);
+            writer.printf("ThreadPoolSizeFromRRO: %d\n", mThreadPoolSizeFromRRO);
         }
         writer.decreaseIndent();
     }
