@@ -24,7 +24,6 @@ import android.car.telemetry.CarTelemetryManager.AddMetricsConfigCallback;
 import android.car.telemetry.TelemetryProto.MetricsConfig;
 import android.car.telemetry.TelemetryProto.TelemetryError;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.PersistableBundle;
@@ -93,6 +92,7 @@ public class CarMetricsCollectorService extends Service {
                 @Override
                 public void setResultListener(IResultListener listener) {
                     mResultListener = listener;
+                    mCarTelemetryManager.setReportReadyListener(getMainExecutor(), mReportListener);
                 }
 
                 @Override
@@ -132,7 +132,6 @@ public class CarMetricsCollectorService extends Service {
         mConfigParser = new ConfigParser(this.getApplicationContext());
         mConfigs = mConfigParser.getConfigs();
         updateConfigData();
-        mCarTelemetryManager.setReportReadyListener(getMainExecutor(), mReportListener);
         addActiveConfigs();
     }
 
@@ -144,12 +143,6 @@ public class CarMetricsCollectorService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
-    }
-
-    public class ServiceBinder extends Binder {
-        CarMetricsCollectorService getService() {
-            return CarMetricsCollectorService.this;
-        }
     }
 
     public String dumpLogs() {
