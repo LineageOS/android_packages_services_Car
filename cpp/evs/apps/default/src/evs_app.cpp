@@ -18,17 +18,16 @@
 #include "EvsStateControl.h"
 #include "EvsVehicleListener.h"
 
+#include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleGear.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
 #include <android-base/logging.h>
-#include <android-base/macros.h>  // arraysize
 #include <android-base/strings.h>
-#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-#include <hidl/HidlTransportSupport.h>
-#include <hwbinder/IPCThreadState.h>
-#include <hwbinder/ProcessState.h>
+#include <android/binder_ibinder.h>
+#include <android/binder_manager.h>
+#include <android/binder_process.h>
 #include <utils/Errors.h>
 #include <utils/Log.h>
 #include <utils/StrongPointer.h>
@@ -39,27 +38,23 @@
 
 namespace {
 
-using ::aidl::android::hardware::automotive::vehicle::VehicleGear;
-using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
-using ::android::base::EqualsIgnoreCase;
+using aidl::android::hardware::automotive::evs::IEvsDisplay;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
+using aidl::android::hardware::automotive::vehicle::VehicleGear;
+using aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using android::base::EqualsIgnoreCase;
+using android::frameworks::automotive::vhal::ISubscriptionClient;
+using android::frameworks::automotive::vhal::IVhalClient;
 
-// libhidl:
-using ::android::frameworks::automotive::vhal::ISubscriptionClient;
-using ::android::frameworks::automotive::vhal::IVhalClient;
-using ::android::hardware::configureRpcThreadpool;
-using ::android::hardware::joinRpcThreadpool;
+const char CONFIG_DEFAULT_PATH[] = "/system/etc/automotive/evs/config.json";
+const char CONFIG_OVERRIDE_PATH[] = "/system/etc/automotive/evs/config_override.json";
 
-const char* CONFIG_DEFAULT_PATH = "/system/etc/automotive/evs/config.json";
-const char* CONFIG_OVERRIDE_PATH = "/system/etc/automotive/evs/config_override.json";
-
-android::sp<IEvsEnumerator> pEvs;
-android::sp<IEvsDisplay> pDisplay;
+std::shared_ptr<IEvsEnumerator> pEvsService;
+std::shared_ptr<IEvsDisplay> pDisplay;
 EvsStateControl* pStateController;
 
-}  // namespace
-
-// Helper to subscribe to VHal notifications
-static bool subscribeToVHal(ISubscriptionClient* client, VehicleProperty propertyId) {
+// Helper to subscribe to Vhal notifications
+bool subscribeToVHal(ISubscriptionClient* client, VehicleProperty propertyId) {
     assert(pVnet != nullptr);
     assert(listener != nullptr);
 
@@ -80,7 +75,7 @@ static bool subscribeToVHal(ISubscriptionClient* client, VehicleProperty propert
     return true;
 }
 
-static bool convertStringToFormat(const char* str, android_pixel_format_t* output) {
+bool convertStringToFormat(const char* str, android_pixel_format_t* output) {
     bool result = true;
     if (EqualsIgnoreCase(str, "RGBA8888")) {
         *output = HAL_PIXEL_FORMAT_RGBA_8888;
@@ -96,6 +91,8 @@ static bool convertStringToFormat(const char* str, android_pixel_format_t* outpu
 
     return result;
 }
+
+}  // namespace
 
 // Main entry point
 int main(int argc, char** argv) {
@@ -192,16 +189,28 @@ int main(int argc, char** argv) {
     // This pool will handle the EvsCameraStream callbacks.
     // Note:  This _will_ run in parallel with the EvsListener run() loop below which
     // runs the application logic that reacts to the async events.
-    configureRpcThreadpool(1, false /* callerWillJoin */);
+    if (!ABinderProcess_setThreadPoolMaxThreadCount(/* numThreads= */ 1)) {
+        LOG(ERROR) << "Failed to confgiure the binder thread pool.";
+        return EXIT_FAILURE;
+    }
+    ABinderProcess_startThreadPool();
 
     // Construct our async helper object
     std::shared_ptr<EvsVehicleListener> pEvsListener = std::make_shared<EvsVehicleListener>();
 
     // Get the EVS manager service
     LOG(INFO) << "Acquiring EVS Enumerator";
-    pEvs = IEvsEnumerator::getService(evsServiceName);
-    if (pEvs.get() == nullptr) {
-        LOG(ERROR) << "getService(" << evsServiceName << ") returned NULL.  Exiting.";
+    std::string serviceName =
+            std::string(IEvsEnumerator::descriptor) + "/" + std::string(evsServiceName);
+    if (!AServiceManager_isDeclared(serviceName.c_str())) {
+        LOG(ERROR) << serviceName << " is not declared. Exiting.";
+        return EXIT_FAILURE;
+    }
+
+    pEvsService = IEvsEnumerator::fromBinder(
+            ndk::SpAIBinder(AServiceManager_checkService(serviceName.c_str())));
+    if (!pEvsService) {
+        LOG(ERROR) << "Failed to get " << serviceName << ". Exiting.";
         return EXIT_FAILURE;
     }
 
@@ -215,8 +224,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    pDisplay = pEvs->openDisplay_1_1(displayId);
-    if (pDisplay.get() == nullptr) {
+    if (auto status = pEvsService->openDisplay(displayId, &pDisplay); !status.isOk()) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
         return EXIT_FAILURE;
     }
@@ -253,7 +261,7 @@ int main(int argc, char** argv) {
 
     // Configure ourselves for the current vehicle state at startup
     LOG(INFO) << "Constructing state controller";
-    pStateController = new EvsStateControl(pVnet, pEvs, pDisplay, config);
+    pStateController = new EvsStateControl(pVnet, pEvsService, pDisplay, config);
     if (!pStateController->startUpdateLoop()) {
         LOG(ERROR) << "Initial configuration failed.  Exiting.";
         return EXIT_FAILURE;

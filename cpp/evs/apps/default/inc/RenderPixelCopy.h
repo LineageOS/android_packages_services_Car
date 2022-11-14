@@ -21,27 +21,28 @@
 #include "RenderBase.h"
 #include "VideoTex.h"
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-
-using ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 
 /*
  * Renders the view from a single specified camera directly to the full display.
  */
-class RenderPixelCopy : public RenderBase {
+class RenderPixelCopy final : public RenderBase {
 public:
-    RenderPixelCopy(android::sp<IEvsEnumerator> enumerator, const ConfigManager::CameraInfo& cam);
+    RenderPixelCopy(
+            std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> enumerator,
+            const ConfigManager::CameraInfo& cam);
 
     virtual bool activate() override;
     virtual void deactivate() override;
 
-    virtual bool drawFrame(const BufferDesc& tgtBuffer);
+    virtual bool drawFrame(const aidl::android::hardware::automotive::evs::BufferDesc& tgtBuffer);
 
 protected:
-    android::sp<IEvsEnumerator> mEnumerator;
+    std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> mEnumerator;
     ConfigManager::CameraInfo mCameraInfo;
 
-    android::sp<StreamHandler> mStreamHandler;
+    std::shared_ptr<StreamHandler> mStreamHandler;
 };
 
 #endif  // CAR_EVS_APP_RENDERPIXELCOPY_H

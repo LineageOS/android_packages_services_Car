@@ -20,6 +20,10 @@
 #include "RenderPixelCopy.h"
 #include "RenderTopView.h"
 
+#include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/DisplayState.h>
+#include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleGear.h>
 #include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
 #include <aidl/android/hardware/automotive/vehicle/VehiclePropertyType.h>
@@ -32,23 +36,25 @@
 #include <stdio.h>
 #include <string.h>
 
-using ::aidl::android::hardware::automotive::vehicle::VehicleGear;
-using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
-using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyType;
-using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-using ::aidl::android::hardware::automotive::vehicle::VehicleTurnSignal;
-using ::android::base::Result;
-using ::android::frameworks::automotive::vhal::ErrorCode;
-using ::android::frameworks::automotive::vhal::IHalPropValue;
-using ::android::frameworks::automotive::vhal::IVhalClient;
-using ::android::frameworks::automotive::vhal::VhalClientResult;
-using ::android::hardware::automotive::evs::V1_0::EvsResult;
-using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
-using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
-using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
+namespace {
 
-static bool isSfReady() {
-    return ::ndk::SpAIBinder(::AServiceManager_getService("SurfaceFlinger")).get() != nullptr;
+using aidl::android::hardware::automotive::evs::BufferDesc;
+using aidl::android::hardware::automotive::evs::CameraDesc;
+using aidl::android::hardware::automotive::evs::DisplayState;
+using aidl::android::hardware::automotive::evs::IEvsDisplay;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
+using aidl::android::hardware::automotive::vehicle::VehicleGear;
+using aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using aidl::android::hardware::automotive::vehicle::VehiclePropertyType;
+using aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+using aidl::android::hardware::automotive::vehicle::VehicleTurnSignal;
+using android::frameworks::automotive::vhal::ErrorCode;
+using android::frameworks::automotive::vhal::IHalPropValue;
+using android::frameworks::automotive::vhal::IVhalClient;
+using android::frameworks::automotive::vhal::VhalClientResult;
+
+bool isSfReady() {
+    return ndk::SpAIBinder(AServiceManager_getService("SurfaceFlinger")).get() != nullptr;
 }
 
 inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
@@ -56,9 +62,12 @@ inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
                                             static_cast<int32_t>(VehiclePropertyType::MASK));
 }
 
+}  // namespace
+
 EvsStateControl::EvsStateControl(std::shared_ptr<IVhalClient> pVnet,
-                                 android::sp<IEvsEnumerator> pEvs,
-                                 android::sp<IEvsDisplay> pDisplay, const ConfigManager& config) :
+                                 std::shared_ptr<IEvsEnumerator> pEvs,
+                                 const std::shared_ptr<IEvsDisplay>& pDisplay,
+                                 const ConfigManager& config) :
       mVehicle(pVnet),
       mEvs(pEvs),
       mDisplay(pDisplay),
@@ -77,48 +86,52 @@ EvsStateControl::EvsStateControl(std::shared_ptr<IVhalClient> pVnet,
     // This way we only ever deal with cameras which exist in the system
     // Build our set of cameras for the states we support
     LOG(DEBUG) << "Requesting camera list";
-    mEvs->getCameraList_1_1([this, &config](hidl_vec<CameraDesc> cameraList) {
-        LOG(INFO) << "Camera list callback received " << cameraList.size() << "cameras.";
-        for (auto&& cam : cameraList) {
-            LOG(DEBUG) << "Found camera " << cam.v1.cameraId;
-            bool cameraConfigFound = false;
+    std::vector<CameraDesc> cameraList;
+    if (auto status = mEvs->getCameraList(&cameraList); !status.isOk()) {
+        LOG(ERROR) << "Failed to get the camera list.";
+        return;
+    }
 
-            // Check our configuration for information about this camera
-            // Note that a camera can have a compound function string
-            // such that a camera can be "right/reverse" and be used for both.
-            // If more than one camera is listed for a given function, we'll
-            // list all of them and let the UX/rendering logic use one, some
-            // or all of them as appropriate.
-            for (auto&& info : config.getCameras()) {
-                if (cam.v1.cameraId == info.cameraId) {
-                    // We found a match!
-                    if (info.function.find("reverse") != std::string::npos) {
-                        mCameraList[State::REVERSE].emplace_back(info);
-                        mCameraDescList[State::REVERSE].emplace_back(cam);
-                    }
-                    if (info.function.find("right") != std::string::npos) {
-                        mCameraList[State::RIGHT].emplace_back(info);
-                        mCameraDescList[State::RIGHT].emplace_back(cam);
-                    }
-                    if (info.function.find("left") != std::string::npos) {
-                        mCameraList[State::LEFT].emplace_back(info);
-                        mCameraDescList[State::LEFT].emplace_back(cam);
-                    }
-                    if (info.function.find("park") != std::string::npos) {
-                        mCameraList[State::PARKING].emplace_back(info);
-                        mCameraDescList[State::PARKING].emplace_back(cam);
-                    }
-                    cameraConfigFound = true;
-                    break;
+    LOG(INFO) << "Camera list callback received " << cameraList.size() << "cameras.";
+    for (auto&& cam : cameraList) {
+        LOG(DEBUG) << "Found camera " << cam.id;
+        bool cameraConfigFound = false;
+
+        // Check our configuration for information about this camera
+        // Note that a camera can have a compound function string
+        // such that a camera can be "right/reverse" and be used for both.
+        // If more than one camera is listed for a given function, we'll
+        // list all of them and let the UX/rendering logic use one, some
+        // or all of them as appropriate.
+        for (auto&& info : config.getCameras()) {
+            if (cam.id == info.cameraId) {
+                // We found a match!
+                if (info.function.find("reverse") != std::string::npos) {
+                    mCameraList[State::REVERSE].emplace_back(info);
+                    mCameraDescList[State::REVERSE].emplace_back(cam);
                 }
-            }
-            if (!cameraConfigFound) {
-                LOG(WARNING) << "No config information for hardware camera " << cam.v1.cameraId;
+                if (info.function.find("right") != std::string::npos) {
+                    mCameraList[State::RIGHT].emplace_back(info);
+                    mCameraDescList[State::RIGHT].emplace_back(cam);
+                }
+                if (info.function.find("left") != std::string::npos) {
+                    mCameraList[State::LEFT].emplace_back(info);
+                    mCameraDescList[State::LEFT].emplace_back(cam);
+                }
+                if (info.function.find("park") != std::string::npos) {
+                    mCameraList[State::PARKING].emplace_back(info);
+                    mCameraDescList[State::PARKING].emplace_back(cam);
+                }
+                cameraConfigFound = true;
+                break;
             }
         }
-    });
+        if (!cameraConfigFound) {
+            LOG(WARNING) << "No config information for hardware camera " << cam.id;
+        }
+    }
 
-    LOG(DEBUG) << "State controller ready";
+    LOG(INFO) << "State controller ready";
 }
 
 bool EvsStateControl::startUpdateLoop() {
@@ -158,9 +171,9 @@ void EvsStateControl::updateLoop() {
     bool run = true;
     while (run) {
         // Process incoming commands
-        android::sp<IEvsDisplay> displayHandle;
+        std::shared_ptr<IEvsDisplay> displayHandle;
         {
-            std::lock_guard<std::mutex> lock(mLock);
+            std::lock_guard lock(mLock);
             while (!mCommandQueue.empty()) {
                 const Command& cmd = mCommandQueue.front();
                 switch (cmd.operation) {
@@ -177,7 +190,7 @@ void EvsStateControl::updateLoop() {
                 mCommandQueue.pop();
             }
 
-            displayHandle = mDisplay.promote();
+            displayHandle = mDisplay.lock();
         }
 
         if (!displayHandle) {
@@ -194,16 +207,13 @@ void EvsStateControl::updateLoop() {
         // If we have an active renderer, give it a chance to draw
         if (mCurrentRenderer) {
             // Get the output buffer we'll use to display the imagery
-            BufferDesc_1_0 tgtBuffer = {};
-            displayHandle->getTargetBuffer(
-                    [&tgtBuffer](const BufferDesc_1_0& buff) { tgtBuffer = buff; });
-
-            if (tgtBuffer.memHandle == nullptr) {
+            BufferDesc tgtBuffer;
+            if (auto status = displayHandle->getTargetBuffer(&tgtBuffer); !status.isOk()) {
                 LOG(ERROR) << "Didn't get requested output buffer -- skipping this frame.";
                 run = false;
             } else {
                 // Generate our output image
-                if (!mCurrentRenderer->drawFrame(convertBufferDesc(tgtBuffer))) {
+                if (!mCurrentRenderer->drawFrame(tgtBuffer)) {
                     // If drawing failed, we want to exit quickly so an app restart can happen
                     run = false;
                 }
@@ -365,20 +375,20 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
     }
 
     // Since we're changing states, shut down the current renderer
-    if (mCurrentRenderer != nullptr) {
+    if (mCurrentRenderer) {
         mCurrentRenderer->deactivate();
-        mCurrentRenderer = nullptr;  // It's a smart pointer, so destructs on assignment to null
+        mCurrentRenderer.reset();
     }
 
     // Now set the display state based on whether we have a video feed to show
-    android::sp<IEvsDisplay> displayHandle = mDisplay.promote();
+    std::shared_ptr<IEvsDisplay> displayHandle = mDisplay.lock();
     if (!displayHandle) {
         return false;
     }
 
-    if (mDesiredRenderer == nullptr) {
+    if (!mDesiredRenderer) {
         LOG(DEBUG) << "Turning off the display";
-        displayHandle->setDisplayState(EvsDisplayState::NOT_VISIBLE);
+        displayHandle->setDisplayState(DisplayState::NOT_VISIBLE);
     } else {
         mCurrentRenderer = std::move(mDesiredRenderer);
 
@@ -393,10 +403,9 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
         // Activate the display
         LOG(DEBUG) << "EvsActivateDisplayTiming start time: " << android::elapsedRealtime()
                    << " ms.";
-        Return<EvsResult> result =
-                displayHandle->setDisplayState(EvsDisplayState::VISIBLE_ON_NEXT_FRAME);
-        if (result != EvsResult::OK) {
-            LOG(ERROR) << "setDisplayState returned an error " << result.description();
+        if (auto status = displayHandle->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
+            !status.isOk()) {
+            LOG(ERROR) << "Failed to set a display state as VISIBLE_ON_NEXT_FRAME.";
             return false;
         }
     }
@@ -407,7 +416,7 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
 
     mFirstFrameIsDisplayed = false;  // Got a new renderer, mark first frame is not displayed.
 
-    if (mCurrentRenderer != nullptr && desiredState == State::REVERSE) {
+    if (mCurrentRenderer && desiredState == State::REVERSE) {
         // Start computing the latency when the evs state changes.
         mEvsStats.startComputingFirstFrameLatency(desiredStateTimeMillis);
     }

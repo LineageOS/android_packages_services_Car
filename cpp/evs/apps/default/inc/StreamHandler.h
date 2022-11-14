@@ -17,26 +17,15 @@
 #ifndef EVS_VTS_STREAMHANDLER_H
 #define EVS_VTS_STREAMHANDLER_H
 
-#include "ui/GraphicBuffer.h"
-
-#include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
-#include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
-#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
+#include <aidl/android/hardware/automotive/evs/BnEvsCameraStream.h>
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/DisplayState.h>
+#include <aidl/android/hardware/automotive/evs/EvsEventDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
+#include <aidl/android/hardware/graphics/common/HardwareBuffer.h>
+#include <ui/GraphicBuffer.h>
 
 #include <queue>
-
-using ::android::hardware::hidl_handle;
-using ::android::hardware::hidl_vec;
-using ::android::hardware::Return;
-using ::android::hardware::Void;
-using ::android::hardware::automotive::evs::V1_1::EvsEventDesc;
-using ::android::hardware::automotive::evs::V1_1::IEvsCamera;
-using ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
-using ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
-
-using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
-using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
-using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 /*
  * StreamHandler:
@@ -45,14 +34,15 @@ using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
  * Note that the video frames are delivered on a background thread, while the control interface
  * is actuated from the applications foreground thread.
  */
-class StreamHandler : public IEvsCameraStream {
+class StreamHandler final : public aidl::android::hardware::automotive::evs::BnEvsCameraStream {
 public:
     virtual ~StreamHandler() { shutdown(); };
 
-    StreamHandler(android::sp<IEvsCamera> pCamera, uint32_t numBuffers = 2,
-                  bool useOwnBuffers = false,
-                  android_pixel_format_t format = HAL_PIXEL_FORMAT_RGBA_8888, int32_t width = 640,
-                  int32_t height = 360);
+    StreamHandler(
+            const std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsCamera>& cameraObj,
+            uint32_t numBuffers = 2, bool useOwnBuffers = false,
+            android_pixel_format_t format = HAL_PIXEL_FORMAT_RGBA_8888, int32_t width = 640,
+            int32_t height = 360);
     void shutdown();
 
     bool startStream();
@@ -62,32 +52,32 @@ public:
     bool isRunning();
 
     bool newFrameAvailable();
-    const BufferDesc_1_1& getNewFrame();
-    void doneWithFrame(const BufferDesc_1_1& buffer);
+    const aidl::android::hardware::automotive::evs::BufferDesc& getNewFrame();
+    void doneWithFrame(const aidl::android::hardware::automotive::evs::BufferDesc& buffer);
 
 private:
-    // Implementation for ::android::hardware::automotive::evs::V1_0::IEvsCameraStream
-    Return<void> deliverFrame(const BufferDesc_1_0& buffer) override;
-
-    // Implementation for ::android::hardware::automotive::evs::V1_1::IEvsCameraStream
-    Return<void> deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffer) override;
-    Return<void> notify(const EvsEventDesc& event) override;
+    // Implementation for aidl::android::hardware::automotive::evs::IEvsCameraStream
+    ndk::ScopedAStatus deliverFrame(
+            const std::vector<aidl::android::hardware::automotive::evs::BufferDesc>& buffers)
+            override;
+    ndk::ScopedAStatus notify(
+            const aidl::android::hardware::automotive::evs::EvsEventDesc& event) override;
 
     // Values initialized as startup
-    android::sp<IEvsCamera> mCamera;
+    std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsCamera> mCamera;
 
-    // Since we get frames delivered to us asnchronously via the ICarCameraStream interface,
+    // Since we get frames delivered to us asnchronously via the IEvsCameraStream interface,
     // we need to protect all member variables that may be modified while we're streaming
-    // (ie: those below)
+    // (i.e.: those below)
     std::mutex mLock;
     std::condition_variable mSignal;
 
     bool mRunning = false;
 
-    BufferDesc_1_1 mBuffers[2];
+    aidl::android::hardware::automotive::evs::BufferDesc mBuffers[2];
     int mHeldBuffer = -1;   // Index of the one currently held by the client
     int mReadyBuffer = -1;  // Index of the newest available buffer
-    hidl_vec<BufferDesc_1_1> mOwnBuffers;
+    std::vector<aidl::android::hardware::automotive::evs::BufferDesc> mOwnBuffers;
     bool mUseOwnBuffers;
 };
 

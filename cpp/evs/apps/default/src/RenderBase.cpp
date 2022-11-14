@@ -16,15 +16,25 @@
 
 #include "RenderBase.h"
 
+#include "Utils.h"
 #include "glError.h"
 
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
+#include <android-base/scopeguard.h>
 #include <ui/GraphicBuffer.h>
+
+namespace {
+
+using aidl::android::hardware::automotive::evs::BufferDesc;
 
 // Eventually we shouldn't need this dependency, but for now the
 // graphics allocator interface isn't fully supported on all platforms
 // and this is our work around.
 using ::android::GraphicBuffer;
+
+}  // namespace
 
 // OpenGL state shared among all renderers
 EGLDisplay RenderBase::sDisplay = EGL_NO_DISPLAY;
@@ -131,6 +141,14 @@ bool RenderBase::prepareGL() {
 }
 
 bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
+    native_handle_t* nativeHandle = getNativeHandle(tgtBuffer);
+    if (nativeHandle == nullptr) {
+        LOG(ERROR) << "Target buffer is invalid.";
+        return false;
+    }
+
+    const auto handleGuard =
+            android::base::make_scope_guard([nativeHandle] { free(nativeHandle); });
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuffer.buffer.description);
     // Hardcoded to RGBx for now
@@ -141,9 +159,9 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
 
     // create a GraphicBuffer from the existing handle
     android::sp<GraphicBuffer> pGfxBuffer =
-            new GraphicBuffer(tgtBuffer.buffer.nativeHandle, GraphicBuffer::CLONE_HANDLE,
-                              pDesc->width, pDesc->height, pDesc->format, pDesc->layers,
-                              GRALLOC_USAGE_HW_RENDER, pDesc->stride);
+            new GraphicBuffer(nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
+                              pDesc->height, pDesc->format, pDesc->layers, GRALLOC_USAGE_HW_RENDER,
+                              pDesc->stride);
     if (pGfxBuffer.get() == nullptr) {
         LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
         return false;

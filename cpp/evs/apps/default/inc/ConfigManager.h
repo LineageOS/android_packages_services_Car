@@ -22,7 +22,7 @@
 
 #include <system/graphics-base.h>
 
-class ConfigManager {
+class ConfigManager final {
 public:
     struct CameraInfo {
         std::string cameraId = "";  // The name of the camera from the point of view of the HAL

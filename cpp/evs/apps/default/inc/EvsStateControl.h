@@ -22,34 +22,28 @@
 #include "RenderBase.h"
 #include "StreamHandler.h"
 
+#include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
+#include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/vehicle/VehiclePropValues.h>
-#include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
-#include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 
 #include <IVhalClient.h>
 
 #include <thread>
-
-using ::android::hardware::hidl_handle;
-using ::android::hardware::hidl_vec;
-using ::android::hardware::Return;
-using ::android::hardware::Void;
-using ::android::hardware::automotive::evs::V1_1::CameraDesc;
-using ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
-using ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
-using ::android::hardware::camera::device::V3_2::Stream;
 
 /*
  * This class runs the main update loop for the EVS application.  It will sleep when it has
  * nothing to do.  It provides a thread safe way for other threads to wake it and pass commands
  * to it.
  */
-class EvsStateControl {
+class EvsStateControl final {
 public:
-    EvsStateControl(std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> pVnet,
-                    android::sp<IEvsEnumerator> pEvs, android::sp<IEvsDisplay> pDisplay,
-                    const ConfigManager& config);
+    EvsStateControl(
+            std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> pVnet,
+            std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> pEvs,
+            const std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsDisplay>& pDisplay,
+            const ConfigManager& config);
 
     enum State {
         OFF = 0,
@@ -89,8 +83,8 @@ private:
     bool configureEvsPipeline(State desiredState);  // Only call from one thread!
 
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVehicle;
-    android::sp<IEvsEnumerator> mEvs;
-    android::wp<IEvsDisplay> mDisplay;
+    std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> mEvs;
+    std::weak_ptr<aidl::android::hardware::automotive::evs::IEvsDisplay> mDisplay;
     const ConfigManager& mConfig;
 
     aidl::android::hardware::automotive::vehicle::VehiclePropValue mGearValue;
@@ -104,7 +98,7 @@ private:
     std::vector<ConfigManager::CameraInfo> mCameraList[NUM_STATES];
     std::unique_ptr<RenderBase> mCurrentRenderer;
     std::unique_ptr<RenderBase> mDesiredRenderer;
-    std::vector<CameraDesc> mCameraDescList[NUM_STATES];
+    std::vector<aidl::android::hardware::automotive::evs::CameraDesc> mCameraDescList[NUM_STATES];
 
     std::thread mRenderThread;  // The thread that runs the main rendering loop
 
