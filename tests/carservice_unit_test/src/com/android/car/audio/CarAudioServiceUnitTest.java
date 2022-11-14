@@ -967,6 +967,24 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void setGroupVolume_withDynamicRoutingDisabled() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.setGroupVolume(
+                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS);
+
+        verify(mAudioManager).setStreamVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP],
+                TEST_PRIMARY_GROUP_INDEX,
+                TEST_FLAGS);
+    }
+
+    @Test
     public void getOutputDeviceAddressForUsage_forMusicUsage() {
         mCarAudioService.init();
 
@@ -1085,6 +1103,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Volume group muted after mute")
                 .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isTrue();
+    }
+
+    @Test
+    public void isVolumeGroupMuted_withVolumeGroupMutingDisabled() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
+                .thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonVolumeGroupMutingAudioService.init();
+
+        assertWithMessage("Volume group for disabled volume group muting")
+                .that(nonVolumeGroupMutingAudioService.isVolumeGroupMuted(
+                        PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isFalse();
     }
 
     @Test
