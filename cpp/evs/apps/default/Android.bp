@@ -22,22 +22,9 @@ package {
 cc_binary {
     name: "evs_app",
 
-    srcs: [
-        "evs_app.cpp",
-        "EvsStateControl.cpp",
-        "EvsStats.cpp",
-        "RenderBase.cpp",
-        "RenderDirectView.cpp",
-        "RenderTopView.cpp",
-        "ConfigManager.cpp",
-        "glError.cpp",
-        "shader.cpp",
-        "TexWrapper.cpp",
-        "VideoTex.cpp",
-        "StreamHandler.cpp",
-        "FormatConvert.cpp",
-        "RenderPixelCopy.cpp",
-    ],
+    srcs: ["./**/*.cpp"],
+
+    local_include_dirs: ["inc"],
 
     shared_libs: [
         "libbase",
@@ -77,16 +64,15 @@ cc_binary {
 
     defaults: ["vhalclient_defaults"],
 
-    cflags: ["-DLOG_TAG=\"EvsApp\""] + [
+    cflags: [
+        "-DLOG_TAG=\"EvsApp\"",
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
-    ] + [
         "-Wall",
         "-Werror",
         "-Wunused",
         "-Wunreachable-code",
     ],
-
 }
 
 cc_library {
@@ -105,24 +91,21 @@ cc_library {
 
 prebuilt_etc {
     name: "config.json",
-
-    src: "config.json",
+    src: "res/config.json",
     sub_dir: "automotive/evs",
 
 }
 
 prebuilt_etc {
     name: "CarFromTop.png",
-
-    src: "CarFromTop.png",
+    src: "res/CarFromTop.png",
     sub_dir: "automotive/evs",
 
 }
 
 prebuilt_etc {
     name: "LabeledChecker.png",
-
-    src: "LabeledChecker.png",
+    src: "res/LabeledChecker.png",
     sub_dir: "automotive/evs",
 
 }
