@@ -63,6 +63,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final AudioManager mAudioManager;
     private final PackageManager mPackageManager;
+    private final CarVolumeInfoWrapper mCarVolumeInfoWrapper;
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
     private final LocalLog mFocusEventLogger;
@@ -93,7 +94,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private boolean mIsFocusRestricted;
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
-            FocusInteraction focusInteraction, CarAudioContext carAudioContext) {
+            FocusInteraction focusInteraction, CarAudioContext carAudioContext,
+            CarVolumeInfoWrapper volumeInfoWrapper) {
         mAudioManager = Objects.requireNonNull(audioManager, "Audio manager can not be null");
         mPackageManager = Objects.requireNonNull(packageManager, "Package manager can not null");
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
@@ -101,6 +103,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 "Focus interactions can not be null");
         mCarAudioContext = Objects.requireNonNull(carAudioContext,
                 "Car audio context can not be null");
+        mCarVolumeInfoWrapper = Objects.requireNonNull(volumeInfoWrapper,
+                "Car volume info can not be null");
     }
 
 

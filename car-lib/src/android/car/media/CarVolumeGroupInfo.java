@@ -25,6 +25,9 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.Objects;
 
 /**
  * Class to encapsulate car volume group information.
@@ -40,7 +43,13 @@ public final class CarVolumeGroupInfo implements Parcelable {
     private final int mId;
     private final @NonNull String mName;
 
-    private CarVolumeGroupInfo(@NonNull Parcel in) {
+    /**
+     * Creates volume info from parcel
+     *
+     * @hide
+     */
+    @VisibleForTesting()
+    public CarVolumeGroupInfo(@NonNull Parcel in) {
         mZoneId = in.readInt();
         mId = in.readInt();
         mName = in.readString();
@@ -78,7 +87,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
             @NonNull String name) {
         this.mZoneId = zoneId;
         this.mId = id;
-        this.mName = name;
+        this.mName = Objects.requireNonNull(name, "Volume info name can not be null");
     }
 
     /**
@@ -127,6 +136,30 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeString(mName);
     }
 
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof CarVolumeGroupInfo)) {
+            return false;
+        }
+
+        CarVolumeGroupInfo that = (CarVolumeGroupInfo) o;
+
+        return mZoneId == that.mZoneId && mId == that.mId && mName.equals(that.mName);
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public int hashCode() {
+        return Objects.hash(mName, mZoneId, mId);
+    }
+
     /**
      * A builder for {@link CarVolumeGroupInfo}
      */
@@ -147,7 +180,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 @NonNull String name) {
             mZoneId = zoneId;
             mId = id;
-            mName = name;
+            mName = Objects.requireNonNull(name, "Volume info name can not be null");
         }
 
         /**
@@ -180,10 +213,10 @@ public final class CarVolumeGroupInfo implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
-        public Builder setName(@NonNull String value) {
+        public Builder setName(@NonNull String name) {
             checkNotUsed();
             mBuilderFieldsSet |= 0x4;
-            mName = value;
+            mName = Objects.requireNonNull(name, "Volume info name can not be null");
             return this;
         }
 
