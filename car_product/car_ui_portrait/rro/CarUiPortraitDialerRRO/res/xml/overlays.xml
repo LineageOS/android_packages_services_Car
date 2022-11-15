@@ -83,6 +83,8 @@
     <item target="layout/incall_dialpad_fragment" value="@layout/incall_dialpad_fragment"/>
     <item target="layout/contact_user_profile" value="@layout/contact_user_profile"/>
 
+    <item target="style/KeypadLetter" value="@style/KeypadLetter"/>
+    <item target="style/KeypadNumber" value="@style/KeypadNumber"/>
     <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
     <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
     <item target="style/SubheaderText" value="@style/SubheaderText"/>

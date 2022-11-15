@@ -25,8 +25,9 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:singleLine="true"
+        android:layout_marginTop="@dimen/in_call_title_margin"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true" />
 
     <Chronometer
         android:id="@+id/call_state"
@@ -34,23 +35,23 @@
         android:layout_height="wrap_content"
         android:focusable="true"
         android:singleLine="true"
-        android:layout_marginTop="40dp"
+        android:layout_marginTop="@dimen/in_call_state_margin"
         android:layout_centerHorizontal="true"
-        android:layout_below="@id/title"/>
+        android:layout_below="@id/title" />
 
     <com.android.car.ui.FocusArea
         android:id="@+id/dialpad_focus_area"
-        android:layout_height="456dp"
-        android:layout_width="416dp"
-        android:layout_marginBottom="171dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/in_call_dialpad_focus_area_margin"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true">
+        android:layout_below="@+id/call_state">
 
         <fragment
             android:id="@+id/dialpad_fragment"
             android:name="com.android.car.dialer.ui.dialpad.KeypadFragment"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"/>
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
     </com.android.car.ui.FocusArea>
 </RelativeLayout>
