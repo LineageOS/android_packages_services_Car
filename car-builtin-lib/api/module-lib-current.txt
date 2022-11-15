@@ -275,6 +275,7 @@ package android.car.builtin.power {
   public final class PowerManagerHelper {
     method public static int getMaximumScreenBrightnessSetting(android.content.Context);
     method public static int getMinimumScreenBrightnessSetting(android.content.Context);
+    method public static void goToSleep(android.content.Context, int, long);
     method public static void setDisplayState(android.content.Context, boolean, long);
     method public static void shutdown(android.content.Context, boolean, String, boolean);
   }
