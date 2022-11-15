@@ -684,7 +684,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
      * Sets the mapping for audio zone id to occupant zone id.
      *
      * @param audioZoneIdToOccupantZoneMapping map for audio zone id, where key is the audio zone id
-     * and value is the occupant zone id.
+     *                                         and value is the occupant zone id
      */
     public void setAudioZoneIdsForOccupantZoneIds(
             @NonNull SparseIntArray audioZoneIdToOccupantZoneMapping) {
@@ -1165,9 +1165,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                                 seatSide = VehicleAreaSeat.SIDE_RIGHT;
                                 break;
                             default:
-                                throwFormatErrorInOccupantZones("Unregognized seatSide:" + entry);
+                                throwFormatErrorInOccupantZones("Unrecognized seatSide:" + entry);
                                 break;
-
                         }
                         break;
                     default:

@@ -62,15 +62,17 @@ public class CarOccupantZoneManager extends CarManagerBase {
 
     private static final String TAG = CarOccupantZoneManager.class.getSimpleName();
 
-    /** Display type is not known. In some system, some displays may be just public display without
-     *  any additional information and such displays will be treated as unknown.
+    /**
+     * Display type is not known. In some system, some displays may be just public display without
+     * any additional information and such displays will be treated as unknown.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_UNKNOWN = 0;
 
-    /** Main display users are interacting with. UI for the user will be launched to this display by
-     *  default. {@link Display#DEFAULT_DISPLAY} will be always have this type. But there can be
-     *  multiple of this type as each passenger can have their own main display.
+    /**
+     * Main display users are interacting with. UI for the user will be launched to this display by
+     * default. {@link Display#DEFAULT_DISPLAY} will be always have this type. But there can be
+     * multiple of this type as each passenger can have their own main display.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_MAIN = 1;
@@ -87,9 +89,10 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_INPUT = 4;
 
-    /** Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
-     *  Activity running in {@link #DISPLAY_TYPE_MAIN} may use {@link android.app.Presentation} to
-     *  show additional information.
+    /**
+     * Auxiliary display which can provide additional screen for {@link #DISPLAY_TYPE_MAIN}.
+     * Activity running in {@link #DISPLAY_TYPE_MAIN} may use {@link android.app.Presentation} to
+     * show additional information.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_TYPE_AUXILIARY = 5;
@@ -118,8 +121,10 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_DRIVER = 0;
 
-    /** Represents front passengers who sit in front side of car. Most cars will have only
-     *  one passenger of this type but this can be multiple. */
+    /**
+     * Represents front passengers who sit in front side of car. Most cars will have only
+     * one passenger of this type but this can be multiple.
+     */
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1;
 
@@ -228,15 +233,15 @@ public class CarOccupantZoneManager extends CarManagerBase {
 
         @AddedInOrBefore(majorVersion = 33)
         public static final Parcelable.Creator<OccupantZoneInfo> CREATOR =
-                new Parcelable.Creator<OccupantZoneInfo>() {
-            public OccupantZoneInfo createFromParcel(Parcel in) {
-                return new OccupantZoneInfo(in);
-            }
+                new Parcelable.Creator<>() {
+                    public OccupantZoneInfo createFromParcel(Parcel in) {
+                        return new OccupantZoneInfo(in);
+                    }
 
-            public OccupantZoneInfo[] newArray(int size) {
-                return new OccupantZoneInfo[size];
-            }
-        };
+                    public OccupantZoneInfo[] newArray(int size) {
+                        return new OccupantZoneInfo[size];
+                    }
+                };
 
         @Override
         @AddedInOrBefore(majorVersion = 33)
@@ -253,8 +258,9 @@ public class CarOccupantZoneManager extends CarManagerBase {
         }
     }
 
-    /** Zone config change caused by display changes. A display could have been added / removed.
-     *  Besides change in display itself. this can lead into removal / addition of passenger zones.
+    /**
+     * Zone config change caused by display changes. A display could have been added / removed.
+     * Besides change in display itself. this can lead into removal / addition of passenger zones.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_DISPLAY = 0x1;
@@ -263,14 +269,15 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_USER = 0x2;
 
-    /** Zone config change caused by audio zone change.
+    /**
+     * Zone config change caused by audio zone change.
      * Assigned audio zone for passenger zones have changed.
      **/
     @AddedInOrBefore(majorVersion = 33)
     public static final int ZONE_CONFIG_CHANGE_FLAG_AUDIO = 0x4;
 
     /** @hide */
-    @IntDef(flag = true, prefix = { "ZONE_CONFIG_CHANGE_FLAG_" }, value = {
+    @IntDef(flag = true, prefix = {"ZONE_CONFIG_CHANGE_FLAG_"}, value = {
             ZONE_CONFIG_CHANGE_FLAG_DISPLAY,
             ZONE_CONFIG_CHANGE_FLAG_USER,
             ZONE_CONFIG_CHANGE_FLAG_AUDIO,
@@ -321,7 +328,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     public static final int USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE = 3;
 
     /** @hide */
-    @IntDef(flag = false, prefix = { "USER_ASSIGNMENT_RESULT_" }, value = {
+    @IntDef(flag = false, prefix = {"USER_ASSIGNMENT_RESULT_"}, value = {
             USER_ASSIGNMENT_RESULT_OK,
             USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED,
             USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER,
@@ -342,7 +349,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     public static final int USER_ASSIGNMENT_FLAG_LAUNCH_HOME = 0x1;
 
     /** @hide */
-    @IntDef(flag = true, prefix = { "USER_ASSIGNMENT_FLAG_" }, value = {
+    @IntDef(flag = true, prefix = {"USER_ASSIGNMENT_FLAG_"}, value = {
             USER_ASSIGNMENT_FLAG_LAUNCH_HOME,
     })
     @Retention(RetentionPolicy.SOURCE)
@@ -556,13 +563,12 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * <p>Note that only non-driver zone can be assigned with this call. Calling this for driver
      * zone will lead into {@code IllegalArgumentException}.
      *
-     * @deprecated Use {@link #assignVisibleUserToOccupantZone(OccupantZoneInfo, UserHandle, int)}
-     *             instead.
-     *
      * @param occupantZone Zone to assign user.
-     * @param userId profile user id to assign. Passing {@link #INVALID_USER_ID} leads into
-     *               removing the current user assignment.
+     * @param userId       profile user id to assign. Passing {@link #INVALID_USER_ID} leads into
+     *                     removing the current user assignment.
      * @return true if the request succeeds or if the user is already assigned to the zone.
+     * @deprecated Use {@link #assignVisibleUserToOccupantZone(OccupantZoneInfo, UserHandle, int)}
+     * instead.
      *
      * @hide
      */
@@ -603,11 +609,11 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * requires unassigning the zone using {@link #unassignOccupantZone(OccupantZoneInfo)}
      * first.
      *
-     * @param occupantZone The occupant zone to change user allocation.
-     * @param user The user to allocate. {@code null} user removes the allocation for the zone.
-     *             {@link UserHandle#CURRENT} will assign the current user to the zone.
-     * @param flags Flags to define actions done with the user assignment.
-     * @return Check the above.
+     * @param occupantZone the occupant zone to change user allocation
+     * @param user the user to allocate. {@code null} user removes the allocation for the zone
+     *             {@link UserHandle#CURRENT} will assign the current user to the zone
+     * @param flags the flags to define actions done with the user assignment
+     * @return Check the above
      *
      * @hide
      */
@@ -635,8 +641,8 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *
      * @param occupantZone Zone to unassign.
      * @return {@link #USER_ASSIGNMENT_RESULT_OK} if the zone is unassigned by the call or was
-     *         already unassigned. Error code of {@link #USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE}
-     *         will be returned if driver zone is asked.
+     * already unassigned. Error code of {@link #USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE}
+     * will be returned if driver zone is asked.
      *
      * @hide
      */
@@ -728,11 +734,12 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * Finds {@code OccupantZoneInfo} for the given occupant type and seat.
      * <p>For{@link #OCCUPANT_TYPE_DRIVER} and {@link #OCCUPANT_TYPE_FRONT_PASSENGER}, {@code seat}
      * argument will be ignored.
+     *
      * @param occupantType should be one of {@link #OCCUPANT_TYPE_DRIVER},
      *                     {@link #OCCUPANT_TYPE_FRONT_PASSENGER},
      *                     {@link #OCCUPANT_TYPE_FRONT_PASSENGER}
-     * @param seat Seat of the occupant. This is necessary for
-     *             {@link #OCCUPANT_TYPE_REAR_PASSENGER}.
+     * @param seat         Seat of the occupant. This is necessary for
+     *                     {@link #OCCUPANT_TYPE_REAR_PASSENGER}.
      * @return Matching occupant zone or {@code null} if such zone does not exist.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
