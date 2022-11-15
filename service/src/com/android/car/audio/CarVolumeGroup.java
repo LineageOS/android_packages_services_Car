@@ -433,7 +433,8 @@ import java.util.Objects;
             writer.printf("Gain values (min / max / default/ current): %d %d %d %d\n", mMinGain,
                     mMaxGain, mDefaultGain, getGainForIndex(mCurrentGainIndex));
             writer.printf("Gain indexes (min / max / default / current): %d %d %d %d\n",
-                    getMinGainIndex(), getMaxGainIndex(), getDefaultGainIndex(), mCurrentGainIndex);
+                    getMinGainIndex(), getMaxGainIndex(), getIndexForGain(mDefaultGain),
+                    mCurrentGainIndex);
             for (int i = 0; i < mContextToAddress.size(); i++) {
                 writer.printf("Context: %s -> Address: %s\n",
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
@@ -541,12 +542,6 @@ import java.util.Objects;
     private boolean isValidGainIndex(int gainIndex) {
         return gainIndex >= getIndexForGain(mMinGain)
                 && gainIndex <= getIndexForGain(mMaxGain);
-    }
-
-    private int getDefaultGainIndex() {
-        synchronized (mLock) {
-            return getIndexForGain(mDefaultGain);
-        }
     }
 
     @GuardedBy("mLock")
