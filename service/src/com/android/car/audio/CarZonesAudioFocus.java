@@ -56,17 +56,19 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final SparseArray<CarAudioFocus> mFocusZones;
 
-    public static CarZonesAudioFocus createCarZonesAudioFocus(@NonNull AudioManager audioManager,
-            @NonNull PackageManager packageManager,
-            @NonNull SparseArray<CarAudioZone> carAudioZones,
-            @NonNull CarAudioSettings carAudioSettings,
-            CarFocusCallback carFocusCallback) {
-        Objects.requireNonNull(audioManager, "AudioManager cannot be null");
-        Objects.requireNonNull(packageManager, "PackageManager cannot be null");
-        Objects.requireNonNull(carAudioZones, "CarAudioZones cannot be null");
+    public static CarZonesAudioFocus createCarZonesAudioFocus(AudioManager audioManager,
+            PackageManager packageManager,
+            SparseArray<CarAudioZone> carAudioZones,
+            CarAudioSettings carAudioSettings,
+            CarFocusCallback carFocusCallback,
+            CarVolumeInfoWrapper carVolumeInfoWrapper) {
+        Objects.requireNonNull(audioManager, "Audio manager cannot be null");
+        Objects.requireNonNull(packageManager, "Package manager cannot be null");
+        Objects.requireNonNull(carAudioZones, "Car audio zones cannot be null");
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
-        Objects.requireNonNull(carAudioSettings, "CarAudioSettings cannot be null");
+        Objects.requireNonNull(carAudioSettings, "Car audio settings cannot be null");
+        Objects.requireNonNull(carVolumeInfoWrapper, "Car volume info cannot be null");
 
         SparseArray<CarAudioFocus> audioFocusPerZone = new SparseArray<>();
 
@@ -78,8 +80,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
                     packageManager, new FocusInteraction(carAudioSettings),
-                    audioZone.getCarAudioContext());
-
+                    audioZone.getCarAudioContext(), carVolumeInfoWrapper);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);

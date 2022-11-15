@@ -16,6 +16,9 @@
 
 package com.android.car.audio;
 
+import android.car.media.CarVolumeGroupInfo;
+
+import java.util.List;
 import java.util.Objects;
 
 final class CarVolumeInfoWrapper {
@@ -61,5 +64,9 @@ final class CarVolumeInfoWrapper {
 
     public void setMasterMute(boolean mute, int flags) {
         mCarAudioService.setMasterMute(mute, flags);
+    }
+
+    public List<CarVolumeGroupInfo> getMutedVolumeGroups(int zoneId) {
+        return mCarAudioService.getMutedVolumeGroups(zoneId);
     }
 }
