@@ -50,6 +50,7 @@ import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -536,7 +537,8 @@ public class PropertyHalService extends HalServiceBase {
 
     @Override
     public boolean isSupportedProperty(int halPropId) {
-        return mPropertyHalServiceIds.isSupportedProperty(halPropId);
+        return mPropertyHalServiceIds.isSupportedProperty(halPropId)
+                && CarPropertyHelper.isSupported(halToManagerPropId(halPropId));
     }
 
     @Override

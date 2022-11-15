@@ -25,14 +25,9 @@ import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
-import android.util.Log;
-import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.concurrent.atomic.AtomicReference;
+import com.android.car.internal.property.CarPropertyHelper;
 
 /**
  * Based on {@code VehicleProperty.java} generated based on {@code VehicleProperty.aidl} in VHAL
@@ -42,8 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link android.car.hardware.property.CarPropertyManager}
  */
 public final class VehiclePropertyIds {
-
-    private static final String TAG = VehiclePropertyIds.class.getSimpleName();
 
     /**
      * Undefined property.
@@ -2374,13 +2367,6 @@ public final class VehiclePropertyIds {
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
-    /*
-     * Used to cache the mapping of property Id integer values into property name strings. This
-     * will be initialized during the first call to {@link VehiclePropertyIds#toString(int)}.
-     */
-    private static final AtomicReference<SparseArray<String>> sPropertyIdToPropertyNameHolder =
-            new AtomicReference<>();
-
     /**
      * @deprecated to prevent others from instantiating this class
      */
@@ -2394,41 +2380,6 @@ public final class VehiclePropertyIds {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static String toString(int property) {
-        SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
-        if (propertyIdsToNameMapping == null) {
-            propertyIdsToNameMapping = getPropertyIdsToNameMapping();
-            sPropertyIdToPropertyNameHolder.compareAndSet(null, propertyIdsToNameMapping);
-        }
-
-        String name = propertyIdsToNameMapping.get(property);
-        return name != null ? name : "0x" + Integer.toHexString(property);
-    }
-
-    /**
-     * Creates a SparseArray mapping property Ids to their String representations
-     * directly from this class.
-     */
-
-    private static SparseArray<String> getPropertyIdsToNameMapping() {
-        Field[] classFields = VehiclePropertyIds.class.getDeclaredFields();
-        SparseArray<String> propertyIdsToNameMapping = new SparseArray<>(classFields.length);
-        for (int i = 0; i < classFields.length; i++) {
-            Field candidateField = classFields[i];
-            try {
-                if (isPropertyId(candidateField)) {
-                    propertyIdsToNameMapping
-                            .put(candidateField.getInt(null), candidateField.getName());
-                }
-            } catch (IllegalAccessException e) {
-                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
-            }
-        }
-        return propertyIdsToNameMapping;
-    }
-
-    private static boolean isPropertyId(Field field) {
-        // We only want public static final int values
-        return field.getType() == int.class
-            && field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC);
+        return CarPropertyHelper.toString(property);
     }
 }

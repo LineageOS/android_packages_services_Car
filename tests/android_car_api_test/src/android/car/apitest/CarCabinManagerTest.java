@@ -27,6 +27,7 @@ import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -54,6 +55,7 @@ public final class CarCabinManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @Ignore("b/256244980-ID_WINDOW_LOCK is incorrect")
     public void testAllCabinProperties() throws Exception {
         List<CarPropertyConfig> properties = mCabinManager.getPropertyList();
         Set<Class> supportedTypes = new HashSet<>(Arrays.asList(
