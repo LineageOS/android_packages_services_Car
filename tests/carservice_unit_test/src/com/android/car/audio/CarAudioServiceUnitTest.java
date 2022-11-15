@@ -1115,6 +1115,51 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void getGroupMaxVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupMaxVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamMaxVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
+    }
+
+    @Test
+    public void getGroupMinVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamMinVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
+    }
+
+    @Test
+    public void getGroupCurrentVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
+    }
+
+    @Test
     public void setBalanceTowardRight_nonNullValue() {
         mCarAudioService.init();
 
