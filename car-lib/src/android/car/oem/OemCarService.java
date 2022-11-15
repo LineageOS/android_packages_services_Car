@@ -138,7 +138,7 @@ public abstract class OemCarService extends Service {
      */
     @Override
     @CallSuper
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void onCreate() {
         if (DBG) {
@@ -175,7 +175,7 @@ public abstract class OemCarService extends Service {
      */
     @Override
     @CallSuper
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void onDestroy() {
         if (DBG) {
@@ -193,7 +193,7 @@ public abstract class OemCarService extends Service {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public final int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         if (DBG) {
@@ -204,7 +204,7 @@ public abstract class OemCarService extends Service {
 
     @NonNull
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public final IBinder onBind(@Nullable Intent intent) {
         if (DBG) {
@@ -220,7 +220,7 @@ public abstract class OemCarService extends Service {
      */
     @Nullable
     @SuppressWarnings("[OnNameExpected]")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DBG) {
@@ -231,7 +231,7 @@ public abstract class OemCarService extends Service {
 
     @CallSuper
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void dump(@Nullable FileDescriptor fd, @Nullable PrintWriter writer,
             @Nullable String[] args) {
@@ -248,7 +248,7 @@ public abstract class OemCarService extends Service {
      */
     @SuppressWarnings("[OnNameExpected]")
     @NonNull
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public abstract CarVersion getSupportedCarVersion();
 
@@ -258,7 +258,7 @@ public abstract class OemCarService extends Service {
      * <p>
      * OEM should override this method if there is any initialization depending on CarService.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public abstract void onCarServiceReady();
 }

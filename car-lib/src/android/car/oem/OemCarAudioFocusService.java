@@ -37,7 +37,7 @@ public interface OemCarAudioFocusService extends OemCarServiceComponent {
     /**
      * Notifies of audio focus changes in car focus stack. It is one way call for OEM Service.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId);
@@ -63,7 +63,7 @@ public interface OemCarAudioFocusService extends OemCarServiceComponent {
      * Everytime there is focus change the blocked entries will be re-evaluated to determine
      * which can regain, lose, or continue with block focus.
      **/
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     OemCarAudioFocusResult evaluateAudioFocusRequest(
