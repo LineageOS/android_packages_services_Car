@@ -614,6 +614,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
+        mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH, new Pair<>(
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
         mHalPropIdToPermissions.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
                 null,
                 Car.PERMISSION_CAR_EPOCH_TIME));
@@ -698,6 +701,8 @@ public class PropertyHalServiceIds {
         mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH,
+                VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
                 ETC_CARD_STATUS);
         mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
