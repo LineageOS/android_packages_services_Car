@@ -15,10 +15,14 @@
  */
 #include "VideoTex.h"
 
+#include "Utils.h"
 #include "glError.h"
 
+#include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
+#include <aidlcommonsupport/NativeHandle.h>
 #include <android-base/logging.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
+#include <android-base/scopeguard.h>
 #include <ui/GraphicBuffer.h>
 
 #include <alloca.h>
@@ -29,15 +33,18 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include <vector>
+namespace {
 
-// Eventually we shouldn't need this dependency, but for now the
-// graphics allocator interface isn't fully supported on all platforms
-// and this is our work around.
-using ::android::GraphicBuffer;
+using aidl::android::hardware::automotive::evs::BufferDesc;
+using aidl::android::hardware::automotive::evs::IEvsCamera;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
+using aidl::android::hardware::automotive::evs::Stream;
+using android::GraphicBuffer;
 
-VideoTex::VideoTex(android::sp<IEvsEnumerator> pEnum, android::sp<IEvsCamera> pCamera,
-                   android::sp<StreamHandler> pStreamHandler, EGLDisplay glDisplay) :
+}  // namespace
+
+VideoTex::VideoTex(std::shared_ptr<IEvsEnumerator> pEnum, std::shared_ptr<IEvsCamera> pCamera,
+                   std::shared_ptr<StreamHandler> pStreamHandler, EGLDisplay glDisplay) :
       TexWrapper(),
       mEnumerator(pEnum),
       mCamera(pCamera),
@@ -68,7 +75,7 @@ bool VideoTex::refresh() {
     }
 
     // If we already have an image backing us, then it's time to return it
-    if (mImageBuffer.buffer.nativeHandle.getNativeHandle() != nullptr) {
+    if (getNativeHandle(mImageBuffer) != nullptr) {
         // Drop our device texture image
         if (mKHRimage != EGL_NO_IMAGE_KHR) {
             eglDestroyImageKHR(mDisplay, mKHRimage);
@@ -80,17 +87,25 @@ bool VideoTex::refresh() {
     }
 
     // Get the new image we want to use as our contents
-    mImageBuffer = mStreamHandler->getNewFrame();
+    mImageBuffer = dupBufferDesc(mStreamHandler->getNewFrame());
 
     // create a GraphicBuffer from the existing handle
+    native_handle_t* nativeHandle = getNativeHandle(mImageBuffer);
+    const auto handleGuard =
+            android::base::make_scope_guard([nativeHandle] { free(nativeHandle); });
+    if (nativeHandle == nullptr) {
+        // New frame contains an invalid native handle.
+        return false;
+    }
+
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&mImageBuffer.buffer.description);
-    android::sp<GraphicBuffer> pGfxBuffer =
-            new GraphicBuffer(mImageBuffer.buffer.nativeHandle, GraphicBuffer::CLONE_HANDLE,
-                              pDesc->width, pDesc->height, pDesc->format,
+    android::sp<GraphicBuffer> pGfxBuffer =  // AHardwareBuffer_to_GraphicBuffer?
+            new GraphicBuffer(nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
+                              pDesc->height, pDesc->format,
                               1,  // pDesc->layers,
                               GRALLOC_USAGE_HW_TEXTURE, pDesc->stride);
-    if (pGfxBuffer.get() == nullptr) {
+    if (!pGfxBuffer) {
         LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
         // Returning "true" in this error condition because we already released the
         // previous image (if any) and so the texture may change in unpredictable ways now!
@@ -124,35 +139,27 @@ bool VideoTex::refresh() {
     return true;
 }
 
-VideoTex* createVideoTexture(android::sp<IEvsEnumerator> pEnum, const char* evsCameraId,
+VideoTex* createVideoTexture(const std::shared_ptr<IEvsEnumerator>& pEnum, const char* evsCameraId,
                              std::unique_ptr<Stream> streamCfg, EGLDisplay glDisplay,
                              bool useExternalMemory, android_pixel_format_t format) {
     // Set up the camera to feed this texture
-    android::sp<IEvsCamera> pCamera = nullptr;
-    android::sp<StreamHandler> pStreamHandler = nullptr;
-    if (streamCfg != nullptr) {
-        pCamera = pEnum->openCamera_1_1(evsCameraId, *streamCfg);
-
-        // Initialize the stream that will help us update this texture's contents
-        pStreamHandler =
-                new StreamHandler(pCamera,
-                                  2,  // number of buffers
-                                  useExternalMemory, format, streamCfg->width, streamCfg->height);
-    } else {
-        pCamera = IEvsCamera::castFrom(pEnum->openCamera(evsCameraId)).withDefault(nullptr);
-
-        // Initialize the stream with the default resolution
-        pStreamHandler = new StreamHandler(pCamera,
-                                           2,  // number of buffers
-                                           useExternalMemory, format);
-    }
-
-    if (pCamera == nullptr) {
-        LOG(ERROR) << "Failed to allocate new EVS Camera interface for " << evsCameraId;
+    std::shared_ptr<IEvsCamera> pCamera;
+    std::shared_ptr<StreamHandler> pStreamHandler;
+    if (!streamCfg) {
+        LOG(ERROR) << "Given stream configuration is invalid.";
         return nullptr;
     }
 
-    if (pStreamHandler == nullptr) {
+    if (auto status = pEnum->openCamera(evsCameraId, *streamCfg, &pCamera); !status.isOk()) {
+        LOG(ERROR) << "Failed to open a camera " << evsCameraId;
+        return nullptr;
+    }
+
+    // Initialize the stream that will help us update this texture's contents
+    pStreamHandler =
+            ndk::SharedRefBase::make<StreamHandler>(pCamera, /* numBuffers= */ 2, useExternalMemory,
+                                                    format, streamCfg->width, streamCfg->height);
+    if (!pStreamHandler) {
         LOG(ERROR) << "Failed to allocate FrameHandler";
         return nullptr;
     }

@@ -21,24 +21,23 @@
 #include "RenderBase.h"
 #include "VideoTex.h"
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 #include <math/mat4.h>
-
-using ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 /*
  * Combines the views from all available cameras into one reprojected top down view.
  */
-class RenderTopView : public RenderBase {
+class RenderTopView final : public RenderBase {
 public:
-    RenderTopView(android::sp<IEvsEnumerator> enumerator,
-                  const std::vector<ConfigManager::CameraInfo>& camList,
-                  const ConfigManager& config);
+    RenderTopView(
+            std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> enumerator,
+            const std::vector<ConfigManager::CameraInfo>& camList, const ConfigManager& config);
 
     virtual bool activate() override;
     virtual void deactivate() override;
 
-    virtual bool drawFrame(const BufferDesc& tgtBuffer);
+    virtual bool drawFrame(const aidl::android::hardware::automotive::evs::BufferDesc& tgtBuffer);
 
 protected:
     struct ActiveCamera {
@@ -51,7 +50,7 @@ protected:
     void renderCarTopView();
     void renderCameraOntoGroundPlane(const ActiveCamera& cam);
 
-    android::sp<IEvsEnumerator> mEnumerator;
+    std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> mEnumerator;
     const ConfigManager& mConfig;
     std::vector<ActiveCamera> mActiveCameras;
 
