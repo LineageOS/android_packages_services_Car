@@ -43,6 +43,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import java.io.CharArrayWriter;
+import java.util.List;
 
 /**
  * Sample app that uses components in car support library to demonstrate Car drivingstate UXR
@@ -294,18 +295,24 @@ public class MainActivity extends AppCompatActivity
 
     private void showProdUxRestrictionsConfig() {
         try {
-            CarUxRestrictionsConfiguration prodConfig =
-                    mCarUxRestrictionsManager.getConfigs().get(0);
-            if (prodConfig == null) {
+            List<CarUxRestrictionsConfiguration> configs =
+                    mCarUxRestrictionsManager.getConfigs();
+            if (configs == null || configs.size() == 0) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.no_prod_config)
                         .show();
                 return;
             }
+
             CharArrayWriter charWriter = new CharArrayWriter();
-            JsonWriter writer = new JsonWriter(charWriter);
-            writer.setIndent("\t");
-            prodConfig.writeJson(writer);
+            for (int i = 0; i < configs.size(); i++) {
+                CarUxRestrictionsConfiguration prodConfig =
+                        mCarUxRestrictionsManager.getConfigs().get(i);
+                JsonWriter writer = new JsonWriter(charWriter);
+                writer.setIndent("\t");
+                // TODO(b/241589812): Also show the config for the current display.
+                prodConfig.writeJson(writer);
+            }
             new AlertDialog.Builder(this)
                     .setTitle(R.string.prod_config_title)
                     .setMessage(charWriter.toString())
