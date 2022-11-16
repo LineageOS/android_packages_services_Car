@@ -162,6 +162,15 @@
         </receiver>
 
         <activity
+            android:name="com.android.settings.Settings$MemtagPageActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$WifiSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -405,7 +414,25 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$LanguageSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$LanguageAndInputSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$KeyboardSettingsActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -1019,6 +1046,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ColorAndMotionActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.SettingsTutorialDialogWrapperActivity"
             android:enabled="false"
             android:exported="false"
@@ -1514,6 +1550,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.development.DSULoader"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$WebViewAppPickerActivity"
             android:enabled="false"
             android:exported="false"
@@ -1982,6 +2027,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ClonedAppsListActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$NotificationReviewPermissionsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2324,6 +2378,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$NfcSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$BluetoothDeviceDetailActivity"
             android:enabled="false"
             android:exported="false"
@@ -2504,6 +2567,15 @@
         </activity>
 
         <activity-alias
+            android:name="com.android.settings.UsageStatsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
+        <activity-alias
             android:name="com.android.settings.Settings"
             android:enabled="false"
             android:exported="false"
@@ -2611,6 +2683,15 @@
             <intent-filter tools:node="removeAll"/>
         </activity-alias>
 
+        <activity
+            android:name="com.android.settings.Settings$TextReadingSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
@@ -2681,6 +2762,20 @@
         <provider
             android:name="com.android.settings.homepage.contextualcards.SettingsContextualCardProvider"
             tools:node="remove"/>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="remove" />
+
+        <receiver
+            android:name="androidx.profileinstaller.ProfileInstallReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
 
         <receiver
             android:name="com.android.settings.SettingsInitialize"
@@ -2792,6 +2887,42 @@
 
         <receiver
             android:name="com.android.settings.fuelgauge.batterytip.AnomalyConfigReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.fuelgauge.batteryusage.BatteryUsageBroadcastReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.fuelgauge.batteryusage.BootBroadcastReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.fuelgauge.BatterySettingsMigrateChecker"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.fuelgauge.batteryusage.PeriodicJobReceiver"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
