@@ -50,6 +50,15 @@ import java.util.concurrent.Executors;
 
 public class CarEvsCameraPreviewActivity extends Activity {
     private static final String TAG = CarEvsCameraPreviewActivity.class.getSimpleName();
+    /**
+     * ActivityManagerService encodes the reason for a request to close system dialogs with this
+     * key.
+     */
+    private final static String EXTRA_DIALOG_CLOSE_REASON = "reason";
+    /** This string literal is from com.android.systemui.car.systembar.CarSystemBarButton class. */
+    private final static String DIALOG_CLOSE_REASON_CAR_SYSTEMBAR_BUTTON = "carsystembarbutton";
+    /** This string literal is from com.android.server.policy.PhoneWindowManager class. */
+    private final static String DIALOG_CLOSE_REASON_HOME_KEY = "homekey";
 
     /**
      * Defines internal states.
@@ -199,6 +208,17 @@ public class CarEvsCameraPreviewActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    String reason = extras.getString(EXTRA_DIALOG_CLOSE_REASON);
+                    if (!DIALOG_CLOSE_REASON_CAR_SYSTEMBAR_BUTTON.equals(reason) &&
+                        !DIALOG_CLOSE_REASON_HOME_KEY.equals(reason)) {
+                        Log.i(TAG, "Ignore a request to close the system dialog with a reason = " +
+                                   reason);
+                        return;
+                    }
+                    Log.d(TAG, "Requested to close the dialog, reason = " + reason);
+                }
                 finish();
             } else {
                 Log.e(TAG, "Unexpected intent " + intent);
@@ -213,7 +233,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
         // Need to register the receiver for all users, because we want to receive the Intent after
         // the user is changed.
         registerReceiverForAllUsers(mBroadcastReceiver, filter, /* broadcastPermission= */ null,
-                /* scheduler= */ null, Context.RECEIVER_NOT_EXPORTED);
+                /* scheduler= */ null, Context.RECEIVER_EXPORTED);
     }
 
     @Override
