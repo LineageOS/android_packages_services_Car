@@ -155,6 +155,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final TelephonyManager mTelephonyManager;
     private final AudioManager mAudioManager;
     private final boolean mUseDynamicRouting;
+    private final boolean mUseCoreAudioVolume;
+    private final boolean mUseCoreAudioRouting;
     private final boolean mUseCarVolumeGroupMuting;
     private final boolean mUseHalDuckingSignals;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
@@ -300,6 +302,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
+        mUseCoreAudioVolume = mContext.getResources().getBoolean(R.bool.audioUseCoreVolume);
+        mUseCoreAudioRouting = mContext.getResources().getBoolean(R.bool.audioUseCoreRouting);
         mKeyEventTimeoutMs =
                 mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
         mUseHalDuckingSignals = mContext.getResources().getBoolean(
@@ -410,6 +414,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             writer.println("Configurations:");
             writer.increaseIndent();
             writer.printf("Run in legacy mode? %b\n", !mUseDynamicRouting);
+            writer.printf("Rely on core audio for volume(%b)\n", mUseCoreAudioVolume);
+            writer.printf("Rely on core audio for routing(%b)\n",  mUseCoreAudioRouting);
             writer.printf("Audio Patch APIs enabled? %b\n", areAudioPatchAPIsEnabled());
             writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
             writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
