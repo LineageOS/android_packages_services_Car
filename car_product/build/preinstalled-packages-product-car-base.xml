@@ -148,6 +148,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Required to implement GbaService -->
+    <install-in-user-type package="com.android.gbaservice">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
     <!-- Contains exported and single user service -->
     <install-in-user-type package="com.android.ons">
         <install-in user-type="FULL" />
