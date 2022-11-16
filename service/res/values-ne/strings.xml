@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कारका बाहिरी बत्तीहरूको स्थितिमाथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कारको epoch समय हेर्न दिनुहोस्"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कारको epoch समय हेर्न दिनुहोस्।"</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कारका बाहिरी बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"कारका बाहिरी बत्तीहरू नियन्त्रण गर्ने।"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"कारका भित्री बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>
@@ -168,13 +166,13 @@
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"थ्रेडको प्राथमिकता व्यवस्थापन गर्ने।"</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"व्यवसायको क्षेत्र व्यवस्थापन गर्नुहोस्"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"व्यवसायको क्षेत्र व्यवस्थापन गर्नुहोस्।"</string>
-    <!-- no translation found for car_permission_label_use_remote_access (4192095854784769805) -->
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"एप टाढैबाट प्रयोग गर्नेसम्बन्धी अनुमति प्रयोग गर्नुहोस्"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"एप टाढैबाट प्रयोग गर्नेसम्बन्धी अनुमति प्रयोग गर्नुहोस्।"</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"एप टाढैबाट प्रयोग गर्नेसम्बन्धी अनुमति नियन्त्रण गर्नुहोस्"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"एप टाढैबाट प्रयोग गर्नेसम्बन्धी अनुमति नियन्त्रण गर्नुहोस्।"</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
     <skip />
-    <!-- no translation found for car_permission_desc_use_remote_access (7287637348044911791) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_remote_access (4247590162299914718) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_remote_access (127215188256669260) -->
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ले प्रतिक्रिया जनाएन। हेडयुनिट बाकसलाई प्लगबाट निकालेर फेरि प्लगमा घुसाउनुहोस् र कार पुनःसुरु गर्नुहोस्‌"</string>

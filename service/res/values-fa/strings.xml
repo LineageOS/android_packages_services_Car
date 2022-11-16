@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"به وضعیت چراغ‌های خارجی خودرو دسترسی پیدا کنید."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"دسترسی به ساعت یونیکس خودرو"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"دسترسی به ساعت یونیکس خودرو."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"دسترسی به مبنای پیوست رمزگذاری خودرو"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"دسترسی به مبنای پیوست رمزگذاری خودرو."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"خواندن چراغ‌های خارجی خودرو"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"چراغ‌های خارجی خودرو را کنترل کنید."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"خواندن چراغ‌های داخلی خودرو"</string>
@@ -172,6 +170,10 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"استفاده از دسترسی ازراه‌دور."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"کنترل دسترسی ازراه‌دور"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"کنترل دسترسی ازراه‌دور."</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"گذرگاه CAN ناموفق بود"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"گذرگاه CAN پاسخ نمی‌دهد. محفظه ضبط‌وپخش را جدا و سپس وصل کنید و خودرو را دوباره روشن کنید"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>

@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"גישה למצב הפנסים החיצוניים של הרכב."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"גישה לתקופה של זמן המערכת של המכונית"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"גישה לתקופה של זמן המערכת של המכונית."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"גישה למקור קישור ההצפנה של המכונית"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"גישה למקור קישור ההצפנה של המכונית."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"קריאת נתונים על הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"שליטה בפנסים החיצוניים של הרכב."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"קריאת נתונים של התאורה הפנימית של הרכב"</string>
@@ -172,6 +170,10 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"שימוש בגישה מרחוק."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"שליטה בגישה מרחוק"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"שליטה בגישה מרחוק."</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"פרוטוקול CAN bus נכשל"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"פרוטוקול CAN bus לא מגיב. יש לנתק ולחבר שוב את מערכת הסטריאו ולהתניע מחדש את הרכב"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"המכשיר שלי"</string>

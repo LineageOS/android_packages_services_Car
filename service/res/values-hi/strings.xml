@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कार के epoch टाइम को ऐक्सेस करें"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कार के epoch टाइम को ऐक्सेस करें."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"कार के अंदर लगी लाइटों की स्थिति देख सकता है"</string>
@@ -168,13 +166,13 @@
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"थ्रेड की प्राथमिकता मैनेज करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"ऑक्यूपंट ज़ोन मैनेज करें"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"ऑक्यूपंट ज़ोन मैनेज करें."</string>
-    <!-- no translation found for car_permission_label_use_remote_access (4192095854784769805) -->
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"रिमोट ऐक्सेस को इस्तेमाल करने की अनुमति दें"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"रिमोट ऐक्सेस को इस्तेमाल करने की अनुमति दें."</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"रिमोट ऐक्सेस को कंट्रोल करने की अनुमति दें"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"रिमोट ऐक्सेस को कंट्रोल करने की अनुमति दें."</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
     <skip />
-    <!-- no translation found for car_permission_desc_use_remote_access (7287637348044911791) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_remote_access (4247590162299914718) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_remote_access (127215188256669260) -->
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>

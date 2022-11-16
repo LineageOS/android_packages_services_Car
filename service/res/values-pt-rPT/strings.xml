@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Aceder ao estado das luzes exteriores do automóvel."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"aceder à hora da época do automóvel"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Aceda à hora da época do automóvel."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"aceder à semente de vinculação de encriptação do automóvel"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Aceder à semente de vinculação de encriptação do automóvel."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ler as luzes exteriores do automóvel"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Controlar as luzes exteriores do automóvel."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ler as luzes interiores do automóvel"</string>
@@ -172,6 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Use o acesso remoto."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"controlar o acesso remoto"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Controle o acesso remoto."</string>
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"controlar o volante do carro"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Controlar o volante do carro."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Falha no CAN bus."</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O CAN bus não responde. Desligue e volte a ligar a caixa da unidade principal e reinicie o automóvel."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispositivo"</string>
