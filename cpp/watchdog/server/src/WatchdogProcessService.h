@@ -249,8 +249,8 @@ private:
     int32_t getNewSessionId();
     android::base::Result<void> updateVhal(
             const aidl::android::hardware::automotive::vehicle::VehiclePropValue& value);
-    android::base::Result<void> connectToVhalLocked();
-    void subscribeToVhalHeartBeatLocked();
+    android::base::Result<void> connectToVhal();
+    void subscribeToVhalHeartBeat();
     std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
     cacheVhalProcessIdentifier();
     void reportWatchdogAliveToVhal();
@@ -259,9 +259,7 @@ private:
                     processesNotResponding);
     android::base::Result<std::string> readProcCmdLine(int32_t pid);
     void handleVhalDeath();
-    void queryVhalPropertiesLocked();
-    bool isVhalPropertySupportedLocked(
-            aidl::android::hardware::automotive::vehicle::VehicleProperty propId);
+    void queryVhalProperties();
     void updateVhalHeartBeat(int64_t value);
     void checkVhalHealth();
     void terminateVhal();

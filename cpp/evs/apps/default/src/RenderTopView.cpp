@@ -23,20 +23,21 @@
 #include "shader_simpleTex.h"
 
 #include <android-base/logging.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <math/mat4.h>
 #include <math/vec3.h>
 
-using ::android::hardware::camera::device::V3_2::Stream;
+namespace {
+
+using aidl::android::hardware::automotive::evs::BufferDesc;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
 
 // Simple aliases to make geometric math using vectors more readable
-static const unsigned X = 0;
-static const unsigned Y = 1;
-static const unsigned Z = 2;
-// static const unsigned W = 3;
+const unsigned X = 0;
+const unsigned Y = 1;
+const unsigned Z = 2;
 
 // Since we assume no roll in these views, we can simplify the required math
-static android::vec3 unitVectorFromPitchAndYaw(float pitch, float yaw) {
+android::vec3 unitVectorFromPitchAndYaw(float pitch, float yaw) {
     float sinPitch, cosPitch;
     sincosf(pitch, &sinPitch, &cosPitch);
     float sinYaw, cosYaw;
@@ -46,7 +47,7 @@ static android::vec3 unitVectorFromPitchAndYaw(float pitch, float yaw) {
 
 // Helper function to set up a perspective matrix with independent horizontal and vertical
 // angles of view.
-static android::mat4 perspective(float hfov, float vfov, float near, float far) {
+android::mat4 perspective(float hfov, float vfov, float near, float far) {
     const float tanHalfFovX = tanf(hfov * 0.5f);
     const float tanHalfFovY = tanf(vfov * 0.5f);
 
@@ -62,7 +63,7 @@ static android::mat4 perspective(float hfov, float vfov, float near, float far) 
 // Helper function to set up a view matrix for a camera given it's yaw & pitch & location
 // Yes, with a bit of work, we could use lookAt, but it does a lot of extra work
 // internally that we can short cut.
-static android::mat4 cameraLookMatrix(const ConfigManager::CameraInfo& cam) {
+android::mat4 cameraLookMatrix(const ConfigManager::CameraInfo& cam) {
     float sinYaw, cosYaw;
     sincosf(cam.yaw, &sinYaw, &cosYaw);
 
@@ -88,7 +89,9 @@ static android::mat4 cameraLookMatrix(const ConfigManager::CameraInfo& cam) {
     return Result;
 }
 
-RenderTopView::RenderTopView(android::sp<IEvsEnumerator> enumerator,
+}  // namespace
+
+RenderTopView::RenderTopView(std::shared_ptr<IEvsEnumerator> enumerator,
                              const std::vector<ConfigManager::CameraInfo>& camList,
                              const ConfigManager& mConfig) :
       mEnumerator(enumerator), mConfig(mConfig) {

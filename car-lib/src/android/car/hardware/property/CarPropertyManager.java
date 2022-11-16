@@ -45,6 +45,7 @@ import android.util.SparseArray;
 import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -627,6 +628,11 @@ public class CarPropertyManager extends CarManagerBase {
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
             int propertyId) {
         requireNonNull(carPropertyEventCallback);
+        if (!CarPropertyHelper.isSupported(propertyId)) {
+            Log.e(TAG, "unregisterCallback: propertyId: "
+                    + VehiclePropertyIds.toString(propertyId) + " is not supported");
+            return;
+        }
         CarPropertyEventCallbackController carPropertyEventCallbackController;
         synchronized (mLock) {
             carPropertyEventCallbackController =
@@ -645,7 +651,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * @return List of properties implemented by this car that the application may access
+     * @return List of properties supported by this car that the application may access
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -661,26 +667,33 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * Checks the given property IDs and returns a list of property configs supported by the car.
+     *
+     * If some of the properties in the given ID list are not supported, they will not be returned.
+     *
      * @param propertyIds property ID list
-     * @return List of properties implemented by this car in given property ID list that application
-     *          may access
+     * @return List of property configs.
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
     public List<CarPropertyConfig> getPropertyList(@NonNull ArraySet<Integer> propertyIds) {
-        int[] propIds = new int[propertyIds.size()];
-        int idx = 0;
+        List<Integer> filteredPropertyIds = new ArrayList<>();
         for (int propId : propertyIds) {
-            propIds[idx++] = propId;
+            if (!CarPropertyHelper.isSupported(propId)) {
+                continue;
+            }
+            filteredPropertyIds.add(propId);
         }
-        List<CarPropertyConfig> configs;
+        int[] filteredPropertyIdsArray = new int[filteredPropertyIds.size()];
+        for (int i = 0; i < filteredPropertyIds.size(); i++) {
+            filteredPropertyIdsArray[i] = filteredPropertyIds.get(i);
+        }
         try {
-            configs = mService.getPropertyConfigList(propIds);
+            return mService.getPropertyConfigList(filteredPropertyIdsArray);
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             return handleRemoteExceptionFromCarService(e, new ArrayList<>());
         }
-        return configs;
     }
 
     /**
@@ -693,6 +706,9 @@ public class CarPropertyManager extends CarManagerBase {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public CarPropertyConfig<?> getCarPropertyConfig(int propId) {
+        if (!CarPropertyHelper.isSupported(propId)) {
+            return null;
+        }
         List<CarPropertyConfig> configs;
         try {
             configs = mService.getPropertyConfigList(new int[] {propId});
@@ -782,6 +798,10 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isPropertyAvailable(int propId, int area) {
+        if (!CarPropertyHelper.isSupported(propId)) {
+            return false;
+        }
+
         try {
             CarPropertyValue propValue = mService.getProperty(propId, area);
             return (propValue != null)
@@ -815,7 +835,7 @@ public class CarPropertyManager extends CarManagerBase {
      * fails.
      * <ul>
      *     <li>{@link IllegalStateException} when there is an error detected in cars.
-     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *     <li>{@link IllegalArgumentException} when the [prop, area] is not supported.
      * </ul>
      *
      * @param prop Property ID to get
@@ -827,7 +847,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException when the property is temporarily not available
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [prop, area] is not supported.
      *
      * @return value of a bool property, {@code false} if unable to get value from car.
      */
@@ -854,7 +874,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException when the property is temporarily not available
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [prop, area] is not supported.
      *
      * @return value of a float property, 0 if unable to get value from the car.
      */
@@ -881,7 +901,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException} when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException when the property is temporarily not available
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [prop, area] is not supported.
      *
      * @return value of an integer property, 0 if unable to get the value from car.
      */
@@ -908,7 +928,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException} when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException} when the property is temporarily not available
-     * @throws IllegalArgumentException} when the property in the areaId is not supplied
+     * @throws IllegalArgumentException} when the [prop, area] is not supported.
      *
      * @return value of an integer array property, an empty integer array if unable to get the value
      * from car
@@ -975,7 +995,7 @@ public class CarPropertyManager extends CarManagerBase {
      * is failed.
      * <ul>
      *     <li>{@link IllegalStateException} when there is an error detected in cars.
-     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *     <li>{@link IllegalArgumentException} when the [propId, areaId] is not supported.
      * </ul>
      *
      * @param clazz The class object for the CarPropertyValue
@@ -988,9 +1008,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException when the property is temporarily not available
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [propId, areaId] is not supported.
      *
-     * @return {@link CarPropertyValue} or {@code null} if property's id is invalid
+     * @return {@link CarPropertyValue} or {@code null} for unexpected errors.
      */
     @SuppressWarnings("unchecked")
     @Nullable
@@ -1029,7 +1049,7 @@ public class CarPropertyManager extends CarManagerBase {
      * is failed.
      * <ul>
      *     <li>{@link IllegalStateException} when there is an error detected in cars.
-     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *     <li>{@link IllegalArgumentException} when the [propId, areaId] is not supported.
      * </ul>
      *
      * @param propId Property ID
@@ -1042,9 +1062,9 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily
      * not available and likely that retrying will be successful
      * @throws PropertyNotAvailableException when the property is temporarily not available
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [propId, areaId] is not supported.
      *
-     * @return {@link CarPropertyValue} or {@code null} if property's id is invalid
+     * @return {@link CarPropertyValue} or {@code null} for unexpected errors.
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
@@ -1053,6 +1073,8 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "getProperty, propId: " + VehiclePropertyIds.toString(propId)
                     + ", areaId: 0x" + toHexString(areaId));
         }
+
+        assertPropertyIdIsSupported(propId);
 
         try {
             return (CarPropertyValue<E>) mService.getProperty(propId, areaId);
@@ -1098,7 +1120,7 @@ public class CarPropertyManager extends CarManagerBase {
      * <ul>
      *     <li>{@link RuntimeException} when the property is temporarily not available.
      *     <li>{@link IllegalStateException} when there is an error detected in cars.
-     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied
+     *     <li>{@link IllegalArgumentException} when the [propId, areaId] is not supported.
      * </ul>
      *
      * @param clazz The class object for the CarPropertyValue
@@ -1115,7 +1137,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily not available
      * and likely that retrying will be successful
      * @throws IllegalStateException when get an unexpected error code
-     * @throws IllegalArgumentException when the property in the areaId is not supplied
+     * @throws IllegalArgumentException when the [propId, areaId] is not supported.
      */
     @AddedInOrBefore(majorVersion = 33)
     public <E> void setProperty(@NonNull Class<E> clazz, int propId, int areaId, @NonNull E val) {
@@ -1123,6 +1145,9 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "setProperty, propId: 0x" + toHexString(propId)
                     + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
         }
+
+        assertPropertyIdIsSupported(propId);
+
         try {
             mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
                     mCarPropertyEventToService);
@@ -1308,7 +1333,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param callbackExecutor The executor to execute the callback with
      * @param getPropertyCallback The callback function to deliver the result
      * @throws SecurityException if missing permission to read the specific property
-     * @throws IllegalArgumentException if the [property ID, area ID] is not supported
+     * @throws IllegalArgumentException if one of the get property request is not supported.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -1335,6 +1360,9 @@ public class CarPropertyManager extends CarManagerBase {
                 Log.d(TAG, "getPropertiesAsync, propId: " + VehiclePropertyIds.toString(propertyId)
                         + ", areaId: 0x" + toHexString(areaId));
             }
+
+            assertPropertyIdIsSupported(propertyId);
+
             GetAsyncPropertyClientInfo getAsyncPropertyClientInfo = new GetAsyncPropertyClientInfo(
                     getPropertyRequest, callbackExecutor, getPropertyCallback);
             int requestId = getPropertyRequest.getRequestId();
@@ -1381,5 +1409,12 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull GetPropertyCallback getPropertyCallback) {
         getPropertiesAsync(getPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, getPropertyCallback);
+    }
+
+    private void assertPropertyIdIsSupported(int propId) {
+        if (!CarPropertyHelper.isSupported(propId)) {
+            throw new IllegalArgumentException("The property: "
+                    + VehiclePropertyIds.toString(propId) + " is unsupported");
+        }
     }
 }

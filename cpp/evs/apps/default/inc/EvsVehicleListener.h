@@ -28,7 +28,8 @@
  * applications is active, it can poll the vehicle state directly.  However, when it goes to
  * sleep, we need these notifications to bring it active again.
  */
-class EvsVehicleListener : public android::frameworks::automotive::vhal::ISubscriptionCallback {
+class EvsVehicleListener final :
+      public android::frameworks::automotive::vhal::ISubscriptionCallback {
 public:
     void onPropertyEvent([[maybe_unused]] const std::vector<
                          std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>&

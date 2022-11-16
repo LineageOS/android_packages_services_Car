@@ -29,7 +29,7 @@
 //
 // Not thread-safe. Methods `startComputingFirstFrameLatency`, `finishComputingFirstFrameLatency`
 // and `sendCollectedDataBlocking` must be called from the same thread.
-class EvsStats {
+class EvsStats final {
 public:
     // Instantiates EvsStats.
     static EvsStats build();

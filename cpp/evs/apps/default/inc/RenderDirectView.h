@@ -21,30 +21,30 @@
 #include "RenderBase.h"
 #include "VideoTex.h"
 
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
+#include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
 #include <math/mat2.h>
-
-using ::android::hardware::automotive::evs::V1_1::BufferDesc;
-using ::android::hardware::automotive::evs::V1_1::CameraDesc;
-using ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
 /*
  * Renders the view from a single specified camera directly to the full display.
  */
-class RenderDirectView : public RenderBase {
+class RenderDirectView final : public RenderBase {
 public:
-    RenderDirectView(android::sp<IEvsEnumerator> enumerator, const CameraDesc& camDesc,
-                     const ConfigManager& config);
+    RenderDirectView(
+            std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> enumerator,
+            const aidl::android::hardware::automotive::evs::CameraDesc& camDesc,
+            const ConfigManager& config);
 
     virtual bool activate() override;
     virtual void deactivate() override;
 
-    virtual bool drawFrame(const BufferDesc& tgtBuffer);
+    virtual bool drawFrame(const aidl::android::hardware::automotive::evs::BufferDesc& tgtBuffer);
 
 protected:
-    android::sp<IEvsEnumerator> mEnumerator;
+    std::shared_ptr<aidl::android::hardware::automotive::evs::IEvsEnumerator> mEnumerator;
     ConfigManager::CameraInfo mCameraInfo;
-    CameraDesc mCameraDesc;
+    aidl::android::hardware::automotive::evs::CameraDesc mCameraDesc;
     const ConfigManager& mConfig;
 
     std::unique_ptr<VideoTex> mTexture;

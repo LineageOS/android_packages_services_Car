@@ -21,13 +21,20 @@
 #include "shader.h"
 #include "shader_simpleTex.h"
 
+#include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/IEvsEnumerator.h>
+#include <aidl/android/hardware/automotive/evs/Stream.h>
+#include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <android-base/logging.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <math/mat4.h>
 #include <system/camera_metadata.h>
 
-using ::android::hardware::camera::device::V3_2::Stream;
-using ::android::hardware::graphics::common::V1_0::PixelFormat;
+namespace {
+
+using aidl::android::hardware::automotive::evs::BufferDesc;
+using aidl::android::hardware::automotive::evs::CameraDesc;
+using aidl::android::hardware::automotive::evs::IEvsEnumerator;
+using aidl::android::hardware::automotive::evs::Stream;
 
 typedef struct {
     int32_t id;
@@ -40,14 +47,16 @@ typedef struct {
 
 const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
 
-RenderDirectView::RenderDirectView(android::sp<IEvsEnumerator> enumerator,
+}  // namespace
+
+RenderDirectView::RenderDirectView(std::shared_ptr<IEvsEnumerator> enumerator,
                                    const CameraDesc& camDesc, const ConfigManager& config) :
       mEnumerator(enumerator), mCameraDesc(camDesc), mConfig(config) {
     // Find and store the target camera configuration
     const auto& camList = mConfig.getCameras();
     const auto target = std::find_if(camList.begin(), camList.end(),
                                      [this](const ConfigManager::CameraInfo& info) {
-                                         return info.cameraId == mCameraDesc.v1.cameraId;
+                                         return info.cameraId == mCameraDesc.id;
                                      });
     if (target != camList.end()) {
         // Store the info
@@ -114,15 +123,15 @@ bool RenderDirectView::activate() {
     }
 
     // This client always wants below input data format
-    targetCfg->format = static_cast<PixelFormat>(HAL_PIXEL_FORMAT_RGBA_8888);
+    targetCfg->format = aidl::android::hardware::graphics::common::PixelFormat::RGBA_8888;
 
     // Construct our video texture
-    mTexture.reset(createVideoTexture(mEnumerator, mCameraDesc.v1.cameraId.c_str(),
+    mTexture.reset(createVideoTexture(mEnumerator, mCameraDesc.id.c_str(),
                                       foundCfg ? std::move(targetCfg) : nullptr, sDisplay,
                                       mConfig.getUseExternalMemory(),
                                       mConfig.getExternalMemoryFormat()));
     if (!mTexture) {
-        LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.v1.cameraId;
+        LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.id;
         // TODO(b/237904870): We may want to return false here.
     }
 

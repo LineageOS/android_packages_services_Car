@@ -100,27 +100,30 @@ GLuint buildShaderProgram(const char* vtxSrc, const char* pxlSrc, const char* na
         return 0;
     }
 
-#if 0  // Debug output to diagnose shader parameters
+#if defined(DEBUG)  // Debug output to diagnose shader parameters
     GLint numShaderParams;
     GLchar paramName[128];
     GLint paramSize;
     GLenum paramType;
-    const char *typeName = "?";
+    const char* typeName = "?";
     printf("Shader parameters for %s:\n", name);
     glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &numShaderParams);
-    for (GLint i=0; i<numShaderParams; i++) {
-        glGetActiveUniform(program,
-                           i,
-                           sizeof(paramName),
-                           nullptr,
-                           &paramSize,
-                           &paramType,
+    for (GLint i = 0; i < numShaderParams; i++) {
+        glGetActiveUniform(program, i, sizeof(paramName), nullptr, &paramSize, &paramType,
                            paramName);
         switch (paramType) {
-            case GL_FLOAT:      typeName = "GL_FLOAT"; break;
-            case GL_FLOAT_VEC4: typeName = "GL_FLOAT_VEC4"; break;
-            case GL_FLOAT_MAT4: typeName = "GL_FLOAT_MAT4"; break;
-            case GL_SAMPLER_2D: typeName = "GL_SAMPLER_2D"; break;
+            case GL_FLOAT:
+                typeName = "GL_FLOAT";
+                break;
+            case GL_FLOAT_VEC4:
+                typeName = "GL_FLOAT_VEC4";
+                break;
+            case GL_FLOAT_MAT4:
+                typeName = "GL_FLOAT_MAT4";
+                break;
+            case GL_SAMPLER_2D:
+                typeName = "GL_SAMPLER_2D";
+                break;
         }
 
         printf("  %2d: %s\t (%d) of type %s(%d)\n", i, paramName, paramSize, typeName, paramType);

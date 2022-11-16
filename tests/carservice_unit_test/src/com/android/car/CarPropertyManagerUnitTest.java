@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+import static android.car.VehiclePropertyIds.INVALID;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -55,6 +57,8 @@ import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
+import android.util.ArraySet;
 
 import com.google.common.collect.ImmutableList;
 
@@ -74,9 +78,11 @@ import java.util.List;
  */
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyManagerUnitTest {
-    private static final int CONTINUOUS_PROPERTY = 111;
-    private static final int ON_CHANGE_PROPERTY = 222;
-    private static final int STATIC_PROPERTY = 333;
+    // Defined as vendor property.
+    private static final int VENDOR_CONTINUOUS_PROPERTY = 0x21100111;
+    private static final int VENDOR_ON_CHANGE_PROPERTY = 0x21100222;
+    private static final int VENDOR_STATIC_PROPERTY = 0x21100333;
+
     private static final float MIN_UPDATE_RATE_HZ = 10;
     private static final float MAX_UPDATE_RATE_HZ = 100;
     private static final float FIRST_UPDATE_RATE_HZ = 50;
@@ -132,6 +138,10 @@ public final class CarPropertyManagerUnitTest {
     public void setUp() throws RemoteException {
         when(mCar.getContext()).thenReturn(mContext);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
+        when(mCar.handleRemoteExceptionFromCarService(any(RemoteException.class), any()))
+                .thenAnswer((inv) -> {
+                    return inv.getArgument(1);
+                });
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
         when(mContinuousCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
@@ -141,11 +151,11 @@ public final class CarPropertyManagerUnitTest {
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE);
         when(mStaticCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC);
-        when(mICarProperty.getPropertyConfigList(new int[]{CONTINUOUS_PROPERTY})).thenReturn(
+        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_CONTINUOUS_PROPERTY})).thenReturn(
                 ImmutableList.of(mContinuousCarPropertyConfig));
-        when(mICarProperty.getPropertyConfigList(new int[]{ON_CHANGE_PROPERTY})).thenReturn(
+        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_ON_CHANGE_PROPERTY})).thenReturn(
                 ImmutableList.of(mOnChangeCarPropertyConfig));
-        when(mICarProperty.getPropertyConfigList(new int[]{STATIC_PROPERTY})).thenReturn(
+        when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_STATIC_PROPERTY})).thenReturn(
                 ImmutableList.of(mStaticCarPropertyConfig));
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
     }
@@ -157,6 +167,13 @@ public final class CarPropertyManagerUnitTest {
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
 
         assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0)).isEqualTo(value);
+    }
+
+    @Test
+    public void getProperty_unsupportedProperty() throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarPropertyManager.getProperty(INVALID, 0);
+        });
     }
 
     @Test
@@ -205,6 +222,15 @@ public final class CarPropertyManagerUnitTest {
 
         mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
                 mGetPropertyCallback);
+    }
+
+    @Test
+    public void getPropertiesAsync_unsupportedProperty() throws Exception {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarPropertyManager.getPropertiesAsync(List.of(
+                    mCarPropertyManager.generateGetPropertyRequest(INVALID, 0)), null, null,
+                    mGetPropertyCallback);
+        });
     }
 
     @Test
@@ -400,6 +426,13 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void setProperty_unsupportedProperty() throws RemoteException {
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarPropertyManager.setProperty(Float.class, INVALID, 0, 17.0f);
+        });
+    }
+
+    @Test
     public void registerCallback_returnsFalseIfPropertyIdNotSupportedInVehicle()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
@@ -410,89 +443,81 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void registerCallback_registersWithServiceOnFirstCallback() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(CONTINUOUS_PROPERTY), eq(FIRST_UPDATE_RATE_HZ),
-                any(ICarPropertyEventListener.class));
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
+                eq(FIRST_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersWithMaxUpdateRateOnFirstCallback()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        MAX_UPDATE_RATE_HZ + 1)).isTrue();
-        verify(mICarProperty).registerListener(eq(CONTINUOUS_PROPERTY), eq(MAX_UPDATE_RATE_HZ),
-                any(ICarPropertyEventListener.class));
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, MAX_UPDATE_RATE_HZ + 1)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
+                eq(MAX_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersWithMinUpdateRateOnFirstCallback()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        MIN_UPDATE_RATE_HZ - 1)).isTrue();
-        verify(mICarProperty).registerListener(eq(CONTINUOUS_PROPERTY), eq(MIN_UPDATE_RATE_HZ),
-                any(ICarPropertyEventListener.class));
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, MIN_UPDATE_RATE_HZ - 1)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
+                eq(MIN_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersWithOnChangeRateForOnChangeProperty()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(ON_CHANGE_PROPERTY),
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersWithOnChangeRateForStaticProperty()
             throws RemoteException {
-        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback, STATIC_PROPERTY,
-                FIRST_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(STATIC_PROPERTY),
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_STATIC_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_STATIC_PROPERTY),
                 eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_returnsFalseForRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
-        doThrow(remoteException).when(mICarProperty).registerListener(eq(ON_CHANGE_PROPERTY),
+        doThrow(remoteException).when(mICarProperty).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
     }
 
     @Test
     public void registerCallback_recoversAfterFirstRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
         doThrow(remoteException).doNothing().when(mICarProperty).registerListener(
-                eq(ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
+                eq(VENDOR_ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
                 any(ICarPropertyEventListener.class));
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
-        verify(mICarProperty, times(2)).registerListener(eq(ON_CHANGE_PROPERTY),
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isFalse();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
+        verify(mICarProperty, times(2)).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersTwiceWithHigherRateCallback() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
-                CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
+                VENDOR_CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
         verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
                 mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(CONTINUOUS_PROPERTY,
-                CONTINUOUS_PROPERTY);
+        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
+                VENDOR_CONTINUOUS_PROPERTY);
         assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
                 LARGER_UPDATE_RATE_HZ);
     }
@@ -500,16 +525,14 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void registerCallback_registersOnSecondLowerRateWithSameCallback()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        SMALLER_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, SMALLER_UPDATE_RATE_HZ)).isTrue();
         verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
                 mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(CONTINUOUS_PROPERTY,
-                CONTINUOUS_PROPERTY);
+        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
+                VENDOR_CONTINUOUS_PROPERTY);
         assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
                 SMALLER_UPDATE_RATE_HZ);
     }
@@ -517,34 +540,31 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void registerCallback_doesNotRegistersOnSecondLowerRateCallback()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
-                CONTINUOUS_PROPERTY, SMALLER_UPDATE_RATE_HZ)).isTrue();
-        verify(mICarProperty).registerListener(eq(CONTINUOUS_PROPERTY), eq(FIRST_UPDATE_RATE_HZ),
-                any(ICarPropertyEventListener.class));
+                VENDOR_CONTINUOUS_PROPERTY, SMALLER_UPDATE_RATE_HZ)).isTrue();
+        verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
+                eq(FIRST_UPDATE_RATE_HZ), any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void registerCallback_registersTwiceForDifferentProperties() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
         verify(mICarProperty, times(2)).registerListener(mPropertyIdCaptor.capture(),
                 mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(CONTINUOUS_PROPERTY,
-                ON_CHANGE_PROPERTY);
+        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
+                VENDOR_ON_CHANGE_PROPERTY);
         assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
                 CarPropertyManager.SENSOR_RATE_ONCHANGE);
     }
 
     @Test
     public void unregisterCallback_doesNothingIfNothingRegistered() throws RemoteException {
-        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, STATIC_PROPERTY);
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, VENDOR_STATIC_PROPERTY);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -552,11 +572,10 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void unregisterCallback_doesNothingIfPropertyIsNotRegisteredForCallback()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
 
-        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, STATIC_PROPERTY);
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, VENDOR_STATIC_PROPERTY);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
@@ -564,86 +583,80 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void unregisterCallback_doesNothingIfCallbackIsNotRegisteredForProperty()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
 
-        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback2, CONTINUOUS_PROPERTY);
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback2,
+                VENDOR_CONTINUOUS_PROPERTY);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void unregisterCallback_unregistersCallbackForSingleProperty() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
 
-        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY);
-        verify(mICarProperty).unregisterListener(eq(CONTINUOUS_PROPERTY),
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY);
+        verify(mICarProperty).unregisterListener(eq(VENDOR_CONTINUOUS_PROPERTY),
                 any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void unregisterCallback_unregistersCallbackForSpecificProperty() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
 
-        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY);
-        verify(mICarProperty).unregisterListener(eq(ON_CHANGE_PROPERTY),
+        mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY);
+        verify(mICarProperty).unregisterListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void unregisterCallback_unregistersCallbackForBothProperties() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
 
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
         verify(mICarProperty, times(2)).unregisterListener(mPropertyIdCaptor.capture(),
                 any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(CONTINUOUS_PROPERTY,
-                ON_CHANGE_PROPERTY);
+        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
+                VENDOR_ON_CHANGE_PROPERTY);
     }
 
     @Test
     public void unregisterCallback_unregistersAllCallbackForSingleProperty()
             throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback2, ON_CHANGE_PROPERTY,
-                        CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+            VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
+            VENDOR_ON_CHANGE_PROPERTY, CarPropertyManager.SENSOR_RATE_ONCHANGE)).isTrue();
 
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback);
-        verify(mICarProperty).unregisterListener(eq(CONTINUOUS_PROPERTY),
+        verify(mICarProperty).unregisterListener(eq(VENDOR_CONTINUOUS_PROPERTY),
                 any(ICarPropertyEventListener.class));
     }
 
     @Test
     public void unregisterCallback_unregistersUpdatesRegisteredRateHz() throws RemoteException {
-        assertThat(
-                mCarPropertyManager.registerCallback(mCarPropertyEventCallback, CONTINUOUS_PROPERTY,
-                        FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
+                VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
-                CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
+                VENDOR_CONTINUOUS_PROPERTY, LARGER_UPDATE_RATE_HZ)).isTrue();
 
         mCarPropertyManager.unregisterCallback(mCarPropertyEventCallback2);
         verify(mICarProperty, never()).unregisterListener(anyInt(),
                 any(ICarPropertyEventListener.class));
         verify(mICarProperty, times(3)).registerListener(mPropertyIdCaptor.capture(),
                 mUpdateRateHzCaptor.capture(), any(ICarPropertyEventListener.class));
-        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(CONTINUOUS_PROPERTY,
-                CONTINUOUS_PROPERTY, CONTINUOUS_PROPERTY);
+        assertThat(mPropertyIdCaptor.getAllValues()).containsExactly(VENDOR_CONTINUOUS_PROPERTY,
+                VENDOR_CONTINUOUS_PROPERTY, VENDOR_CONTINUOUS_PROPERTY);
         assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
                 LARGER_UPDATE_RATE_HZ, FIRST_UPDATE_RATE_HZ);
     }
@@ -702,5 +715,123 @@ public final class CarPropertyManagerUnitTest {
                 carPropertyEventListenerArgumentCaptor.capture());
 
         return carPropertyEventListenerArgumentCaptor.getValue();
+    }
+
+    @Test
+    public void testGetPropertyList() throws Exception {
+        List<CarPropertyConfig> expectedConfigs = mock(List.class);
+        when(mICarProperty.getPropertyList()).thenReturn(expectedConfigs);
+
+        assertThat(mCarPropertyManager.getPropertyList()).isEqualTo(expectedConfigs);
+    }
+
+    @Test
+    public void testGetPropertyList_withPropertyIds() throws Exception {
+        Integer[] requestedPropertyIds = new Integer[] {
+                VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
+        List<CarPropertyConfig> expectedConfigs = mock(List.class);
+        ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
+        when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
+                .thenReturn(expectedConfigs);
+
+        assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
+                .isEqualTo(expectedConfigs);
+        assertThat(argumentCaptor.getValue()).asList()
+                .containsExactlyElementsIn(requestedPropertyIds);
+    }
+
+    @Test
+    public void testGetPropertyList_filterUnsupportedPropertyIds() throws Exception {
+        Integer[] requestedPropertyIds = new Integer[]{
+                0, 1, VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
+        Integer[] filteredPropertyIds = new Integer[]{
+                VENDOR_CONTINUOUS_PROPERTY, HVAC_TEMPERATURE_SET};
+        List<CarPropertyConfig> expectedConfigs = mock(List.class);
+        ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
+        when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
+                .thenReturn(expectedConfigs);
+
+        assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
+                .isEqualTo(expectedConfigs);
+        assertThat(argumentCaptor.getValue()).asList()
+                .containsExactlyElementsIn(filteredPropertyIds);
+    }
+
+    @Test
+    public void testGetCarPropertyConfig() throws Exception {
+        CarPropertyConfig mockConfig = mock(CarPropertyConfig.class);
+        List<CarPropertyConfig> expectedConfigs = List.of(mockConfig);
+        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
+                .thenReturn(expectedConfigs);
+
+        assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET))
+                .isEqualTo(mockConfig);
+    }
+
+    @Test
+    public void testGetCarPropertyConfig_noConfigReturned() throws Exception {
+        when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
+                .thenReturn(new ArrayList<CarPropertyConfig>());
+
+        assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET)).isNull();
+    }
+
+    @Test
+    public void testGetCarPropertyConfig_unsupported() throws Exception {
+        assertThat(mCarPropertyManager.getCarPropertyConfig(/* propId= */ 0)).isNull();
+    }
+
+    @Test
+    public void testIsPropertyAvailable() throws Exception {
+        CarPropertyValue<Integer> expectedValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET,
+                /* areaId= */ 0, CarPropertyValue.STATUS_AVAILABLE, /* timestamp= */ 0,
+                /* value= */ 1);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(expectedValue);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isTrue();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_notAvailable() throws Exception {
+        CarPropertyValue<Integer> expectedValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET,
+                /* areaId= */ 0, CarPropertyValue.STATUS_UNAVAILABLE, /* timestamp= */ 0,
+                /* value= */ 1);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(expectedValue);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isFalse();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_gotNull() throws Exception {
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(null);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isFalse();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_RemoteException() throws Exception {
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new RemoteException());
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isFalse();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_ServiceSpecificException() throws Exception {
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(0));
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isFalse();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_unsupported() throws Exception {
+        assertThat(mCarPropertyManager.isPropertyAvailable(/* propId= */ 0, /* areaId= */ 0))
+                .isFalse();
     }
 }

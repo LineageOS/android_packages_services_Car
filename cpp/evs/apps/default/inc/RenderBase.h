@@ -23,9 +23,7 @@
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
-#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-
-using ::android::hardware::automotive::evs::V1_1::BufferDesc;
+#include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 
 /*
  * Abstract base class for the workhorse classes that handle the user interaction and display for
@@ -38,12 +36,14 @@ public:
     virtual bool activate() = 0;
     virtual void deactivate() = 0;
 
-    virtual bool drawFrame(const BufferDesc& tgtBuffer) = 0;
+    virtual bool drawFrame(
+            const aidl::android::hardware::automotive::evs::BufferDesc& tgtBuffer) = 0;
 
 protected:
     static bool prepareGL();
 
-    static bool attachRenderTarget(const BufferDesc& tgtBuffer);
+    static bool attachRenderTarget(
+            const aidl::android::hardware::automotive::evs::BufferDesc& tgtBuffer);
     static void detachRenderTarget();
 
     // OpenGL state shared among all renderers

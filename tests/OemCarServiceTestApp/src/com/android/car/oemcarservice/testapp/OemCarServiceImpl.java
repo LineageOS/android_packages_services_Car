@@ -75,16 +75,8 @@ public final class OemCarServiceImpl extends OemCarService {
         }
     }
 
-
-    @Override
-    public boolean isOemServiceReady() {
-        Log.d(TAG, "isOemServiceReady");
-        return true;
-    }
-
     @Override
     public void onCarServiceReady() {
-        super.onCarServiceReady();
         Log.d(TAG, "onCarServiceReady");
     }
 

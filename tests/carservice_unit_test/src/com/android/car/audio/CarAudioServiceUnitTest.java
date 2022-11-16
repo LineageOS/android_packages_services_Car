@@ -967,6 +967,24 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void setGroupVolume_withDynamicRoutingDisabled() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.setGroupVolume(
+                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS);
+
+        verify(mAudioManager).setStreamVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP],
+                TEST_PRIMARY_GROUP_INDEX,
+                TEST_FLAGS);
+    }
+
+    @Test
     public void getOutputDeviceAddressForUsage_forMusicUsage() {
         mCarAudioService.init();
 
@@ -1088,6 +1106,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void isVolumeGroupMuted_withVolumeGroupMutingDisabled() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
+                .thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonVolumeGroupMutingAudioService.init();
+
+        assertWithMessage("Volume group for disabled volume group muting")
+                .that(nonVolumeGroupMutingAudioService.isVolumeGroupMuted(
+                        PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isFalse();
+    }
+
+    @Test
     public void getGroupMaxVolume_forPrimaryZone() {
         mCarAudioService.init();
 
@@ -1112,6 +1145,51 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         assertWithMessage("Current group volume for primary audio zone and group")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isEqualTo((DEFAULT_GAIN - MIN_GAIN) / STEP_SIZE);
+    }
+
+    @Test
+    public void getGroupMaxVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupMaxVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamMaxVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
+    }
+
+    @Test
+    public void getGroupMinVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamMinVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
+    }
+
+    @Test
+    public void getGroupCurrentVolume_withNoDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        nonDynamicAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+
+        verify(mAudioManager).getStreamVolume(
+                CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP]);
     }
 
     @Test

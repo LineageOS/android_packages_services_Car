@@ -38,7 +38,7 @@ import java.util.List;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
 
@@ -65,7 +65,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         mAudioZoneId = in.readInt();
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Creator<OemCarAudioFocusEvaluationRequest> CREATOR =
@@ -84,7 +84,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
@@ -92,7 +92,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         byte flg = 0;
@@ -112,7 +112,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     /**
      * Returns the audio zone id for the request
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAudioZoneId() {
         return mAudioZoneId;
@@ -123,7 +123,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
      * in cases where the audio focus info is null
      * the request is to re-evaluate current focus holder and losers.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @Nullable AudioFocusEntry getAudioFocusRequest() {
         return mAudioFocusRequest;
@@ -132,7 +132,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     /**
      * Returns the currently muted volume groups
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<CarVolumeGroupInfo> getMutedVolumeGroups() {
         return mMutedVolumeGroups;
@@ -141,7 +141,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     /**
      * Returns the current focus holder
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getFocusHolders() {
         return mFocusHolders;
@@ -150,7 +150,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     /**
      * Returns the current focus losers (.i.e focus request that have transiently lost focus)
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getFocusLosers() {
         return mFocusLosers;
@@ -172,7 +172,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusEvaluationRequest {audioZoneId = ")
@@ -187,7 +187,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
      * A builder for {@link OemCarAudioFocusEvaluationRequest}
      */
     @SuppressWarnings("WeakerAccess")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class Builder {
 
@@ -226,7 +226,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         /**
          * set the audio zone id
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAudioZoneId(int value) {
             checkNotUsed();
@@ -238,7 +238,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         /**
          * Sets the current focus info to evaluate
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setAudioFocusRequest(@NonNull AudioFocusEntry audioFocusRequest) {
@@ -253,7 +253,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         /**
          * Sets the currently muted group volumes
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public Builder setMutedVolumeGroups(
@@ -267,7 +267,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
 
         /** @see #setMutedVolumeGroups */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder addMutedVolumeGroups(@NonNull CarVolumeGroupInfo mutedVolumeGroup) {
             Preconditions.checkArgument(mutedVolumeGroup != null,
@@ -280,7 +280,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         /**
          * Sets the focus holders
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setFocusHolders(@NonNull List<AudioFocusEntry> focusHolders) {
             Preconditions.checkArgument(focusHolders != null,
@@ -292,7 +292,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
 
         /** @see #setFocusHolders */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder addFocusHolders(@NonNull AudioFocusEntry focusHolder) {
             Preconditions.checkArgument(focusHolder != null,
@@ -305,7 +305,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         /**
          * Sets the focus losers
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setFocusLosers(@NonNull List<AudioFocusEntry> focusLosers) {
             Preconditions.checkArgument(focusLosers != null,
@@ -317,7 +317,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
 
         /** @see #setFocusLosers */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder addFocusLosers(@NonNull AudioFocusEntry focusLoser) {
             Preconditions.checkArgument(focusLoser != null,
@@ -328,7 +328,7 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public OemCarAudioFocusEvaluationRequest build() {
