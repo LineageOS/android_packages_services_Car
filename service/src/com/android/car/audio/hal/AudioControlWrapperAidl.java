@@ -20,6 +20,7 @@ import static android.car.builtin.media.AudioManagerHelper.usageToString;
 import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
 import static android.car.builtin.media.AudioManagerHelper.xsdStringToUsage;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -261,11 +262,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             mListener = halFocusListener;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public int getInterfaceVersion() {
             return this.VERSION;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public String getInterfaceHash() {
             return this.HASH;
@@ -313,11 +316,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public int getInterfaceVersion() {
             return VERSION;
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String getInterfaceHash() {
             return HASH;
         }
