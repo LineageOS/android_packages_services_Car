@@ -519,4 +519,9 @@
     <!-- Related to OEM customization service. Default timeout for critical calls made by CarService
          to OEM service. After this timeout, CarService would itself and OEM Service. -->
     <integer name="config_oemCarService_crashCall_timeout_ms">10000</integer>
+
+    <!-- Related to OEM customization service. Default thread pool size for communicating with the
+         OEM Service. The value can only be between 8 and 16. If value is higher than 16, thread
+         pool size will be 16. If value is lower than 8, thread pool size will be 8.-->
+    <integer name="config_oemCarService_thread_pool_size">8</integer>
 </resources>
