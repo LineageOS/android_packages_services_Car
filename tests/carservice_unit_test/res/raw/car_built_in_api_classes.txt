@@ -2,6 +2,7 @@ android.car.builtin.CarBuiltin
 android.car.builtin.PermissionHelper
 android.car.builtin.app.ActivityManagerHelper
 android.car.builtin.app.ActivityManagerHelper$ProcessObserverCallback
+android.car.builtin.app.AppOpsManagerHelper
 android.car.builtin.app.KeyguardManagerHelper
 android.car.builtin.app.TaskInfoHelper
 android.car.builtin.app.VoiceInteractionHelper

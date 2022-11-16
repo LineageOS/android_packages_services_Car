@@ -30,6 +30,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
+import android.car.builtin.app.AppOpsManagerHelper;
 import android.car.builtin.app.VoiceInteractionHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerPolicy;
@@ -38,6 +39,7 @@ import android.car.hardware.power.PowerComponent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
+import android.os.Process;
 import android.os.RemoteException;
 import android.util.AtomicFile;
 import android.util.SparseArray;
@@ -103,6 +105,8 @@ public final class PowerComponentHandler {
     }
 
     void init() {
+        AppOpsManagerHelper.setTurnScreenOnAllowed(mContext, Process.myUid(),
+                mContext.getOpPackageName(), /* isAllowed= */ true);
         PowerComponentMediatorFactory factory = new PowerComponentMediatorFactory();
         synchronized (mLock) {
             readUserOffComponentsLocked();

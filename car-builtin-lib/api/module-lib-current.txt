@@ -48,6 +48,10 @@ package android.car.builtin.app {
     method public void onProcessDied(int, int);
   }
 
+  public final class AppOpsManagerHelper {
+    method public static void setTurnScreenOnAllowed(android.content.Context, int, String, boolean);
+  }
+
   public final class KeyguardManagerHelper {
     method public static boolean isKeyguardLocked();
   }
@@ -297,6 +301,7 @@ package android.car.builtin.power {
     method public static int getMaximumScreenBrightnessSetting(android.content.Context);
     method public static int getMinimumScreenBrightnessSetting(android.content.Context);
     method public static void goToSleep(android.content.Context, int, long);
+    method public static android.os.PowerManager.WakeLock newWakeLock(android.content.Context, int, String, int);
     method public static void setDisplayState(android.content.Context, boolean, long);
     method public static void shutdown(android.content.Context, boolean, String, boolean);
   }
