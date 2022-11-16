@@ -36,6 +36,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetVisibleUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserUnlockingOrUnlocked;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
@@ -156,6 +157,24 @@ public final class AndroidMockitoHelperTest {
         mockUmIsUserRunning(mMockedUserManager, TEST_USER_ID, /* isRunning= */ false);
 
         assertThat(mMockedUserManager.isUserRunning(TEST_USER_ID)).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings("DirectInvocationOnMock")
+    public void testMockUmIsUserUnlockingOrUnlocked_true() {
+        mockUmIsUserUnlockingOrUnlocked(mMockedUserManager, TEST_USER_ID, true);
+
+        assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(TEST_USER_ID)).isTrue();
+        assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(mTestUserHandle)).isTrue();
+    }
+
+    @Test
+    @SuppressWarnings("DirectInvocationOnMock")
+    public void testMockUmIsUserUnlockingOrUnlocked_false() {
+        mockUmIsUserUnlockingOrUnlocked(mMockedUserManager, TEST_USER_ID, false);
+
+        assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(TEST_USER_ID)).isFalse();
+        assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(mTestUserHandle)).isFalse();
     }
 
     @Test

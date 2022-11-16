@@ -15,6 +15,8 @@
  */
 package android.car.test.mocks;
 
+import static android.car.test.mocks.CarArgumentMatchers.isUserHandle;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
@@ -319,6 +321,15 @@ public final class AndroidMockitoHelper {
             boolean isRunning) {
         when(um.isUserRunning(userId)).thenReturn(isRunning);
         when(um.isUserRunning(UserHandle.of(userId))).thenReturn(isRunning);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#isUserUnlockingOrUnlocked()}.
+     */
+    public static void mockUmIsUserUnlockingOrUnlocked(UserManager um, @UserIdInt int userId,
+            boolean value) {
+        when(um.isUserUnlockingOrUnlocked(isUserHandle(userId))).thenReturn(value);
+        when(um.isUserUnlockingOrUnlocked(userId)).thenReturn(value);
     }
 
     /**
