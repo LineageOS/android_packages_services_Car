@@ -1779,6 +1779,31 @@ public final class VehiclePropertyIds {
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_HEIGHT_MOVE = 289410019;
     /**
+     * Steering wheel theft lock feature enabled
+     *
+     * <p>Returns true if the steering wheel theft lock feature is enabled and false if it is
+     * disabled. If enabled, the steering wheel will lock automatically to prevent theft in
+     * certain situations.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  and write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868;
+    /**
      * Vehicle Maps Service (VMS) message
      * The property is protected by the signature permissions:
      * android.car.permission.VMS_PUBLISHER and android.car.permission.VMS_SUBSCRIBER.
