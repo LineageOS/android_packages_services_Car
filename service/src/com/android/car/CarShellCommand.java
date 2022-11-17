@@ -20,6 +20,7 @@ import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
+import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
 import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
@@ -107,7 +108,9 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.view.Display;
+import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
@@ -197,6 +200,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
     private static final String COMMAND_DISABLE_FEATURE = "disable-feature";
     private static final String COMMAND_INJECT_KEY = "inject-key";
+    private static final String COMMAND_INJECT_MOTION = "inject-motion";
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
     private static final String COMMAND_CHECK_LOCK_IS_SECURE = "check-lock-is-secure";
@@ -356,6 +360,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_KEY,
                 android.Manifest.permission.INJECT_EVENTS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_MOTION,
+                android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_ROTARY,
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE,
@@ -411,6 +417,21 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final ArrayMap<String, Integer> CUSTOM_INPUT_FUNCTION_ARGS;
 
+    private static final String INVALID_DISPLAY_ARGUMENTS =
+            "Error: Invalid arguments for display ID.";
+    private static final int DEFAULT_DEVICE_ID = 0;
+    private static final float DEFAULT_PRESSURE = 1.0f;
+    private static final float NO_PRESSURE = 0.0f;
+    private static final float DEFAULT_SIZE = 1.0f;
+    private static final int DEFAULT_META_STATE = 0;
+    private static final float DEFAULT_PRECISION_X = 1.0f;
+    private static final float DEFAULT_PRECISION_Y = 1.0f;
+    private static final int DEFAULT_EDGE_FLAGS = 0;
+    private static final int DEFAULT_BUTTON_STATE = 0;
+    private static final int DEFAULT_FLAGS = 0;
+
+    private static final ArrayMap<String, Integer> MOTION_EVENT_SOURCES;
+
     static {
         VALID_USER_AUTH_TYPES = new SparseArray<>(5);
         VALID_USER_AUTH_TYPES.put(KEY_FOB, "KEY_FOB");
@@ -437,6 +458,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CUSTOM_INPUT_FUNCTION_ARGS.put("f8", CustomInputEvent.INPUT_CODE_F8);
         CUSTOM_INPUT_FUNCTION_ARGS.put("f9", CustomInputEvent.INPUT_CODE_F9);
         CUSTOM_INPUT_FUNCTION_ARGS.put("f10", CustomInputEvent.INPUT_CODE_F10);
+
+        MOTION_EVENT_SOURCES = new ArrayMap<>(10);
+        MOTION_EVENT_SOURCES.put("keyboard", InputDevice.SOURCE_KEYBOARD);
+        MOTION_EVENT_SOURCES.put("dpad", InputDevice.SOURCE_DPAD);
+        MOTION_EVENT_SOURCES.put("gamepad", InputDevice.SOURCE_GAMEPAD);
+        MOTION_EVENT_SOURCES.put("touchscreen", InputDevice.SOURCE_TOUCHSCREEN);
+        MOTION_EVENT_SOURCES.put("mouse", InputDevice.SOURCE_MOUSE);
+        MOTION_EVENT_SOURCES.put("stylus", InputDevice.SOURCE_STYLUS);
+        MOTION_EVENT_SOURCES.put("trackball", InputDevice.SOURCE_TRACKBALL);
+        MOTION_EVENT_SOURCES.put("touchpad", InputDevice.SOURCE_TOUCHPAD);
+        MOTION_EVENT_SOURCES.put("touchnavigation", InputDevice.SOURCE_TOUCH_NAVIGATION);
+        MOTION_EVENT_SOURCES.put("joystick", InputDevice.SOURCE_JOYSTICK);
     }
 
     // CarTelemetryManager may not send result back if there are not results for the given
@@ -473,6 +506,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarWatchdogService mCarWatchdogService;
     private final CarTelemetryService mCarTelemetryService;
     private long mKeyDownTime;
+    private long mMotionDownTime;
     private ServiceConnection mScriptExecutorConn;
     private IScriptExecutor mScriptExecutor;
 
@@ -622,13 +656,54 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tdisable-feature featureName");
         pw.println("\t  Disable the requested feature. Change will happen after reboot");
         pw.println("\t  This requires root/su.");
-        pw.println("\tinject-key [-d display] [-t down_delay_ms | -a down|up] key_code");
+        pw.println("\tinject-key [-d display] [-s seat] [-t down_delay_ms | -a down|up] key_code");
         pw.println("\t  inject key down and/or up event to car service");
         pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
+        pw.println("\t  seat: int seat value defined in VeihicleAreaSeat. 0 for unknown,");
+        pw.println("\t      0x0001 for row1 left, 0x0002 for row1 center, 0x0004 for row1 right,");
+        pw.println("\t      0x0010 for row2 left, 0x0020 for row2 center, 0x0040 for row2 right,");
+        pw.println("\t      0x0100 for row3 left, 0x0200 for row3 center, 0x0400 for row3 right.");
+        pw.println("\t      If not specified, it will be driver seat.");
         pw.println("\t  down_delay_ms: delay from down to up key event. If not specified,");
         pw.println("\t                 it will be 0");
         pw.println("\t  key_code: int key code defined in android KeyEvent");
         pw.println("\t  If -a isn't specified, both down and up will be injected.");
+        pw.println("\tinject-motion [-d display] [-s seat] [--source source] [-t down_delay_ms] "
+                + "[-a action] [-c count] [-p pointer_id0 pointer_id1...] x0 y0 x1 y1 ...");
+        pw.println("\t  inject motion down or up or move or cancel event to car service");
+        pw.println("\t  display: 0 for main, 1 for cluster. If not specified, it will be 0.");
+        pw.println("\t  seat: int seat value defined in VeihicleAreaSeat. 0 for unknown,");
+        pw.println("\t      0x0001 for row1 left, 0x0002 for row1 center, 0x0004 for row1 right,");
+        pw.println("\t      0x0010 for row2 left, 0x0020 for row2 center, 0x0040 for row2 right,");
+        pw.println("\t      0x0100 for row3 left, 0x0200 for row3 center, 0x0400 for row3 right.");
+        pw.println("\t      If not specified, it will be driver seat.");
+        pw.println("\t  source: string source value for motion event.");
+        pw.println("\t          If not specified, it will be touchscreen");
+        pw.println("\t          The sources are:");
+        pw.println("\t              touchnavigation");
+        pw.println("\t              touchscreen");
+        pw.println("\t              joystick");
+        pw.println("\t              stylus");
+        pw.println("\t              touchpad");
+        pw.println("\t              gamepad");
+        pw.println("\t              dpad");
+        pw.println("\t              mouse");
+        pw.println("\t              keyboard");
+        pw.println("\t              trackball");
+        pw.println("\t  down_delay_ms: delay from down to up motion event. If not specified,");
+        pw.println("\t      it will be 0");
+        pw.println("\t  action: the MotionEvent.ACTION_* for the event. If not specified,");
+        pw.println("\t      both down and up will be injected.");
+        pw.println("\t      This can be a string value that is down|up|move|cancel");
+        pw.println("\t      or an integer value that must equal to MotionEvent.ACTION_*.");
+        pw.println("\t  count: the count of pointers. If not specified, it will be 1.");
+        pw.println("\t      If this value is greater than 1, there must be as many pointer_id,");
+        pw.println("\t      x, y as this value.");
+        pw.println("\t  pointer_id: pointer ids of following coordinates, If not specified,");
+        pw.println("\t      they are automatically set in order from 0.");
+        pw.println("\t  x: int x coordinate in android MotionEvent");
+        pw.println("\t  y: int y coordinate in android MotionEvent");
+        pw.println("\t  Must provide the 'count' number of x, y pairs.");
         pw.println("\tinject-rotary [-d display] [-i input_type] [-c clockwise]");
         pw.println("\t              [-dt delta_times_ms]");
         pw.println("\t  inject rotary input event to car service.");
@@ -1085,6 +1160,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 }
                 injectKey(args, writer);
                 break;
+            case COMMAND_INJECT_MOTION:
+                if (args.length < 2) {
+                    return showInvalidArguments(writer);
+                }
+                injectMotion(args, writer);
+                break;
             case COMMAND_INJECT_ROTARY:
                 if (args.length < 1) {
                     return showInvalidArguments(writer);
@@ -1319,6 +1400,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int delayMs = 0;
         int keyCode = KeyEvent.KEYCODE_UNKNOWN;
         int action = -1;
+        int seat = SEAT_UNKNOWN;
         try {
             while (i < args.length) {
                 switch (args[i]) {
@@ -1344,6 +1426,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                             throw new IllegalArgumentException("Invalid action: " + args[i]);
                         }
                         break;
+                    case "-s":
+                        i++;
+                        seat = parseUnsignedInt(args[i]);
+                        break;
                     default:
                         if (keyCode != KeyEvent.KEYCODE_UNKNOWN) {
                             throw new IllegalArgumentException("key_code already set:"
@@ -1358,6 +1444,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             showHelp(writer);
             return;
         }
+
         if (keyCode == KeyEvent.KEYCODE_UNKNOWN) {
             writer.println("Missing key code or invalid keycode");
             showHelp(writer);
@@ -1366,27 +1453,227 @@ final class CarShellCommand extends BasicShellCommandHandler {
         if (delayMs < 0) {
             writer.println("Invalid delay:" + delayMs);
             showHelp(writer);
-
             return;
         }
         if (action == -1) {
-            injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, display);
+            injectKeyEvent(KeyEvent.ACTION_DOWN, keyCode, display, seat);
             SystemClock.sleep(delayMs);
-            injectKeyEvent(KeyEvent.ACTION_UP, keyCode, display);
+            injectKeyEvent(KeyEvent.ACTION_UP, keyCode, display, seat);
         } else {
-            injectKeyEvent(action, keyCode, display);
+            injectKeyEvent(action, keyCode, display, seat);
         }
         writer.println("Succeeded");
     }
 
-    private void injectKeyEvent(int action, int keyCode, int display) {
+    private void injectKeyEvent(int action, int keyCode, int display, int seat) {
         long currentTime = SystemClock.uptimeMillis();
         if (action == KeyEvent.ACTION_DOWN) mKeyDownTime = currentTime;
         long token = Binder.clearCallingIdentity();
         try {
-            mCarInputService.injectKeyEvent(
-                    new KeyEvent(/* downTime= */ mKeyDownTime, /* eventTime= */ currentTime,
-                            action, keyCode, /* repeat= */ 0), display);
+            KeyEvent keyEvent = new KeyEvent(/* downTime= */ mKeyDownTime,
+                            /* eventTime= */ currentTime, action, keyCode, /* repeat= */ 0);
+            if (seat == SEAT_UNKNOWN) {
+                // Overwrite with the driver seat
+                seat = mCarOccupantZoneService.getDriverSeat();
+            }
+            mCarInputService.injectKeyEventForSeat(keyEvent, display, seat);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    private void injectMotion(String[] args, IndentingPrintWriter writer) {
+        int i = 1; // 0 is command itself
+        int display = CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
+        int delayMs = 0;
+        int action = -1;
+        int seat = SEAT_UNKNOWN;
+        int count = 1;
+        List<Float> coordXs = new ArrayList<>();
+        List<Float> coordYs = new ArrayList<>();
+        List<Integer> pointerIds = new ArrayList<>();
+        int source = InputDevice.SOURCE_TOUCHSCREEN;
+        try {
+            while (i < args.length) {
+                switch (args[i]) {
+                    case "-d":
+                        i++;
+                        int vehicleDisplay = Integer.parseInt(args[i]);
+                        if (!checkVehicleDisplay(vehicleDisplay, writer)) {
+                            return;
+                        }
+                        display = InputHalService.convertDisplayType(vehicleDisplay);
+                        break;
+                    case "-t":
+                        i++;
+                        delayMs = Integer.parseInt(args[i]);
+                        break;
+                    case "-a":
+                        i++;
+                        if (args[i].equalsIgnoreCase("down")) {
+                            action = MotionEvent.ACTION_DOWN;
+                        } else if (args[i].equalsIgnoreCase("up")) {
+                            action = MotionEvent.ACTION_UP;
+                        } else if (args[i].equalsIgnoreCase("move")) {
+                            action = MotionEvent.ACTION_MOVE;
+                        } else if (args[i].equalsIgnoreCase("cancel")) {
+                            action = MotionEvent.ACTION_CANCEL;
+                        } else {
+                            action = parseUnsignedInt(args[i]);
+                        }
+                        break;
+                    case "-s":
+                        i++;
+                        seat = parseUnsignedInt(args[i]);
+                        break;
+                    case "-c":
+                        i++;
+                        count = Integer.parseInt(args[i]);
+                        break;
+                    case "-p":
+                        for (int j = 0; j < count; j++) {
+                            i++;
+                            pointerIds.add(Integer.parseInt(args[i]));
+                        }
+                        break;
+                    case "--source":
+                        i++;
+                        if (MOTION_EVENT_SOURCES.containsKey(args[i])) {
+                            source = MOTION_EVENT_SOURCES.get(args[i]);
+                        }
+                        break;
+                    default:
+                        int remainedArgNum = args.length - i;
+                        if (remainedArgNum != (count * 2)) {
+                            throw new IllegalArgumentException("Invalid coordinate: It needs "
+                                    + count + " coordinates.");
+                        }
+                        while (i < args.length) {
+                            coordXs.add(Float.parseFloat(args[i]));
+                            i++;
+                            coordYs.add(Float.parseFloat(args[i]));
+                            i++;
+                        }
+                }
+                i++;
+            }
+        } catch (NumberFormatException e) {
+            writer.println("Invalid args:" + e);
+            showHelp(writer);
+            return;
+        }
+
+        if (delayMs < 0) {
+            writer.println("Invalid delay:" + delayMs);
+            showHelp(writer);
+            return;
+        }
+        if (coordXs.isEmpty() || coordYs.isEmpty()) {
+            writer.println("Missing x, y coordinate");
+            showHelp(writer);
+            return;
+        }
+        if (action == -1) {
+            injectMotionEvent(source, MotionEvent.ACTION_DOWN, coordXs, coordYs, pointerIds,
+                    display, seat);
+            SystemClock.sleep(delayMs);
+            injectMotionEvent(source, MotionEvent.ACTION_UP, coordXs, coordYs, pointerIds,
+                    display, seat);
+        } else {
+            injectMotionEvent(source, action, coordXs, coordYs, pointerIds, display, seat);
+        }
+        writer.println("Succeeded");
+    }
+
+    // value can be a hex or decimal string.
+    private static int parseUnsignedInt(String value) {
+        if (value.startsWith("0x")) {
+            return Integer.parseUnsignedInt(value.substring(2), 16);
+        } else {
+            return Integer.parseUnsignedInt(value);
+        }
+    }
+
+    private static int getToolType(int inputSource) {
+        switch(inputSource) {
+            case InputDevice.SOURCE_MOUSE:
+            case InputDevice.SOURCE_MOUSE_RELATIVE:
+            case InputDevice.SOURCE_TRACKBALL:
+                return MotionEvent.TOOL_TYPE_MOUSE;
+
+            case InputDevice.SOURCE_STYLUS:
+            case InputDevice.SOURCE_BLUETOOTH_STYLUS:
+                return MotionEvent.TOOL_TYPE_STYLUS;
+
+            case InputDevice.SOURCE_TOUCHPAD:
+            case InputDevice.SOURCE_TOUCHSCREEN:
+            case InputDevice.SOURCE_TOUCH_NAVIGATION:
+                return MotionEvent.TOOL_TYPE_FINGER;
+        }
+        return MotionEvent.TOOL_TYPE_UNKNOWN;
+    }
+
+    private static int getInputDeviceId(int inputSource) {
+        int[] devIds = InputDevice.getDeviceIds();
+        for (int devId : devIds) {
+            InputDevice inputDev = InputDevice.getDevice(devId);
+            if (inputDev.supportsSource(inputSource)) {
+                return devId;
+            }
+        }
+        return DEFAULT_DEVICE_ID;
+    }
+
+    private void injectMotionEvent(int source, int action, List<Float> xs, List<Float> ys,
+            List<Integer> pointerIds, int display, int seat) {
+        long currentTime = SystemClock.uptimeMillis();
+        if (action == MotionEvent.ACTION_DOWN) {
+            mMotionDownTime = currentTime;
+        }
+        long token = Binder.clearCallingIdentity();
+
+        int pointerCount = xs.size();
+        float pressure = NO_PRESSURE;
+        if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE) {
+            pressure = DEFAULT_PRESSURE;
+        }
+        MotionEvent.PointerProperties[] pointerProperties =
+                new MotionEvent.PointerProperties[pointerCount];
+        MotionEvent.PointerCoords[] pointerCoords = new MotionEvent.PointerCoords[pointerCount];
+        int toolType = getToolType(source);
+        for (int i = 0; i < pointerCount; i++) {
+            pointerProperties[i] = new MotionEvent.PointerProperties();
+            pointerProperties[i].id = pointerIds.isEmpty() ? i : pointerIds.get(i);
+            pointerProperties[i].toolType = toolType;
+            pointerCoords[i] = new MotionEvent.PointerCoords();
+            pointerCoords[i].x = xs.get(i);
+            pointerCoords[i].y = ys.get(i);
+            pointerCoords[i].pressure = pressure;
+            pointerCoords[i].size = DEFAULT_SIZE;
+        }
+
+        MotionEvent event = MotionEvent.obtain(
+                    /* downTime= */ mMotionDownTime,
+                    /* when= */ currentTime,
+                    action,
+                    pointerCount,
+                    pointerProperties,
+                    pointerCoords,
+                    DEFAULT_META_STATE,
+                    DEFAULT_BUTTON_STATE,
+                    DEFAULT_PRECISION_X,
+                    DEFAULT_PRECISION_Y,
+                    getInputDeviceId(source),
+                    DEFAULT_EDGE_FLAGS,
+                    source,
+                    DEFAULT_FLAGS
+                );
+        try {
+            if (seat == SEAT_UNKNOWN) {
+                // Overwrite with the driver seat
+                seat = mCarOccupantZoneService.getDriverSeat();
+            }
+            mCarInputService.injectMotionEventForSeat(event, display, seat);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

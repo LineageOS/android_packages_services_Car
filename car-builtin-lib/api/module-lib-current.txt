@@ -475,8 +475,12 @@ package android.car.builtin.view {
     field public static final int TYPE_VIRTUAL = 5; // 0x5
   }
 
+  public final class InputEventHelper {
+    method public static void setDisplayId(@NonNull android.view.InputEvent, int);
+  }
+
   public final class KeyEventHelper {
-    method public static void setDisplayId(@NonNull android.view.KeyEvent, int);
+    method @Deprecated public static void setDisplayId(@NonNull android.view.KeyEvent, int);
   }
 
 }
