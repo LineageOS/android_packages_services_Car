@@ -42,6 +42,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 
 import android.car.builtin.media.AudioManagerHelper;
+import android.car.test.AbstractExpectableTestCase;
 import android.media.AudioAttributes;
 import android.util.ArraySet;
 
@@ -59,7 +60,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioContextTest {
+public class CarAudioContextTest extends AbstractExpectableTestCase {
 
     private static final int INVALID_CONTEXT_ID = 0;
     private static final int INVALID_CONTEXT = -5;
@@ -741,5 +742,36 @@ public class CarAudioContextTest {
         assertWithMessage("Empty list constructor exception")
                 .that(thrown).hasMessageThat()
                 .contains("Car audio contexts must not be empty");
+    }
+
+    @Test
+    public void getAllCarSystemContextInfo_verifyContents() {
+        Set<Integer> carContextIds =
+                new ArraySet<Integer>(TEST_CAR_AUDIO_CONTEXT.getCarSystemContextIds());
+
+        List<CarAudioContextInfo> carContextInfo = CarAudioContext.getAllCarSystemContextsInfo();
+
+        expectWithMessage("Car system context info size").that(carContextInfo)
+                .hasSize(carContextIds.size());
+        for (CarAudioContextInfo info : carContextInfo) {
+            expectWithMessage("Context info id for %s", info)
+                    .that(info.getId()).isIn(carContextIds);
+        }
+    }
+
+    @Test
+    public void getAllNonCarSystemContextInfo_verifyContents() {
+        Set<Integer> nonCarContextIds =
+                new ArraySet<Integer>(TEST_CAR_AUDIO_CONTEXT.getNonCarSystemContextIds());
+
+        List<CarAudioContextInfo> nonCarContextInfo =
+                CarAudioContext.getAllNonCarSystemContextsInfo();
+
+        expectWithMessage("Non car system context info size").that(nonCarContextInfo)
+                .hasSize(nonCarContextIds.size());
+        for (CarAudioContextInfo info : nonCarContextInfo) {
+            expectWithMessage("Context info id for %s", info)
+                    .that(info.getId()).isIn(nonCarContextIds);
+        }
     }
 }
