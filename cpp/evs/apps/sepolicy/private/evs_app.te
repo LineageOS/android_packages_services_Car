@@ -27,3 +27,6 @@ allow evs_app surfaceflinger_service:service_manager find;
 
 # Allow get a list of available services
 allow evs_app servicemanager:service_manager list;
+
+# Allow find evsmanagerd service
+allow evs_app evsmanagerd_service:service_manager find;
