@@ -23,6 +23,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -41,10 +42,12 @@ public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
     private static final String TAG = "CarUiPortraitSystemBarButton";
     private static final boolean DEBUG = Build.IS_DEBUGGABLE;
 
-    private boolean mTaskViewReady = false;
+    // this is static so that we can save its state when configuration changes
+    private static boolean sTaskViewReady = false;
 
     public CarUiPortraitSystemBarButton(Context context, AttributeSet attrs) {
         super(context, attrs);
+        logIfDebuggable("CarUiPortraitSystemBarButton");
 
         // disable button by default
         super.setDisabled(/* disabled= */ true, getDisabledRunnable(context));
@@ -55,8 +58,8 @@ public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
                 if (intent.hasExtra(INTENT_EXTRA_FG_TASK_VIEW_READY)) {
                     boolean taskViewReady = intent.getBooleanExtra(
                             INTENT_EXTRA_FG_TASK_VIEW_READY, /* defaultValue= */ false);
-                    mTaskViewReady = taskViewReady;
-                    if (mTaskViewReady) {
+                    sTaskViewReady = taskViewReady;
+                    if (sTaskViewReady) {
                         logIfDebuggable("Foreground task view ready");
                     }
                     setDisabled(!taskViewReady, getDisabledRunnable(context));
@@ -67,10 +70,22 @@ public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
                 new IntentFilter(REQUEST_FROM_LAUNCHER), null, null);
     }
 
+    private static void logIfDebuggable(String message) {
+        if (DEBUG) {
+            Log.d(TAG, message);
+        }
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        setDisabled(!sTaskViewReady, getDisabledRunnable(getContext()));
+    }
+
     @Override
     public void setDisabled(boolean disabled, @Nullable Runnable runnable) {
         // do not externally control disable state until taskview is ready
-        if (!mTaskViewReady) {
+        if (!sTaskViewReady) {
             return;
         }
 
@@ -80,11 +95,5 @@ public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
     private Runnable getDisabledRunnable(Context context) {
         return () -> Toast.makeText(context, R.string.task_view_not_ready_message,
                 Toast.LENGTH_LONG).show();
-    }
-
-    private static void logIfDebuggable(String message) {
-        if (DEBUG) {
-            Log.d(TAG, message);
-        }
     }
 }
