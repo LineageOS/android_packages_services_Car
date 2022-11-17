@@ -38,7 +38,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Map;
 
-// TODO(b/241294844): Expose Slogf as system API and use it here.
 /**
  * This code will be running as part of the OEM Service. This provides basic implementation for OEM
  * Service. OEMs should extend this class and override relevant methods.
@@ -73,22 +72,19 @@ public abstract class OemCarService extends Service {
         }
 
         @Override
-        public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-            assertPermission();
-            OemCarService.this.dump(fd, writer, args);
-        }
-
-        @Override
         public void onCarServiceReady(IOemCarServiceCallback callback) throws RemoteException {
             assertPermission();
             OemCarService.this.onCarServiceReady();
+            synchronized (mLock) {
+                for (int i = 0; i < mOemCarServiceComponents.size(); i++) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Calling onCarServiceReady for %s\n",
+                                mOemCarServiceComponents.keyAt(i).getSimpleName());
+                    }
+                    mOemCarServiceComponents.valueAt(i).onCarServiceReady();
+                }
+            }
             callback.sendOemCarServiceReady();
-        }
-
-        @Override
-        public boolean isOemServiceReady() {
-            assertPermission();
-            return OemCarService.this.isOemServiceReady();
         }
 
         @Override
@@ -126,12 +122,15 @@ public abstract class OemCarService extends Service {
         }
     };
 
+
     /**
      * {@inheritDoc}
+     *
      * <p>
-     * OEM should override this method and do the initialization. OEM should also call super as this
-     * method would call {@link OemCarServiceComponent#init()} for each component implemented by
-     * OEM.
+     * OEM should override this method and do the initialization. OEM should also call super after
+     * initialization as this method would call {@link OemCarServiceComponent#init()} for each
+     * component implemented by OEM.
+     *
      * <p>
      * Car Service will not be available at the time of this initialization. If the OEM needs
      * anything from CarService, they should wait for the CarServiceReady() call. It is expected
@@ -145,7 +144,6 @@ public abstract class OemCarService extends Service {
         if (DBG) {
             Slogf.d(TAG, "OnCreate");
         }
-        super.onCreate();
 
         // Create all components
         OemCarAudioFocusService oemCarAudioFocusService = getOemAudioFocusService();
@@ -157,17 +155,23 @@ public abstract class OemCarService extends Service {
 
             // Initialize them
             for (int i = 0; i < mOemCarServiceComponents.size(); i++) {
+                if (DBG) {
+                    Slogf.d(TAG, "Initializing %s\n",
+                            mOemCarServiceComponents.keyAt(i).getSimpleName());
+                }
                 mOemCarServiceComponents.valueAt(i).init();
             }
         }
+        super.onCreate();
     }
 
     /**
      * {@inheritDoc}
+     *
      * <p>
      * OEM should override this method and do all the resources deallocation. OEM should also call
-     * super as this method would call {@link OemCarServiceComponent#release()} for each component
-     * implemented by OEM.
+     * super after resource deallocation as this method would call
+     * {@link OemCarServiceComponent#release()} for each component implemented by OEM.
      */
     @Override
     @CallSuper
@@ -177,7 +181,6 @@ public abstract class OemCarService extends Service {
         if (DBG) {
             Slogf.d(TAG, "OnDestroy");
         }
-        super.onDestroy();
 
         // Destroy all components and release the resources
         synchronized (mLock) {
@@ -185,6 +188,8 @@ public abstract class OemCarService extends Service {
                 mOemCarServiceComponents.valueAt(i).release();
             }
         }
+
+        super.onDestroy();
     }
 
     @Override
@@ -224,13 +229,6 @@ public abstract class OemCarService extends Service {
         return null;
     }
 
-    /**
-     * Dumps OEM Car Service.
-     * <p>
-     * OEM should override this method to dump. OEM should also call super as this method would call
-     * {@link OemCarServiceComponent#dump(FileDescriptor, PrintWriter, String[])} for each component
-     * implemented by OEM.
-     */
     @CallSuper
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
@@ -246,14 +244,6 @@ public abstract class OemCarService extends Service {
     }
 
     /**
-     * Checks if OEM service is ready. OEM service must be ready within certain time.
-     */
-    @SuppressWarnings("[OnNameExpected]")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public abstract boolean isOemServiceReady();
-
-    /**
      * Checks the supported CarVersion by the OEM service.
      */
     @SuppressWarnings("[OnNameExpected]")
@@ -264,23 +254,11 @@ public abstract class OemCarService extends Service {
 
     /**
      * Informs OEM service that CarService is now ready for communication.
+     *
      * <p>
-     * OEM should override this method and do the necessary initialization depending on CarService.
-     * OEM should also call super as this method would call
-     * {@link OemCarServiceComponent#onCarServiceReady()} for each component implemented by OEM.
+     * OEM should override this method if there is any initialization depending on CarService.
      */
-    @CallSuper
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public void onCarServiceReady() {
-        if (DBG) {
-            Slogf.d(TAG, "onCarServiceReady");
-        }
-
-        synchronized (mLock) {
-            for (int i = 0; i < mOemCarServiceComponents.size(); i++) {
-                mOemCarServiceComponents.valueAt(i).onCarServiceReady();
-            }
-        }
-    }
+    public abstract void onCarServiceReady();
 }
