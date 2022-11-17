@@ -346,7 +346,11 @@
             </intent-filter>
         </service>
 
-        <!-- This is a backup transport layer, the system recognizes it as a transport host. -->
+        <service android:name=".media.MediaBrowserProxyService"
+                 android:exported="false">
+        </service>
+
+    <!-- This is a backup transport layer, the system recognizes it as a transport host. -->
         <service android:name=".backup.KitchenSinkBackupTransportService"
                  android:permission="android.permission.CONFIRM_FULL_BACKUP"
                  android:exported="false">

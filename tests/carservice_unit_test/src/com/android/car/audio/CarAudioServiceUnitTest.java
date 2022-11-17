@@ -564,6 +564,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void getUsagesForVolumeGroupId_withoutDynamicRouting() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        assertWithMessage("Media car volume group id without dynamic routing").that(
+                nonDynamicAudioService.getUsagesForVolumeGroupId(PRIMARY_AUDIO_ZONE,
+                MEDIA_VOLUME_GROUP_ID)).asList()
+                .containsExactly(CarAudioDynamicRouting.STREAM_TYPE_USAGES[MEDIA_VOLUME_GROUP_ID]);
+    }
+
+    @Test
     public void createAudioPatch_onMediaOutputDevice_failsForConfigurationMissing() {
         mCarAudioService.init();
 

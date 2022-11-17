@@ -124,24 +124,40 @@ public class VendorServiceInfoTest {
     public void userScopeForeground() {
         VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#user=foreground");
 
+        assertThat(info.isAllUserService()).isFalse();
         assertThat(info.isForegroundUserService()).isTrue();
         assertThat(info.isSystemUserService()).isFalse();
+        assertThat(info.isVisibleUserService()).isFalse();
     }
 
     @Test
     public void userScopeSystem() {
         VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#user=system");
 
+        assertThat(info.isAllUserService()).isFalse();
         assertThat(info.isForegroundUserService()).isFalse();
         assertThat(info.isSystemUserService()).isTrue();
+        assertThat(info.isVisibleUserService()).isFalse();
+    }
+
+    @Test
+    public void userScopeVisible() {
+        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#user=visible");
+
+        assertThat(info.isAllUserService()).isFalse();
+        assertThat(info.isForegroundUserService()).isFalse();
+        assertThat(info.isSystemUserService()).isFalse();
+        assertThat(info.isVisibleUserService()).isTrue();
     }
 
     @Test
     public void userScopeAll() {
         VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#user=all");
 
+        assertThat(info.isAllUserService()).isTrue();
         assertThat(info.isForegroundUserService()).isTrue();
         assertThat(info.isSystemUserService()).isTrue();
+        assertThat(info.isVisibleUserService()).isTrue();
     }
 
     @Test
@@ -165,7 +181,7 @@ public class VendorServiceInfoTest {
     }
 
     @Test
-    public void testToString() {
+    public void testToString_bindForegroundUserPostUnlocked() {
         String result = VendorServiceInfo.parse(SERVICE_NAME
                 + "#bind=bind,user=foreground,trigger=userPostUnlocked").toString();
 
@@ -173,5 +189,16 @@ public class VendorServiceInfoTest {
         assertThat(result).contains("bind=BIND");
         assertThat(result).contains("userScope=FOREGROUND");
         assertThat(result).contains("trigger=POST_UNLOCKED");
+    }
+
+    @Test
+    public void testToString_startVisibleUserUnlocked() {
+        String result = VendorServiceInfo.parse(SERVICE_NAME
+                + "#bind=start,user=visible,trigger=userUnlocked").toString();
+
+        assertThat(result).contains("component=" + SERVICE_NAME);
+        assertThat(result).contains("bind=START");
+        assertThat(result).contains("userScope=VISIBLE");
+        assertThat(result).contains("trigger=UNLOCKED");
     }
 }
