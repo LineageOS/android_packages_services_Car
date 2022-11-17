@@ -110,6 +110,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
@@ -117,7 +118,6 @@ import com.android.car.hal.HalCallback;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
@@ -322,16 +322,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private boolean mStartBackgroundUsersOnGarageMode = true;
 
-    /**
-     * Callback to notify {@code CarServiceHelper} about driving safety changes (through
-     * {@link ICarServiceHelper#setSafetyMode(boolean).
-     *
-     * <p>NOTE: in theory, that logic should belong to {@code CarDevicePolicyService}, but it's
-     * simpler to do it here (and that service already depends on this one).
-     */
-    @GuardedBy("mLockUser")
-    private ICarServiceHelper mICarServiceHelper;
-
     private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
             new ICarUxRestrictionsChangeListener.Stub() {
         @Override
@@ -415,10 +405,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
-        setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions());
-
         CarLocalServices.getService(CarOccupantZoneService.class).registerCallback(
                 mOccupantZoneCallback);
+
+        CarServiceHelperWrapper.getInstance().runOnConnection(() ->
+                setUxRestrictions(mCarUxRestrictionService.getCurrentUxRestrictions()));
     }
 
     private final ICarOccupantZoneCallback mOccupantZoneCallback =
@@ -752,21 +743,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void sendInitialUserToSystemServer(UserHandle user) {
-        ICarServiceHelper iCarServiceHelper;
-        synchronized (mLockUser) {
-            iCarServiceHelper = mICarServiceHelper;
-        }
-
-        if (iCarServiceHelper == null) {
-            Slogf.e(TAG, "sendInitialUserToSystemServer(%s): CarServiceHelper is NULL.", user);
-            return;
-        }
-
-        try {
-            iCarServiceHelper.sendInitialUser(user);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "Error calling sendInitialUser(%s)", user);
-        }
+        CarServiceHelperWrapper.getInstance().sendInitialUser(user);
     }
 
     private void initResumeReplaceGuest() {
@@ -928,29 +905,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return InitialUserInfoRequestType.COLD_BOOT;
     }
 
-    /**
-     * Sets the {@link ICarServiceHelper} so it can receive UX restriction updates.
-     */
-    public void setCarServiceHelper(ICarServiceHelper helper) {
-        boolean restricted;
-        synchronized (mLockUser) {
-            mICarServiceHelper = helper;
-            restricted = mUxRestricted;
-        }
-        updateSafetyMode(helper, restricted);
-    }
-
-    private void updateSafetyMode(@Nullable ICarServiceHelper helper, boolean restricted) {
-        if (helper == null) return;
-
-        boolean isSafe = !restricted;
-        try {
-            helper.setSafetyMode(isSafe);
-        } catch (Exception e) {
-            Slogf.e(TAG, e, "Exception calling helper.setDpmSafetyMode(%b)", isSafe);
-        }
-    }
-
     private void setUxRestrictions(@Nullable CarUxRestrictions restrictions) {
         boolean restricted = restrictions != null
                 && (restrictions.getActiveRestrictions() & UX_RESTRICTIONS_NO_SETUP)
@@ -961,16 +915,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Slogf.i(TAG, "Setting UX restricted to %b", restricted);
         }
 
-        ICarServiceHelper helper = null;
-
         synchronized (mLockUser) {
             mUxRestricted = restricted;
-            if (mICarServiceHelper == null) {
-                Slogf.e(TAG, "onUxRestrictionsChanged(): no mICarServiceHelper");
-            }
-            helper = mICarServiceHelper;
         }
-        updateSafetyMode(helper, restricted);
+        CarServiceHelperWrapper.getInstance().setSafetyMode(!restricted);
     }
 
     private boolean isUxRestricted() {
@@ -1373,47 +1321,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Nullable
     UserHandle createUserEvenWhenDisallowed(@Nullable String name, @NonNull String userType,
             int flags) {
-        synchronized (mLockUser) {
-            if (mICarServiceHelper == null) {
-                Slogf.wtf(TAG, "createUserEvenWhenDisallowed(): mICarServiceHelper not set yet",
-                        new Exception());
-                return null;
-            }
-        }
-
-        try {
-            ICarServiceHelper iCarServiceHelper;
-            synchronized (mLockUser) {
-                iCarServiceHelper = mICarServiceHelper;
-            }
-            UserHandle user = iCarServiceHelper.createUserEvenWhenDisallowed(name,
-                    userType, flags);
-            return user;
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "createUserEvenWhenDisallowed(%s, %s, %d) failed",
-                    UserHelperLite.safeName(name), userType, flags);
-            return null;
-        }
+        return CarServiceHelperWrapper.getInstance().createUserEvenWhenDisallowed(name, userType,
+                flags);
     }
 
     /**
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(int userId) {
-        ICarServiceHelper helper;
-        synchronized (mLockUser) {
-            if (mICarServiceHelper == null) {
-                Slogf.wtf(TAG, "isUserVisible(): mICarServiceHelper not set yet", new Exception());
-                return false;
-            }
-            helper = mICarServiceHelper;
-        }
-        try {
-            return helper.getDisplayAssignedToUser(userId) != Display.INVALID_DISPLAY;
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "isUserVisible(%d) failed", userId);
-            return false;
-        }
+        return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId)
+                != Display.INVALID_DISPLAY;
     }
 
     // TODO(b/244370727): Remove once the lifecycle event callbacks provide the display id.
@@ -1421,20 +1338,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#getDisplayAssignedToUser()}.
      */
     public int getDisplayAssignedToUser(int userId) {
-        ICarServiceHelper helper;
-        synchronized (mLockUser) {
-            if (mICarServiceHelper == null) {
-                Slogf.wtf(TAG, "isUserVisible(): mICarServiceHelper not set yet", new Exception());
-                return Display.INVALID_DISPLAY;
-            }
-            helper = mICarServiceHelper;
-        }
-        try {
-            return helper.getDisplayAssignedToUser(userId);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "getDisplayAssignedToUser(%d) failed", userId);
-            return Display.INVALID_DISPLAY;
-        }
+        return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId);
     }
 
     @Override
@@ -2452,9 +2356,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             return;
         }
-        ICarServiceHelper carServiceHelper = null;
+
         synchronized (mLockUser) {
-            carServiceHelper = mICarServiceHelper;
             for (int i = mapping.size() - 1; i >= 0; i--) {
                 int userId = mapping.valueAt(i);
                 if (mAssignedUsers.contains(userId)) { // user already assigned before
@@ -2462,11 +2365,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mapping.removeAt(i);
                 }
             }
-        }
-        if (carServiceHelper == null) {
-            Slogf.wtf(TAG, "startOtherUsers(): mICarServiceHelper not set yet",
-                    new Exception());
-            return;
         }
 
         CarOccupantZoneService zoneService = CarLocalServices.getService(
@@ -2531,16 +2429,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         + " because display is not available yet", userId, zoneId);
                 continue;
             }
-            boolean userStarted = false;
             Slogf.i(TAG, "startOtherUsers(): start user %d for display %d", userId,
                     displayId);
-            try {
-                userStarted = carServiceHelper.startUserInBackgroundOnSecondaryDisplay(userId,
-                        displayId);
-            } catch (Exception e) {
-                Slogf.w(TAG, "startUserInBackgroundOnSecondaryDisplay failed", e);
-                // move over to !userStarted case.
-            }
+            boolean userStarted =
+                    CarServiceHelperWrapper.getInstance().startUserInBackgroundOnSecondaryDisplay(
+                            userId, displayId);
             if (!userStarted) {
                 Slogf.w(TAG, "startOtherUsers(): Cannot start and assign user %d to display %d",
                         userId, displayId);

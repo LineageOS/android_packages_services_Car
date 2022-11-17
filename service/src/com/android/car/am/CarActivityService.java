@@ -48,10 +48,10 @@ import android.view.Display;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -74,9 +74,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final Context mContext;
 
     private final Object mLock = new Object();
-
-    @GuardedBy("mLock")
-    ICarServiceHelper mICarServiceHelper;
 
     // LinkedHashMap is used instead of SparseXXX because a predictable iteration order is needed.
     // The tasks here need be ordered as per their stack order. The stack order is maintained
@@ -114,15 +111,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void release() {}
 
-    /**
-     * Sets {@code ICarServiceHelper}.
-     */
-    public void setICarServiceHelper(ICarServiceHelper helper) {
-        synchronized (mLock) {
-            mICarServiceHelper = helper;
-        }
-    }
-
     @Override
     public int setPersistentActivity(ComponentName activity, int displayId, int featureId) throws
             RemoteException {
@@ -135,14 +123,8 @@ public final class CarActivityService extends ICarActivityService.Stub
             return CarActivityManager.RESULT_INVALID_USER;
         }
 
-        ICarServiceHelper helper;
-        synchronized (mLock) {
-            helper = mICarServiceHelper;
-        }
-        if (helper == null) {
-            throw new IllegalStateException("ICarServiceHelper isn't connected yet");
-        }
-        return helper.setPersistentActivity(activity, displayId, featureId);
+        return CarServiceHelperWrapper.getInstance().setPersistentActivity(activity, displayId,
+                featureId);
     }
 
     @VisibleForTesting
