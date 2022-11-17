@@ -17,12 +17,17 @@
 <resources>
     <dimen name="card_icon_margin_start">8dp</dimen>
     <dimen name="card_content_margin_start">16dp</dimen>
+    <dimen name="card_fragment_margin">24dp</dimen>
 
     <dimen name="descriptive_text_vertical_margin">23dp</dimen>
 
     <dimen name="control_bar_image_size">120dp</dimen>
     <dimen name="control_bar_app_icon_size">36dp</dimen>
     <dimen name="control_bar_app_icon_margin">6dp</dimen>
+    <dimen name="control_bar_image_container_margin">8dp</dimen>
+    <dimen name="content_container_margin">16dp</dimen>
+
+    <dimen name="media_descriptive_text_container_height">120dp</dimen>
 
     <dimen name="control_bar_action_icon_size">88dp</dimen>
 
@@ -34,7 +39,7 @@
     <dimen name="default_audio_icon_outer_ring_thickness">8dp</dimen>
     <dimen name="default_audio_icon_inner_icon_size">40dp</dimen>
 
-    <dimen name="control_bar_image_background_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
+    <dimen name="control_bar_image_background_radius">16dp</dimen>
 
     <dimen name="button_tap_target_size">88dp</dimen>
     <dimen name="recent_apps_row_height">2dp</dimen>
