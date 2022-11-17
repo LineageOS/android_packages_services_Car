@@ -48,6 +48,8 @@ public final class CommonConstants {
     public static final int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = 7;
     public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8;
     public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED = 9;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_VISIBLE = 10;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE = 11;
 
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
@@ -62,6 +64,8 @@ public final class CommonConstants {
             USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED,
             USER_LIFECYCLE_EVENT_TYPE_CREATED,
             USER_LIFECYCLE_EVENT_TYPE_REMOVED,
+            USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
+            USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface UserLifecycleEventType{}

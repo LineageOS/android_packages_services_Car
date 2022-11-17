@@ -16,7 +16,6 @@
 
 package android.car.apitest;
 
-import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
@@ -32,7 +31,6 @@ import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.UserLifecycleEventFilter;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.util.Log;
 
 import org.junit.AfterClass;
@@ -49,9 +47,6 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
     private static final String TAG = CarUserManagerLifecycleEventFilterTest.class.getSimpleName();
 
     private static final int EVENTS_TIMEOUT_MS = 70_000;
-
-    private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
-    private static boolean sChangedMaxNumberUsers;
 
     // Any events for any user. Expect to receive 4 events.
     private Listener mListenerForAllEventsOnAnyUser = new Listener(
@@ -131,22 +126,13 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
             mListenerForSwitchingEventsOnAnyUser};
 
     @BeforeClass
-    public static void setupMaxNumberOfUsers() {
-        int requiredUsers = 3; // system user, current user, 1 extra user
-        if (sMaxNumberUsersBefore < requiredUsers) {
-            sChangedMaxNumberUsers = true;
-            Log.i(TAG, "Increasing maximum number of users from " + sMaxNumberUsersBefore + " to "
-                    + requiredUsers);
-            setMaxSupportedUsers(requiredUsers);
-        }
+    public static void setUp() {
+        setupMaxNumberOfUsers(3); // system user, current user, 1 extra user
     }
 
     @AfterClass
-    public static void restoreMaxNumberOfUsers() {
-        if (sChangedMaxNumberUsers) {
-            Log.i(TAG, "Restoring maximum number of users to " + sMaxNumberUsersBefore);
-            setMaxSupportedUsers(sMaxNumberUsersBefore);
-        }
+    public static void cleanUp() {
+        restoreMaxNumberOfUsers();
     }
 
     // TODO(246989094): Add the platform unsupported version of the test.

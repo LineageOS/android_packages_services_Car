@@ -2131,6 +2131,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Slogf.d(TAG, "onUserLifecycleEvent(): event=%d, from=%d, to=%d", eventType, fromUserId,
                     toUserId);
         }
+        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+                && (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE
+                || eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)) {
+            // UserVisibilityChanged events are not supported before U.
+            Slogf.w(TAG, "Ignoring unsupported user lifecycle event: type %d, user %d",
+                    eventType, toUserId);
+            return;
+        }
         int userId = toUserId;
 
         // Handle special cases first...
