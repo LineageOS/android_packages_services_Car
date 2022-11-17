@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ ਦੀ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ।"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ਕਾਰ ਦੇ epoch ਸਮੇਂ ਤੱਕ ਪਹੁੰਚ ਕਰੋ"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ਕਾਰ ਦੇ epoch ਸਮੇਂ ਤੱਕ ਪਹੁੰਚ ਕਰੋ।"</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ਕਾਰ ਦੀ ਇਨਕ੍ਰਿਪਸ਼ਨ ਬਾਈਂਡਿੰਗ ਸੀਡ ਤੱਕ ਪਹੁੰਚ ਕਰੋ"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ਕਾਰ ਦੀ ਇਨਕ੍ਰਿਪਸ਼ਨ ਬਾਈਂਡਿੰਗ ਸੀਡ ਤੱਕ ਪਹੁੰਚ ਕਰੋ।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ \'ਤੇ ਕੰਟਰੋਲ।"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ਕਾਰ ਦੀਆਂ ਅੰਦਰੂਨੀ ਲਾਈਟਾਂ ਤੱਕ ਪਹੁੰਚ"</string>
@@ -168,13 +166,13 @@
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"ਥ੍ਰੈੱਡ ਸੰਬੰਧੀ ਤਰਜੀਹ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ।"</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"ਭਰੇ ਖੇਤਰ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"ਭਰੇ ਖੇਤਰ ਦਾ ਪ੍ਰਬੰਧਨ ਕਰੋ।"</string>
-    <!-- no translation found for car_permission_label_use_remote_access (4192095854784769805) -->
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"ਰਿਮੋਟ ਪਹੁੰਚ ਦੀ ਵਰਤੋਂ ਕਰੋ"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"ਰਿਮੋਟ ਪਹੁੰਚ ਦੀ ਵਰਤੋਂ ਕਰੋ।"</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"ਰਿਮੋਟ ਪਹੁੰਚ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"ਰਿਮੋਟ ਪਹੁੰਚ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ।"</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
     <skip />
-    <!-- no translation found for car_permission_desc_use_remote_access (7287637348044911791) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_remote_access (4247590162299914718) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_remote_access (127215188256669260) -->
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ਬੱਸ ਅਸਫਲ ਰਹੀ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ਬੱਸ ਕੰਮ ਨਹੀਂ ਕਰਦੀ। ਹੈੱਡ ਯੂਨਿਟ ਬਾਕਸ ਨੂੰ ਅਨਪਲੱਗ ਕਰੋ ਅਤੇ ਦੁਬਾਰਾ ਪਲੱਗ ਲਗਾ ਕੇ ਕਾਰ ਨੂੰ ਮੁੜ-ਚਾਲੂ ਕਰੋ"</string>

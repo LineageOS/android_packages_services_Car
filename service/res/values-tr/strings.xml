@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Aracın dış ışıklarının durumuna erişim."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"arabanın sıfır zamanına erişim"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Arabanın sıfır zamanına erişim."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"aracın şifreleme bağlama başlangıç noktasına erişebilir"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Aracın şifreleme bağlama başlangıç noktasına erişebilir."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"aracın dış ışıklarını okuma"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Aracın dış ışıklarını kontrol etme."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"aracın iç ışıklarını okuma"</string>
@@ -168,13 +166,13 @@
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"İleti dizisi önceliğini yönetin."</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"yolcu bölgesini yönet"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"Yolcu bölgesini yönet."</string>
-    <!-- no translation found for car_permission_label_use_remote_access (4192095854784769805) -->
+    <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"uzaktan erişimi kullan"</string>
+    <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Uzaktan erişimi kullanın."</string>
+    <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"uzaktan erişimi kontrol et"</string>
+    <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Uzaktan erişimi kontrol edin."</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
     <skip />
-    <!-- no translation found for car_permission_desc_use_remote_access (7287637348044911791) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_remote_access (4247590162299914718) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_remote_access (127215188256669260) -->
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN veri yolu başarısız"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN veri yolu yanıt vermiyor. Ana birim kutusunu söküp tekrar takın ve aracı yeniden çalıştırın"</string>

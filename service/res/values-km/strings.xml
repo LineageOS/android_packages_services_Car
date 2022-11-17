@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ចូលប្រើ​ស្ថានភាពភ្លើង​ផ្នែកខាងក្រៅ​រថយន្ត។"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ពេលវេលា​ចូលប្រើ​ជំនាន់របស់​រថយន្ត"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ពេលវេលា​ចូលប្រើ​ជំនាន់របស់​រថយន្ត។"</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ចូលប្រើ​ដំណាក់កាល​ចាប់ផ្ដើម​ដែលភ្ជាប់​ការអ៊ីនគ្រីប​របស់រថយន្ត"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ចូលប្រើ​ដំណាក់កាល​ចាប់ផ្ដើម​ដែលភ្ជាប់​ការអ៊ីនគ្រីប​របស់រថយន្ត​។"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"អានភ្លើងផ្នែកខាងក្រៅ​រថយន្ត"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"គ្រប់គ្រងភ្លើង​ផ្នែកខាងក្រៅរថយន្ត។"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"អានភ្លើង​ផ្នែកខាងក្នុង​រថយន្ត"</string>
@@ -172,6 +170,10 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"ប្រើប្រាស់សិទ្ធិចូលប្រើប្រាស់ពីចម្ងាយ។"</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"គ្រប់គ្រងសិទ្ធិចូលប្រើប្រាស់ពីចម្ងាយ"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"គ្រប់គ្រងសិទ្ធិចូលប្រើប្រាស់ពីចម្ងាយ។"</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>

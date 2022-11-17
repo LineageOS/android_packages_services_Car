@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକର ଷ୍ଟେଟ୍‌କୁ ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"କାରର epoch ସମୟକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"କାରର epoch ସମୟକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ।"</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"କାରର ଏନକ୍ରିପସନ୍ ବାଇଣ୍ଡିଂ ସିଡକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"କାରର ଏନକ୍ରିପସନ୍ ବାଇଣ୍ଡିଂ ସିଡକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକର ସ୍ଥିତିକୁ ପଢ଼ିବ"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"କାର୍\'ର ଭିତର ଲାଇଟ୍‌ଗୁଡ଼ିକୁ ପଢ଼ିବ"</string>
@@ -172,6 +170,10 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"ରିମୋଟ ଆକ୍ସେସ ବ୍ୟବହାର କରନ୍ତୁ।"</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"ରିମୋଟ ଆକ୍ସେସକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"ରିମୋଟ ଆକ୍ସେସକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

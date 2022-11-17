@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Mengakses status lampu eksterior mobil."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"mengakses waktu epoch mobil"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Mengakses waktu epoch mobil."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"mengakses seed binding enkripsi mobil"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Mengakses seed binding enkripsi mobil."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"membaca lampu eksterior mobil"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Mengontrol lampu eksterior mobil."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"membaca status lampu interior mobil"</string>
@@ -172,6 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Menggunakan akses jarak jauh."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"mengontrol akses jarak jauh"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Mengontrol akses jarak jauh."</string>
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"mengontrol setir mobil"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Mengontrol setir mobil."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus gagal"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus tidak merespons. Cabut dan colokkan kembali boks headunit, lalu nyalakan ulang mobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Perangkat Saya"</string>

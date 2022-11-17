@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Πρόσβαση στην κατάσταση εξωτερικών φώτων του αυτοκινήτου."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"πρόσβαση στα στοιχεία για την εποχή του αυτοκινήτου"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Πρόσβαση στα στοιχεία για την εποχή του αυτοκινήτου."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"πρόσβαση στο φύτρο σύνδεσης με κρυπτογράφηση του αυτοκινήτου"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Πρόσβαση στο φύτρο σύνδεσης με κρυπτογράφηση του αυτοκινήτου."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"παρακολούθηση εξωτερικών φώτων του αυτοκινήτου"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Έλεγχος εξωτερικών φώτων αυτοκινήτου."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"παρακολούθηση εσωτερικών φώτων αυτοκινήτου"</string>
@@ -172,6 +170,10 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Χρήση απομακρυσμένης πρόσβασης."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"έλεγχος απομακρυσμένης πρόσβασης"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Έλεγχος απομακρυσμένης πρόσβασης."</string>
+    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Αποτυχία διαύλου CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Ο δίαυλος CAN δεν αποκρίνεται. Αποσυνδέστε και συνδέστε ξανά το πλαίσιο μονάδας κεφαλής και έπειτα επανεκκινήστε το αυτοκίνητο"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Η συσκευή μου"</string>
