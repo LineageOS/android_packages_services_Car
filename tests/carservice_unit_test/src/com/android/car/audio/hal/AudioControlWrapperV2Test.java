@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,6 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -47,7 +49,7 @@ import org.mockito.junit.MockitoRule;
 import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
-public class AudioControlWrapperV2Test {
+public final class AudioControlWrapperV2Test {
     private static final float FADE_VALUE = 5;
     private static final float BALANCE_VALUE = 6;
     private static final int USAGE = AudioAttributes.USAGE_MEDIA;
@@ -58,7 +60,7 @@ public class AudioControlWrapperV2Test {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    IAudioControl mAudioControlV2;
+    private IAudioControl mAudioControlV2;
 
     @Test
     public void setFadeTowardFront_succeeds() throws Exception {
@@ -133,6 +135,34 @@ public class AudioControlWrapperV2Test {
     }
 
     @Test
+    public void requestAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+        audioControlWrapperV2.registerFocusListener(mockListener);
+        verify(mAudioControlV2).registerFocusListener(captor.capture());
+
+        captor.getValue().requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
+
+        verify(mockListener).requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
+    }
+
+    @Test
+    public void abandonAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+        audioControlWrapperV2.registerFocusListener(mockListener);
+        verify(mAudioControlV2).registerFocusListener(captor.capture());
+
+        captor.getValue().abandonAudioFocus(USAGE, ZONE_ID);
+
+        verify(mockListener).abandonAudioFocus(USAGE, ZONE_ID);
+    }
+
+    @Test
     public void onAudioFocusChange_succeeds() throws Exception {
         AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
         audioControlWrapperV2.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
@@ -183,5 +213,28 @@ public class AudioControlWrapperV2Test {
         assertWithMessage("UnsupportedOperationException thrown by unregisterAudioGainCallback")
                 .that(thrown).hasMessageThat()
                 .contains("Audio Gain Callback is unsupported for IAudioControl@2.0");
+    }
+
+    @Test
+    public void linkToDeath_succeeds() throws Exception {
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+        AudioControlWrapper.AudioControlDeathRecipient deathRecipient =
+                mock(AudioControlWrapper.AudioControlDeathRecipient.class);
+
+        audioControlWrapperV2.linkToDeath(deathRecipient);
+
+        verify(mAudioControlV2).linkToDeath(any(), eq(0L));
+    }
+
+    @Test
+    public void unlinkToDeath_succeeds() throws Exception {
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+        AudioControlWrapper.AudioControlDeathRecipient deathRecipient =
+                mock(AudioControlWrapper.AudioControlDeathRecipient.class);
+        audioControlWrapperV2.linkToDeath(deathRecipient);
+
+        audioControlWrapperV2.unlinkToDeath();
+
+        verify(mAudioControlV2).unlinkToDeath(any());
     }
 }

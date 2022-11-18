@@ -110,15 +110,16 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NOTIFICATION_ATTRIBUTE);
 
     @Mock
-    IBinder mBinder;
+    private IBinder mBinder;
 
     @Mock
-    IAudioControl mAudioControl;
-
-    @Mock HalAudioGainCallback mHalAudioGainCallback;
+    private IAudioControl mAudioControl;
 
     @Mock
-    AudioControlDeathRecipient mDeathRecipient;
+    private HalAudioGainCallback mHalAudioGainCallback;
+
+    @Mock
+    private AudioControlDeathRecipient mDeathRecipient;
 
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
     private MutingInfo mPrimaryZoneMutingInfo;
@@ -192,6 +193,32 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         mAudioControlWrapperAidl.registerFocusListener(mockListener);
 
         verify(mAudioControl).registerFocusListener(any(IFocusListener.class));
+    }
+
+    @Test
+    public void requestAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        verify(mAudioControl).registerFocusListener(captor.capture());
+
+        captor.getValue().requestAudioFocus(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
+
+        verify(mockListener).requestAudioFocus(USAGE, ZONE_ID, FOCUS_GAIN);
+    }
+
+    @Test
+    public void abandonAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        verify(mAudioControl).registerFocusListener(captor.capture());
+
+        captor.getValue().abandonAudioFocus(USAGE_NAME, ZONE_ID);
+
+        verify(mockListener).abandonAudioFocus(USAGE, ZONE_ID);
     }
 
     @Test
@@ -320,6 +347,15 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         mAudioControlWrapperAidl.linkToDeath(null);
 
         verify(mBinder).linkToDeath(any(DeathRecipient.class), eq(0));
+    }
+
+    @Test
+    public void unlinkToDeath_callsBinder() {
+        mAudioControlWrapperAidl.linkToDeath(null);
+
+        mAudioControlWrapperAidl.unlinkToDeath();
+
+        verify(mBinder).unlinkToDeath(any(DeathRecipient.class), eq(0));
     }
 
     @Test

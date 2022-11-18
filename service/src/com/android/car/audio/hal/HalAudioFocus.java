@@ -22,6 +22,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -320,6 +321,7 @@ public final class HalAudioFocus implements HalFocusListener {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             return new StringBuilder()
                     .append("Request: ")
