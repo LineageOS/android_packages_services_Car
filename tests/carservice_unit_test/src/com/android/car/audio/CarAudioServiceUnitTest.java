@@ -85,6 +85,7 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroupInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
@@ -154,6 +155,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int SECONDARY_ZONE_VOLUME_GROUP_COUNT = 1;
     private static final int SECONDARY_ZONE_VOLUME_GROUP_ID = SECONDARY_ZONE_VOLUME_GROUP_COUNT - 1;
     private static final int TEST_PRIMARY_GROUP = 0;
+    private static final int TEST_SECONDARY_GROUP = 1;
     private static final int TEST_PRIMARY_GROUP_INDEX = 0;
     private static final int TEST_FLAGS = 0;
     private static final float TEST_VALUE = -.75f;
@@ -174,6 +176,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_DRIVER_USER_ID = 10;
     private static final int TEST_USER_ID = 11;
     private static final int TEST_USER_ID_SECONDARY = 12;
+
+    private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE,
+                    TEST_PRIMARY_GROUP, "group id " + TEST_PRIMARY_GROUP).build();
+
+    private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE,
+                    TEST_SECONDARY_GROUP, "group id " + TEST_SECONDARY_GROUP).build();
 
     private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
             new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
@@ -1283,8 +1293,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void isAudioFeatureEnabled_forDisabledVolumeGroupMuting() {
-        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
-                .thenReturn(false);
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting)).thenReturn(false);
         CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
                 mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
                 mCarVolumeCallbackHandler);
@@ -1482,8 +1491,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void setAudioEnabled_forDisabledVolumeGroupMuting() {
-        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting))
-                .thenReturn(false);
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting)).thenReturn(false);
         CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
                 mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
                 mCarVolumeCallbackHandler);
@@ -1504,12 +1512,74 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void test() {
+    public void unregisterVolumeCallback_verifyCallbackHandler() {
         mCarAudioService.init();
 
         mCarAudioService.unregisterVolumeCallback(mVolumeCallbackBinder);
 
         verify(mCarVolumeCallbackHandler).unregisterCallback(mVolumeCallbackBinder);
+    }
+
+    @Test
+    public void getMutedVolumeGroups_forInvalidZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Muted volume groups for invalid zone")
+                .that(mCarAudioService.getMutedVolumeGroups(INVALID_AUDIO_ZONE))
+                .isEmpty();
+    }
+
+    @Test
+    public void getMutedVolumeGroups_whenVolumeGroupMuteNotSupported() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting)).thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonVolumeGroupMutingAudioService.init();
+
+        assertWithMessage("Muted volume groups with disable mute feature")
+                .that(nonVolumeGroupMutingAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+                .isEmpty();
+    }
+
+    @Test
+    public void getMutedVolumeGroups_withMutedGroups() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+
+        assertWithMessage("Muted volume groups")
+                .that(mCarAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+                .containsExactly(TEST_PRIMARY_VOLUME_INFO, TEST_SECONDARY_VOLUME_INFO);
+    }
+
+    @Test
+    public void getMutedVolumeGroups_afterUnmuting() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* muted= */ false, TEST_FLAGS);
+
+        assertWithMessage("Muted volume groups after unmuting one group")
+                .that(mCarAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+                .containsExactly(TEST_SECONDARY_VOLUME_INFO);
+    }
+
+    @Test
+    public void getMutedVolumeGroups_withMutedGroupsForDifferentZone() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP,
+                /* muted= */ true, TEST_FLAGS);
+
+        assertWithMessage("Muted volume groups for secondary zone")
+                .that(mCarAudioService.getMutedVolumeGroups(SECONDARY_ZONE_ID)).isEmpty();
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {

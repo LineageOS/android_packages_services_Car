@@ -26,11 +26,15 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.media.CarVolumeGroupInfo;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public final class CarVolumeInfoWrapperTest {
@@ -40,6 +44,9 @@ public final class CarVolumeInfoWrapperTest {
     private static final int TEST_MIN_GROUP_VOLUME = 0;
     private static final int TEST_MAX_GROUP_VOLUME = 9000;
     private static final boolean TEST_VOLUME_GROUP_MUTE = true;
+    private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
+            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID,
+                    "group id " + TEST_GROUP_ID).build();
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 
@@ -58,6 +65,8 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(TEST_MAX_GROUP_VOLUME);
         when(carAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_VOLUME_GROUP_MUTE);
+        when(carAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+                .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO));
 
         mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(carAudioService);
     }
@@ -121,5 +130,12 @@ public final class CarVolumeInfoWrapperTest {
 
         assertWithMessage("Car Audio Group Volume Mute")
                 .that(isVolumeGroupMuted).isEqualTo(TEST_VOLUME_GROUP_MUTE);
+    }
+
+    @Test
+    public void getMutedVolumeGroups_withMutedGroups() {
+        assertWithMessage("Muted volume groups")
+                .that(mCarVolumeInfoWrapper.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+                .containsExactly(TEST_PRIMARY_GROUP_INFO);
     }
 }

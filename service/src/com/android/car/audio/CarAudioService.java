@@ -47,6 +47,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
 import android.content.Context;
@@ -675,7 +676,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mContext.getPackageManager(),
                 mCarAudioZones,
                 mCarAudioSettings,
-                mCarDucking);
+                mCarDucking,
+                new CarVolumeInfoWrapper(this));
         builder.setAudioPolicyFocusListener(mFocusHandler);
         builder.setIsAudioFocusPolicy(true);
 
@@ -1636,6 +1638,29 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             return mCarAudioPlaybackCallback.getAllActiveAudioAttributesForPrimaryZone();
         }
+    }
+
+    List<CarVolumeGroupInfo> getMutedVolumeGroups(int zoneId) {
+        List<CarVolumeGroupInfo> mutedGroups = new ArrayList<>();
+
+        if (!mUseCarVolumeGroupMuting || !isAudioZoneIdValid(zoneId)) {
+            return mutedGroups;
+        }
+
+        synchronized (mImplLock) {
+            int groupCount = getCarAudioZoneLocked(zoneId).getVolumeGroupCount();
+            for (int groupId = 0; groupId < groupCount; groupId++) {
+                CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+                if (!group.isMuted()) {
+                    continue;
+                }
+
+                mutedGroups.add(new CarVolumeGroupInfo.Builder(zoneId, groupId,
+                        "group id " + groupId).build());
+            }
+        }
+
+        return mutedGroups;
     }
 
     static final class SystemClockWrapper {
