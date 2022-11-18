@@ -14,7 +14,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -23,18 +22,15 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/car_portrait_ui_window_rounded_corner_radius"
     android:visibility="gone">
-
     <FrameLayout
         android:id="@+id/card_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/car_surface_2"/>
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/card_fragment_margin">
-
         <FrameLayout
             android:id="@+id/control_bar_image_container"
             android:layout_width="@dimen/control_bar_image_size"
@@ -44,14 +40,12 @@
             android:layout_marginTop="@dimen/control_bar_image_container_margin"
             android:layout_alignParentStart="true"
             android:layout_alignBottom="@id/content_container">
-
             <com.android.car.apps.common.CrossfadeImageView
                 android:id="@+id/card_background_image"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/control_bar_image_background"
                 android:clipToOutline="true"/>
-
             <ImageView
                 android:id="@+id/card_icon"
                 android:layout_width="@dimen/control_bar_app_icon_size"
@@ -59,7 +53,6 @@
                 android:layout_gravity="bottom|end"
                 android:scaleType="centerInside"/>
         </FrameLayout>
-
         <!-- Do not show app name -->
         <TextView
             android:id="@+id/card_name"
@@ -67,7 +60,6 @@
             android:layout_height="0dp"
             android:visibility="gone"
             android:layout_alignParentStart="true"/>
-
         <FrameLayout
             android:id="@+id/content_container"
             android:layout_width="0dp"
@@ -76,15 +68,12 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentTop="true"
             android:layout_toEndOf="@id/control_bar_image_container">
-
-
             <ViewStub android:id="@+id/media_layout"
                 android:inflatedId="@+id/media_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:layout="@layout/card_content_media"/>
-
             <!-- Following ViewStubs are required by the HomeCardFragment, but are currently unused
             as the portrait launcher only shows an audio card and the respective media layout. -->
             <ViewStub android:id="@+id/descriptive_text_layout"
@@ -93,21 +82,21 @@
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:layout="@layout/card_content_descriptive_text_only"/>
-
             <ViewStub android:id="@+id/text_block_layout"
                 android:inflatedId="@+id/text_block_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:layout="@layout/card_content_text_block"/>
-
             <ViewStub android:id="@+id/descriptive_text_with_controls_layout"
                 android:inflatedId="@+id/descriptive_text_with_controls_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
                 android:layout="@layout/card_content_descriptive_text_with_controls"/>
-
         </FrameLayout>
+        <include layout="@layout/optional_seek_bar_with_times"
+                 android:id="@+id/optional_seek_bar_with_times_container"
+        />
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
