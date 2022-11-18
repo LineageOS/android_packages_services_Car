@@ -510,7 +510,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
@@ -825,7 +825,7 @@ public class FakeVehicleStubUnitTest {
         List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
