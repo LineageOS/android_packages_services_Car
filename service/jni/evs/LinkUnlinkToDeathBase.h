@@ -26,12 +26,12 @@ public:
 
     virtual binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
                                         void* cookie) = 0;
-    virtual binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
-                                          void* cookie) = 0;
+    virtual binder_status_t unlinkToDeath(AIBinder* binder) = 0;
     virtual void* getCookie() = 0;
 
 protected:
     void* mCookie;
+    ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 };
 
 }  // namespace android::automotive::evs

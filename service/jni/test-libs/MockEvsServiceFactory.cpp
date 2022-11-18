@@ -45,7 +45,7 @@ binder_status_t MockLinkUnlinkToDeath::linkToDeath(AIBinder*, AIBinder_DeathReci
     return STATUS_OK;
 }
 
-binder_status_t MockLinkUnlinkToDeath::unlinkToDeath(AIBinder*, AIBinder_DeathRecipient*, void*) {
+binder_status_t MockLinkUnlinkToDeath::unlinkToDeath(AIBinder*) {
     // Do nothing.
     return STATUS_OK;
 }
