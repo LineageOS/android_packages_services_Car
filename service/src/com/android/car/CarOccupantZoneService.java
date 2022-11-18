@@ -61,7 +61,6 @@ import android.util.SparseIntArray;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
 import com.android.car.user.CarUserService;
@@ -193,9 +192,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     /** key : zoneId */
     @GuardedBy("mLock")
     private final SparseArray<OccupantConfig> mActiveOccupantConfigs = new SparseArray<>();
-
-    @GuardedBy("mLock")
-    private ICarServiceHelper mICarServiceHelper;
 
     @GuardedBy("mLock")
     private int mDriverZoneId = OccupantZoneInfo.INVALID_ZONE_ID;
@@ -362,6 +358,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (experimentalUserService != null) {
             experimentalUserService.setZoneUserBindingHelper(helper);
         }
+
+        CarServiceHelperWrapper.getInstance().runOnConnection(() -> doSyncWithCarServiceHelper(
+                /* updateDisplay= */ true, /* updateUser= */ true, /* updateConfig= */ true));
     }
 
     @Override
@@ -684,7 +683,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
      * Sets the mapping for audio zone id to occupant zone id.
      *
      * @param audioZoneIdToOccupantZoneMapping map for audio zone id, where key is the audio zone id
-     * and value is the occupant zone id.
+     *                                         and value is the occupant zone id
      */
     public void setAudioZoneIdsForOccupantZoneIds(
             @NonNull SparseIntArray audioZoneIdToOccupantZoneMapping) {
@@ -937,14 +936,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    /**
-     * Sets {@code ICarServiceHelper}.
-     */
-    public void setCarServiceHelper(ICarServiceHelper helper) {
-        doSyncWithCarServiceHelper(helper, /* updateDisplay= */ true, /* updateUser= */ true,
-                /* updateConfig= */ true);
-    }
-
     /** Returns number of passenger zones in the device. */
     public int getNumberOfPassengerZones() {
         synchronized (mLock) {
@@ -953,20 +944,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    private void doSyncWithCarServiceHelper(@Nullable ICarServiceHelper helper,
-            boolean updateDisplay, boolean updateUser, boolean updateConfig) {
+    private void doSyncWithCarServiceHelper(boolean updateDisplay, boolean updateUser,
+            boolean updateConfig) {
         int[] passengerDisplays = null;
         ArrayMap<Integer, IntArray> allowlists = null;
-        ICarServiceHelper helperToUse = helper;
         synchronized (mLock) {
-            if (helper == null) {
-                if (mICarServiceHelper == null) { // helper not set yet.
-                    return;
-                }
-                helperToUse = mICarServiceHelper;
-            } else {
-                mICarServiceHelper = helper;
-            }
             if (updateDisplay) {
                 passengerDisplays = getAllActivePassengerDisplaysLocked();
             }
@@ -975,15 +957,15 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
         }
         if (updateDisplay) {
-            updatePassengerDisplays(helperToUse, passengerDisplays);
+            updatePassengerDisplays(passengerDisplays);
         }
         if (updateUser) {
-            updateUserAssignmentForDisplays(helperToUse, allowlists);
+            updateUserAssignmentForDisplays(allowlists);
         }
         if (updateConfig) {
             Resources res = mContext.getResources();
             String[] components = res.getStringArray(R.array.config_sourcePreferredComponents);
-            updateSourcePreferredComponents(helperToUse, components);
+            updateSourcePreferredComponents(components);
         }
     }
 
@@ -1003,18 +985,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return displays.toArray();
     }
 
-    private void updatePassengerDisplays(ICarServiceHelper helper, int[] passengerDisplayIds) {
+    private void updatePassengerDisplays(int[] passengerDisplayIds) {
         if (passengerDisplayIds == null) {
             return;
         }
-        try {
-            helper.setPassengerDisplays(passengerDisplayIds);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, "ICarServiceHelper.setPassengerDisplays failed", e);
-        }
+        CarServiceHelperWrapper.getInstance().setPassengerDisplays(passengerDisplayIds);
     }
 
-    private void updateSourcePreferredComponents(ICarServiceHelper helper, String[] components) {
+    private void updateSourcePreferredComponents(String[] components) {
         boolean enableSourcePreferred;
         ArrayList<ComponentName> componentNames = null;
         if (components == null || components.length == 0) {
@@ -1035,13 +1013,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             enableSourcePreferred = true;
         }
-        try {
-            helper.setSourcePreferredComponents(enableSourcePreferred, componentNames);
-            mEnableSourcePreferred = enableSourcePreferred;
-            mSourcePreferredComponents = componentNames;
-        } catch (RemoteException e) {
-            Slogf.e(TAG, "ICarServiceHelper.setSourcePreferredComponents failed");
-        }
+        CarServiceHelperWrapper.getInstance().setSourcePreferredComponents(enableSourcePreferred,
+                componentNames);
+        mEnableSourcePreferred = enableSourcePreferred;
+        mSourcePreferredComponents = componentNames;
     }
 
     @GuardedBy("mLock")
@@ -1072,18 +1047,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return allowlists;
     }
 
-    private void updateUserAssignmentForDisplays(ICarServiceHelper helper,
-            ArrayMap<Integer, IntArray> allowlists) {
+    private void updateUserAssignmentForDisplays(ArrayMap<Integer, IntArray> allowlists) {
         if (allowlists == null || allowlists.isEmpty()) {
             return;
         }
-        try {
-            for (int i = 0; i < allowlists.size(); i++) {
-                int userId = allowlists.keyAt(i);
-                helper.setDisplayAllowlistForUser(userId, allowlists.valueAt(i).toArray());
-            }
-        } catch (RemoteException e) {
-            Slogf.e(TAG, "ICarServiceHelper.setDisplayAllowlistForUser failed", e);
+        for (int i = 0; i < allowlists.size(); i++) {
+            int userId = allowlists.keyAt(i);
+            CarServiceHelperWrapper.getInstance().setDisplayAllowlistForUser(userId,
+                    allowlists.valueAt(i).toArray());
         }
     }
 
@@ -1165,9 +1136,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                                 seatSide = VehicleAreaSeat.SIDE_RIGHT;
                                 break;
                             default:
-                                throwFormatErrorInOccupantZones("Unregognized seatSide:" + entry);
+                                throwFormatErrorInOccupantZones("Unrecognized seatSide:" + entry);
                                 break;
-
                         }
                         break;
                     default:
@@ -1487,8 +1457,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         } else if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
             updateUser = true;
         }
-        doSyncWithCarServiceHelper(/* helper= */ null, updateDisplay, updateUser,
-                /* updateConfig= */ false);
+        doSyncWithCarServiceHelper(updateDisplay, updateUser, /* updateConfig= */ false);
 
         final int n = mClientCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {

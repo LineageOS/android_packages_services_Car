@@ -54,7 +54,6 @@ public final class UserAssignmentTest extends BaseCarUserServiceTestCase {
 
         int currentUserId = ActivityManager.getCurrentUser();
         mCarUserService.init();
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
         mCarUserService.onUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                 currentUserId, currentUserId);
 

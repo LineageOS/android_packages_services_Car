@@ -104,7 +104,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
 
     /**
      * Request an immersive mode override for a particular display id. This request will override
-     * the usual BarControlPolicy until the package or requested visibilites change.
+     * the usual BarControlPolicy until the package or requested visibilities change.
      */
     public void requestImmersiveMode(int displayId, boolean immersive) {
         CarUiPortraitPerDisplay display = mCarUiPerDisplaySparseArray.get(displayId);

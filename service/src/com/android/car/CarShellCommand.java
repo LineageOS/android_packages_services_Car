@@ -121,7 +121,6 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
@@ -3410,16 +3409,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int group = Integer.parseInt(args[2]);
         Slogf.d(TAG, "Setting process group for pid %d, group %d", pid, group);
 
-        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
-        if (helper == null) {
-            writer.printf("  CarServiceHelper not connected yet");
-            return;
-        }
-        try {
-            helper.setProcessGroup(pid, group);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        CarServiceHelperWrapper.getInstance().setProcessGroup(pid, group);
 
         writer.printf("  Successfully set pid %s to group %s\n", args[1], args[2]);
     }
@@ -3431,18 +3421,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         int pid = Integer.parseInt(args[1]);
+        int group = CarServiceHelperWrapper.getInstance().getProcessGroup(pid);
 
-        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
-        if (helper == null) {
-            writer.printf("  CarServiceHelper not connected yet");
-            return;
-        }
-        int group;
-        try {
-            group = helper.getProcessGroup(pid);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
         writer.printf("%d\n", group);
     }
 
@@ -3458,16 +3438,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         Slogf.d(TAG, "Setting process profile for pid %d, uid %d, profile %s", pid, uid, profile);
 
-        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
-        if (helper == null) {
-            writer.printf("  CarServiceHelper not connected yet");
-            return;
-        }
-        try {
-            helper.setProcessProfile(pid, uid, profile);
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
+        CarServiceHelperWrapper.getInstance().setProcessProfile(pid, uid, profile);
 
         writer.printf("  Successfully set pid %d uid %d to profile %s\n", pid, uid, profile);
     }
@@ -3493,22 +3464,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-
-        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
-        if (helper == null) {
-            writer.printf("  CarServiceHelper not connected yet");
-            return;
-        }
-
-        try {
-            int displayId = helper.getDisplayAssignedToUser(userId);
-            if (displayId == Display.INVALID_DISPLAY) {
-                writer.println("none");
-            } else {
-                writer.println(displayId);
-            }
-        } catch (RemoteException e) {
-            writer.printf("isUserVisible(%d) failed: %s\n", userId, e);
+        int displayId = CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId);
+        if (displayId == Display.INVALID_DISPLAY) {
+            writer.println("none");
+        } else {
+            writer.println(displayId);
         }
     }
 
@@ -3527,22 +3487,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
 
-        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
-        if (helper == null) {
-            writer.printf("  CarServiceHelper not connected yet");
+        int userId = CarServiceHelperWrapper.getInstance().getUserAssignedToDisplay(displayId);
+        if (userId == UserManagerHelper.USER_NULL) {
+            writer.println("none");
             return;
         }
-
-        try {
-            int userId = helper.getUserAssignedToDisplay(displayId);
-            if (userId == UserManagerHelper.USER_NULL) {
-                writer.println("none");
-                return;
-            }
-            writer.println(userId);
-        } catch (RemoteException e) {
-            writer.printf("getUserByDisplay(%d) failed: %s\n", displayId, e);
-        }
+        writer.println(userId);
     }
 
     // Check if the given property is global

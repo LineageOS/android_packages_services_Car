@@ -96,6 +96,7 @@ import androidx.test.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.HalCallback;
@@ -276,6 +277,9 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     mPerUserVisibleUserAllocationSetting = inv.getArgument(/* index= */ 1);
                     return null;
                 }).when(mCarUserService).writePerUserVisibleUserAllocationSetting(any(), any());
+
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mICarServiceHelper);
     }
 
     @Before

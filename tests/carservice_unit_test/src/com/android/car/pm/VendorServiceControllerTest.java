@@ -52,6 +52,7 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.ICarServiceHelper;
@@ -144,7 +145,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
-        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mICarServiceHelper);
         // No visible users by default.
         when(mICarServiceHelper.getDisplayAssignedToUser(anyInt())).thenReturn(INVALID_DISPLAY);
 
@@ -160,6 +162,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test

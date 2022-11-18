@@ -120,8 +120,6 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Akses keadaan lampu luar kereta."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"akses masa epok kereta"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Akses masa epok kereta."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"akses benih pengikat penyulitan kereta"</string>
-    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Akses benih pengikat penyulitan kereta."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"baca lampu luar kereta"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kawal lampu luar kereta."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"baca lampu dalaman kereta"</string>
@@ -172,6 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Gunakan akses jauh."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"kawal akses jauh"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Kawal akses jauh."</string>
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"kawal stereng kereta"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Kawal stereng kereta."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bas CAN gagal"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Bas CAN tidak bertindak balas. Cabut dan palamkan kembali kotak unit stereo dan mulakan semula kereta"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Peranti Saya"</string>
