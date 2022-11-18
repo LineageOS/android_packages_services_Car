@@ -32,10 +32,12 @@ final class CarAudioZonesValidator {
     private CarAudioZonesValidator() {
     }
 
-    static void validate(SparseArray<CarAudioZone> carAudioZones) {
+    static void validate(SparseArray<CarAudioZone> carAudioZones, boolean useCoreAudioRouting) {
         validateAtLeastOneZoneDefined(carAudioZones);
-        validateVolumeGroupsForEachZone(carAudioZones);
-        validateEachAddressAppearsAtMostOnce(carAudioZones);
+        validateVolumeGroupsForEachZone(carAudioZones, useCoreAudioRouting);
+        if (!useCoreAudioRouting) {
+            validateEachAddressAppearsAtMostOnce(carAudioZones);
+        }
         validatePrimaryZoneHasInputDevice(carAudioZones);
     }
 
@@ -58,12 +60,17 @@ final class CarAudioZonesValidator {
         }
     }
 
-    private static void validateVolumeGroupsForEachZone(SparseArray<CarAudioZone> carAudioZones) {
+    private static void validateVolumeGroupsForEachZone(SparseArray<CarAudioZone> carAudioZones,
+            boolean useCoreAudioRouting) {
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone zone = carAudioZones.valueAt(i);
-            if (!zone.validateVolumeGroups()) {
+            if (!zone.validateVolumeGroups(useCoreAudioRouting)) {
                 throw new RuntimeException(
                         "Invalid volume groups configuration for zone " + zone.getId());
+            }
+            if (!zone.validateCanUseDynamicMixRouting(useCoreAudioRouting)) {
+                throw new RuntimeException(
+                        "Invalid Configuration to use Dynamic Mix for zone " + zone.getId());
             }
         }
     }

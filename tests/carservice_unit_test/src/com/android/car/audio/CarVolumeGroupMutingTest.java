@@ -61,7 +61,8 @@ public final class CarVolumeGroupMutingTest {
     private static final int TERTIARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 2;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(

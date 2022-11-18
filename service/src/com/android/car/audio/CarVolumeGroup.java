@@ -60,6 +60,7 @@ import java.util.Objects;
     private final CarAudioSettings mSettingsManager;
     private final int mDefaultGain;
     private final int mId;
+    private final String mName;
     private final int mMaxGain;
     private final int mMinGain;
     private final int mStepSize;
@@ -116,8 +117,9 @@ import java.util.Objects;
 
     private CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
             SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int id, int stepSize,
-            int defaultGain, int minGain, int maxGain, boolean useCarVolumeGroupMute) {
+            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int id,
+            String name, int stepSize, int defaultGain, int minGain, int maxGain,
+            boolean useCarVolumeGroupMute) {
 
         mSettingsManager = settingsManager;
         mContextToAddress = contextToAddress;
@@ -125,6 +127,7 @@ import java.util.Objects;
         mCarAudioContext = carAudioContext;
         mZoneId = zoneId;
         mId = id;
+        mName = Objects.requireNonNull(name, "Volume group name cannot be null");
         mStepSize = stepSize;
         mDefaultGain = defaultGain;
         mMinGain = minGain;
@@ -280,6 +283,20 @@ import java.util.Objects;
     }
 
     /**
+     * Returns the id of the volume group.
+     * <p> Note that all clients are already developed in the way that when they get the number of
+     * volume group, they will then address a given volume group using its id as if the id was the
+     * index of the array of group (aka 0 to length - 1).
+     */
+    int getId() {
+        return mId;
+    }
+
+    String getName() {
+        return mName;
+    }
+
+    /**
      * Returns the devices address for the given context
      * or {@code null} if the context does not exist in the volume group
      */
@@ -321,6 +338,23 @@ import java.util.Objects;
 
     List<String> getAddresses() {
         return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
+    }
+
+    List<Integer> getAllSupportedUsagesForAddress(@NonNull String address) {
+        List<Integer> supportedUsagesForAddress = new ArrayList<>();
+        List<Integer> contextsForAddress = getContextsForAddress(address);
+        for (int contextIndex = 0; contextIndex < contextsForAddress.size(); contextIndex++) {
+            int contextId = contextsForAddress.get(contextIndex);
+            AudioAttributes[] attributes =
+                    mCarAudioContext.getAudioAttributesForContext(contextId);
+            for (int attrIndex = 0; attrIndex < attributes.length; attrIndex++) {
+                int usage = attributes[attrIndex].getSystemUsage();
+                if (!supportedUsagesForAddress.contains(usage)) {
+                    supportedUsagesForAddress.add(usage);
+                }
+            }
+        }
+        return supportedUsagesForAddress;
     }
 
     int getMaxGainIndex() {
@@ -425,6 +459,7 @@ import java.util.Objects;
         synchronized (mLock) {
             writer.printf("CarVolumeGroup(%d)\n", mId);
             writer.increaseIndent();
+            writer.printf("Name(%s)\n", mName);
             writer.printf("Zone Id(%b)\n", mZoneId);
             writer.printf("Is Muted(%b)\n", mIsMuted);
             writer.printf("UserId(%d)\n", mUserId);
@@ -652,6 +687,7 @@ import java.util.Objects;
     static final class Builder {
         private static final int UNSET_STEP_SIZE = -1;
 
+        private final String mName;
         private final int mId;
         private final int mZoneId;
         private final boolean mUseCarVolumeGroupMute;
@@ -671,13 +707,14 @@ import java.util.Objects;
         int mMinGain = Integer.MAX_VALUE;
 
         Builder(CarAudioSettings carAudioSettings, CarAudioContext carAudioContext,
-                int zoneId, int id, boolean useCarVolumeGroupMute) {
+                int zoneId, int id, String name, boolean useCarVolumeGroupMute) {
             mCarAudioSettings = Objects.requireNonNull(carAudioSettings,
                     "Car audio settings can not be null");
             mCarAudioContext = Objects.requireNonNull(carAudioContext,
                     "Car audio context can not be null");
             mZoneId = zoneId;
             mId = id;
+            mName = Objects.requireNonNull(name, "Volume group name cannot be null");
             mUseCarVolumeGroupMute = useCarVolumeGroupMute;
         }
 
@@ -717,7 +754,7 @@ import java.util.Objects;
             Preconditions.checkArgument(mStepSize != UNSET_STEP_SIZE,
                     "setDeviceInfoForContext has to be called at least once before building");
             CarVolumeGroup group = new CarVolumeGroup(mCarAudioContext, mCarAudioSettings,
-                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mId, mStepSize,
+                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mId, mName, mStepSize,
                     mDefaultGain, mMinGain, mMaxGain, mUseCarVolumeGroupMute);
             group.init();
             return group;

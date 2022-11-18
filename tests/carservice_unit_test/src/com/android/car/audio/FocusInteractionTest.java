@@ -60,9 +60,10 @@ public class FocusInteractionTest {
     private static final int TEST_USER_ID = 100;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
-    @AudioContext
-    private static final int TEST_MEDIA_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
+
+    private static final @AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
@@ -127,7 +128,8 @@ public class FocusInteractionTest {
     public void getInteractionMatrix_returnsNByNMatrix() {
         // One extra for CarAudioContext.getInvalidContext()
         CarAudioContext carAudioContext =
-                new CarAudioContext(CarAudioContext.getAllContextsInfo());
+                new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                        /* useCoreAudioRouting= */ false);
         int n = carAudioContext.getAllContextsIds().size() + 1;
 
         int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();

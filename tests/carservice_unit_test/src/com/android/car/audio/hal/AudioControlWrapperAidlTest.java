@@ -100,7 +100,8 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     public static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);

@@ -198,7 +198,7 @@ class CarAudioZonesHelperLegacy {
             XmlResourceParser parser) throws XmlPullParserException, IOException {
         CarVolumeGroup.Builder builder =
                 new CarVolumeGroup.Builder(mCarAudioSettings, mCarAudioContext,
-                PRIMARY_AUDIO_ZONE, id, /* useCarVolumeGroupMute= */ false);
+                PRIMARY_AUDIO_ZONE, id, String.valueOf(id), /* useCarVolumeGroupMute= */ false);
 
         List<Integer> audioContexts = parseAudioContexts(parser, attrs);
 

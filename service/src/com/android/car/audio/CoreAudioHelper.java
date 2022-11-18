@@ -59,10 +59,10 @@ final class CoreAudioHelper {
      * Due to testing issue with static mock, use lazy initialize pattern for static variables
      */
     private static List<AudioProductStrategy> getAudioProductStrategies() {
-        return StaticLazyInitializer.sAudioProductStrategies;
+        return AudioManager.getAudioProductStrategies();
     }
     private static List<AudioVolumeGroup> getAudioVolumeGroups() {
-        return StaticLazyInitializer.sAudioVolumeGroups;
+        return AudioManager.getAudioVolumeGroups();
     }
     private static SparseArray<String> getGroupIdToNames() {
         return StaticLazyInitializer.sGroupIdToNames;
@@ -250,6 +250,7 @@ final class CoreAudioHelper {
             AudioProductStrategy strategy = getAudioProductStrategies().get(index);
             int volumeGroupId =
                     AudioManagerHelper.getVolumeGroupIdForAudioAttributes(strategy, attributes);
+            Slogf.d(TAG, "getVolumeGroupIdForAudioAttributes %s %s,", volumeGroupId, strategy);
             if (volumeGroupId != AudioVolumeGroup.DEFAULT_VOLUME_GROUP) {
                 return volumeGroupId;
             }

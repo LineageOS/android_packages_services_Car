@@ -18,13 +18,16 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_CALL_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -69,12 +72,14 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_GAIN_INDEX = 2;
     private static final int TEST_USER_10 = 10;
     private static final int TEST_USER_11 = 11;
+    private static final String GROUP_NAME = "group_0";
     private static final String MEDIA_DEVICE_ADDRESS = "music";
     private static final String NAVIGATION_DEVICE_ADDRESS = "navigation";
     private static final String OTHER_ADDRESS = "other_address";
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     private static final @CarAudioContext.AudioContext int TEST_MEDIA_CONTEXT_ID =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
@@ -344,7 +349,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     public void builderConstructor_withNullCarAudioSettings_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarVolumeGroup.Builder(/* carAudioSettings= */ null,
-                        TEST_CAR_AUDIO_CONTEXT, ZONE_ID, GROUP_ID,
+                        TEST_CAR_AUDIO_CONTEXT, ZONE_ID, GROUP_ID, GROUP_NAME,
                         /* useCarVolumeGroupMute= */ true));
 
         expectWithMessage("Constructor null car audio settings exception")
@@ -356,7 +361,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     public void builderConstructor_withNullCarAudioContext_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarVolumeGroup.Builder(mSettingsMock, /* carAudioContext= */ null,
-                        ZONE_ID, GROUP_ID, /* useCarVolumeGroupMute= */ true));
+                        ZONE_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true));
 
         expectWithMessage("Constructor null car audio context exception")
                 .that(thrown).hasMessageThat()
@@ -1256,7 +1261,31 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
                 CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
+    }
 
+    @Test
+    public void getAllSupportedUsagesForAddress() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> supportedUsagesForMediaAddress =
+                carVolumeGroup.getAllSupportedUsagesForAddress(mMediaDeviceInfo.getAddress());
+
+        List<Integer> expectedUsagesForMediaAddress = List.of(USAGE_MEDIA, USAGE_GAME,
+                USAGE_UNKNOWN, USAGE_VOICE_COMMUNICATION, USAGE_CALL_ASSISTANT,
+                USAGE_VOICE_COMMUNICATION_SIGNALLING, USAGE_NOTIFICATION_RINGTONE);
+        expectWithMessage("Usages for media (%s)", expectedUsagesForMediaAddress)
+                .that(supportedUsagesForMediaAddress)
+                .containsExactlyElementsIn(expectedUsagesForMediaAddress);
+
+        List<Integer> supportedUsagesForNavAddress =
+                carVolumeGroup.getAllSupportedUsagesForAddress(mNavigationDeviceInfo.getAddress());
+
+        List<Integer> expectedUsagesForNavAddress = List.of(
+                USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, USAGE_ALARM, USAGE_NOTIFICATION,
+                USAGE_NOTIFICATION_EVENT);
+        expectWithMessage("Usages for nav (%s)", expectedUsagesForNavAddress)
+                .that(supportedUsagesForNavAddress)
+                .containsExactlyElementsIn(expectedUsagesForNavAddress);
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
@@ -1268,7 +1297,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private CarVolumeGroup getCarVolumeGroupWithNavigationBound(CarAudioSettings settings,
             boolean useCarVolumeGroupMute) {
         return new CarVolumeGroup.Builder(settings, TEST_CAR_AUDIO_CONTEXT,
-                0, 0, useCarVolumeGroupMute)
+                /* zoneId= */ 0, /* id= */ 0, /* name= */ "0", useCarVolumeGroupMute)
                 .setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo)
                 .build();
     }
@@ -1298,7 +1327,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     CarVolumeGroup.Builder getBuilder() {
         return new CarVolumeGroup.Builder(mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, GROUP_ID, /* useCarVolumeGroupMute= */ true);
+                ZONE_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
     }
 
     private static final class SettingsBuilder {

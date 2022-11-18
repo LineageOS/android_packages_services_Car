@@ -37,12 +37,13 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_ID;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_NAME;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY;
 import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
-
-import static org.mockito.Mockito.when;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.media.AudioManager;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.media.audiopolicy.AudioVolumeGroup;
 
 import com.google.common.truth.Expect;
 
@@ -52,6 +53,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
@@ -74,10 +77,10 @@ public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() throws Exception {
-        when(AudioManager.getAudioProductStrategies())
-                .thenReturn(CoreAudioRoutingUtils.getProductStrategies());
-        when(AudioManager.getAudioVolumeGroups())
-                .thenReturn(CoreAudioRoutingUtils.getVolumeGroups());
+        List<AudioVolumeGroup> groups = CoreAudioRoutingUtils.getVolumeGroups();
+        List<AudioProductStrategy> strategies = CoreAudioRoutingUtils.getProductStrategies();
+        doReturn(strategies).when(AudioManager::getAudioProductStrategies);
+        doReturn(groups).when(AudioManager::getAudioVolumeGroups);
     }
 
     @Test

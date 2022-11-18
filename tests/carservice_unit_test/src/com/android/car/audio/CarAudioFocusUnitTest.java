@@ -85,7 +85,8 @@ public class CarAudioFocusUnitTest {
     private static final int AUDIOFOCUS_FLAG = 0;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();

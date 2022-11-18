@@ -823,7 +823,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         try (InputStream fileStream = new FileInputStream(mCarAudioConfigurationPath);
              InputStream inputStream = new BufferedInputStream(fileStream)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mCarAudioSettings,
-                    inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting);
+                    inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting,
+                    mUseCoreAudioVolume, mUseCoreAudioRouting);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             SparseArray<CarAudioZone> zones = zonesHelper.loadAudioZones();
@@ -844,7 +845,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     "Updated version of IAudioControl no longer supports CarAudioZonesHelperLegacy."
                     + " Please provide car_audio_configuration.xml.");
         }
-        mCarAudioContext = new CarAudioContext(CarAudioContext.getAllContextsInfo());
+        mCarAudioContext = new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                mUseCoreAudioVolume);
         CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
                 mCarAudioContext, R.xml.car_volume_groups, carAudioDeviceInfos,
                 (AudioControlWrapperV1) audioControlWrapper,
@@ -865,7 +867,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                             inputDevices);
         }
 
-        CarAudioZonesValidator.validate(mCarAudioZones);
+        CarAudioZonesValidator.validate(mCarAudioZones, mUseCoreAudioRouting);
     }
 
     @GuardedBy("mImplLock")
@@ -1900,7 +1902,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @GuardedBy("mImplLock")
     private void setUserIdDeviceAffinitiesLocked(CarAudioZone zone, @UserIdInt int userId,
             int audioZoneId) {
-        if (!mAudioPolicy.setUserIdDeviceAffinity(userId, zone.getAudioDeviceInfos())) {
+        List<AudioDeviceInfo> infos = zone.getAudioDeviceInfosSupportingDynamicMix();
+        if (!infos.isEmpty() && !mAudioPolicy.setUserIdDeviceAffinity(userId, infos)) {
             throw new IllegalStateException(String.format(
                     "setUserIdDeviceAffinity for userId %d in zone %d Failed,"
                             + " could not set audio routing.",

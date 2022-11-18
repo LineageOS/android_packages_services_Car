@@ -74,6 +74,13 @@ final class CarAudioDynamicRouting {
             String address = addresses.get(index);
             boolean hasContext = false;
             CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
+            if (!info.canBeRoutedWithDynamicPolicyMix()) {
+                if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                    Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s cannot be routed with "
+                            + "Dynamic Policy Mixing", address, carAudioContext);
+                }
+                continue;
+            }
             AudioFormat mixFormat = new AudioFormat.Builder()
                     .setSampleRate(info.getSampleRate())
                     .setEncoding(info.getEncodingFormat())
