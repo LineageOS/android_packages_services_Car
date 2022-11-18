@@ -48,6 +48,7 @@ namespace {
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
 constexpr int32_t kDefaultMaxUserSwitchEvents = 5;
+constexpr std::chrono::seconds kSystemEventDataCacheDurationSec = 1h;
 constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time performance report:\n%s\n";
 constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performance report:\n%s\n";
 constexpr const char kUserSwitchCollectionTitle[] =
@@ -359,6 +360,9 @@ Result<void> PerformanceProfiler::init() {
             sysprop::topNStatsPerSubcategory().value_or(kDefaultTopNStatsPerSubcategory));
     mMaxUserSwitchEvents = static_cast<size_t>(
             sysprop::maxUserSwitchEvents().value_or(kDefaultMaxUserSwitchEvents));
+    mSystemEventDataCacheDurationSec =
+            std::chrono::seconds(sysprop::systemEventDataCacheDuration().value_or(
+                    kSystemEventDataCacheDurationSec.count()));
     size_t periodicCollectionBufferSize = static_cast<size_t>(
             sysprop::periodicCollectionBufferSize().value_or(kDefaultPeriodicCollectionBufferSize));
     mBoottimeCollection = {
@@ -471,6 +475,7 @@ Result<void> PerformanceProfiler::onPeriodicCollection(
         const wp<ProcStatCollectorInterface>& procStatCollector) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
+    clearExpiredSystemEventCollections(time);
     auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
     if (!result.ok()) {
         return result;
@@ -672,6 +677,29 @@ Result<void> PerformanceProfiler::onUserSwitchCollectionDump(int fd) const {
         }
     }
     return {};
+}
+
+void PerformanceProfiler::clearExpiredSystemEventCollections(time_t now) {
+    Mutex::Autolock lock(mMutex);
+    auto clearExpiredSystemEvent = [&](CollectionInfo* info) -> bool {
+        if (info->records.empty() ||
+            difftime(now, info->records.back().time) < mSystemEventDataCacheDurationSec.count()) {
+            return false;
+        }
+        info->records.clear();
+        return true;
+    };
+    if (clearExpiredSystemEvent(&mBoottimeCollection)) {
+        ALOGI("Cleared boot-time collection stats");
+    }
+    if (clearExpiredSystemEvent(&mWakeUpCollection)) {
+        ALOGI("Cleared wake-up collection stats");
+    }
+    if (!mUserSwitchCollections.empty() &&
+        clearExpiredSystemEvent(&mUserSwitchCollections.front())) {
+        mUserSwitchCollections.erase(mUserSwitchCollections.begin());
+        ALOGI("Cleared the oldest user-switch event collection stats");
+    }
 }
 
 }  // namespace watchdog

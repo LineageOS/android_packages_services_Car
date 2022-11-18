@@ -54,4 +54,10 @@ props {
     scope: Internal
     prop_name: "ro.carwatchdog.max_user_switch_events"
   }
+  prop {
+    api_name: "systemEventDataCacheDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.system_event_data_cache_duration"
+  }
 }

@@ -22,6 +22,7 @@
 #include "UidStatsCollector.h"
 #include "WatchdogPerfService.h"
 
+#include <android-base/chrono_utils.h>
 #include <android-base/result.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
@@ -139,6 +140,7 @@ public:
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
+          mSystemEventDataCacheDurationSec(0),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mUserSwitchCollections({}),
@@ -216,6 +218,8 @@ private:
     // Dump the user switch collection
     android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
 
+    void clearExpiredSystemEventCollections(time_t now);
+
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
 
@@ -224,6 +228,9 @@ private:
 
     // Max amount of user switch events cached in |mUserSwitchCollections|.
     size_t mMaxUserSwitchEvents;
+
+    // Amount of seconds before a system event's cache is cleared.
+    std::chrono::seconds mSystemEventDataCacheDurationSec;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
