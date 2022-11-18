@@ -296,13 +296,20 @@ public class ConnectivityPublisherTest {
         assertThat(mDataSubscriberCell.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberCell.get(0);
         // Matches only "UID_1/TAG_1" and "UID_1/TAG_NONE" above.
-        assertThat(result.getLong("startMillis")).isLessThan(mNow);
-        assertThat(result.getLong("endMillis")).isGreaterThan(result.getLong("startMillis"));
-        assertThat(result.getInt("size")).isEqualTo(2);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_1, UID_1);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1, TAG_NONE);
-        assertThat(result.getLongArray("rxBytes")).asList().containsExactly(2500L, 2502L);
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(3500L, 3502L);
+        assertThat(result.getLong(Constants.CONNECTIVITY_BUNDLE_KEY_START_MILLIS))
+                .isLessThan(mNow);
+        assertThat(result.getLong(Constants.CONNECTIVITY_BUNDLE_KEY_END_MILLIS))
+                .isGreaterThan(result.getLong(Constants.CONNECTIVITY_BUNDLE_KEY_START_MILLIS));
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(2);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID)).asList()
+                .containsExactly(UID_1, UID_1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG)).asList()
+                .containsExactly(TAG_1, TAG_NONE);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_RX_BYTES)).asList()
+                .containsExactly(2500L, 2502L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES)).asList()
+                .containsExactly(3500L, 3502L);
     }
 
     @Test
@@ -327,12 +334,18 @@ public class ConnectivityPublisherTest {
         assertThat(mDataSubscriberWifiOemManaged.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifiOemManaged.get(0);
 
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
-        assertThat(result.getInt("size")).isEqualTo(2);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_2, UID_3);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_NONE, TAG_2);
-        assertThat(result.getLongArray("rxBytes")).asList().containsExactly(100L, 6L);
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(200L, 7L);
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID))
+                .isEqualTo(1);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(2);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_2, UID_3);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_NONE, TAG_2);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_RX_BYTES))
+                .asList().containsExactly(100L, 6L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(200L, 7L);
     }
 
     @Test
@@ -356,13 +369,19 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID))
+                .isEqualTo(1);
         // Matches only UID_1.
-        assertThat(result.getInt("size")).isEqualTo(1);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_1);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1);
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(30L);
-        assertThat(result.getLongArray("rxBytes")).asList().containsExactly(30L);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_1);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(30L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_RX_BYTES))
+                .asList().containsExactly(30L);
     }
 
     @Test
@@ -392,11 +411,16 @@ public class ConnectivityPublisherTest {
         PersistableBundle result = mDataSubscriberWifi.get(0);
         // Only UID_1 and UID_2 are fetched, because other stats are outside
         // of the time range.
-        assertThat(result.getInt("size")).isEqualTo(2);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_1, UID_2);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1, TAG_1);
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(10L, 10L);
-        assertThat(result.getLongArray("rxBytes")).asList().containsExactly(10L, 10L);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(2);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_1, UID_2);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_1, TAG_1);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(10L, 10L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_RX_BYTES))
+                .asList().containsExactly(10L, 10L);
     }
 
     @Test
@@ -441,11 +465,16 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
-        assertThat(result.getInt("size")).isEqualTo(1);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_4);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1);
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(100L - 12L);
-        assertThat(result.getLongArray("rxBytes")).asList().containsExactly(100L - 12L);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_4);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_1);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(100L - 12L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_RX_BYTES))
+                .asList().containsExactly(100L - 12L);
     }
 
     @Test
@@ -467,11 +496,15 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
-        assertThat(result.getInt("size")).isEqualTo(1);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_4);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_4);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_1);
         // It's 200, because it subtracts previous pull 12 from (200 + 12).
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(200L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(200L);
 
         // ==== 2nd pull.
         mFakeManager.addWifiStats(UID_4, TAG_1, 1000, 1000, OEM_MANAGED_NO, mNow);
@@ -484,11 +517,15 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(2);
         result = mDataSubscriberWifi.get(1);
-        assertThat(result.getInt("size")).isEqualTo(1);
-        assertThat(result.getIntArray("uid")).asList().containsExactly(UID_4);
-        assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_1);
+        assertThat(result.getInt(Constants.CONNECTIVITY_BUNDLE_KEY_SIZE))
+                .isEqualTo(1);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_UID))
+                .asList().containsExactly(UID_4);
+        assertThat(result.getIntArray(Constants.CONNECTIVITY_BUNDLE_KEY_TAG))
+                .asList().containsExactly(TAG_1);
         // It's 1000, because it subtracts previous pull (200 + 12) from (200 + 12 + 1000).
-        assertThat(result.getLongArray("txBytes")).asList().containsExactly(1000L);
+        assertThat(result.getLongArray(Constants.CONNECTIVITY_BUNDLE_KEY_TX_BYTES))
+                .asList().containsExactly(1000L);
     }
 
     private static class FakeDataSubscriber extends DataSubscriber {
