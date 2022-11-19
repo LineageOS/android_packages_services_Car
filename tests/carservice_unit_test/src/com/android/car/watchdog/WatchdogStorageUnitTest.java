@@ -51,6 +51,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -73,6 +74,7 @@ import java.util.List;
  */
 @SmallTest
 @RunWith(AndroidJUnit4.class)
+@FlakyTest  // TODO(b/259280359): Remove this annotation once the flakiness is fixed.
 public final class WatchdogStorageUnitTest {
     private static final String TAG = WatchdogStorageUnitTest.class.getSimpleName();
 

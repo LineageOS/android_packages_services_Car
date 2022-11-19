@@ -182,6 +182,8 @@ abstract class CarZonesAudioFocusTestBase {
     private CarAudioSettings mCarAudioSettings;
     @Mock
     private PackageManager mMockPackageManager;
+    @Mock
+    private CarVolumeInfoWrapper mMockCarVolumeInfoWrapper;
 
     protected SparseArray<CarAudioZone> mCarAudioZones;
 
@@ -248,7 +250,7 @@ abstract class CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
                         mMockPackageManager, mCarAudioZones, mCarAudioSettings,
-                        carFocusCallback);
+                        carFocusCallback, mMockCarVolumeInfoWrapper);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;

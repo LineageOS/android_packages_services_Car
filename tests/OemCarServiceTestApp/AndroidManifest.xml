@@ -20,6 +20,7 @@
     <application>
         <service android:name="com.android.car.oemcarservice.testapp.OemCarServiceImpl"
                  android:directBootAware="true"
+                 android:permission="android.car.permission.BIND_OEM_CAR_SERVICE"
                  android:exported="true">
         </service>
     </application>

@@ -24,6 +24,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,7 +46,7 @@ import org.mockito.junit.MockitoRule;
 import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
-public class AudioControlWrapperV1Test {
+public final class AudioControlWrapperV1Test {
     private static final float FADE_VALUE = 5;
     private static final float BALANCE_VALUE = 6;
     private static final int CONTEXT_NUMBER = 3;
@@ -56,7 +58,7 @@ public class AudioControlWrapperV1Test {
     public MockitoRule rule = MockitoJUnit.rule();
 
     @Mock
-    IAudioControl mAudioControlV1;
+    private IAudioControl mAudioControlV1;
 
     @Test
     public void setFadeTowardFront_succeeds() throws Exception {
@@ -158,5 +160,53 @@ public class AudioControlWrapperV1Test {
         assertWithMessage("UnsupportedOperationException thrown by onDevicesToMute")
                 .that(thrown).hasMessageThat()
                 .contains("unsupported for IAudioControl@1.0");
+    }
+
+    @Test
+    public void registerAudioGainCallback_throws() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+        HalAudioGainCallback halAudioGainCallback = mock(HalAudioGainCallback.class);
+
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV1.registerAudioGainCallback(halAudioGainCallback));
+
+        assertWithMessage("UnsupportedOperationException thrown by registerAudioGainCallback")
+                .that(thrown).hasMessageThat()
+                .contains("unsupported for IAudioControl@1.0");
+    }
+
+    @Test
+    public void unregisterAudioGainCallback_throws() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV1.unregisterAudioGainCallback());
+
+        assertWithMessage("UnsupportedOperationException thrown by unregisterAudioGainCallback")
+                .that(thrown).hasMessageThat()
+                .contains("unsupported for IAudioControl@1.0");
+    }
+
+    @Test
+    public void linkToDeath_succeeds() throws Exception {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+        AudioControlWrapper.AudioControlDeathRecipient deathRecipient =
+                mock(AudioControlWrapper.AudioControlDeathRecipient.class);
+
+        audioControlWrapperV1.linkToDeath(deathRecipient);
+
+        verify(mAudioControlV1).linkToDeath(any(), eq(0L));
+    }
+
+    @Test
+    public void unlinkToDeath_succeeds() throws Exception {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+        AudioControlWrapper.AudioControlDeathRecipient deathRecipient =
+                mock(AudioControlWrapper.AudioControlDeathRecipient.class);
+        audioControlWrapperV1.linkToDeath(deathRecipient);
+
+        audioControlWrapperV1.unlinkToDeath();
+
+        verify(mAudioControlV1).unlinkToDeath(any());
     }
 }

@@ -89,6 +89,8 @@ public class CarAudioFocusUnitTest {
     private CarAudioSettings mCarAudioSettings;
     @Mock
     private ContentObserverFactory mMockContentObserverFactory;
+    @Mock
+    private CarVolumeInfoWrapper mMockCarVolumeInfoWrapper;
 
     private FocusInteraction mFocusInteraction;
 
@@ -102,7 +104,7 @@ public class CarAudioFocusUnitTest {
     public void constructor_withNullCarAudioContext_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                    mFocusInteraction, /* carAudioContext= */ null);
+                    mFocusInteraction, /* carAudioContext= */ null, mMockCarVolumeInfoWrapper);
         });
 
         assertWithMessage("Constructor with null car audio context exception")
@@ -113,7 +115,7 @@ public class CarAudioFocusUnitTest {
     public void constructor_withNullAudioManager_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(null, mMockPackageManager,
-                    mFocusInteraction, TEST_CAR_AUDIO_CONTEXT);
+                    mFocusInteraction, TEST_CAR_AUDIO_CONTEXT, mMockCarVolumeInfoWrapper);
         });
 
         assertWithMessage("Constructor with null audio manager exception")
@@ -124,7 +126,7 @@ public class CarAudioFocusUnitTest {
     public void constructor_withNullPackageManager_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(mMockAudioManager, null,
-                    mFocusInteraction, TEST_CAR_AUDIO_CONTEXT);
+                    mFocusInteraction, TEST_CAR_AUDIO_CONTEXT, mMockCarVolumeInfoWrapper);
         });
 
         assertWithMessage("Constructor with null package manager exception")
@@ -135,11 +137,22 @@ public class CarAudioFocusUnitTest {
     public void constructor_withNullFocusInteractions_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                    null, TEST_CAR_AUDIO_CONTEXT);
+                    null, TEST_CAR_AUDIO_CONTEXT, mMockCarVolumeInfoWrapper);
         });
 
         assertWithMessage("Constructor with null focus interaction exception")
                 .that(thrown).hasMessageThat().contains("Focus interactions");
+    }
+
+    @Test
+    public void constructor_withNullVolumeInfoWrapper_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
+            new CarAudioFocus(mMockAudioManager, mMockPackageManager,
+                    mFocusInteraction, TEST_CAR_AUDIO_CONTEXT, /* carVolumeInfo= */ null);
+        });
+
+        assertWithMessage("Constructor with null focus volume info wrapper exception")
+                .that(thrown).hasMessageThat().contains("Car volume info");
     }
 
     @Test
@@ -1226,7 +1239,7 @@ public class CarAudioFocusUnitTest {
 
     private CarAudioFocus getCarAudioFocus() {
         CarAudioFocus carAudioFocus = new CarAudioFocus(mMockAudioManager, mMockPackageManager,
-                mFocusInteraction, TEST_CAR_AUDIO_CONTEXT);
+                mFocusInteraction, TEST_CAR_AUDIO_CONTEXT, mMockCarVolumeInfoWrapper);
         carAudioFocus.setOwningPolicy(mAudioPolicy);
         return carAudioFocus;
     }

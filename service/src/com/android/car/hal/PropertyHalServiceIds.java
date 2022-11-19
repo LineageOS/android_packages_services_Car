@@ -201,6 +201,12 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.MIRROR_FOLD, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_AUTO_FOLD_ENABLED, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_MIRRORS,
+                Car.PERMISSION_CONTROL_CAR_MIRRORS));
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_AUTO_TILT_ENABLED, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_MIRRORS,
+                Car.PERMISSION_CONTROL_CAR_MIRRORS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_MEMORY_SELECT, new Pair<>(
                 null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
@@ -280,6 +286,12 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_FORE_AFT_MOVE, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_EASY_ACCESS_ENABLED, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_CUSHION_SIDE_SUPPORT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_OCCUPANCY, new Pair<>(

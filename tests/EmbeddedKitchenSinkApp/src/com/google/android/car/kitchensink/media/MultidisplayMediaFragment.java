@@ -21,6 +21,7 @@ import static android.R.layout.simple_spinner_item;
 
 import static androidx.core.content.IntentCompat.EXTRA_START_PLAYBACK;
 
+import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_CMD;
 import static com.google.android.car.kitchensink.media.MediaBrowserProxyService.MEDIA_BROWSER_SERVICE_COMPONENT_KEY;
 
 import android.annotation.UserIdInt;
@@ -57,7 +58,10 @@ import com.google.android.car.kitchensink.R;
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableMap;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -67,10 +71,16 @@ import java.util.Set;
  * <p>This is a reference implementation to show that driver can start a YouTube video on
  * a passenger screen and control the media session.
  */
-// TODO(b/231456119) Support command line interface to play/resume/prev/next, etc.
 public final class MultidisplayMediaFragment extends Fragment {
 
     private static final String TAG = MultidisplayMediaFragment.class.getSimpleName();
+
+    private static final String CMD_HELP = "help";
+    private static final String CMD_START = "start";
+    private static final String CMD_PAUSE = "pause";
+    private static final String CMD_RESUME = "resume";
+    private static final String CMD_PREV = "prev";
+    private static final String CMD_NEXT = "next";
 
     private static final String INSTALL_YOUTUBE_MESSAGE = "Cannot start a YouTube video."
             + " Follow the instructions on go/mumd-media to install YouTube app.";
@@ -104,6 +114,7 @@ public final class MultidisplayMediaFragment extends Fragment {
 
     private Spinner mUserSpinner;
     private Spinner mVideoSpinner;
+    private Button mStartButton;
     private Button mPauseResumeButton;
     private Button mPrevButton;
     private Button mNextButton;
@@ -119,9 +130,8 @@ public final class MultidisplayMediaFragment extends Fragment {
         initUserSpinner(view);
         initVideoSpinner(view);
 
-        Button startButton = view.findViewById(R.id.start);
-        startButton.setOnClickListener(this::onClickStart);
-
+        mStartButton = view.findViewById(R.id.start);
+        mStartButton.setOnClickListener(this::onClickStart);
         mPauseResumeButton = view.findViewById(R.id.pause_resume);
         mPauseResumeButton.setOnClickListener(this::onClickPauseResume);
         mPrevButton = view.findViewById(R.id.previous);
@@ -134,6 +144,112 @@ public final class MultidisplayMediaFragment extends Fragment {
 
         refreshUi();
         return view;
+    }
+
+    /**
+     * <p>Usage:
+     * To dump the current state:
+     * $ adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *      fragment "MD media"'
+     *
+     * To execute a command:
+     * $ adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *      fragment "MD media" cmd <command>'
+     *
+     * Supported commands: help, start, pause, resume, prev, next
+     */
+    @Override
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        Log.v(TAG, "dump(): " + Arrays.toString(args));
+
+        if (args != null && args.length > 0 && args[0].equals(DUMP_ARG_CMD)) {
+            runCmd(writer, args);
+            return;
+        }
+
+        writer.printf("%SmUserContext: %s\n", prefix, mUserContexts);
+        writer.printf("%smMediaBrowsers: %s\n", prefix, mMediaBrowsers);
+        writer.printf("%smMediaControllers: %s\n", prefix, mMediaControllers);
+
+        writer.printf("%smUserSpinner selectedItem: %s\n", prefix, mUserSpinner.getSelectedItem());
+        writer.printf("%smSelectedUserId: %s\n", prefix, mSelectedUserId);
+        writer.printf("%smVideoSpinner selectedItem: %s\n",
+                prefix, mVideoSpinner.getSelectedItem());
+        writer.printf("%smStartButton, enabled:%s\n", prefix, mStartButton.isEnabled());
+        writer.printf("%smNowPlaying text: %s\n", prefix, mNowPlaying.getText());
+        writer.printf("%smPauseResumeButton text: %s, enabled:%s\n",
+                prefix, mPauseResumeButton.getText(), mPauseResumeButton.isEnabled());
+        writer.printf("%smPrevButton, enabled:%s\n", prefix, mPrevButton.isEnabled());
+        writer.printf("%smNextButton, enabled:%s\n", prefix, mNextButton.isEnabled());
+    }
+
+    private void runCmd(PrintWriter writer, String[] args) {
+        if (args.length < 2) {
+            writer.println("missing command\n");
+            return;
+        }
+        String cmd = args[1];
+        switch (cmd) {
+            case CMD_HELP:
+                showHelp(writer);
+                break;
+            case CMD_START:
+                callOnClickIfEnabled(writer, mStartButton);
+                break;
+            case CMD_PAUSE:
+                if (verifyButtonText(writer, mPauseResumeButton, PAUSE)) {
+                    callOnClickIfEnabled(writer, mPauseResumeButton);
+                }
+                break;
+            case CMD_RESUME:
+                if (verifyButtonText(writer, mPauseResumeButton, RESUME)) {
+                    callOnClickIfEnabled(writer, mPauseResumeButton);
+                }
+                break;
+            case CMD_PREV:
+                callOnClickIfEnabled(writer, mPrevButton);
+                break;
+            case CMD_NEXT:
+                callOnClickIfEnabled(writer, mNextButton);
+                break;
+            default:
+                writer.printf("Invalid cmd: %s\n", Arrays.toString(args));
+                showHelp(writer);
+        }
+    }
+
+    private void showHelp(PrintWriter writer) {
+        writer.printf("Available commands:\n");
+        writer.printf("  %s: Shows this help message.\n\n", CMD_HELP);
+        writer.printf("  %s: Start the selected video for the selected user.\n\n", CMD_START);
+        writer.printf("  %s: Pause the current video.\n\n", CMD_PAUSE);
+        writer.printf("  %s: Resume the currently paused video.\n\n", CMD_RESUME);
+        writer.printf("  %s: Go back to the previous video.\n\n", CMD_PREV);
+        writer.printf("  %s: Skip to the next video.\n\n", CMD_NEXT);
+    }
+
+    private boolean verifyButtonText(PrintWriter writer, Button button, String text) {
+        CharSequence buttonText = button.getText();
+        if (buttonText != null && text.equals(buttonText.toString())) {
+            return true;
+        }
+
+        writer.printf("Cannot execute %s command. The button is currently set to %s.\n",
+                text, buttonText);
+        return false;
+    }
+
+    private void callOnClickIfEnabled(PrintWriter writer, Button button) {
+        if (!button.isEnabled()) {
+            writer.printf("Cannot execute %s command. The button is currently disabled.\n",
+                    button.getText());
+            return;
+        }
+        try {
+            button.callOnClick();
+        } catch (Exception e) {
+            writer.printf("Failed to call onClick() for button %s:\n%s\n", button.getText(), e);
+        }
     }
 
     private void refreshUi() {
@@ -167,7 +283,7 @@ public final class MultidisplayMediaFragment extends Fragment {
             enabled = true;
         }
         setMediaButtonsEnabled(enabled);
-        mPrevButton.setText(state == PlaybackState.STATE_PLAYING ? PAUSE : RESUME);
+        mPauseResumeButton.setText(state == PlaybackState.STATE_PLAYING ? PAUSE : RESUME);
     }
 
     private void setMediaButtonsEnabled(boolean enabled) {
