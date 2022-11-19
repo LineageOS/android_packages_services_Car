@@ -26,6 +26,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
@@ -34,6 +35,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
+import android.car.oem.AudioFocusEntry;
+import android.car.oem.OemCarAudioFocusResult;
 import android.media.AudioFocusInfo;
 import android.os.Bundle;
 import android.util.SparseArray;
@@ -52,6 +55,9 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
+
+    private static final int TEST_GROUP_ID = 0;
+    private static final int TEST_AUDIO_CONTEXT = 0;
 
     @Rule
     public final Expect expect = Expect.create();
@@ -421,16 +427,25 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
     @Test
     public void onAudioFocusAbandon_withNullCallback_notifiesCarOemAudioFocusService() {
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(audioFocusInfo,
+                TEST_AUDIO_CONTEXT, TEST_GROUP_ID, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry, List.of(), List.of(),
+                AUDIOFOCUS_REQUEST_GRANTED);
+        when(mMockCarOemAudioFocusProxyService.evaluateAudioFocusRequest(any()))
+                .thenReturn(mediaResults);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
         ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
                 ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
                 ArgumentCaptor.forClass(List.class);
-        when(mMockCarOemProxyService.getCarOemAudioFocusService())
-                .thenReturn(mMockCarOemAudioFocusProxyService);
+
         CarZonesAudioFocus carZonesAudioFocus =
                 getCarZonesAudioFocus(/* carFocusCallback= */ null);
-        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
-                /* isDelayedFocusEnabled= */ false);
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
@@ -444,15 +459,23 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
     @Test
     public void onAudioFocusRequest_notifiesCarOemAudioFocusService() {
+        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(audioFocusInfo,
+                TEST_AUDIO_CONTEXT, TEST_GROUP_ID, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry, List.of(), List.of(),
+                AUDIOFOCUS_REQUEST_GRANTED);
+        when(mMockCarOemAudioFocusProxyService.evaluateAudioFocusRequest(any()))
+                .thenReturn(mediaResults);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
         ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
                 ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
                 ArgumentCaptor.forClass(List.class);
-        when(mMockCarOemProxyService.getCarOemAudioFocusService())
-                .thenReturn(mMockCarOemAudioFocusProxyService);
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
-        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
-                /* isDelayedFocusEnabled= */ false);
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
@@ -466,12 +489,16 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
     @Test
     public void onAudioAbandon_notifiesCarOemAudioFocusService() {
+        when(mMockCarOemAudioFocusProxyService.evaluateAudioFocusRequest(any()))
+                .thenReturn(OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
         ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
                 ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
                 ArgumentCaptor.forClass(List.class);
-        when(mMockCarOemProxyService.getCarOemAudioFocusService())
-                .thenReturn(mMockCarOemAudioFocusProxyService);
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
                 /* isDelayedFocusEnabled= */ false);
@@ -489,16 +516,28 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
     @Test
     public void onAudioRequest_withCall_notifiesCarOemAudioFocusService() {
+        AudioFocusInfo mediaAudioFocusInfo = generateMediaRequestForPrimaryZone(
+                /* isDelayedFocusEnabled= */ false);
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(mediaAudioFocusInfo,
+                TEST_AUDIO_CONTEXT, TEST_GROUP_ID, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry, List.of(), List.of(),
+                AUDIOFOCUS_REQUEST_GRANTED);
+        AudioFocusInfo callAudioFocusInfo = generateCallRequestForPrimaryZone();
+        AudioFocusEntry callEntry = new AudioFocusEntry.Builder(callAudioFocusInfo,
+                TEST_AUDIO_CONTEXT, TEST_GROUP_ID, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult callResults = getAudioFocusResults(callEntry, List.of(mediaEntry),
+                List.of(), AUDIOFOCUS_REQUEST_GRANTED);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockCarOemAudioFocusProxyService);
+        when(mMockCarOemAudioFocusProxyService.evaluateAudioFocusRequest(any()))
+                .thenReturn(mediaResults).thenReturn(callResults);
         ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor =
                 ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<AudioFocusInfo>> focusLosersCaptor =
                 ArgumentCaptor.forClass(List.class);
-        when(mMockCarOemProxyService.getCarOemAudioFocusService())
-                .thenReturn(mMockCarOemAudioFocusProxyService);
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
-        AudioFocusInfo mediaAudioFocusInfo = generateMediaRequestForPrimaryZone(
-                /* isDelayedFocusEnabled= */ false);
-        AudioFocusInfo callAudioFocusInfo = generateCallRequestForPrimaryZone();
         carZonesAudioFocus.onAudioFocusRequest(mediaAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
         carZonesAudioFocus.onAudioFocusRequest(callAudioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
