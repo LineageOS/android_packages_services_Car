@@ -1176,6 +1176,7 @@ package android.car.oem {
   }
 
   public static final class AudioFocusEntry.Builder {
+    ctor public AudioFocusEntry.Builder(@NonNull android.car.oem.AudioFocusEntry);
     ctor public AudioFocusEntry.Builder(@NonNull android.media.AudioFocusInfo, int, int, int);
     method @NonNull public android.car.oem.AudioFocusEntry build();
     method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioContextId(int);
