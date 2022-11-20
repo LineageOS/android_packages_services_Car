@@ -18,6 +18,11 @@
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
 
+PRODUCT_PACKAGES += \
+    CarDeveloperOptions \
+    CarProvision \
+    CarSystemUI \
+
 # Default dex optimization configurations
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     dalvik.vm.dex2oat-cpu-set=0,1 \

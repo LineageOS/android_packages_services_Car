@@ -21,6 +21,9 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_product.mk)
 # Default AOSP sounds
 $(call inherit-product-if-exists, frameworks/base/data/sounds/AllAudio.mk)
 
+PRODUCT_PACKAGES += \
+    CarSettingsIntelligence
+
 # Additional settings for AAOS builds
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.com.android.dataroaming?=true \
@@ -37,7 +40,14 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/public
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/private
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/private
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/private
+
 ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/private
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cartelemetry
 endif
 

@@ -106,10 +106,7 @@ PRODUCT_ENFORCE_RRO_TARGETS := *
 PRODUCT_PACKAGES += \
     Bluetooth \
     CarActivityResolver \
-    CarDeveloperOptions \
-    CarSettingsIntelligence \
     CarManagedProvisioning \
-    CarProvision \
     StatementService \
     SystemUpdater \
     pppd \
@@ -208,10 +205,10 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.software.device_admin.xml:system/etc/permissions/android.software.device_admin.xml
 
 # Enable car watchdog
-include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
+PRODUCT_PACKAGES += carwatchdogd
 
 # Enable car power policy
-include packages/services/Car/cpp/powerpolicy/product/carpowerpolicy.mk
+PRODUCT_PACKAGES += carpowerpolicyd
 
 PRODUCT_IS_AUTOMOTIVE := true
 
@@ -223,7 +220,6 @@ PRODUCT_PACKAGES += \
     CarRadioApp \
     OverviewApp \
     CarLauncher \
-    CarSystemUI \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
@@ -232,13 +228,18 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
-    RotaryIME \
-    RotaryPlayground \
     android.car.builtin \
     libcarservicehelperjni \
     car-frameworks-service \
     com.android.car.procfsinspector \
     com.android.permission \
+
+# CAN bus
+PRODUCT_PACKAGES += \
+    canhalconfigurator \
+    canhalctrl \
+    canhaldump \
+    canhalsend
 
 # RROs
 PRODUCT_PACKAGES += \

@@ -17,6 +17,13 @@
 # This makefile supports a generic system image for an automotive device.
 $(call inherit-product, packages/services/Car/car_product/build/car_system.mk)
 
+# Car rotary
+PRODUCT_PACKAGES += \
+    CarRotaryController \
+    CarRotaryImeRRO \
+    RotaryIME \
+    RotaryPlayground \
+
 PRODUCT_PACKAGES_DEBUG += \
     avbctl \
     bootctl \
@@ -92,7 +99,7 @@ endif  # ENABLE_EVS_SERVICE
 
 # Conditionally enable the telemetry service
 ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
-include packages/services/Car/cpp/telemetry/cartelemetryd/products/telemetry.mk
+PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
 endif
 
 PRODUCT_NAME := car_generic_system
