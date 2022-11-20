@@ -142,6 +142,9 @@ public final class MultidisplayMediaFragment extends Fragment {
 
         mNowPlaying = view.findViewById(R.id.now_playing);
 
+        // Connect to media session of the currently selected user, if there is one already running.
+        connectMediaBrowser();
+
         refreshUi();
         return view;
     }
