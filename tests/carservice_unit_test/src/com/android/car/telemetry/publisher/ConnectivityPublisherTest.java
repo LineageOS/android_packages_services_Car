@@ -527,6 +527,21 @@ public class ConnectivityPublisherTest {
                 .asList().containsExactly(1000L);
     }
 
+    @Test
+    public void testWhenQueryThrowsNullPointerExceptionIsCaught() {
+        mFakeManager.setSimulateFailedQuery(true);
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
+
+        // querySummary gets called for each QueryParam combination, but throws
+        // NullPointerException each time, which is caught
+        assertThat(mFakeManager.getMethodCallCount("querySummary"))
+                .isEqualTo(BASELINE_PULL_COUNT);
+        // queryTaggedSummary not reached because of previous NullPointerException in querySummary
+        assertThat(mFakeManager.getMethodCallCount("queryTaggedSummary"))
+                .isEqualTo(0);
+    }
+
     private static class FakeDataSubscriber extends DataSubscriber {
         private final ArrayList<PushedData> mPushedData = new ArrayList<>();
 
@@ -568,6 +583,8 @@ public class ConnectivityPublisherTest {
     private static class FakeNetworkStatsManager extends NetworkStatsManagerProxy {
         private final ArrayList<FakeNetworkStats.CustomBucket> mBuckets = new ArrayList<>();
         private final HashMap<String, Integer> mMethodCallCount = new HashMap<>();
+
+        private boolean mSimulateFailedQuery = false;
 
         private FakeNetworkStatsManager() {
             super(/* networkStatsManager= */ null);
@@ -623,10 +640,17 @@ public class ConnectivityPublisherTest {
             return mMethodCallCount.getOrDefault(name, 0);
         }
 
+        public void setSimulateFailedQuery(boolean simulateFailedQuery) {
+            mSimulateFailedQuery = simulateFailedQuery;
+        }
+
         @Override
         @NonNull
         public NetworkStatsWrapper querySummary(NetworkTemplate template, long start, long end) {
             increaseMethodCall("querySummary", 1);
+            if (mSimulateFailedQuery) {
+                throw new NullPointerException();
+            }
             return commonQuerySummary(false, template, start, end);
         }
 
@@ -635,6 +659,9 @@ public class ConnectivityPublisherTest {
         public NetworkStatsWrapper queryTaggedSummary(
                 NetworkTemplate template, long start, long end) {
             increaseMethodCall("queryTaggedSummary", 1);
+            if (mSimulateFailedQuery) {
+                throw new NullPointerException();
+            }
             return commonQuerySummary(true, template, start, end);
         }
 
