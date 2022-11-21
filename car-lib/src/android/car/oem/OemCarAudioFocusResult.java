@@ -25,10 +25,12 @@ import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to encapsulate the audio focus result from the OEM audio service
@@ -40,20 +42,20 @@ import java.util.List;
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class OemCarAudioFocusResult implements Parcelable {
     private final @Nullable AudioFocusEntry mAudioFocusEntry;
-    private final @NonNull List<AudioFocusEntry> mNewlyLossAudioFocusEntries;
+    private final @NonNull List<AudioFocusEntry> mNewlyLostAudioFocusEntries;
     private final @NonNull List<AudioFocusEntry> mNewlyBlockedAudioFocusEntries;
     private final int mAudioFocusResult;
 
     OemCarAudioFocusResult(
             @Nullable AudioFocusEntry audioFocusEntry,
-            @NonNull List<AudioFocusEntry> newlyLossAudioFocusEntries,
+            @NonNull List<AudioFocusEntry> newlyLostAudioFocusEntries,
             @NonNull List<AudioFocusEntry> newlyBlockedAudioFocusEntries, int audioFocusResult) {
-        Preconditions.checkArgument(newlyLossAudioFocusEntries != null,
-                "Newly loss focus entries can not be null");
+        Preconditions.checkArgument(newlyLostAudioFocusEntries != null,
+                "Newly lost focus entries can not be null");
         Preconditions.checkArgument(newlyBlockedAudioFocusEntries != null,
                 "Newly blocked focus entries can not be null");
         this.mAudioFocusEntry = audioFocusEntry;
-        this.mNewlyLossAudioFocusEntries = newlyLossAudioFocusEntries;
+        this.mNewlyLostAudioFocusEntries = newlyLostAudioFocusEntries;
         this.mNewlyBlockedAudioFocusEntries = newlyBlockedAudioFocusEntries;
         this.mAudioFocusResult = audioFocusResult;
     }
@@ -61,7 +63,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     /**
      * Returns the result of the focus request
      * The result can be granted, delayed, or failed. In the case of granted the car audio stack
-     * will be changed according to the entries returned in newly loss and newly blocked.
+     * will be changed according to the entries returned in newly lost and newly blocked.
      * For delayed results the entry will be added as the current delayed request and it will be
      * re-evaluated once any of the current focus holders abandons focus. For failed request,
      * the car audio focus stack will not change and the current request will not gain focus.
@@ -82,8 +84,8 @@ public final class OemCarAudioFocusResult implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public @NonNull List<AudioFocusEntry> getNewlyLossAudioFocusEntries() {
-        return new ArrayList<>(mNewlyLossAudioFocusEntries);
+    public @NonNull List<AudioFocusEntry> getNewlyLostAudioFocusEntries() {
+        return new ArrayList<>(mNewlyLostAudioFocusEntries);
     }
 
     /**
@@ -117,7 +119,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusResult { audioFocusEntry = ")
                 .append(mAudioFocusEntry)
-                .append(", mNewlyLossAudioFocusEntries = ").append(mNewlyLossAudioFocusEntries)
+                .append(", mNewlyLostAudioFocusEntries = ").append(mNewlyLostAudioFocusEntries)
                 .append(", mNewlyBlockedAudioFocusEntries = ")
                 .append(mNewlyBlockedAudioFocusEntries)
                 .append(", mAudioFocusResult = ").append(mAudioFocusResult)
@@ -129,16 +131,19 @@ public final class OemCarAudioFocusResult implements Parcelable {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         byte flg = 0;
-        if (mAudioFocusEntry != null) flg = (byte) (flg | Builder.FOCUS_ENTRY_FIELDS_SET);
+        if (mAudioFocusEntry != null) {
+            flg = (byte) (flg | Builder.FOCUS_ENTRY_FIELDS_SET);
+        }
         dest.writeByte(flg);
         if (mAudioFocusEntry != null) {
-            dest.writeTypedObject(mAudioFocusEntry, flags);
+            mAudioFocusEntry.writeToParcel(dest, flags);
         }
-        dest.writeParcelableList(mNewlyLossAudioFocusEntries, flags);
+        dest.writeParcelableList(mNewlyLostAudioFocusEntries, flags);
         dest.writeParcelableList(mNewlyBlockedAudioFocusEntries, flags);
         dest.writeInt(mAudioFocusResult);
     }
 
+    // TODO(b/260757994): Remove ApiRequirements for overridden methods
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -148,18 +153,21 @@ public final class OemCarAudioFocusResult implements Parcelable {
 
     /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
-    OemCarAudioFocusResult(@NonNull Parcel in) {
+    @VisibleForTesting
+    public OemCarAudioFocusResult(@NonNull Parcel in) {
         byte flg = in.readByte();
         AudioFocusEntry audioFocusEntry = (flg & Builder.FOCUS_ENTRY_FIELDS_SET) == 0
-                ? null : (AudioFocusEntry) in.readTypedObject(AudioFocusEntry.CREATOR);
-        List<AudioFocusEntry> audioFocusLosers = new java.util.ArrayList<>();
-        in.readParcelableList(audioFocusLosers, AudioFocusEntry.class.getClassLoader());
-        List<AudioFocusEntry> audioFocusBlocked = new java.util.ArrayList<>();
-        in.readParcelableList(audioFocusBlocked, AudioFocusEntry.class.getClassLoader());
+                ? null : AudioFocusEntry.CREATOR.createFromParcel(in);
+        List<AudioFocusEntry> audioFocusLosers = new ArrayList<>();
+        in.readParcelableList(audioFocusLosers, AudioFocusEntry.class.getClassLoader(),
+                AudioFocusEntry.class);
+        List<AudioFocusEntry> audioFocusBlocked = new ArrayList<>();
+        in.readParcelableList(audioFocusBlocked, AudioFocusEntry.class.getClassLoader(),
+                AudioFocusEntry.class);
         int audioFocusResult = in.readInt();
 
         this.mAudioFocusEntry = audioFocusEntry;
-        this.mNewlyLossAudioFocusEntries = audioFocusLosers;
+        this.mNewlyLostAudioFocusEntries = audioFocusLosers;
         this.mNewlyBlockedAudioFocusEntries = audioFocusBlocked;
         this.mAudioFocusResult = audioFocusResult;
     }
@@ -169,11 +177,42 @@ public final class OemCarAudioFocusResult implements Parcelable {
     @NonNull
     public static final OemCarAudioFocusResult EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS =
             new OemCarAudioFocusResult(null,
-                    /* newlyLossAudioFocusEntries= */ new ArrayList<>(/* initialCapacity= */ 0),
+                    /* newlyLostAudioFocusEntries= */ new ArrayList<>(/* initialCapacity= */ 0),
                     /* newlyBlockedAudioFocusEntries= */ new ArrayList<>(/* initialCapacity= */ 0),
                     AUDIOFOCUS_REQUEST_FAILED);
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    // TODO(b/260757994): Remove ApiRequirements for overridden methods
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof OemCarAudioFocusResult)) {
+            return false;
+        }
+
+        OemCarAudioFocusResult that = (OemCarAudioFocusResult) o;
+
+        return Objects.equals(mAudioFocusEntry, that.mAudioFocusEntry)
+                && mAudioFocusResult == that.mAudioFocusResult
+                && mNewlyBlockedAudioFocusEntries.equals(
+                that.mNewlyBlockedAudioFocusEntries)
+                && mNewlyLostAudioFocusEntries.equals(that.mNewlyLostAudioFocusEntries);
+    }
+
+    // TODO(b/260757994): Remove ApiRequirements for overridden methods
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public int hashCode() {
+        return Objects.hash(mAudioFocusEntry, mAudioFocusResult,
+                mNewlyBlockedAudioFocusEntries, mNewlyLostAudioFocusEntries);
+    }
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<OemCarAudioFocusResult> CREATOR =
@@ -201,21 +240,21 @@ public final class OemCarAudioFocusResult implements Parcelable {
         private static final int FOCUS_RESULT_FIELDS_SET = 0x8;
         private static final int BUILDER_USED_FIELDS_SET = 0x10;
         private @Nullable AudioFocusEntry mAudioFocusEntry;
-        private @NonNull List<AudioFocusEntry> mNewlyLossAudioFocusEntries;
+        private @NonNull List<AudioFocusEntry> mNewlyLostAudioFocusEntries;
         private @NonNull List<AudioFocusEntry> mNewlyBlockedAudioFocusEntries;
         private int mAudioFocusResult;
 
         private long mBuilderFieldsSet = 0L;
 
         public Builder(
-                @NonNull List<AudioFocusEntry> newlyLossAudioFocusEntries,
+                @NonNull List<AudioFocusEntry> newlyLostAudioFocusEntries,
                 @NonNull List<AudioFocusEntry> newlyBlockedAudioFocusEntries,
                 int audioFocusResult) {
-            Preconditions.checkArgument(newlyLossAudioFocusEntries != null,
-                    "Newly loss focus entries can not be null");
+            Preconditions.checkArgument(newlyLostAudioFocusEntries != null,
+                    "Newly lost focus entries can not be null");
             Preconditions.checkArgument(newlyBlockedAudioFocusEntries != null,
                     "Newly blocked focus entries can not be null");
-            mNewlyLossAudioFocusEntries = newlyLossAudioFocusEntries;
+            mNewlyLostAudioFocusEntries = newlyLostAudioFocusEntries;
             mNewlyBlockedAudioFocusEntries = newlyBlockedAudioFocusEntries;
             mAudioFocusResult = audioFocusResult;
         }
@@ -233,31 +272,31 @@ public final class OemCarAudioFocusResult implements Parcelable {
             return this;
         }
 
-        /** @see OemCarAudioFocusResult#getNewlyLossAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        /** @see OemCarAudioFocusResult#getNewlyLostAudioFocusEntries */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
-        public Builder setNewlyLossAudioFocusEntries(
-                @NonNull List<AudioFocusEntry> newlyLossAudioFocusEntries) {
-            Preconditions.checkArgument(newlyLossAudioFocusEntries != null,
-                    "Newly loss focus entries can not be null");
+        public Builder setNewlyLostAudioFocusEntries(
+                @NonNull List<AudioFocusEntry> newlyLostAudioFocusEntries) {
+            Preconditions.checkArgument(newlyLostAudioFocusEntries != null,
+                    "Newly lost focus entries can not be null");
             checkNotUsed();
             mBuilderFieldsSet |= NEWLY_LOSS_FIELDS_SET;
-            mNewlyLossAudioFocusEntries = newlyLossAudioFocusEntries;
+            mNewlyLostAudioFocusEntries = newlyLostAudioFocusEntries;
             return this;
         }
 
-        /** @see #setNewlyLossAudioFocusEntries */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        /** @see #setNewlyLostAudioFocusEntries */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
-        public Builder addNewlyLossAudioFocusEntry(@NonNull AudioFocusEntry lossEntry) {
+        public Builder addNewlyLostAudioFocusEntry(@NonNull AudioFocusEntry lossEntry) {
             Preconditions.checkArgument(lossEntry != null,
-                    "Newly loss focus entry can not be null");
-            if (mNewlyLossAudioFocusEntries == null) {
-                setNewlyLossAudioFocusEntries(new java.util.ArrayList<>());
+                    "Newly lost focus entry can not be null");
+            if (mNewlyLostAudioFocusEntries == null) {
+                setNewlyLostAudioFocusEntries(new ArrayList<>());
             }
-            mNewlyLossAudioFocusEntries.add(lossEntry);
+            mNewlyLostAudioFocusEntries.add(lossEntry);
             return this;
         }
 
@@ -284,7 +323,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
             Preconditions.checkArgument(blockedEntry != null,
                     "Newly blocked focus entry can not be null");
             if (mNewlyBlockedAudioFocusEntries == null) {
-                setNewlyBlockedAudioFocusEntries(new java.util.ArrayList<>());
+                setNewlyBlockedAudioFocusEntries(new ArrayList<>());
             }
             mNewlyBlockedAudioFocusEntries.add(blockedEntry);
             return this;
@@ -310,7 +349,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
 
             OemCarAudioFocusResult o = new OemCarAudioFocusResult(
                     mAudioFocusEntry,
-                    mNewlyLossAudioFocusEntries,
+                    mNewlyLostAudioFocusEntries,
                     mNewlyBlockedAudioFocusEntries,
                     mAudioFocusResult);
             return o;

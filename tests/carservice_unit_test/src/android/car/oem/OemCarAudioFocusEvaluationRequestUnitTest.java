@@ -20,16 +20,12 @@ import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
-import static android.os.Build.VERSION.SDK_INT;
 
 import static org.junit.Assert.assertThrows;
 
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
-import android.media.AudioAttributes;
-import android.media.AudioFocusInfo;
-import android.media.AudioManager;
 import android.os.Parcel;
 
 import org.jetbrains.annotations.NotNull;
@@ -41,21 +37,16 @@ import java.util.List;
 public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExpectableTestCase {
 
     private static final AudioFocusEntry TEST_MEDIA_AUDIO_FOCUS_ENTRY =
-            getAudioFocusEntry(USAGE_MEDIA);
+            OemFocusUtils.getAudioFocusEntry(USAGE_MEDIA);
     private static final AudioFocusEntry TEST_CALL_FOCUS_FOCUS_ENTRY =
-            getAudioFocusEntry(USAGE_VOICE_COMMUNICATION);
+            OemFocusUtils.getAudioFocusEntry(USAGE_VOICE_COMMUNICATION);
     private static final AudioFocusEntry TEST_NAV_AUDIO_FOCUS_ENTRY =
-            getAudioFocusEntry(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+            OemFocusUtils.getAudioFocusEntry(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
     private static final AudioFocusEntry TEST_ASSISTANT_AUDIO_FOCUS_ENTRY =
-            getAudioFocusEntry(USAGE_ASSISTANT);
+            OemFocusUtils.getAudioFocusEntry(USAGE_ASSISTANT);
     private static final int TEST_PARCEL_FLAGS = 0;
-    private static final int MEDIA_EMPTY_FLAG = 0;
-    private static final int TEST_AUDIO_CONTEXT = 1;
     private static final int TEST_VOLUME_GROUP_ID = 2;
     private static final int TEST_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
-    private static final int MEDIA_APP_UID = 100000;
-    private static final String MEDIA_CLIENT_ID = "client-id";
-    private static final String MEDIA_PACKAGE_NAME = "android.car.oem";
     private static final String TEST_GROUP_NAME = "media";
     private static final CarVolumeGroupInfo TEST_MUTED_VOLUME_GROUP =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, CarAudioManager.PRIMARY_AUDIO_ZONE,
@@ -310,17 +301,5 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
 
         expectWithMessage("Null audio focus request exception")
                 .that(thrown).hasMessageThat().contains("Audio focus request");
-    }
-
-    private static AudioFocusEntry getAudioFocusEntry(int usage) {
-        AudioAttributes.Builder builder = new AudioAttributes.Builder();
-        builder.setUsage(usage);
-
-        AudioFocusInfo info = new AudioFocusInfo(builder.build(), MEDIA_APP_UID, MEDIA_CLIENT_ID,
-                MEDIA_PACKAGE_NAME, AudioManager.AUDIOFOCUS_GAIN, AudioManager.AUDIOFOCUS_NONE,
-                MEDIA_EMPTY_FLAG, SDK_INT);
-
-        return new AudioFocusEntry.Builder(info, TEST_AUDIO_CONTEXT, TEST_VOLUME_GROUP_ID,
-                AudioManager.AUDIOFOCUS_NONE).build();
     }
 }

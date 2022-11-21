@@ -364,7 +364,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
 
         // Notify and update any requests which are now losing focus as a result of the new request
-        List<AudioFocusEntry> loss = evaluationResults.getNewlyLossAudioFocusEntries();
+        List<AudioFocusEntry> loss = evaluationResults.getNewlyLostAudioFocusEntries();
         for (int index = 0; index < loss.size(); index++) {
             AudioFocusEntry newlyLoss = loss.get(index);
             FocusEntry entry = mFocusHolders.get(newlyLoss.getAudioFocusInfo().getClientId());
