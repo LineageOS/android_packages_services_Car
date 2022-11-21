@@ -19,9 +19,10 @@ import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
+import static com.android.car.CarServiceUtils.getCommonHandlerThread;
+import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.getContentResolverForUser;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -211,9 +212,8 @@ public class CarInputService extends ICarInput.Stub
     };
 
     private static int getViewLongPressDelay(Context context) {
-        return Settings.Secure.getInt(
-                getContentResolverForUser(context, UserHandle.CURRENT.getIdentifier()),
-                LONG_PRESS_TIMEOUT,
+        return Settings.Secure.getInt(getContentResolverForUser(context,
+                        UserHandle.CURRENT.getIdentifier()), LONG_PRESS_TIMEOUT,
                 ViewConfiguration.getLongPressTimeout());
     }
 
@@ -221,7 +221,7 @@ public class CarInputService extends ICarInput.Stub
             CarUserService userService, CarOccupantZoneService occupantZoneService,
             CarBluetoothService bluetoothService) {
         this(context, inputHalService, userService, occupantZoneService, bluetoothService,
-                new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
+                new Handler(getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class),
                 event -> InputManagerHelper.injectInputEvent(
                         context.getSystemService(InputManager.class), event),

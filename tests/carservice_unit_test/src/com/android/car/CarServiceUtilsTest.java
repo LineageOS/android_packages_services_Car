@@ -18,9 +18,13 @@ package com.android.car;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -30,12 +34,18 @@ import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.os.Process;
 import android.os.UserHandle;
+import android.text.TextUtils;
+
+import com.android.car.util.TransitionLog;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,6 +54,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoSession;
 
+import java.util.UUID;
+
 public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
     private static final int TEST_PROP = 1;
@@ -51,12 +63,22 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     private static final float MIN_SAMPLE_RATE = 1.0f;
     private static final int CURRENT_USER_ID = 1000;
     private static final int NON_CURRENT_USER_ID = 1001;
+    private static final String TAG = CarServiceUtilsTest.class.getSimpleName();
+
+    private static final UserLifecycleEvent USER_STARTING_EVENT =
+            new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, 111);
 
     private MockitoSession mSession;
     @Mock
     private Context mMockContext;
     @Mock
     private Context mMockUserContext;
+
+    @Mock
+    private Context mContext;
+
+    @Mock
+    private PackageManager mPm;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -66,6 +88,8 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     @Before
     public void setUp() {
         mockAmGetCurrentUser(CURRENT_USER_ID);
+        when(mContext.getPackageManager()).thenReturn(mPm);
+        when(mContext.getSystemService(PackageManager.class)).thenReturn(mPm);
     }
 
     @After
@@ -133,5 +157,192 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
         verify(mMockUserContext).startService(intentCaptor.capture());
         assertThat(intentCaptor.getValue().getComponent()).isEqualTo(
                 ComponentName.unflattenFromString(systemUiComponent));
+    }
+
+    @Test
+    public void testTransitionLogToString() {
+        TransitionLog transitionLog = new TransitionLog("serviceName", "state1", "state2",
+                1623777864000L);
+        String result = transitionLog.toString();
+
+        // Should match the date pattern "MM-dd HH:mm:ss".
+        expectWithMessage("transitionLog %s", result).that(result).matches(
+                "^[01]\\d-[0-3]\\d [0-2]\\d:[0-6]\\d:[0-6]\\d\\s+.*");
+        expectWithMessage("transitionLog %s", result).that(result).contains("serviceName:");
+        expectWithMessage("transitionLog %s", result).that(result).contains(
+                "from state1 to state2");
+    }
+
+    @Test
+    public void testTransitionLogToString_withExtra() {
+        TransitionLog transitionLog = new TransitionLog("serviceName", "state1", "state2",
+                1623777864000L, "extra");
+        String result = transitionLog.toString();
+
+        // Should match the date pattern "MM-dd HH:mm:ss".
+        expectWithMessage("transitionLog %s", result).that(result).matches(
+                "^[01]\\d-[0-3]\\d [0-2]\\d:[0-6]\\d:[0-6]\\d\\s+.*");
+        expectWithMessage("transitionLog %s", result).that(result).contains("serviceName:");
+        expectWithMessage("transitionLog %s", result).that(result).contains("extra");
+        expectWithMessage("transitionLog %s", result).that(result).contains(
+                "from state1 to state2");
+    }
+
+    @Test
+    public void testLongToBytes() {
+        long longValue = 1234567890L;
+        Byte[] expected = new Byte[] {0, 0, 0, 0, 73, -106, 2, -46};
+
+        assertThat(CarServiceUtils.longToBytes(longValue)).asList().containsExactlyElementsIn(
+                expected).inOrder();
+    }
+
+    @Test
+    public void testBytesToLong() {
+        byte[] bytes = new byte[] {0, 0, 0, 0, 73, -106, 2, -46};
+        long expected = 1234567890L;
+
+        assertThat(CarServiceUtils.bytesToLong(bytes)).isEqualTo(expected);
+    }
+
+    @Test
+    public void testByteArrayToHexString() {
+        assertThat(CarServiceUtils.byteArrayToHexString(new byte[]{0, 1, 2, -3})).isEqualTo(
+                "000102fd");
+    }
+
+    @Test
+    public void testUuidToBytes() {
+        UUID uuid = new UUID(123456789L, 987654321L);
+        Byte[] expected = new Byte[] {0, 0, 0, 0, 7, 91, -51, 21, 0, 0, 0, 0, 58, -34, 104, -79};
+
+        assertThat(CarServiceUtils.uuidToBytes(uuid)).asList().containsExactlyElementsIn(
+                expected).inOrder();
+    }
+
+    @Test
+    public void testBytesToUUID() {
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, -9, -8, -7, -6, -5, -4, -3};
+        UUID expected = new UUID(72623859790382856L, 718316418130246909L);
+        UUID result = CarServiceUtils.bytesToUUID(bytes);
+
+        expectWithMessage("Least significant digits of %s", result).that(
+                result.getLeastSignificantBits()).isEqualTo(718316418130246909L);
+        expectWithMessage("Most significant digits of %s", result).that(
+                result.getMostSignificantBits()).isEqualTo(72623859790382856L);
+        expectWithMessage("Result %s", result).that(result)
+                .isEqualTo(expected);
+    }
+
+    @Test
+    public void testBytesToUUID_invalidLength() {
+        byte[] bytes = new byte[] {0};
+
+        assertThat(CarServiceUtils.bytesToUUID(bytes)).isNull();
+    }
+
+    @Test
+    public void testGenerateRandomNumberString() {
+        String result = CarServiceUtils.generateRandomNumberString(25);
+
+        expectWithMessage("Random number string %s", result).that(result).hasLength(25);
+        expectWithMessage("Is digits only %s", result).that(
+                TextUtils.isDigitsOnly(result)).isTrue();
+    }
+
+    @Test
+    public void testConcatByteArrays() {
+        byte[] bytes1 = new byte[] {1, 2, 3};
+        byte[] bytes2 = new byte[] {4, 5, 6};
+        Byte[] expected = new Byte[] {1, 2, 3, 4, 5, 6};
+
+        assertThat(CarServiceUtils.concatByteArrays(bytes1, bytes2)).asList()
+                .containsExactlyElementsIn(expected).inOrder();
+    }
+
+    @Test
+    public void testIsEventOfType_returnsTrue() {
+        assertThat(CarServiceUtils.isEventOfType(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_STARTING)).isTrue();
+    }
+
+    @Test
+    public void testIsEventOfType_returnsFalse() {
+        assertThat(CarServiceUtils.isEventOfType(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING)).isFalse();
+    }
+
+    @Test
+    public void testIsEventAnyOfTypes_returnsTrue() {
+        assertThat(CarServiceUtils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_STARTING)).isTrue();
+    }
+
+    @Test
+    public void testIsEventAnyOfTypes_emptyEventTypes_returnsFalse() {
+        assertThat(CarServiceUtils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT)).isFalse();
+    }
+
+    @Test
+    public void testIsEventAnyOfTypes_returnsFalse() {
+        assertThat(CarServiceUtils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_STOPPING)).isFalse();
+    }
+
+    @Test
+    public void testCheckCalledByPackage_nullPackages() {
+        String packageName = "Bond.James.Bond";
+        int myUid = Process.myUid();
+        // Don't need to mock pm call, it will return null
+
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
+
+        String msg = e.getMessage();
+        expectWithMessage("exception message (pkg)").that(msg).contains(packageName);
+        expectWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
+    }
+
+    @Test
+    public void testCheckCalledByPackage_emptyPackages() {
+        String packageName = "Bond.James.Bond";
+        int myUid = Process.myUid();
+        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {});
+
+        // Don't need to mock pm call, it will return null
+
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
+
+        String msg = e.getMessage();
+        expectWithMessage("exception message (pkg)").that(msg).contains(packageName);
+        expectWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
+    }
+
+    @Test
+    public void testCheckCalledByPackage_wrongPackages() {
+        String packageName = "Bond.James.Bond";
+        int myUid = Process.myUid();
+        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {"Bond, James Bond"});
+
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
+
+        String msg = e.getMessage();
+        expectWithMessage("exception message (pkg)").that(msg).contains(packageName);
+        expectWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
+    }
+
+    @Test
+    public void testCheckCalledByPackage_ok() {
+        String packageName = "Bond.James.Bond";
+        int myUid = Process.myUid();
+        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {
+                "Bond, James Bond", packageName, "gold.finger"
+        });
+
+        CarServiceUtils.checkCalledByPackage(mContext, packageName);
+
+        // No need to assert, test would fail if it threw
     }
 }

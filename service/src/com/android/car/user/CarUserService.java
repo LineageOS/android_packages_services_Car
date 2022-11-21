@@ -21,6 +21,10 @@ import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
+import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.startHomeAndSystemUiForUserAndDisplay;
+import static com.android.car.CarServiceUtils.startUserPickerOnDisplay;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
@@ -111,7 +115,6 @@ import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceHelperWrapper;
-import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.hal.HalCallback;
@@ -128,7 +131,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
-import com.android.car.util.Utils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -240,14 +242,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final UserHalService mHal;
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
-            HANDLER_THREAD_NAME);
+    private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
     private final Handler mHandler;
 
     /** This Handler is for running background tasks which can wait. */
     @VisibleForTesting
-    final Handler mBgHandler = new Handler(
-            CarServiceUtils.getHandlerThread(BG_HANDLER_THREAD_NAME).getLooper());
+    final Handler mBgHandler = new Handler(getHandlerThread(BG_HANDLER_THREAD_NAME).getLooper());
 
     /**
      * Internal listeners to be notified on new user activities events.
@@ -454,7 +454,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
                             int displayId = zoneService.getDisplayForOccupant(zoneId,
                                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-                            boolean started = CarServiceUtils.startUserPickerOnDisplay(
+                            boolean started = startUserPickerOnDisplay(
                                     mContext, displayId,
                                     mContext.getResources().getString(
                                             R.string.config_userPickerActivity));
@@ -2283,7 +2283,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Slogf.i(TAG, "populateUsersForDevelopment(): add new assignment setting:%s",
                     settingValue);
             writePerUserVisibleUserAllocationSetting(
-                    Utils.getContentResolverForUser(mContext, currentUserId), settingValue);
+                    getContentResolverForUser(mContext, currentUserId), settingValue);
 
             // Now start users again but re-check the current user as current user might have
             // changed.
@@ -2335,7 +2335,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         SparseIntArray mapping = null; // key: zone, value: user id
         String userSetting = getPerUserVisibleUserAllocationSetting(
-                Utils.getContentResolverForUser(mContext, currentUserId));
+                getContentResolverForUser(mContext, currentUserId));
         if (userSetting != null) {
             mapping = parseUserAssignmentSettingValue(
                     CarSettings.Secure.VISIBLE_USER_ALLOCATION_PER_ZONE,
@@ -2462,7 +2462,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // Start the user picker as user 0 on the target display.
             if (targetDisplayId != Display.INVALID_DISPLAY) {
                 Slogf.d(TAG, "Starting user picker on display: %d", targetDisplayId);
-                boolean started = CarServiceUtils.startUserPickerOnDisplay(
+                boolean started = startUserPickerOnDisplay(
                         mContext, targetDisplayId,
                         mContext.getResources().getString(R.string.config_userPickerActivity));
                 if (!started) {
@@ -2543,7 +2543,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (!CarServiceUtils.startHomeAndSystemUiForUserAndDisplay(mContext, userId, displayId)) {
+        if (!startHomeAndSystemUiForUserAndDisplay(mContext, userId, displayId)) {
             Slogf.w(TAG,
                     "Cannot launch home for assigned user %d, display %d, will stop the user",
                     userId, displayId);
