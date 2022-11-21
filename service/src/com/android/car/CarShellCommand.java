@@ -2577,12 +2577,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private void forceGarageMode(String arg, IndentingPrintWriter writer) {
         switch (arg) {
             case PARAM_ON_MODE:
-                mSystemInterface.setDisplayState(false);
+                mSystemInterface.setAllDisplayState(false);
                 mGarageModeService.forceStartGarageMode();
                 writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                 break;
             case PARAM_OFF_MODE:
-                mSystemInterface.setDisplayState(true);
+                mSystemInterface.setAllDisplayState(true);
                 mGarageModeService.stopAndResetGarageMode();
                 writer.println("Garage mode: " + mGarageModeService.isGarageModeActive());
                 break;

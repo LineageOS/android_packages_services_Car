@@ -60,6 +60,7 @@ import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -442,6 +443,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         Log.i(TAG, "setService(): overridden overlay properties: "
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
+        doReturn(mResources).when(mContext).getResources();
+        doReturn(false).when(mResources).getBoolean(
+                R.bool.config_enablePassengerDisplayPowerSaving);
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
@@ -535,7 +539,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
     private static final class MockDisplayInterface implements DisplayInterface {
         @GuardedBy("sLock")
-        private boolean mDisplayOn = true;
+        private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
         @Override
@@ -546,17 +550,20 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public void setDisplayState(boolean on) {
+        public void setDisplayState(int displayId, boolean on) {
             synchronized (sLock) {
-                mDisplayOn = on;
+                mDisplayOn.put(displayId, on);
             }
             mDisplayStateWait.release();
         }
 
-        public boolean waitForDisplayStateChange(long timeoutMs) throws Exception {
-            JavaMockitoHelper.await(mDisplayStateWait, timeoutMs);
+        @Override
+        public void setAllDisplayState(boolean on) {
             synchronized (sLock) {
-                return mDisplayOn;
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    setDisplayState(displayId, on);
+                }
             }
         }
 
@@ -570,9 +577,22 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         public void refreshDisplayBrightness() {}
 
         @Override
-        public boolean isDisplayEnabled() {
+        public boolean isAnyDisplayEnabled() {
             synchronized (sLock) {
-                return mDisplayOn;
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    if (isDisplayEnabled(displayId)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isDisplayEnabled(int displayId) {
+            synchronized (sLock) {
+                return mDisplayOn.get(displayId);
             }
         }
     }

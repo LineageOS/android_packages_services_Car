@@ -39,9 +39,11 @@ import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.Display;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IntArray;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -69,11 +71,19 @@ public interface DisplayInterface {
     void setDisplayBrightness(int brightness);
 
     /**
-     * Turns on or off display.
+     * Turns on or off display with the given displayId.
+     *
+     * @param displayId ID of a display.
+     * @param on {@code true} to turn on, {@code false} to turn off.
+     */
+    void setDisplayState(int displayId, boolean on);
+
+    /**
+     * Turns on or off all displays.
      *
      * @param on {@code true} to turn on, {@code false} to turn off.
      */
-    void setDisplayState(boolean on);
+    void setAllDisplayState(boolean on);
 
     /**
      * Starts monitoring the display state change.
@@ -87,9 +97,18 @@ public interface DisplayInterface {
     void stopDisplayStateMonitoring();
 
     /**
-     * Gets the current on/off state of display.
+     * Gets the current on/off state of displays.
+     *
+     * @return {@code true}, if any display is turned on. Otherwise, {@code false}.
      */
-    boolean isDisplayEnabled();
+    boolean isAnyDisplayEnabled();
+
+    /**
+     * Gets the current on/off state of display with the given displayId.
+     *
+     * @param displayId ID of a display.
+     */
+    boolean isDisplayEnabled(int displayId);
 
     /**
      * Refreshing display brightness. Used when user is switching and car turned on.
@@ -113,7 +132,7 @@ public interface DisplayInterface {
         @GuardedBy("mLock")
         private CarUserService mCarUserService;
         @GuardedBy("mLock")
-        private boolean mDisplayStateSet;
+        private final SparseBooleanArray mDisplayStateSet = new SparseBooleanArray();
         @GuardedBy("mLock")
         private int mLastBrightnessLevel = -1;
 
@@ -128,19 +147,21 @@ public interface DisplayInterface {
         private final DisplayManager.DisplayListener mDisplayListener = new DisplayListener() {
             @Override
             public void onDisplayAdded(int displayId) {
-                //ignore
+                synchronized (mLock) {
+                    mDisplayStateSet.put(displayId, isDisplayOn(displayId));
+                }
             }
 
             @Override
             public void onDisplayRemoved(int displayId) {
-                //ignore
+                synchronized (mLock) {
+                    mDisplayStateSet.delete(displayId);
+                }
             }
 
             @Override
             public void onDisplayChanged(int displayId) {
-                if (displayId == Display.DEFAULT_DISPLAY) {
-                    handleMainDisplayChanged();
-                }
+                handleDisplayChanged(displayId);
             }
         };
 
@@ -150,6 +171,12 @@ public interface DisplayInterface {
             mMaximumBacklight = PowerManagerHelper.getMaximumScreenBrightnessSetting(context);
             mMinimumBacklight = PowerManagerHelper.getMinimumScreenBrightnessSetting(context);
             mWakeLockInterface = wakeLockInterface;
+            synchronized (mLock) {
+                for (Display display : mDisplayManager.getDisplays()) {
+                    int displayId = display.getDisplayId();
+                    mDisplayStateSet.put(displayId, isDisplayOn(displayId));
+                }
+            }
         }
 
         private final UserLifecycleListener mUserLifecycleListener = event -> {
@@ -186,20 +213,24 @@ public interface DisplayInterface {
             carPowerManagementService.sendDisplayBrightness(percentBright);
         }
 
-        private void handleMainDisplayChanged() {
-            boolean isOn = isMainDisplayOn();
+        private void handleDisplayChanged(int displayId) {
+            boolean isOn = isDisplayOn(displayId);
             CarPowerManagementService service;
             synchronized (mLock) {
-                if (mDisplayStateSet == isOn) { // same as what is set
+                boolean state = mDisplayStateSet.get(displayId, false);
+                if (state == isOn) { // same as what is set
                     return;
                 }
                 service = mCarPowerManagementService;
             }
-            service.handleMainDisplayChanged(isOn);
+            service.handleDisplayChanged(displayId, isOn);
         }
 
-        private boolean isMainDisplayOn() {
-            Display disp = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        private boolean isDisplayOn(int displayId) {
+            Display disp = mDisplayManager.getDisplay(displayId);
+            if (disp == null) {
+                return false;
+            }
             return disp.getState() == Display.STATE_ON;
         }
 
@@ -224,7 +255,6 @@ public interface DisplayInterface {
             synchronized (mLock) {
                 mCarPowerManagementService = carPowerManagementService;
                 mCarUserService = carUserService;
-                mDisplayStateSet = isMainDisplayOn();
             }
         }
 
@@ -263,26 +293,61 @@ public interface DisplayInterface {
         }
 
         @Override
-        public void setDisplayState(boolean on) {
+        public void setDisplayState(int displayId, boolean on) {
+            CarPowerManagementService carPowerManagementService;
             synchronized (mLock) {
-                mDisplayStateSet = on;
+                carPowerManagementService = mCarPowerManagementService;
+                if (on && carPowerManagementService != null
+                        && !carPowerManagementService.canTurnOnDisplay(displayId)) {
+                    Slogf.i(CarLog.TAG_POWER, "ignore turning on display %d because "
+                            + "CarPowerManagementService doesn't support it", displayId);
+                    return;
+                }
+                mDisplayStateSet.put(displayId, on);
             }
             if (on) {
-                mWakeLockInterface.switchToFullWakeLock();
-                Slogf.i(CarLog.TAG_POWER, "on display");
-                PowerManagerHelper.setDisplayState(mContext, /* on= */ true,
-                        SystemClock.uptimeMillis());
+                mWakeLockInterface.switchToFullWakeLock(displayId);
+                Slogf.i(CarLog.TAG_POWER, "on display %d", displayId);
             } else {
-                mWakeLockInterface.switchToPartialWakeLock();
-                Slogf.i(CarLog.TAG_POWER, "off display");
-                PowerManagerHelper.setDisplayState(mContext, /* on= */ false,
-                        SystemClock.uptimeMillis());
+                mWakeLockInterface.switchToPartialWakeLock(displayId);
+                Slogf.i(CarLog.TAG_POWER, "off display %d", displayId);
+                PowerManagerHelper.goToSleep(mContext, displayId, SystemClock.uptimeMillis());
+            }
+            if (carPowerManagementService != null) {
+                carPowerManagementService.handleDisplayChanged(displayId, on);
             }
         }
 
         @Override
-        public boolean isDisplayEnabled() {
-            return isMainDisplayOn();
+        public void setAllDisplayState(boolean on) {
+            IntArray displayIds = new IntArray();
+            synchronized (mLock) {
+                for (int i = 0; i < mDisplayStateSet.size(); i++) {
+                    displayIds.add(mDisplayStateSet.keyAt(i));
+                }
+            }
+            // setDisplayState has a binder call to system_server. Should not wrap setDisplayState
+            // with a lock.
+            for (int i = 0; i < displayIds.size(); i++) {
+                setDisplayState(displayIds.get(i), on);
+            }
+        }
+
+        @Override
+        public boolean isAnyDisplayEnabled() {
+            synchronized (mLock) {
+                for (int i = 0; i < mDisplayStateSet.size(); i++) {
+                    if (isDisplayEnabled(mDisplayStateSet.keyAt(i))) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isDisplayEnabled(int displayId) {
+            return isDisplayOn(displayId);
         }
 
         private void onUsersUpdate() {

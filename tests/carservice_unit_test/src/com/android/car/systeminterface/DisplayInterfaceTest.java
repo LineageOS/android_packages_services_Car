@@ -74,6 +74,7 @@ public final class DisplayInterfaceTest {
         when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
         when(mContext.getSystemService(PowerManager.class)).thenReturn(mPowerManager);
         when(mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY)).thenReturn(mDisplay);
+        when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
 
         mDisplayInterface = new DisplayInterface.DefaultImpl(mContext, mWakeLockInterface) {
             @Override

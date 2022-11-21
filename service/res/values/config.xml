@@ -485,6 +485,16 @@
          notified -->
     <integer name="config_postShutdownEnterTimeout">5000</integer>
 
+    <!-- A configuration flag to enable auto power saving for passenger displays.
+         When it's true, the driver display is not affected and always on. When it's false, auto
+         power saving is not applied. OEMs can implement their own auto power saving logic.
+         -->
+    <bool name="config_enablePassengerDisplayPowerSaving">true</bool>
+
+    <!-- Number of milliseconds to wait until screen is automatically turned off.
+         The default duration is 1 min (= 1 * 60 * 1000). -->
+    <integer name="config_noUserScreenOffTimeout">60000</integer>
+
     <!-- A name of a camera device that provides the rearview through EVS service -->
     <string name="config_evsRearviewCameraId" translatable="false">/dev/video10</string>
 

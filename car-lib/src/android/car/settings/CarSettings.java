@@ -145,6 +145,34 @@ public class CarSettings {
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String DISPLAY_INPUT_LOCK =
                         "android.car.DISPLAY_INPUT_LOCK";
+
+        /**
+         * Defines display power mode to assign per each display.
+         *
+         * <p>The value of this will be a ',' separated list of displayId:mode. displayId and mode
+         * should be a string of decimal integer. Example can be "0:2,1:0,2:1" where display 0 set
+         * mode 2, display 1 set mode 0 and display 2 set mode 1 allocated.
+         *
+         * <p>When system boots up, car service will set those modes to the specified displays.
+         * If any entry in the value is invalid, the value will be ignored and no mode will be set.
+         * If there are duplicate entries, the last entry will be applied.
+         *
+         * <p>The mode is an integer (0, 1 or 2) where:
+         * <ul>
+         * <li>0 indicates ON should be applied to screen off timeout and allowed to manually turn
+         * off the display.
+         * <li>1 indicates OFF should applied to intentionally turn off the display and not be
+         * allowed to manually turn on the display
+         * <li>2 indicates ALWAYS ON should be applied to keep the display on and allowed to
+         * manually turn off the display
+         * </ul>
+         *
+         * @hide
+         */
+        @SystemApi
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
     }
 
     /**
