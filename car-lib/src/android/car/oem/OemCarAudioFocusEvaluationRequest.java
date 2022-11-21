@@ -27,10 +27,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Class to encapsulate the audio focus evaluation to the OEM audio service
@@ -48,20 +50,20 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
     private @NonNull final List<AudioFocusEntry> mFocusLosers;
     private final int mAudioZoneId;
 
-    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    private OemCarAudioFocusEvaluationRequest(Parcel in) {
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    public OemCarAudioFocusEvaluationRequest(Parcel in) {
         byte flg = in.readByte();
         mAudioFocusRequest = (flg & Builder.FOCUS_REQUEST_FIELDS_SET) == 0
-                ? null : in.readTypedObject(AudioFocusEntry.CREATOR);
+                ? null : AudioFocusEntry.CREATOR.createFromParcel(in);
         mMutedVolumeGroups = new ArrayList<>();
-        in.readParcelableList(mMutedVolumeGroups, CarVolumeGroupInfo.class.getClassLoader(),
-                CarVolumeGroupInfo.class);
+        in.readParcelableList(mMutedVolumeGroups, CarVolumeGroupInfo.class.getClassLoader());
         mFocusHolders = new ArrayList<>();
-        in.readParcelableList(mFocusHolders, AudioFocusEntry.class.getClassLoader(),
-                AudioFocusEntry.class);
+        in.readParcelableList(mFocusHolders, AudioFocusEntry.class.getClassLoader());
         mFocusLosers = new ArrayList<>();
-        in.readParcelableList(mFocusLosers, AudioFocusEntry.class.getClassLoader(),
-                AudioFocusEntry.class);
+        in.readParcelableList(mFocusLosers, AudioFocusEntry.class.getClassLoader());
         mAudioZoneId = in.readInt();
     }
 
@@ -101,11 +103,11 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         }
         dest.writeByte(flg);
         if (mAudioFocusRequest != null) {
-            dest.writeParcelable(mAudioFocusRequest, flags);
+            mAudioFocusRequest.writeToParcel(dest, flags);
         }
-        dest.writeTypedList(mMutedVolumeGroups);
-        dest.writeTypedList(mFocusHolders);
-        dest.writeTypedList(mFocusLosers);
+        dest.writeParcelableList(mMutedVolumeGroups, flags);
+        dest.writeParcelableList(mFocusHolders, flags);
+        dest.writeParcelableList(mFocusLosers, flags);
         dest.writeInt(mAudioZoneId);
     }
 
@@ -156,15 +158,52 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
         return mFocusLosers;
     }
 
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
+        if (!(o instanceof OemCarAudioFocusEvaluationRequest)) {
+            return false;
+        }
 
-    OemCarAudioFocusEvaluationRequest(
+        OemCarAudioFocusEvaluationRequest that = (OemCarAudioFocusEvaluationRequest) o;
+
+        return safeEquals(mAudioFocusRequest, that.mAudioFocusRequest)
+                && mFocusHolders.equals(that.mFocusHolders)
+                && mFocusLosers.equals(that.mFocusLosers)
+                && mMutedVolumeGroups.equals(that.mMutedVolumeGroups)
+                && mAudioZoneId == that.mAudioZoneId;
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public int hashCode() {
+        return Objects.hash(mAudioFocusRequest, mFocusHolders, mFocusLosers, mMutedVolumeGroups,
+                mAudioZoneId);
+    }
+
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    public OemCarAudioFocusEvaluationRequest(
             @Nullable AudioFocusEntry audioFocusEntry,
             @NonNull List<CarVolumeGroupInfo> mutedVolumeGroups,
             @NonNull List<AudioFocusEntry> focusHolders,
             @NonNull List<AudioFocusEntry> focusLosers,
             int audioZoneId) {
         this.mAudioFocusRequest = audioFocusEntry;
+        Preconditions.checkArgument(mutedVolumeGroups != null,
+                "Muted volume groups can not be null");
+        Preconditions.checkArgument(focusHolders != null,
+                "Focus holders can not be null");
+        Preconditions.checkArgument(focusLosers != null,
+                "Focus losers can not be null");
         this.mMutedVolumeGroups = mutedVolumeGroups;
         this.mFocusHolders = focusHolders;
         this.mFocusLosers = focusLosers;
@@ -350,5 +389,9 @@ public final class OemCarAudioFocusEvaluationRequest implements Parcelable {
                         "This Builder should not be reused. Use a new Builder instance instead");
             }
         }
+    }
+
+    private static boolean safeEquals(Object a, Object b) {
+        return a == b || (a != null && a.equals(b));
     }
 }
