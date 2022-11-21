@@ -139,7 +139,7 @@ public class ICarImpl extends ICar.Stub {
     private final InstrumentClusterService mInstrumentClusterService;
     private final CarLocationService mCarLocationService;
     private final CarBluetoothService mCarBluetoothService;
-    private final PerUserCarServiceHelper mPerUserCarServiceHelper;
+    private final CarPerUserServiceHelper mCarPerUserServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarMediaService mCarMediaService;
@@ -300,11 +300,11 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mOccupantAwarenessService = null;
         }
-        mPerUserCarServiceHelper = constructWithTrace(
-                t, PerUserCarServiceHelper.class,
-                () -> new PerUserCarServiceHelper(serviceContext, mCarUserService), allServices);
+        mCarPerUserServiceHelper = constructWithTrace(
+                t, CarPerUserServiceHelper.class,
+                () -> new CarPerUserServiceHelper(serviceContext, mCarUserService), allServices);
         mCarBluetoothService = constructWithTrace(t, CarBluetoothService.class,
-                () -> new CarBluetoothService(serviceContext, mPerUserCarServiceHelper),
+                () -> new CarBluetoothService(serviceContext, mCarPerUserServiceHelper),
                 allServices);
         mCarInputService = constructWithTrace(t, CarInputService.class,
                 () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,

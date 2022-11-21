@@ -18,8 +18,8 @@ package com.android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.ICarBluetoothUserService;
+import android.car.ICarPerUserService;
 import android.car.ILocationManagerProxy;
-import android.car.IPerUserCarService;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.Intent;
@@ -43,23 +43,23 @@ import java.io.PrintWriter;
  * use this service to communicate with services/processes running as the current (non-system) user.
  */
 @Keep
-public class PerUserCarServiceImpl extends ProxiedService {
+public class CarPerUserServiceImpl extends ProxiedService {
     private static final boolean DBG = true;
-    private static final String TAG = CarLog.tagFor(PerUserCarServiceImpl.class);
+    private static final String TAG = CarLog.tagFor(CarPerUserServiceImpl.class);
 
     private CarBluetoothUserService mCarBluetoothUserService;
     private LocationManagerProxy mLocationManagerProxy;
 
-    private PerUserCarServiceBinder mPerUserCarServiceBinder;
+    private CarPerUserServiceBinder mCarPerUserServiceBinder;
 
     @Override
     public IBinder onBind(Intent intent) {
         if (DBG) Slogf.d(TAG, "onBind()");
 
-        if (mPerUserCarServiceBinder == null) {
-            Slogf.e(TAG, "PerUserCarServiceBinder null");
+        if (mCarPerUserServiceBinder == null) {
+            Slogf.e(TAG, "CarPerUserServiceBinder null");
         }
-        return mPerUserCarServiceBinder;
+        return mCarPerUserServiceBinder;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class PerUserCarServiceImpl extends ProxiedService {
         Context context = getApplicationContext();
         Slogf.i(TAG, "created for user %s", context.getUser());
 
-        mPerUserCarServiceBinder = new PerUserCarServiceBinder();
+        mCarPerUserServiceBinder = new CarPerUserServiceBinder();
         mCarBluetoothUserService = new CarBluetoothUserService(this);
         mLocationManagerProxy = new LocationManagerProxy(this);
         super.onCreate();
@@ -84,7 +84,7 @@ public class PerUserCarServiceImpl extends ProxiedService {
     public void onDestroy() {
         Slogf.i(TAG, "destroyed for user %s", getApplicationContext().getUser());
 
-        mPerUserCarServiceBinder = null;
+        mCarPerUserServiceBinder = null;
     }
 
     @Override
@@ -106,9 +106,9 @@ public class PerUserCarServiceImpl extends ProxiedService {
 
     /**
      * Other Services in CarService can create their own Binder interface and receive that interface
-     * through this PerUserCarService binder.
+     * through this CarPerUserService binder.
      */
-    private final class PerUserCarServiceBinder extends IPerUserCarService.Stub {
+    private final class CarPerUserServiceBinder extends ICarPerUserService.Stub {
         @Override
         public ICarBluetoothUserService getBluetoothUserService() {
             return mCarBluetoothUserService;

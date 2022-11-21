@@ -103,7 +103,7 @@
                 <action android:name="android.car.ICar"/>
             </intent-filter>
         </service>
-        <service android:name=".PerUserCarService"
+        <service android:name=".CarPerUserService"
             android:exported="false"/>
         <service
             android:name="com.android.car.pm.CarSafetyAccessibilityService"
