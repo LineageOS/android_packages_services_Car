@@ -146,6 +146,22 @@ public final class OccupantZoneHelper {
                     return USER_ASSIGNMENT_RESULT_OK;
                 }
         );
+        when(service.unassignOccupantZone(anyInt())).thenAnswer(
+                inv -> {
+                    int zoneId = (int) inv.getArgument(0);
+                    if (!hasZone(zoneId)) {
+                        return USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED;
+                    }
+                    if (mZones.contains(zoneDriverLHD) && zoneDriverLHD.zoneId == zoneId) {
+                        return USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE;
+                    }
+                    int existingIndex = mZoneToUser.indexOfKey(zoneId);
+                    if (existingIndex >= 0) {
+                        mZoneToUser.delete(zoneId);
+                    }
+                    return USER_ASSIGNMENT_RESULT_OK;
+                }
+        );
         when(service.getOccupantZoneIdForUserId(anyInt())).thenAnswer(
                 inv -> {
                     int userId = (int) inv.getArgument(0);
