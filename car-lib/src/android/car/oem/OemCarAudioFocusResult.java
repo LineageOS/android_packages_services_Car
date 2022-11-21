@@ -69,7 +69,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @Nullable AudioFocusEntry getAudioFocusEntry() {
-        return mAudioFocusEntry;
+        return new AudioFocusEntry.Builder(mAudioFocusEntry).build();
     }
 
     /**
@@ -83,7 +83,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getNewlyLossAudioFocusEntries() {
-        return mNewlyLossAudioFocusEntries;
+        return new ArrayList<>(mNewlyLossAudioFocusEntries);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class OemCarAudioFocusResult implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull List<AudioFocusEntry> getNewlyBlockedAudioFocusEntries() {
-        return mNewlyBlockedAudioFocusEntries;
+        return new ArrayList<>(mNewlyBlockedAudioFocusEntries);
     }
 
     /**
