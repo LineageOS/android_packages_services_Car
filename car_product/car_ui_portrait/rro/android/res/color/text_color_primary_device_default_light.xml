@@ -17,6 +17,7 @@
 <!-- Please see primary_text_material_light.xml -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
-          android:color="@*android:color/system_neutral1_500"/>
-    <item android:color="@*android:color/system_neutral1_50"/>
+          android:alpha="?android:attr/disabledAlpha"
+          android:color="@color/car_on_surface"/>
+    <item android:color="@color/car_on_surface"/>
 </selector>
