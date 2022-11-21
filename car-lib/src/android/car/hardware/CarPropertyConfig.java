@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
+import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
@@ -301,8 +302,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public int getFirstAndOnlyAreaId() {
         if (mAreaIdToAreaConfig.size() != 1) {
-            throw new IllegalStateException("Expected one and only area in this property. Prop: 0x"
-                    + Integer.toHexString(mPropertyId));
+            throw new IllegalStateException("Expected one and only area in this property. PropId: "
+                    + VehiclePropertyIds.toString(mPropertyId));
         }
         return mAreaIdToAreaConfig.keyAt(0);
     }
@@ -442,7 +443,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyConfig{"
-                + "mPropertyId=" + mPropertyId
+                + "mPropertyId=" + VehiclePropertyIds.toString(mPropertyId)
                 + ", mAccess=" + mAccess
                 + ", mAreaType=" + mAreaType
                 + ", mChangeMode=" + mChangeMode
