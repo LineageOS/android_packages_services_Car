@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
+import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
@@ -56,13 +57,13 @@ public final class CarPropertyConfig<T> implements Parcelable {
     private final float mMaxSampleRate;
     private final float mMinSampleRate;
     private final int mPropertyId;
-    private final SparseArray<AreaConfig<T>> mSupportedAreas;
+    private final SparseArray<AreaConfig<T>> mAreaIdToAreaConfig;
     private final Class<T> mType;
 
     private CarPropertyConfig(int access, int areaType, int changeMode,
             ArrayList<Integer> configArray, String configString,
             float maxSampleRate, float minSampleRate, int propertyId,
-            SparseArray<AreaConfig<T>> supportedAreas, Class<T> type) {
+            SparseArray<AreaConfig<T>> areaIdToAreaConfig, Class<T> type) {
         mAccess = access;
         mAreaType = areaType;
         mChangeMode = changeMode;
@@ -71,7 +72,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         mMaxSampleRate = maxSampleRate;
         mMinSampleRate = minSampleRate;
         mPropertyId = propertyId;
-        mSupportedAreas = supportedAreas;
+        mAreaIdToAreaConfig = areaIdToAreaConfig;
         mType = type;
     }
 
@@ -261,7 +262,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaCount() {
-        return mSupportedAreas.size();
+        return mAreaIdToAreaConfig.size();
     }
 
     /**
@@ -286,9 +287,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
     public int[] getAreaIds() {
-        int[] areaIds = new int[mSupportedAreas.size()];
+        int[] areaIds = new int[mAreaIdToAreaConfig.size()];
         for (int i = 0; i < areaIds.length; i++) {
-            areaIds[i] = mSupportedAreas.keyAt(i);
+            areaIds[i] = mAreaIdToAreaConfig.keyAt(i);
         }
         return areaIds;
     }
@@ -300,12 +301,14 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getFirstAndOnlyAreaId() {
-        if (mSupportedAreas.size() != 1) {
-            throw new IllegalStateException("Expected one and only area in this property. Prop: 0x"
-                    + Integer.toHexString(mPropertyId));
+        if (mAreaIdToAreaConfig.size() != 1) {
+            throw new IllegalStateException("Expected one and only area in this property. PropId: "
+                    + VehiclePropertyIds.toString(mPropertyId));
         }
-        return mSupportedAreas.keyAt(0);
+        return mAreaIdToAreaConfig.keyAt(0);
     }
+
+
 
     /**
      *
@@ -315,7 +318,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean hasArea(int areaId) {
-        return mSupportedAreas.indexOfKey(areaId) >= 0;
+        return mAreaIdToAreaConfig.indexOfKey(areaId) >= 0;
     }
 
     /**
@@ -326,7 +329,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMinValue(int areaId) {
-        AreaConfig<T> area = mSupportedAreas.get(areaId);
+        AreaConfig<T> area = mAreaIdToAreaConfig.get(areaId);
         return area == null ? null : area.getMinValue();
     }
 
@@ -338,7 +341,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue(int areaId) {
-        AreaConfig<T> area = mSupportedAreas.get(areaId);
+        AreaConfig<T> area = mAreaIdToAreaConfig.get(areaId);
         return area == null ? null : area.getMaxValue();
     }
 
@@ -349,7 +352,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMinValue() {
-        AreaConfig<T> area = mSupportedAreas.get(0);
+        AreaConfig<T> area = mAreaIdToAreaConfig.get(0);
         return area == null ? null : area.getMinValue();
     }
 
@@ -360,7 +363,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue() {
-        AreaConfig<T> area = mSupportedAreas.get(0);
+        AreaConfig<T> area = mAreaIdToAreaConfig.get(0);
         return area == null ? null : area.getMaxValue();
     }
 
@@ -385,10 +388,10 @@ public final class CarPropertyConfig<T> implements Parcelable {
         dest.writeFloat(mMaxSampleRate);
         dest.writeFloat(mMinSampleRate);
         dest.writeInt(mPropertyId);
-        dest.writeInt(mSupportedAreas.size());
-        for (int i = 0; i < mSupportedAreas.size(); i++) {
-            dest.writeInt(mSupportedAreas.keyAt(i));
-            dest.writeParcelable(mSupportedAreas.valueAt(i), flags);
+        dest.writeInt(mAreaIdToAreaConfig.size());
+        for (int i = 0; i < mAreaIdToAreaConfig.size(); i++) {
+            dest.writeInt(mAreaIdToAreaConfig.keyAt(i));
+            dest.writeParcelable(mAreaIdToAreaConfig.valueAt(i), flags);
         }
         dest.writeString(mType.getName());
     }
@@ -408,11 +411,11 @@ public final class CarPropertyConfig<T> implements Parcelable {
         mMinSampleRate = in.readFloat();
         mPropertyId = in.readInt();
         int areaSize = in.readInt();
-        mSupportedAreas = new SparseArray<>(areaSize);
+        mAreaIdToAreaConfig = new SparseArray<>(areaSize);
         for (int i = 0; i < areaSize; i++) {
             int areaId = in.readInt();
             AreaConfig<T> area = in.readParcelable(getClass().getClassLoader());
-            mSupportedAreas.put(areaId, area);
+            mAreaIdToAreaConfig.put(areaId, area);
         }
         String className = in.readString();
         try {
@@ -440,7 +443,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyConfig{"
-                + "mPropertyId=" + mPropertyId
+                + "mPropertyId=" + VehiclePropertyIds.toString(mPropertyId)
                 + ", mAccess=" + mAccess
                 + ", mAreaType=" + mAreaType
                 + ", mChangeMode=" + mChangeMode
@@ -448,7 +451,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
                 + ", mConfigString=" + mConfigString
                 + ", mMaxSampleRate=" + mMaxSampleRate
                 + ", mMinSampleRate=" + mMinSampleRate
-                + ", mSupportedAreas=" + mSupportedAreas
+                + ", mAreaIdToAreaConfig =" + mAreaIdToAreaConfig
                 + ", mType=" + mType
                 + '}';
     }
@@ -564,7 +567,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         private float mMaxSampleRate;
         private float mMinSampleRate;
         private final int mPropertyId;
-        private final SparseArray<AreaConfig<T>> mSupportedAreas;
+        private final SparseArray<AreaConfig<T>> mAreaIdToAreaConfig;
         private final Class<T> mType;
 
         private Builder(int areaCapacity, int areaType, int propertyId, Class<T> type) {
@@ -572,9 +575,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
             mConfigArray = new ArrayList<>();
             mPropertyId = propertyId;
             if (areaCapacity != 0) {
-                mSupportedAreas = new SparseArray<>(areaCapacity);
+                mAreaIdToAreaConfig = new SparseArray<>(areaCapacity);
             } else {
-                mSupportedAreas = new SparseArray<>();
+                mAreaIdToAreaConfig = new SparseArray<>();
             }
             mType = type;
         }
@@ -587,7 +590,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         @AddedInOrBefore(majorVersion = 33)
         public Builder<T> addAreas(int[] areaIds) {
             for (int id : areaIds) {
-                mSupportedAreas.put(id, null);
+                mAreaIdToAreaConfig.put(id, null);
             }
             return this;
         }
@@ -610,9 +613,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
         @AddedInOrBefore(majorVersion = 33)
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
             if (!isRangeAvailable(min, max)) {
-                mSupportedAreas.put(areaId, null);
+                mAreaIdToAreaConfig.put(areaId, null);
             } else {
-                mSupportedAreas.put(areaId, new AreaConfig<>(min, max));
+                mAreaIdToAreaConfig.put(areaId, new AreaConfig<>(min, max));
             }
             return this;
         }
@@ -691,7 +694,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         public CarPropertyConfig<T> build() {
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
                                            mConfigString, mMaxSampleRate, mMinSampleRate,
-                                           mPropertyId, mSupportedAreas, mType);
+                                           mPropertyId, mAreaIdToAreaConfig, mType);
         }
 
         private boolean isRangeAvailable(T min, T max) {
