@@ -17,6 +17,7 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
@@ -56,6 +57,7 @@ public class CarAudioZone {
     private final Set<String> mDeviceAddresses;
     private final CarAudioContext mCarAudioContext;
     private List<AudioDeviceAttributes> mInputAudioDevice;
+    private final List<String> mGroupIdToNames = new ArrayList<>();
 
     CarAudioZone(CarAudioContext carAudioContext, String name, int id) {
         mCarAudioContext = Objects.requireNonNull(carAudioContext,
@@ -82,6 +84,17 @@ public class CarAudioZone {
     void addVolumeGroup(CarVolumeGroup volumeGroup) {
         mVolumeGroups.add(volumeGroup);
         mDeviceAddresses.addAll(volumeGroup.getAddresses());
+        // Assuming index is the id, id to name is a bijective transformation, names are unique
+        mGroupIdToNames.add(volumeGroup.getName());
+    }
+
+    @Nullable
+    CarVolumeGroup getVolumeGroup(String groupName) {
+        int groupId = mGroupIdToNames.indexOf(groupName);
+        if (groupId < 0) {
+            return null;
+        }
+        return getVolumeGroup(groupId);
     }
 
     CarVolumeGroup getVolumeGroup(int groupId) {

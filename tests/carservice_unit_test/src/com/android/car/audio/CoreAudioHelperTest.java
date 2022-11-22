@@ -40,7 +40,6 @@ import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.content.Context;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
@@ -51,7 +50,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
@@ -60,9 +58,6 @@ import java.util.List;
 public final class CoreAudioHelperTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = CoreAudioHelperTest.class.getSimpleName();
-
-    @Mock
-    private Context mMockContext;
 
     public CoreAudioHelperTest() {
         super(CoreAudioHelper.TAG);

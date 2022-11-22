@@ -16,6 +16,7 @@
 package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
 
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.CarAudioUtils.isMicrophoneInputDevice;
@@ -27,6 +28,7 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
+import android.media.AudioManager;
 import android.media.audiopolicy.AudioProductStrategy;
 import android.text.TextUtils;
 import android.util.ArrayMap;
@@ -97,15 +99,7 @@ import java.util.stream.Collectors;
         SUPPORTED_VERSIONS.put(SUPPORTED_VERSION_3, SUPPORTED_VERSION_3);
     }
 
-    static void setNonLegacyContexts(CarVolumeGroup.Builder groupBuilder,
-            CarAudioDeviceInfo info) {
-        List<Integer> nonCarSystemContexts = CarAudioContext.getCarSystemContextIds();
-        for (int index = 0; index < nonCarSystemContexts.size(); index++) {
-            @AudioContext int audioContext = nonCarSystemContexts.get(index);
-            groupBuilder.setDeviceInfoForContext(audioContext, info);
-        }
-    }
-
+    private final AudioManager mAudioManager;
     private final CarAudioSettings mCarAudioSettings;
     private final List<CarAudioContextInfo> mCarAudioContextInfos = new ArrayList<>();
     private final Map<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
@@ -127,11 +121,14 @@ import java.util.stream.Collectors;
      * <p><b>Note: <b/> CarAudioZonesHelper is expected to be used from a single thread. This
      * should be the same thread that originally called new CarAudioZonesHelper.
      */
-    CarAudioZonesHelper(@NonNull CarAudioSettings carAudioSettings,
+    CarAudioZonesHelper(AudioManager audioManager,
+            @NonNull CarAudioSettings carAudioSettings,
             @NonNull InputStream inputStream,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
             @NonNull AudioDeviceInfo[] inputDeviceInfo, boolean useCarVolumeGroupMute,
             boolean useCoreAudioVolume, boolean useCoreAudioRouting) {
+        mAudioManager = Objects.requireNonNull(audioManager,
+                "Audio manager cannot be null");
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
         mInputStream = Objects.requireNonNull(inputStream);
         Objects.requireNonNull(carAudioDeviceInfos);
@@ -319,6 +316,10 @@ import java.util.stream.Collectors;
             throws XmlPullParserException, IOException {
         String usageLiteral = parser.getAttributeValue(NAMESPACE, attrValue);
         int usage = AudioManagerHelper.xsdStringToUsage(usageLiteral);
+        // TODO (b/248106031): Remove once AUDIO_USAGE_NOTIFICATION_EVENT is fixed in core
+        if (Objects.equals(usageLiteral, "AUDIO_USAGE_NOTIFICATION_EVENT")) {
+            usage = USAGE_NOTIFICATION_EVENT;
+        }
         if (AudioAttributes.isSystemUsage(usage)) {
             builder.setSystemUsage(usage);
         } else {
@@ -540,20 +541,20 @@ import java.util.stream.Collectors;
 
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId,
             String groupName) throws XmlPullParserException, IOException {
-        CarVolumeGroup.Builder groupBuilder =
-                new CarVolumeGroup.Builder(mCarAudioSettings, mCarAudioContext,
-                        zoneId, groupId, groupName, mUseCarVolumeGroupMute);
+        CarVolumeGroupFactory groupFactory = new CarVolumeGroupFactory(mAudioManager,
+                mCarAudioSettings, mCarAudioContext, zoneId, groupId, groupName,
+                mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
                 String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
                 validateOutputDeviceExist(address);
-                parseVolumeGroupContexts(parser, groupBuilder, address);
+                parseVolumeGroupContexts(parser, groupFactory, address);
             } else {
                 skip(parser);
             }
         }
-        return groupBuilder.build();
+        return groupFactory.getCarVolumeGroup(mUseCoreAudioVolume);
     }
 
     private void validateOutputDeviceExist(String address) {
@@ -565,7 +566,7 @@ import java.util.stream.Collectors;
     }
 
     private void parseVolumeGroupContexts(
-            XmlPullParser parser, CarVolumeGroup.Builder groupBuilder, String address)
+            XmlPullParser parser, CarVolumeGroupFactory groupFactory, String address)
             throws XmlPullParserException, IOException {
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -574,12 +575,12 @@ import java.util.stream.Collectors;
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
                 validateCarAudioContextSupport(carAudioContextId);
                 CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
-                groupBuilder.setDeviceInfoForContext(carAudioContextId, info);
+                groupFactory.setDeviceInfoForContext(carAudioContextId, info);
 
                 // If V1, default new contexts to same device as DEFAULT_AUDIO_USAGE
                 if (isVersionOne() && carAudioContextId == mCarAudioContext
                         .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE)) {
-                    setNonLegacyContexts(groupBuilder, info);
+                    groupFactory.setNonLegacyContexts(info);
                 }
             }
             // Always skip to upper level since we're at the lowest.

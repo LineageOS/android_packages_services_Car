@@ -29,6 +29,13 @@ import java.util.List;
 
 final class CoreAudioRoutingUtils {
 
+    public static final int MUSIC_MIN_INDEX = 0;
+    public static final int MUSIC_MAX_INDEX = 40;
+    public static final int MUSIC_AM_INIT_INDEX = 8;
+    public static final int NAV_MIN_INDEX = 5;
+    public static final int NAV_MAX_INDEX = 35;
+    public static final int OEM_MIN_INDEX = 1;
+    public static final int OEM_MAX_INDEX = 15;
     static final List<AudioVolumeGroup> VOLUME_GROUPS;
     static final List<AudioProductStrategy> PRODUCT_STRATEGIES;
 
