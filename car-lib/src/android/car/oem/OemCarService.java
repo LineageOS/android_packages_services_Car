@@ -42,6 +42,10 @@ import java.util.Map;
  * This code will be running as part of the OEM Service. This provides basic implementation for OEM
  * Service. OEMs should extend this class and override relevant methods.
  *
+ * <p>
+ * OEM service implementation should have {@code android.car.permission.BIND_OEM_CAR_SERVICE} as
+ * required permission in manifest to connect to the OEM service.
+ *
  * @hide
  */
 @SystemApi
