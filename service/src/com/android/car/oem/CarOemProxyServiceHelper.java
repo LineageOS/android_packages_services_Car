@@ -22,8 +22,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Process;
-import android.os.RemoteException;
-import android.os.SystemClock;
 import android.util.ArrayMap;
 import android.util.Log;
 
@@ -32,6 +30,7 @@ import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -64,7 +63,7 @@ public final class CarOemProxyServiceHelper {
     private static final int MAX_CIRCULAR_CALLS_PER_CALLER = 5;
     private static final int MAX_CIRCULAR_CALL_TOTAL = 10;
     private static final int MAX_THREAD_POOL_SIZE = 16;
-    private static final int MIN_THREAD_POOL_SIZE = 18;
+    private static final int MIN_THREAD_POOL_SIZE = 8;
 
     private final Object mLock = new Object();
 
@@ -133,7 +132,7 @@ public final class CarOemProxyServiceHelper {
 
     /**
      * Does timed call to the OEM service and returns default value if OEM service timed out or
-     * throws any Exception.
+     * throws any other Exception.
      *
      * <p>Caller would not know if the call to OEM service timed out or returned a valid value which
      * could be same as defaultValue. It is preferred way to call OEM service if the defaultValue is
@@ -144,7 +143,7 @@ public final class CarOemProxyServiceHelper {
      * @param callable containing binder call.
      * @param defaultValue to be returned if call timeout or any other exception is thrown.
      *
-     * @return Result of the binder call. Callable result can be null.
+     * @return Result of the binder call. Result can be null.
      */
     @Nullable
     public <T> T doBinderTimedCallWithDefaultValue(String callerTag, Callable<T> callable,
@@ -159,6 +158,9 @@ public final class CarOemProxyServiceHelper {
             try {
                 return result.get(mRegularCallTimeoutMs, TimeUnit.MILLISECONDS);
             } catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt(); // Restore the interrupted status
+                }
                 Slogf.w(TAG, "Binder call threw an exception. Return default value %s for caller "
                         + "tag: %s", defaultValue, callerTag);
                 return defaultValue;
@@ -171,19 +173,17 @@ public final class CarOemProxyServiceHelper {
     /**
      * Does timed call to the OEM service and throws timeout exception.
      *
-     * <p>Throws timeout exception if OEM service timed out. If OEM service throw RemoteException it
-     * would crash the CarService. If OemService throws InterruptedException or ExecutionException
-     * (except RemoteException), and elapsed time is less than timeout, callable would be retried;
-     * if elapsed time is more than timeout then timeout exception will be thrown.
+     * <p>Throws timeout exception if OEM service times out. If OEM service throw any other
+     * exception, it is wrapped in Timeout exception.
      *
      * @param <T> Type of the result.
      * @param callerTag is tag from the caller. Used for tracking circular calls per binder.
      * @param callable containing binder call.
      * @param timeoutMs in milliseconds.
      *
-     * @return result of the binder call. Callable result can be null.
+     * @return result of the binder call. Result can be null.
      *
-     * @throws TimeoutException if call timed out.
+     * @throws TimeoutException if call times out or throws any other exception.
      */
     @Nullable
     public <T> T doBinderTimedCallWithTimeout(String callerTag, Callable<T> callable,
@@ -194,37 +194,111 @@ public final class CarOemProxyServiceHelper {
         }
         startTracking(callerTag);
         try {
-            long startTime = SystemClock.uptimeMillis();
-            long remainingTime = timeoutMs;
-            Future<T> result;
-            while (remainingTime > 0) {
-                result = mThreadPool.submit(callable);
-                try {
-                    return result.get(remainingTime, TimeUnit.MILLISECONDS);
-                } catch (InterruptedException e) {
+            Future<T> result = mThreadPool.submit(callable);
+            try {
+                return result.get(timeoutMs, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException | ExecutionException e) {
+                Slogf.w(TAG, "Binder call received Exception", e);
+                if (e instanceof InterruptedException) {
                     Thread.currentThread().interrupt(); // Restore the interrupted status
-                    Slogf.w(TAG, "Binder call received InterruptedException", e);
-                } catch (ExecutionException e) {
-                    if (e.getCause() instanceof RemoteException) {
-                        Slogf.e(TAG, "Binder call received RemoteException, calling to crash "
-                                + "CarService");
-                        crashCarService("Remote Exception");
-                    }
-                    Slogf.w(TAG, "Binder call received ExecutionException", e);
                 }
-                remainingTime = timeoutMs - (SystemClock.uptimeMillis() - startTime);
-
-                if (remainingTime > 0) {
-                    Slogf.w(TAG, "Binder call threw exception. Call would be retried with "
-                            + "remainingTime: %s", remainingTime);
-                }
+                // Throw timeout exception even for other exception as caller knows how to handle
+                // timeout exception in this case.
+                TimeoutException exception = new TimeoutException();
+                exception.initCause(e);
+                throw exception;
             }
-            Slogf.w(TAG, "Binder called timeout. throwing timeout exception for caller tag: %s",
-                    callerTag);
-            throw new TimeoutException("Binder called timeout. Timeout: " + timeoutMs + "ms");
         } finally {
             stopTracking(callerTag);
         }
+    }
+
+    /**
+     * Does timed call to OEM service with two different timeouts.
+     *
+     * <p>If OEM service returns before the {@code defaultTimeoutMs}, it would return OEM response.
+     * After {@code defaultTimeoutMs}, call will return {@link Optional#empty()} and queue a tracker
+     * for OEM service response asynchronously. Tracker would wait for {@code mCrashCallTimeoutMs}
+     * for OEM service to response. If OEM service respond before {code mCrashCallTimeoutMs},
+     * callback {@code CallbackForDelayedResult} will be used to post the OEM results on the
+     * original caller. If OEM service doesn't respond within {code mCrashCallTimeoutMs}, CarService
+     * and OEM service both will be crashed.
+     *
+     * <p>This call should be used if it is okay to quickly check for results from OEM Service, and
+     * it is possible to incorporate results from OEM service if delivered late.
+     *
+     * <p>If the binder to OEM service throw any exception during short timeout, it would be ignored
+     * and {@link Optional#empty()} is returned. If the binder to OEM service throw timeout
+     * exception after the longer timeout, it would rash the CarService and OEM Service. If the
+     * binder to OEM service throw any other exception during longer timeout, it would be ignored
+     * and {@link Optional#empty()} is returned.
+     *
+     * @param <T> Type of the result.
+     * @param callerTag is tag from the caller. Used for tracking circular calls per binder.
+     * @param callable containing binder call.
+     * @param defaultTimeoutMs in milliseconds.
+     * @param callback for the delayed results. Callback waits for {@code mCrashCallTimeoutMs}.
+     *
+     * @return Optional carrying result of the binder call. Optional can be empty.
+     */
+    public <T> Optional<T> doBinderCallWithDefaultValueAndDelayedWaitAndCrash(String callerTag,
+            Callable<T> callable, long defaultTimeoutMs,
+            CallbackForDelayedResult<T> callback) {
+        if (DBG) {
+            Slogf.d(TAG, "Received doBinderCallWithDefaultValueAndDelayedWaitAndCrash call for"
+                    + " caller tag: %s.", callerTag);
+        }
+        startTracking(callerTag);
+        try {
+            Future<T> result = mThreadPool.submit(callable);
+            try {
+                return Optional.ofNullable(result.get(defaultTimeoutMs, TimeUnit.MILLISECONDS));
+            } catch (Exception e) {
+                if (e instanceof InterruptedException) {
+                    Thread.currentThread().interrupt(); // Restore the interrupted status
+                }
+                Slogf.e(TAG, "Binder call received Exception", e);
+            }
+
+            // Queue for long wait time check
+            mThreadPool.execute(() -> {
+                startTracking(callerTag);
+                try {
+                    callback.onDelayedResults(
+                            Optional.ofNullable(
+                                    result.get(mCrashCallTimeoutMs, TimeUnit.MILLISECONDS)));
+                } catch (TimeoutException e) {
+                    Slogf.e(TAG, "Binder call received TimeoutException", e);
+                    crashCarService("TimeoutException");
+                } catch (InterruptedException | ExecutionException e) {
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt(); // Restore the interrupted status
+                    }
+                    Slogf.e(TAG, "Binder call received Eexception", e);
+                    callback.onDelayedResults(Optional.empty());
+                } finally {
+                    stopTracking(callerTag);
+                }
+            });
+        } finally {
+            stopTracking(callerTag);
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Callback for getting OEM results after default timeout.
+     *
+     * @param <T> Type of the result.
+     */
+    public interface CallbackForDelayedResult<T> {
+        /**
+         * Invoked when OEM results are received after default timeout.
+         *
+         * @param result received from OEM service
+         */
+        void onDelayedResults(Optional<T> result);
     }
 
     private void stopTracking(String callerTag) {
@@ -285,58 +359,39 @@ public final class CarOemProxyServiceHelper {
      * Does timed call to the OEM service and crashes the OEM and Car Service if call is not served
      * within time.
      *
-     * <p>If OEM service throw RemoteException, it would crash the CarService. If OemService throws
-     * InterruptedException or ExecutionException (except RemoteException), and elapsed time is less
-     * than mCrashTimeout, callable would be retried; if elapsed time is more than timeout then
-     * crashes the OEM and Car Service.
+     * <p>If OEM service throw TimeoutException, it would crash the CarService and OEM service. If
+     * OemService throws any other exception, {@link Optional#empty()} is returned.
      *
      * @param <T> Type of the result.
      * @param callerTag is tag from the caller. Used for tracking circular calls per binder.
      * @param callable containing binder call.
      *
-     * @return result of the binder call. Callable result can be null.
+     * @return Optional carrying result of the binder call. Optional can be empty.
      */
-    @Nullable
-    public <T> T doBinderCallWithTimeoutCrash(String callerTag, Callable<T> callable) {
+    public <T> Optional<T> doBinderCallWithTimeoutCrash(String callerTag, Callable<T> callable) {
         if (DBG) {
             Slogf.d(TAG, "Received doBinderCallWithTimeoutCrash call for caller tag: %s.",
                     callerTag);
         }
         startTracking(callerTag);
         try {
-            long startTime = SystemClock.uptimeMillis();
-            long remainingTime = mCrashCallTimeoutMs;
-            Future<T> result;
-            while (remainingTime > 0) {
-                result = mThreadPool.submit(callable);
-                try {
-                    return result.get(remainingTime, TimeUnit.MILLISECONDS);
-                } catch (TimeoutException e) {
-                    Slogf.e(TAG, "Binder call timeout, calling to crash CarService");
-                    crashCarService("Timeout Exception");
-                } catch (InterruptedException e) {
+            Future<T> result = mThreadPool.submit(callable);
+            try {
+                return Optional.ofNullable(result.get(mCrashCallTimeoutMs, TimeUnit.MILLISECONDS));
+            } catch (TimeoutException e) {
+                Slogf.e(TAG, "Binder call received Exception", e);
+                crashCarService("TimeoutException");
+            } catch (InterruptedException | ExecutionException e) {
+                if (e instanceof InterruptedException) {
                     Thread.currentThread().interrupt(); // Restore the interrupted status
-                    Slogf.w(TAG, "Binder call received InterruptedException", e);
-                } catch (ExecutionException e) {
-                    if (e.getCause() instanceof RemoteException) {
-                        Slogf.e(TAG, "Binder call received RemoteException, calling to crash "
-                                + "CarService", e);
-                        crashCarService("Remote Exception");
-                    }
-                    Slogf.w(TAG, "Binder call received ExecutionException", e);
                 }
-                remainingTime = mCrashCallTimeoutMs - (SystemClock.uptimeMillis() - startTime);
-                if (remainingTime > 0) {
-                    Slogf.w(TAG, "Binder call threw exception. Call would be retried with "
-                            + "remainingTime:%s for caller tag: %s", remainingTime, callerTag);
-                }
+                Slogf.e(TAG, "Binder call received Exception", e);
+                return Optional.empty();
             }
         } finally {
             stopTracking(callerTag);
         }
 
-        Slogf.e(TAG, "Binder called timeout. calling to crash CarService");
-        crashCarService("Timeout Exception");
         throw new AssertionError("Should not return from crashCarService");
     }
 
@@ -362,6 +417,9 @@ public final class CarOemProxyServiceHelper {
                 try {
                     result.get(mRegularCallTimeoutMs, TimeUnit.MILLISECONDS);
                 } catch (Exception e) {
+                    if (e instanceof InterruptedException) {
+                        Thread.currentThread().interrupt(); // Restore the interrupted status
+                    }
                     Slogf.e(TAG, "Exception while running a runnable for caller tag: " + callerTag,
                             e);
                 }

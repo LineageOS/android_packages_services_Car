@@ -381,7 +381,6 @@ public final class CarOemProxyService implements CarServiceBase {
             } catch (RemoteException ex) {
                 Slogf.e(TAG, "Binder call received RemoteException, calling to crash CarService",
                         ex);
-                mHelper.crashCarService("Remote Exception");
             }
         });
         waitForOemServiceReady();
