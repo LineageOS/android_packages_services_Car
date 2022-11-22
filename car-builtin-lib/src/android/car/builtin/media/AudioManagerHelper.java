@@ -43,10 +43,13 @@ import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPortConfig;
 import android.media.AudioSystem;
+import android.media.audiopolicy.AudioProductStrategy;
+import android.text.TextUtils;
 
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -56,10 +59,13 @@ import java.util.Objects;
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class AudioManagerHelper {
+    private static final String TAG = AudioManagerHelper.class.getSimpleName();
 
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static final int UNDEFINED_STREAM_TYPE = -1;
-    private static final String TAG = "AudioServiceHelper";
+
+    @AddedIn(PlatformVersion.TIRAMISU_0)
+    public static final String AUDIO_ATTRIBUTE_TAG_SEPARATOR = ";";
 
     private AudioManagerHelper() {
         throw new UnsupportedOperationException();
@@ -504,5 +510,78 @@ public final class AudioManagerHelper {
          */
         @AddedIn(PlatformVersion.TIRAMISU_0)
         public abstract void onMuteChanged();
+    }
+
+    /**
+     * Adds a tags to the {@link AudioAttributes}.
+     *
+     * <p>{@link AudioProductStrategy} may use additional information to override the current
+     * stream limitation used for routing.
+     *
+     * <p>As Bundler are not propagated to native layer, tags were used to be dispatched to the
+     * AudioPolicyManager.
+     *
+     * @param builder {@link AudioAttributes.Builder} helper to build {@link AudioAttributes}
+     * @param tag to be added to the {@link AudioAttributes} once built.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static void addTagToAudioAttributes(@NonNull AudioAttributes.Builder builder,
+            @NonNull String tag) {
+        builder.addTag(tag);
+    }
+
+    /**
+     * Gets a separated string of tags associated to given {@link AudioAttributes}
+     *
+     * @param attributes {@link AudioAttributes} to be considered
+     * @return the tags of the given {@link AudioAttributes} as a
+     * {@link AUDIO_ATTRIBUTE_TAG_SEPARATOR} separated string.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static String getFormattedTags(@NonNull AudioAttributes attributes) {
+        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        return TextUtils.join(AUDIO_ATTRIBUTE_TAG_SEPARATOR, attributes.getTags());
+    }
+
+    private static final Map<String, Integer> XSD_STRING_TO_CONTENT_TYPE = Map.of(
+            "AUDIO_CONTENT_TYPE_UNKNOWN", AudioAttributes.CONTENT_TYPE_UNKNOWN,
+            "AUDIO_CONTENT_TYPE_SPEECH", AudioAttributes.CONTENT_TYPE_SPEECH,
+            "AUDIO_CONTENT_TYPE_MUSIC", AudioAttributes.CONTENT_TYPE_MUSIC,
+            "AUDIO_CONTENT_TYPE_MOVIE", AudioAttributes.CONTENT_TYPE_MOVIE,
+            "AUDIO_CONTENT_TYPE_SONIFICATION", AudioAttributes.CONTENT_TYPE_SONIFICATION,
+            "AUDIO_CONTENT_TYPE_ULTRASOUND", AudioAttributes.CONTENT_TYPE_ULTRASOUND
+    );
+
+    /**
+     * Converts a literal representation of tags into {@link AudioAttributes.ContentType} value.
+     *
+     * @param xsdString string to be converted into {@link AudioAttributes.ContentType}
+     * @return {@link AudioAttributes.ContentType} representation of xsd content type string if
+     * found, {@code AudioAttributes.CONTENT_TYPE_UNKNOWN} otherwise.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static int xsdStringToContentType(String xsdString) {
+        if (XSD_STRING_TO_CONTENT_TYPE.containsKey(xsdString)) {
+            return XSD_STRING_TO_CONTENT_TYPE.get(xsdString);
+        }
+        return AudioAttributes.CONTENT_TYPE_UNKNOWN;
+    }
+
+    /**
+     * Gets the {@link AudioVolumeGroup} id associated with given {@link AudioProductStrategy}
+     * and {@link AudioAttributes}
+     *
+     * @param strategy {@link AudioProductStrategy} to be considered
+     * @param attributes {@link AudioAttributes} to be considered
+     * @return the id of the {@link AudioVolumeGroup} supporting the given {@link AudioAttributes}
+     * and {@link AudioProductStrategy} if found, {@link AudioVolumeGroup.DEFAULT_VOLUME_GROUP}
+     * otherwise.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static int getVolumeGroupIdForAudioAttributes(
+            @NonNull AudioProductStrategy strategy, @NonNull AudioAttributes attributes) {
+        Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
+        Preconditions.checkNotNull(strategy, "Audio Product Strategy must not be null");
+        return strategy.getVolumeGroupIdForAudioAttributes(attributes);
     }
 }
