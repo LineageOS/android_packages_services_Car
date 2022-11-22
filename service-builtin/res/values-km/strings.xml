@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ភ្ជាប់ទៅសេវាកម្ម​បញ្ចាំង"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"អនុញ្ញាតឱ្យ​ទម្រ​​ភ្ជាប់ជាមួយ​ផ្ទៃកម្រិត​កំពូល​របស់​សេវាកម្មបញ្ចាំង។ មិន​គួរ​ចាំបាច់​សម្រាប់​កម្មវិធី​ធម្មតា​ទេ។"</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"សេវាកម្ម​អតិថិជន VMS"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"ភ្ជាប់ទៅអតិថិជន VMS"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ការបំប្លែង​បណ្ដុំឧបករណ៍"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ទទួលបាន​ទិន្នន័យ​បណ្ដុំឧបករណ៍"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"សេវាកម្ម​បញ្ចូលរបស់​រថយន្ត"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"គ្រប់គ្រង​ព្រឹត្តិការណ៍​បញ្ចូល"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"អ្នកមិនអាចប្រើ​មុខងារនេះ​បានទេ ខណៈពេលកំពុង​បើកបរ"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ដើម្បី​ចាប់ផ្តើមឡើងវិញ​ដោយប្រើ​មុខងារកម្មវិធី​ដែលមានសុវត្ថិភាព សូមជ្រើសរើស <xliff:g id="EXIT_BUTTON">%s</xliff:g> ។"</string>
     <string name="exit_button" msgid="3491899413031549265">"ថយក្រោយ"</string>

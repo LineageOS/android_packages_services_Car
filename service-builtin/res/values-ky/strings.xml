@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"долбоорлоо кызматына туташуу"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Ээсине долбоорлоо кызматынын жогорку деңгээл интерфейсине туташуу мүмкүнчүлүгүн берет. Жалпыга багышталган колдонмолордо эч качан колдонулбашы керек."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS кардарларды тейлөө кызматы"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS кардарларына туташуу"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Куралдар кластери түзүлүүдө"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Куралдар кластеринин дайындарын алуу"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Унаанын киргизүү кызматы"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Киргизүү аракеттерин башкаруу"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Бул функцияны унаа айдап баратканда колдоно албайсыз"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Колдонмонун коопсуз функцияларын иштетүү үчүн <xliff:g id="EXIT_BUTTON">%s</xliff:g> баскычын басыңыз."</string>
     <string name="exit_button" msgid="3491899413031549265">"Артка"</string>

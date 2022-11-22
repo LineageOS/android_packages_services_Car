@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Cho phép ứng dụng chiếu giao diện của một điện thoại lên màn hình trên ô tô."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"truy cập vào trạng thái chiếu"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Cho phép ứng dụng nhận biết trạng thái của các ứng dụng khác đang chiếu lên màn hình trên ô tô."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"liên kết với dịch vụ chiếu"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Cho phép khung liên kết với giao diện cấp cao nhất của dịch vụ chiếu. Điều này không cần thiết đối với các ứng dụng thông thường."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kiểm soát âm lượng trên ô tô"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"quản lý tùy chọn cài đặt âm thanh của ô tô"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"mô phỏng HAL của phương tiện"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Khởi chạy ứng dụng trong nhóm dụng cụ"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Trạng thái điều hướng nhóm công cụ"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Nghe thông tin về việc thay đổi trạng thái điều hướng nhóm công cụ"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Hiển thị nhóm dụng cụ"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Nhận dữ liệu nhóm dụng cụ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Cấu hình hạn chế trải nghiệm người dùng"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Định cấu hình các hạn chế trải nghiệm người dùng"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Quyền đọc mã màn hình riêng tư"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Cho phép đọc trạng thái và dữ liệu phát hiện của Occupant Awareness System"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Biểu đồ kiểm soát Occupant Awareness System"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Cho phép kiểm soát việc bắt đầu và dừng biểu đồ phát hiện Occupant Awareness System"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Dịch vụ nhập dành cho ô tô"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Xử lý sự kiện nhập"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"đọc dữ liệu chẩn đoán"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Đọc dữ liệu chẩn đoán từ ô tô."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"xóa dữ liệu chẩn đoán"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Gửi tin nhắn VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Công cụ đăng ký nhận dữ liệu VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Đăng ký nhận tin nhắn VMS"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Dịch vụ ứng dụng VMS"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Liên kết với ứng dụng VMS"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Giám sát bộ nhớ flash"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Giám sát mức sử dụng bộ nhớ flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"nghe trạng thái lái xe"</string>
