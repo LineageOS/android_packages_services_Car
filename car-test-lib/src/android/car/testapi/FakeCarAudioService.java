@@ -17,6 +17,7 @@
 package android.car.testapi;
 
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.media.AudioDeviceAttributes;
 import android.os.IBinder;
@@ -90,6 +91,16 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     @Override
     public int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
         return new int[] {};
+    }
+
+    @Override
+    public CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId) {
+        return null;
+    }
+
+    @Override
+    public CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId) {
+        return new CarVolumeGroupInfo[0];
     }
 
     @Override
