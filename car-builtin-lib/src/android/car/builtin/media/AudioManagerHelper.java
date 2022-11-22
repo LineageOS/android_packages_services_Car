@@ -584,4 +584,53 @@ public final class AudioManagerHelper {
         Preconditions.checkNotNull(strategy, "Audio Product Strategy must not be null");
         return strategy.getVolumeGroupIdForAudioAttributes(attributes);
     }
+
+    /**
+     * Gets the last audible volume for a given {@link AudioVolumeGroup} id.
+     * <p>The last audible index is the current index if not muted, or index applied before mute if
+     * muted. If muted by volume 0, the last audible index is 0. See
+     * {@link AudioManager#getLastAudibleVolumeGroupVolume} for details.
+     *
+     * @param audioManager {@link AudioManager} instance to be used for the request
+     * @param amGroupId id of the {@link AudioVolumeGroup} to consider
+     * @return the last audible volume of the {@link AudioVolumeGroup}
+     * referred by its id if found, {@code 0} otherwise.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static int getLastAudibleVolumeGroupVolume(@NonNull AudioManager audioManager,
+                                                     int amGroupId) {
+        Objects.requireNonNull(audioManager, "Audio manager can not be null");
+        return audioManager.getLastAudibleVolumeGroupVolume(amGroupId);
+    }
+
+    /**
+     * Checks if the given {@link AudioVolumeGroup} is muted or not.
+     * <p>See {@link AudioManager#isVolumeGroupMuted} for details
+     *
+     * @param audioManager {@link AudioManager} instance to be used for the request
+     * @param amGroupId id of the {@link AudioVolumeGroup} to consider
+     * @return true if the {@link AudioVolumeGroup} referred by its id is found and muted, false
+     *                otherwise.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static boolean isVolumeGroupMuted(@NonNull AudioManager audioManager, int amGroupId) {
+        Objects.requireNonNull(audioManager, "Audio manager can not be null");
+        return audioManager.isVolumeGroupMuted(amGroupId);
+    }
+
+    /**
+     * Adjusts the volume for the {@link AudioVolumeGroup} id if found. No-operation otherwise.
+     * <p>See {@link AudioManager#adjustVolumeGroupVolume} for details
+     *
+     * @param audioManager audio manager to use for managing the volume group
+     * @param amGroupId id of the {@link AudioVolumeGroup} to consider
+     * @param direction direction to adjust the volume, one of {@link AudioManager#VolumeAdjustment}
+     * @param flags one ore more flags of {@link AudioManager#Flags}
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_3)
+    public static void adjustVolumeGroupVolume(@NonNull AudioManager audioManager,
+            int amGroupId, int direction, @AudioManager.Flags int flags) {
+        Objects.requireNonNull(audioManager, "Audio manager can not be null");
+        audioManager.adjustVolumeGroupVolume(amGroupId, direction, flags);
+    }
 }

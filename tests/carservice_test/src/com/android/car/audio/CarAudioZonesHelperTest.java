@@ -25,6 +25,7 @@ import static android.media.AudioDeviceInfo.TYPE_BUS;
 import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -111,8 +112,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session
-                .spyStatic(AudioManager.class);
+        session.spyStatic(AudioManager.class);
     }
 
     @Before
@@ -782,9 +782,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setupAudioManagerMock() {
-        when(AudioManager.getAudioProductStrategies())
-                .thenReturn(CoreAudioRoutingUtils.getProductStrategies());
-        when(AudioManager.getAudioVolumeGroups())
-                .thenReturn(CoreAudioRoutingUtils.getVolumeGroups());
+        doReturn(CoreAudioRoutingUtils.getProductStrategies())
+                .when(() -> AudioManager.getAudioProductStrategies());
+        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
+                .when(() -> AudioManager.getAudioVolumeGroups());
     }
 }

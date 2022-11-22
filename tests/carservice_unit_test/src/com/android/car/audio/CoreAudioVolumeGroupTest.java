@@ -33,10 +33,7 @@ import android.media.AudioManager;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
-import com.google.common.truth.Expect;
-
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -130,9 +127,6 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     private CoreAudioVolumeGroup mNavCoreAudioVolumeGroup;
     private CoreAudioVolumeGroup mOemCoreAudioVolumeGroup;
 
-    @Rule
-    public final Expect expect = Expect.create();
-
     public CoreAudioVolumeGroupTest() {
         super(CoreAudioVolumeGroup.TAG);
     }
@@ -201,48 +195,48 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
     @Test
     public void getMaxIndex() {
-        expect.withMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup.getMaxGainIndex())
+        expectWithMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup.getMaxGainIndex())
                 .isEqualTo(MUSIC_MAX_INDEX);
-        expect.withMessage("Initial gain index").that(mNavCoreAudioVolumeGroup.getMaxGainIndex())
+        expectWithMessage("Initial gain index").that(mNavCoreAudioVolumeGroup.getMaxGainIndex())
                 .isEqualTo(NAV_MAX_INDEX);
-        expect.withMessage("Initial gain index").that(mOemCoreAudioVolumeGroup.getMaxGainIndex())
+        expectWithMessage("Initial gain index").that(mOemCoreAudioVolumeGroup.getMaxGainIndex())
                 .isEqualTo(OEM_MAX_INDEX);
     }
 
     @Test
     public void getMinIndex() {
-        expect.withMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup.getMinGainIndex())
-                .isEqualTo(MUSIC_MIN_INDEX);
-        expect.withMessage("Initial gain index").that(mNavCoreAudioVolumeGroup.getMinGainIndex())
+        expectWithMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup
+                .getMinGainIndex()).isEqualTo(MUSIC_MIN_INDEX);
+        expectWithMessage("Initial gain index").that(mNavCoreAudioVolumeGroup.getMinGainIndex())
                 .isEqualTo(NAV_MIN_INDEX);
-        expect.withMessage("Initial gain index").that(mOemCoreAudioVolumeGroup.getMinGainIndex())
+        expectWithMessage("Initial gain index").that(mOemCoreAudioVolumeGroup.getMinGainIndex())
                 .isEqualTo(OEM_MIN_INDEX);
     }
 
     @Test
     public void checkIndexRange() {
-        expect.withMessage("check inside range").that(mMusicCoreAudioVolumeGroup.isValidGainIndex(
+        expectWithMessage("check inside range").that(mMusicCoreAudioVolumeGroup.isValidGainIndex(
                         (MUSIC_MAX_INDEX + MUSIC_MIN_INDEX) / 2))
                 .isTrue();
-        expect.withMessage("check outside range")
+        expectWithMessage("check outside range")
                 .that(mMusicCoreAudioVolumeGroup.isValidGainIndex(MUSIC_MIN_INDEX - 1))
                 .isFalse();
-        expect.withMessage("check outside range")
+        expectWithMessage("check outside range")
                 .that(mMusicCoreAudioVolumeGroup.isValidGainIndex(MUSIC_MAX_INDEX + 1))
                 .isFalse();
     }
 
     @Test
     public void setAndGetIndex() {
-        expect.withMessage("Initial am gain index")
+        expectWithMessage("Initial am gain index")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial am gain index")
+        expectWithMessage("Initial am gain index")
                 .that(mMusicCoreAudioVolumeGroup.getAmLastAudibleIndex())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial am gain index")
+        expectWithMessage("Initial am gain index")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndex())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
@@ -257,7 +251,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     public void muteUnmute() {
         int initialIndex = mMusicCoreAudioVolumeGroup.getCurrentGainIndex();
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
         mMusicCoreAudioVolumeGroup.setMute(true);
@@ -265,10 +259,10 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         verify(mMockAudioManager).setVolumeIndexForAttributes(
                 eq(MUSIC_ATTRIBUTES), eq(0), anyInt());
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
-        expect.withMessage("Index unchanged")
+        expectWithMessage("Index unchanged")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(0);
 
@@ -276,10 +270,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         verify(mMockAudioManager).setVolumeIndexForAttributes(
                 eq(MUSIC_ATTRIBUTES), eq(initialIndex), anyInt());
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
-        expect.withMessage("Index unchanged")
+
+        expectWithMessage("Index unchanged")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(initialIndex);
     }
@@ -291,7 +286,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         verify(mMockAudioManager).setVolumeIndexForAttributes(
                 eq(MUSIC_ATTRIBUTES), eq(MUSIC_MIN_INDEX), anyInt());
 
-        expect.withMessage("Initial mute state is muted")
+        expectWithMessage("Initial mute state is muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
@@ -300,10 +295,10 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         verify(mMockAudioManager, times(2)).setVolumeIndexForAttributes(
                 eq(MUSIC_ATTRIBUTES), eq(MUSIC_MIN_INDEX), anyInt());
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
-        expect.withMessage("Index unchanged")
+        expectWithMessage("Index unchanged")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
 
@@ -312,10 +307,10 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         verify(mMockAudioManager, times(3)).setVolumeIndexForAttributes(
                 eq(MUSIC_ATTRIBUTES), eq(MUSIC_MIN_INDEX), anyInt());
 
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
-        expect.withMessage("Index unchanged")
+        expectWithMessage("Index unchanged")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
     }
@@ -326,25 +321,23 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(index);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
         amIndex = MUSIC_AM_INIT_INDEX + 2;
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES)).thenReturn(amIndex);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("Index synchronized")
+        expectWithMessage("Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
-
-        expect.withMessage("Index synchronized")
+        expectWithMessage("Index synchronized")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(amIndex);
 
         // Double sync is a no-op
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("Index already synchronized").that(flags).isEqualTo(0);
-
-        expect.withMessage("Index already synchronized")
+        expectWithMessage("Index already synchronized").that(flags).isEqualTo(0);
+        expectWithMessage("Index already synchronized")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(amIndex);
     }
@@ -354,9 +347,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
@@ -366,13 +359,13 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
         // Current AudioServer does not implement volume adjustement on AudioVolumeGroup, so it is
         // interpreted as a mute by volume 0, so both flags raisen
-        expect.withMessage("Mue State synchronized")
+        expectWithMessage("Mue State synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
@@ -382,11 +375,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
-        expect.withMessage("Mute State synchronized")
+        expectWithMessage("Mute State synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
     }
@@ -396,9 +389,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
@@ -408,12 +401,12 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
         // Current AudioServer does not implement volume adjustement on AudioVolumeGroup, so it is
         // interpreted as a mute by volume 0, so both flags raisen
-        expect.withMessage("Index synchronized")
+        expectWithMessage("Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
@@ -423,18 +416,18 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
-        expect.withMessage("Mute state and Index synchronized")
+        expectWithMessage("Mute state and Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
-        expect.withMessage("Index updated")
+        expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(amIndex);
-        expect.withMessage("AM Index updated")
+        expectWithMessage("AM Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(amIndex);
     }
@@ -444,9 +437,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
@@ -456,11 +449,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
-        expect.withMessage("Mute State and Index synchronized")
+        expectWithMessage("Mute State and Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
@@ -471,16 +464,16 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
-        expect.withMessage("keep muted")
+        expectWithMessage("keep muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
-        expect.withMessage("Mute State not synchronized").that(flags).isEqualTo(0);
+        expectWithMessage("Mute State not synchronized").that(flags).isEqualTo(0);
 
-        expect.withMessage("Index updated")
+        expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
-        expect.withMessage("AM Index updated")
+        expectWithMessage("AM Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(MUSIC_MIN_INDEX);
     }
@@ -490,9 +483,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
@@ -502,13 +495,13 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
         // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
         // so mute is seen as a mute by volume 0, so both flags raisen
-        expect.withMessage("Mute State and Index synchronized")
+        expectWithMessage("Mute State and Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
@@ -519,16 +512,16 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
-        expect.withMessage("Mute State not synchronized").that(flags).isEqualTo(0);
+        expectWithMessage("Mute State not synchronized").that(flags).isEqualTo(0);
 
-        expect.withMessage("Index updated")
+        expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
-        expect.withMessage("AM Index updated")
+        expectWithMessage("AM Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(MUSIC_MIN_INDEX);
     }
@@ -538,9 +531,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         mMusicCoreAudioVolumeGroup.setCurrentGainIndex(MUSIC_AM_INIT_INDEX);
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
-        expect.withMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+        expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expect.withMessage("Initial mute state is unmuted")
+        expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
@@ -550,11 +543,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to muted")
+        expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
-        expect.withMessage("Mute State and Index synchronized")
+        expectWithMessage("Mute State and Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
@@ -564,18 +557,18 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expect.withMessage("switched to unmuted")
+        expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
 
-        expect.withMessage("Mute State synchronized")
+        expectWithMessage("Mute State synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
 
-        expect.withMessage("Index updated")
+        expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_AM_INIT_INDEX + 1);
-        expect.withMessage("AM Index updated")
+        expectWithMessage("AM Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(MUSIC_AM_INIT_INDEX + 1);
     }

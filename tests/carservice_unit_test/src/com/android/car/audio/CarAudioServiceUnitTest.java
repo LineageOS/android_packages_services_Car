@@ -3135,6 +3135,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         doReturn(CoreAudioRoutingUtils.getVolumeGroups())
                 .when(() -> AudioManager.getAudioVolumeGroups());
 
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID);
         when(mAudioManager.getMinVolumeIndexForAttributes(
                 eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
@@ -3143,16 +3145,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MAX_INDEX);
         when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
+        when(mAudioManager.getLastAudibleVolumeGroupVolume(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(false);
 
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.NAV_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.NAV_GROUP_ID);
         when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.NAV_MIN_INDEX);
         when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.NAV_MAX_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.NAV_GROUP_ID))
+                .thenReturn(false);
 
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.OEM_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.OEM_GROUP_ID);
         when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.OEM_MIN_INDEX);
         when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.OEM_MAX_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.OEM_GROUP_ID))
+                .thenReturn(false);
     }
 
     private static AudioFocusInfo createAudioFocusInfoForMedia() {

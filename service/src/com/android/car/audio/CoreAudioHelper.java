@@ -59,10 +59,10 @@ final class CoreAudioHelper {
      * Due to testing issue with static mock, use lazy initialize pattern for static variables
      */
     private static List<AudioProductStrategy> getAudioProductStrategies() {
-        return AudioManager.getAudioProductStrategies();
+        return StaticLazyInitializer.sAudioProductStrategies;
     }
     private static List<AudioVolumeGroup> getAudioVolumeGroups() {
-        return AudioManager.getAudioVolumeGroups();
+        return StaticLazyInitializer.sAudioVolumeGroups;
     }
     private static SparseArray<String> getGroupIdToNames() {
         return StaticLazyInitializer.sGroupIdToNames;
