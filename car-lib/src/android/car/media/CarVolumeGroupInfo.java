@@ -19,6 +19,7 @@ package android.car.media;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
@@ -39,9 +40,32 @@ import java.util.Objects;
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class CarVolumeGroupInfo implements Parcelable {
 
+    private static final long IS_USED_FIELD_SET = 0x01;
+
+    private final String mName;
     private final int mZoneId;
     private final int mId;
-    private final @NonNull String mName;
+    private final int mVolumeGain;
+    private final boolean mIsMuted;
+    private final boolean mIsBlocked;
+    private final boolean mIsAttenuated;
+
+    private CarVolumeGroupInfo(
+            String name,
+            int zoneId,
+            int id,
+            int volumeGain,
+            boolean isMuted,
+            boolean isBlocked,
+            boolean isAttenuated) {
+        mName = Objects.requireNonNull(name, "Volume info name can not be null");
+        mZoneId = zoneId;
+        mId = id;
+        mVolumeGain = volumeGain;
+        mIsMuted = isMuted;
+        mIsBlocked = isBlocked;
+        mIsAttenuated = isAttenuated;
+    }
 
     /**
      * Creates volume info from parcel
@@ -49,10 +73,15 @@ public final class CarVolumeGroupInfo implements Parcelable {
      * @hide
      */
     @VisibleForTesting()
-    public CarVolumeGroupInfo(@NonNull Parcel in) {
+    public CarVolumeGroupInfo(Parcel in) {
         mZoneId = in.readInt();
         mId = in.readInt();
         mName = in.readString();
+        mVolumeGain = in.readInt();
+        mIsMuted = in.readBoolean();
+        mIsBlocked = in.readBoolean();
+        mIsAttenuated = in.readBoolean();
+
     }
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -80,14 +109,13 @@ public final class CarVolumeGroupInfo implements Parcelable {
         return 0;
     }
 
-
-    CarVolumeGroupInfo(
-            int zoneId,
-            int id,
-            @NonNull String name) {
-        this.mZoneId = zoneId;
-        this.mId = id;
-        this.mName = Objects.requireNonNull(name, "Volume info name can not be null");
+    /**
+     * Returns the volume group name
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public @NonNull String getName() {
+        return mName;
     }
 
     /**
@@ -109,21 +137,50 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     /**
-     * Returns the volume group name
+     * Returns the volume group gain
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public @NonNull String getName() {
-        return mName;
+    public int getVolumeGain() {
+        return mVolumeGain;
+    }
+
+    /**
+     * Returns the volume mute state, {@code true} for muted
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean isMuted() {
+        return mIsMuted;
+    }
+
+    /**
+     * Returns the volume blocked state, {@code true} for blocked
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean isBlocked() {
+        return mIsBlocked;
+    }
+
+    /**
+     * Returns the volume attenuated state, {@code true} for attenuated
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean isAttenuated() {
+        return mIsAttenuated;
     }
 
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
-        return new StringBuilder().append("CarVolumeGroupId { zone id = ")
-                .append(mZoneId).append(" id =").append(mId)
-                .append(", name = ").append(mName)
+        return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
+                .append(", zone id = ").append(mZoneId).append(" id = ").append(mId)
+                .append(", gain = ").append(mVolumeGain).append(", muted = ").append(mIsMuted)
+                .append(", blocked = ").append(mIsBlocked)
+                .append(", attenuated = ").append(mIsAttenuated)
                 .append(" }").toString();
     }
 
@@ -134,6 +191,23 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeInt(mZoneId);
         dest.writeInt(mId);
         dest.writeString(mName);
+        dest.writeInt(mVolumeGain);
+        dest.writeBoolean(mIsMuted);
+        dest.writeBoolean(mIsBlocked);
+        dest.writeBoolean(mIsAttenuated);
+    }
+
+    /**
+     * Determines if it is the same volume group, only comparing the group name, zone id, and
+     * group id.
+     *
+     * @return {@code true} if the group info is the same, {@code false} otherwise
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean isSameVolumeGroup(@Nullable CarVolumeGroupInfo group) {
+        return  group != null && mZoneId == group.mZoneId && mId == group.mId
+                && mName.equals(group.mName);
     }
 
     @Override
@@ -150,14 +224,16 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
         CarVolumeGroupInfo that = (CarVolumeGroupInfo) o;
 
-        return mZoneId == that.mZoneId && mId == that.mId && mName.equals(that.mName);
+        return isSameVolumeGroup(that) && mVolumeGain == that.mVolumeGain
+                && mIsMuted == that.mIsMuted && mIsBlocked == that.mIsBlocked
+                && mIsAttenuated == that.mIsAttenuated;
     }
 
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
-        return Objects.hash(mName, mZoneId, mId);
+        return Objects.hash(mName, mZoneId, mId, mVolumeGain, mIsMuted, mIsBlocked, mIsAttenuated);
     }
 
     /**
@@ -168,55 +244,74 @@ public final class CarVolumeGroupInfo implements Parcelable {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class Builder {
 
+        private @NonNull String mName;
         private int mZoneId;
         private int mId;
-        private @NonNull String mName;
+        private int mVolumeGain;
+        private boolean mIsMuted;
+        private boolean mIsBlocked;
+        private boolean mIsAttenuated;
 
         private long mBuilderFieldsSet = 0L;
 
-        public Builder(
-                int zoneId,
-                int id,
-                @NonNull String name) {
+        public Builder(@NonNull String name, int zoneId, int id) {
+            mName = Objects.requireNonNull(name, "Volume info name can not be null");
             mZoneId = zoneId;
             mId = id;
-            mName = Objects.requireNonNull(name, "Volume info name can not be null");
+        }
+
+        public Builder(@NonNull CarVolumeGroupInfo info) {
+            Objects.requireNonNull(info, "Volume info can not be null");
+            mName = info.mName;
+            mZoneId = info.mZoneId;
+            mId = info.mId;
+            mVolumeGain = info.mVolumeGain;
+            mIsMuted = info.mIsMuted;
+            mIsBlocked = info.mIsBlocked;
+            mIsAttenuated = info.mIsAttenuated;
         }
 
         /**
-         * Set the volume group zone id
+         * Sets the volume group gain
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public @NonNull Builder setZoneId(int value) {
+        public @NonNull Builder setVolumeGain(int volumeGain) {
             checkNotUsed();
-            mBuilderFieldsSet |= 0x1;
-            mZoneId = value;
+            mVolumeGain = volumeGain;
             return this;
         }
 
         /**
-         * Set the volume group id
+         * Sets the volume group muted state,  {@code true} for muted
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public @NonNull Builder setId(int value) {
+        public @NonNull Builder setMuted(boolean muted) {
             checkNotUsed();
-            mBuilderFieldsSet |= 0x2;
-            mId = value;
+            mIsMuted = muted;
             return this;
         }
 
         /**
-         * Sets the volume group name
+         * Sets the volume group blocked state, {@code true} for blocked
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        @NonNull
-        public Builder setName(@NonNull String name) {
+        public @NonNull Builder setBlocked(boolean blocked) {
             checkNotUsed();
-            mBuilderFieldsSet |= 0x4;
-            mName = Objects.requireNonNull(name, "Volume info name can not be null");
+            mIsBlocked = blocked;
+            return this;
+        }
+
+        /**
+         * Sets the volume group attenuated state, {@code true} for attenuated
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public @NonNull Builder setAttenuated(boolean attenuated) {
+            checkNotUsed();
+            mIsAttenuated = attenuated;
             return this;
         }
 
@@ -226,13 +321,14 @@ public final class CarVolumeGroupInfo implements Parcelable {
         @NonNull
         public CarVolumeGroupInfo build() {
             checkNotUsed();
-            mBuilderFieldsSet |= 0x8; // Mark builder used
+            mBuilderFieldsSet |= IS_USED_FIELD_SET; // Mark builder used
 
-            return new CarVolumeGroupInfo(mZoneId, mId, mName);
+            return new CarVolumeGroupInfo(mName, mZoneId, mId, mVolumeGain, mIsMuted, mIsBlocked,
+                    mIsAttenuated);
         }
 
         private void checkNotUsed() {
-            if ((mBuilderFieldsSet & 0x8) != 0) {
+            if ((mBuilderFieldsSet & IS_USED_FIELD_SET) != 0) {
                 throw new IllegalStateException(
                         "This Builder should not be reused. Use a new Builder instance instead");
             }
