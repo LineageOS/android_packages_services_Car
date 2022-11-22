@@ -76,11 +76,11 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_1 =
             new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
     private static final String[] SESSION_ANNOTATION_KEYS =
-            {SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID,
-                    SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON,
-                    SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_STATE,
-                    SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS,
-                    SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS};
+            {Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID,
+                    Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON,
+                    Constants.ANNOTATION_BUNDLE_KEY_SESSION_STATE,
+                    Constants.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS,
+                    Constants.ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS};
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
