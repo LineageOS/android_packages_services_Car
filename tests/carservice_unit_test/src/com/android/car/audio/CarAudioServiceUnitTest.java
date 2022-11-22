@@ -159,12 +159,12 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int INVALID_AUDIO_FEATURE = -1;
 
     private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
-            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE,
-                    TEST_PRIMARY_GROUP, "group id " + TEST_PRIMARY_GROUP).build();
+            new CarVolumeGroupInfo.Builder("group id " + TEST_PRIMARY_GROUP, PRIMARY_AUDIO_ZONE,
+                    TEST_PRIMARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
-            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE,
-                    TEST_SECONDARY_GROUP, "group id " + TEST_SECONDARY_GROUP).build();
+            new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP, PRIMARY_AUDIO_ZONE,
+                    TEST_SECONDARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
 
     private CarAudioService mCarAudioService;
     @Mock

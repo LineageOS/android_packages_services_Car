@@ -1075,6 +1075,8 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int, int);
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public android.car.media.CarVolumeGroupInfo getVolumeGroupInfo(int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.car.media.CarVolumeGroupInfo> getVolumeGroupInfosForZone(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isPlaybackOnVolumeGroupActive(int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isVolumeGroupMuted(int, int);
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void releaseAudioPatch(android.car.media.CarAudioPatchHandle);
@@ -1112,17 +1114,24 @@ package android.car.media {
     method public int describeContents();
     method public int getId();
     method @NonNull public String getName();
+    method public int getVolumeGain();
     method public int getZoneId();
+    method public boolean isAttenuated();
+    method public boolean isBlocked();
+    method public boolean isMuted();
+    method public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
   }
 
   public static final class CarVolumeGroupInfo.Builder {
-    ctor public CarVolumeGroupInfo.Builder(int, int, @NonNull String);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
-    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setId(int);
-    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setName(@NonNull String);
-    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setZoneId(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGain(int);
   }
 
 }

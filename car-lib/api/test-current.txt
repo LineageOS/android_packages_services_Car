@@ -1142,6 +1142,8 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public android.car.media.CarVolumeGroupInfo getVolumeGroupInfo(int, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.car.media.CarVolumeGroupInfo> getVolumeGroupInfosForZone(int);
     method @Deprecated public boolean isDynamicRoutingEnabled();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isPlaybackOnVolumeGroupActive(int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isVolumeGroupMuted(int, int);
@@ -1180,17 +1182,24 @@ package android.car.media {
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public int describeContents();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public int getId();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public String getName();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public int getVolumeGain();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public int getZoneId();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public boolean isAttenuated();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public boolean isBlocked();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public boolean isMuted();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_2, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public void writeToParcel(@NonNull android.os.Parcel, int);
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
   }
 
   @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final class CarVolumeGroupInfo.Builder {
-    ctor public CarVolumeGroupInfo.Builder(int, int, @NonNull String);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo build();
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setId(int);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setName(@NonNull String);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setZoneId(int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_2, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_2, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_2, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGain(int);
   }
 
 }

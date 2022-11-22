@@ -26,17 +26,28 @@ import org.junit.Test;
 public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase {
 
     private static final int TEST_ZONE_ID = 8;
-    private static final int TEST_SECONDARY_ZONE_ID = 6;
     private static final int TEST_PRIMARY_GROUP_ID = 7;
-    private static final int TEST_SECONDARY_GROUP_ID = 5;
     private static final String TEST_GROUP_NAME = "3";
-    private static final String TEST_SECOND_GROUP_NAME = "09";
     private static final int TEST_PARCEL_FLAGS = 0;
+    private static final int TEST_CURRENT_GAIN = 9_000;
+    private static final boolean TEST_DEFAULT_MUTE_STATE = false;
+    private static final boolean TEST_DEFAULT_BLOCKED_STATE = false;
+    private static final boolean TEST_DEFAULT_ATTENUATED_STATE = false;
+
+    private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+            TEST_PRIMARY_GROUP_ID).build();
+
+    private final CarVolumeGroupInfo.Builder mTestGroupInfoBuilder =
+            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
+            TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID).setAttenuated(TEST_DEFAULT_ATTENUATED_STATE)
+                    .setVolumeGain(TEST_CURRENT_GAIN).setBlocked(TEST_DEFAULT_BLOCKED_STATE)
+                    .setMuted(TEST_DEFAULT_MUTE_STATE);
 
     @Test
     public void build_buildsGroupInfo() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+                        TEST_PRIMARY_GROUP_ID).build();
 
         expectWithMessage("Car volume info build info zone id")
                 .that(info.getZoneId()).isEqualTo(TEST_ZONE_ID);
@@ -47,54 +58,10 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void setId_buildsGroupInfo() {
-        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME);
-        CarVolumeGroupInfo info = builder.setId(TEST_SECONDARY_GROUP_ID).build();
-
-        expectWithMessage("Car volume info group id")
-                .that(info.getId()).isEqualTo(TEST_SECONDARY_GROUP_ID);
-    }
-
-    @Test
-
-    public void setZoneId_buildsGroupInfo() {
-        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME);
-        CarVolumeGroupInfo info = builder.setZoneId(TEST_SECONDARY_ZONE_ID).build();
-
-        expectWithMessage("Car volume info group zone id")
-                .that(info.getZoneId()).isEqualTo(TEST_SECONDARY_ZONE_ID);
-    }
-
-    @Test
-    public void setName_buildsGroupInfo() {
-        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME);
-        CarVolumeGroupInfo info = builder.setName(TEST_SECOND_GROUP_NAME).build();
-
-        expectWithMessage("Car volume info group id")
-                .that(info.getName()).isEqualTo(TEST_SECOND_GROUP_NAME);
-    }
-
-    @Test
-    public void setName_withNullName_fails() {
-        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME);
-
-        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                builder.setName(/* name= */ null)
-        );
-
-        expectWithMessage("Null volume info set name exception")
-                .that(thrown).hasMessageThat().contains("Volume info name");
-    }
-
-    @Test
     public void build_withNullName_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class, () ->
-                new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                        TEST_PRIMARY_GROUP_ID, /* name= */ null)
+                new CarVolumeGroupInfo.Builder(/* name= */ null,
+                        TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
         );
 
         expectWithMessage("Null volume info name exception")
@@ -102,9 +69,41 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void setVolumeGain_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setVolumeGain(9_001).build();
+
+        expectWithMessage("Car volume info gain")
+                .that(info.getVolumeGain()).isEqualTo(9_001);
+    }
+
+    @Test
+    public void setMuted_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setMuted(true).build();
+
+        expectWithMessage("Car volume info mute state")
+                .that(info.isMuted()).isTrue();
+    }
+
+    @Test
+    public void setAttenuated_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setAttenuated(true).build();
+
+        expectWithMessage("Car volume info attenuated state")
+                .that(info.isAttenuated()).isTrue();
+    }
+
+    @Test
+    public void setBlocked_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setBlocked(true).build();
+
+        expectWithMessage("Car volume info blocked state")
+                .that(info.isBlocked()).isTrue();
+    }
+
+    @Test
     public void builder_withReuse_fails() {
-        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME);
+        CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
+                TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID);
         builder.build();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
@@ -117,27 +116,24 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void writeToParcel() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
         Parcel parcel = Parcel.obtain();
 
-        info.writeToParcel(parcel, TEST_PARCEL_FLAGS);
+        TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
         parcel.setDataPosition(/* position= */ 0);
 
         expectWithMessage("Car volume info from parcel")
-                .that(new CarVolumeGroupInfo(parcel)).isEqualTo(info);
+                .that(new CarVolumeGroupInfo(parcel)).isEqualTo(TEST_VOLUME_INFO);
     }
 
     @Test
     public void createFromParcel() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
         Parcel parcel = Parcel.obtain();
-        info.writeToParcel(parcel, TEST_PARCEL_FLAGS);
+        TEST_VOLUME_INFO.writeToParcel(parcel, TEST_PARCEL_FLAGS);
         parcel.setDataPosition(/* position= */ 0);
 
         expectWithMessage("Car volume info created from parcel")
-                .that(CarVolumeGroupInfo.CREATOR.createFromParcel(parcel)).isEqualTo(info);
+                .that(CarVolumeGroupInfo.CREATOR.createFromParcel(parcel))
+                .isEqualTo(TEST_VOLUME_INFO);
     }
 
 
@@ -151,28 +147,26 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void equals_forSameContent() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
-        CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo infoWithSameContent =
+                new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO).build();
 
         expectWithMessage("Car volume info with same content")
-                .that(info).isEqualTo(infoWithSameContent);
+                .that(infoWithSameContent).isEqualTo(TEST_VOLUME_INFO);
     }
 
     @Test
     public void equals_forNull() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+                TEST_PRIMARY_GROUP_ID).build();
 
         expectWithMessage("Car volume info null content")
-                .that(info).isNotNull();
+                .that(info.equals(null)).isFalse();
     }
 
     @Test
     public void describeContents() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+                TEST_PRIMARY_GROUP_ID).build();
 
         expectWithMessage("Car volume info contents")
                 .that(info.describeContents()).isEqualTo(0);
@@ -180,19 +174,17 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
 
     @Test
     public void hashCode_forSameContent() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
-        CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
+                .build();
 
         expectWithMessage("Car volume info hash with same content")
-                .that(info.hashCode()).isEqualTo(infoWithSameContent.hashCode());
+                .that(infoWithSameContent.hashCode()).isEqualTo(TEST_VOLUME_INFO.hashCode());
     }
 
     @Test
     public void toString_forContent() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID, TEST_GROUP_NAME).build();
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
+                TEST_PRIMARY_GROUP_ID).build();
 
         expectWithMessage("Car volume info name")
                 .that(info.toString()).contains(TEST_GROUP_NAME);

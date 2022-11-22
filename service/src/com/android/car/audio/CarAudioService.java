@@ -472,15 +472,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupMaxVolume(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamMaxVolume(
+                    CarAudioDynamicRouting.STREAM_TYPES[groupId]);
+        }
+
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) {
-                return mAudioManager.getStreamMaxVolume(
-                        CarAudioDynamicRouting.STREAM_TYPES[groupId]);
-            }
-
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             return group.getMaxGainIndex();
         }
@@ -491,15 +490,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupMinVolume(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamMinVolume(
+                    CarAudioDynamicRouting.STREAM_TYPES[groupId]);
+        }
+
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) {
-                return mAudioManager.getStreamMinVolume(
-                        CarAudioDynamicRouting.STREAM_TYPES[groupId]);
-            }
-
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             return group.getMinGainIndex();
         }
@@ -510,15 +508,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public int getGroupVolume(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            return mAudioManager.getStreamVolume(
+                    CarAudioDynamicRouting.STREAM_TYPES[groupId]);
+        }
+
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) {
-                return mAudioManager.getStreamVolume(
-                        CarAudioDynamicRouting.STREAM_TYPES[groupId]);
-            }
-
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             return group.getCurrentGainIndex();
         }
@@ -866,11 +864,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public int getVolumeGroupCount(int zoneId) {
-        synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) return CarAudioDynamicRouting.STREAM_TYPES.length;
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
 
+        if (!mUseDynamicRouting) {
+            return CarAudioDynamicRouting.STREAM_TYPES.length;
+        }
+
+        synchronized (mImplLock) {
             return getCarAudioZoneLocked(zoneId).getVolumeGroupCount();
         }
     }
@@ -885,6 +885,36 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             return getVolumeGroupIdForAudioAttributeLocked(zoneId,
                     CarAudioContext.getAudioAttributeFromUsage(usage));
+        }
+    }
+
+    @Override
+    public CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        if (!mUseDynamicRouting) {
+            return null;
+        }
+        synchronized (mImplLock) {
+            return getCarVolumeGroupLocked(zoneId, groupId).getCarVolumeGroupInfo();
+        }
+    }
+
+    @Override
+    public CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        if (!mUseDynamicRouting) {
+            return new CarVolumeGroupInfo[0];
+        }
+        synchronized (mImplLock) {
+
+            CarAudioZone zone = getCarAudioZoneLocked(zoneId);
+
+            CarVolumeGroupInfo[] groupInfos = new CarVolumeGroupInfo[zone.getVolumeGroupCount()];
+            for (int index = 0; index < zone.getVolumeGroupCount(); index++) {
+                groupInfos[index] = zone.getVolumeGroup(index).getCarVolumeGroupInfo();
+            }
+
+            return groupInfos;
         }
     }
 
@@ -927,14 +957,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @Override
     public @NonNull int[] getUsagesForVolumeGroupId(int zoneId, int groupId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+
+        if (!mUseDynamicRouting) {
+            return new int[] { CarAudioDynamicRouting.STREAM_TYPE_USAGES[groupId] };
+        }
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) {
-                return new int[] { CarAudioDynamicRouting.STREAM_TYPE_USAGES[groupId] };
-            }
-
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             int[] contexts = group.getContexts();
             List<Integer> usages = new ArrayList<>();
@@ -1624,8 +1652,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     continue;
                 }
 
-                mutedGroups.add(new CarVolumeGroupInfo.Builder(zoneId, groupId,
-                        "group id " + groupId).build());
+                mutedGroups.add(group.getCarVolumeGroupInfo());
             }
         }
 
