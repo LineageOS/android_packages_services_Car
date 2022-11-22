@@ -22,55 +22,55 @@
 
     <style name="TextAppearance.DeviceDefault" parent="android:TextAppearance.Material.Large">
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Inverse" parent="android:TextAppearance.Material.Inverse">
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Large" parent="android:TextAppearance.Material.Large">
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Large.Inverse" parent="android:TextAppearance.Material.Large.Inverse">
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Medium" parent="android:TextAppearance.Material.Medium">
         <item name="android:textSize">@*android:dimen/car_body2_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamilyMedium</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamilyMedium</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Medium.Inverse" parent="android:TextAppearance.Material.Medium.Inverse">
         <item name="android:textSize">@*android:dimen/car_body2_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamilyMedium</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamilyMedium</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Small" parent="android:TextAppearance.Material.Small">
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
     <style name="TextAppearance.DeviceDefault.Small.Inverse" parent="android:TextAppearance.Material.Small.Inverse">
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Subhead" parent="android:TextAppearance.Material.Subhead">
         <item name="android:textSize">@*android:dimen/car_body1_size</item>
-        <item name="android:fontFamily">@*android:string/config_bodyFontFamily</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
            parent="android:TextAppearance.DeviceDefault.Widget.Button">
-        <item name="android:textColor">@*android:color/car_borderless_button_text_color</item>
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
         <item name="android:textAppearance">@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
     </style>
     <style name="TextAppearance.DeviceDefault.DialogWindowTitle" parent="android:TextAppearance.Material.DialogWindowTitle">
-        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+        <item name="android:fontFamily">@string/config_headlineFontFamilyMedium</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@*android:dimen/car_body2_size</item>
         <item name="android:textColor">@*android:color/car_body2</item>
@@ -78,15 +78,15 @@
     <style name="TextAppearance.Material.DialogWindowTitle" parent="android:TextAppearance.Material.Title" />
     <style name="TextAppearance.Material.Title" parent="android:TextAppearance.Material">
         <item name="android:textSize">@*android:dimen/text_size_title_material</item>
-        <item name="android:fontFamily">@*android:string/font_family_title_material</item>
+        <item name="android:fontFamily">@string/config_bodyFontFamily</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="TextAppearance.DeviceDefault.Widget.Button" parent="android:TextAppearance.Material.Widget.Button">
-        <item name="android:fontFamily">@*android:string/config_headlineFontFamilyMedium</item>
+        <item name="android:fontFamily">@string/config_headlineFontFamilyMedium</item>
         <item name="android:textAllCaps">@*android:bool/config_buttonTextAllCaps</item>
         <item name="android:textSize">@*android:dimen/car_action1_size</item>
-        <item name="android:textColor">@*android:color/car_button_text_color</item>
+        <item name="android:textColor">@color/car_on_primary</item>
     </style>
 
     <style name="Widget.DeviceDefault.TextView" parent="android:Widget.Material.TextView">
@@ -102,10 +102,10 @@
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:fadingEdgeLength">@*android:dimen/car_textview_fading_edge_length</item>
         <item name="android:background">@*android:drawable/car_button_background</item>
-        <item name="android:layout_height">@*android:dimen/car_button_height</item>
-        <item name="android:minWidth">@*android:dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@*android:dimen/car_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@*android:dimen/car_button_horizontal_padding</item>
+        <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
