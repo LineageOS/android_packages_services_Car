@@ -19,7 +19,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="@dimen/contact_user_profile_padding">
 
     <View
         android:id="@+id/call_action_id"
@@ -29,53 +30,46 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:layout_marginTop="12dp"
-        android:layout_width="88dp"
-        android:layout_height="88dp"
-        android:scaleType="centerCrop"/>
+        android:layout_width="@dimen/avatar_icon_size"
+        android:layout_height="@dimen/avatar_icon_size"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="@dimen/contact_user_icon_margin"/>
 
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="12dp"
-        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_toRightOf="@+id/icon"
         android:singleLine="true"
-        android:layout_toRightOf="@+id/icon"/>
+        style="@style/TextAppearance.ContactUserProfile.Title" />
 
     <TextView
         android:id="@id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/title"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:singleLine="true"
-        android:layout_marginTop="12dp"
         android:layout_toRightOf="@+id/icon"
-        android:layout_marginStart="32dp"/>
+        android:singleLine="true"
+        style="@style/TextAppearance.ContactUserProfile.Text" />
 
     <RelativeLayout
         android:id="@+id/show_contact_detail_id"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_marginEnd="24dp"
         android:layout_alignParentRight="true">
 
         <View
-            android:layout_width="2dp"
-            android:layout_height="88dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="@dimen/divider_width"
+            android:layout_height="@dimen/avatar_icon_size"
             android:background="@color/divider_color"
             android:layout_toLeftOf="@+id/contact_list_button"
-            android:layout_marginEnd="24dp"/>
+            android:layout_marginEnd="@dimen/contact_user_profile_padding"/>
 
         <ImageView
             android:id="@+id/contact_list_button"
-            android:layout_width="88dp"
-            android:layout_height="88dp"
-            android:layout_marginTop="12dp"
+            android:layout_width="@dimen/avatar_icon_size"
+            android:layout_height="@dimen/avatar_icon_size"
             android:src="@drawable/ic_arrow_right"
             android:duplicateParentState="true"
             android:layout_alignParentRight="true"
