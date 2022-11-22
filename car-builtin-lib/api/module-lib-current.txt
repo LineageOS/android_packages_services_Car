@@ -218,6 +218,12 @@ package android.car.builtin.os {
     method public static void writeBlob(@NonNull android.os.Parcel, @Nullable byte[]);
   }
 
+  public final class ProcessHelper {
+    field public static final int THREAD_GROUP_DEFAULT = -1; // 0xffffffff
+    field public static final int THREAD_GROUP_FOREGROUND = 1; // 0x1
+    field public static final int THREAD_GROUP_TOP_APP = 5; // 0x5
+  }
+
   public final class ServiceManagerHelper {
     method public static void addService(@NonNull String, @NonNull android.os.IBinder);
     method @Nullable public static android.os.IBinder checkService(@NonNull String);

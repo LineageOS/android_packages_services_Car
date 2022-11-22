@@ -21,6 +21,7 @@ android.car.builtin.os.BinderHelper
 android.car.builtin.os.BinderHelper$ShellCommandListener
 android.car.builtin.os.BuildHelper
 android.car.builtin.os.ParcelHelper
+android.car.builtin.os.ProcessHelper
 android.car.builtin.os.ServiceManagerHelper
 android.car.builtin.os.SharedMemoryHelper
 android.car.builtin.os.SystemPropertiesHelper
