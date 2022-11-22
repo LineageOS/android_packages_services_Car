@@ -527,6 +527,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.PARKING_BRAKE_AUTO_APPLY, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.EV_BRAKE_REGENERATION_LEVEL, new Pair<>(
+                Car.PERMISSION_POWERTRAIN,
+                Car.PERMISSION_CONTROL_POWERTRAIN));
         mHalPropIdToPermissions.put(VehicleProperty.FUEL_LEVEL_LOW, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));

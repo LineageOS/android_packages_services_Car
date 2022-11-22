@@ -616,6 +616,16 @@ public final class Car {
     public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
 
     /**
+     * Permission necessary to control car's powertrain information.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_POWERTRAIN =
+            "android.car.permission.CONTROL_CAR_POWERTRAIN";
+
+    /**
      * Permission necessary to change car audio volume through {@link CarAudioManager}.
      */
     @AddedInOrBefore(majorVersion = 33)
