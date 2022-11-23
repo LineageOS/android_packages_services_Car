@@ -69,6 +69,7 @@ import android.os.UserManager;
 import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.os.HandlerExecutor;
@@ -653,6 +654,32 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         synchronized (mLock) {
             mIndependentPlaybackConfig = independent;
         }
+    }
+
+    /**
+     * Sends the {@code keyEvent} to the specified user's active media sessions.
+     *
+     * @param keyEvent key event to send to media sessions
+     * @param userId id of the user whose media sessions to send the key event to
+     * @return {@code true} if at least one active media sessions successfully dispatches the key
+     *         event. {@code false} otherwise.
+     */
+    @Override
+    public boolean dispatchMediaKeyForUser(KeyEvent keyEvent, @UserIdInt int userId) {
+        if (!KeyEvent.isMediaSessionKey(keyEvent.getKeyCode())) {
+            Slogf.w(CarLog.TAG_MEDIA, "Received a non-media key event %s for user %d, ignored.",
+                    keyEvent, userId);
+            return false;
+        }
+
+        boolean result = false;
+        List<MediaController> mediaControllers = mMediaSessionManager.getActiveSessionsForUser(
+                /* notificationListener= */ null, UserHandle.of(userId));
+        for (int i = 0; i < mediaControllers.size(); i++) {
+            result = mediaControllers.get(i).dispatchMediaButtonEvent(keyEvent) || result;
+        }
+
+        return result;
     }
 
     // TODO(b/153115826): this method was used to be called from the ICar binder thread, but it's
