@@ -553,7 +553,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                         + " took " + reflectionTime + " ms");
                     }
                 } catch (IllegalAccessException | InstantiationException
-                        | ClassNotFoundException e) {
+                         | ClassNotFoundException e) {
                     Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
                 }
             }
@@ -858,7 +858,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // open.
             mRootTaskView.setObscuredTouchRect(controlBarBounds);
             applyBottomInsetsToBackgroundTaskView(
-                    mRootAppAreaContainer.getHeight() - mControlBarHeightMinusCornerRadius,
+                    mRootAppAreaContainer.getHeight(),
                     backgroundAppAreaBounds);
         } else if (isFullScreen(newRootAppAreaState)) {
             mRootTaskView.setObscuredTouchRect(null);
@@ -866,7 +866,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         } else {
             // rootAppAreaState == STATE_CLOSE
             mRootTaskView.setObscuredTouchRect(null);
-            applyBottomInsetsToBackgroundTaskView(mCornerRadius, backgroundAppAreaBounds);
+            applyBottomInsetsToBackgroundTaskView(mControlBarView.getHeight(),
+                    backgroundAppAreaBounds);
         }
     }
 
