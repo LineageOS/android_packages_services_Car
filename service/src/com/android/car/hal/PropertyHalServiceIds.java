@@ -483,6 +483,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EV_BATTERY_LEVEL, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CURRENT_BATTERY_CAPACITY, new Pair<>(
+                Car.PERMISSION_ENERGY,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT, new Pair<>(
                 Car.PERMISSION_ENERGY, Car.PERMISSION_CONTROL_CAR_ENERGY));
         mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_PERCENT_LIMIT, new Pair<>(
