@@ -39,15 +39,15 @@ import java.util.Objects;
 @SystemApi
 public final class LifetimeWriteInfo implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
-    public static final Creator<IoStats> CREATOR = new Creator<IoStats>() {
+    public static final Creator<LifetimeWriteInfo> CREATOR = new Creator<LifetimeWriteInfo>() {
         @Override
-        public IoStats createFromParcel(Parcel in) {
-            return new IoStats(in);
+        public LifetimeWriteInfo createFromParcel(Parcel in) {
+            return new LifetimeWriteInfo(in);
         }
 
         @Override
-        public IoStats[] newArray(int size) {
-            return new IoStats[size];
+        public LifetimeWriteInfo[] newArray(int size) {
+            return new LifetimeWriteInfo[size];
         }
     };
 
