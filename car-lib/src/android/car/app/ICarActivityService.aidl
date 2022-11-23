@@ -60,5 +60,8 @@ interface ICarActivityService {
      * Returns all the visible tasks ordered in top to bottom manner.
      */
     List<RunningTaskInfo> getVisibleTasks() = 6;
+
+    /** See {@link CarActivityManager#startUserPickerOnDisplay(int) */
+    void startUserPickerOnDisplay(int displayId) = 7;
 }
 

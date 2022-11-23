@@ -16,6 +16,7 @@
 
 package com.android.car.am;
 
+import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_ACTIVITY_TASKS;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
@@ -50,11 +51,13 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
+import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,6 +73,8 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     private static final String TAG = CarLog.TAG_AM;
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+
+    private static final int MAX_RUNNING_TASKS_TO_GET = 100;
 
     private final Context mContext;
 
@@ -285,6 +290,33 @@ public final class CarActivityService extends ICarActivityService.Stub
         // Reverse the order so that the resultant order is top to bottom.
         Collections.reverse(tasksToReturn);
         return tasksToReturn;
+    }
+
+    @Override
+    public void startUserPickerOnDisplay(int displayId) {
+        CarServiceUtils.assertAnyPermission(mContext, INTERACT_ACROSS_USERS);
+        Preconditions.checkArgument(displayId != Display.INVALID_DISPLAY, "Invalid display");
+        String userPickerName = mContext.getResources().getString(
+                R.string.config_userPickerActivity);
+        if (userPickerName.isEmpty()) {
+            Slogf.w(TAG, "Cannot launch user picker to display %d, component not specified",
+                    displayId);
+            return;
+        }
+        ComponentName pickerComponent = ComponentName.unflattenFromString(userPickerName);
+        // If it is already running, do not launch it again.
+        List<ActivityManager.RunningTaskInfo> tasks = ActivityManagerHelper.getTasks(
+                MAX_RUNNING_TASKS_TO_GET, /*filterOnlyVisibleRecents=*/ true,
+                /*keepIntentExtra=*/ false, /*displayId=*/ displayId);
+        for (ActivityManager.RunningTaskInfo task : tasks) {
+            if (displayId == TaskInfoHelper.getDisplayId(task) && TaskInfoHelper.isVisible(
+                    task) && pickerComponent.equals(task.topActivity)
+                    && TaskInfoHelper.getUserId(task) == UserHandle.SYSTEM.getIdentifier()) {
+                Slogf.i(TAG, "UserPicker already running in display %d", displayId);
+                return;
+            }
+        }
+        CarServiceUtils.startUserPickerOnDisplay(mContext, displayId, userPickerName);
     }
 
     /**

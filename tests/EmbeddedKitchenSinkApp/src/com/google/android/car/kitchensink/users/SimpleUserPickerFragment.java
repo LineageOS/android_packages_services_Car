@@ -16,6 +16,7 @@
 package com.google.android.car.kitchensink.users;
 
 import android.annotation.Nullable;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.Car;
@@ -104,6 +105,13 @@ public final class SimpleUserPickerFragment extends Fragment {
         mDisplayManager = getContext().getSystemService(DisplayManager.class);
 
         Car car = ((UserPickerActivity) getHost()).getCar();
+        if (car == null) {
+            // Car service has crashed. Ignore other parts as it will be
+            // restarted anyway.
+            Log.i(TAG, "null car instance, finish");
+            ((Activity) getHost()).finish();
+            return;
+        }
         mZoneManager = car.getCarManager(CarOccupantZoneManager.class);
         mZoneManager.registerOccupantZoneConfigChangeListener(
                 new ZoneChangeListener());

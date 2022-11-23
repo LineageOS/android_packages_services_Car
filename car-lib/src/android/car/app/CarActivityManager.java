@@ -252,6 +252,22 @@ public final class CarActivityManager extends CarManagerBase {
         return Collections.emptyList();
     }
 
+    /**
+     * Starts user picker UI (=user selection UI) to the given display.
+     *
+     * <p>User picker UI will run as {@link android.os.UserHandle#SYSTEM} user.
+     */
+    @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void startUserPickerOnDisplay(int displayId) {
+        try {
+            mService.startUserPickerOnDisplay(displayId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
     private boolean hasValidToken() {
         boolean valid = mTaskMonitorToken != null;
         if (!valid) {

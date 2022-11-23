@@ -31,6 +31,7 @@ import android.car.builtin.util.Slogf;
 import android.os.Bundle;
 import android.os.RemoteException;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -248,5 +249,13 @@ public final class ActivityManagerHelper {
     public static int checkComponentPermission(@NonNull String permission, int uid, int owningUid,
             boolean exported) {
         return ActivityManager.checkComponentPermission(permission, uid, owningUid, exported);
+    }
+
+    /** See {@link android.app.ActivityTaskManager#getTasks(int, boolean, boolean, int)} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static List<ActivityManager.RunningTaskInfo> getTasks(int maxNum,
+            boolean filterOnlyVisibleRecents, boolean keepIntentExtra, int displayId) {
+        return ActivityTaskManager.getInstance().getTasks(maxNum, filterOnlyVisibleRecents,
+                keepIntentExtra, displayId);
     }
 }

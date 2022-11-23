@@ -16,7 +16,6 @@
 
 package com.google.android.car.kitchensink;
 
-import static android.car.Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER;
 import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -73,14 +72,21 @@ public final class UserPickerActivity extends FragmentActivity {
     // and this activity and possibly any activity that needs car connection.
     private void connectCar() {
         if (mCar != null && mCar.isConnected()) {
-            mCar.disconnect();
-            mCar = null;
+            return;
         }
         mCar = Car.createCar(this, null,
-                CAR_WAIT_TIMEOUT_WAIT_FOREVER, (car, ready) -> {
+                Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, (car, ready) -> {
                     if (!ready) {
+                        // Let car service relaunch this.
+                        Log.i(TAG, "Car service crashed, finish");
+                        finish();
                         return;
                     }
                 });
+        if (mCar == null) {
+            // Car service has crashed. Let it restart this.
+            Log.i(TAG, "null Car from createCar, finish");
+            finish();
+        }
     }
 }
