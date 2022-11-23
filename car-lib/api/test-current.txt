@@ -1533,7 +1533,7 @@ package android.car.storagemonitoring {
     ctor public LifetimeWriteInfo(android.os.Parcel);
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStats> CREATOR;
+    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.LifetimeWriteInfo> CREATOR;
     field public final String fstype;
     field public final String partition;
     field public final long writtenBytes;
