@@ -26,5 +26,7 @@
         <permission name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY"/>
         <permission name="android.car.permission.MONITOR_CAR_EVS_STATUS"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
+        <!-- used by ActivityBlockingActivity -->
+        <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
     </privapp-permissions>
 </permissions>

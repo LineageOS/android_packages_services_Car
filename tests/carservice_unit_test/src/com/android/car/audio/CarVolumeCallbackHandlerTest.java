@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -71,6 +72,15 @@ public class CarVolumeCallbackHandlerTest {
     }
 
     @Test
+    public void onVolumeGroupChange_doesNotCallThrows() throws Exception {
+        mCallback1.setThrowFlag(/* throwFlag= */true);
+        mHandler.onVolumeGroupChange(ZONE_ID, GROUP_ID, FLAGS);
+
+        verify(mCallback1.getSpy(), never()).onGroupVolumeChanged(anyInt(), anyInt(), anyInt());
+        verify(mCallback2.getSpy()).onGroupVolumeChanged(ZONE_ID, GROUP_ID, FLAGS);
+    }
+
+    @Test
     public void onGroupMuteChange_callsAllRegisteredCallbacks() throws RemoteException {
         mHandler.onGroupMuteChange(ZONE_ID, GROUP_ID, FLAGS);
 
@@ -88,6 +98,15 @@ public class CarVolumeCallbackHandlerTest {
     }
 
     @Test
+    public void onGroupMuteChanged_doesNotCallThrows() throws Exception {
+        mCallback1.setThrowFlag(/* throwFlag= */true);
+        mHandler.onGroupMuteChange(ZONE_ID, GROUP_ID, FLAGS);
+
+        verify(mCallback1.getSpy(), never()).onGroupMuteChanged(anyInt(), anyInt(), anyInt());
+        verify(mCallback2.getSpy()).onGroupMuteChanged(ZONE_ID, GROUP_ID, FLAGS);
+    }
+
+    @Test
     public void onMasterMuteChanged_callsAllRegisteredCallbacks() throws RemoteException {
         mHandler.onMasterMuteChanged(ZONE_ID, FLAGS);
 
@@ -95,10 +114,20 @@ public class CarVolumeCallbackHandlerTest {
         verify(mCallback2.getSpy()).onMasterMuteChanged(ZONE_ID, FLAGS);
     }
 
+    @Test
+    public void onMasterMuteChanged_doesNotCallThrows() throws Exception {
+        mCallback1.setThrowFlag(/* throwFlag= */true);
+        mHandler.onMasterMuteChanged(ZONE_ID, GROUP_ID);
+
+        verify(mCallback1.getSpy(), never()).onMasterMuteChanged(anyInt(), anyInt());
+        verify(mCallback2.getSpy()).onMasterMuteChanged(ZONE_ID, GROUP_ID);
+    }
+
     // Because the binder logic uses transact, spying on the object directly doesn't work. So
     // instead we pass a mSpy in and have the Test wrapper call it so we can test the behavior
     private class TestCarVolumeCallback extends ICarVolumeCallback.Stub {
         private final ICarVolumeCallback mSpy;
+        private boolean mThrowFlag;
 
         TestCarVolumeCallback(ICarVolumeCallback spy) {
             this.mSpy = spy;
@@ -108,19 +137,32 @@ public class CarVolumeCallbackHandlerTest {
             return mSpy;
         }
 
+        public void setThrowFlag(boolean throwFlag) {
+            this.mThrowFlag = throwFlag;
+        }
+
         @Override
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags)
                 throws RemoteException {
+            if (mThrowFlag) {
+                throw new RemoteException();
+            }
             mSpy.onGroupVolumeChanged(zoneId, groupId, flags);
         }
 
         @Override
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) throws RemoteException {
+            if (mThrowFlag) {
+                throw new RemoteException();
+            }
             mSpy.onGroupMuteChanged(zoneId, groupId, flags);
         }
 
         @Override
         public void onMasterMuteChanged(int zoneId, int flags) throws RemoteException {
+            if (mThrowFlag) {
+                throw new RemoteException();
+            }
             mSpy.onMasterMuteChanged(zoneId, flags);
         }
     }

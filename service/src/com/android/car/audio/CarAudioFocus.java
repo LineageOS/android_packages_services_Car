@@ -30,6 +30,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.android.car.audio.CarAudioContext.isCriticalAudioAudioAttribute;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -901,6 +902,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             return new StringBuilder().append("{Changed Entries: ").append(mChangedEntries)
                     .append(", Replace Entry: ").append(mReplacedEntry)

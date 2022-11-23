@@ -49,7 +49,13 @@ import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
+import static android.media.AudioManager.FLAG_FROM_KEY;
+import static android.media.AudioManager.FLAG_SHOW_UI;
+import static android.media.AudioManager.MASTER_MUTE_CHANGED_ACTION;
+import static android.media.AudioManager.STREAM_MUSIC;
 import static android.media.AudioManager.SUCCESS;
+import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 import static android.os.Build.VERSION.SDK_INT;
 
 import static com.android.car.R.bool.audioPersistMasterMuteState;
@@ -73,6 +79,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -88,8 +95,10 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.audiocontrol.IAudioControl;
@@ -1580,6 +1589,70 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Muted volume groups for secondary zone")
                 .that(mCarAudioService.getMutedVolumeGroups(SECONDARY_ZONE_ID)).isEmpty();
+    }
+
+    @Test
+    public void onReceive_forLegacy_noCallToOnVolumeGroupChanged() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+        ArgumentCaptor<BroadcastReceiver> captor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+        verify(mMockContext).registerReceiver(captor.capture(), any(), anyInt());
+        BroadcastReceiver receiver = captor.getValue();
+        Intent intent = new Intent();
+        intent.setAction(VOLUME_CHANGED_ACTION);
+
+        receiver.onReceive(mMockContext, intent);
+
+        verify(mCarVolumeCallbackHandler, never())
+                .onVolumeGroupChange(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void onReceive_forLegacy_forStreamMusic() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+        ArgumentCaptor<BroadcastReceiver> captor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+        verify(mMockContext).registerReceiver(captor.capture(), any(), anyInt());
+        BroadcastReceiver receiver = captor.getValue();
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_VOLUME_STREAM_TYPE, STREAM_MUSIC);
+        intent.setAction(VOLUME_CHANGED_ACTION);
+
+        receiver.onReceive(mMockContext, intent);
+
+        verify(mCarVolumeCallbackHandler).onVolumeGroupChange(
+                eq(PRIMARY_AUDIO_ZONE), anyInt(), eq(FLAG_FROM_KEY | FLAG_SHOW_UI));
+    }
+
+    @Test
+    public void onReceive_forLegacy_onMuteChanged() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+        ArgumentCaptor<BroadcastReceiver> captor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+        verify(mMockContext).registerReceiver(captor.capture(), any(), anyInt());
+        BroadcastReceiver receiver = captor.getValue();
+        Intent intent = new Intent();
+        intent.setAction(MASTER_MUTE_CHANGED_ACTION);
+
+        receiver.onReceive(mMockContext, intent);
+
+        verify(mCarVolumeCallbackHandler)
+                .onMasterMuteChanged(eq(PRIMARY_AUDIO_ZONE), eq(FLAG_FROM_KEY | FLAG_SHOW_UI));
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {

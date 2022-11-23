@@ -155,9 +155,17 @@ public final class AndroidFutureTest {
     public void testOrTimeout_uncompleted_timesOut() throws Exception {
         mUncompletedFuture.orTimeout(TIMEOUT_MS, MILLISECONDS);
 
-        ExecutionException thrown = assertThrows(ExecutionException.class,
+        Throwable exception = assertThrows(Exception.class,
                 () -> mUncompletedFuture.get(TIMEOUT_MS * 2, MILLISECONDS));
-        assertThat(thrown.getCause()).isInstanceOf(TimeoutException.class);
+
+        // In most cases, an ExecutionException is thrown with its cause set to a TimingException,
+        // or depending on the timing just a TimingException is thrown. Should handle both case to
+        // avoid test flakyness.
+        if (exception instanceof ExecutionException) {
+            exception = exception.getCause();
+        }
+
+        assertThat(exception).isInstanceOf(TimeoutException.class);
     }
 
     @Test
