@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <!-- Number of buttons shown for the media playback controls bar -->
-    <integer name="playback_controls_bar_columns">3</integer>
 
-    <!-- Max for seekbar progress -->
-    <integer name="optional_seekbar_max">1000</integer>
-</resources>
-
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:shape="oval">
+    <solid android:color="@color/car_primary"/>
+    <size
+        android:width="@dimen/seekbar_thumb_size"
+        android:height="@dimen/seekbar_thumb_size"/>
+</shape>

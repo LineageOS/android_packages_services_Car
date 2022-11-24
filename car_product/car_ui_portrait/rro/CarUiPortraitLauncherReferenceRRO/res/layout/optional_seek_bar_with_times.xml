@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<!-- Layout specifically for the media card, which uses media-specific playback_controls.xml -->
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_below="@id/content_container"
+    android:layout_marginEnd="@dimen/seekbar_marginHorizontal"
+    android:layout_marginTop="@dimen/seekbar_marginVertical"
+    android:orientation="horizontal">
+    <!-- Support user interaction later and remove clickable false -->
+    <SeekBar
+        android:id="@+id/optional_seek_bar"
+        android:layout_width="@dimen/seekbar_layout_width"
+        android:layout_weight="0.6"
+        android:layout_height="wrap_content"
+        android:splitTrack="false"
+        android:progressTint="@color/seek_bar_color"
+        android:progressBackgroundTint="@color/car_secondary"
+        android:thumbOffset="@dimen/seekbar_thumb_offset"
+        android:thumb="@drawable/seekbar_thumb"
+        android:paddingStart="@dimen/seekbar_padding"
+        android:paddingEnd="@dimen/seekbar_padding"
+        android:max="@integer/optional_seekbar_max"
+        android:layout_gravity="center_vertical | start"
+    />
+    <TextView
+        android:id="@+id/optional_times"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.Car.Sub.Medium"
+        android:layout_marginStart="@dimen/times_martin_start"
+        android:layout_gravity="center_vertical | end"
+    />
+</LinearLayout>
