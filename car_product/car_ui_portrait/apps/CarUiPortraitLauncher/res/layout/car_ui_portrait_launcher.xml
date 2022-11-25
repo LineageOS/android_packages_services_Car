@@ -57,7 +57,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="@color/car_background"/>
+            android:paddingBottom="@dimen/corner_radius"
+            android:background="@color/car_background"/>
 
     </LinearLayout>
 

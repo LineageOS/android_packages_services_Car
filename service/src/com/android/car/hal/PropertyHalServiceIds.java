@@ -294,6 +294,15 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_CUSHION_SIDE_SUPPORT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_CUSHION_SIDE_SUPPORT_MOVE, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_VERTICAL_POS, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_VERTICAL_MOVE, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_OCCUPANCY, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 null));

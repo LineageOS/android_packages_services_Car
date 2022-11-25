@@ -425,6 +425,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_BUCKLED = 354421634; // 0x15200b82
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_HEIGHT_MOVE = 356518788; // 0x15400b84
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_HEIGHT_POS = 356518787; // 0x15400b83
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_CUSHION_SIDE_SUPPORT_MOVE = 356518816; // 0x15400ba0
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815; // 0x15400b9f
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_DEPTH_MOVE = 356518798; // 0x15400b8e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_DEPTH_POS = 356518797; // 0x15400b8d
@@ -443,6 +444,8 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_VERTICAL_MOVE = 356518818; // 0x15400ba2
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_VERTICAL_POS = 356518817; // 0x15400ba1
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SET = 356518785; // 0x15400b81
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_OCCUPANCY = 356518832; // 0x15400bb0

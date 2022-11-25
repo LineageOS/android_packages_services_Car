@@ -1738,6 +1738,88 @@ public final class VehiclePropertyIds {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815;
     /**
+     * Represents property for movement direction and speed of seat cushion side support.
+     *
+     * This value is not in any particular unit but in a specified range of steps. Positive values
+     * mean growing wider (i.e. less support) and negative values mean growing thinner (i.e. more
+     * support). Larger integers, either positive or negative, indicate a faster speed. Once the
+     * support reaches the positional limit, the value resets to 0. See {@link
+     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
+     * range of possible speeds. All integers between min and max value are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Int32} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_CUSHION_SIDE_SUPPORT_MOVE = 356518816;
+    /**
+     * Represents property for seat’s lumbar support vertical position.
+     *
+     * This value is not in any particular unit but in a specified range of steps. The max value
+     * indicates the highest position. The min value indicates the lowest position. See {@link
+     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
+     * range of possible positions. All integers between min and max value are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Int32} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_LUMBAR_VERTICAL_POS = 356518817;
+    /**
+     * Represents property for vertical movement direction and speed of seat lumbar support.
+     *
+     * This value is not in any particular unit but in a specified range of steps. Positive values
+     * mean the support is moving up and negative values mean the support is moving down. Larger
+     * integers, either positive or negative, indicate a faster speed. Once the support reaches the
+     * positional limit, the value resets to 0. See {@link CarPropertyConfig#getMaxValue(int)} and
+     * {@link CarPropertyConfig#getMinValue(int)} for the range of possible speeds. All integers
+     * between min and max value are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Int32} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_LUMBAR_VERTICAL_MOVE = 356518818;
+    /**
      * Seat Occupancy
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_SEATS.
