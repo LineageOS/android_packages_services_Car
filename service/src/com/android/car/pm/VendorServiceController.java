@@ -17,10 +17,11 @@
 package com.android.car.pm;
 
 import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 import static android.content.Context.BIND_AUTO_CREATE;
 import static android.os.Process.INVALID_UID;
 
@@ -145,9 +146,10 @@ final class VendorServiceController implements UserLifecycleListener {
         mCarUserService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userLifecycleEventFilter =
                 new UserLifecycleEventFilter.Builder()
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED).build();
         mCarUserService.addUserLifecycleListener(userLifecycleEventFilter, this);
 
@@ -179,13 +181,11 @@ final class VendorServiceController implements UserLifecycleListener {
         }
         int userId = event.getUserId();
         switch (event.getEventType()) {
-            // TODO(b/256236884): Need to listen to USER_VISIBLE event instead of USER_STARTING,
-            // once the callback is ready. Remove STARTING event from here and the listener above.
-            case USER_LIFECYCLE_EVENT_TYPE_STARTING:
-                if (!mCarUserService.isUserVisible(userId)) {
-                    return;
-                }
+            case USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
                 mHandler.post(() -> handleOnUserVisible(userId));
+                break;
+            case USER_LIFECYCLE_EVENT_TYPE_INVISIBLE:
+                mHandler.post(() -> handleOnUserInvisible(userId));
                 break;
             case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 mHandler.post(() -> handleOnUserSwitching(userId));
@@ -263,13 +263,25 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     }
 
+    private void handleOnUserInvisible(@UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "handleOnUserInvisible(): user=%d", userId);
+        }
+
+        for (VendorServiceConnection connection : mConnections.values()) {
+            VendorServiceInfo serviceInfo = connection.mVendorServiceInfo;
+            if (connection.isUser(userId) && serviceInfo.isVisibleUserService()
+                    && !serviceInfo.isAllUserService()) {
+                connection.stopOrUnbindService();
+            }
+        }
+    }
+
     private void handleOnUserVisible(@UserIdInt int userId) {
         if (DBG) {
             Slogf.d(TAG, "handleOnUserVisible(): user=%d", userId);
         }
 
-        // TODO(b/256236884): when the new callback is ready, we can clean up services for a user
-        // who has become invisible.
         startOrBindServicesForUser(UserHandle.of(userId), /* forPostUnlock= */ null);
     }
 
