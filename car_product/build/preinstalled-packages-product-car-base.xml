@@ -453,4 +453,8 @@
     <install-in-user-type package="com.android.federatedcompute">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- RRO package to be applied when the system boots up for secondary user-->
+    <install-in-user-type package="com.android.systemui.md.passenger.car.rro">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
