@@ -18,8 +18,8 @@ package com.android.car.garagemode;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.car.builtin.job.JobSchedulerHelper;
 import android.car.builtin.util.EventLogHelper;

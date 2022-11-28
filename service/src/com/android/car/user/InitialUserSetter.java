@@ -15,6 +15,7 @@
  */
 package com.android.car.user;
 
+import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -45,7 +46,6 @@ import com.android.car.hal.UserHalHelper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
-import com.android.car.util.Utils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -622,7 +622,7 @@ final class InitialUserSetter {
                         + info.userLocales);
             }
             Settings.System.putString(
-                    Utils.getContentResolverForUser(mContext, user.getIdentifier()),
+                    getContentResolverForUser(mContext, user.getIdentifier()),
                     SettingsHelper.SYSTEM_LOCALES, info.userLocales);
         }
 
