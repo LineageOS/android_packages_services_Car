@@ -25,13 +25,15 @@
     <item target="attr/cardElevation" value="@attr/cardElevation"/>
     <item target="attr/textColor" value="@attr/textColor"/>
 
-    <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
-    <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
-    <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
-    <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
-    <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
-    <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
+    <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
     <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>
+    <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
+    <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
+    <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
+    <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
+    <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
+    <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
+
 
     <item target="color/icon_tint" value="@color/icon_tint"/>
     <item target="color/call_accept_button" value="@color/call_accept_button"/>
