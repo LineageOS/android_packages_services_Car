@@ -36,9 +36,14 @@
     </install-in-user-type>
 
     <!-- RemoteProvisioner app does not have any UI and will only be run as
-    a background service -->
+    a background service. To be replaced by com.android.rkpdapp. -->
     <install-in-user-type package="com.android.remoteprovisioner">
         <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
+    <!-- This background service is responsible for remote key provisioning. -->
+    <install-in-user-type package="com.android.rkpdapp">
+      <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
     <install-in-user-type package="android.car.cluster">
