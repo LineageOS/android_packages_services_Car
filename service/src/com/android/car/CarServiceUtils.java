@@ -29,8 +29,10 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.Car;
+import android.car.PlatformVersion;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.ComponentName;
@@ -47,12 +49,14 @@ import android.os.Looper;
 import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.ArrayMap;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.Preconditions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -652,22 +656,12 @@ public final class CarServiceUtils {
     }
 
     /**
-     * Starts both the home app and SystemUI for a given {@code userId} and {@code displayId}.
-     *
-     * @return {@code true} when starting both SystemUI and home succeeds.
+     * Returns {@code true} if the current configuration supports multiple users on multiple
+     * displays.
      */
-    public static boolean startHomeAndSystemUiForUserAndDisplay(Context context,
-            @UserIdInt int userId, int displayId) {
-        if (DBG) {
-            Slogf.d(TAG, "Starting HOME/SysUI for user: %d, display:%d", userId, displayId);
-        }
-        if (!startSystemUiForUser(context, userId)) {
-            return false;
-        }
-        if (!startHomeForUserAndDisplay(context, userId, displayId)) {
-            return false;
-        }
-        return true;
+    public static boolean isMultipleUsersOnMultipleDisplaysSupported(UserManager userManager) {
+        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+                && UserManagerHelper.isUsersOnSecondaryDisplaysSupported(userManager);
     }
 
     /**
@@ -701,18 +695,18 @@ public final class CarServiceUtils {
     }
 
     /**
-     * Starts SystemUI component for a particular user.
+     * Starts SystemUI component for a particular user - should be called for non-current user only.
      *
      * @return {@code true} when starting service succeeds. It can fail in situation like the
      * SystemUI service component not being defined.
      */
     public static boolean startSystemUiForUser(Context context, @UserIdInt int userId) {
-        boolean isSecondaryUser = userId != UserHandle.SYSTEM.getIdentifier()
-                && userId != ActivityManager.getCurrentUser();
-        if (!isSecondaryUser) {
-            // SystemUI is already started for the system/primary user by the SystemServer
-            return true;
-        }
+        Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
+                "Cannot start SystemUI for the system user");
+        Preconditions.checkArgument(userId != ActivityManager.getCurrentUser(),
+                "Cannot start SystemUI for the current foreground user");
+
+        // TODO (b/261192740): add EventLog for SystemUI starting
         ComponentName sysuiComponent = PackageManagerHelper.getSystemUiServiceComponent(context);
         Intent sysUIIntent = new Intent().setComponent(sysuiComponent);
         try {
@@ -724,6 +718,18 @@ public final class CarServiceUtils {
                     userId);
             return false;
         }
+    }
+
+    /**
+     * Stops the SystemUI component for a particular user - this function should not be called
+     * for the system user.
+     */
+    public static void stopSystemUiForUser(Context context, @UserIdInt int userId) {
+        Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
+                "Cannot stop SystemUI for the system user");
+        // TODO (b/261192740): add EventLog for SystemUI stopping
+        String sysUiPackage = PackageManagerHelper.getSystemUiPackageName(context);
+        PackageManagerHelper.forceStopPackageAsUser(context, sysUiPackage, userId);
     }
 
     /**
