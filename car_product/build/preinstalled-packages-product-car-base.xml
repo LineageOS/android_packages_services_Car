@@ -438,5 +438,9 @@
     <!-- CredentialManager only consists of Activity components and requires user interaction -->
     <install-in-user-type package="com.android.credentialmanager">
         <install-in user-type="FULL" />
+			</install-in-user-type>
+    <!-- Defines permissions for VirtualMachineManager -->
+    <install-in-user-type package="com.android.virtualmachine.res">
+        <install-in user-type="FULL" />
     </install-in-user-type>
 </config>
