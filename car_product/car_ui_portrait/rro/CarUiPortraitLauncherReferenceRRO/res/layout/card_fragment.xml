@@ -22,11 +22,13 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/car_portrait_ui_window_rounded_corner_radius"
     android:visibility="gone">
+
     <FrameLayout
         android:id="@+id/card_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/car_surface_2"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -60,6 +62,7 @@
             android:layout_height="0dp"
             android:visibility="gone"
             android:layout_alignParentStart="true"/>
+
         <FrameLayout
             android:id="@+id/content_container"
             android:layout_width="0dp"
