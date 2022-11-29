@@ -18,11 +18,11 @@ package com.android.car.systeminterface;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
+import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
-import static com.android.car.util.Utils.getContentResolverForUser;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -176,9 +176,8 @@ public interface DisplayInterface {
             }
             int gamma = GAMMA_SPACE_MAX;
             try {
-                int linear = System.getInt(
-                        getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
-                        System.SCREEN_BRIGHTNESS);
+                int linear = System.getInt(getContentResolverForUser(mContext,
+                        UserHandle.CURRENT.getIdentifier()), System.SCREEN_BRIGHTNESS);
                 gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
             } catch (SettingNotFoundException e) {
                 Slogf.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
@@ -215,10 +214,8 @@ public interface DisplayInterface {
             }
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
-            System.putInt(
-                    getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
-                    System.SCREEN_BRIGHTNESS,
-                    linear);
+            System.putInt(getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
+                    System.SCREEN_BRIGHTNESS, linear);
         }
 
         @Override

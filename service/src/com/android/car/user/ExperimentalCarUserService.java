@@ -18,13 +18,13 @@ package com.android.car.user;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
 import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;

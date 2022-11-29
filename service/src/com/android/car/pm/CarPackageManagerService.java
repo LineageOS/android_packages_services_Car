@@ -24,8 +24,11 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
+import static com.android.car.CarServiceUtils.assertPackageName;
+import static com.android.car.CarServiceUtils.checkCalledByPackage;
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -95,7 +98,6 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
-import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.am.CarActivityService;
@@ -105,7 +107,6 @@ import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
-import com.android.car.util.Utils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -153,7 +154,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final ActivityManager mActivityManager;
     private final IBinder mWindowManagerBinder;
 
-    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+    private final HandlerThread mHandlerThread = getHandlerThread(
             getClass().getSimpleName());
     private final PackageHandler mHandler  = new PackageHandler(mHandlerThread.getLooper(), this);
     private final Object mLock = new Object();
@@ -385,7 +386,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private void doSetAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy,
             int flags) {
         assertAppBlockingPermission();
-        CarServiceUtils.assertPackageName(mContext, packageName);
+        assertPackageName(mContext, packageName);
         if (policy == null) {
             throw new IllegalArgumentException("policy cannot be null");
         }
@@ -1596,7 +1597,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     @Override
     public CarVersion getSelfTargetCarVersion(String packageName) {
-        Utils.checkCalledByPackage(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         return getTargetCarVersion(Binder.getCallingUserHandle(), packageName);
     }

@@ -28,8 +28,11 @@ import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.ACTION_USER_REMOVED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
+import static com.android.car.CarServiceUtils.assertAnyPermission;
+import static com.android.car.CarServiceUtils.assertPermission;
+import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
+import static com.android.car.CarServiceUtils.runOnMain;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -72,7 +75,6 @@ import android.util.Log;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -356,7 +358,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.registerClient(client, timeout);
     }
 
@@ -366,7 +368,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void unregisterClient(ICarWatchdogServiceCallback client) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.unregisterClient(client);
     }
 
@@ -375,7 +377,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void tellClientAlive(ICarWatchdogServiceCallback client, int sessionId) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.tellClientAlive(client, sessionId);
     }
 
@@ -399,7 +401,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @CarWatchdogManager.MinimumStatsFlag int minimumStatsFlag,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         return mWatchdogPerfHandler.getAllResourceOveruseStats(resourceOveruseFlag,
                 minimumStatsFlag, maxStatsPeriod);
     }
@@ -411,7 +413,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             @NonNull String packageName, @NonNull UserHandle userHandle,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         return mWatchdogPerfHandler.getResourceOveruseStatsForUserPackage(packageName, userHandle,
                 resourceOveruseFlag, maxStatsPeriod);
     }
@@ -444,7 +446,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void addResourceOveruseListenerForSystem(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         mWatchdogPerfHandler.addResourceOveruseListenerForSystem(resourceOveruseFlag, listener);
     }
 
@@ -454,7 +456,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      */
     @Override
     public void removeResourceOveruseListenerForSystem(@NonNull IResourceOveruseListener listener) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         mWatchdogPerfHandler.removeResourceOveruseListenerForSystem(listener);
     }
 
@@ -462,7 +464,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     public void setKillablePackageAsUser(String packageName, UserHandle userHandle,
             boolean isKillable) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         mWatchdogPerfHandler.setKillablePackageAsUser(packageName, userHandle, isKillable);
     }
 
@@ -473,7 +475,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     @NonNull
     public List<PackageKillableState> getPackageKillableStatesAsUser(UserHandle userHandle) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         return mWatchdogPerfHandler.getPackageKillableStatesAsUser(userHandle);
     }
 
@@ -486,7 +488,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             List<ResourceOveruseConfiguration> configurations,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag)
             throws RemoteException {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         return mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations,
                 resourceOveruseFlag);
     }
@@ -496,7 +498,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @NonNull
     public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
-        CarServiceUtils.assertAnyPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
+        assertAnyPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
                 Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         return mWatchdogPerfHandler.getResourceOveruseConfigurations(resourceOveruseFlag);
     }
@@ -505,7 +507,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * Enables/disables the watchdog daemon client health check process.
      */
     public void controlProcessHealthCheck(boolean enable) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.controlProcessHealthCheck(enable);
     }
 
@@ -515,7 +517,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * @return whether package was killed
      */
     public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
     }
 
@@ -630,7 +632,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void postRegisterToDaemonMessage() {
-        CarServiceUtils.runOnMain(() -> {
+        runOnMain(() -> {
             synchronized (mLock) {
                 mReadyToRespond = true;
             }
@@ -734,8 +736,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
             if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.TIRAMISU_1)
-                    && !isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
-                    USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
+                    && !isEventAnyOfTypes(TAG, event,
+                    USER_LIFECYCLE_EVENT_TYPE_STARTING, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
                 return;
             }
 

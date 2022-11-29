@@ -115,4 +115,7 @@
     <color name="car_volume_background">@color/car_neutral_25</color>
     <color name="car_scrim">@color/car_neutral_80</color>
 
+    <!-- control highlight colors -->
+    <color name="car_control_highlight">#99d9e2ff</color>
+
 </resources>

@@ -63,7 +63,6 @@
 
     <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
            parent="android:TextAppearance.DeviceDefault.Widget.Button">
-        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
@@ -106,10 +105,44 @@
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:textColor">@color/car_on_primary</item>
     </style>
 
-    <style name="Widget.DeviceDefault.Button.Borderless" parent="android:Widget.Material.Button.Borderless">
+    <style name="Widget.DeviceDefault.Button.Small" parent="Widget.DeviceDefault.Button">
+        <item name="android:paddingStart">@dimen/car_button_radius</item>
+        <item name="android:paddingEnd">@dimen/car_button_radius</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Inset" parent="Widget.DeviceDefault.Button"/>
+    <style name="Widget.DeviceDefault.Button.Colored" parent="Widget.DeviceDefault.Button"/>
+    <style name="Widget.DeviceDefault.Button.Toggle" parent="Widget.DeviceDefault.Button"/>
+
+    <style name="Widget.DeviceDefault.ActionButton" parent="android:Widget.Material.ActionButton">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.ActionButton.Overflow"
+        parent="android:Widget.Material.ActionButton.Overflow">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.ActionButton.CloseMode"
+        parent="android:Widget.Material.ActionButton.CloseMode">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="DeviceDefault.ButtonBar" parent="android:Widget.Material.ButtonBar">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="DeviceDefault.ButtonBar.AlertDialog"
+        parent="android:Widget.Material.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/car_on_background</item>
+    </style>
+
+    <style name="Widget.DeviceDefault.Button.Borderless" parent="Widget.DeviceDefault.Button">
         <item name="android:background">@drawable/btn_borderless_car</item>
+        <item name="android:textColor">@color/car_on_background</item>
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox">
@@ -134,6 +167,7 @@
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">
         <item name="android:textSize">@*android:dimen/car_body3_size</item>
+        <item name="android:textColor">@color/car_on_background</item>
     </style>
 
     <!-- Preference Styles -->

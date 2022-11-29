@@ -36,9 +36,14 @@
     </install-in-user-type>
 
     <!-- RemoteProvisioner app does not have any UI and will only be run as
-    a background service -->
+    a background service. To be replaced by com.android.rkpdapp. -->
     <install-in-user-type package="com.android.remoteprovisioner">
         <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
+    <!-- This background service is responsible for remote key provisioning. -->
+    <install-in-user-type package="com.android.rkpdapp">
+      <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
     <install-in-user-type package="android.car.cluster">
@@ -161,7 +166,7 @@
     </install-in-user-type>
 
     <!-- Required to implement QualifiedNetworksService to bind with AccessNetworksManager -->
-    <install-in-user-type package="com.android.qns">
+    <install-in-user-type package="com.android.telephony.qns">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
@@ -437,6 +442,10 @@
     </install-in-user-type>
     <!-- CredentialManager only consists of Activity components and requires user interaction -->
     <install-in-user-type package="com.android.credentialmanager">
+        <install-in user-type="FULL" />
+			</install-in-user-type>
+    <!-- Defines permissions for VirtualMachineManager -->
+    <install-in-user-type package="com.android.virtualmachine.res">
         <install-in user-type="FULL" />
     </install-in-user-type>
 </config>

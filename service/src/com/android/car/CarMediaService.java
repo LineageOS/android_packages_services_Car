@@ -20,8 +20,11 @@ import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
+import static com.android.car.CarServiceUtils.assertPermission;
+import static com.android.car.CarServiceUtils.getCommonHandlerThread;
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -151,9 +154,9 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             new RemoteCallbackList[MEDIA_SOURCE_MODES];
 
     private final Handler mCommonThreadHandler = new Handler(
-            CarServiceUtils.getCommonHandlerThread().getLooper());
+            getCommonHandlerThread().getLooper());
 
-    private final HandlerThread mHandlerThread  = CarServiceUtils.getHandlerThread(
+    private final HandlerThread mHandlerThread  = getHandlerThread(
             getClass().getSimpleName());
     // Handler to receive PlaybackState callbacks from the active media controller.
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
@@ -573,7 +576,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @Override
     public void setMediaSource(@NonNull ComponentName componentName,
             @MediaSourceMode int mode) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         if (Slogf.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_MEDIA, "Changing media source to: "
@@ -587,7 +590,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      */
     @Override
     public ComponentName getMediaSource(@CarMediaManager.MediaSourceMode int mode) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         synchronized (mLock) {
             return mPrimaryMediaComponents[mode];
@@ -600,7 +603,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @Override
     public void registerMediaSourceListener(ICarMediaSourceListener callback,
             @MediaSourceMode int mode) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         mMediaSourceListeners[mode].register(callback);
     }
@@ -611,14 +614,14 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @Override
     public void unregisterMediaSourceListener(ICarMediaSourceListener callback,
             @MediaSourceMode int mode) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         mMediaSourceListeners[mode].unregister(callback);
     }
 
     @Override
     public List<ComponentName> getLastMediaSources(@CarMediaManager.MediaSourceMode int mode) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         String key = getMediaSourceKey(mode);
         String serialized = mSharedPrefs.getString(key, "");
@@ -634,7 +637,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @Override
     @TestApi
     public boolean isIndependentPlaybackConfig() {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         synchronized (mLock) {
             return mIndependentPlaybackConfig;
@@ -645,7 +648,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @Override
     @TestApi
     public void setIndependentPlaybackConfig(boolean independent) {
-        CarServiceUtils.assertPermission(mContext,
+        assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         synchronized (mLock) {
             mIndependentPlaybackConfig = independent;

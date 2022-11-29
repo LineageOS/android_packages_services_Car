@@ -167,7 +167,6 @@ import com.android.car.admin.NotificationHelper;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.util.Utils;
 
 import com.google.common.truth.Correspondence;
 
@@ -305,7 +304,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             .spyStatic(CarStatsLog.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(BuiltinPackageDependency.class)
-            .spyStatic(Utils.class)
             .spyStatic(SystemProperties.class);
     }
 
@@ -4318,7 +4316,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             ContentResolver contentResolver = mock(ContentResolver.class);
             when(contentResolver.getUserId()).thenReturn(args.getArgument(1));
             return contentResolver;
-        }).when(() -> Utils.getContentResolverForUser(any(), anyInt()));
+        }).when(() -> CarServiceUtils.getContentResolverForUser(any(), anyInt()));
 
         when(Settings.Secure.getString(any(ContentResolver.class),
                 eq(KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE))).thenAnswer(

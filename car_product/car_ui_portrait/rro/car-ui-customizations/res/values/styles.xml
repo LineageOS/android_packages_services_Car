@@ -16,9 +16,9 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="TextAppearance_CarUi_AlertDialog_Title" parent="TextAppearance.Car.Subhead.Large">
+    <style name="TextAppearance.CarUi.AlertDialog.Title" parent="TextAppearance.Car.Subhead.Large">
     </style>
-    <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="TextAppearance.Car.Body.Medium">
+    <style name="TextAppearance.CarUi.AlertDialog.Subtitle" parent="TextAppearance.Car.Body.Medium">
     </style>
 
     <style name="TextAppearance.CarUi.PreferenceCategoryTitle"

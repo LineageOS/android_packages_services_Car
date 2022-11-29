@@ -18,8 +18,9 @@ package com.android.car;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
+import static com.android.car.CarServiceUtils.getHandlerThread;
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.car.IPerUserCarService;
 import android.car.builtin.util.Slogf;
@@ -67,7 +68,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
         mUserService = userService;
-        mHandler = new Handler(CarServiceUtils.getHandlerThread(
+        mHandler = new Handler(getHandlerThread(
                 PerUserCarServiceHelper.class.getSimpleName()).getLooper());
         UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
                 .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
