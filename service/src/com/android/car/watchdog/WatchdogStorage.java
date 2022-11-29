@@ -16,6 +16,7 @@
 
 package com.android.car.watchdog;
 
+import static com.android.car.watchdog.CarWatchdogService.DEBUG;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 
 import android.annotation.IntDef;
@@ -146,7 +147,9 @@ public final class WatchdogStorage {
             mCurrentDbState = mCurrentDbState == DB_STATE_WRITE_IN_PROGRESS
                     ? DB_STATE_WRITE_IN_PROGRESS_DIRTY : DB_STATE_DIRTY;
         }
-        Slogf.i(TAG, "Database marked dirty.");
+        if (DEBUG) {
+            Slogf.d(TAG, "Database marked dirty.");
+        }
     }
 
     /**
@@ -263,7 +266,7 @@ public final class WatchdogStorage {
                 String userPackageId = ioUsagesById.keyAt(i);
                 UserPackage userPackage = mUserPackagesById.get(userPackageId);
                 if (userPackage == null) {
-                    Slogf.i(TAG,
+                    Slogf.w(TAG,
                             "Failed to find user id and package name for user package id: '%s'",
                             userPackageId);
                     continue;
@@ -280,7 +283,7 @@ public final class WatchdogStorage {
     public void deleteUserPackage(@UserIdInt int userId, String packageName) {
         UserPackage userPackage = mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
         if (userPackage == null) {
-            Slogf.w(TAG, "Failed to find user package id for user id '%d' and package '%s",
+            Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
                     userId, packageName);
             return;
         }
@@ -367,7 +370,7 @@ public final class WatchdogStorage {
             String id = summariesById.keyAt(i);
             UserPackage userPackage = mUserPackagesById.get(id);
             if (userPackage == null) {
-                Slogf.i(TAG,
+                Slogf.w(TAG,
                         "Failed to find user id and package name for user package id: '%s'",
                         id);
                 continue;
@@ -474,7 +477,7 @@ public final class WatchdogStorage {
             UserPackage userPackage = mUserPackagesByKey.get(
                     UserPackage.getKey(entry.userId, entry.packageName));
             if (userPackage == null) {
-                Slogf.i(TAG, "Failed to find user package id for user id '%d' and package '%s",
+                Slogf.e(TAG, "Failed to find user package id for user id '%d' and package '%s",
                         entry.userId, entry.packageName);
                 continue;
             }
@@ -719,7 +722,7 @@ public final class WatchdogStorage {
                     entry.killableStateLastModifiedEpochSeconds);
 
             if (db.replaceOrThrow(UserPackageSettingsTable.TABLE_NAME, null, values) == -1) {
-                Slogf.e(TAG, "Failed to replaced %s entry [%s]", TABLE_NAME, values);
+                Slogf.e(TAG, "Failed to replace %s entry [%s]", TABLE_NAME, values);
                 return false;
             }
             return true;
