@@ -249,6 +249,8 @@
                foreground - the service will be bound/started only for foreground users
                visible - the service will be bound/started only for visible users (as defined by
                          `UserManager#isUserVisible()`).
+               backgroundVisible - the service will be bound/started only for background users that
+                                   are visible.
                The default value is 'all'
          trigger: indicates when the service needs to be started/bound
                asap - the service might be bound when user is not fully loaded, be careful with
