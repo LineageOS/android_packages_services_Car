@@ -16,13 +16,9 @@
   -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-        <shape
-            android:shape="oval">
-            <solid
-                android:color="@color/keypad_background_color" />
-            <size
-                android:width="@dimen/dialer_keypad_button_size"
-                android:height="@dimen/dialer_keypad_button_size"/>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/car_surface_1" />
+            <corners android:radius="@dimen/dialer_keypad_button_corner_radius" />
         </shape>
     </item>
 </layer-list>

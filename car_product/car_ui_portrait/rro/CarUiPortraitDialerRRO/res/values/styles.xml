@@ -18,14 +18,27 @@
     <!-- Phone -->
     <style name="KeypadButtonStyle">
         <item name="android:clickable">true</item>
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">12dp</item>
-        <item name="android:layout_marginRight">32dp</item>
-        <item name="android:layout_marginBottom">12dp</item>
-        <item name="android:layout_marginLeft">32dp</item>
+        <item name="android:layout_width">@dimen/dialer_keypad_button_width</item>
+        <item name="android:layout_height">@dimen/dialer_keypad_button_height</item>
+        <item name="android:layout_margin">@dimen/dialer_keypad_button_margin</item>
         <item name="android:background">@drawable/keypad_default_background</item>
         <item name="android:focusable">true</item>
+    </style>
+
+    <style name="KeypadNumber" parent="TextAppearance.Car.Body">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:lineHeight">44dp</item>
+        <item name="android:textColor">@color/car_on_secondary_container</item>
+        <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="KeypadLetter" parent="TextAppearance.Car.Body">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:lineHeight">26dp</item>
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+        <item name="android:textSize">20sp</item>
     </style>
 
     <style name="TextAppearance.DialNumber" parent="android:style/TextAppearance">
@@ -57,6 +70,9 @@
         <item name="android:background">@drawable/dialer_ripple_background</item>
         <item name="android:scaleType">centerInside</item>
         <item name="android:tint">?android:attr/textColorPrimary</item>
+        <item name="android:layout_width">@dimen/dialer_keypad_button_width</item>
+        <item name="android:layout_height">@dimen/dialer_keypad_button_height</item>
+        <item name="android:layout_margin">@dimen/dialer_keypad_button_margin</item>
     </style>
 
     <style name="TextAppearance.DialpadDisplayName" parent="TextAppearance.Body1"/>
@@ -68,5 +84,13 @@
     <style name="TextAppearance.TypeDownListSpan" parent="TextAppearance.Body3">
         <item name="android:textSize">32sp</item>
         <item name="android:textColor">#29cb86</item>
+    </style>
+
+    <style name="TextAppearance.ContactUserProfile.Title" parent="TextAppearance.Car.Body.Large" >
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.ContactUserProfile.Text" parent="TextAppearance.Car.Body.Small" >
+        <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 </resources>

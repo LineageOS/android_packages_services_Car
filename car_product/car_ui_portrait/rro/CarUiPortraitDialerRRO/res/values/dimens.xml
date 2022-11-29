@@ -15,9 +15,35 @@
   ~ limitations under the License.
   -->
 <resources>
+    <dimen name="avatar_icon_size">88dp</dimen>
+    <dimen name="call_button_width">344dp</dimen>
+    <dimen name="call_history_item_height">136dp</dimen>
+    <dimen name="contact_list_item_height">136dp</dimen>
+    <dimen name="contact_user_profile_padding">24dp</dimen>
+    <dimen name="contact_user_icon_margin">32dp</dimen>
+    <dimen name="dialpad_keypad_fragment_margin_start">172dp</dimen>
+    <dimen name="dialpad_fragment_list_view_height">266dp</dimen>
+    <dimen name="dialpad_fragment_list_view_width">552dp</dimen>
+    <dimen name="dialpad_fragment_list_view_margin_bottom">10dp</dimen>
+    <dimen name="dialpad_fragment_list_view_margin_start">172dp</dimen>
+    <dimen name="dialpad_fragment_restricted_dialing_mode_label_margin_top">10dp</dimen>
+    <dimen name="dialpad_fragment_title_height">45dp</dimen>
+    <dimen name="dialpad_fragment_title_margin">48dp</dimen>
+    <dimen name="dialpad_fragment_user_profile_margin_top">10dp</dimen>
+    <dimen name="dialer_keypad_button_corner_radius">44dp</dimen>
+    <dimen name="dialer_keypad_button_width">160dp</dimen>
+    <dimen name="dialer_keypad_button_height">88dp</dimen>
+    <dimen name="dialer_keypad_button_margin">12dp</dimen>
     <dimen name="dialer_keypad_button_size">96dp</dimen>
     <dimen name="dialpad_contact_avatar_size">64dp</dimen>
+    <dimen name="divider_width">2dp</dimen>
+    <dimen name="favorites_avatar_margin_bottom">8dp</dimen>
+    <dimen name="in_call_dialpad_focus_area_margin">44dp</dimen>
+    <dimen name="in_call_state_margin">4dp</dimen>
+    <dimen name="in_call_title_margin">88dp</dimen>
+    <dimen name="large_avatar_icon_size">180dp</dimen>
     <dimen name="list_item_height">112dp</dimen>
+    <dimen name="list_item_width">540dp</dimen>
 
-    <dimen name="contact_avatar_corner_radius_percent" format="float">0.1</dimen>
+    <dimen name="contact_avatar_corner_radius_percent" format="float">0.5</dimen>
 </resources>
