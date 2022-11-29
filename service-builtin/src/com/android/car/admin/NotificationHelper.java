@@ -54,11 +54,6 @@ public final class NotificationHelper extends NotificationHelperBase {
     public static final int FACTORY_RESET_NOTIFICATION_ID = 42;
     public static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
 
-    public static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
-    public static final String CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
-            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
-    public static final String CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS =
-            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
     public static final String CAR_SERVICE_PACKAGE_NAME = "com.android.car";
     @VisibleForTesting
     public static final String CHANNEL_ID_DEFAULT = "channel_id_default";

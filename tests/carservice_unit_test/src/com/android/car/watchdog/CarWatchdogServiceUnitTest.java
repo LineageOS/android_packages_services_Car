@@ -45,13 +45,13 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID;
@@ -572,10 +572,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                .putExtra(Intent.EXTRA_USER, userHandle)
-                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP).putExtra(
+                Intent.EXTRA_PACKAGE_NAME, packageName).putExtra(Intent.EXTRA_USER,
+                userHandle).putExtra(INTENT_EXTRA_NOTIFICATION_ID,
+                RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
 
         verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName,
                 userHandle.getIdentifier());
@@ -598,7 +599,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting(packageName, userHandle.getIdentifier());
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
                 .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
@@ -615,7 +617,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_LAUNCH_APP_SETTINGS)
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS)
                 .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                 .putExtra(Intent.EXTRA_USER, userHandle)
                 .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
@@ -644,7 +647,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         UserHandle userHandle = UserHandle.of(100);
 
         mBroadcastReceiver.onReceive(mMockContext,
-                new Intent(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
+                new Intent(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
                         .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
                         .putExtra(Intent.EXTRA_USER, userHandle)
                         .putExtra(INTENT_EXTRA_NOTIFICATION_ID,
@@ -656,8 +659,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithNullPackageName() throws Exception {
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -672,8 +676,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testUserNotificationActionBroadcastsWithInvalidUserId() throws Exception {
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -692,8 +697,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
 
-        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
-                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        List<String> actions = Arrays.asList(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
 
         for (String action : actions) {
             mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
@@ -4201,9 +4207,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         // When CarWatchdogService is restarted, registerReceiverForAllUsers will be called more
         // than 2 times. Thus, verify the filters only from the latest 2 calls.
         IntentFilter filter = filters.get(totalFilters - 2);
-        assertFilterHasActions(filter, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION,
-                ACTION_GARAGE_MODE_ON, ACTION_GARAGE_MODE_OFF, ACTION_LAUNCH_APP_SETTINGS,
-                ACTION_RESOURCE_OVERUSE_DISABLE_APP, ACTION_USER_REMOVED);
+        assertFilterHasActions(filter, CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION,
+                ACTION_GARAGE_MODE_ON, ACTION_GARAGE_MODE_OFF,
+                CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS,
+                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP, ACTION_USER_REMOVED);
         filter = filters.get(totalFilters - 1);
         assertFilterHasActions(filter, ACTION_PACKAGE_CHANGED);
         assertFilterHasDataScheme(filter, /* dataScheme= */ "package");
