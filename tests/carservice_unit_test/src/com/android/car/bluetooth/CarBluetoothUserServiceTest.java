@@ -49,7 +49,7 @@ import android.telecom.TelecomManager;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.RequiresDevice;
 
-import com.android.car.PerUserCarServiceImpl;
+import com.android.car.CarPerUserServiceImpl;
 import com.android.car.R;
 
 import org.junit.Before;
@@ -96,7 +96,7 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
 
     private MockContext mMockContext;
 
-    @Mock private PerUserCarServiceImpl mMockPerUserCarServiceImpl;
+    @Mock private CarPerUserServiceImpl mMockCarPerUserServiceImpl;
     @Mock private BluetoothManager mMockBluetoothManager;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
     @Captor private ArgumentCaptor<BluetoothProfile.ServiceListener> mProfileServiceListenerCaptor;
@@ -119,7 +119,7 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     @Before
     public void setUp() {
         mMockContext = new MockContext(InstrumentationRegistry.getTargetContext());
-        when(mMockPerUserCarServiceImpl.getApplicationContext()).thenReturn(mMockContext);
+        when(mMockCarPerUserServiceImpl.getApplicationContext()).thenReturn(mMockContext);
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
         when(mMockBluetoothAdapter.getName()).thenReturn(DEVICE_NAME);
@@ -135,14 +135,14 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         when(mMockResources.getInteger(R.integer.fastPairModelId)).thenReturn(123);
         when(mMockResources.getString(R.string.fastPairAntiSpoofKey)).thenReturn("HelloWorld");
         when(mMockResources.getBoolean(R.bool.fastPairAutomaticAcceptance)).thenReturn(false);
-        when(mMockPerUserCarServiceImpl.getResources()).thenReturn(mMockResources);
-        when(mMockPerUserCarServiceImpl.getSystemService(eq(BluetoothManager.class)))
+        when(mMockCarPerUserServiceImpl.getResources()).thenReturn(mMockResources);
+        when(mMockCarPerUserServiceImpl.getSystemService(eq(BluetoothManager.class)))
                 .thenReturn(mMockBluetoothManager);
-        when(mMockPerUserCarServiceImpl.getSystemService(eq(UserManager.class)))
+        when(mMockCarPerUserServiceImpl.getSystemService(eq(UserManager.class)))
                 .thenReturn(mMockUserManager);
         when(mMockUserManager.isUserUnlocked()).thenReturn(false);
 
-        mCarBluetoothUserService = new CarBluetoothUserService(mMockPerUserCarServiceImpl);
+        mCarBluetoothUserService = new CarBluetoothUserService(mMockCarPerUserServiceImpl);
 
         // Grab the {@link BluetoothProfile.ServiceListener} to inject mock profile proxies
         doReturn(true).when(mMockBluetoothAdapter).getProfileProxy(

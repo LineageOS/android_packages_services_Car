@@ -1459,7 +1459,7 @@
         errorLine1="            boolean bindSuccess = mContext.bindServiceAsUser(startIntent, mUserServiceConnection,"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="packages/services/Car/service/src/com/android/car/PerUserCarServiceHelper.java"
+            file="packages/services/Car/service/src/com/android/car/CarPerUserServiceHelper.java"
             line="160"
             column="44"/>
     </issue>
