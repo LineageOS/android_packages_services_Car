@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
+import android.os.ParcelUuid;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -612,13 +613,18 @@ public final class BluetoothDeviceManager {
      * connecting device. Assumes you hold {@code mAutoConnectLock}.
      */
     private void addWatchedProfileIfSupported(int profile) {
+        List<ParcelUuid> ourUuids = mBluetoothAdapter.getUuidsList();
         synchronized (mAutoConnectLock) {
             BluetoothDevice device = mAutoConnectingDevices.get(mAutoConnectPriority);
             if (device == null) {
                 return;
             }
-            if (BluetoothUtils.isProfileSupported(device, profile)) {
+            if (BluetoothUtils.isProfileSupported(ourUuids, device, profile)) {
                 mAutoConnectingDeviceProfiles.put(profile, -1);
+                if (DBG) {
+                    Slogf.d(TAG, "Device %s supports %s. Expect a connection", device,
+                            BluetoothUtils.getProfileName(profile));
+                }
             }
         }
     }
