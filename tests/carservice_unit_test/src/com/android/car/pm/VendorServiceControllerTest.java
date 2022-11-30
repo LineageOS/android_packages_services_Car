@@ -291,6 +291,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext.assertNoUnboundOrStoppedServices();
 
         // A background user becomes invisible.
+        mContext.expectServicesToUnbindOrStop(SERVICE_BIND_BG_VISIBLE_USER_ASAP,
+                SERVICE_START_VISIBLE_USER_ASAP, SERVICE_START_VISIBLE_USER_UNLOCKED);
         mockIsUserVisible(VISIBLE_BG_USER2_ID, false);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
                 VISIBLE_BG_USER2_ID);
@@ -433,6 +435,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         private final Map<String, CountDownLatch> mBoundLatches = new HashMap<>();
         private final Map<String, CountDownLatch> mStartedLatches = new HashMap<>();
+        private final Map<String, CountDownLatch> mUnboundOrStoppedLatches = new HashMap<>();
         private final Map<String, ServiceConnection> mBoundServiceToConnectionMap =
                 new HashMap<>();
         private BroadcastReceiver mPackageChangeReceiver;
@@ -455,7 +458,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 mUnboundOrStoppedServices.remove(serviceComponent);
             }
             Log.v(TAG, "Started service (" + serviceComponent + ")");
-            countdown(mStartedLatches, service, "started");
+            countdown(mStartedLatches, serviceComponent, "started");
             return service.getComponent();
         }
 
@@ -467,6 +470,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 mRecentStartedServices.remove(serviceComponent);
                 mUnboundOrStoppedServices.add(serviceComponent);
             }
+            countdown(mUnboundOrStoppedLatches, serviceComponent, "stopped");
             return true;
         }
 
@@ -482,20 +486,22 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             }
             Log.v(TAG, "Added service (" + serviceComponent + ") to bound intents");
             conn.onServiceConnected(serviceComponent, null);
-            countdown(mBoundLatches, service, "bound");
+            countdown(mBoundLatches, serviceComponent, "bound");
             return true;
         }
 
         @Override
         public void unbindService(ServiceConnection conn) {
+            ComponentName serviceComponent;
             synchronized (mLock) {
-                ComponentName serviceComponent = mBoundConnectionToServiceMap.get(conn);
+                serviceComponent = mBoundConnectionToServiceMap.get(conn);
                 Log.v(TAG, "Remove service (" + serviceComponent + ") from bound services");
                 mRecentBoundServices.remove(serviceComponent);
                 mBoundServiceToConnectionMap.remove(serviceComponent.flattenToShortString());
                 mBoundConnectionToServiceMap.remove(conn);
                 mUnboundOrStoppedServices.add(serviceComponent);
             }
+            countdown(mUnboundOrStoppedLatches, serviceComponent, "unbound");
         }
 
         @Override
@@ -508,6 +514,13 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 Log.v(TAG, "expecting service " + service);
                 mBoundLatches.put(service, new CountDownLatch(1));
                 mStartedLatches.put(service, new CountDownLatch(1));
+            }
+        }
+
+        private void expectServicesToUnbindOrStop(String... services) {
+            for (String service : services) {
+                Log.v(TAG, "expecting service " + service);
+                mUnboundOrStoppedLatches.put(service, new CountDownLatch(1));
             }
         }
 
@@ -528,15 +541,16 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                     + ") and method (" + method + ") called fine");
         }
 
-        private void countdown(Map<String, CountDownLatch> latches, Intent service, String action) {
-            String serviceName = service.getComponent().flattenToShortString();
+        private void countdown(Map<String, CountDownLatch> latches, ComponentName serviceComponent,
+                String action) {
+            String serviceName = serviceComponent.flattenToShortString();
             CountDownLatch latch = latches.get(serviceName);
             if (latch == null) {
                 Log.e(TAG, "unexpected service (" + serviceName + ") " + action + ". Expected only "
                         + mBoundLatches.keySet());
             } else {
                 latch.countDown();
-                Log.v(TAG, "latch.countDown for service (" + service + ") and action ("
+                Log.v(TAG, "latch.countDown for service (" + serviceName + ") and action ("
                         + action + ") called fine");
             }
         }
@@ -564,11 +578,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         void assertRecentUnboundOrStoppedServices(String... services) throws InterruptedException {
             synchronized (mLock) {
-                assertWithMessage("Unbound or stopped services").that(mUnboundOrStoppedServices)
-                        .containsExactlyElementsIn(Arrays.stream(services)
-                                .map(ComponentName::unflattenFromString)
-                                .collect(Collectors.toList()));
-                mUnboundOrStoppedServices.clear();
+                assertHasServices(mUnboundOrStoppedServices, "unbound or stopped", services);
             }
         }
 
