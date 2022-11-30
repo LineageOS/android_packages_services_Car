@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"रिमोट ऐक्सेस को इस्तेमाल करने की अनुमति दें."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"रिमोट ऐक्सेस को कंट्रोल करने की अनुमति दें"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"रिमोट ऐक्सेस को कंट्रोल करने की अनुमति दें."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"कार का स्टीयरिंग व्हील कंट्रोल करें"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"कार का स्टीयरिंग व्हील कंट्रोल करें."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

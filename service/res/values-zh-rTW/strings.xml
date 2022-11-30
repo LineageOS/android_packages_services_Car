@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"使用遠端存取權。"</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"控制遠端存取權"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"控制遠端存取權。"</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"控制車輛方向盤"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"控制車輛方向盤。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路發生問題"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路無回應。請將主機盒插頭拔下並插回，然後重新啟動車輛"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>
