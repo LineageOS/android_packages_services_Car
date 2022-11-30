@@ -291,6 +291,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_FOOTWELL_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_READ_INTERIOR_LIGHTS,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_FOOTWELL_LIGHTS_SWITCH, new Pair<>(
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_EASY_ACCESS_ENABLED, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
