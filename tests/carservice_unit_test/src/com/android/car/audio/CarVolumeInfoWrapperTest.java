@@ -40,13 +40,18 @@ import java.util.List;
 public final class CarVolumeInfoWrapperTest {
 
     private static final int TEST_GROUP_ID = 0;
+    private static final int TEST_SECONDARY_GROUP = 1;
     private static final int TEST_GROUP_VOLUME = 5;
     private static final int TEST_MIN_GROUP_VOLUME = 0;
     private static final int TEST_MAX_GROUP_VOLUME = 9000;
     private static final boolean TEST_VOLUME_GROUP_MUTE = true;
     private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
-            new CarVolumeGroupInfo.Builder(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID,
-                    "group id " + TEST_GROUP_ID).build();
+            new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_AUDIO_ZONE,
+                    TEST_GROUP_ID).build();
+
+    private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP,
+                    PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP).build();
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 
@@ -67,6 +72,11 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(TEST_VOLUME_GROUP_MUTE);
         when(carAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
                 .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO));
+        when(carAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
+                .thenReturn(TEST_SECONDARY_VOLUME_INFO);
+        when(carAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(new CarVolumeGroupInfo[] {TEST_PRIMARY_GROUP_INFO,
+                        TEST_SECONDARY_VOLUME_INFO});
 
         mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(carAudioService);
     }
@@ -137,5 +147,19 @@ public final class CarVolumeInfoWrapperTest {
         assertWithMessage("Muted volume groups")
                 .that(mCarVolumeInfoWrapper.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
                 .containsExactly(TEST_PRIMARY_GROUP_INFO);
+    }
+
+    @Test
+    public void getVolumeGroupInfo() {
+        assertWithMessage("Car volume group volume group")
+                .that(mCarVolumeInfoWrapper.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                        TEST_SECONDARY_GROUP)).isEqualTo(TEST_SECONDARY_VOLUME_INFO);
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone() {
+        assertWithMessage("Car volume group volume groups")
+                .that(mCarVolumeInfoWrapper.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
+                .asList().containsExactly(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO);
     }
 }
