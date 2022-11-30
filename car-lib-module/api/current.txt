@@ -127,6 +127,7 @@ package android.car {
     method public int getDisplayType(@NonNull android.view.Display);
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(int, int);
+    method public int getUserForDisplayId(int);
     method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public boolean hasDriverZone();
     method public boolean hasPassengerZones();

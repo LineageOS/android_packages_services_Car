@@ -274,6 +274,7 @@ package android.car.app {
 
   public final class CarActivityManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public int setPersistentActivity(@NonNull android.content.ComponentName, int, int);
+    method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public void startUserPickerOnDisplay(int);
     field public static final int RESULT_FAILURE = -1; // 0xffffffff
     field public static final int RESULT_INVALID_USER = -2; // 0xfffffffe
     field public static final int RESULT_SUCCESS = 0; // 0x0

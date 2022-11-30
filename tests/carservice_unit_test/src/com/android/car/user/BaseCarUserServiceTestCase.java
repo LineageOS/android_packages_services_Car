@@ -99,6 +99,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
+import com.android.car.am.CarActivityService;
 import com.android.car.hal.HalCallback;
 import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.hal.UserHalHelper;
@@ -170,6 +171,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected UserHandleHelper mMockedUserHandleHelper;
     @Mock protected CarPackageManagerService mCarPackageManagerService;
     @Mock protected CarOccupantZoneService mCarOccupantZoneService;
+    @Mock protected CarActivityService mCarActivityService;
 
     protected final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -280,6 +282,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mICarServiceHelper);
+
+        CarLocalServices.addService(CarActivityService.class, mCarActivityService);
     }
 
     @Before

@@ -283,6 +283,8 @@
             android:icon="@drawable/ic_user_picker"
             android:exported="true"
             android:launchMode="standard"
+            android:excludeFromRecents="true"
+            android:directBootAware="true"
             android:showForAllUsers="true">
             <intent-filter>
               <action android:name="android.intent.action.MAIN"/>

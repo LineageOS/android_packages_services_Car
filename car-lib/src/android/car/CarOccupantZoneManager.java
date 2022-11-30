@@ -557,6 +557,24 @@ public class CarOccupantZoneManager extends CarManagerBase {
     }
 
     /**
+     * Returns assigned user id for the given display id.
+     *
+     * @param displayId Should be valid display id. Passing invalid display id will lead into
+     *        getting {@link #INVALID_USER_ID} result.
+     * @return Valid user id or {@link #INVALID_USER_ID} if no user is assigned for the display.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @UserIdInt
+    public int getUserForDisplayId(int displayId) {
+        try {
+            return mService.getUserForDisplayId(displayId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, INVALID_USER_ID);
+        }
+    }
+
+    /**
      * Assigns the given profile {@code userId} to the {@code occupantZone}. Returns true when the
      * request succeeds.
      *

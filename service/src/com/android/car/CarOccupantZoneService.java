@@ -941,6 +941,23 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @Override
+    @UserIdInt
+    public int getUserForDisplayId(int displayId) {
+        synchronized (mLock) {
+            for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+                OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
+                for (int j = 0; j < config.displayInfos.size(); j++) {
+                    if (config.displayInfos.get(j).display.getDisplayId() == displayId) {
+                        return config.userId;
+                    }
+                }
+            }
+        }
+        Slogf.w(TAG, "Could not find OccupantZone for display Id %d", displayId);
+        return CarOccupantZoneManager.INVALID_USER_ID;
+    }
+
     /** Returns number of passenger zones in the device. */
     public int getNumberOfPassengerZones() {
         synchronized (mLock) {
