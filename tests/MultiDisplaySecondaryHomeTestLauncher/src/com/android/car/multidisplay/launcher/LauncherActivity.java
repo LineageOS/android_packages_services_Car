@@ -130,8 +130,10 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
 
         WallpaperManager wallpaperMgr = getSystemService(WallpaperManager.class);
         mIsWallpaperSupported = wallpaperMgr != null && wallpaperMgr.isWallpaperSupported();
-        Log.d(TAG, "Creating for user " + getUserId() + ". Wallpaper supported: "
-                + mIsWallpaperSupported);
+        int userId = getUserId();
+        int displayId = getDisplayId();
+        Log.d(TAG, "Creating for user " + userId + " on display " + displayId
+                + ". Wallpaper supported: " + mIsWallpaperSupported);
         setContentView(R.layout.activity_main);
 
         mRootView = findViewById(R.id.RootView);
@@ -139,7 +141,7 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         mAppDrawerView = findViewById(R.id.FloatingSheet);
 
         mBackgroundDrawable = new TextDrawable(this, Color.WHITE, /* defaultSize= */ 150,
-                "User #" + getUserId());
+                "User #" + userId, "Display #" + displayId);
         mRootView.setBackground(mBackgroundDrawable);
 
         // get system insets and apply padding accordingly to the content view
@@ -371,6 +373,7 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         }
         String prefix2 = prefix + "  ";
         writer.printf("%smUser: %s\n", prefix, getUserId());
+        writer.printf("%smDisplay: %s\n", prefix, getDisplayId());
         writer.printf("%smmIsWallpaperSupported: %s\n", prefix, mIsWallpaperSupported);
         writer.printf("%smDisplaySpinner: %s\n", prefix, mDisplaySpinner);
         writer.printf("%smDisplayAdapter:\n", prefix);

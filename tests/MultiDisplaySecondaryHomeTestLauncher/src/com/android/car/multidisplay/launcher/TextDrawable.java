@@ -22,14 +22,18 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.util.TypedValue;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 
 public final class TextDrawable extends Drawable {
 
+    private static final String TAG = TextDrawable.class.getSimpleName();
+
     private final Paint mPaint;
-    private final CharSequence mText;
+    private final CharSequence[] mText;
     private final int mIntrinsicWidth;
     private final int mIntrinsicHeight;
 
@@ -38,7 +42,7 @@ public final class TextDrawable extends Drawable {
     private final int mDefaultSize;
     private final float mTextSize;
 
-    public TextDrawable(Context context, int color, int defaultSize, CharSequence text) {
+    public TextDrawable(Context context, int color, int defaultSize, CharSequence... text) {
         mColor = color;
         mText = text;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -48,8 +52,15 @@ public final class TextDrawable extends Drawable {
         mTextSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP,
                 mDefaultSize, context.getResources().getDisplayMetrics());
         mPaint.setTextSize(mTextSize);
-        mIntrinsicWidth = (int) (mPaint.measureText(mText, 0, mText.length()) + .5);
-        mIntrinsicHeight = mPaint.getFontMetricsInt(null);
+        int maxWidth = 0;
+        for (int i = 0; i < text.length; i++) {
+            CharSequence line = text[i];
+            int width = (int) (mPaint.measureText(line, 0, line.length()) + .5);
+            maxWidth = Math.max(maxWidth, width);
+            Log.d(TAG, "line " + i + ": text='" + line + ", w=" + width + " max=" + maxWidth);
+        }
+        mIntrinsicWidth = maxWidth;
+        mIntrinsicHeight = mPaint.getFontMetricsInt(/* fmi= */ null);
     }
 
     @Override
@@ -80,17 +91,28 @@ public final class TextDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         Rect bounds = getBounds();
-        canvas.drawText(mText, 0, mText.length(), bounds.centerX(), bounds.centerY(), mPaint);
+        int height = bounds.height();
+        int topMargin = bounds.centerY() - (mIntrinsicHeight / 2);
+        int n = mText.length;
+        int x = bounds.centerX();
+        int y = topMargin;
+        Log.d(TAG, "Drawing " + n + " lines. Height: " + height + " Top margin: " + topMargin);
+        for (int i = 0; i < n; i++) {
+            CharSequence text = mText[i];
+            Log.d(TAG, "Drawing line " + i + " (" + text + ") at " + x + "x" + y);
+            canvas.drawText(text, 0, text.length(), x, y, mPaint);
+            y += mIntrinsicHeight;
+        }
     }
 
     public void dump(String prefix, PrintWriter writer) {
         writer.printf("%sClass name: %s\n", prefix, getClass().getName());
-        writer.printf("%smText: %s\n", prefix, mText);
+        writer.printf("%smText: %s\n", prefix, Arrays.toString(mText));
         writer.printf("%smTextSize: %.02f\n", prefix, mTextSize);
         writer.printf("%smDefaultSize: %d\n", prefix, mDefaultSize);
         writer.printf("%smColor: %d\n", prefix, mColor);
-        writer.printf("%smmIntrinsicWidth: %d\n", prefix, mIntrinsicWidth);
-        writer.printf("%smmIntrinsicHeight: %d\n", prefix, mIntrinsicHeight);
+        writer.printf("%smIntrinsicWidth: %d\n", prefix, mIntrinsicWidth);
+        writer.printf("%smIntrinsicHeight: %d\n", prefix, mIntrinsicHeight);
         writer.printf("%smPaint: %s\n", prefix, mPaint);
     }
 }
