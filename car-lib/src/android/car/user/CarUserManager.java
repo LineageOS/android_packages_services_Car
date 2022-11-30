@@ -209,6 +209,28 @@ public final class CarUserManager extends CarManagerBase {
     public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_REMOVED;
 
+    /**
+     * {@link UserLifecycleEvent} called after an existing user becomes visible.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int USER_LIFECYCLE_EVENT_TYPE_VISIBLE =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
+
+    /**
+     * {@link UserLifecycleEvent} called after an existing user becomes invisible.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+
     /** @hide */
     @AddedInOrBefore(majorVersion = 33)
     public static final String BUNDLE_PARAM_ACTION = "action";
@@ -1017,6 +1039,10 @@ public final class CarUserManager extends CarManagerBase {
                 return "CREATED";
             case USER_LIFECYCLE_EVENT_TYPE_REMOVED:
                 return "REMOVED";
+            case USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
+                return "VISIBLE";
+            case USER_LIFECYCLE_EVENT_TYPE_INVISIBLE:
+                return "INVISIBLE";
             default:
                 return "UNKNOWN-" + type;
         }

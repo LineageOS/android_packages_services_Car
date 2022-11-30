@@ -49,13 +49,17 @@
         <item name="android:textFontWeight">400</item>
     </style>
     <style name="TextAppearance.Car.Body.Large">
+        <item name="android:lineHeight">44dp</item>
         <item name="android:textSize">34sp</item>
+        <item name="android:textStyle">normal</item>
     </style>
     <style name="TextAppearance.Car.Body.Medium">
         <item name="android:textSize">32sp</item>
     </style>
     <style name="TextAppearance.Car.Body.Small">
+        <item name="android:lineHeight">36dp</item>
         <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
 

@@ -238,17 +238,17 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mController.init();
         mContext.reset();
 
-        // Starting a visible user triggers services configured as ASAP.
+        // A background user becomes visible.
         mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_START_VISIBLE_USER_ASAP);
         mockIsUserVisible(VISIBLE_BG_USER1_ID, true);
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING,
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
                 VISIBLE_BG_USER1_ID);
 
         mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mContext.assertRecentStartedServices(SERVICE_START_VISIBLE_USER_ASAP);
         mContext.verifyNoMoreServiceLaunches();
 
-        // Unlock a visible background user.
+        // Unlock another visible background user.
         mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_START_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_UNLOCKED);
         mockIsUserVisible(VISIBLE_BG_USER2_ID, true);
@@ -280,6 +280,16 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         mContext.assertRecentBoundServices(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.assertRecentStartedServices(SERVICE_START_VISIBLE_USER_ASAP,
+                SERVICE_START_VISIBLE_USER_UNLOCKED);
+        mContext.verifyNoMoreServiceLaunches();
+        mContext.assertNoUnboundOrStoppedServices();
+
+        // A background user becomes invisible.
+        mockIsUserVisible(VISIBLE_BG_USER2_ID, false);
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
+                VISIBLE_BG_USER2_ID);
+
+        mContext.assertRecentUnboundOrStoppedServices(SERVICE_START_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
         mContext.assertNoUnboundOrStoppedServices();
@@ -543,6 +553,16 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             await(mStartedLatches, "start()", services);
             synchronized (mLock) {
                 assertHasServices(mRecentStartedServices, "started", services);
+            }
+        }
+
+        void assertRecentUnboundOrStoppedServices(String... services) throws InterruptedException {
+            synchronized (mLock) {
+                assertWithMessage("Unbound or stopped services").that(mUnboundOrStoppedServices)
+                        .containsExactlyElementsIn(Arrays.stream(services)
+                                .map(ComponentName::unflattenFromString)
+                                .collect(Collectors.toList()));
+                mUnboundOrStoppedServices.clear();
             }
         }
 

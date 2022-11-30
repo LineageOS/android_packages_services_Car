@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,11 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/car_secondary_container" />
-            <corners android:radius="@dimen/dialer_keypad_button_corner_radius" />
-        </shape>
-    </item>
-</layer-list>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="TextAppearance.DescriptiveText.PrimaryText" parent="TextAppearance.Car.Body.Large" >
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+    <style name="TextAppearance.DescriptiveText.SecondaryText" parent="TextAppearance.Car.Body.Small" >
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
+</resources>

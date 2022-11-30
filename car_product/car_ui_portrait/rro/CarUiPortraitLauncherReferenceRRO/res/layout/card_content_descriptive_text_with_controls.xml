@@ -25,12 +25,14 @@
     <FrameLayout
         android:layout_width="0dp"
         android:layout_height="@dimen/media_descriptive_text_container_height"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_gravity="bottom">
 
         <include layout="@layout/descriptive_text"
             android:id="@+id/media_descriptive_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_gravity="start|center_vertical"/>
     </FrameLayout>
 
     <LinearLayout

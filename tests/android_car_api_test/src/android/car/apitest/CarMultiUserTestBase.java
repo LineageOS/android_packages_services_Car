@@ -16,11 +16,16 @@
 
 package android.car.apitest;
 
+import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.junit.Assume.assumeTrue;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -29,6 +34,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
+import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
@@ -45,8 +51,10 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
+import android.view.Display;
 
 import org.junit.After;
+import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 
 import java.util.ArrayList;
@@ -66,6 +74,9 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     private static final long SWITCH_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(30_000);
 
     private static final String NEW_USER_NAME_PREFIX = "CarApiTest.";
+
+    private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
+    private static boolean sChangedMaxNumberUsers;
 
     protected CarUserManager mCarUserManager;
     protected UserManager mUserManager;
@@ -190,6 +201,22 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         }
     }
 
+    protected static void setupMaxNumberOfUsers(int requiredUsers) {
+        if (sMaxNumberUsersBefore < requiredUsers) {
+            sChangedMaxNumberUsers = true;
+            Log.i(TAG, "Increasing maximizing number of users from " + sMaxNumberUsersBefore
+                    + " to " + requiredUsers);
+            setMaxSupportedUsers(requiredUsers);
+        }
+    }
+
+    protected static void restoreMaxNumberOfUsers() {
+        if (sChangedMaxNumberUsers) {
+            Log.i(TAG, "Restoring maximum number of users to " + sMaxNumberUsersBefore);
+            setMaxSupportedUsers(sMaxNumberUsersBefore);
+        }
+    }
+
     @UserIdInt
     protected int getCurrentUserId() {
         return ActivityManager.getCurrentUser();
@@ -311,6 +338,19 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 .that(result.isSuccess()).isTrue();
     }
 
+    protected static void startUserInBackgroundOnSecondaryDisplay(@UserIdInt int userId,
+            int displayId) throws Exception {
+        Log.i(TAG, "Starting background user " + userId + " on display " + displayId);
+        // TODO(b/257335554): Call CarUserManager method when ready.
+        ActivityManager.getService().startUserInBackgroundOnSecondaryDisplay(userId, displayId);
+    }
+
+    protected static void forceStopUser(@UserIdInt int userId) throws Exception {
+        Log.i(TAG, "Force-stopping user " + userId);
+        // TODO(b/257335554): Call CarUserManager method when ready.
+        ActivityManager.getService().stopUser(userId, /* force=*/ true, /* listener= */ null);
+    }
+
     @Nullable
     protected UserInfo getUser(@UserIdInt int id) {
         List<UserInfo> list = mUserManager.getUsers();
@@ -338,7 +378,6 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         Log.v(TAG, "Set: " + SystemProperties.get(property));
     }
 
-
     protected void assertUserInfo(UserInfo actualUser, UserInfo expectedUser) {
         assertWithMessage("Wrong id for user %s", actualUser.toFullString())
                 .that(actualUser.id).isEqualTo(expectedUser.id);
@@ -352,5 +391,37 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     private static boolean isUserCreatedByTheseTests(UserInfo user) {
         return user.name != null && user.name.startsWith(NEW_USER_NAME_PREFIX);
+    }
+
+    /**
+     * Checks if the target device supports MUMD (multi-user multi-display).
+     * @throws AssumptionViolatedException if the device does not support MUMD.
+     */
+    // TODO(b/250108245): Currently doing this because using DeviceState rule is very heavy. We
+    //  may want to use PermissionsCheckerRule as a light-weight feature check
+    //  (and probably rename it to something like DeviceStateLite).
+    protected static void requireMumd() {
+        assumeTrue(
+                "The device does not support multiple users on multiple displays",
+                getTargetContext().getSystemService(UserManager.class)
+                        .isUsersOnSecondaryDisplaysSupported());
+    }
+
+    /**
+     * Returns a secondary display that is available to start a background user on.
+     * @return the id of a secondary display
+     */
+    protected static int getSecondaryDisplay() {
+        // TODO(b/255644545) Instead of creating a virtual display, we can just return an existing
+        // secondary display using ActivityManager#getSecondaryDisplayIdsForStartingBackgroundUsers.
+        VirtualDisplaySession virtualDisplaySession = new VirtualDisplaySession();
+        Display display = virtualDisplaySession.createDisplayWithDefaultDisplayMetricsAndWait(
+                getTargetContext(), /* isPrivate= */ false);
+
+        return display.getDisplayId();
+    }
+
+    private static Context getTargetContext() {
+        return getInstrumentation().getTargetContext();
     }
 }

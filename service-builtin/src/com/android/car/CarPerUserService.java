@@ -18,13 +18,13 @@ package com.android.car;
 
 import android.content.Intent;
 
-/** Proxy service for PerUserCarServiceImpl */
-public class PerUserCarService extends ServiceProxy {
+/** Proxy service for CarPerUserServiceImpl */
+public class CarPerUserService extends ServiceProxy {
     private static final boolean DBG = false;
-    private static final String TAG = PerUserCarService.class.getSimpleName();
+    private static final String TAG = CarPerUserService.class.getSimpleName();
 
-    public PerUserCarService() {
-        super(UpdatablePackageDependency.PER_USER_CAR_SERVICE_IMPL_CLASS);
+    public CarPerUserService() {
+        super(UpdatablePackageDependency.CAR_USER_PER_SERVICE_IMPL_CLASS);
     }
 
     @Override

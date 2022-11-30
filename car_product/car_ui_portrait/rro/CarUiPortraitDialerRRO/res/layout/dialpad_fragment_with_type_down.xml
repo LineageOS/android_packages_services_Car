@@ -17,14 +17,13 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="100dp">
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_marginBottom="48dp"
+        android:layout_height="@dimen/dialpad_fragment_title_height"
+        android:layout_marginBottom="@dimen/dialpad_fragment_title_margin"
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@id/dialpad_fragment"
         android:layout_alignRight="@id/dialpad_fragment"
@@ -33,52 +32,50 @@
 
     <com.android.car.ui.recyclerview.CarUiRecyclerView
         android:id="@+id/list_view"
-        android:layout_width="536dp"
-        android:layout_height="266dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="70dp"
+        android:layout_width="@dimen/dialpad_fragment_list_view_width"
+        android:layout_height="@dimen/dialpad_fragment_list_view_height"
+        android:layout_marginBottom="@dimen/dialpad_fragment_list_view_margin_bottom"
+        android:layout_marginStart="@dimen/dialpad_fragment_list_view_margin_start"
         android:layout_below="@id/title"/>
+
     <fragment
         android:id="@+id/dialpad_fragment"
         android:name="com.android.car.dialer.ui.dialpad.KeypadFragment"
-        android:layout_height="456dp"
-        android:layout_width="416dp"
-        android:layout_marginLeft="120dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dialpad_keypad_fragment_margin_start"
         android:layout_below="@id/list_view"/>
 
     <RelativeLayout
-        android:layout_height="@dimen/dialer_keypad_button_size"
         android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_below="@id/dialpad_fragment"
-        android:layout_marginTop="38dp"
-        android:layout_alignLeft="@id/dialpad_fragment"
-        android:layout_alignRight="@id/dialpad_fragment">
+        android:layout_alignStart="@id/dialpad_fragment"
+        android:layout_alignEnd="@id/dialpad_fragment">
 
         <ImageView
             android:id="@+id/call_button"
-            android:layout_height="match_parent"
             android:layout_width="match_parent"
+            android:layout_height="@dimen/dialer_keypad_button_height"
+            android:minWidth="@dimen/call_button_width"
+            android:layout_margin="@dimen/dialer_keypad_button_margin"
             android:adjustViewBounds="true"
             android:scaleType="fitXY"
             android:src="@drawable/icon_call_button"
-            android:layout_toLeftOf="@id/delete_button"/>
+            android:layout_toStartOf="@id/delete_button" />
 
-        <ImageButton
-            android:id="@+id/delete_button"
-            android:layout_width="@dimen/dialer_keypad_button_size"
-            android:layout_height="@dimen/dialer_keypad_button_size"
+        <ImageButton android:id="@+id/delete_button"
             style="@style/DialpadSecondaryButton"
             android:src="@drawable/ic_backspace"
-            android:layout_marginLeft="64dp"
             android:visibility="gone"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentEnd="true" />
     </RelativeLayout>
 
     <include
         layout="@layout/dialpad_user_profile"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/dialpad_fragment_user_profile_margin_top"
         android:layout_below="@id/title"
         android:layout_centerHorizontal="true"/>
 
@@ -88,7 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/dialpad_fragment_restricted_dialing_mode_label_margin_top"
         android:layout_below="@id/title"
         android:visibility="invisible"/>
 </RelativeLayout>

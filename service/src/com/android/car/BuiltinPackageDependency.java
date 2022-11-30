@@ -42,8 +42,8 @@ public final class BuiltinPackageDependency {
     public static final String CAR_ACCESSIBILITY_SERVICE_CLASS =
             "com.android.car.pm.CarSafetyAccessibilityService";
 
-    /** {@code com.android.car.PerUserCarService} */
-    public static final String PER_USER_CAR_SERVICE_CLASS = "com.android.car.PerUserCarService";
+    /** {@code com.android.car.CarPerUserService} */
+    public static final String CAR_USER_PER_SERVICE_CLASS = "com.android.car.CarPerUserService";
 
     public static final String EVS_HAL_WRAPPER_CLASS = "com.android.car.evs.EvsHalWrapperImpl";
 

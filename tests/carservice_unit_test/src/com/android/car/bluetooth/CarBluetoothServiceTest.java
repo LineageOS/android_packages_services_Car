@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.car.IPerUserCarService;
+import android.car.ICarPerUserService;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -34,7 +34,7 @@ import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
 import com.android.car.CarLocalServices;
-import com.android.car.PerUserCarServiceHelper;
+import com.android.car.CarPerUserServiceHelper;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 
@@ -72,11 +72,11 @@ public class CarBluetoothServiceTest {
     @Mock private BluetoothManager mMockBluetoothManager;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
 
-    @Mock private PerUserCarServiceHelper mMockUserSwitchService;
-    @Mock private IPerUserCarService mMockPerUserCarService;
+    @Mock private CarPerUserServiceHelper mMockUserSwitchService;
+    @Mock private ICarPerUserService mMockCarPerUserService;
     @Mock private CarBluetoothUserService mMockBluetoothUserService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
-    private PerUserCarServiceHelper.ServiceCallback mUserSwitchCallback;
+    private CarPerUserServiceHelper.ServiceCallback mUserSwitchCallback;
 
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
@@ -109,14 +109,14 @@ public class CarBluetoothServiceTest {
             Object[] arguments = invocation.getArguments();
             if (arguments != null && arguments.length == 1 && arguments[0] != null) {
                 mUserSwitchCallback =
-                        (PerUserCarServiceHelper.ServiceCallback) arguments[0];
+                        (CarPerUserServiceHelper.ServiceCallback) arguments[0];
             }
             return null;
         }).when(mMockUserSwitchService).registerServiceCallback(any(
-                PerUserCarServiceHelper.ServiceCallback.class));
+                CarPerUserServiceHelper.ServiceCallback.class));
 
         try {
-            when(mMockPerUserCarService.getBluetoothUserService()).thenReturn(
+            when(mMockCarPerUserService.getBluetoothUserService()).thenReturn(
                     mMockBluetoothUserService);
         } catch (RemoteException e) {
             Assert.fail();
@@ -154,7 +154,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(true);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
         Assert.assertTrue(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 
@@ -174,7 +174,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(false);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultConnectionPolicy());
     }
 
@@ -194,7 +194,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(true);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
         Assert.assertTrue(mCarBluetoothService.isUsingDefaultPowerPolicy());
     }
 
@@ -214,7 +214,7 @@ public class CarBluetoothServiceTest {
                 R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(false);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
-        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        mUserSwitchCallback.onServiceConnected(mMockCarPerUserService);
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultPowerPolicy());
     }
 }
