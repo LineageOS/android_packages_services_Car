@@ -86,6 +86,7 @@
         <permission name="android.car.permission.CONTROL_CAR_FEATURES"/>
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
+        <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_INFO"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_SEAT"/>
