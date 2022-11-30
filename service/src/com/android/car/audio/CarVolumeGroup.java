@@ -441,9 +441,11 @@ import java.util.Objects;
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
-            mAddressToCarAudioDeviceInfo.keySet().stream()
-                    .map(mAddressToCarAudioDeviceInfo::get)
-                    .forEach((info -> info.dump(writer)));
+            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
+                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                info.dump(writer);
+            }
             writer.printf("Reported reasons:\n");
             writer.increaseIndent();
             for (int index = 0; index < mReasons.size(); index++) {

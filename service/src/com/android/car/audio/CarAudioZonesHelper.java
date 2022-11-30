@@ -276,8 +276,8 @@ import java.util.stream.Collectors;
         if (isPrimary && audioZoneIdString == null) {
             return PRIMARY_AUDIO_ZONE;
         }
-        Objects.requireNonNull(audioZoneIdString, () ->
-                "Requires " + ATTR_ZONE_ID + " for all audio zones.");
+        Objects.requireNonNull(audioZoneIdString,
+                "Requires audioZoneId for all audio zones.");
         int zoneId = parsePositiveIntAttribute(ATTR_ZONE_ID, audioZoneIdString);
         //Verify that primary zone id is PRIMARY_AUDIO_ZONE
         if (isPrimary) {
