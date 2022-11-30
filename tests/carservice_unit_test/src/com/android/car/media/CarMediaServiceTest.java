@@ -22,17 +22,20 @@ import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -55,6 +58,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.view.KeyEvent;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -63,6 +67,8 @@ import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
+
+import com.google.common.collect.ImmutableList;
 
 import org.junit.After;
 import org.junit.Before;
@@ -364,6 +370,64 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
                 .isEqualTo(MEDIA_COMPONENT);
         verify(mContext, times(1)).startForegroundService(any());
+    }
+
+    @Test
+    public void testDispatchMediaKeyForUser_nonMediaKeyEvent_returnsFalse() {
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A);
+
+        boolean result = mCarMediaService.dispatchMediaKeyForUser(keyEvent, TEST_USER_ID);
+
+        assertWithMessage("dispatchMediaKeyForUser() return value").that(result).isFalse();
+        verifyZeroInteractions(mMediaSessionManager);
+    }
+
+    @Test
+    public void testDispatchMediaKeyForUser_noActiveSessions_returnsFalse() {
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(ImmutableList.of());
+
+        boolean result = mCarMediaService.dispatchMediaKeyForUser(keyEvent, TEST_USER_ID);
+
+        assertWithMessage("dispatchMediaKeyForUser() return value").that(result).isFalse();
+    }
+
+    @Test
+    public void testDispatchMediaKeyForUser_allControllersFalse_returnsFalse() {
+        MediaController mockController1 = getMockMediaController(/* dispatchResult== */ false);
+        MediaController mockController2 = getMockMediaController(/* dispatchResult== */ false);
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(ImmutableList.of(mockController1, mockController2));
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
+
+        boolean result = mCarMediaService.dispatchMediaKeyForUser(keyEvent, TEST_USER_ID);
+
+        assertWithMessage("dispatchMediaKeyForUser() return value").that(result).isFalse();
+        verify(mockController1).dispatchMediaButtonEvent(keyEvent);
+        verify(mockController2).dispatchMediaButtonEvent(keyEvent);
+    }
+
+    @Test
+    public void testDispatchMediaKeyForUser_oneControllerTrue_returnsTrue() {
+        MediaController mockController1 = getMockMediaController(/* dispatchResult== */ false);
+        MediaController mockController2 = getMockMediaController(/* dispatchResult== */ true);
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(ImmutableList.of(mockController1, mockController2));
+        KeyEvent keyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
+
+        boolean result = mCarMediaService.dispatchMediaKeyForUser(keyEvent, TEST_USER_ID);
+
+        assertWithMessage("dispatchMediaKeyForUser() return value").that(result).isTrue();
+        verify(mockController1).dispatchMediaButtonEvent(keyEvent);
+        verify(mockController2).dispatchMediaButtonEvent(keyEvent);
+    }
+
+    private MediaController getMockMediaController(boolean dispatchResult) {
+        MediaController mockController = mock(MediaController.class);
+        when(mockController.dispatchMediaButtonEvent(any())).thenReturn(dispatchResult);
+
+        return mockController;
     }
 
     private void initMediaService(String... classesToResolve) {
