@@ -21,6 +21,7 @@ import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.A
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_SNAPSHOT;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
 
@@ -465,6 +466,32 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String MEMORY_CONFIG_NAME =
             METRICS_CONFIG_MEMORY_V1.getName();
 
+    /** ProcessMemorySnapshot section. */
+    private static final String LUA_SCRIPT_ON_PROCESS_MEMORY_SNAPSHOT = new StringBuilder()
+            .append("function onProcessMemorySnapshot(published_data, state)\n")
+            .append("    on_script_finished(published_data)\n")
+            .append("end\n")
+            .toString();
+    private static final TelemetryProto.Publisher PROCESS_MEMORY_SNAPSHOT_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(PROCESS_MEMORY_SNAPSHOT))
+                    .build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_PROCESS_MEMORY_SNAPSHOT_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("process_memory_snapshot_metrics_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_PROCESS_MEMORY_SNAPSHOT)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onProcessMemorySnapshot")
+                                    .setPublisher(PROCESS_MEMORY_SNAPSHOT_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final String PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME =
+            METRICS_CONFIG_PROCESS_MEMORY_SNAPSHOT_V1.getName();
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private boolean mReceiveReportNotification = false;
@@ -592,6 +619,13 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveMemoryConfigBtnClick);
         view.findViewById(R.id.get_memory_report)
                 .setOnClickListener(this::onGetMemoryReportBtnClick);
+        /** StatsPublisher process_memory_snapshot */
+        view.findViewById(R.id.send_on_process_memory_snapshot_config)
+                .setOnClickListener(this::onSendProcessMemorySnapshotConfigBtnClick);
+        view.findViewById(R.id.remove_on_process_memory_snapshot_config)
+                .setOnClickListener(this::onRemoveProcessMemorySnapshotConfigBtnClick);
+        view.findViewById(R.id.get_on_process_memory_snapshot_report)
+                .setOnClickListener(this::onGetProcessMemorySnapshotReportBtnClick);
         /** Print mem info button */
         view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
@@ -980,6 +1014,24 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private void onGetMemoryReportBtnClick(View view) {
         mCarTelemetryManager.getFinishedReport(MEMORY_CONFIG_NAME, mExecutor, mListener);
+    }
+
+    private void onSendProcessMemorySnapshotConfigBtnClick(View view) {
+        mCarTelemetryManager.addMetricsConfig(
+                PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME,
+                METRICS_CONFIG_PROCESS_MEMORY_SNAPSHOT_V1.toByteArray(),
+                mExecutor,
+                mAddMetricsConfigCallback);
+    }
+
+    private void onRemoveProcessMemorySnapshotConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for PROCESS_MEMORY_SNAPSHOT...");
+        mCarTelemetryManager.removeMetricsConfig(PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME);
+    }
+
+    private void onGetProcessMemorySnapshotReportBtnClick(View view) {
+        mCarTelemetryManager.getFinishedReport(
+                PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME, mExecutor, mListener);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */

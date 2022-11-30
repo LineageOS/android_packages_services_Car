@@ -72,6 +72,44 @@ bool hasValidNumberArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstrin
     return result;
 }
 
+template <typename T>
+bool hasValidBooleanArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key,
+                          T rawInputArray, const int arrayLength) {
+    const char* rawKey = env->GetStringUTFChars(key, nullptr);
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    // Assumes the table is on top of the stack.
+    auto* luaState = engine->getLuaState();
+    lua_pushstring(luaState, rawKey);
+    env->ReleaseStringUTFChars(key, rawKey);
+    lua_gettable(luaState, -2);
+    bool result = false;
+    if (!lua_istable(luaState, -1)) {
+        result = false;
+    } else {
+        // First, compare the input and Lua array sizes.
+        const auto kActualLength = lua_rawlen(luaState, -1);
+        if (arrayLength != kActualLength) {
+            // No need to compare further if number of elements in the two arrays are not equal.
+            result = false;
+        } else {
+            // Do element by element comparison.
+            bool is_equal = true;
+            for (int i = 0; i < arrayLength; ++i) {
+                lua_rawgeti(luaState, -1, i + 1);
+                is_equal = lua_isboolean(luaState, /* idx = */ -1) &&
+                        lua_toboolean(luaState, /* idx = */ -1) ==
+                                static_cast<bool>(rawInputArray[i]);
+                lua_pop(luaState, 1);
+                if (!is_equal) break;
+            }
+            result = is_equal;
+        }
+    }
+    lua_pop(luaState, 1);
+    return result;
+}
+
 extern "C" {
 
 #include "lua.h"
@@ -194,6 +232,16 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasStringValue(
         env->ReleaseStringUTFChars(value, rawValue);
     }
     lua_pop(luaState, 1);
+    return result;
+}
+
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasBooleanArrayValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jbooleanArray value) {
+    jboolean* rawInputArray = env->GetBooleanArrayElements(value, nullptr);
+    const auto kInputLength = env->GetArrayLength(value);
+    bool result = hasValidBooleanArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength);
+    env->ReleaseBooleanArrayElements(value, rawInputArray, JNI_ABORT);
     return result;
 }
 
