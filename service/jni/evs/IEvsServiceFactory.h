@@ -25,6 +25,7 @@ public:
 
     virtual bool init() = 0;
     virtual aidl::android::hardware::automotive::evs::IEvsEnumerator* getService() = 0;
+    virtual void clear() = 0;
 };
 
 }  // namespace android::automotive::evs

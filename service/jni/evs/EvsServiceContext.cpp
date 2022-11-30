@@ -122,18 +122,15 @@ bool ProdServiceFactory::init() {
 }
 
 binder_status_t ProdLinkUnlinkToDeath::linkToDeath(AIBinder* binder,
-                                                       AIBinder_DeathRecipient* recipient,
-                                                       void* cookie) {
+                                                   AIBinder_DeathRecipient* recipient,
+                                                   void* cookie) {
     mCookie = cookie;
     mDeathRecipient = ndk::ScopedAIBinder_DeathRecipient(recipient);
     return AIBinder_linkToDeath(binder, recipient, cookie);
 }
 
-binder_status_t ProdLinkUnlinkToDeath::unlinkToDeath(AIBinder* binder,
-                                                         AIBinder_DeathRecipient* recipient,
-                                                         void* cookie) {
-    mCookie = nullptr;
-    return AIBinder_unlinkToDeath(binder, recipient, cookie);
+binder_status_t ProdLinkUnlinkToDeath::unlinkToDeath(AIBinder* binder) {
+    return AIBinder_unlinkToDeath(binder, mDeathRecipient.release(), mCookie);
 }
 
 void* ProdLinkUnlinkToDeath::getCookie() {
@@ -480,8 +477,8 @@ void EvsServiceContext::onEvsServiceDiedImpl() {
             mStreamHandler = nullptr;
             mBufferRecords.clear();
             mCameraIdInUse.clear();
-            mServiceFactory.reset();
-            mLinkUnlinkImpl.reset();
+            mLinkUnlinkImpl->unlinkToDeath(mServiceFactory->getService()->asBinder().get());
+            mServiceFactory->clear();
         }
 
         LOG(ERROR) << "The native EVS service has died.";

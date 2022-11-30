@@ -42,6 +42,7 @@ public:
     aidl::android::hardware::automotive::evs::IEvsEnumerator* getService() override {
         return mService.get();
     }
+    void clear() override { mService.reset(); }
 
 private:
     std::string mServiceName;
@@ -52,12 +53,8 @@ class ProdLinkUnlinkToDeath final : public LinkUnlinkToDeathBase {
 public:
     binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
                                 void* cookie) override;
-    binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
-                                  void* cookie) override;
+    binder_status_t unlinkToDeath(AIBinder* binder) override;
     void* getCookie() override;
-
-private:
-    ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 };
 
 /*
