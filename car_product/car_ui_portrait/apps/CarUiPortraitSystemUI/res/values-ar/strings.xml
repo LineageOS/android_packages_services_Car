@@ -19,8 +19,8 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="hvac_panel_header" msgid="1299061170810305529">"عناصر التحكّم في مستوى الراحة"</string>
     <string name="default_sensor_string" msgid="3994996854548513870">"لا ينطبق"</string>
-    <!-- no translation found for task_view_not_ready_message (3019570837236183122) -->
-    <skip />
-    <!-- no translation found for current_profile_subtitle (2466874755719023023) -->
-    <skip />
+    <string name="task_view_not_ready_message" msgid="3019570837236183122">"يُرجى الانتظار إلى أن يتم تحميل النظام."</string>
+    <string name="current_profile_subtitle" msgid="2466874755719023023">"الملف الشخصي الحالي"</string>
+    <string name="aloha_welcome_message" msgid="633812997281510955">"مرحبًا"</string>
+    <string name="aloha_action_button_text" msgid="168403306904814629">"متابعة"</string>
 </resources>
