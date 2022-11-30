@@ -32,6 +32,8 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.SystemProperties;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -102,21 +104,30 @@ import java.util.List;
 import java.util.Optional;
 
 public class KitchenSinkActivity extends FragmentActivity {
+
     private static final String TAG = "KitchenSinkActivity";
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String DEFAULT_FRAGMENT_TAG = "";
+
+    private static final String PROPERTY_SHOW_HEADER_INFO =
+            "com.android.car.kitchensink.SHOW_HEADER_INFO";
+
     private RecyclerView mMenu;
     private LinearLayout mHeader;
     private Button mMenuButton;
+    private TextView mUserIdView;
+    private TextView mDisplayIdView;
     private View mKitchenContent;
     private String mLastFragmentTag = DEFAULT_FRAGMENT_TAG;
     @Nullable
     private Fragment mLastFragment;
     private int mNotificationId = 1000;
+    private boolean mShowHeaderInfo;
 
     public static final String DUMP_ARG_CMD = "cmd";
     public static final String DUMP_ARG_FRAGMENT = "fragment";
     public static final String DUMP_ARG_QUIET = "quiet";
+    public static final String DUMP_ARG_REFRESH = "refresh";
 
     private interface ClickHandler {
         void onClick();
@@ -367,7 +378,15 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mHeader = findViewById(R.id.header);
 
-        Log.i(TAG, "onCreate");
+        int userId = getUserId();
+        int displayId = getDisplayId();
+
+        mUserIdView = findViewById(R.id.user_id);
+        mDisplayIdView = findViewById(R.id.display_id);
+        mUserIdView.setText("U#" + userId);
+        mDisplayIdView.setText("D#" + displayId);
+
+        Log.i(TAG, "onCreate: userId="  + userId + ", displayId=" + displayId);
         onNewIntent(getIntent());
     }
 
@@ -442,6 +461,8 @@ public class KitchenSinkActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
+
+        updateHeaderInfoVisibility();
     }
 
     @Override
@@ -502,6 +523,9 @@ public class KitchenSinkActivity extends FragmentActivity {
                 case DUMP_ARG_QUIET:
                     skipParentState = true;
                     break;
+                case DUMP_ARG_REFRESH:
+                    updateHeaderInfoVisibility(writer);
+                    return;
                 default:
                     Log.v(TAG, "dump(): unknown arg, calling super(): " + Arrays.toString(args));
             }
@@ -515,6 +539,7 @@ public class KitchenSinkActivity extends FragmentActivity {
         writer.printf("%smLastFragment: %s\n", innerPrefix, mLastFragment);
         writer.printf("%sHeader views: %d\n", innerPrefix, mHeader.getChildCount());
         writer.printf("%sNext Notification Id: %d\n", innerPrefix, mNotificationId);
+        writer.printf("%sShow header info: %b\n", innerPrefix, mShowHeaderInfo);
 
         if (skipParentState) {
             Log.v(TAG, "dump(): skipping parent state");
@@ -557,6 +582,21 @@ public class KitchenSinkActivity extends FragmentActivity {
                     (CarPerformanceManager) car.getCarManager(Car.CAR_PERFORMANCE_SERVICE);
             mPropertyManagerReady.notifyAll();
         }
+    }
+
+    private void updateHeaderInfoVisibility() {
+        mShowHeaderInfo = getBooleanProperty(PROPERTY_SHOW_HEADER_INFO, false);
+        Log.i(TAG, "updateHeaderInfoVisibility(): showHeaderInfo=" + mShowHeaderInfo);
+        int visibility = mShowHeaderInfo ? View.VISIBLE : View.GONE;
+        mUserIdView.setVisibility(visibility);
+        mDisplayIdView.setVisibility(visibility);
+    }
+
+    private void updateHeaderInfoVisibility(PrintWriter writer) {
+        boolean before = mShowHeaderInfo;
+        updateHeaderInfoVisibility();
+        boolean after = mShowHeaderInfo;
+        writer.printf("Updated header info visibility from %b to %b\n", before, after);
     }
 
     public Car getCar() {
@@ -621,5 +661,19 @@ public class KitchenSinkActivity extends FragmentActivity {
             }
         };
         task.execute();
+    }
+
+    private static boolean getBooleanProperty(String prop, boolean defaultValue) {
+        String value = SystemProperties.get(prop);
+        Log.v(TAG, "getBooleanProperty(" + prop + "): got '" + value + "'");
+        if (!TextUtils.isEmpty(value)) {
+            boolean finalValue = Boolean.valueOf(value);
+            Log.v(TAG, "returning " + finalValue);
+            return finalValue;
+        }
+        String persistProp = "persist." + prop;
+        boolean finalValue = SystemProperties.getBoolean(persistProp, defaultValue);
+        Log.v(TAG, "getBooleanProperty(" + persistProp + "): returning " + finalValue);
+        return finalValue;
     }
 }
