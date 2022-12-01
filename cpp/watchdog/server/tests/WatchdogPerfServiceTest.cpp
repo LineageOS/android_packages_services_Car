@@ -86,10 +86,10 @@ public:
     void updateIntervals() {
         Mutex::Autolock lock(mService->mMutex);
         mService->mPostSystemEventDurationNs = kTestPostSystemEventDuration;
-        mService->mBoottimeCollection.interval = kTestSystemEventCollectionInterval;
-        mService->mPeriodicCollection.interval = kTestPeriodicCollectionInterval;
-        mService->mUserSwitchCollection.interval = kTestSystemEventCollectionInterval;
-        mService->mPeriodicMonitor.interval = kTestPeriodicMonitorInterval;
+        mService->mBoottimeCollection.pollingIntervalNs = kTestSystemEventCollectionInterval;
+        mService->mPeriodicCollection.pollingIntervalNs = kTestPeriodicCollectionInterval;
+        mService->mUserSwitchCollection.pollingIntervalNs = kTestSystemEventCollectionInterval;
+        mService->mPeriodicMonitor.pollingIntervalNs = kTestPeriodicMonitorInterval;
         mService->mUserSwitchTimeoutNs = kTestUserSwitchTimeout;
         mService->mWakeUpDurationNs = kTestWakeUpDuration;
     }
@@ -256,12 +256,12 @@ TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
 
     ASSERT_TRUE(sysprop::systemEventCollectionInterval().has_value());
     ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
-                      mService->mBoottimeCollection.interval)
+                      mService->mBoottimeCollection.pollingIntervalNs)
                       .count(),
               sysprop::systemEventCollectionInterval().value());
     ASSERT_TRUE(sysprop::periodicCollectionInterval().has_value());
     ASSERT_EQ(std::chrono::duration_cast<std::chrono::seconds>(
-                      mService->mPeriodicCollection.interval)
+                      mService->mPeriodicCollection.pollingIntervalNs)
                       .count(),
               sysprop::periodicCollectionInterval().value());
 
