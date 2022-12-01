@@ -2059,7 +2059,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId) {
-        int r = ActivityManagerHelper.stopUserWithDelayedLocking(userId, true);
+        int r;
+        try {
+            r = ActivityManagerHelper.stopUserWithDelayedLocking(userId, true);
+        } catch (RuntimeException e) {
+            Slogf.e(TAG, e, "Exception calling am.stopUserWithDelayedLocking(%d, true)", userId);
+            return UserStopResult.STATUS_ANDROID_FAILURE;
+        }
         switch(r) {
             case USER_OP_SUCCESS:
                 return UserStopResult.STATUS_SUCCESSFUL;
