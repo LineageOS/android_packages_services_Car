@@ -88,6 +88,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     private static final int VISIBLE_BG_USER2_ID = 17;
 
     private static final String SERVICE_BIND_ALL_USERS_ASAP = "com.android.car/.AllUsersService";
+    private static final String SERVICE_BIND_BG_VISIBLE_USER_ASAP =
+            "com.android.car/.BackgroundVisibleUsersAsap";
     private static final String SERVICE_BIND_FG_USER_UNLOCKED = "com.android.car/.ForegroundUsers";
     private static final String SERVICE_BIND_FG_USER_POST_UNLOCKED =
             "com.android.car/.ForegroundUsersPostUnlocked";
@@ -99,6 +101,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
     private static final String[] FAKE_SERVICES = new String[] {
             SERVICE_BIND_ALL_USERS_ASAP + "#bind=bind,user=all,trigger=asap",
+            SERVICE_BIND_BG_VISIBLE_USER_ASAP + "#bind=bind,user=backgroundVisible,trigger=asap",
             SERVICE_BIND_FG_USER_UNLOCKED + "#bind=bind,user=foreground,trigger=userUnlocked",
             SERVICE_BIND_FG_USER_POST_UNLOCKED
                     + "#bind=bind,user=foreground,trigger=userPostUnlocked",
@@ -239,24 +242,27 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext.reset();
 
         // A background user becomes visible.
-        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_START_VISIBLE_USER_ASAP);
+        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_BG_VISIBLE_USER_ASAP,
+                SERVICE_START_VISIBLE_USER_ASAP);
         mockIsUserVisible(VISIBLE_BG_USER1_ID, true);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE,
                 VISIBLE_BG_USER1_ID);
 
-        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP,
+                SERVICE_BIND_BG_VISIBLE_USER_ASAP);
         mContext.assertRecentStartedServices(SERVICE_START_VISIBLE_USER_ASAP);
         mContext.verifyNoMoreServiceLaunches();
 
         // Unlock another visible background user.
-        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_START_VISIBLE_USER_ASAP,
-                SERVICE_START_VISIBLE_USER_UNLOCKED);
+        mContext.expectServices(SERVICE_BIND_ALL_USERS_ASAP, SERVICE_BIND_BG_VISIBLE_USER_ASAP,
+                SERVICE_START_VISIBLE_USER_ASAP, SERVICE_START_VISIBLE_USER_UNLOCKED);
         mockIsUserVisible(VISIBLE_BG_USER2_ID, true);
         mockUserUnlock(VISIBLE_BG_USER2_ID);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                 VISIBLE_BG_USER2_ID);
 
-        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP,
+                SERVICE_BIND_BG_VISIBLE_USER_ASAP);
         mContext.assertRecentStartedServices(SERVICE_START_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
@@ -271,7 +277,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         // Switching to foreground user should not stop the service for other visible users.
         mContext.assertNoUnboundOrStoppedServices();
 
-        // Unlock foreground user
+        // Unlock foreground user. This triggers "visible", but not "backgroundVisible".
         mContext.expectServices(SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_START_VISIBLE_USER_ASAP,
                 SERVICE_START_VISIBLE_USER_UNLOCKED);
         mockIsUserVisible(FG_USER_ID, true);
@@ -289,8 +295,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
                 VISIBLE_BG_USER2_ID);
 
-        mContext.assertRecentUnboundOrStoppedServices(SERVICE_START_VISIBLE_USER_ASAP,
-                SERVICE_START_VISIBLE_USER_UNLOCKED);
+        mContext.assertRecentUnboundOrStoppedServices(SERVICE_BIND_BG_VISIBLE_USER_ASAP,
+                SERVICE_START_VISIBLE_USER_ASAP, SERVICE_START_VISIBLE_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
         mContext.assertNoUnboundOrStoppedServices();
     }

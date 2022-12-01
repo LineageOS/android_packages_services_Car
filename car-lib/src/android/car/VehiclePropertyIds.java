@@ -1711,6 +1711,32 @@ public final class VehiclePropertyIds {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SEAT_EASY_ACCESS_ENABLED = 354421661;
     /**
+     * Represents feature to enable/disable a seat's ability to deploy airbag(s) when triggered
+     * (e.g. by a crash).
+     *
+     * If true, it means the seat's airbags are enabled, and if triggered (e.g. by a crash), they
+     * will deploy. If false, it means the seat's airbags are disabled, and they will not deploy
+     * under any circumstance. This property does not indicate if the airbags are deployed or not.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_CONTROL_CAR_AIRBAGS} to read and write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_AIRBAGS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_AIRBAG_ENABLED = 354421662;
+    /**
      * Represents property for seat’s hipside (bottom cushion’s side) support position.
      *
      * This value is not in any particular unit but in a specified range of steps. The max value

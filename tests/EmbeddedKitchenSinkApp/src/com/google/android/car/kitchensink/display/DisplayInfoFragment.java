@@ -56,6 +56,7 @@ public class DisplayInfoFragment extends Fragment {
         super.onStart();
         Point screenSize = new Point();
         getActivity().getWindowManager().getDefaultDisplay().getSize(screenSize);
+        addTextView("display id: " + getContext().getDisplayId());
         addTextView("window size(px): " + screenSize.x + " x " + screenSize.y);
         addTextView("display density(dpi): " + getResources().getDisplayMetrics().densityDpi);
         addTextView("display default density(dpi): "

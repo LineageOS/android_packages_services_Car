@@ -24,7 +24,6 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETU
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.startHomeAndSystemUiForUserAndDisplay;
-import static com.android.car.CarServiceUtils.startUserPickerOnDisplay;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
@@ -117,6 +116,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
+import com.android.car.am.CarActivityService;
 import com.android.car.hal.HalCallback;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
@@ -454,22 +454,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
                             int displayId = zoneService.getDisplayForOccupant(zoneId,
                                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-                            boolean started = startUserPickerOnDisplay(
-                                    mContext, displayId,
-                                    mContext.getResources().getString(
-                                            R.string.config_userPickerActivity));
-                            if (!started) {
-                                Slogf.w(TAG,
-                                        "onOccupantZoneConfigChanged: "
-                                            + "failed to start user picker on display: %d",
-                                        displayId);
-                            } else {
-                                if (DBG) {
-                                    Slogf.d(TAG,
-                                            "onOccupantZoneConfigChanged: "
-                                                + "started user picker on display: %d", displayId);
-                                }
+                            if (displayId == Display.INVALID_DISPLAY) {
+                                Slogf.e(TAG, "No main display for occupant zone:%d", zoneId);
+                                continue;
                             }
+                            CarLocalServices.getService(CarActivityService.class)
+                                    .startUserPickerOnDisplay(displayId);
                         }
                     }
                 }
@@ -2470,16 +2460,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // Start the user picker as user 0 on the target display.
             if (targetDisplayId != Display.INVALID_DISPLAY) {
                 Slogf.d(TAG, "Starting user picker on display: %d", targetDisplayId);
-                boolean started = startUserPickerOnDisplay(
-                        mContext, targetDisplayId,
-                        mContext.getResources().getString(R.string.config_userPickerActivity));
-                if (!started) {
-                    Slogf.w(TAG, "startOtherUsers(): failed to Start user picker on display: %d",
-                            targetDisplayId);
-                } else {
-                    Slogf.d(TAG, "startOtherUsers(): Started user picker on display: %d",
-                            targetDisplayId);
-                }
+                CarLocalServices.getService(CarActivityService.class).startUserPickerOnDisplay(
+                        targetDisplayId);
             }
         }
     }

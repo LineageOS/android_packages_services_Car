@@ -291,6 +291,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_EASY_ACCESS_ENABLED, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_AIRBAG_ENABLED, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_AIRBAGS,
+                Car.PERMISSION_CONTROL_CAR_AIRBAGS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_CUSHION_SIDE_SUPPORT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));

@@ -39,7 +39,7 @@ android.car.VehicleAreaWindow
 android.car.VehicleGear
 android.car.VehicleHvacFanDirection
 android.car.VehicleIgnitionState
-android.car.VehicleLightState
+android.car.hardware.property.VehicleLightState
 android.car.VehicleOilLevel
 android.car.VehiclePropertyAccess
 android.car.VehiclePropertyIds

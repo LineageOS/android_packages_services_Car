@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.os.UserHandle;
@@ -440,9 +441,11 @@ import java.util.Objects;
                         mCarAudioContext.toString(mContextToAddress.keyAt(i)),
                         mContextToAddress.valueAt(i));
             }
-            mAddressToCarAudioDeviceInfo.keySet().stream()
-                    .map(mAddressToCarAudioDeviceInfo::get)
-                    .forEach((info -> info.dump(writer)));
+            for (int i = 0; i < mAddressToCarAudioDeviceInfo.size(); i++) {
+                String address = mAddressToCarAudioDeviceInfo.keyAt(i);
+                CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+                info.dump(writer);
+            }
             writer.printf("Reported reasons:\n");
             writer.increaseIndent();
             for (int index = 0; index < mReasons.size(); index++) {
@@ -612,6 +615,23 @@ import java.util.Objects;
             // when the event is cleared.
             setCurrentGainIndexLocked(indexToBroadCast);
         }
+    }
+
+    CarVolumeGroupInfo getCarVolumeGroupInfo() {
+        int gainIndex;
+        boolean isMuted;
+        boolean isBlocked;
+        boolean isAttenuated;
+        synchronized (mLock) {
+            gainIndex = mCurrentGainIndex;
+            isMuted = mIsMuted;
+            isBlocked = isBlockedLocked();
+            isAttenuated = isAttenuatedLocked();
+        }
+
+        return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
+                .setVolumeGain(getGainForIndex(gainIndex)).setMuted(isMuted).setBlocked(isBlocked)
+                .setAttenuated(isAttenuated).build();
     }
 
     static final class Builder {

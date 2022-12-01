@@ -26,7 +26,7 @@ import android.app.Application;
 import android.app.WallpaperManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
-import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.app.CarActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.Display;
 import android.view.MenuInflater;
@@ -64,7 +65,6 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -92,12 +92,22 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
     private boolean mIsWallpaperSupported;
     private boolean mAppDrawerShown;
 
+    private Car mCar;
+
+    private final CarOccupantZoneManager.OccupantZoneConfigChangeListener mConfigChangeListener =
+            flags -> {
+                if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
+                    launchOtherUiForInvalidUser(mCar);
+                }
+            };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         Car.createCar(/* context= */ this, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 (car, ready) -> {
+                    mCar = car;
                     if (!ready) {
                         Log.w(TAG, "CarService looks crashed");
                         finish();  // ATM will restart 2nd Home again.
@@ -105,33 +115,17 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
                     }
                     CarOccupantZoneManager occupantZoneManager = (CarOccupantZoneManager)
                             car.getCarManager(Car.CAR_OCCUPANT_ZONE_SERVICE);
-                    int mainDisplayId = getDisplay().getDisplayId();
-                    int assignedUserId = getAssignedUserIdForMainDisplay(
-                            occupantZoneManager, mainDisplayId);
-                    if (assignedUserId == getUserId()) {
-                        Log.i(TAG, "User" + getUserId() + " is assigned to Display#"
-                                + mainDisplayId);
-                        return;
-                    }
-                    if (assignedUserId == UserHandle.USER_NULL) {
-                        Log.w(TAG, "Can't find the assigned user for Display#" + mainDisplayId);
-                        return;
-                    }
-                    // TODO(b/236182833): Show the profile user selection UI if no user is assigned
-                    // to the current display.
-                    Intent intent = new Intent(Intent.ACTION_MAIN);
-                    intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivityAsUser(intent, UserHandle.of(assignedUserId));
-                    Log.i(TAG, "Start HOME for User" + assignedUserId + " in Display#"
-                            + mainDisplayId);
-                    finish();
+                    occupantZoneManager.registerOccupantZoneConfigChangeListener(
+                            mConfigChangeListener);
+                    launchOtherUiForInvalidUser(car);
                 });
 
         WallpaperManager wallpaperMgr = getSystemService(WallpaperManager.class);
         mIsWallpaperSupported = wallpaperMgr != null && wallpaperMgr.isWallpaperSupported();
-        Log.d(TAG, "Creating for user " + getUserId() + ". Wallpaper supported: "
-                + mIsWallpaperSupported);
+        int userId = getUserId();
+        int displayId = getDisplayId();
+        Log.d(TAG, "Creating for user " + userId + " on display " + displayId
+                + ". Wallpaper supported: " + mIsWallpaperSupported);
         setContentView(R.layout.activity_main);
 
         mRootView = findViewById(R.id.RootView);
@@ -139,7 +133,7 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         mAppDrawerView = findViewById(R.id.FloatingSheet);
 
         mBackgroundDrawable = new TextDrawable(this, Color.WHITE, /* defaultSize= */ 150,
-                "User #" + getUserId());
+                "User #" + userId, "Display #" + displayId);
         mRootView.setBackground(mBackgroundDrawable);
 
         // get system insets and apply padding accordingly to the content view
@@ -211,19 +205,26 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         });
     }
 
-    private static int getAssignedUserIdForMainDisplay(
-            CarOccupantZoneManager occupantZoneManager, int mainDisplayId) {
-        List<OccupantZoneInfo> allOccupantZones = occupantZoneManager.getAllOccupantZones();
-        for (int i = allOccupantZones.size() - 1; i >= 0; --i) {
-            OccupantZoneInfo occupantZone = allOccupantZones.get(i);
-            // Assumes each occupant has a single main display.
-            Display mainDisplay = occupantZoneManager.getDisplayForOccupant(
-                    occupantZone, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-            if (mainDisplay != null && mainDisplay.getDisplayId() == mainDisplayId) {
-                return occupantZoneManager.getUserForOccupant(occupantZone);
-            }
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        launchOtherUiForInvalidUser(mCar);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (mCar == null) {
+            return;
         }
-        return UserHandle.USER_NULL;
+
+        CarOccupantZoneManager occupantZoneManager = (CarOccupantZoneManager)
+                mCar.getCarManager(Car.CAR_OCCUPANT_ZONE_SERVICE);
+        occupantZoneManager.unregisterOccupantZoneConfigChangeListener(mConfigChangeListener);
+        mCar.disconnect();
+        mCar = null;
     }
 
     @Override
@@ -275,6 +276,43 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
 
         // A new intent will bring the launcher to top. Hide the app drawer to reset the state.
         showAppDrawer(false);
+    }
+
+    private void launchOtherUiForInvalidUser(Car car) {
+        CarOccupantZoneManager occupantZoneManager = (CarOccupantZoneManager)
+                car.getCarManager(Car.CAR_OCCUPANT_ZONE_SERVICE);
+        int myDisplayId = getDisplay().getDisplayId();
+        int assignedUserId = occupantZoneManager.getUserForDisplayId(myDisplayId);
+        if (assignedUserId == getUserId()) {
+            Log.i(TAG, "Right user:" + getUserId() + " is assigned to Display#:"
+                    + myDisplayId);
+            return;
+        }
+        UserManager userManager = getSystemService(UserManager.class);
+        // After this point, we either should launch user picker or home
+        boolean shouldLaunchUserPicker = false;
+        if (assignedUserId == UserHandle.USER_NULL) {
+            Log.w(TAG, "No assigned user for Display#" + myDisplayId);
+            shouldLaunchUserPicker = true;
+        } else if (userManager.isUserUnlocked(UserHandle.of(assignedUserId))) {
+            Log.i(TAG, "Will start HOME for User:" + assignedUserId + ",Display#:"
+                    + myDisplayId);
+            shouldLaunchUserPicker = false;
+        } else {
+            Log.i(TAG, "Will start user picker as user is not unlocked, User:" + assignedUserId
+                    + ",Display#:" + myDisplayId);
+            shouldLaunchUserPicker = true;
+        }
+        if (shouldLaunchUserPicker) {
+            CarActivityManager am = (CarActivityManager) car.getCarManager(
+                    Car.CAR_ACTIVITY_SERVICE);
+            am.startUserPickerOnDisplay(myDisplayId);
+        } else {
+            Intent intent = new Intent(Intent.ACTION_MAIN).addCategory(
+                    Intent.CATEGORY_SECONDARY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivityAsUser(intent, UserHandle.of(assignedUserId));
+        }
+        finish();
     }
 
     private void launch(AppEntry entry) {
@@ -371,6 +409,7 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         }
         String prefix2 = prefix + "  ";
         writer.printf("%smUser: %s\n", prefix, getUserId());
+        writer.printf("%smDisplay: %s\n", prefix, getDisplayId());
         writer.printf("%smmIsWallpaperSupported: %s\n", prefix, mIsWallpaperSupported);
         writer.printf("%smDisplaySpinner: %s\n", prefix, mDisplaySpinner);
         writer.printf("%smDisplayAdapter:\n", prefix);

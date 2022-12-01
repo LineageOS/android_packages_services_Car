@@ -20,6 +20,7 @@ import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -83,6 +84,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
     private static final String ALL_COMPONENTS = "*";
+
+    private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -241,6 +244,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @GuardedBy("mLock")
     private int mDriverSeat = VehicleAreaSeat.SEAT_UNKNOWN;
     private final UserHandleHelper mUserHandleHelper;
+
+    final Handler mHandler = new Handler(getHandlerThread(HANDLER_THREAD_NAME).getLooper());
 
     public CarOccupantZoneService(Context context) {
         this(context, context.getSystemService(DisplayManager.class),
@@ -936,6 +941,23 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @Override
+    @UserIdInt
+    public int getUserForDisplayId(int displayId) {
+        synchronized (mLock) {
+            for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+                OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
+                for (int j = 0; j < config.displayInfos.size(); j++) {
+                    if (config.displayInfos.get(j).display.getDisplayId() == displayId) {
+                        return config.userId;
+                    }
+                }
+            }
+        }
+        Slogf.w(TAG, "Could not find OccupantZone for display Id %d", displayId);
+        return CarOccupantZoneManager.INVALID_USER_ID;
+    }
+
     /** Returns number of passenger zones in the device. */
     public int getNumberOfPassengerZones() {
         synchronized (mLock) {
@@ -1459,16 +1481,20 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         doSyncWithCarServiceHelper(updateDisplay, updateUser, /* updateConfig= */ false);
 
-        final int n = mClientCallbacks.beginBroadcast();
-        for (int i = 0; i < n; i++) {
-            ICarOccupantZoneCallback callback = mClientCallbacks.getBroadcastItem(i);
-            try {
-                callback.onOccupantZoneConfigChanged(changeFlags);
-            } catch (RemoteException ignores) {
-                // ignore
+        // Schedule remote callback invocation with the handler attached to the same Looper to
+        // ensure that only one broadcast can be active at one time.
+        mHandler.post(() -> {
+            int n = mClientCallbacks.beginBroadcast();
+            for (int i = 0; i < n; i++) {
+                ICarOccupantZoneCallback callback = mClientCallbacks.getBroadcastItem(i);
+                try {
+                    callback.onOccupantZoneConfigChanged(changeFlags);
+                } catch (RemoteException ignores) {
+                    // ignore
+                }
             }
-        }
-        mClientCallbacks.finishBroadcast();
+            mClientCallbacks.finishBroadcast();
+        });
     }
 
     private void handleUserChange() {

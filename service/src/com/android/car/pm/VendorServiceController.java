@@ -231,9 +231,14 @@ final class VendorServiceController implements UserLifecycleListener {
     /** Checks if the given {@code serviceInfo} satisfies the user scope. */
     private static boolean isUserInScope(@UserIdInt int userId, VendorServiceInfo serviceInfo,
             CarUserService carUserService, @UserIdInt int currentUserId) {
-        return (userId == UserHandle.SYSTEM.getIdentifier() && serviceInfo.isSystemUserService())
-            || (userId == currentUserId && serviceInfo.isForegroundUserService())
-            || (serviceInfo.isVisibleUserService() && carUserService.isUserVisible(userId));
+        boolean isSystemUser = userId == UserHandle.SYSTEM.getIdentifier();
+        boolean isCurrentUser = userId == currentUserId;
+
+        return (isSystemUser && serviceInfo.isSystemUserService())
+            || (isCurrentUser && serviceInfo.isForegroundUserService())
+            || ((serviceInfo.isVisibleUserService()
+                    || (!isCurrentUser && serviceInfo.isBackgroundVisibleUserService()))
+                && carUserService.isUserVisible(userId));
     }
 
     private void handleOnUserSwitching(@UserIdInt int userId) {
@@ -270,7 +275,9 @@ final class VendorServiceController implements UserLifecycleListener {
 
         for (VendorServiceConnection connection : mConnections.values()) {
             VendorServiceInfo serviceInfo = connection.mVendorServiceInfo;
-            if (connection.isUser(userId) && serviceInfo.isVisibleUserService()
+            if (connection.isUser(userId)
+                    && (serviceInfo.isVisibleUserService()
+                            || serviceInfo.isBackgroundVisibleUserService())
                     && !serviceInfo.isAllUserService()) {
                 connection.stopOrUnbindService();
             }
@@ -384,11 +391,14 @@ final class VendorServiceController implements UserLifecycleListener {
                 continue;
             }
             VendorServiceInfo service = VendorServiceInfo.parse(rawServiceInfo);
-            // `user=visible` is not supported before U. Log an error and ignore the service.
-            if (service.isVisibleUserService() && !service.isAllUserService()
+            // `user=visible` and `user=backgroundVisible` are not supported before U.
+            // Log an error and ignore the service.
+            if ((service.isVisibleUserService() || service.isBackgroundVisibleUserService())
+                    && !service.isAllUserService()
                     && !isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
-                Slogf.e(TAG, "user=visible is not supported in this platform version. "
-                        + "%s is ignored. Check your config.xml file.", service.toShortString());
+                Slogf.e(TAG, "user=visible and user=backgroundVisible are not supported in "
+                        + "this platform version. %s is ignored. Check your config.xml file.",
+                        service.toShortString());
                 continue;
             }
             mVendorServiceInfos.add(service);
