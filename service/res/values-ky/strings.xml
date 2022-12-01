@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Алыстан кирүү мүмкүнчүлүгүн колдонуңуз."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"алыстан кирүү мүмкүнчүлүгүн көзөмөлдөө"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Алыстан кирүү мүмкүнчүлүгүн көзөмөлдөңүз."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"унаанын рулун көзөмөлдөө"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Унаанын рулун көзөмөлдөө."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN иштебей калды"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN жооп бербей жатат. Башкы шайман блогун сууруп, кайра сайгандан кийин унааны кайра жүргүзүңүз"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Түзмөгүм"</string>

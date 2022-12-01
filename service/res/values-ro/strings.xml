@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Folosesc accesul la distanță."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"controlează accesul la distanță"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Controlează accesul la distanță."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"controlează volanul mașinii"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Controlează volanul mașinii."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Magistrala CAN nu a reușit"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Magistrala CAN nu răspunde. Deconectează și reconectează unitatea radio, apoi repornește mașina"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispozitivul meu"</string>

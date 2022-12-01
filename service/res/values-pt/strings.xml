@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Uso do acesso remoto."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"controle do acesso remoto"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Controle do acesso remoto."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"controlar o volante do carro"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Controlar o volante do carro."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Falha no barramento CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O barramento CAN parou de responder. Desconecte e conecte novamente a caixa da unidade principal, depois ligue o carro"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Meu dispositivo"</string>

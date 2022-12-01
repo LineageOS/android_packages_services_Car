@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Tumia ufikiaji wa kidhibiti cha mbali."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"dhibiti ufikiaji wa kidhibiti cha mbali"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Dhibiti ufikiaji wa kidhibiti cha mbali."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"dhibiti usukani"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Dhibiti usukani."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Imeshindwa kuleta maelezo ya kebo CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kebo ya CAN haifanyi kazi. Ondoa kisha urudishe tena kisanduku cha sehemu kuu na uzime kisha uwashe gari"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Kifaa Changu"</string>
