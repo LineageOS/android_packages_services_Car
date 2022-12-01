@@ -250,10 +250,10 @@ public final class NotificationHelper extends NotificationHelperBase {
                     Slogf.e(TAG, e, "Package '%s' not found for user %s", packageName, user);
                     continue;
                 }
-                PendingIntent negativeActionPendingIntent = getPendingIntent(context,
+                PendingIntent closeActionPendingIntent = getPendingIntent(context,
                         CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION, user,
                         packageName, notificationId);
-                PendingIntent positiveActionPendingIntent = getPendingIntent(context,
+                PendingIntent prioritizeActionPendingIntent = getPendingIntent(context,
                         CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS, user, packageName, notificationId);
                 Notification notification = NotificationHelper
                         .newNotificationBuilder(context, importance)
@@ -262,10 +262,10 @@ public final class NotificationHelper extends NotificationHelperBase {
                         .setContentText(textDisabledApp)
                         .setCategory(Notification.CATEGORY_CAR_WARNING)
                         .addAction(new Notification.Action.Builder(/* icon= */ null,
-                                actionTitleCloseNotification, negativeActionPendingIntent).build())
+                                actionTitleCloseNotification, closeActionPendingIntent).build())
                         .addAction(new Notification.Action.Builder(/* icon= */ null,
-                                actionTitlePrioritizeApp, positiveActionPendingIntent).build())
-                        .setDeleteIntent(negativeActionPendingIntent)
+                                actionTitlePrioritizeApp, prioritizeActionPendingIntent).build())
+                        .setDeleteIntent(closeActionPendingIntent)
                         .build();
 
                 notificationManager.notifyAsUser(TAG, notificationId, notification, user);
