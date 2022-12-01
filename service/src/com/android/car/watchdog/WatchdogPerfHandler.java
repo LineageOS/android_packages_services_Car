@@ -51,9 +51,9 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
-import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.DEBUG;
 import static com.android.car.watchdog.CarWatchdogService.TAG;
 import static com.android.car.watchdog.PackageInfoHandler.SHARED_PACKAGE_PREFIX;
@@ -968,7 +968,7 @@ public final class WatchdogPerfHandler {
             return;
         }
         switch (action) {
-            case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
+            case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                 disablePackageForUser(packageName, userHandle.getIdentifier());
                 if (DEBUG) {
                     Slogf.d(TAG,
@@ -976,7 +976,7 @@ public final class WatchdogPerfHandler {
                             packageName, userHandle);
                 }
                 break;
-            case ACTION_LAUNCH_APP_SETTINGS:
+            case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
                 Intent settingsIntent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
                         .setData(Uri.parse("package:" + packageName))
                         .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
@@ -986,7 +986,7 @@ public final class WatchdogPerfHandler {
                             + "package %s and user %s", packageName, userHandle);
                 }
                 break;
-            case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
+            case CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 break;
             default:
                 Slogf.e(TAG, "Skipping invalid user notification intent action: %s", action);
