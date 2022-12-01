@@ -387,8 +387,7 @@ public class StatsPublisherTest {
 
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
         Message msg = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        long expectedPullPeriodMillis = 10 * 60 * 1000;  // 10 minutes
-        assertThatMessageIsScheduledWithGivenDelay(msg, expectedPullPeriodMillis);
+        assertThatMessageIsScheduledWithGivenDelay(msg, 0);
     }
 
     @Test
