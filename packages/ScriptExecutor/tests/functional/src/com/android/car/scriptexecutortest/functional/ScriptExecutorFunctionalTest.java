@@ -284,16 +284,22 @@ public final class ScriptExecutorFunctionalTest {
         String script =
                 "function arrays(data, state)\n"
                         + "    result = {}\n"
+                        + "    result.boolean_array = state.boolean_array\n"
+                        + "    result.double_array = state.double_array\n"
                         + "    result.int_array = state.int_array\n"
                         + "    result.long_array = state.long_array\n"
                         + "    result.string_array = state.string_array\n"
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
+        boolean[] boolean_array = new boolean[] {true, true, false};
+        double[] double_array = new double[] {1.5, 2.222};
         int[] int_array = new int[] {1, 2};
         long[] int_array_in_long = new long[] {1, 2};
         long[] long_array = new long[] {1, 2, 3};
         String[] string_array = new String[] {"one", "two", "three"};
+        previousState.putBooleanArray("boolean_array", boolean_array);
+        previousState.putDoubleArray("double_array", double_array);
         previousState.putIntArray("int_array", int_array);
         previousState.putLongArray("long_array", long_array);
         previousState.putStringArray("string_array", string_array);
@@ -301,9 +307,12 @@ public final class ScriptExecutorFunctionalTest {
         runScriptAndWaitForResponse(script, "arrays", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mListener.mInterimResult.size()).isEqualTo(3);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(5);
         // Lua has only one lua_Integer. Here Java long is used to represent it when data is
         // transferred from Lua to CarTelemetryService.
+        assertThat(mListener.mInterimResult.getBooleanArray("boolean_array"))
+                .isEqualTo(boolean_array);
+        assertThat(mListener.mInterimResult.getDoubleArray("double_array")).isEqualTo(double_array);
         assertThat(mListener.mInterimResult.getLongArray("int_array")).isEqualTo(int_array_in_long);
         assertThat(mListener.mInterimResult.getLongArray("long_array")).isEqualTo(long_array);
         assertThat(mListener.mInterimResult.getStringArray("string_array")).isEqualTo(string_array);
@@ -883,52 +892,6 @@ public final class ScriptExecutorFunctionalTest {
                 .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mListener.mMessage)
                 .contains("has a Lua type=function, which is not supported yet");
-    }
-
-    @Test
-    public void invokeScript_returnedFloatingArraysNotSupported()
-            throws RemoteException, InterruptedException {
-        // Verifies that we do not support return values that contain floating number arrays.
-        String script =
-                "function floating_point_arrays(data, state)\n"
-                        + "    array = {}\n"
-                        + "    array[0] = 1.1\n"
-                        + "    array[1] = 1.2\n"
-                        + "    result = {data = array}\n"
-                        + "    on_success(result)\n"
-                        + "end\n";
-
-        runScriptAndWaitForResponse(
-                script, "floating_point_arrays", mEmptyPublishedData, mEmptyIterimResult);
-
-        // Verify that the expected error is received.
-        assertThat(mListener.mErrorType)
-                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mListener.mMessage)
-                .contains("a floating number array, which is not supported yet");
-    }
-
-    @Test
-    public void invokeScript_returnedBooleanArraysNotSupported()
-            throws RemoteException, InterruptedException {
-        // Verifies that we do not yet support return values that contain boolean arrays.
-        String script =
-                "function array_of_booleans(data, state)\n"
-                        + "    array = {}\n"
-                        + "    array[0] = false\n"
-                        + "    array[1] = true\n"
-                        + "    result = {data = array}\n"
-                        + "    on_success(result)\n"
-                        + "end\n";
-
-        runScriptAndWaitForResponse(
-                script, "array_of_booleans", mEmptyPublishedData, mEmptyIterimResult);
-
-        // Verify that the expected error is received.
-        assertThat(mListener.mErrorType)
-                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mListener.mMessage)
-                .contains("is an array with values of type=boolean, which is not supported yet");
     }
 
     @Test
