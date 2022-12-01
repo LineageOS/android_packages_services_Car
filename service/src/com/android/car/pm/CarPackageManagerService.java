@@ -1901,7 +1901,18 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                         && mActivityBlockingActivity.getClassName().contentEquals(
                         event.getClassName());
         if (!receivedFromActivityBlockingActivity) {
-            mHandler.post(() -> blockTopActivitiesOnAllDisplaysIfNecessary());
+            int displayId = event.getDisplayId();
+            if (isUxRestrictedOnDisplay(displayId)) {
+                if (DEBUG) {
+                    Slogf.d(TAG, "onWindowChange event from package %s on Ux restricted display %d,"
+                            + " checking activity blocking", event.getPackageName(), displayId);
+                }
+                // Schedule activity blocking with mHandler to ensure there is no concurrent
+                // activity blocking.
+                mHandler.post(() ->
+                        blockTopActivitiesOnDisplayIfNecessary(
+                            mActivityService.getVisibleTasks(), displayId));
+            }
         } else {
             Slogf.d(TAG, "Discarded onWindowChangeEvent received from "
                     + "ActivityBlockingActivity");
