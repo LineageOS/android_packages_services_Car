@@ -30,7 +30,6 @@
     <color name="status_icon_not_highlighted_color">#202124</color>
     <color name="status_icon_selected_button_color">#6BF0FF</color>
     <color name="status_icon_panel_bg_color">@color/car_surface_2</color>
-    <color name="privacy_chip_indicator_color">@color/car_surface_3</color>
 
     <color name="status_bar_background_color">#00000000</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
@@ -52,10 +51,9 @@
     <color name="title_bar_display_area_background_color">#ffffff</color>
     <color name="immersive_chevron_icon_color">@color/title_bar_display_area_handle_bar_color</color>
 
-    <color name="privacy_chip_light_icon_color">#000000</color>
-    <color name="privacy_chip_dark_icon_color">#ffffff</color>
+    <color name="privacy_chip_light_icon_color">@color/car_neutral_90</color>
+    <color name="privacy_chip_dark_icon_color">@color/car_neutral_10</color>
 
     <color name="car_quick_controls_footer_button_color">@color/car_secondary_container</color>
     <color name="car_quick_controls_footer_button_text_color">@color/car_on_secondary_container</color>
-
 </resources>
