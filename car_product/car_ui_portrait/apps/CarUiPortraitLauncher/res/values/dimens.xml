@@ -19,6 +19,7 @@
     <dimen name="grip_bar_height">56dp</dimen>
     <dimen name="grip_bar_width">120dp</dimen>
     <dimen name="corner_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
-    <dimen name="upper_app_area_collapsed_height">648dp</dimen>
+    <dimen name="background_app_area_collapsed_height">648dp</dimen>
     <dimen name="title_bar_display_area_touch_drag_threshold">1204dp</dimen>
+    <dimen name="grip_bar_divider_height">1dp</dimen>
 </resources>
