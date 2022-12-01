@@ -331,6 +331,45 @@ public final class EventLogHelper {
                 action, userId, flags, safeName, userLocales);
     }
 
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserStartFgUser(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_START_FG_USER, userId);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserInfo(int type, boolean replaceGuest,
+            int switchUserId, @Nullable String newUserName, int newUserFlags,
+            boolean supportsOverrideUserIdProperty, @Nullable String userLocales) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_INFO, type, replaceGuest ? 1 : 0,
+                switchUserId,
+                newUserName, newUserFlags, supportsOverrideUserIdProperty ? 1 : 0, userLocales);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserFallbackDefaultBehavior(@Nullable String reason) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_FALLBACK_DEFAULT_BEHAVIOR, reason);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserReplaceGuest(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_REPLACE_GUEST, userId);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserUnlockSystemUser() {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_UNLOCK_SYSTEM_USER);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserSetLastActive(int userId) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_SET_LAST_ACTIVE, userId);
+    }
+
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarInitialUserResetGlobalProperty(@Nullable String name) {
+        EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_RESET_GLOBAL_PROPERTY, name);
+    }
+
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeCarUserHalSwitchUserReq(int requestId, int userId, int userFlags,
             int timeout) {
