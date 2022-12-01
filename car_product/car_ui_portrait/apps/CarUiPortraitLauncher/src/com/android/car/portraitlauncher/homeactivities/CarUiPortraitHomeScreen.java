@@ -536,26 +536,24 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void initializeCards() {
-        if (mHomeCardModules == null) {
-            mHomeCardModules = new androidx.collection.ArraySet<>();
-            for (String providerClassName : getResources().getStringArray(
-                    R.array.config_homeCardModuleClasses)) {
-                try {
-                    long reflectionStartTime = System.currentTimeMillis();
-                    HomeCardModule cardModule = (HomeCardModule) Class.forName(
-                            providerClassName).newInstance();
-                    cardModule.setViewModelProvider(new ViewModelProvider(/* owner= */this));
-                    mHomeCardModules.add(cardModule);
-                    if (DBG) {
-                        long reflectionTime = System.currentTimeMillis() - reflectionStartTime;
-                        logIfDebuggable(
-                                "Initialization of HomeCardModule class " + providerClassName
-                                        + " took " + reflectionTime + " ms");
-                    }
-                } catch (IllegalAccessException | InstantiationException
-                         | ClassNotFoundException e) {
-                    Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
+        mHomeCardModules = new androidx.collection.ArraySet<>();
+        for (String providerClassName : getResources().getStringArray(
+                R.array.config_homeCardModuleClasses)) {
+            try {
+                long reflectionStartTime = System.currentTimeMillis();
+                HomeCardModule cardModule = (HomeCardModule) Class.forName(
+                        providerClassName).newInstance();
+                cardModule.setViewModelProvider(new ViewModelProvider(/* owner= */this));
+                mHomeCardModules.add(cardModule);
+                if (DBG) {
+                    long reflectionTime = System.currentTimeMillis() - reflectionStartTime;
+                    logIfDebuggable(
+                            "Initialization of HomeCardModule class " + providerClassName
+                                    + " took " + reflectionTime + " ms");
                 }
+            } catch (IllegalAccessException | InstantiationException
+                     | ClassNotFoundException e) {
+                Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
             }
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
