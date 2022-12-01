@@ -181,6 +181,8 @@ android.car.oem.OemCarAudioFocusEvaluationRequest$Builder
 android.car.oem.OemCarAudioFocusResult
 android.car.oem.OemCarAudioFocusResult$Builder
 android.car.oem.OemCarAudioFocusService
+android.car.oem.OemCarAudioVolumeRequest
+android.car.oem.OemCarAudioVolumeRequest$Builder
 android.car.oem.OemCarService
 android.car.oem.OemCarServiceComponent
 android.car.oem.OemCarVolumeChangeInfo
