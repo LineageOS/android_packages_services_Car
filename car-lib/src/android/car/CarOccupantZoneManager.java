@@ -749,6 +749,26 @@ public class CarOccupantZoneManager extends CarManagerBase {
     }
 
     /**
+     * Returns {@code OccupantZoneInfo} associated with the given {@code UserHandle}. In the case
+     * that the user is associated with multiple zones, this API returns the first matched zone.
+     *
+     * @param user The user to find.
+     * @return Matching occupant zone or {@code null} if the user is not assigned or user has a
+     * userId of {@code UserHandle#USER_NULL}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("UserHandle")
+    @Nullable
+    public OccupantZoneInfo getOccupantZoneForUser(@NonNull UserHandle user) {
+        try {
+            return mService.getOccupantZoneForUser(user);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */null);
+        }
+    }
+
+    /**
      * Finds {@code OccupantZoneInfo} for the given occupant type and seat.
      * <p>For{@link #OCCUPANT_TYPE_DRIVER} and {@link #OCCUPANT_TYPE_FRONT_PASSENGER}, {@code seat}
      * argument will be ignored.
