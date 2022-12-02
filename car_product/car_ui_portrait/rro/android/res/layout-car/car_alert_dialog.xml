@@ -73,7 +73,7 @@
     </FrameLayout>
     <include
         android:layout_width="match_parent"
-        android:layout_height="@dimen/button_layout_height"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/car_alert_dialog_margin"
         android:layout_marginBottom="@dimen/car_alert_dialog_margin"
         android:layout_below="@*android:id/customPanel"
