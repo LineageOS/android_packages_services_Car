@@ -222,9 +222,10 @@ public final class VirtualDisplayFragment extends Fragment {
             case 2:
                 mDisplayWidth /= 2;
                 // Fall through
+            default:
+                // No op.
         }
         Log.v(TAG, "Display dimension: " + mDisplayWidth + "x" + mDisplayHeight);
-
 
         for (int i = 0; i < MAX_NUMBER_DISPLAYS; i++) {
             SelfManagedVirtualDisplayView display = mDisplays[i];
@@ -263,6 +264,8 @@ public final class VirtualDisplayFragment extends Fragment {
                     params.addRule(RelativeLayout.BELOW, /* subject= */ 2);
                     params.addRule(RelativeLayout.RIGHT_OF, /* subject= */ 3);
                     break;
+                default:
+                    // No op.
             }
             display.setLayoutParams(params);
             toggleView(display, /* on= */ true);
@@ -272,7 +275,6 @@ public final class VirtualDisplayFragment extends Fragment {
                 mDisplaysContainer.addView(display);
             }
         }
-
     }
 
     private void runCmd(PrintWriter writer, String[] args) {
