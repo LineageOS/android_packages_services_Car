@@ -22,12 +22,12 @@
     android:layout_height="match_parent">
 
     <FrameLayout
-        android:id="@+id/upper_app_area"
+        android:id="@+id/background_app_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
     <LinearLayout
-        android:id="@+id/lower_app_area_container"
+        android:id="@+id/root_app_area_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -44,16 +44,17 @@
                 android:layout_height="6dp"
                 android:background="@color/car_surface_variant"
                 android:layout_centerInParent="true"/>
-            <ImageView
-                android:id="@+id/immersive_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:visibility="gone"/>
         </RelativeLayout>
 
+        <!-- This View helps grip bar to show up when grip bar visibility changes from gone to visible, won't work if set height to 0dp-->
+        <View
+            android:id="@+id/grip_bar_divider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/grip_bar_divider_height"
+            android:background="@drawable/grip_bar_divider_background"/>
+
         <FrameLayout
-            android:id="@+id/lower_app_area"
+            android:id="@+id/root_app_area"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
