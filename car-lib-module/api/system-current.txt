@@ -1231,6 +1231,20 @@ package android.car.oem {
     method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyLostAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
   }
 
+  public final class OemCarVolumeChangeInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.media.CarVolumeGroupInfo getChangedVolumeGroup();
+    method public boolean isVolumeChanged();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarVolumeChangeInfo> CREATOR;
+    field @NonNull public static final android.car.oem.OemCarVolumeChangeInfo EMPTY_OEM_VOLUME_CHANGE;
+  }
+
+  public static final class OemCarVolumeChangeInfo.Builder {
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo build();
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo.Builder setChangedVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
+  }
+
 }
 
 package android.car.os {
