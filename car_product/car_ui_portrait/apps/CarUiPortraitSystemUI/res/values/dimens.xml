@@ -25,13 +25,13 @@
 
     <dimen name="clock_elevation">5dp</dimen>
 
-    <dimen name="hvac_container_padding">24dp</dimen>
+    <dimen name="hvac_container_padding">32dp</dimen>
     <dimen name="hvac_panel_handle_bar_container_height">16dp</dimen>
     <dimen name="hvac_panel_handle_bar_container_width">728dp</dimen>
     <dimen name="hvac_panel_handle_bar_height">6dp</dimen>
     <dimen name="hvac_panel_handle_bar_margin_top">17dp</dimen>
     <dimen name="hvac_panel_handle_bar_width">120dp</dimen>
-    <dimen name="hvac_panel_bg_radius">24dp</dimen>
+    <dimen name="hvac_panel_bg_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
     <dimen name="hvac_panel_off_button_radius">24dp</dimen>
     <dimen name="hvac_panel_on_button_radius">24dp</dimen>
     <dimen name="hvac_panel_seek_bar_radius">44dp</dimen>
