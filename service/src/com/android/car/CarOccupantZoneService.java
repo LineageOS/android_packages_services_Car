@@ -312,12 +312,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             public boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId) {
                 // Check if the user is already assigned to the other zone.
                 synchronized (mLock) {
-                    for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
-                        OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
-                        if (config.userId == userId && zoneId != mActiveOccupantConfigs.keyAt(i)) {
-                            Slogf.w(TAG, "cannot assign user to two different zone simultaneously");
-                            return false;
-                        }
+                    int userZoneId = getZoneIdForUserIdLocked(userId);
+                    if (userZoneId != OccupantZoneInfo.INVALID_ZONE_ID
+                            && mActiveOccupantConfigs.keyAt(userZoneId) != zoneId) {
+                        Slogf.w(TAG, "Cannot assign user to two different zones simultaneously");
+                        return false;
                     }
                     OccupantConfig zoneConfig = mActiveOccupantConfigs.get(zoneId);
                     if (zoneConfig == null) {
@@ -804,6 +803,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
 
         synchronized (mLock) {
+            int userZoneId = getZoneIdForUserIdLocked(userId);
+            if (userZoneId != OccupantZoneInfo.INVALID_ZONE_ID
+                    && mActiveOccupantConfigs.keyAt(userZoneId) != occupantZoneId) {
+                Slogf.w(TAG, "Cannot assign visible user %d to two different zones simultaneously,"
+                                + " user is already assigned to %d",
+                        userId, userZoneId);
+                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED;
+            }
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
                 Slogf.w(TAG, "Invalid zone:%d", occupantZoneId);
@@ -838,6 +845,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
 
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
+    }
+
+    @GuardedBy("mLock")
+    private int getZoneIdForUserIdLocked(@UserIdInt int userId) {
+        for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+            OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
+            if (config.userId == userId) {
+                return mActiveOccupantConfigs.keyAt(i);
+            }
+        }
+        return OccupantZoneInfo.INVALID_ZONE_ID;
     }
 
     @Override

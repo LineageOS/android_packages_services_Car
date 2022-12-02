@@ -1,5 +1,4 @@
-//
-// Copyright (C) 2018 The Android Open Source Project
+// Copyright (C) 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +11,19 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-android_app {
-    name: "MultiDisplaySecondaryHomeTestLauncher",
-
-    // Only compile source java files in this apk.
-    srcs: ["src/**/*.java"],
-
+runtime_resource_overlay {
+    name: "CarUiPortraitSystemUIQcRRO",
+    manifest: "AndroidManifest.xml",
+    resource_dirs: ["res"],
     static_libs: [
-        "com.google.android.material_material",
-        "androidx.lifecycle_lifecycle-livedata",
-        "androidx.lifecycle_lifecycle-viewmodel",
+        "car-portrait-ui-common"
     ],
-
-    libs: ["android.car-system-stubs"],
-
-    platform_apis: true,
-    certificate: "platform",
-    privileged: true,
-    required: ["allowed_privapp_com.android.car.multidisplay"],
+    package_name: "com.android.systemui.caruiportrait.qc.rro",
+    target_package_name: "com.android.systemui",
+    category: "caruiportrait.systemui",
 }
+

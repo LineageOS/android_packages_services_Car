@@ -54,11 +54,6 @@ public final class NotificationHelper extends NotificationHelperBase {
     public static final int FACTORY_RESET_NOTIFICATION_ID = 42;
     public static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
 
-    public static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
-    public static final String CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
-            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
-    public static final String CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS =
-            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
     public static final String CAR_SERVICE_PACKAGE_NAME = "com.android.car";
     @VisibleForTesting
     public static final String CHANNEL_ID_DEFAULT = "channel_id_default";
@@ -250,10 +245,10 @@ public final class NotificationHelper extends NotificationHelperBase {
                     Slogf.e(TAG, e, "Package '%s' not found for user %s", packageName, user);
                     continue;
                 }
-                PendingIntent negativeActionPendingIntent = getPendingIntent(context,
+                PendingIntent closeActionPendingIntent = getPendingIntent(context,
                         CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION, user,
                         packageName, notificationId);
-                PendingIntent positiveActionPendingIntent = getPendingIntent(context,
+                PendingIntent prioritizeActionPendingIntent = getPendingIntent(context,
                         CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS, user, packageName, notificationId);
                 Notification notification = NotificationHelper
                         .newNotificationBuilder(context, importance)
@@ -262,10 +257,10 @@ public final class NotificationHelper extends NotificationHelperBase {
                         .setContentText(textDisabledApp)
                         .setCategory(Notification.CATEGORY_CAR_WARNING)
                         .addAction(new Notification.Action.Builder(/* icon= */ null,
-                                actionTitleCloseNotification, negativeActionPendingIntent).build())
+                                actionTitleCloseNotification, closeActionPendingIntent).build())
                         .addAction(new Notification.Action.Builder(/* icon= */ null,
-                                actionTitlePrioritizeApp, positiveActionPendingIntent).build())
-                        .setDeleteIntent(negativeActionPendingIntent)
+                                actionTitlePrioritizeApp, prioritizeActionPendingIntent).build())
+                        .setDeleteIntent(closeActionPendingIntent)
                         .build();
 
                 notificationManager.notifyAsUser(TAG, notificationId, notification, user);

@@ -493,6 +493,7 @@ public class FastPairGattServerTest {
 
     @Test
     public void testStopWhileStopped_stopIgnored() {
+        clearInvocations(mMockContext);
         mTestGattServer.stop();
         verifyNoMoreInteractions(mMockContext);
         assertThat(mTestGattServer.isStarted()).isFalse();

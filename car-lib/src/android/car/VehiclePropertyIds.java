@@ -126,9 +126,15 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
-     * Battery capacity of the vehicle in watt-hours (Wh), if EV or hybrid. This is the nominal
-     * battery capacity when the vehicle is new.
+     * Nominal battery capacity for EV or hybrid vehicle
      *
+     * <p>Returns the nominal battery capacity in {@link android.car.VehicleUnit#WATT_HOUR}, if EV
+     * or hybrid. This is the battery capacity when the vehicle is new. This value might be
+     * different from {@link #EV_CURRENT_BATTERY_CAPACITY} because {@link
+     * #EV_CURRENT_BATTERY_CAPACITY} returns the real-time battery capacity taking into account
+     * factors such as battery aging and temperature dependency.
+     *
+     * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
@@ -136,7 +142,10 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * <p>Required Permission:
+     * <ul>
+     *   <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     @AddedInOrBefore(majorVersion = 33)

@@ -33,6 +33,9 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
 import static com.android.car.CarServiceUtils.runOnMain;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -100,19 +103,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
-    static final String ACTION_LAUNCH_APP_SETTINGS =
-            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
-    static final String ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
-            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
-    // TODO(b/244474850): Delete the intent in W release. After TM-QPR2, it is not used anymore by
-    //  the notification helper.
-    /**
-     * @deprecated - Prefer dismissing resource over notifications using the
-     * {@code ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION} intent action.
-     */
-    @Deprecated
-    static final String ACTION_RESOURCE_OVERUSE_DISABLE_APP =
-            "com.android.car.watchdog.ACTION_RESOURCE_OVERUSE_DISABLE_APP";
 
     @VisibleForTesting
     static final int MISSING_ARG_VALUE = -1;
@@ -152,9 +142,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             switch (action) {
-                case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
-                case ACTION_LAUNCH_APP_SETTINGS:
-                case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
+                case CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
+                case CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS:
+                case CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP:
                     mWatchdogPerfHandler.processUserNotificationIntent(intent);
                     break;
                 case ACTION_GARAGE_MODE_ON:
@@ -787,11 +777,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void subscribeBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+        filter.addAction(CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
-        filter.addAction(ACTION_LAUNCH_APP_SETTINGS);
-        filter.addAction(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
+        filter.addAction(CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS);
+        filter.addAction(CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP);
         filter.addAction(ACTION_USER_REMOVED);
         filter.addAction(ACTION_REBOOT);
         filter.addAction(ACTION_SHUTDOWN);

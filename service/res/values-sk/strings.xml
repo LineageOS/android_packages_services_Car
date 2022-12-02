@@ -170,10 +170,8 @@
     <string name="car_permission_desc_use_remote_access" msgid="7287637348044911791">"Použite vzdialený prístup."</string>
     <string name="car_permission_label_control_remote_access" msgid="4247590162299914718">"ovládanie vzdialeného prístupu"</string>
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Ovládajte vzdialený prístup."</string>
-    <!-- no translation found for car_permission_label_control_steering_wheel (6244908950907824488) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_steering_wheel (8408970211196600423) -->
-    <skip />
+    <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"ovládanie volantu auta"</string>
+    <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Ovládanie volantu auta."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Zbernica CAN zlyhala"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Zbernica CAN nereaguje. Odpojte autorádio a znova ho pripojte. Potom auto znova naštartujte."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moje zariadenie"</string>
