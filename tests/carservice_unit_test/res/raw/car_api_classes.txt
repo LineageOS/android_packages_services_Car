@@ -183,6 +183,8 @@ android.car.oem.OemCarAudioFocusResult$Builder
 android.car.oem.OemCarAudioFocusService
 android.car.oem.OemCarService
 android.car.oem.OemCarServiceComponent
+android.car.oem.OemCarVolumeChangeInfo
+android.car.oem.OemCarVolumeChangeInfo$Builder
 android.car.os.CarPerformanceManager
 android.car.os.CarPerformanceManager$SetSchedulerFailedException
 android.car.os.CarPerformanceManager$CpuAvailabilityChangeListener
