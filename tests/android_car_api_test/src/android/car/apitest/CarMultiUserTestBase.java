@@ -32,9 +32,9 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
-import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
@@ -51,13 +51,13 @@ import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
-import android.view.Display;
 
 import org.junit.After;
 import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +78,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
 
+    protected CarOccupantZoneManager mCarOccupantZoneManager;
     protected CarUserManager mCarUserManager;
     protected UserManager mUserManager;
 
@@ -110,6 +111,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     public final void setMultiUserFixtures() throws Exception {
         Log.d(TAG, "setMultiUserFixtures() for " + getTestName());
 
+        mCarOccupantZoneManager = getCarService(Car.CAR_OCCUPANT_ZONE_SERVICE);
         mCarUserManager = getCarService(Car.CAR_USER_SERVICE);
         mUserManager = getContext().getSystemService(UserManager.class);
 
@@ -409,16 +411,30 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     /**
      * Returns a secondary display that is available to start a background user on.
-     * @return the id of a secondary display
+     *
+     * @return the id of a secondary display that is not assigned to any user, if any.
+     * @throws IllegalStateException when there is no secondary display available.
      */
-    protected static int getSecondaryDisplay() {
-        // TODO(b/255644545) Instead of creating a virtual display, we can just return an existing
-        // secondary display using ActivityManager#getSecondaryDisplayIdsForStartingBackgroundUsers.
-        VirtualDisplaySession virtualDisplaySession = new VirtualDisplaySession();
-        Display display = virtualDisplaySession.createDisplayWithDefaultDisplayMetricsAndWait(
-                getTargetContext(), /* isPrivate= */ false);
+    protected int getDisplayForStartingBackgroundUser() {
+        int[] displayIds = getTargetContext().getSystemService(ActivityManager.class)
+                .getSecondaryDisplayIdsForStartingBackgroundUsers();
+        Log.d(TAG, "getSecondaryDisplayIdsForStartingBackgroundUsers() display IDs"
+                + " returned by AM: " + Arrays.toString(displayIds));
+        if (displayIds == null || displayIds.length == 0) {
+            throw new IllegalStateException("No secondary display is available to start a user.");
+        }
 
-        return display.getDisplayId();
+        for (int displayId : displayIds) {
+            int userId = mCarOccupantZoneManager.getUserForDisplayId(displayId);
+            if (userId == CarOccupantZoneManager.INVALID_USER_ID) {
+                Log.d(TAG, "Returning first available display: " + displayId);
+                return displayId;
+            }
+            Log.d(TAG, "Display " + displayId + "is curretnly assigned to user " + userId);
+        }
+
+        throw new IllegalStateException(
+                "All secondary displays are assigned. No secondary display is available.");
     }
 
     private static Context getTargetContext() {
