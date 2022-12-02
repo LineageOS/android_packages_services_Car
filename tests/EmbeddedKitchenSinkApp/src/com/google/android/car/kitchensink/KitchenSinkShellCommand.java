@@ -30,6 +30,8 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.car.kitchensink.drivemode.DriveModeSwitchController;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Arrays;
@@ -65,6 +67,7 @@ final class KitchenSinkShellCommand {
             "generate-device-attestation-key-pair";
     private static final String CMD_POST_NOTIFICATION = "post-notification";
     private static final String CMD_POST_TOAST = "post-toast";
+    private static final String CMD_SET_DRIVE_MODE_SWITCH= "set-drive-mode-switch";
 
     private final Context mContext;
     private final @Nullable DevicePolicyManager mDpm;
@@ -113,6 +116,9 @@ final class KitchenSinkShellCommand {
             case CMD_POST_TOAST:
                 postToast();
                 break;
+            case CMD_SET_DRIVE_MODE_SWITCH:
+                setDriveModeSwitch();
+                break;
             default:
                 showHelp("Invalid command: %s", cmd);
         }
@@ -140,6 +146,8 @@ final class KitchenSinkShellCommand {
                 CMD_POST_NOTIFICATION, "<MESSAGE>");
         showCommandHelp("Post Toast.",
                 CMD_POST_TOAST, "<MESSAGE>");
+        showCommandHelp("Enables / Disables the DriveMode Switch in the System UI.",
+                CMD_SET_DRIVE_MODE_SWITCH, "<true|false>");
         mWriter.decreaseIndent();
     }
 
@@ -225,6 +233,14 @@ final class KitchenSinkShellCommand {
         String message = getNextArg();
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
         Log.i(TAG, "Post Toast: " + message);
+    }
+
+    private void setDriveModeSwitch() {
+        boolean value = getNextBooleanArg();
+        DriveModeSwitchController driveModeSwitchController = new DriveModeSwitchController(
+                mContext
+        );
+        driveModeSwitchController.setDriveMode(value);
     }
 
     private void warnAboutAsyncCall() {
