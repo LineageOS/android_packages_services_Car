@@ -54,6 +54,7 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
+import android.util.SparseArray;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -95,7 +96,14 @@ public class CarInputService extends ICarInput.Stub
     /** An interface to receive {@link KeyEvent}s as they occur. */
     public interface KeyEventListener {
         /** Called when a key event occurs. */
-        void onKeyEvent(KeyEvent event);
+        // TODO(b/247170915): This method is no needed anymore, please remove and use
+        //  onKeyEvent(KeyEvent event, intDisplayType, int seat)
+        default void onKeyEvent(KeyEvent event) {
+        }
+
+        /** Called when a key event occurs with seat. */
+        default void onKeyEvent(KeyEvent event, int displayType, int seat) {
+        }
     }
 
     private final class KeyPressTimer {
@@ -201,6 +209,9 @@ public class CarInputService extends ICarInput.Stub
     @GuardedBy("mLock")
     private KeyEventListener mInstrumentClusterKeyListener;
 
+    @GuardedBy("mLock")
+    private final SparseArray<KeyEventListener> mListeners = new SparseArray<>();
+
     private final InputCaptureClientController mCaptureController;
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
@@ -224,8 +235,13 @@ public class CarInputService extends ICarInput.Stub
         this(context, inputHalService, userService, occupantZoneService, bluetoothService,
                 new Handler(getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class),
-                event -> InputManagerHelper.injectInputEvent(
-                        context.getSystemService(InputManager.class), event),
+                new KeyEventListener() {
+                    @Override
+                    public void onKeyEvent(KeyEvent event) {
+                        InputManagerHelper.injectInputEvent(
+                                context.getSystemService(InputManager.class), event);
+                    }
+                },
                 () -> Calls.getLastOutgoingCall(context),
                 () -> getViewLongPressDelay(context),
                 () -> context.getResources().getBoolean(R.bool.config_callButtonEndsOngoingCall),
@@ -271,6 +287,28 @@ public class CarInputService extends ICarInput.Stub
             mProjectionKeyEventsSubscribed.clear();
             if (events != null) {
                 mProjectionKeyEventsSubscribed.or(events);
+            }
+        }
+    }
+
+
+    /**
+     * This method registers a keyEventListener to listen on key events that it is interested in.
+     *
+     * @param listener The listener to be registered.
+     * @param keyCodesOfInterest The events of interest that the listener is interested in.
+     * @throws IllegalArgumentException When an event is already registered to another listener.
+     */
+    public void registerKeyEventListener(KeyEventListener listener,
+            List<Integer> keyCodesOfInterest) {
+        synchronized (mLock) {
+            for (int i = 0; i < keyCodesOfInterest.size(); i++) {
+                if (mListeners.contains(keyCodesOfInterest.get(i))) {
+                    throw new IllegalArgumentException("Event "
+                            + KeyEvent.keyCodeToString(keyCodesOfInterest.get(i))
+                            + " already registered to another listener");
+                }
+                mListeners.put(keyCodesOfInterest.get(i), listener);
             }
         }
     }
@@ -339,7 +377,16 @@ public class CarInputService extends ICarInput.Stub
      */
     @Override
     public void onKeyEvent(KeyEvent event, int targetDisplay, int seat) {
-        // TODO(b/259999340): Handle per seat input events.
+        KeyEventListener keyEventListener;
+        synchronized (mLock) {
+            keyEventListener = mListeners.get(event.getKeyCode());
+        }
+        if (keyEventListener == null) {
+            Slogf.w(TAG, "Key event listener not found for event %s",
+                    KeyEvent.keyCodeToString(event.getKeyCode()));
+            return;
+        }
+        keyEventListener.onKeyEvent(event, targetDisplay, seat);
     }
 
     /**

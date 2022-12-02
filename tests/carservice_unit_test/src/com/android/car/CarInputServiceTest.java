@@ -17,7 +17,11 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
+import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static android.car.input.CustomInputEvent.INPUT_CODE_F1;
+import static android.view.KeyEvent.KEYCODE_0;
+import static android.view.KeyEvent.KEYCODE_1;
+import static android.view.KeyEvent.KEYCODE_HOME;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -77,6 +81,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 
 import java.util.BitSet;
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 import java.util.function.Supplier;
@@ -262,6 +267,88 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
         KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_ENTER, Display.INSTRUMENT_CLUSTER);
         verify(listener).onKeyEvent(event);
+    }
+
+    @Test
+    public void registerKeyEventListener_separateListenersWithSameEventsOfInterest_fails() {
+        CarInputService.KeyEventListener listener1 = mock(CarInputService.KeyEventListener.class);
+        CarInputService.KeyEventListener listener2 = mock(CarInputService.KeyEventListener.class);
+        List<Integer> interestedEvents = List.of(KEYCODE_HOME, KEYCODE_0);
+        mCarInputService.registerKeyEventListener(listener1, interestedEvents);
+
+        IllegalArgumentException thrown = Assert.assertThrows(IllegalArgumentException.class,
+                () -> mCarInputService.registerKeyEventListener(listener2, interestedEvents));
+
+        assertWithMessage("Register key event listener")
+                .that(thrown).hasMessageThat()
+                .contains("Event " + KeyEvent.keyCodeToString(KEYCODE_HOME)
+                        + " already registered to another listener");
+    }
+
+    @Test
+    public void registerKeyEventListener_separateListenersWithOverlappingEventsOfInterest_fails() {
+        CarInputService.KeyEventListener listener1 = mock(CarInputService.KeyEventListener.class);
+        CarInputService.KeyEventListener listener2 = mock(CarInputService.KeyEventListener.class);
+        List<Integer> interestedEvents1 = List.of(KEYCODE_HOME, KEYCODE_0);
+        List<Integer> interestedEvents2 = List.of(KEYCODE_1, KEYCODE_HOME);
+        mCarInputService.registerKeyEventListener(listener1, interestedEvents1);
+
+        IllegalArgumentException thrown = Assert.assertThrows(IllegalArgumentException.class,
+                () -> mCarInputService.registerKeyEventListener(listener2, interestedEvents2));
+
+        assertWithMessage("Register key event listener")
+                .that(thrown).hasMessageThat()
+                .contains("Event " + KeyEvent.keyCodeToString(KEYCODE_HOME)
+                        + " already registered to another listener");
+    }
+
+    @Test
+    public void onKeyEvent_withSingleListener_callsListener() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KEYCODE_HOME);
+        CarInputService.KeyEventListener listener = mock(CarInputService.KeyEventListener.class);
+        List<Integer> interestedEvents = List.of(KEYCODE_HOME, KEYCODE_0);
+        mCarInputService.registerKeyEventListener(listener, interestedEvents);
+
+        mCarInputService.onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                SEAT_ROW_1_LEFT);
+
+        verify(listener).onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                SEAT_ROW_1_LEFT);
+    }
+
+    @Test
+    public void onKeyEvent_withMultipleListeners_callToListener() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KEYCODE_HOME);
+        CarInputService.KeyEventListener listener1 = mock(CarInputService.KeyEventListener.class);
+        CarInputService.KeyEventListener listener2 = mock(CarInputService.KeyEventListener.class);
+        List<Integer> interestedEvents1 = List.of(KEYCODE_0);
+        List<Integer> interestedEvents2 = List.of(KEYCODE_HOME);
+        mCarInputService.registerKeyEventListener(listener1, interestedEvents1);
+        mCarInputService.registerKeyEventListener(listener2, interestedEvents2);
+
+        mCarInputService.onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                SEAT_ROW_1_LEFT);
+
+        verify(listener1, never()).onKeyEvent(any(), anyInt(), anyInt());
+        verify(listener2).onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                SEAT_ROW_1_LEFT);
+    }
+
+    @Test
+    public void onKeyEvent_withMultipleListeners_noCallToListeners() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KEYCODE_1);
+        CarInputService.KeyEventListener listener1 = mock(CarInputService.KeyEventListener.class);
+        CarInputService.KeyEventListener listener2 = mock(CarInputService.KeyEventListener.class);
+        List<Integer> interestedEvents1 = List.of(KEYCODE_0);
+        List<Integer> interestedEvents2 = List.of(KEYCODE_HOME);
+        mCarInputService.registerKeyEventListener(listener1, interestedEvents1);
+        mCarInputService.registerKeyEventListener(listener2, interestedEvents2);
+
+        mCarInputService.onKeyEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                SEAT_ROW_1_LEFT);
+
+        verify(listener1, never()).onKeyEvent(any(), anyInt(), anyInt());
+        verify(listener2, never()).onKeyEvent(any(), anyInt(), anyInt());
     }
 
     @Test
@@ -767,7 +854,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void onKey_assignDisplayId_mainDisplay() {
         // Act
-        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_HOME, Display.MAIN);
+        KeyEvent event = send(Key.DOWN, KEYCODE_HOME, Display.MAIN);
 
         // Arrange
         assertWithMessage("display id expected to be assigned with Display.DEFAULT_DISPLAY").that(
@@ -777,7 +864,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void onKey_assignDisplayId_clusterDisplay() {
         // Act
-        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_HOME, Display.INSTRUMENT_CLUSTER);
+        KeyEvent event = send(Key.DOWN, KEYCODE_HOME, Display.INSTRUMENT_CLUSTER);
 
         // Arrange
         assertWithMessage("display id expected to be assigned with Display.DEFAULT_DISPLAY").that(

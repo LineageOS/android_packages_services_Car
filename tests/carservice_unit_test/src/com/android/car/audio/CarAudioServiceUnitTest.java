@@ -118,6 +118,7 @@ import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.CarInputService;
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
@@ -235,6 +236,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
     @Mock
     private CarVolumeCallbackHandler mCarVolumeCallbackHandler;
+    @Mock
+    private CarInputService mMockCarInputService;
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
@@ -328,6 +331,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.addService(CarOccupantZoneService.class, mMockOccupantZoneService);
+        CarLocalServices.removeServiceForTest(CarInputService.class);
+        CarLocalServices.addService(CarInputService.class, mMockCarInputService);
 
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
