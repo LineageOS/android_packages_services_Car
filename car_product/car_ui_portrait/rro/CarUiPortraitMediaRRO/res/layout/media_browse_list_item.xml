@@ -23,24 +23,24 @@
     android:paddingStart="@dimen/media_browse_list_item_icon_margin_start"
     android:focusable="true"
     android:background="?android:attr/selectableItemBackground">
-    <com.android.car.media.common.FixedRatioImageView
+    <ImageView
         android:id="@+id/thumbnail"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:scaleType="centerCrop"
-        android:layout_marginBottom="@dimen/media_browse_list_item_thumbnail_margin_bottom"
-        style="@style/MediaIconContainerStyle"
+        android:layout_width="@dimen/media_browse_list_item_icon_height"
+        android:layout_height="@dimen/media_browse_list_item_icon_height"
+        android:layout_centerVertical="true"
         android:layout_alignParentStart="true"
+        android:scaleType="centerCrop"
+        style="@style/MediaIconContainerStyle"
         app:aspect_ratio="1"/>
 
     <LinearLayout
         android:id="@+id/text_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginStart="@dimen/media_browse_list_item_text_margin_x"
         android:layout_alignParentStart="true"
         android:layout_centerVertical="true"
+        android:orientation="vertical"
         android:gravity="center_vertical">
 
         <LinearLayout

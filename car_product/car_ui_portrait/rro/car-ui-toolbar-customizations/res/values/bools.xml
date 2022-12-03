@@ -16,7 +16,9 @@
   -->
 
 <resources>
-
+    <bool name="car_ui_toolbar_logo_fills_nav_icon_space">false</bool>
+    <bool name="car_ui_toolbar_tab_flexible_layout">false</bool>
+    <bool name="car_ui_scrollbar_enable">false</bool>
     <bool name="car_ui_toolbar_tabs_on_second_row">true</bool>
 
 </resources>
