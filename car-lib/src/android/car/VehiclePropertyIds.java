@@ -30,11 +30,11 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.CarPropertyHelper;
 
 /**
- * Based on {@code VehicleProperty.java} generated based on {@code VehicleProperty.aidl} in VHAL
- * interface.
- * Need to update this file when vehicle propertyId is changed in VHAL. Use it as PropertyId in
- * getProperty() and setProperty() in
- * {@link android.car.hardware.property.CarPropertyManager}
+ * List of vehicle property IDs.
+ *
+ * <p> Property IDs are used with the {@link android.car.hardware.property.CarPropertyManager} APIs
+ * (e.g. {@link android.car.hardware.property.CarPropertyManager#getProperty(int, int)} or {@link
+ * android.car.hardware.property.CarPropertyManager#setProperty(Class, int, int, Object)}).
  */
 public final class VehiclePropertyIds {
 
