@@ -583,6 +583,46 @@ public class CarOccupantZoneServiceTest {
         assertThat(mICarServiceHelper.mAllowlists).isEmpty();
     }
 
+    @Test
+    public void testGetOccupantZone_invalidUser() {
+        mService.init();
+        int invalidProfileUser = UserHandle.USER_NULL;
+
+        OccupantZoneInfo occupantZoneInfo =
+                mService.getOccupantZoneForUser(UserHandle.of(invalidProfileUser));
+
+        assertWithMessage("Occupant zone for invalid handle (%s)", invalidProfileUser)
+                .that(occupantZoneInfo)
+                .isNull();
+    }
+
+    @Test
+    public void testGetOccupantZone_validUser() {
+        mService.init();
+        SparseArray<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneConfigs =
+                mService.getOccupantsConfig();
+        occupantZoneConfigs.get(PROFILE_USER1);
+
+        OccupantZoneInfo occupantZoneInfo =
+                mService.getOccupantZoneForUser(UserHandle.of(PROFILE_USER1));
+
+        assertWithMessage("Get occupant zone for primary zone")
+                .that(occupantZoneInfo)
+                .isEqualTo(occupantZoneConfigs.get(PROFILE_USER1));
+    }
+
+    @Test
+    public void testGetOccupantZone_nullUser() {
+        mService.init();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mService.getOccupantZoneForUser(null));
+
+        assertWithMessage("Get occupant zone for null user")
+                .that(thrown).hasMessageThat()
+                .contains("User cannot be null");
+    }
+
     private void assertDisplayInfoIncluded(
             ArrayList<DisplayInfo> displayInfos, Display display, int displayType) {
         for (DisplayInfo info : displayInfos) {

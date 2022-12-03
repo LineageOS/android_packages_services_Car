@@ -127,6 +127,7 @@ package android.car {
     method public int getDisplayType(@NonNull android.view.Display);
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(int, int);
+    method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForUser(@NonNull android.os.UserHandle);
     method public int getUserForDisplayId(int);
     method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public boolean hasDriverZone();
@@ -419,7 +420,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int READING_LIGHTS_SWITCH = 356519684; // 0x15400f04
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int REAR_FOG_LIGHTS_STATE = 289410877; // 0x11400f3d
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int REAR_FOG_LIGHTS_SWITCH = 289410878; // 0x11400f3e
-    field @RequiresPermission("android.car.permission.CONTROL_AIRBAG") public static final int SEAT_AIRBAG_ENABLED = 354421662; // 0x15200b9e
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_AIRBAGS") public static final int SEAT_AIRBAG_ENABLED = 354421662; // 0x15200b9e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a

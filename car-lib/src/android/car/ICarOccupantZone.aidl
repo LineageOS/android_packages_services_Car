@@ -42,6 +42,7 @@ interface ICarOccupantZone {
 
     int assignVisibleUserToOccupantZone(in int occupantZoneId, in UserHandle user, in int flags);
     int unassignOccupantZone(in int occupantZoneId);
+    CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForUser(in UserHandle user);
     CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
     CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(in int type, in int seat);
     boolean hasDriverZone();

@@ -920,6 +920,19 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
+    public OccupantZoneInfo getOccupantZoneForUser(UserHandle user) {
+        Objects.requireNonNull(user, "User cannot be null");
+        if (user.getIdentifier() == CarOccupantZoneManager.INVALID_USER_ID) {
+            return null;
+        }
+        int occupantZoneId = getOccupantZoneIdForUserId(user.getIdentifier());
+        Slogf.i(TAG, "occupantZoneId that was gotten was %d", occupantZoneId);
+        synchronized (mLock) {
+            return mOccupantsConfig.get(occupantZoneId);
+        }
+    }
+
+    @Override
     public OccupantZoneInfo getOccupantZone(@OccupantTypeEnum int occupantType,
             @VehicleAreaSeat.Enum int seat) {
         synchronized (mLock) {

@@ -820,7 +820,7 @@ public final class Car {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PERMISSION_CONTROL_CAR_AIRBAGS =
-            "android.car.permission.CONTROL_AIRBAG";
+            "android.car.permission.CONTROL_CAR_AIRBAGS";
 
 
     /**

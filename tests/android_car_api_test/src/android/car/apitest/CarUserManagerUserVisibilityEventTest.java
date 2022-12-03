@@ -69,7 +69,7 @@ public final class CarUserManagerUserVisibilityEventTest extends CarMultiUserTes
         // Check if the device supports MUMD. If not, skip the test.
         requireMumd();
 
-        int displayId = getSecondaryDisplay();
+        int displayId = getDisplayForStartingBackgroundUser();
         int newUserId = createUser().id;
 
         BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
