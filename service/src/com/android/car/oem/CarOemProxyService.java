@@ -20,7 +20,9 @@ import android.annotation.Nullable;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
+import android.car.oem.IOemCarAudioDuckingService;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.IOemCarAudioVolumeService;
 import android.car.oem.IOemCarService;
 import android.car.oem.IOemCarServiceCallback;
 import android.content.ComponentName;
@@ -102,6 +104,11 @@ public final class CarOemProxyService implements CarServiceBase {
     private IOemCarService mOemCarService;
     @GuardedBy("mLock")
     private CarOemAudioFocusProxyService mCarOemAudioFocusProxyService;
+    @GuardedBy("mLock")
+    private CarOemAudioVolumeProxyService mCarOemAudioVolumeProxyService;
+    @GuardedBy("mLock")
+    private CarOemAudioDuckingProxyService mCarOemAudioDuckingProxyService;
+
 
     private final ServiceConnection mCarOemServiceConnection = new ServiceConnection() {
 
@@ -369,6 +376,97 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.i(TAG, "CarOemAudioFocusProxyService is ready.");
             return mCarOemAudioFocusProxyService;
         }
+    }
+
+    /**
+     * Gets OEM audio volume service.
+     */
+    @Nullable
+    public CarOemAudioVolumeProxyService getCarOemAudioVolumeService() {
+        if (!mIsFeatureEnabled) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service is disabled, returning null for"
+                        + " getCarOemAudioVolumeService");
+            }
+            return null;
+        }
+
+        synchronized (mLock) {
+            if (mCarOemAudioVolumeProxyService != null) {
+                return mCarOemAudioVolumeProxyService;
+            }
+        }
+
+        waitForOemService();
+
+        IOemCarAudioVolumeService oemAudioVolumeService = mHelper.doBinderTimedCallWithDefaultValue(
+                CALL_TAG, () -> getOemService().getOemAudioVolumeService(),
+                /* defaultValue= */ null);
+
+        if (oemAudioVolumeService == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service doesn't implement AudioVolumeService,"
+                        + "returning null for getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        CarOemAudioVolumeProxyService carOemAudioVolumeProxyService =
+                new CarOemAudioVolumeProxyService(mHelper, oemAudioVolumeService);
+        synchronized (mLock) {
+            if (mCarOemAudioVolumeProxyService != null) {
+                return mCarOemAudioVolumeProxyService;
+            }
+            mCarOemAudioVolumeProxyService = carOemAudioVolumeProxyService;
+            Slogf.i(TAG, "CarOemAudioVolumeProxyService is ready.");
+        }
+        return carOemAudioVolumeProxyService;
+    }
+
+    /**
+     * Gets OEM audio ducking service.
+     */
+    @Nullable
+    public CarOemAudioDuckingProxyService getCarOemAudioDuckingService() {
+        if (!mIsFeatureEnabled) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service is disabled, returning null for"
+                        + " getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        synchronized (mLock) {
+            if (mCarOemAudioDuckingProxyService != null) {
+                return mCarOemAudioDuckingProxyService;
+            }
+        }
+
+        waitForOemService();
+
+        IOemCarAudioDuckingService oemAudioDuckingService =
+                mHelper.doBinderTimedCallWithDefaultValue(
+                CALL_TAG, () -> getOemService().getOemAudioDuckingService(),
+                /* defaultValue= */ null);
+
+        if (oemAudioDuckingService == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Oem Car Service doesn't implement AudioDuckingService,"
+                        + "returning null for getCarOemAudioDuckingService");
+            }
+            return null;
+        }
+
+        CarOemAudioDuckingProxyService carOemAudioDuckingProxyService =
+                new CarOemAudioDuckingProxyService(mHelper, oemAudioDuckingService);
+        synchronized (mLock) {
+            if (mCarOemAudioDuckingProxyService != null) {
+                return mCarOemAudioDuckingProxyService;
+            }
+            mCarOemAudioDuckingProxyService = carOemAudioDuckingProxyService;
+            Slogf.i(TAG, "CarOemAudioDuckingProxyService is ready.");
+        }
+        return carOemAudioDuckingProxyService;
     }
 
     /**

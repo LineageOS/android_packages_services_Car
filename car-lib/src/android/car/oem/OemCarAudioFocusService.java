@@ -37,6 +37,7 @@ public interface OemCarAudioFocusService extends OemCarServiceComponent {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId);
 

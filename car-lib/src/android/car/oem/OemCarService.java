@@ -74,6 +74,24 @@ public abstract class OemCarService extends Service {
         }
 
         @Override
+        public IOemCarAudioVolumeService getOemAudioVolumeService() {
+            assertPermission();
+            synchronized (mLock) {
+                return (IOemCarAudioVolumeService) mOemCarServiceComponents
+                        .getOrDefault(IOemCarAudioVolumeService.class, null);
+            }
+        }
+
+        @Override
+        public IOemCarAudioDuckingService getOemAudioDuckingService() {
+            assertPermission();
+            synchronized (mLock) {
+                return (IOemCarAudioDuckingService) mOemCarServiceComponents
+                        .getOrDefault(IOemCarAudioDuckingService.class, null);
+            }
+        }
+
+        @Override
         public void onCarServiceReady(IOemCarServiceCallback callback) throws RemoteException {
             assertPermission();
             OemCarService.this.onCarServiceReady();
@@ -149,10 +167,20 @@ public abstract class OemCarService extends Service {
 
         // Create all components
         OemCarAudioFocusService oemCarAudioFocusService = getOemAudioFocusService();
+        OemCarAudioVolumeService oemCarAudioVolumeService = getOemAudioVolumeService();
+        OemCarAudioDuckingService oemCarAudioDuckingService = getOemAudioDuckingService();
         synchronized (mLock) {
             if (oemCarAudioFocusService != null) {
                 mOemCarServiceComponents.put(IOemCarAudioFocusService.class,
                         new OemCarAudioFocusServiceImpl(oemCarAudioFocusService));
+            }
+            if (oemCarAudioVolumeService != null) {
+                mOemCarServiceComponents.put(IOemCarAudioVolumeService.class,
+                        new OemCarAudioVolumeServiceImpl(oemCarAudioVolumeService));
+            }
+            if (oemCarAudioDuckingService != null) {
+                mOemCarServiceComponents.put(IOemCarAudioDuckingService.class,
+                        new OemCarAudioDuckingServiceImpl(oemCarAudioDuckingService));
             }
 
             // Initialize them
@@ -227,6 +255,40 @@ public abstract class OemCarService extends Service {
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DBG) {
             Slogf.d(TAG, "getOemUserService");
+        }
+        return null;
+    }
+
+    /**
+     * Gets Audio Volume implemented by OEM Service.
+     *
+     * @return audio volume service if implemented by OEM service, else return {@code null}.
+     */
+    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
+    @Nullable
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("OnNameExpected")
+    public OemCarAudioVolumeService getOemAudioVolumeService() {
+        if (DBG) {
+            Slogf.d(TAG, "getOemAudioVolumeService");
+        }
+        return null;
+    }
+
+    /**
+     * Gets Audio Ducking implemented by OEM Service.
+     *
+     * @return audio ducking service if implemented by OEM service, else return {@code null}.
+     */
+    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
+    @Nullable
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("OnNameExpected")
+    public OemCarAudioDuckingService getOemAudioDuckingService() {
+        if (DBG) {
+            Slogf.d(TAG, "getOemAudioDuckingService");
         }
         return null;
     }
