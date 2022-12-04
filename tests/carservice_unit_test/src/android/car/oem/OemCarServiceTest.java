@@ -17,12 +17,15 @@
 package android.car.oem;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
 import android.car.CarVersion;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.pm.PackageManager;
+
+import androidx.annotation.NonNull;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -33,6 +36,7 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
 
     private final CarVersion mCarVersionForTesting = CarVersion.VERSION_CODES.TIRAMISU_2;
 
+    private OemCarService mDefaultOemCarService = new DefaultOemCarService();
     private TestOemCarService mTestOemCarService = new TestOemCarService();
     private IOemCarService mOemCarService = IOemCarService.Stub
             .asInterface(mTestOemCarService.onBind(null));
@@ -42,6 +46,12 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private OemCarAudioFocusService mOemCarAudioFocusService;
+
+    @Mock
+    private OemCarAudioVolumeService mOemCarAudioVolumeService;
+
+    @Mock
+    private OemCarAudioDuckingService mOemCarAudioDuckingService;
 
     @Test
     public void testPermissionCheckForAll() throws Exception {
@@ -80,6 +90,66 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(mOemCarService.getOemAudioFocusService()).isNull();
     }
 
+    @Test
+    public void getOemAudioFocusService_onDefaultOemService_null() throws Exception {
+        assertWithMessage("Audio focus service for default implementation")
+                .that(mDefaultOemCarService.getOemAudioFocusService()).isNull();
+    }
+
+    @Test
+    public void getOemAudioVolumeService_notNull() throws Exception {
+        TestOemCarService testOemCarService = new TestOemCarService();
+        testOemCarService.mockCheckCallingPermission();
+        testOemCarService.mockOemAudioVolumeService();
+        testOemCarService.onCreate();
+        IOemCarService oemCarService = IOemCarService.Stub
+                .asInterface(testOemCarService.onBind(null));
+
+        assertWithMessage("Oem audio volume service")
+                .that(oemCarService.getOemAudioVolumeService()).isNotNull();
+    }
+
+    @Test
+    public void getOemAudioVolumeServiceo_onDefault_null() throws Exception {
+        mockCallerPemission();
+
+        assertWithMessage("Default oem audio volume service")
+                .that(mOemCarService.getOemAudioVolumeService()).isNull();
+    }
+
+    @Test
+    public void getOemAudioVolumeService_onDefaultOemService_null() throws Exception {
+        assertWithMessage("Audio volume service for default implementation")
+                .that(mDefaultOemCarService.getOemAudioVolumeService()).isNull();
+    }
+
+    @Test
+    public void getOemAudioDuckingService_notNull() throws Exception {
+        TestOemCarService testOemCarService = new TestOemCarService();
+        testOemCarService.mockCheckCallingPermission();
+        testOemCarService.mockOemAudioDuckingService();
+        testOemCarService.onCreate();
+        IOemCarService oemCarService = IOemCarService.Stub
+                .asInterface(testOemCarService.onBind(null));
+
+        assertWithMessage("Oem audio ducking service")
+                .that(oemCarService.getOemAudioDuckingService()).isNotNull();
+    }
+
+    @Test
+    public void getOemAudioDuckingService_onDefault_null() throws Exception {
+        mockCallerPemission();
+
+        assertWithMessage("Default oem audio ducking service")
+                .that(mOemCarService.getOemAudioDuckingService()).isNull();
+    }
+
+    @Test
+    public void getOemAudioDuckingService_onDefaultOemService_null() throws Exception {
+        assertWithMessage("Audio ducking service for default implementation")
+                .that(mDefaultOemCarService.getOemAudioDuckingService()).isNull();
+    }
+
     private void mockCallerPemission() {
         mTestOemCarService.mockCheckCallingPermission();
     }
@@ -90,6 +160,10 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
 
         @GuardedBy("mLock")
         private boolean mMockAudioFocusService;
+        @GuardedBy("mLock")
+        private boolean mMockAudioVolumeService;
+        @GuardedBy("mLock")
+        private boolean mMockAudioDuckingService;
         @GuardedBy("mLock")
         private boolean mAllowCallingPermission;
 
@@ -103,6 +177,26 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
             synchronized (mLock) {
                 if (mMockAudioFocusService) {
                     return mOemCarAudioFocusService;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public OemCarAudioVolumeService getOemAudioVolumeService() {
+            synchronized (mLock) {
+                if (mMockAudioVolumeService) {
+                    return mOemCarAudioVolumeService;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public OemCarAudioDuckingService getOemAudioDuckingService() {
+            synchronized (mLock) {
+                if (mMockAudioDuckingService) {
+                    return mOemCarAudioDuckingService;
                 }
             }
             return null;
@@ -128,8 +222,34 @@ public final class OemCarServiceTest extends AbstractExtendedMockitoTestCase {
             }
         }
 
+        void mockOemAudioVolumeService() {
+            synchronized (mLock) {
+                mMockAudioVolumeService = true;
+            }
+        }
+
+        void mockOemAudioDuckingService() {
+            synchronized (mLock) {
+                mMockAudioDuckingService = true;
+            }
+        }
+
         @Override
         public void onCarServiceReady() {
+        }
+    }
+
+    private static final class DefaultOemCarService extends OemCarService {
+
+        @NonNull
+        @Override
+        public CarVersion getSupportedCarVersion() {
+            return null;
+        }
+
+        @Override
+        public void onCarServiceReady() {
+
         }
     }
 }

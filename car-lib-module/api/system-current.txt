@@ -1185,6 +1185,10 @@ package android.car.oem {
     method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioVolumeGroupId(int);
   }
 
+  public interface OemCarAudioDuckingService {
+    method @NonNull public java.util.List<android.media.AudioAttributes> evaluateAttributesToDuck(@NonNull android.car.oem.OemCarAudioVolumeRequest);
+  }
+
   public final class OemCarAudioFocusEvaluationRequest implements android.os.Parcelable {
     method public int describeContents();
     method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusRequest();
@@ -1251,6 +1255,10 @@ package android.car.oem {
     method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setCallState(int);
     method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setCarVolumeGroupInfos(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>);
     method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setDuckedAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
+  }
+
+  public interface OemCarAudioVolumeService {
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo getSuggestedGroupForVolumeChange(@NonNull android.car.oem.OemCarAudioVolumeRequest, int);
   }
 
   public final class OemCarVolumeChangeInfo implements android.os.Parcelable {
