@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.app.ActivityThread;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
@@ -194,5 +195,13 @@ public final class PackageManagerHelper {
                     + "com.android.internal.R.string.config_systemUIServiceComponent resource");
         }
         return ComponentName.unflattenFromString(flattenName);
+    }
+
+    /** Check {@link ActivityManager#forceStopPackageAsUser}. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void forceStopPackageAsUser(@NonNull Context context, @NonNull String packageName,
+            @UserIdInt int userId) {
+        ActivityManager am = context.getSystemService(ActivityManager.class);
+        am.forceStopPackageAsUser(packageName, userId);
     }
 }

@@ -23,12 +23,14 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETU
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.getHandlerThread;
-import static com.android.car.CarServiceUtils.startHomeAndSystemUiForUserAndDisplay;
+import static com.android.car.CarServiceUtils.isMultipleUsersOnMultipleDisplaysSupported;
+import static com.android.car.CarServiceUtils.startHomeForUserAndDisplay;
+import static com.android.car.CarServiceUtils.startSystemUiForUser;
+import static com.android.car.CarServiceUtils.stopSystemUiForUser;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1915,9 +1917,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         startUsersOrHomeOnSecondaryDisplays(userId);
     }
 
+
+    private void onUserVisible(@UserIdInt int userId) {
+        startSystemUiForVisibleUser(userId);
+    }
+
+    private void onUserInvisible(@UserIdInt int userId) {
+        stopSystemUiForVisibleUser(userId);
+    }
+
     private void startUsersOrHomeOnSecondaryDisplays(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
-                && !UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             if (DBG) {
                 Slogf.d(TAG, "startUsersOrHomeOnSecondaryDisplays(%d): not supported", userId);
             }
@@ -2154,6 +2164,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING:
                 assignVisibleUserToZone(userId);
                 break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
+                onUserVisible(userId);
+                break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE:
+                onUserInvisible(userId);
+                break;
             default:
         }
 
@@ -2322,10 +2338,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @VisibleForTesting
     void startOtherUsers(@UserIdInt int currentUserId) {
-        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
-            return;
-        }
-        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             return;
         }
         if (isSystemUserInHeadlessSystemUserMode(currentUserId)) {
@@ -2475,10 +2488,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     // Assigns the non-current visible user to the occupant zone that has the display the user is
     // on.
     private void assignVisibleUserToZone(@UserIdInt int userId) {
-        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
-            return;
-        }
-        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             return;
         }
         if (isSystemUserInHeadlessSystemUserMode(userId)) {
@@ -2523,10 +2533,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /** Should be called for non-current user only */
     private void startLauncherForVisibleUser(@UserIdInt int userId) {
-        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
-            return;
-        }
-        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             return;
         }
         if (isSystemUserInHeadlessSystemUserMode(userId)) {
@@ -2539,12 +2546,35 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (!startHomeAndSystemUiForUserAndDisplay(mContext, userId, displayId)) {
+        if (!startHomeForUserAndDisplay(mContext, userId, displayId)) {
             Slogf.w(TAG,
                     "Cannot launch home for assigned user %d, display %d, will stop the user",
                     userId, displayId);
             stopUser(userId, new AndroidFuture<UserStopResult>());
         }
+    }
+
+    private void startSystemUiForVisibleUser(@UserIdInt int userId) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (userId == UserHandle.SYSTEM.getIdentifier()
+                || userId == ActivityManager.getCurrentUser()) {
+            return;
+        }
+
+        startSystemUiForUser(mContext, userId);
+    }
+
+    private void stopSystemUiForVisibleUser(@UserIdInt int userId) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (userId == UserHandle.SYSTEM.getIdentifier()) {
+            return;
+        }
+
+        stopSystemUiForUser(mContext, userId);
     }
 
     private void handleStoppingVisibleUser(@UserIdInt int userId) {
