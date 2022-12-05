@@ -221,8 +221,9 @@ public class InstrumentClusterFragment extends Fragment {
                 return R.id.cluster_activity_state_enabled;
             case PackageManager.COMPONENT_ENABLED_STATE_DISABLED:
                 return R.id.cluster_activity_state_disabled;
+            default:
+                throw new IllegalStateException("Unknown component state: " + componentState);
         }
-        throw new IllegalStateException("Unknown component state: " + componentState);
     }
 
     private void changeClusterActivityState(int newComponentState) {
