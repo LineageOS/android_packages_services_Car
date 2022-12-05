@@ -16,14 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ຜູກມັດກັບການບໍລິການສາຍພາບ"</string>
-<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ອະນຸຍາດໃຫ້ຜູ້ຖືຜູກມັດກັບສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ລະດັບສູງຂອງການບໍລິການສາຍພາບ. ບໍ່ຄວນຕ້ອງການສຳລັບແອັບປົກກະຕິ."</string>
-<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"ການບໍລິການລູກຂ່າຍ VMS"</string>
-<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"ຜູກມັດກັບລູກຂ່າຍ VMS"</string>
-<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ການສະແດງຜົນແຜງໜ້າປັດ"</string>
-<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ຮັບຂໍ້ມູນຈາກແຜງໜ້າປັດ"</string>
-<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ການບໍລິການປ້ອນຂໍ້ມູນຂອງລົດ"</string>
-<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ຈັດການເຫດການປ້ອນຂໍ້ມູນ"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"ຜູກມັດກັບການບໍລິການສາຍພາບ"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ອະນຸຍາດໃຫ້ຜູ້ຖືຜູກມັດກັບສ່ວນຕິດຕໍ່ຜູ້ໃຊ້ລະດັບສູງຂອງການບໍລິການສາຍພາບ. ບໍ່ຄວນຕ້ອງການສຳລັບແອັບປົກກະຕິ."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"ການບໍລິການລູກຂ່າຍ VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"ຜູກມັດກັບລູກຂ່າຍ VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ການສະແດງຜົນແຜງໜ້າປັດ"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ຮັບຂໍ້ມູນຈາກແຜງໜ້າປັດ"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"ການບໍລິການປ້ອນຂໍ້ມູນຂອງລົດ"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ຈັດການເຫດການປ້ອນຂໍ້ມູນ"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ທ່ານບໍ່ສາມາດໃຊ້ຄຸນສົມບັດນີ້ໃນຂະນະທີ່ຂັບລົດໄດ້"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ເພື່ອເລີ່ມຕົ້ນຄືນໃໝ່ດ້ວຍຄຸນສົມບັດແອັບທີ່ປອດໄພ,​ ກະລຸນາເລືອກ <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"ກັບຄືນ"</string>
