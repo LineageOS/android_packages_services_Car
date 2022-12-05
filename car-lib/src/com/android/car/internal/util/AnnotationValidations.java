@@ -79,6 +79,8 @@ public final class AnnotationValidations {
                     invalid(annotation, value, paramName, param);
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -107,6 +109,8 @@ public final class AnnotationValidations {
                     invalid(annotation, value, paramName, param);
                 }
                 break;
+            default:
+                break;
         }
     }
 
@@ -126,6 +130,8 @@ public final class AnnotationValidations {
                 break;
             case "to":
                 if (value > param) invalid(annotation, value, paramName, param);
+                break;
+            default:
                 break;
         }
     }
@@ -164,6 +170,8 @@ public final class AnnotationValidations {
                 if (value % param != 0) invalid(annotation, value, paramName, param);
             }
             break;
+            default:
+                break;
         }
     }
 

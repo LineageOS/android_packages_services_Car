@@ -688,6 +688,8 @@ public final class PolicyReader {
                 case START_TAG:
                     depth++;
                     break;
+                default:
+                    break;
             }
         }
     }

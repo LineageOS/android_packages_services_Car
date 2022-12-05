@@ -185,6 +185,8 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 case MSG_PROCESS_DIED:
                     service.handleProcessDied(msg.arg1, msg.arg2);
                     break;
+                default:
+                    break;
             }
         }
     }

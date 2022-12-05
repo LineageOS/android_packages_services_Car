@@ -74,6 +74,8 @@ public final class DpcService extends DeviceAdminService {
                     System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
                     new DpcShellCommand(this, mDpcFactory, writer, cmdArgs).run();
                     return;
+                default:
+                    break;
             }
         }
     }

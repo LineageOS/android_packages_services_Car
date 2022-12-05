@@ -290,6 +290,8 @@ public class MapMceTestFragment extends Fragment {
             case SEND_NEW_MMS_LONG:
                 messageToSend = NEW_MESSAGE_TO_SEND_LONG;
                 break;
+            default:
+                break;
         }
         String s = mSmsTelNum.getText().toString();
         Toast.makeText(getContext(), "sending msg to " + s, Toast.LENGTH_SHORT).show();
