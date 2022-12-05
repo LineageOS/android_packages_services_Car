@@ -539,6 +539,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         super.onConfigurationChanged(newConfig);
         initializeCards();
         refreshGrabBar();
+        refreshRootTaskViewBackground();
     }
 
     private void refreshGrabBar() {
@@ -547,6 +548,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 R.drawable.grip_bar_divider_background);
         mGripBar.setBackground(gripBarBackground);
         mGripBarDividerView.setBackground(gripBarDividerBackground);
+    }
+
+    private void refreshRootTaskViewBackground() {
+        int backgroundColor = getResources().getColor(R.color.car_background, getTheme());
+        mRootAppArea.setBackgroundColor(backgroundColor);
     }
 
     @Override
