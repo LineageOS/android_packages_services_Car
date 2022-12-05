@@ -15,6 +15,6 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="keypad_background_color">#E8EAED</color>
-    <color name="divider_color">#E8EAED</color>
+    <color name="keypad_background_color">@color/car_surface_variant</color>
+    <color name="divider_color">@color/car_outline</color>
 </resources>
