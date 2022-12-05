@@ -46,6 +46,14 @@ import java.util.Arrays;
 
 /**
  * Provides a virtual display that could be used by other apps.
+ *
+ * <p>Once the activity hosting this fragment is launched, it can be controlled using {@code adb}.
+ * Example:
+ *
+ * <pre><code>
+ adb shell 'am start -n com.google.android.car.kitchensink/.KitchenSinkActivity --es select "virtual display"'
+ adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity fragment "virtual display" cmd create'
+ * </code></pre>
  */
 public final class VirtualDisplayFragment extends Fragment {
 
