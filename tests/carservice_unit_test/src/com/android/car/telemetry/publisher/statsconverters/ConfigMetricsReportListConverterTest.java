@@ -74,14 +74,25 @@ public class ConfigMetricsReportListConverterTest {
                         .setValueStrHash(hash))
                 .build();
 
+        // This report list contains 2 metrics, an event and a gauge metric. There are empty
+        // reports, these should be skipped.
         ConfigMetricsReportList reportList = ConfigMetricsReportList.newBuilder()
-                .addReports(ConfigMetricsReport.newBuilder()
+                .addReports(ConfigMetricsReport.newBuilder()  // Empty event metric report
+                        .addMetrics(StatsLogReport.newBuilder()
+                                .setMetricId(12345L)))
+                .addReports(ConfigMetricsReport.newBuilder()  // Event metric report
                         .addMetrics(StatsLogReport.newBuilder()
                                 .setMetricId(12345L)
                                 .setEventMetrics(
                                         StatsLogReport.EventMetricDataWrapper.newBuilder()
                                                 .addData(eventData))))
-                .addReports(ConfigMetricsReport.newBuilder()
+                .addReports(ConfigMetricsReport.newBuilder()  // Empty event metric report
+                        .addMetrics(StatsLogReport.newBuilder()
+                                .setMetricId(12345L)))
+                .addReports(ConfigMetricsReport.newBuilder()  // Empty gauge metric report
+                        .addMetrics(StatsLogReport.newBuilder()
+                                .setMetricId(23456L)))
+                .addReports(ConfigMetricsReport.newBuilder()  // Gauge metric report
                         .addMetrics(StatsLogReport.newBuilder()
                                 .setMetricId(23456L)
                                 .setGaugeMetrics(
@@ -94,6 +105,9 @@ public class ConfigMetricsReportListConverterTest {
                                                 .addDimensionsValue(DimensionsValue.newBuilder()
                                                         .setField(2)))))
                         .addStrings(testGaugeMetricProcessName))
+                .addReports(ConfigMetricsReport.newBuilder()  // Empty gauge metric report
+                        .addMetrics(StatsLogReport.newBuilder()
+                                .setMetricId(23456L)))
                 .build();
         SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured, ?>> appMemAccessorMap =
                 new AppStartMemoryStateCapturedConverter().getAtomFieldAccessorMap();
