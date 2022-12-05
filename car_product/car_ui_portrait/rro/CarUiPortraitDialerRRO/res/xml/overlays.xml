@@ -75,9 +75,8 @@
     <item target="dimen/contact_avatar_corner_radius_percent" value="@dimen/contact_avatar_corner_radius_percent" />
     <item target="dimen/contact_list_item_height" value="@dimen/contact_list_item_height" />
     <item target="dimen/favorites_avatar_margin_bottom" value="@dimen/favorites_avatar_margin_bottom" />
-    <item target="dimen/list_item_height" value="@dimen/list_item_height" />
-    <item target="dimen/contact_avatar_corner_radius_percent" value="@dimen/contact_avatar_corner_radius_percent" />
     <item target="dimen/large_avatar_icon_size" value="@dimen/large_avatar_icon_size" />
+    <item target="dimen/list_item_height" value="@dimen/list_item_height" />
 
     <item target="layout/dialpad_fragment_with_type_down" value="@layout/dialpad_fragment_with_type_down"/>
     <item target="layout/dialpad_user_profile" value="@layout/dialpad_user_profile"/>
