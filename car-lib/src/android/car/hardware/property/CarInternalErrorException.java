@@ -18,12 +18,14 @@ package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.car.VehiclePropertyIds;
+
 /**
  * Exception thrown when something unexpected happened in cars.
  */
 public class CarInternalErrorException extends RuntimeException {
-    CarInternalErrorException(int property, int areaId) {
-        super("Property 0x" + toHexString(property) + " with area: " + toHexString(areaId)
-                + " raised an internal error in cars.");
+    CarInternalErrorException(int propertyId, int areaId) {
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+                + toHexString(areaId) + " - raised an internal error in cars.");
     }
 }

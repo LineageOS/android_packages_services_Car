@@ -18,6 +18,8 @@ package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.car.VehiclePropertyIds;
+
 /**
  * Exception thrown when the vehicle property is not available because of the current state of the
  * vehicle.
@@ -26,8 +28,9 @@ import static java.lang.Integer.toHexString;
  * {@link android.car.VehiclePropertyIds#HVAC_POWER_ON} is {@code false}.
  */
 public class PropertyNotAvailableException extends IllegalStateException {
-    PropertyNotAvailableException(int property, int areaId) {
-        super("Property 0x" + toHexString(property) + " with area: " + toHexString(areaId)
-                + " is not available because of the current state of the vehicle.");
+    PropertyNotAvailableException(int propertyId, int areaId) {
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+                + toHexString(areaId)
+                + " - is not available because of the current state of the vehicle.");
     }
 }
