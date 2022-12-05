@@ -22,4 +22,6 @@
     <!-- Hide the app grid toolbar -->
     <bool name="car_app_show_toolbar">false</bool>
 
+    <!-- If the control bar's seekbar uses the color from media source -->
+    <bool name="use_media_source_color_for_seek_bar">false</bool>
 </resources>
