@@ -46,6 +46,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
+import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -884,6 +885,76 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         verify(mWifiManager, atLeastOnce()).setWifiEnabled(false);
         verify(mTetheringManager).stopTethering(TETHERING_WIFI);
+    }
+
+    @Test
+    public void testRequestShutDownAp_On() throws Exception {
+        mService.requestShutdownAp(CarRemoteAccessManager.NEXT_POWER_STATE_ON,
+                /* runGarageMode= */ true);
+
+        assertWithMessage("Requested shutdown power state")
+                .that(mPowerHal.getRequestedShutdownPowerState())
+                .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_UNDEFINED);
+    }
+
+    @Test
+    public void testRequestShutDownAp_Off() throws Exception {
+        mService.requestShutdownAp(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
+                /* runGarageMode= */ true);
+
+        assertWithMessage("Requested shutdown power state")
+                .that(mPowerHal.getRequestedShutdownPowerState())
+                .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_POWER_OFF);
+    }
+
+    @Test
+    public void testRequestShutDownAp_SuspendToRam() throws Exception {
+        mPowerHal.setDeepSleepEnabled(true);
+
+        mService.requestShutdownAp(CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM,
+                /* runGarageMode= */ true);
+
+        assertWithMessage("Requested shutdown power state")
+                .that(mPowerHal.getRequestedShutdownPowerState())
+                .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+    }
+
+    @Test
+    public void testRequestShutDownAp_SuspendToRam_notAllowed() throws Exception {
+        mPowerHal.setDeepSleepEnabled(false);
+
+        assertThrows(UnsupportedOperationException.class, () -> mService.requestShutdownAp(
+                CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true));
+    }
+
+    @Test
+    public void testRequestShutDownAp_SuspendToDisk() throws Exception {
+        mPowerHal.setHibernationEnabled(true);
+
+        mService.requestShutdownAp(CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK,
+                /* runGarageMode= */ true);
+
+        assertWithMessage("Requested shutdown power state")
+                .that(mPowerHal.getRequestedShutdownPowerState())
+                .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);
+    }
+
+    @Test
+    public void testRequestShutDownAp_SuspendToDisk_notAllowed() throws Exception {
+        mPowerHal.setHibernationEnabled(false);
+
+        assertThrows(UnsupportedOperationException.class, () -> mService.requestShutdownAp(
+                CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK,
+                /* runGarageMode= */ true));
+    }
+
+    @Test
+    public void testRequestShutDownAp_InvalidPowerState() throws Exception {
+        mService.requestShutdownAp(/* nextPowerState= */ 999999, /* runGarageMode= */ true);
+
+        assertWithMessage("Requested shutdown power state")
+                .that(mPowerHal.getRequestedShutdownPowerState())
+                .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_UNDEFINED);
     }
 
     private void suspendDevice() throws Exception {

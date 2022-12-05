@@ -387,6 +387,38 @@ public class PowerHalService extends HalServiceBase {
         }
     }
 
+    /**
+     * Sends {@code SHUTDOWN_REQUEST} to the VHAL.
+     */
+    public void requestShutdownAp(@PowerState.ShutdownType int powerState, boolean runGarageMode) {
+        int shutdownParam = VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY;
+        switch (powerState) {
+            case PowerState.SHUTDOWN_TYPE_POWER_OFF:
+                shutdownParam = runGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY
+                        : VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY;
+                break;
+            case PowerState.SHUTDOWN_TYPE_DEEP_SLEEP:
+                shutdownParam = runGarageMode ? VehicleApPowerStateShutdownParam.CAN_SLEEP
+                        : VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY;
+                break;
+            case PowerState.SHUTDOWN_TYPE_HIBERNATION:
+                shutdownParam = runGarageMode ? VehicleApPowerStateShutdownParam.CAN_HIBERNATE
+                        : VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY;
+                break;
+            case PowerState.SHUTDOWN_TYPE_UNDEFINED:
+            default:
+                Slogf.w(CarLog.TAG_POWER, "Unknown power state(%d) for requestShutdownAp",
+                        powerState);
+                return;
+        }
+
+        try {
+            mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0).to(shutdownParam);
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
+            Slogf.e(CarLog.TAG_POWER, "cannot send SHUTDOWN_REQUEST to VHAL", e);
+        }
+    }
+
     private void setPowerState(int state, int additionalParam) {
         if (isPowerStateSupported()) {
             int[] values = { state, additionalParam };

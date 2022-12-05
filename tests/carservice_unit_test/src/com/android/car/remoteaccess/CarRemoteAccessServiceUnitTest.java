@@ -18,19 +18,26 @@ package com.android.car.remoteaccess;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 
+import com.android.car.CarLocalServices;
 import com.android.car.R;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
 import com.android.compatibility.common.util.PollingCheck;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,11 +55,13 @@ public final class CarRemoteAccessServiceUnitTest {
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
+    private CarPowerManagementService mOldCarPowerManagementService;
 
     @Mock private Context mContext;
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
     @Mock private RemoteAccessHalWrapper mRemoteAccessHal;
+    @Mock private CarPowerManagementService mCarPowerManagementService;
 
     @Before
     public void setUp() {
@@ -62,9 +71,21 @@ public final class CarRemoteAccessServiceUnitTest {
                 .thenReturn(300);
         when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
         when(mRemoteAccessHal.getDeviceId()).thenReturn(TEST_DEVICE_ID);
+        when(mCarPowerManagementService.getLastShutdownState())
+                .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
         mService = new CarRemoteAccessService(mContext, mRemoteAccessHal);
         mService.init();
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
+        mOldCarPowerManagementService = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mOldCarPowerManagementService);
     }
 
     @Test
@@ -131,12 +152,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoteTaskRequested() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
-        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
-        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
-        PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
-                () -> mRemoteAccessCallback.getClientId() != null);
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
 
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
@@ -150,12 +166,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoteTaskRequested_removedClient() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
-        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
-        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
-        PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
-                () -> mRemoteAccessCallback.getClientId() != null);
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
         String clientId = mRemoteAccessCallback.getClientId();
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
 
@@ -186,6 +197,86 @@ public final class CarRemoteAccessServiceUnitTest {
         PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
                 () -> mRemoteAccessCallback.getTaskId() != null);
         assertWithMessage("Task ID").that(secondCallback.getTaskId()).isNull();
+    }
+
+    @Test
+    public void testReportTaskDone_withPowerStateOff() throws Exception {
+        prepareReportTaskDoneTest();
+        String clientId = mRemoteAccessCallback.getClientId();
+        String taskId = mRemoteAccessCallback.getTaskId();
+        mService.setPowerStatePostTaskExecution(
+                CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ true);
+
+        mService.reportRemoteTaskDone(clientId, taskId);
+
+        verify(mCarPowerManagementService).requestShutdownAp(
+                CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ true);
+    }
+
+    @Test
+    public void testReportRemoteTaskDone_withPowerStateS2R() throws Exception {
+        prepareReportTaskDoneTest();
+        String clientId = mRemoteAccessCallback.getClientId();
+        String taskId = mRemoteAccessCallback.getTaskId();
+        mService.setPowerStatePostTaskExecution(
+                CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
+
+        mService.reportRemoteTaskDone(clientId, taskId);
+
+        verify(mCarPowerManagementService).requestShutdownAp(
+                CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
+    }
+
+    @Test
+    public void testReportRemoteTaskDone_withPowerStateOn() throws Exception {
+        prepareReportTaskDoneTest();
+        String clientId = mRemoteAccessCallback.getClientId();
+        String taskId = mRemoteAccessCallback.getTaskId();
+        mService.setPowerStatePostTaskExecution(
+                CarRemoteAccessManager.NEXT_POWER_STATE_ON, /* runGarageMode= */ false);
+
+        mService.reportRemoteTaskDone(clientId, taskId);
+
+        verify(mCarPowerManagementService, never()).requestShutdownAp(
+                CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
+    }
+
+    @Test
+    public void testReportTaskDone_wrongTaskId() throws Exception {
+        prepareReportTaskDoneTest();
+        String clientId = mRemoteAccessCallback.getClientId();
+        String wrongTaskId = mRemoteAccessCallback.getTaskId() + "_WRONG";
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.reportRemoteTaskDone(clientId, wrongTaskId));
+    }
+
+    @Test
+    public void testReportTaskDone_wrongClientId() throws Exception {
+        prepareReportTaskDoneTest();
+        String wrongClientId = mRemoteAccessCallback.getClientId() + "_WRONG";
+        String taskId = mRemoteAccessCallback.getTaskId();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.reportRemoteTaskDone(wrongClientId, taskId));
+    }
+
+    private RemoteAccessHalCallback prepareCarRemoteTastClient() throws Exception {
+        String packageName = "com.android.remoteaccess.unittest";
+        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+        PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getClientId() != null);
+        return halCallback;
+    }
+
+    private void prepareReportTaskDoneTest() throws Exception {
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
     private static final class ICarRemoteAccessCallbackImpl extends ICarRemoteAccessCallback.Stub {

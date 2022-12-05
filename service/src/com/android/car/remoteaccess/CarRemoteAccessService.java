@@ -179,7 +179,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mWakeupServiceName = mRemoteAccessHal.getWakeupServiceName();
         mDeviceId = mRemoteAccessHal.getDeviceId();
         synchronized (mLock) {
-            mNextPowerState = getLastShutdownState();
+            mNextPowerState = mBootUpForRemoteAccess ? getLastShutdownState()
+                    : CarRemoteAccessManager.NEXT_POWER_STATE_ON;
         }
     }
 
@@ -278,17 +279,47 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 return;
             }
             callback.asBinder().unlinkToDeath(token, /* flags= */ 0);
-            mPackageByClientId.remove(token.getClientId());
-            mClientTokenByPackage.remove(packageName);
+            token.setCallback(null);
         }
         // TODO(b/261337288): Shutdown if there are pending remote tasks and no client is
         // registered.
     }
 
+    /**
+     * Reports that the task of {@code taskId} is completed.
+     *
+     * @param clientId ID of a client that has completed the task.
+     * @param taskId ID of a task that has been completed.
+     * @throws IllegalArgumentException When {@code clientId} is not valid, or {@code taskId} is not
+     *         valid.
+     */
     @Override
     public void reportRemoteTaskDone(String clientId, String taskId) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_REMOTE_ACCESS);
-        // TODO(b/134519794): Implement the logic.
+        Preconditions.checkArgument(clientId != null, "clientId cannot be null");
+        Preconditions.checkArgument(taskId != null, "taskId cannot be null");
+        int callingUid = Binder.getCallingUid();
+        String packageName = mPackageManager.getNameForUid(callingUid);
+        synchronized (mLock) {
+            ClientToken token = mClientTokenByPackage.get(packageName);
+            if (token == null || token.getCallback() == null) {
+                throw new IllegalArgumentException("Callback has not been registered");
+            }
+            // TODO(b/252698817): Update the validity checking logic.
+            if (!clientId.equals(token.getClientId())) {
+                throw new IllegalArgumentException("Client ID(" + clientId + ") doesn't match the "
+                        + "registered one(" + token.getClientId() + ")");
+            }
+            ArraySet<String> tasks = mActiveTasksByPackage.get(packageName);
+            if (tasks == null || !tasks.contains(taskId)) {
+                throw new IllegalArgumentException("Task ID(" + taskId + ") is not valid");
+            }
+            tasks.remove(taskId);
+            if (tasks.isEmpty()) {
+                mActiveTasksByPackage.remove(packageName);
+            }
+        }
+        shutdownIfNeeded(/* force= */ false);
     }
 
     @Override
@@ -325,6 +356,49 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                         clientId);
             }
         });
+    }
+
+    private void shutdownIfNeeded(boolean force) {
+        int nextPowerState;
+        boolean runGarageMode;
+        synchronized (mLock) {
+            if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON) {
+                if (DEBUG) {
+                    Slogf.d(TAG, "Will not shutdown. The next power state is ON.");
+                }
+                return;
+            }
+            int taskCount = getActiveTaskCountLocked();
+            if (!force && taskCount > 0) {
+                if (DEBUG) {
+                    Slogf.d(TAG, "Will not shutdown. The activen task count is %d.", taskCount);
+                }
+                return;
+            }
+            nextPowerState = mNextPowerState;
+            runGarageMode = mRunGarageMode;
+        }
+        // Send SHUTDOWN_REQUEST to VHAL.
+        if (DEBUG) {
+            Slogf.d(TAG, "Requesting shutdown of AP: nextPowerState = %d, runGarageMode = %b",
+                    nextPowerState, runGarageMode);
+        }
+        CarPowerManagementService cpms = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        try {
+            cpms.requestShutdownAp(nextPowerState, runGarageMode);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Cannot shutdown to %s", nextPowerStateToString(nextPowerState));
+        }
+    }
+
+    @GuardedBy("mLock")
+    private int getActiveTaskCountLocked() {
+        int count = 0;
+        for (int i = 0; i < mActiveTasksByPackage.size(); i++) {
+            count += mActiveTasksByPackage.valueAt(i).size();
+        }
+        return count;
     }
 
     private int getLastShutdownState() {
@@ -375,6 +449,21 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         return propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
                 && (int) propValue.getValue() == VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS;
+    }
+
+    private static String nextPowerStateToString(int nextPowerState) {
+        switch (nextPowerState) {
+            case CarRemoteAccessManager.NEXT_POWER_STATE_ON:
+                return "ON";
+            case CarRemoteAccessManager.NEXT_POWER_STATE_OFF:
+                return "OFF";
+            case CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM:
+                return "Suspend-to-RAM";
+            case CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK:
+                return "Suspend-to-disk";
+            default:
+                return "Unknown(" + nextPowerState + ")";
+        }
     }
 
     private static final class ClientToken implements IBinder.DeathRecipient {

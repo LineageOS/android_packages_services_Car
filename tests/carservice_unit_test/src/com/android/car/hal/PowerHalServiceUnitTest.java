@@ -36,13 +36,24 @@ import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_POWER
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.hardware.automotive.vehicle.StatusCode;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.ServiceSpecificException;
+import android.util.ArrayMap;
+import android.util.Log;
+import android.util.Pair;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
+import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 
 import org.junit.Before;
@@ -55,6 +66,8 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class PowerHalServiceUnitTest {
+
+    private static final String TAG = PowerHalServiceUnitTest.class.getSimpleName();
 
     private static final SparseBooleanArray CAN_POSTPONE_SHUTDOWN = new SparseBooleanArray(6);
     static {
@@ -256,6 +269,47 @@ public final class PowerHalServiceUnitTest {
     public void testIsTimedWakeupAllowed_notSupported() {
         assertWithMessage("Timed wakeup enabled").that(mPowerHalService.isTimedWakeupAllowed())
                 .isFalse();
+    }
+
+    @Test
+    public void testRequestShutdownAp() {
+        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        when(mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0))
+                .thenReturn(propValueSetter);
+        ArrayMap<Pair<Integer, Boolean>, Integer> testCases = new ArrayMap<>();
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_POWER_OFF, true),
+                VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY);
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_POWER_OFF, false),
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_DEEP_SLEEP, true),
+                VehicleApPowerStateShutdownParam.CAN_SLEEP);
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_DEEP_SLEEP, false),
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_HIBERNATION, true),
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE);
+        testCases.put(new Pair<>(PowerState.SHUTDOWN_TYPE_HIBERNATION, false),
+                VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY);
+
+        for (int i = 0; i < testCases.size(); i++) {
+            Pair<Integer, Boolean> request = testCases.keyAt(i);
+            int powerState = request.first;
+            boolean runGarageMode = request.second;
+            Log.i(TAG, "Testing requestShutdownAp(" + powerState + ", " + runGarageMode + ")");
+            mPowerHalService.requestShutdownAp(powerState, runGarageMode);
+            verify(propValueSetter).to(testCases.valueAt(i).intValue());
+            clearInvocations(propValueSetter);
+        }
+    }
+
+    @Test
+    public void testRequestShutdownAp_invalidInput() {
+        VehicleHal.HalPropValueSetter propValueSetter = mock(VehicleHal.HalPropValueSetter.class);
+        when(mHal.set(VehicleProperty.SHUTDOWN_REQUEST, /* areaId= */ 0))
+                .thenReturn(propValueSetter);
+
+        mPowerHalService.requestShutdownAp(/* powerState= */ 99999, /* runGarageMode= */ true);
+
+        verify(propValueSetter, never()).to(anyInt());
     }
 
     private PowerHalService.PowerState createShutdownPrepare(int flag) {
