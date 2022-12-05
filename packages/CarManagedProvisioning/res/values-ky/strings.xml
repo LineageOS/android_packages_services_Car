@@ -39,7 +39,7 @@
     <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"Башкарылган унаа жөндөлүүдө"</string>
     <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"Жөндөөнү жокко чыгарып, унааны кайтаруу"</string>
     <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"Унааны баштапкы абалга келтирип, уюмдун башкаруучусуна кайтарыңыз же жөндөй берүү үчүн мурунку экранга кайтыңыз."</string>
-    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Жөндөөнү токтотуу"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"Токтотуу"</string>
     <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"Баштапкы абалга келтирип, кайтаруу"</string>
     <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"Купуялык эскертүүсү"</string>
     <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"Уюмдун башкаруучусу бул унаадагы дайын-даректериңизди жана аракеттериңизди көрө алат."</string>
