@@ -204,6 +204,8 @@ public class InputHalService extends HalServiceBase {
                         mCustomInputSupported = true;
                     }
                     break;
+                default:
+                    break;
             }
         }
     }
