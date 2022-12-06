@@ -46,6 +46,14 @@ import java.util.Arrays;
 
 /**
  * Provides a virtual display that could be used by other apps.
+ *
+ * <p>Once the activity hosting this fragment is launched, it can be controlled using {@code adb}.
+ * Example:
+ *
+ * <pre><code>
+ adb shell 'am start -n com.google.android.car.kitchensink/.KitchenSinkActivity --es select "virtual display"'
+ adb shell 'dumpsys activity com.google.android.car.kitchensink/.KitchenSinkActivity fragment "virtual display" cmd create'
+ * </code></pre>
  */
 public final class VirtualDisplayFragment extends Fragment {
 
@@ -222,9 +230,10 @@ public final class VirtualDisplayFragment extends Fragment {
             case 2:
                 mDisplayWidth /= 2;
                 // Fall through
+            default:
+                // No op.
         }
         Log.v(TAG, "Display dimension: " + mDisplayWidth + "x" + mDisplayHeight);
-
 
         for (int i = 0; i < MAX_NUMBER_DISPLAYS; i++) {
             SelfManagedVirtualDisplayView display = mDisplays[i];
@@ -263,6 +272,8 @@ public final class VirtualDisplayFragment extends Fragment {
                     params.addRule(RelativeLayout.BELOW, /* subject= */ 2);
                     params.addRule(RelativeLayout.RIGHT_OF, /* subject= */ 3);
                     break;
+                default:
+                    // No op.
             }
             display.setLayoutParams(params);
             toggleView(display, /* on= */ true);
@@ -272,7 +283,6 @@ public final class VirtualDisplayFragment extends Fragment {
                 mDisplaysContainer.addView(display);
             }
         }
-
     }
 
     private void runCmd(PrintWriter writer, String[] args) {

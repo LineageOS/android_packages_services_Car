@@ -30,6 +30,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +41,14 @@ import java.util.List;
  *
  * <p>Usage: {$code adb shell dumpsys activity
  * com.google.android.car.kitchensink/.KitchenSinkActivity cmd <CMD>}
+ *
+ * <p><p>Note</p>: this class is meant only for "global" commands (i.e., actions that could be
+ * applied regardless of the current {@code KitchenSink} fragment), or for commands that don't have
+ * an equivalent UI (for example, the key attestation ones). If you want to provide commands to
+ * control the behavior of a fragment, you should implement {@code dump} on that fragment directly
+ * (see
+ * {@link com.google.android.car.kitchensink.VirtualDisplayFragment#dump(String,FileDescriptor,PrintWriter,String[])}
+ * as an example);
  *
  * <p><p>Note</p>: you must launch {@code KitchenSink} first. Example: {@code
  * adb shell am start com.google.android.car.kitchensink/.KitchenSinkActivity}

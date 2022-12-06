@@ -184,7 +184,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private Messenger mService = null;
     /** Flag indicating whether or not {@link CarUiPortraitService} is bounded. */
     private boolean mIsBound;
-    private boolean mLastFrontActivityIsFullScreenActivity;
+    private boolean mWasRootAppAreaFullScreenForLastActivity;
 
     /**
      * All messages from {@link CarUiPortraitService} are received in this handler.
@@ -225,8 +225,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
             CarUiPortraitHomeScreen.this.updateRootTaskViewVisibility(taskInfo);
-            mLastFrontActivityIsFullScreenActivity = mFullScreenActivities.contains(
-                    taskInfo.baseActivity);
         }
 
         /**
@@ -539,6 +537,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         super.onConfigurationChanged(newConfig);
         initializeCards();
         refreshGrabBar();
+        refreshRootTaskViewBackground();
     }
 
     private void refreshGrabBar() {
@@ -547,6 +546,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 R.drawable.grip_bar_divider_background);
         mGripBar.setBackground(gripBarBackground);
         mGripBarDividerView.setBackground(gripBarDividerBackground);
+    }
+
+    private void refreshRootTaskViewBackground() {
+        int backgroundColor = getResources().getColor(R.color.car_background, getTheme());
+        mRootAppArea.setBackgroundColor(backgroundColor);
     }
 
     @Override
@@ -565,10 +569,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         if (!shouldTaskShowOnRootTaskView(taskInfo)) {
             logIfDebuggable("Not showing task in rootTaskView");
-            if (isRootTaskViewEmpty()) {
-                logIfDebuggable("Close the rootTaskView since it's empty");
-                updateUIState(STATE_CLOSE, true);
-            }
             return;
         }
         logIfDebuggable("Showing task in task view");
@@ -578,16 +578,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             updateUIState(STATE_OPEN, /* animate = */ true);
         }
         // just let the task launch and don't change the state of the foreground DA.
-    }
-
-    private boolean isRootTaskViewEmpty() {
-        TaskInfo taskInfo = mRootTaskView.getTaskInfo();
-        logIfDebuggable("TaskInfo in rootTaskView = " + taskInfo);
-
-        return taskInfo == null
-                || taskInfo.baseActivity == null
-                || !taskInfo.isRunning
-                || !taskInfo.isVisible;
     }
 
     private boolean shouldTaskShowOnRootTaskView(TaskInfo taskInfo) {
@@ -607,8 +597,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         if (mDrawerActivities.contains(taskInfo.baseActivity)
-                && mLastFrontActivityIsFullScreenActivity) {
-            logIfDebuggable("Don't open drawer activity after full screen task hide");
+                && mWasRootAppAreaFullScreenForLastActivity) {
+            logIfDebuggable("Don't open drawer activity after full screen task");
             return false;
         }
 
@@ -720,6 +710,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             onAnimationEnd.run();
         }
 
+        mWasRootAppAreaFullScreenForLastActivity = isFullScreen(mRootAppAreaState)
+                && !isFullScreen(newRootAppAreaState);
         mRootAppAreaState = newRootAppAreaState;
     }
 

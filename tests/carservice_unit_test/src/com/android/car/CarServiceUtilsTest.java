@@ -25,10 +25,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHIN
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -42,7 +39,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.Process;
-import android.os.UserHandle;
 import android.text.TextUtils;
 
 import com.android.car.util.TransitionLog;
@@ -120,29 +116,7 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testStartSystemUiForUser_systemUser_doesNotStartSystemUi() {
-        int userId = UserHandle.SYSTEM.getIdentifier();
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, userId);
-
-        CarServiceUtils.startSystemUiForUser(mMockContext, userId);
-
-        verify(mMockContext, never()).createContextAsUser(any(), anyInt());
-        verify(mMockUserContext, never()).startService(any());
-    }
-
-    @Test
-    public void testStartSystemUiForUser_primaryUser_doesNotStartSystemUi() {
-        int userId = CURRENT_USER_ID;
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, userId);
-
-        CarServiceUtils.startSystemUiForUser(mMockContext, userId);
-
-        verify(mMockContext, never()).createContextAsUser(any(), anyInt());
-        verify(mMockUserContext, never()).startService(any());
-    }
-
-    @Test
-    public void testStartSystemUiForUser_secondaryUser_startsSystemUi() {
+    public void testStartSystemUiForUser() {
         int userId = NON_CURRENT_USER_ID;
         mockContextCreateContextAsUser(mMockContext, mMockUserContext, userId);
         Resources resources = mock(Resources.class);
@@ -157,6 +131,23 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
         verify(mMockUserContext).startService(intentCaptor.capture());
         assertThat(intentCaptor.getValue().getComponent()).isEqualTo(
                 ComponentName.unflattenFromString(systemUiComponent));
+    }
+
+    @Test
+    public void testStopSystemUiForUser() {
+        int userId = NON_CURRENT_USER_ID;
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, userId);
+        Resources resources = mock(Resources.class);
+        String systemUiComponent = "test.systemui/test.systemui.TestSystemUIService";
+        when(resources.getString(com.android.internal.R.string.config_systemUIServiceComponent))
+                .thenReturn(systemUiComponent);
+        when(mMockContext.getResources()).thenReturn(resources);
+        ActivityManager mockActivityManager = mock(ActivityManager.class);
+        when(mMockContext.getSystemService(ActivityManager.class)).thenReturn(mockActivityManager);
+
+        CarServiceUtils.stopSystemUiForUser(mMockContext, userId);
+
+        verify(mockActivityManager).forceStopPackageAsUser("test.systemui", userId);
     }
 
     @Test
