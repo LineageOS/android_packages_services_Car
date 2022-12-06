@@ -48,5 +48,11 @@
 
     <!-- Whether to collapse notification shade panel after manage button click -->
     <bool name="config_collapseShadePanelAfterManageButtonPress">false</bool>
+
+    <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->
+    <bool name="config_useCustomColorForWarningNotification">true</bool>
+
+    <!-- When true, ignore the notification color for information notification background and use @color/information_background_color instead. -->
+    <bool name="config_useCustomColorForInformationNotification">true</bool>
 </resources>
 
