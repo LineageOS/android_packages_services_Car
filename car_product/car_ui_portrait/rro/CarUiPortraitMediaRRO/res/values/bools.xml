@@ -19,4 +19,5 @@
     <!-- Now playing and mini playback controls will be shown in sysui instead of media center. -->
     <bool name="show_mini_playback_controls">false</bool>
     <bool name="switch_to_playback_view_when_playable_item_is_clicked">false</bool>
+    <bool name="show_persistent_tabs">true</bool>
 </resources>

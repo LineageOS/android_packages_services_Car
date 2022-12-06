@@ -34,6 +34,7 @@
 
     <item target="bool/show_mini_playback_controls" value="@bool/show_mini_playback_controls" />
     <item target="bool/switch_to_playback_view_when_playable_item_is_clicked" value="@bool/switch_to_playback_view_when_playable_item_is_clicked" />
+    <item target="bool/show_persistent_tabs" value="@bool/show_persistent_tabs" />
 
     <item target="id/error_message" value="@id/error_message" />
     <item target="id/error_button" value="@id/error_button" />
