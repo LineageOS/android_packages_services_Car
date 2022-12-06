@@ -80,6 +80,8 @@ public class OffcarTestingFragment extends Fragment implements AdapterView.OnIte
             case R.id.jobDuration:
                 applyJobDuration(value);
                 break;
+            default:
+                break;
         }
     }
 

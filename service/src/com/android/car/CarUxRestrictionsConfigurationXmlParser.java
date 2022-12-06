@@ -393,6 +393,8 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                     restrictionsValue = restrictionsValue
                             | CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
                     break;
+                default:
+                    break;
             }
         }
         return restrictionsValue;

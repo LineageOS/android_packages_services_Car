@@ -97,6 +97,8 @@ public class Controller extends ICarPowerStateListener.Stub {
                 initiateGarageMode(() -> mCarPowerService.completeHandlingPowerStateChange(state,
                         Controller.this));
                 break;
+            default:
+                break;
         }
     }
 

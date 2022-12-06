@@ -1725,6 +1725,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 case MSG_RELEASE:
                     service.doHandleRelease();
                     break;
+                default:
+                    break;
             }
         }
     }

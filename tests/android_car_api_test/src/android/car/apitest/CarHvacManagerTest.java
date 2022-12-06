@@ -115,6 +115,8 @@ public final class CarHvacManagerTest extends CarApiTestBase {
             case CarHvacManager.ID_WINDOW_DEFROSTER_ON:
                 checkTypeAndGlobal(Boolean.class, false, property);
                 break;
+            default:
+                break;
         }
     }
 

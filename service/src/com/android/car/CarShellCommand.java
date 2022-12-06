@@ -2198,6 +2198,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case UiModeManager.MODE_NIGHT_NO:
                 currentMode = PARAM_DAY_MODE;
                 break;
+            default:
+                break;
         }
         writer.println("DayNightMode changed to: " + currentMode);
     }

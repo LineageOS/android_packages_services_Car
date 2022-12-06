@@ -153,6 +153,8 @@ public class FastPairProvider {
                         stopGatt();
                     }
                     break;
+                default:
+                    break;
             }
         }
     };
