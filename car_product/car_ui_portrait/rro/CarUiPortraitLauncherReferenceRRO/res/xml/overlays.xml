@@ -19,6 +19,7 @@
     <item target="color/dialer_button_icon_color" value="@color/dialer_button_icon_color" />
     <item target="color/icon_tint" value="@color/icon_tint" />
     <item target="color/media_button_tint" value="@color/media_button_tint" />
+    <item target="color/media_button_tint_disabled" value="@color/media_button_tint_disabled" />
     <item target="color/recent_apps_line_divider_color"
         value="@color/recent_apps_line_divider_color" />
     <item target="color/seek_bar_color" value="@color/seek_bar_color" />
