@@ -43,8 +43,10 @@ import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.mockito.quality.Strictness;
 import org.mockito.session.MockitoSessionBuilder;
@@ -100,6 +102,15 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         } else {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
         }
+    }
+
+    @AfterClass
+    public static void finishOnce() {
+        // TODO(b/261644033): Move the below line to {@link tearDown} method once the test flakiness
+        //  is fixed. The inline mocks must be cleared between tests in the @After annotated method.
+        // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
+        // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+        Mockito.framework().clearInlineMocks();
     }
 
     /**

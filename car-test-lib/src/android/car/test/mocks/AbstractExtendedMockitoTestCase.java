@@ -52,6 +52,7 @@ import org.junit.Rule;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
@@ -253,6 +254,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                 // Shouldn't need to set mSession to null as JUnit always instantiate a new object,
                 // but it doesn't hurt....
                 mSession = null;
+                // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
+                // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+                Mockito.framework().clearInlineMocks();
             }
         }
         endTrace();

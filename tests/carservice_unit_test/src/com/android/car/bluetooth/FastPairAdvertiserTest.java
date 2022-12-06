@@ -30,7 +30,6 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
@@ -52,12 +51,14 @@ import android.os.ParcelUuid;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -169,6 +170,15 @@ public class FastPairAdvertiserTest {
     @After
     public void tearDown() {
         mMockitoSession.finishMocking();
+    }
+
+    @AfterClass
+    public static void finishOnce() {
+        // TODO(b/261727445): Move the below line to {@link tearDown} method once the test flakiness
+        //  is fixed. The inline mocks must be cleared between tests in the @After annotated method.
+        // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
+        // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+        Mockito.framework().clearInlineMocks();
     }
 
     private void waitForAdvertisingHandlerToSettle() {
