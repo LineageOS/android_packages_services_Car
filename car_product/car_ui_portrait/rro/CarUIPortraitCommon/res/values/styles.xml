@@ -94,6 +94,7 @@
 
 
     <style name="TextAppearance.Car.Sub">
+        <item name="android:textFontWeight">400</item>
     </style>
     <style name="TextAppearance.Car.Sub.Large">
         <item name="android:textSize">24sp</item>
