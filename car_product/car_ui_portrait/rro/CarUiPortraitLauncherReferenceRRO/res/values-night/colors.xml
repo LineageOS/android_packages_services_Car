@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,7 +16,5 @@
   -->
 
 <resources>
-    <string name="ongoing_call_duration_text_separator">&#160;&#8226;&#160;</string>
-    <string name="default_media_song_title">Select media</string>
-    <string name="times_separator">\u00A0/\u00A0</string>
+    <color name="seek_bar_color">@color/car_on_primary_container</color>
 </resources>
