@@ -52,6 +52,12 @@
     <!-- Whether to show expansion header in group notifications.  -->
     <bool name="config_showExpansionHeader">false</bool>
 
+    <!-- Whether to use custom colors for message notification count text button. -->
+    <bool name="config_useCustomColorForMessageNotificationCountTextButton">true</bool>
+
+    <!-- Alpha for disabled count text button in message notifications. -->
+    <item name="config_disabledCountTextButtonAlpha" format="float" type="dimen">0.35</item>
+
     <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->
     <bool name="config_useCustomColorForWarningNotification">true</bool>
 

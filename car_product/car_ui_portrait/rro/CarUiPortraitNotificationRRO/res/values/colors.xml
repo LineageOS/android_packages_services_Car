@@ -42,4 +42,5 @@
     <color name="warning_primary_text_color">@color/car_yellow_on_color_container</color>
     <color name="warning_secondary_text_color">@color/car_yellow_color</color>
     <color name="unmute_button">@color/car_primary</color>
+    <color name="count_text">@color/car_primary</color>
 </resources>
