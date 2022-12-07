@@ -135,11 +135,13 @@ public final class TimeHalService extends HalServiceBase {
     public void dump(PrintWriter printWriter) {
         IndentingPrintWriter writer = new IndentingPrintWriter(printWriter);
         writer.println("*ExternalTime HAL*");
-        writer.increaseIndent();
-        writer.printf(
-                "mLastAndroidTimeReported: %d millis",
-                mLastAndroidTimeReported.toEpochMilli());
-        writer.decreaseIndent();
+        if (mAndroidTimeSupported) {
+            writer.increaseIndent();
+            writer.printf(
+                    "mLastAndroidTimeReported: %d millis",
+                    mLastAndroidTimeReported.toEpochMilli());
+            writer.decreaseIndent();
+        }
         writer.flush();
     }
 }
