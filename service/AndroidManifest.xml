@@ -335,6 +335,14 @@
          android:label="@string/car_permission_label_car_powertrain"
          android:description="@string/car_permission_desc_car_powertrain"/>
 
+    <!-- Allows an application to control the vehicle's powertrain information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_POWERTRAIN"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_control_car_powertrain"
+         android:description="@string/car_permission_desc_control_car_powertrain"/>
+
     <!-- Allows an application to access {@link android.car.navigation.CarNavigationStatusManager}
          to report navigation data. This information may be displayed by the vehicle in the
          instrument cluster, head-up display or other locations.

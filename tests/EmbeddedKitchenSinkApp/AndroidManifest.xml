@@ -42,6 +42,7 @@
     <uses-permission android:name="android.car.permission.CAR_POWER"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>
     <uses-permission android:name="android.car.permission.CAR_SPEED"/>
      <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.CAR_TEST_SERVICE"/>
