@@ -577,6 +577,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         }
 
         void assertRecentUnboundOrStoppedServices(String... services) throws InterruptedException {
+            await(mUnboundOrStoppedLatches, "unbind() or stop()", services);
             synchronized (mLock) {
                 assertHasServices(mUnboundOrStoppedServices, "unbound or stopped", services);
             }
