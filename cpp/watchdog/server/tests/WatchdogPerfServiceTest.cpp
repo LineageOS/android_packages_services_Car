@@ -104,6 +104,11 @@ public:
         return mService->mCurrCollectionEvent;
     }
 
+    void setCurrCollectionEvent(EventType eventType) {
+        Mutex::Autolock lock(mService->mMutex);
+        mService->mCurrCollectionEvent = eventType;
+    }
+
     std::future<void> joinCollectionThread() {
         return std::async([&]() {
             if (mService->mCollectionThread.joinable()) {
@@ -625,6 +630,50 @@ TEST_F(WatchdogPerfServiceTest, TestCustomCollection) {
     EXPECT_CALL(*mMockDataProcessor, terminate()).Times(1);
 }
 
+TEST_F(WatchdogPerfServiceTest, TestCustomCollectionAlwaysStarts) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    for (int eventInt = EventType::BOOT_TIME_COLLECTION; eventInt < EventType::PERIODIC_MONITOR;
+         ++eventInt) {
+        EventType eventType = static_cast<EventType>(eventInt);
+        if (eventType == EventType::CUSTOM_COLLECTION) {
+            continue;
+        }
+        mServicePeer->setCurrCollectionEvent(static_cast<EventType>(eventInt));
+
+        EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+        EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+        EXPECT_CALL(*mMockDataProcessor,
+                    onCustomCollection(_, SystemState::NORMAL_MODE,
+                                       UnorderedElementsAreArray(
+                                               {"android.car.cts", "system_server"}),
+                                       Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                .Times(1);
+
+        std::string customCollectionIntervalStr =
+                std::to_string(kTestCustomCollectionInterval.count());
+        std::string customCollectionDurationStr =
+                std::to_string(kTestCustomCollectionDuration.count());
+        // Start custom collection with filter packages option.
+        const char* args[] = {kStartCustomCollectionFlag,          kIntervalFlag,
+                              customCollectionIntervalStr.c_str(), kMaxDurationFlag,
+                              customCollectionDurationStr.c_str(), kFilterPackagesFlag,
+                              "android.car.cts,system_server"};
+
+        ASSERT_RESULT_OK(mService->onCustomCollection(-1, args, /*numArgs=*/7));
+
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+        ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+                << "Custom collection didn't happen immediately";
+        ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
+                << "Invalid collection event";
+        ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+    }
+}
+
 TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollection) {
     ASSERT_NO_FATAL_FAILURE(startService());
 
@@ -1071,6 +1120,55 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionUserUnlockingWithNoPrevT
     ASSERT_EQ(mLooperStub->numSecondsElapsed(), 1)
             << "First periodic collection didn't happen at 1 second interval";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestIgnoreUserSwitchCollectionDuringCustomCollection) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    userid_t fromUserId = 0;
+    userid_t toUserId = 100;
+
+    // Start custom collection
+    std::string customCollectionIntervalStr = std::to_string(kTestCustomCollectionInterval.count());
+    std::string customCollectionDurationStr = std::to_string(kTestCustomCollectionDuration.count());
+
+    const char* firstArgs[] = {kStartCustomCollectionFlag, kIntervalFlag,
+                               customCollectionIntervalStr.c_str(), kMaxDurationFlag,
+                               customCollectionDurationStr.c_str()};
+
+    ASSERT_RESULT_OK(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/5));
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(2);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(2);
+    EXPECT_CALL(*mMockDataProcessor,
+                onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
+                                   Eq(mMockProcStatCollector)))
+            .Times(2);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(0);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
+            << "Invalid collection event";
+
+    // Custom collection while user switch signal is received
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_SWITCHING));
+
+    // Continued custom collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestCustomCollectionInterval.count())
+            << "Subsequent custom collection didn't happen at "
+            << kTestCustomCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 }

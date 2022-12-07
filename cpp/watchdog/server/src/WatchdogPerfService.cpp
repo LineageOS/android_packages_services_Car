@@ -319,6 +319,10 @@ Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserS
         mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
         // Ignoring the user switch events because the boot-time and custom collections take
         // precedence over other collections.
+        if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+            ALOGW("Unable to start %s. Current performance data collection event: %s",
+                  toString(EventType::USER_SWITCH_COLLECTION), toString(mCurrCollectionEvent));
+        }
         return {};
     }
     switch (static_cast<int>(userState)) {
@@ -593,12 +597,6 @@ Result<void> WatchdogPerfService::startCustomCollection(
     if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
         return Error(INVALID_OPERATION) << "Cannot start custom collection more than once";
     }
-    if (EventType expected = EventType::PERIODIC_COLLECTION; mCurrCollectionEvent != expected) {
-        return Error(INVALID_OPERATION)
-                << "Cannot start a custom collection when the current collection event "
-                << mCurrCollectionEvent << " is not " << expected << " collection event";
-    }
-
     nsecs_t now = mHandlerLooper->now();
     mCustomCollection = {
             .eventType = EventType::CUSTOM_COLLECTION,
