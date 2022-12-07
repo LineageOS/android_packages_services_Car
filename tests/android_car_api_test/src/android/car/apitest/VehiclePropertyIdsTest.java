@@ -45,6 +45,8 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
                     "EXTERNAL_CAR_TIME",
                     "DISABLED_OPTIONAL_FEATURES",
                     "EVS_SERVICE_REQUEST",
+                    "HW_KEY_INPUT_V2",
+                    "HW_MOTION_INPUT",
                     "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION",
