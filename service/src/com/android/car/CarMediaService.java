@@ -254,6 +254,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                 onUserUnlocked(event.getUserId());
                 break;
+            default:
+                break;
         }
     };
 

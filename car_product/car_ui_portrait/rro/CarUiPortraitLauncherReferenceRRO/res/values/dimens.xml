@@ -60,9 +60,9 @@
     <dimen name="seekbar_thumb_size">16dp</dimen>
     <dimen name="seekbar_thumb_offset">0dp</dimen>
     <dimen name="seekbar_padding">0dp</dimen>
-    <dimen name="seekbar_layout_width">0dp</dimen>
     <dimen name="seekbar_marginHorizontal">@dimen/control_bar_image_container_margin</dimen>
     <dimen name="seekbar_marginVertical">8dp</dimen>
-    <dimen name="times_martin_start">10dp</dimen>
+    <dimen name="seekbar_times_margin_start">10dp</dimen>
+    <dimen name="seekbar_times_width">180dp</dimen>
 
 </resources>

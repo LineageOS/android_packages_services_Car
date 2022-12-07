@@ -252,6 +252,8 @@ public final class UserHalHelper {
             case UserIdentificationAssociationType.CUSTOM_3:
             case UserIdentificationAssociationType.CUSTOM_4:
                 return true;
+            default:
+                break;
         }
         return false;
     }
@@ -266,6 +268,8 @@ public final class UserHalHelper {
             case UserIdentificationAssociationValue.NOT_ASSOCIATED_ANY_USER:
             case UserIdentificationAssociationValue.UNKNOWN:
                 return true;
+            default:
+                break;
         }
         return false;
     }
@@ -279,6 +283,8 @@ public final class UserHalHelper {
             case UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER:
             case UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS:
                 return true;
+            default:
+                break;
         }
         return false;
     }

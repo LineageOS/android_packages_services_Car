@@ -102,6 +102,8 @@ public enum Status {
                 return "Expired";
             case 11:
                 return "Audio message pending";
+            default:
+                break;
         }
         return "unknown";
     }

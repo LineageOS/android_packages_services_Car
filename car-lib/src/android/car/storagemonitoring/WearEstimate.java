@@ -109,6 +109,8 @@ public final class WearEstimate implements Parcelable {
                 case "wearEstimateTypeB":
                     typeB = validateWearValue(in.nextInt());
                     break;
+                default:
+                    break;
             }
         }
         in.endObject();

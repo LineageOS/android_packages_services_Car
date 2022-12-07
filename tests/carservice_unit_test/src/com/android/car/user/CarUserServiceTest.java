@@ -683,20 +683,19 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStopBackgroundUserForSystemUser() throws Exception {
-        mockStopUserWithDelayedLocking(
-                UserHandle.USER_SYSTEM, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
-
-        assertThat(mCarUserService.stopBackgroundUserInGagageMode(UserHandle.USER_SYSTEM))
-                .isFalse();
-    }
-
-    @Test
-    public void testStopBackgroundUserForFgUser() throws Exception {
+    public void testStopBackgroundUserInGagageMode() throws Exception {
         int userId = 101;
-        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_IS_CURRENT);
 
-        assertThat(mCarUserService.stopBackgroundUserInGagageMode(userId)).isFalse();
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_SUCCESS);
+        expectThat(mCarUserService.stopBackgroundUserInGagageMode(userId)).isTrue();
+
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_IS_CURRENT);
+        expectThat(mCarUserService.stopBackgroundUserInGagageMode(userId)).isFalse();
+
+        mockStopUserWithDelayedLocking(UserHandle.USER_SYSTEM,
+                ActivityManager.USER_OP_ERROR_IS_SYSTEM);
+        expectThat(mCarUserService.stopBackgroundUserInGagageMode(UserHandle.USER_SYSTEM))
+                .isFalse();
     }
 
     @Test

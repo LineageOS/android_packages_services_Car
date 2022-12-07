@@ -67,7 +67,7 @@ public final class SimpleUserPickerFragment extends Fragment {
     private static final int WARN_MESSAGE = 1;
     private static final int INFO_MESSAGE = 2;
 
-    private static final long TIMEOUT_MS = 5_000;
+    private static final long TIMEOUT_MS = 10_000;
 
     private SpinnerWrapper mUsersSpinner;
     private SpinnerWrapper mDisplaysSpinner;
@@ -119,11 +119,18 @@ public final class SimpleUserPickerFragment extends Fragment {
         mCarUserManager = car.getCarManager(CarUserManager.class);
 
         mDisplayAttached = getContext().getDisplay();
+        if (mDisplayAttached == null) {
+            Log.e(TAG, "Cannot find display");
+            ((Activity) getHost()).finish();
+        }
+
+        int displayId = mDisplayAttached.getDisplayId();
         int driverDisplayId = mZoneManager.getDisplayIdForDriver(
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
         Log.i(TAG, "driver display id: " + driverDisplayId);
-        boolean isPassengerView = mDisplayAttached != null
-                && mDisplayAttached.getDisplayId() != driverDisplayId;
+        boolean isPassengerView = displayId != driverDisplayId;
+        boolean hasUserOnDisplay = mZoneManager.getUserForDisplayId(displayId)
+                != CarOccupantZoneManager.INVALID_USER_ID;
 
         mDisplayIdText = view.findViewById(R.id.textView_display_id);
         mUserOnDisplayText = view.findViewById(R.id.textView_user_on_display);
@@ -135,6 +142,11 @@ public final class SimpleUserPickerFragment extends Fragment {
 
         mUsersSpinner = SpinnerWrapper.create(getContext(),
                 view.findViewById(R.id.spinner_users), getUnassignedUsers());
+        if (isPassengerView && hasUserOnDisplay) {
+            view.findViewById(R.id.textView_users).setVisibility(View.GONE);
+            view.findViewById(R.id.spinner_users).setVisibility(View.GONE);
+        }
+
         // Listen to user created and removed events to refresh the user Spinner.
         UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
                 .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED)
@@ -158,18 +170,23 @@ public final class SimpleUserPickerFragment extends Fragment {
 
         mStopUserButton = view.findViewById(R.id.button_stop_user);
         mStopUserButton.setOnClickListener(v -> stopUser());
-        if (!isPassengerView) {
+        if (!isPassengerView || isPassengerView && !hasUserOnDisplay) {
             mStopUserButton.setVisibility(View.GONE);
         }
 
         mSwitchUserButton = view.findViewById(R.id.button_switch_user);
         mSwitchUserButton.setOnClickListener(v -> switchUser());
-        if (!isPassengerView) {
+        if (!isPassengerView || isPassengerView && hasUserOnDisplay) {
             mSwitchUserButton.setVisibility(View.GONE);
         }
 
         mCreateUserButton = view.findViewById(R.id.button_create_user);
         mCreateUserButton.setOnClickListener(v -> createUser());
+        if (isPassengerView && hasUserOnDisplay) {
+            view.findViewById(R.id.textView_name).setVisibility(View.GONE);
+            view.findViewById(R.id.new_user_name).setVisibility(View.GONE);
+            mCreateUserButton.setVisibility(View.GONE);
+        }
 
         mStatusMessageText = view.findViewById(R.id.status_message_text_view);
     }
@@ -189,6 +206,7 @@ public final class SimpleUserPickerFragment extends Fragment {
 
             if ((changeFlags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER) != 0) {
                 Log.i(TAG, "Detected changes in user to zone assignment");
+                mDisplaysSpinner.updateEntries(getDisplays());
                 mUsersSpinner.updateEntries(getUnassignedUsers());
                 updateTextInfo();
             }
@@ -259,13 +277,8 @@ public final class SimpleUserPickerFragment extends Fragment {
 
     // stopUser stops the visible user on this secondary display.
     private void stopUser() {
-        if (mDisplayAttached == null) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot obtain the display attached to the view to get occupant zone");
-            return;
-        }
-
         int displayId = mDisplayAttached.getDisplayId();
+
         OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
         if (zoneInfo == null) {
             setMessage(ERROR_MESSAGE,
@@ -310,9 +323,7 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        setMessage(INFO_MESSAGE, "Stopped user " + userId);
-        mUsersSpinner.updateEntries(getUnassignedUsers());
-        updateTextInfo();
+        getActivity().recreate();
     }
 
     private void switchUser() {
@@ -320,12 +331,6 @@ public final class SimpleUserPickerFragment extends Fragment {
         int userId = getSelectedUser();
         if (userId == UserHandle.USER_NULL) {
             setMessage(ERROR_MESSAGE, "Invalid user");
-            return;
-        }
-
-        if (mDisplayAttached == null) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot obtain the display attached to the view to get occupant zone");
             return;
         }
 
@@ -463,10 +468,7 @@ public final class SimpleUserPickerFragment extends Fragment {
         // Exclude visible users and only show unassigned users.
         for (int i = 0; i < aliveUsers.size(); ++i) {
             UserInfo u = aliveUsers.get(i);
-            if (!u.userType.equals(UserManager.USER_TYPE_FULL_SECONDARY)) {
-                continue;
-            }
-
+            if (!u.isFull()) continue;
             if (!isIncluded(u.id, visibleUsers)) {
                 users.add(Integer.toString(u.id) + "," + u.name);
             }
@@ -484,8 +486,15 @@ public final class SimpleUserPickerFragment extends Fragment {
             if (!disp.hasAccess(uidSelf)) {
                 continue;
             }
+
+            int displayId = disp.getDisplayId();
+            if (mZoneManager.getUserForDisplayId(displayId)
+                    != CarOccupantZoneManager.INVALID_USER_ID) {
+                Log.d(TAG, "display " + displayId + " already has user on it, skipping");
+                continue;
+            }
             StringBuilder builder = new StringBuilder()
-                    .append(disp.getDisplayId())
+                    .append(displayId)
                     .append(",");
             DisplayAddress address = disp.getAddress();
             if (address instanceof  DisplayAddress.Physical) {

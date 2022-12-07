@@ -162,6 +162,8 @@ public final class TimeHalService extends HalServiceBase {
                         }
                     }
                     break;
+                default:
+                    break;
             }
         }
     }

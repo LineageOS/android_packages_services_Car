@@ -440,7 +440,12 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
-     * EV battery level in watt-hours (Wh), if EV or hybrid.
+     * EV battery level.
+     *
+     * <p>Returns the current battery level in {@link android.car.VehicleUnit#WATT_HOUR}, if EV or
+     * hybrid. This value will not exceed {@link #EV_CURRENT_BATTERY_CAPACITY}. To calculate the
+     * battery percentage, use:
+     * ({@link #EV_BATTERY_LEVEL}/{@link #EV_CURRENT_BATTERY_CAPACITY})*100.
      *
      * <p>Property Config:
      * <ul>
@@ -452,7 +457,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
      * </ul>
      */

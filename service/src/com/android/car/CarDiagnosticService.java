@@ -304,6 +304,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                     return true;
                 }
                 break;
+            default:
+                break;
         }
         return false;
     }
@@ -372,6 +374,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                     if (mFreezeFrameDiagnosticRecords.disableIfNeeded()) {
                         diagnosticHal.requestDiagnosticStop(CarDiagnosticManager.FRAME_TYPE_FREEZE);
                     }
+                    break;
+                default:
                     break;
             }
         }

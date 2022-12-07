@@ -240,6 +240,9 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
                     mContext.getMainThreadHandler().removeCallbacks(repeatClickRunnable);
+                    break;
+                default:
+                    break;
             }
 
             // Return false to maintain touch ripple.

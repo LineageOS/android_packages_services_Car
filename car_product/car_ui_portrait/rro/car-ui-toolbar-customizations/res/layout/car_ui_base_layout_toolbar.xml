@@ -64,6 +64,7 @@
                 android:id="@+id/car_ui_toolbar_nav_icon_container"
                 android:layout_width="90dp"
                 android:layout_height="0dp"
+                android:layout_marginLeft="@dimen/nav_icon_margin_left"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -94,6 +95,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/car_ui_toolbar_title_container"
+                app:layout_constraintHorizontal_bias="0"
                 app:layout_constraintHorizontal_chainStyle="packed">
 
                 <ImageView
@@ -112,7 +114,7 @@
                 app:layout_goneMarginStart="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/car_ui_toolbar_nav_icon_container"
                 app:layout_constraintStart_toEndOf="@id/car_ui_toolbar_title_logo_container">
                 <TextView android:id="@+id/car_ui_toolbar_title"
                     android:layout_width="wrap_content"
