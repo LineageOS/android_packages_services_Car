@@ -32,6 +32,14 @@
     <color name="primary_action_button_bg_color">@color/car_primary</color>
     <color name="first_action_button_text_color">@color/car_on_primary</color>
     <color name="play_icon_tint">@color/first_action_button_text_color</color>
-    <color name="emergency_background_color">@color/car_red_color_container</color>
+    <color name="emergency_background_color">@color/car_error_container</color>
+    <color name="emergency_primary_text_color">@color/car_on_error_container</color>
+    <color name="emergency_secondary_text_color">@color/car_error</color>
+    <color name="information_background_color">@color/car_surface_2</color>
+    <color name="information_primary_text_color">@color/car_on_surface</color>
+    <color name="information_secondary_text_color">@color/car_on_surface_variant</color>
+    <color name="warning_background_color">@color/car_yellow_color_container</color>
+    <color name="warning_primary_text_color">@color/car_yellow_on_color_container</color>
+    <color name="warning_secondary_text_color">@color/car_yellow_color</color>
     <color name="unmute_button">@color/car_primary</color>
 </resources>

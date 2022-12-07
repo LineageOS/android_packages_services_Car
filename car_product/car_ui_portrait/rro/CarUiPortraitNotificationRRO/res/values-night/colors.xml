@@ -17,4 +17,7 @@
 
 <resources>
     <color name="clear_all_button_background_color">@color/car_secondary_container</color>
+    <color name="warning_background_color">@color/car_yellow_color</color>
+    <color name="warning_primary_text_color">@color/car_yellow_on_color</color>
+    <color name="warning_secondary_text_color">@color/car_yellow_color_container</color>
 </resources>
