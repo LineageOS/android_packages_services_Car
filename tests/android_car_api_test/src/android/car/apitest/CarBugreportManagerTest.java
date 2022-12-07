@@ -213,7 +213,7 @@ public final class CarBugreportManagerTest extends CarApiTestBase {
                     continue;
                 }
                 try (InputStream entryStream = zipFile.getInputStream(entry)) {
-                    String data = streamToText(entryStream, /* maxSizeBytes= */ 1024);
+                    String data = streamToText(entryStream, /* maxSizeBytes= */  51200);
                     assertThat(data).contains("== dumpstate: ");
                     // TODO(b/244668890): Delete this isCuttlefish check after the bug is fixed.
                     if (!isCuttlefish(SystemProperties.get("ro.product.name"))) {
