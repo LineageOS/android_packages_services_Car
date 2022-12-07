@@ -27,6 +27,7 @@ import android.os.UserManager;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
+import com.android.car.internal.util.DebugUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -319,8 +320,11 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
         return "UserCreationResult { " +
                 "status = " + statusToString(mStatus) + ", " +
-                "androidFailureStatus = " + mAndroidFailureStatus + ", " +
-                "user = " + mUser + ", " +
+                "androidFailureStatus = " + mAndroidFailureStatus +
+                (mAndroidFailureStatus != null ? " ("
+                        + DebugUtils.constantToString(UserManager.class, "USER_OPERATION_",
+                        mAndroidFailureStatus) + ")" : "") +
+                ", user = " + mUser + ", " +
                 "errorMessage = " + mErrorMessage + ", " +
                 "internalErrorMessage = " + mInternalErrorMessage +
         " }";
