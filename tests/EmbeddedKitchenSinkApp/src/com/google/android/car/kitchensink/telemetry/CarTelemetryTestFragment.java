@@ -72,8 +72,8 @@ public class CarTelemetryTestFragment extends Fragment {
             "function onGearChange(published_data, state)\n"
                     + "    t = {}\n"
                     + "    for k, v in ipairs(published_data) do\n"
-                    + "        t['#' .. k] = 'Gear: ' .. v['intVal'] \n"
-                    + "        log(v[\"intVal\"])\n"
+                    + "        t['#' .. k] = 'Gear: ' .. v['vp.intVal'] \n"
+                    + "        log(v[\"vp.intVal\"])\n"
                     + "    end\n"
                     + "    on_metrics_report(t)\n"
                     + "end\n";
@@ -113,17 +113,18 @@ public class CarTelemetryTestFragment extends Fragment {
             .append("end\n")
             .append("function onProcessMemory(published_data, state)\n")
             .append("    local result = {}\n")
-            .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
+            .append("    result.page_fault_avg = calculateAverage("
+                    + "published_data['stats.page_fault'])\n")
             .append("    result.major_page_fault_avg = calculateAverage("
-                    + "published_data.page_major_fault)\n")
+                    + "published_data['stats.page_major_fault'])\n")
             .append("    result.oom_adj_score_avg = calculateAverage("
-                    + "published_data.oom_adj_score)\n")
+                    + "published_data['stats.oom_adj_score'])\n")
             .append("    result.rss_in_bytes_avg = calculateAverage("
-                    + "published_data.rss_in_bytes)\n")
+                    + "published_data['stats.rss_in_bytes'])\n")
             .append("    result.swap_in_bytes_avg = calculateAverage("
-                    + "published_data.swap_in_bytes)\n")
+                    + "published_data['stats.swap_in_bytes'])\n")
             .append("    result.cache_in_bytes_avg = calculateAverage("
-                    + "published_data.cache_in_bytes)\n")
+                    + "published_data['stats.cache_in_bytes'])\n")
             .append("    on_script_finished(result)\n")
             .append("end\n")
             .toString();
@@ -160,16 +161,17 @@ public class CarTelemetryTestFragment extends Fragment {
             .append("end\n")
             .append("function onAppStartMemoryStateCaptured(published_data, state)\n")
             .append("    local result = {}\n")
-            .append("    result.uid = published_data.uid\n")
-            .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
+            .append("    result.uid = published_data['stats.uid']\n")
+            .append("    result.page_fault_avg = calculateAverage("
+                    + "published_data['stats.page_fault'])\n")
             .append("    result.major_page_fault_avg = calculateAverage("
-                    + "published_data.page_major_fault)\n")
+                    + "published_data['stats.page_major_fault'])\n")
             .append("    result.rss_in_bytes_avg = calculateAverage("
-                    + "published_data.rss_in_bytes)\n")
+                    + "published_data['stats.rss_in_bytes'])\n")
             .append("    result.swap_in_bytes_avg = calculateAverage("
-                    + "published_data.swap_in_bytes)\n")
+                    + "published_data['stats.swap_in_bytes'])\n")
             .append("    result.cache_in_bytes_avg = calculateAverage("
-                    + "published_data.cache_in_bytes)\n")
+                    + "published_data['stats.cache_in_bytes'])\n")
             .append("    on_script_finished(result)\n")
             .append("end\n")
             .toString();
@@ -432,12 +434,12 @@ public class CarTelemetryTestFragment extends Fragment {
                     .append("        iterations = 0\n")
                     .append("    end\n")
                     .append("    state['iterations'] = iterations + 1\n")
-                    .append("    local meminfo = published_data['meminfo']\n")
+                    .append("    local meminfo = published_data['mem.meminfo']\n")
                     .append("    local available_memory = string.match(meminfo, "
                             + "'.*MemAvailable:%s*(%d+).*')\n")
                     .append("    local mem_key = 'available_memory_' .. iterations\n")
                     .append("    published_data[mem_key] = available_memory\n")
-                    .append("    published_data['meminfo'] = nil\n")
+                    .append("    published_data['mem.meminfo'] = nil\n")
                     .append("    on_metrics_report(published_data, state)\n")
                     .append("end\n")
                     .toString();
