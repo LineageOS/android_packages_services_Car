@@ -19,6 +19,7 @@ import static com.android.car.CarLog.TAG_AUDIO;
 import static com.android.car.audio.CarVolumeEventFlag.VolumeEventFlags;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -45,6 +46,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     private final AudioManager mAudioManager;
     @GuardedBy("mLock")
     private int mAmCurrentGainIndex = UNINITIALIZED;
+    private final int mAmId;
     private final int mDefaultGainIndex;
     private final int mMaxGainIndex;
     private final int mMinGainIndex;
@@ -58,6 +60,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                         zoneId, volumeGroupId, name, useCarVolumeGroupMute);
         mAudioManager = audioManager;
         mAudioAttributes = CoreAudioHelper.selectAttributesForVolumeGroupName(name);
+        mAmId = CoreAudioHelper.getVolumeGroupIdForAudioAttributes(mAudioAttributes);
         mAmCurrentGainIndex = getAmCurrentGainIndex();
         mMinGainIndex = mAudioManager.getMinVolumeIndexForAttributes(mAudioAttributes);
         mMaxGainIndex = mAudioManager.getMaxVolumeIndexForAttributes(mAudioAttributes);
@@ -91,7 +94,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     int getAmLastAudibleIndex() {
-        return mAudioManager.getVolumeIndexForAttributes(mAudioAttributes);
+        return AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId);
     }
 
     @Override
@@ -137,11 +140,18 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
             return;
         }
         if (mute) {
-            // Do not overwrite current index, will be used to restore last audible index
-            mAudioManager.setVolumeIndexForAttributes(mAudioAttributes, /* index= */ 0,
-                    /* flags= */ 0);
+            AudioManagerHelper.adjustVolumeGroupVolume(mAudioManager, mAmId,
+                    AudioManager.ADJUST_MUTE, /* flags= */ 0);
         } else {
-            setCurrentGainIndexIntLocked(getCurrentGainIndexLocked());
+            if (isMutedByVolumeZeroLocked()
+                    && AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId)) {
+                // Unmuting but volume at 0 -> use unmute API to sync AudioManager mute stat
+                AudioManagerHelper.adjustVolumeGroupVolume(mAudioManager, mAmId,
+                        AudioManager.ADJUST_UNMUTE, /* flags= */ 0);
+            } else {
+                // Restore current gain from cache
+                setCurrentGainIndexIntLocked(getCurrentGainIndexLocked());
+            }
         }
         super.setMuteLocked(mute);
     }
@@ -158,8 +168,8 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         int newAmIndex = getAmCurrentGainIndex();
         int amCachedIndex = getAmCurrentGainIndexFromCache();
         int previousIndex = getCurrentGainIndex();
-        boolean isAmGroupMuted = newAmIndex == 0;
         synchronized (mLock) {
+            boolean isAmGroupMuted = AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId);
             // Update AM cached index
             mAmCurrentGainIndex = newAmIndex;
             boolean volumeChanged = previousIndex != newAmIndex;
@@ -196,14 +206,16 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         int returnedFlags = 0;
         synchronized (mLock) {
             // Current Core volume group can only be muted by volume 0, or ackownlegdge our request
-            boolean isAmGroupMutedByZero = (newAmIndex == 0);
+            boolean isAmGroupMutedByZero = (newAmIndex == 0) && (AudioManagerHelper
+                    .getLastAudibleVolumeGroupVolume(mAudioManager, mAmId) == 0);
             if (isMuted() != isAmGroupMuted) {
                 Slogf.i(TAG, "syncMuteState group(%s) muted(%b) synced from AudioService",
                         getName(), isAmGroupMuted);
                 super.setMuteLocked(isAmGroupMuted);
                 returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE;
             }
-            if (returnedFlags != 0 && isAmGroupMutedByZero) {
+
+            if (isAmGroupMutedByZero) {
                 // Muted or Unmuted at volume zero (this is possible on AudioService),
                 // set cache index to zero to be aligned with AudioServer.
                 Slogf.i(TAG, "syncMuteState group(%s) muted by 0 sync from AudioService",

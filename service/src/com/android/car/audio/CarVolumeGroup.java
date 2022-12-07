@@ -415,13 +415,13 @@ import java.util.Objects;
             if (isAttenuatedLocked()) {
                 resetAttenuationLocked();
             }
-            if (mIsMuted) {
-                setMuteLocked(/* mute= */ gainIndex == 0);
-            }
             // In case of attenuation/Limitation, requested index is now the new reference for
             // cached current index.
             mCurrentGainIndex = currentgainIndex;
 
+            if (mIsMuted) {
+                setMuteLocked(/* mute= */ currentgainIndex == 0);
+            }
             setCurrentGainIndexLocked(mCurrentGainIndex);
         }
     }

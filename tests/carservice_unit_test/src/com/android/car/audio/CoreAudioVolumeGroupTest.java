@@ -18,12 +18,13 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import android.car.builtin.media.AudioManagerHelper;
@@ -54,6 +55,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
             .build();
     private static final int MUSIC_STRATEGY_ID = 777;
     private static final int MUSIC_CAR_GROUP_ID = 0;
+    private static final int MUSIC_GROUP_ID = 666;
     private static final String MUSIC_CONTEXT_NAME = "MUSIC_CONTEXT";
     private static final AudioAttributes[] MUSIC_AAS = { MUSIC_ATTRIBUTES };
     private static final String MUSIC_GROUP_NAME = "MUSIC_GROUP";
@@ -137,8 +139,12 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         session.spyStatic(AudioManagerHelper.class);
     }
     void setupMock() {
-        when(CoreAudioHelper.selectAttributesForVolumeGroupName(MUSIC_GROUP_NAME))
-                .thenReturn(MUSIC_ATTRIBUTES);
+        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID).when(() ->
+                CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
+        doReturn(MUSIC_ATTRIBUTES)
+                .when(() ->
+                        CoreAudioHelper.selectAttributesForVolumeGroupName(eq(MUSIC_GROUP_NAME)));
         when(mMockAudioManager.getMinVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
         when(mMockAudioManager.getMaxVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
@@ -146,17 +152,30 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_AM_INIT_INDEX);
 
-        when(CoreAudioHelper.selectAttributesForVolumeGroupName(NAV_GROUP_NAME))
-                .thenReturn(NAV_ATTRIBUTES);
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_AM_INIT_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
+
+        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
+                .when(() ->
+                        CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                                CoreAudioRoutingUtils.NAV_ATTRIBUTES));
+        doReturn(NAV_ATTRIBUTES)
+                .when(() -> CoreAudioHelper
+                        .selectAttributesForVolumeGroupName(eq(NAV_GROUP_NAME)));
         when(mMockAudioManager.getMinVolumeIndexForAttributes(NAV_ATTRIBUTES))
                 .thenReturn(NAV_MIN_INDEX);
         when(mMockAudioManager.getMaxVolumeIndexForAttributes(NAV_ATTRIBUTES))
                 .thenReturn(NAV_MAX_INDEX);
 
-        when(CoreAudioHelper.selectAttributesForVolumeGroupName(OEM_GROUP_NAME))
-                .thenReturn(OEM_ATTRIBUTES);
+        doReturn(OEM_ATTRIBUTES)
+                .when(() -> CoreAudioHelper
+                        .selectAttributesForVolumeGroupName(eq(OEM_GROUP_NAME)));
         when(mMockAudioManager.getMinVolumeIndexForAttributes(OEM_ATTRIBUTES))
                 .thenReturn(OEM_MIN_INDEX);
+        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
         when(mMockAudioManager.getMaxVolumeIndexForAttributes(OEM_ATTRIBUTES))
                 .thenReturn(OEM_MAX_INDEX);
     }
@@ -205,8 +224,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
     @Test
     public void getMinIndex() {
-        expectWithMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup
-                .getMinGainIndex()).isEqualTo(MUSIC_MIN_INDEX);
+        expectWithMessage("Initial gain index").that(mMusicCoreAudioVolumeGroup.getMinGainIndex())
+                .isEqualTo(MUSIC_MIN_INDEX);
         expectWithMessage("Initial gain index").that(mNavCoreAudioVolumeGroup.getMinGainIndex())
                 .isEqualTo(NAV_MIN_INDEX);
         expectWithMessage("Initial gain index").that(mOemCoreAudioVolumeGroup.getMinGainIndex())
@@ -256,8 +275,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .isFalse();
         mMusicCoreAudioVolumeGroup.setMute(true);
 
-        verify(mMockAudioManager).setVolumeIndexForAttributes(
-                eq(MUSIC_ATTRIBUTES), eq(0), anyInt());
+        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt()));
 
         expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -266,6 +285,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(0);
 
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         mMusicCoreAudioVolumeGroup.setMute(false);
 
         verify(mMockAudioManager).setVolumeIndexForAttributes(
@@ -291,9 +311,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .isTrue();
 
         mMusicCoreAudioVolumeGroup.setMute(true);
-
-        verify(mMockAudioManager, times(2)).setVolumeIndexForAttributes(
-                eq(MUSIC_ATTRIBUTES), eq(MUSIC_MIN_INDEX), anyInt());
+        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_MUTE), anyInt()));
 
         expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -303,9 +322,11 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .isEqualTo(MUSIC_MIN_INDEX);
 
         mMusicCoreAudioVolumeGroup.setMute(false);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
 
-        verify(mMockAudioManager, times(3)).setVolumeIndexForAttributes(
-                eq(MUSIC_ATTRIBUTES), eq(MUSIC_MIN_INDEX), anyInt());
+        mMusicCoreAudioVolumeGroup.setMute(false);
+        verify(() -> AudioManagerHelper.adjustVolumeGroupVolume(any(),
+                eq(MUSIC_GROUP_ID), eq(AudioManager.ADJUST_UNMUTE), anyInt()));
 
         expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -356,6 +377,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Mute event from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_AM_INIT_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
 
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
@@ -363,15 +387,13 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
-        // Current AudioServer does not implement volume adjustement on AudioVolumeGroup, so it is
-        // interpreted as a mute by volume 0, so both flags raisen
-        expectWithMessage("Mue State synchronized")
-                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
-                        | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
+        expectWithMessage("Mute State synchronized")
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE);
 
         // Unmute event from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
-               .thenReturn(MUSIC_AM_INIT_INDEX);
+                .thenReturn(MUSIC_AM_INIT_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
 
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
@@ -380,8 +402,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .isFalse();
 
         expectWithMessage("Mute State synchronized")
-                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
-                        | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE);
     }
 
     @Test
@@ -398,22 +419,24 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Mute event from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
-
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_AM_INIT_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
-        // Current AudioServer does not implement volume adjustement on AudioVolumeGroup, so it is
-        // interpreted as a mute by volume 0, so both flags raisen
+
         expectWithMessage("Index synchronized")
-                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
-                        | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE);
+
 
         // Unmute event WITH index change from AM reported
         amIndex += 1;
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES)).thenReturn(amIndex);
-
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID)).thenReturn(amIndex);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("switched to unmuted")
@@ -446,10 +469,12 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Mute event at volume zero from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
-
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_MIN_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expectWithMessage("switched to muted")
+        expectWithMessage("Switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
 
@@ -459,17 +484,16 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         // Unmute event from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
-               .thenReturn(MUSIC_MIN_INDEX);
+                .thenReturn(MUSIC_MIN_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
 
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
-        expectWithMessage("keep muted")
-                .that(mMusicCoreAudioVolumeGroup.isMuted())
-                .isTrue();
+        expectWithMessage("switched to unmuted")
+                .that(mMusicCoreAudioVolumeGroup.isMuted()).isFalse();
 
-        expectWithMessage("Mute State not synchronized").that(flags).isEqualTo(0);
-
+        expectWithMessage("Mute State synchronized")
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE);
         expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
@@ -492,32 +516,31 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Mute event at from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
-
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_AM_INIT_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("switched to muted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isTrue();
-
-        // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
-        // so mute is seen as a mute by volume 0, so both flags raisen
         expectWithMessage("Mute State and Index synchronized")
-                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
-                        | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE);
 
         // Unmute (at volume zero) event from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
-               .thenReturn(MUSIC_MIN_INDEX);
-
+                .thenReturn(MUSIC_MIN_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_MIN_INDEX);
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        // Current AudioServer does not implement volume adjustement on AudioVolumeGroup
         expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
-                .isTrue();
-
-        expectWithMessage("Mute State not synchronized").that(flags).isEqualTo(0);
-
+                .isFalse();
+        expectWithMessage("Mute State synchronized")
+                .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
+                        | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
         expectWithMessage("Index updated")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
@@ -540,7 +563,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Mute event at volume zero from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
                 .thenReturn(MUSIC_MIN_INDEX);
-
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
+                .thenReturn(MUSIC_MIN_INDEX);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("switched to muted")
@@ -553,8 +578,10 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         // Unmute event (with non zero index) from AM reported
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES))
+                .thenReturn(MUSIC_AM_INIT_INDEX + 1);
+        when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
+        when(mMockAudioManager.getLastAudibleVolumeGroupVolume(MUSIC_GROUP_ID))
                .thenReturn(MUSIC_AM_INIT_INDEX + 1);
-
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
         expectWithMessage("switched to unmuted")
