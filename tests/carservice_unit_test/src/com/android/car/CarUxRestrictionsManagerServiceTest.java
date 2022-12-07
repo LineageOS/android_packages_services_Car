@@ -145,6 +145,7 @@ public class CarUxRestrictionsManagerServiceTest {
         assertTrue(mService.saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(config)));
 
         String expectedConfig = "{\"schema_version\":2,\"restrictions\":[{\"physical_port\":null,"
+                + "\"occupant_zone_id\":null,\"display_type\":null,"
                 + "\"max_content_depth\":-1,\"max_cumulative_content_items\":-1,"
                 + "\"max_string_length\":-1,\"baseline\":{\"parked_restrictions\":[{\"req_opt"
                 + "\":true,\"restrictions\":511}],\"idling_restrictions\":[{\"req_opt\":true,"
