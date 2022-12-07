@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2022 The Android Open Source Project
   ~
@@ -13,14 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<vector
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
-    <path
-        android:fillColor="@color/play_pause_icon_color"
-        android:pathData="M15,15V33ZM12,36V12H36V36ZM15,33H33V15H15Z"/>
-</vector>
+<resources>
+    <declare-styleable name="PlayPauseStopState">
+        <attr name="state_pause" format="boolean"/>
+        <attr name="state_stop" format="boolean"/>
+        <attr name="state_play" format="boolean"/>
+        <attr name="state_disabled" format="boolean"/>
+    </declare-styleable>
+</resources>

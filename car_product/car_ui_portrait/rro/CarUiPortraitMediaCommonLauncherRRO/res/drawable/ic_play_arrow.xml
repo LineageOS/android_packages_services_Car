@@ -15,13 +15,12 @@
   ~ limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="rectangle">
-            <solid android:color="@color/play_pause_ic_bg_color"/>
-            <corners android:radius="@dimen/play_pause_button_bg_radius"/>
-        </shape>
-    </item>
-    <item android:gravity="center"
-          android:drawable="@drawable/play_arrow_icon"/>
-</layer-list>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="48"
+        android:viewportHeight="48">
+    <path
+        android:fillColor="@color/play_pause_icon_color"
+        android:pathData="M16,37.85V9.85L38,23.85ZM19,23.85ZM19,32.4 L32.45,23.85 19,15.3Z"/>
+</vector>

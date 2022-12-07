@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <dimen name="control_bar_button_size">84dp</dimen>
-    <dimen name="play_pause_image_size">128dp</dimen>
+    <dimen name="control_bar_button_size">88dp</dimen>
+    <dimen name="control_bar_button_padding">24dp</dimen>
+    <dimen name="play_pause_image_size">104dp</dimen>
 </resources>

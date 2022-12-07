@@ -15,6 +15,7 @@
   -->
 
 <overlay>
+    <item target="dimen/control_bar_button_padding" value="@dimen/control_bar_button_padding" />
     <item target="dimen/control_bar_button_size" value="@dimen/control_bar_button_size"/>
     <item target="dimen/play_pause_image_size" value="@dimen/play_pause_image_size"/>
 
