@@ -19,11 +19,12 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.hardware.property.EvChargingConnectorType;
-import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.runner.AndroidJUnit4;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,13 +33,20 @@ import org.junit.runner.RunWith;
 @SmallTest
 public final class EvChargingConnectorTypeTest extends CarLessApiTestBase {
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.hardware.property.EvChargingConnectorType#UNKNOWN",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_1_AC",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_2_AC",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_3_AC",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_4_DC",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_1_CCS_DC",
+            "android.car.hardware.property.EvChargingConnectorType#IEC_TYPE_2_CCS_DC",
+            "android.car.hardware.property.EvChargingConnectorType#TESLA_HPWC",
+            "android.car.hardware.property.EvChargingConnectorType#TESLA_ROADSTER",
+            "android.car.hardware.property.EvChargingConnectorType#TESLA_SUPERCHARGER",
+            "android.car.hardware.property.EvChargingConnectorType#GBT_AC",
+            "android.car.hardware.property.EvChargingConnectorType#GBT_DC",
+            "android.car.hardware.property.EvChargingConnectorType#OTHER"})
     public void testMatchWithVehicleHal() {
         assertThat(EvChargingConnectorType.UNKNOWN).isEqualTo(EvConnectorType.UNKNOWN);
         assertThat(EvChargingConnectorType.IEC_TYPE_1_AC).isEqualTo(EvConnectorType.IEC_TYPE_1_AC);
