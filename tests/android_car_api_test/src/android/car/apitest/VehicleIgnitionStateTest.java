@@ -18,8 +18,9 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,12 +34,6 @@ import java.util.Collection;
 public final class VehicleIgnitionStateTest extends CarLessApiTestBase {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
 
     public VehicleIgnitionStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
@@ -64,6 +59,10 @@ public final class VehicleIgnitionStateTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.VehicleIgnitionState#UNDEFINED",
+            "android.car.VehicleIgnitionState#LOCK", "android.car.VehicleIgnitionState#OFF",
+            "android.car.VehicleIgnitionState#ACC", "android.car.VehicleIgnitionState#ON",
+            "android.car.VehicleIgnitionState#START"})
     public void testMatchWithVehicleHal() {
         assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
     }
