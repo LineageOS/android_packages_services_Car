@@ -331,13 +331,15 @@ final class FocusInteraction {
      *
      * @param requestedContext CarAudioContextType of incoming focus request
      * @param focusHolder      {@link FocusEntry} for current focus holder
+     * @param allowDucking     Whether ducking is allowed
+     * @param allowsDelayedFocus Whether delayed focus is allowed
      * @param focusLosers      Mutable array to add focusHolder to if it should lose focus
      * @return result of focus interaction, can be any of {@code AUDIOFOCUS_REQUEST_DELAYED},
      *      {@code AUDIOFOCUS_REQUEST_FAILED}, or {@code AUDIOFOCUS_REQUEST_GRANTED}
      */
     public int evaluateRequest(@AudioContext int requestedContext,
-            FocusEntry focusHolder, List<FocusEntry> focusLosers, boolean allowDucking,
-            boolean allowsDelayedFocus) {
+            FocusEntry focusHolder, boolean allowDucking, boolean allowsDelayedFocus,
+            List<FocusEntry> focusLosers) {
         @AudioContext int holderContext = focusHolder.getAudioContext();
         Preconditions.checkArgumentInRange(holderContext, 0, mInteractionMatrix.length - 1,
                 "holderContext");

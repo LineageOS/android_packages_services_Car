@@ -61,7 +61,8 @@ public class FocusInteractionTest {
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo());
-    private static final @AudioContext int TEST_MEDIA_CONTEXT =
+    @AudioContext
+    private static final int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
@@ -159,7 +160,7 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
         int result = mFocusInteraction.evaluateRequest(CarAudioContext.getInvalidContext(),
-                focusEntry, mLosers, false, false);
+                focusEntry, /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
     }
@@ -173,7 +174,7 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
         int result = mFocusInteraction.evaluateRequest(CarAudioContext.NAVIGATION, focusEntry,
-                mLosers, false, false);
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     }
@@ -186,7 +187,7 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
         int result = mFocusInteraction.evaluateRequest(CarAudioContext.NAVIGATION, focusEntry,
-                mLosers, false, false);
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
     }
@@ -196,8 +197,9 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.getInvalidContext());
 
         mFocusInteraction
-                .evaluateRequest(CarAudioContext.getInvalidContext(), focusEntry, mLosers, false,
-                        false);
+                .evaluateRequest(CarAudioContext.getInvalidContext(), focusEntry,
+                        /* allowDucking= */ false, /* allowsDelayedFocus= */ false,
+                        mLosers);
 
         assertThat(mLosers).isEmpty();
     }
@@ -206,8 +208,8 @@ public class FocusInteractionTest {
     public void evaluateRequest_forExclusivePair_returnsGranted() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
-        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
-                false, false);
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     }
@@ -217,8 +219,8 @@ public class FocusInteractionTest {
         FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
         mFocusInteraction
-                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, false,
-                        false);
+                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, /* allowDucking= */ false,
+                        /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -227,8 +229,8 @@ public class FocusInteractionTest {
     public void evaluateResult_forConcurrentPair_returnsGranted() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.NAVIGATION);
 
-        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
-                false, false);
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     }
@@ -238,8 +240,8 @@ public class FocusInteractionTest {
         FocusEntry focusEntry =
                 newMockFocusEntryWithDuckingBehavior(false, false);
 
-        mFocusInteraction
-                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, false, false);
+        mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, /* allowDucking= */ false,
+                /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -249,8 +251,8 @@ public class FocusInteractionTest {
         FocusEntry focusEntry =
                 newMockFocusEntryWithDuckingBehavior(true, false);
 
-        mFocusInteraction
-                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true, false);
+        mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, /* allowDucking= */ true,
+                /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -260,8 +262,8 @@ public class FocusInteractionTest {
         FocusEntry focusEntry =
                 newMockFocusEntryWithDuckingBehavior(false, true);
 
-        mFocusInteraction
-                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true, false);
+        mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, /* allowDucking= */ true,
+                /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -271,9 +273,8 @@ public class FocusInteractionTest {
         FocusEntry focusEntry =
                 newMockFocusEntryWithDuckingBehavior(false, true);
 
-        mFocusInteraction
-                .evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers, true,
-                        false);
+        mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, /* allowDucking= */ true,
+                /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(mLosers).containsExactly(focusEntry);
     }
@@ -284,7 +285,8 @@ public class FocusInteractionTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> mFocusInteraction.evaluateRequest(UNDEFINED_CONTEXT_VALUE, focusEntry,
-                        mLosers, false, false));
+                        /* allowDucking= */ false, /* allowsDelayedFocus= */ false,
+                        mLosers));
     }
 
     @Test
@@ -293,15 +295,16 @@ public class FocusInteractionTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
-                        mLosers, false, false));
+                        /* allowDucking= */ false, /* allowsDelayedFocus= */ false,
+                        mLosers));
     }
 
     @Test
     public void evaluateRequest_forExclusivePair_withDelayedFocus_returnsGranted() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(TEST_MEDIA_CONTEXT);
 
-        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
-                false, true);
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ true, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
     }
@@ -310,8 +313,8 @@ public class FocusInteractionTest {
     public void evaluateRequest_forRejectPair_withDelayedFocus_returnsDelayed() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
-        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
-                false, true);
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ true, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_DELAYED);
     }
@@ -320,8 +323,8 @@ public class FocusInteractionTest {
     public void evaluateRequest_forRejectPair_withoutDelayedFocus_returnsReject() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.CALL);
 
-        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry, mLosers,
-                false, false);
+        int result = mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
+                /* allowDucking= */ false, /* allowsDelayedFocus= */ false, mLosers);
 
         assertThat(result).isEqualTo(AudioManager.AUDIOFOCUS_REQUEST_FAILED);
     }
