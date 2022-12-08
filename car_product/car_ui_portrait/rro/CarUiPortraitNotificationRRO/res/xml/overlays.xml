@@ -32,6 +32,8 @@
     <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
     <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
     <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
+    <item target="bool/config_useCustomColorForInformationNotification" value="@bool/config_useCustomColorForInformationNotification"/>
+    <item target="bool/config_useCustomColorForWarningNotification" value="@bool/config_useCustomColorForWarningNotification"/>
     <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
 
 
@@ -43,13 +45,21 @@
     <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
     <item target="color/dark_icon_tint" value="@color/dark_icon_tint"/>
     <item target="color/emergency_background_color" value="@color/emergency_background_color"/>
+    <item target="color/emergency_primary_text_color" value="@color/emergency_primary_text_color"/>
+    <item target="color/emergency_secondary_text_color" value="@color/emergency_secondary_text_color"/>
     <item target="color/first_action_button_text_color" value="@color/first_action_button_text_color"/>
+    <item target="color/information_background_color" value="@color/information_background_color"/>
+    <item target="color/information_primary_text_color" value="@color/information_primary_text_color"/>
+    <item target="color/information_secondary_text_color" value="@color/information_secondary_text_color"/>
     <item target="color/notification_accent_color" value="@color/notification_accent_color"/>
     <item target="color/notification_background_color" value="@color/notification_background_color"/>
     <item target="color/notification_list_divider_color" value="@color/notification_list_divider_color"/>
     <item target="color/primary_text_color" value="@color/primary_text_color"/>
     <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
     <item target="color/unmute_button" value="@color/unmute_button"/>
+    <item target="color/warning_background_color" value="@color/warning_background_color"/>
+    <item target="color/warning_primary_text_color" value="@color/warning_primary_text_color"/>
+    <item target="color/warning_secondary_text_color" value="@color/warning_secondary_text_color"/>
 
     <item target="dimen/action_button_height" value="@dimen/action_button_height" />
     <item target="dimen/action_button_min_width" value="@dimen/action_button_min_width" />

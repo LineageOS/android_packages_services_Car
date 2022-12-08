@@ -56,6 +56,7 @@ import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
 import com.android.car.bluetooth.CarBluetoothService;
@@ -331,6 +332,22 @@ public class CarInputService extends ICarInput.Stub
             return;
         }
         mMainDisplayHandler.onKeyEvent(event);
+    }
+
+    /**
+     * Called for key event
+     */
+    @Override
+    public void onKeyEvent(KeyEvent event, int targetDisplay, int seat) {
+        // TODO(b/259999340): Handle per seat input events.
+    }
+
+    /**
+     * Called for motion event
+     */
+    @Override
+    public void onMotionEvent(MotionEvent event, int targetDisplay, int seat) {
+        // TODO(b/259999340): Handle per seat motion events.
     }
 
     private void assignDisplayId(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
