@@ -110,10 +110,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Controlează oglinzile mașinii."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"Controlează locurile din mașină"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Controlează locurile din mașină."</string>
-    <!-- no translation found for car_permission_label_control_car_airbags (6823727183218389617) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_airbags (6181671903761622348) -->
-    <skip />
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"să controleze airbagurile mașinii"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"să controleze airbagurile mașinii."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"Accesează informațiile de bază despre mașină"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Accesează informațiile de bază despre mașină."</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"să acceseze informațiile cu acces privilegiat ale mașinii"</string>
@@ -140,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Citește ceasurile de bord."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"Controlează ceasurile de bord ale mașinii"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Controlează ceasurile de bord."</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"Citește informațiile powertrain ale mașinii"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Accesează informațiile powertrain ale mașinii."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"Citește starea de încărcare a mașinii"</string>

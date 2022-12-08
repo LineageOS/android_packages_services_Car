@@ -110,10 +110,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"Avtomobilin güzgülərini idarə etmək."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"avtomobilin oturacaqlarını idarə etmək"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Avtomobilin oturacaqlarını idarə etmək."</string>
-    <!-- no translation found for car_permission_label_control_car_airbags (6823727183218389617) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_airbags (6181671903761622348) -->
-    <skip />
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"avtomobilin hava yastıqlarına nəzarət etmək"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"Avtomobilin hava yastıqlarına nəzarət etmək."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"avtomobilin əsas məlumatlarına giriş"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Avtomobilin əsas məlumatlarına giriş."</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"avtomobilin məxfi məlumatlarına giriş"</string>
@@ -140,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Displey göstəricilərini oxumaq."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"avtomobilin displey göstəricilərini idarə etmək"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Displey göstəricilərini idarə etmək."</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"avtomobilin güc mexanizmi məlumatlarını oxumaq"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Avtomobilin güc mexanizmi məlumatlarına giriş."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"avtomobilin güc vəziyyətini oxumaq"</string>
