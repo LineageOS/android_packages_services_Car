@@ -185,6 +185,8 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
       mDeathRegistrationWrapper(sp<AIBinderDeathRegistrationWrapper>::make()),
       mIsEnabled(true),
       mVhalService(nullptr) {
+    mOnBinderDiedCallback =
+        std::make_shared<IVhalClient::OnBinderDiedCallbackFunc>([this] { handleVhalDeath(); });
     for (const auto& timeout : kTimeouts) {
         mClientsByTimeout.insert(std::make_pair(timeout, ClientInfoMap()));
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
