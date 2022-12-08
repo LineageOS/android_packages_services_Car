@@ -16,7 +16,6 @@
 package android.car.apitest;
 
 import android.car.content.pm.AppBlockingPackageInfo;
-import android.car.test.ApiCheckerRule.Builder;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -27,20 +26,16 @@ import android.util.Log;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import com.android.compatibility.common.util.ApiTest;
+
 import org.junit.Test;
 
 @SmallTest
 public final class AppBlockingPackageInfoTest extends CarLessApiTestBase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#toString"})
     public void testParcellingSystemInfo() throws Exception {
         AppBlockingPackageInfo carServiceInfo = createInfoCarService(mContext);
         Parcel dest = Parcel.obtain();
@@ -52,6 +47,7 @@ public final class AppBlockingPackageInfoTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#toString"})
     public void testParcellingNonSystemInfo() throws Exception {
         AppBlockingPackageInfo selfInfo = createInfoSelf(mContext);
         Parcel dest = Parcel.obtain();
