@@ -65,6 +65,7 @@ java_defaults {
         "framework-connectivity",
         "framework-connectivity-t.stubs.module_lib",
         "framework-statsd",
+        "framework-tethering",
         "framework-wifi",
         "modules-utils-os",
         "modules-utils-preconditions",
