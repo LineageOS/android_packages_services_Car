@@ -568,6 +568,26 @@
     <!-- Permission text: apps can control car steering wheel [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_steering_wheel">Control car\u2019s steering wheel.</string>
 
+    <!-- Permission text: apps can read car ADAS settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_adas_settings">read car\u2019s ADAS settings information</string>
+    <!-- Permission text: apps can read car ADAS settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_adas_settings">Read car\u2019s ADAS settings information.</string>
+
+    <!-- Permission text: apps can control car ADAS settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_adas_settings">control car\u2019s ADAS settings information</string>
+    <!-- Permission text: apps can control car ADAS settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_adas_settings">Control car\u2019s ADAS settings information.</string>
+
+    <!-- Permission text: apps can read car ADAS states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_adas_states">read car\u2019s ADAS states information</string>
+    <!-- Permission text: apps can read car ADAS states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_adas_states">Read car\u2019s ADAS states information.</string>
+
+    <!-- Permission text: apps can control car ADAS states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_adas_states">control car\u2019s ADAS states information</string>
+    <!-- Permission text: apps can control car ADAS states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_adas_states">Control car\u2019s ADAS states information.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

@@ -963,6 +963,38 @@
         android:label="@string/car_permission_label_control_steering_wheel"
         android:description="@string/car_permission_desc_control_steering_wheel"/>
 
+    <!-- Allows an application to read the vehicle ADAS settings information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_ADAS_SETTINGS"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_read_adas_settings"
+         android:description="@string/car_permission_desc_read_adas_settings"/>
+
+    <!-- Allows an application to control the vehicle ADAS settings information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_control_adas_settings"
+         android:description="@string/car_permission_desc_control_adas_settings"/>
+
+    <!-- Allows an application to read the vehicle ADAS states information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_ADAS_STATES"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_read_adas_states"
+         android:description="@string/car_permission_desc_read_adas_states"/>
+
+    <!-- Allows an application to control the vehicle ADAS states information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_ADAS_STATES"
+         android:protectionLevel="signature|privileged"
+         android:label="@string/car_permission_label_control_adas_states"
+         android:description="@string/car_permission_desc_control_adas_states"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
