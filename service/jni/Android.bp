@@ -28,7 +28,7 @@ cc_library_shared {
     shared_libs: [
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
+        "android.hardware.graphics.common-V4-ndk",
         "libandroid",
         "libbase",
         "libbinder_ndk",
