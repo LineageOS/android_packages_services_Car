@@ -19,8 +19,9 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.AoapService;
-import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.usb.UsbDevice;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,12 +37,6 @@ public final class AoapServiceTest extends CarLessApiTestBase {
     @Mock
     private UsbDevice mDevice;
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Before
     public void setUp() {
         mAoapService = new AoapService() {
@@ -54,6 +49,7 @@ public final class AoapServiceTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.AoapService#canSwitchToAoap"})
     public void testCanSwitchToAoap_byDefaultReturns_RESULT_OK() {
         assertThat(mAoapService.canSwitchToAoap(mDevice)).isEqualTo(AoapService.RESULT_OK);
     }
