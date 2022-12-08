@@ -145,6 +145,9 @@
     <string name="phone_audio_player" translatable="false">Phone Player</string>
     <string name="track_audio_player" translatable="false">Track Player Tone Generator </string>
     <string name="select_tone_to_hear_on_speaker" translatable="false">Tone</string>
+    <string name="file_path" translatable="false">File Path</string>
+    <string name="stop_recording" translatable="false">Stop Recording</string>
+    <string name="start_recording" translatable="false">Start Recording</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
