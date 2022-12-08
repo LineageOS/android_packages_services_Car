@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.media;
 
 import static android.R.layout.simple_spinner_dropdown_item;
 import static android.R.layout.simple_spinner_item;
+import static android.car.settings.CarSettings.Secure.KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA;
 
 import static androidx.core.content.IntentCompat.EXTRA_START_PLAYBACK;
 
@@ -39,6 +40,7 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -47,6 +49,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,6 +85,8 @@ public final class MultidisplayMediaFragment extends Fragment {
     private static final String CMD_PREV = "prev";
     private static final String CMD_NEXT = "next";
 
+    private static final String CONTROL_NOT_ALLOWED_MESSAGE_FORMAT = "User %d does not allow the "
+            + " driver to control their media session. Check the user's settings in the Settings.";
     private static final String INSTALL_YOUTUBE_MESSAGE = "Cannot start a YouTube video."
             + " Follow the instructions on go/mumd-media to install YouTube app.";
     private static final String YOUTUBE_PACKAGE = "com.google.android.youtube";
@@ -112,6 +117,7 @@ public final class MultidisplayMediaFragment extends Fragment {
 
     private UserManager mUserManager;
 
+    private CheckBox mAllowDriverCheckBox;
     private Spinner mUserSpinner;
     private Spinner mVideoSpinner;
     private Button mStartButton;
@@ -130,6 +136,8 @@ public final class MultidisplayMediaFragment extends Fragment {
         initUserSpinner(view);
         initVideoSpinner(view);
 
+        mAllowDriverCheckBox = view.findViewById(R.id.allow_driver_checkbox);
+        mAllowDriverCheckBox.setOnClickListener(this::onClickAllowDriverCheckbox);
         mStartButton = view.findViewById(R.id.start);
         mStartButton.setOnClickListener(this::onClickStart);
         mPauseResumeButton = view.findViewById(R.id.pause_resume);
@@ -256,6 +264,9 @@ public final class MultidisplayMediaFragment extends Fragment {
     }
 
     private void refreshUi() {
+        // Set the checkbox according to the CarSettings value.
+        mAllowDriverCheckBox.setChecked(getDriverAllowedToControlMedia(mSelectedUserId));
+
         MediaController mediaController = mMediaControllers.get(mSelectedUserId);
         int state = PlaybackState.STATE_NONE;
         MediaMetadata metadata = null;
@@ -312,9 +323,50 @@ public final class MultidisplayMediaFragment extends Fragment {
         }
     }
 
+    /**
+     * Sets the value for car settings {@link KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA}.
+     *
+     * <p>In practice, setting this value should be only done by Car Settings app.
+     */
+    private void setDriverAllowedToControlMedia(@UserIdInt int userId, boolean allow) {
+        Settings.Secure.putInt(getOrCreateUserContext(userId).getContentResolver(),
+                KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA, allow ? 1 : 0);
+    }
+
+    /**
+     * Gets the value for car settings {@link KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA}.
+     *
+     * <p>Driver's Media Control Center app will use this value to check if a user has allowed
+     * the driver to control their media sessions.
+     */
+    private boolean getDriverAllowedToControlMedia(@UserIdInt int userId) {
+        return Settings.Secure.getInt(getOrCreateUserContext(userId).getContentResolver(),
+                KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA, /* default= */ 0) != 0;
+    }
+
+    private boolean checkControlAllowedAndShowToast(@UserIdInt int userId) {
+        boolean allow = getDriverAllowedToControlMedia(userId);
+        if (!allow) {
+            Toast.makeText(getContext(), String.format(CONTROL_NOT_ALLOWED_MESSAGE_FORMAT, userId),
+                    Toast.LENGTH_LONG).show();
+        }
+
+        return allow;
+    }
+
+    private void onClickAllowDriverCheckbox(View view) {
+        boolean checked = mAllowDriverCheckBox.isChecked();
+
+        setDriverAllowedToControlMedia(mSelectedUserId, checked);
+    }
+
     /** Sends a YouTube video to the currently selected passenger user. */
     private void onClickStart(View view) {
         Log.d(TAG, "onClickStart() for user " + mSelectedUserId);
+        if (!checkControlAllowedAndShowToast(mSelectedUserId)) {
+            return;
+        }
+
         String video = (String) mVideoSpinner.getSelectedItem();
         String videoId = VIDEOS.get(video);
 
@@ -338,6 +390,10 @@ public final class MultidisplayMediaFragment extends Fragment {
 
     private void onClickPauseResume(View view) {
         Log.d(TAG, "onClickPlayResume() for user " + mSelectedUserId);
+        if (!checkControlAllowedAndShowToast(mSelectedUserId)) {
+            return;
+        }
+
         MediaController mediaController = mMediaControllers.get(mSelectedUserId);
         if (mediaController == null) {
             Log.e(TAG, "mediaController is null for user " + mSelectedUserId);
@@ -361,6 +417,10 @@ public final class MultidisplayMediaFragment extends Fragment {
 
     private void onClickNext(View view) {
         Log.d(TAG, "onClickNext() for user " + mSelectedUserId);
+        if (!checkControlAllowedAndShowToast(mSelectedUserId)) {
+            return;
+        }
+
         MediaController mediaController = mMediaControllers.get(mSelectedUserId);
         if (mediaController == null) {
             Log.e(TAG, "mediaController is null for user " + mSelectedUserId);
@@ -377,6 +437,10 @@ public final class MultidisplayMediaFragment extends Fragment {
 
     private void onClickPrev(View view) {
         Log.d(TAG, "onClickPrev() for user " + mSelectedUserId);
+        if (!checkControlAllowedAndShowToast(mSelectedUserId)) {
+            return;
+        }
+
         MediaController mediaController = mMediaControllers.get(mSelectedUserId);
         if (mediaController == null) {
             Log.e(TAG, "mediaController is null for user " + mSelectedUserId);
