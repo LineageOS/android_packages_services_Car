@@ -78,6 +78,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public void unregisterFocusListener() {
         // Focus listener will be unregistered by HAL automatically
     }
@@ -262,14 +263,14 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             mListener = halFocusListener;
         }
 
-        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public int getInterfaceVersion() {
             return this.VERSION;
         }
 
-        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String getInterfaceHash() {
             return this.HASH;
         }
@@ -297,6 +298,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public void abandonAudioFocusWithMetaData(
                 PlaybackTrackMetadata playbackMetaData, int zoneId) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
