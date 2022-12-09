@@ -282,7 +282,7 @@ public class ICarImpl extends ICar.Stub {
         }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
-                () -> new SystemActivityMonitoringService(), allServices);
+                () -> new SystemActivityMonitoringService(serviceContext), allServices);
         mCarPowerManagementService = constructWithTrace(
                 t, CarPowerManagementService.class,
                 () -> new CarPowerManagementService(mContext, mHal.getPowerHal(),

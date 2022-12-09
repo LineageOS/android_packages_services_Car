@@ -543,4 +543,8 @@
          30 seconds -->
     <integer name="config_allowedSystemUpTimeForRemoteAccess">300</integer>
 
+    <!-- Assigns passenger Activities to foreground cpuset rather than the top app cpuset.
+         This is enabled only for a system having both driver and passenger zones. If the system
+         has only driver zone or passenger zones, this configuration will be ignored. -->
+    <bool name="config_assignPassengerActivityToForegroundCpuGroup">true</bool>
 </resources>

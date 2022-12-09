@@ -35,6 +35,7 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -375,6 +376,8 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
+        ((Button) findViewById(R.id.finish_button)).setOnClickListener(view -> finish());
+        ((Button) findViewById(R.id.home_button)).setOnClickListener(view -> launchHome());
 
         mHeader = findViewById(R.id.header);
 
@@ -430,6 +433,15 @@ public class KitchenSinkActivity extends FragmentActivity {
         Log.d(TAG, "Adding header view: " + view);
         mHeader.addView(view, new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+    }
+
+    private void launchHome() {
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        int displayId = getDisplayId();
+        String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
+                : Intent.CATEGORY_SECONDARY_HOME;
+        homeIntent.addCategory(category);
+        startActivity(homeIntent);
     }
 
     private void initCarApi() {

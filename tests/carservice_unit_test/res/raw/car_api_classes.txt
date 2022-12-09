@@ -39,7 +39,6 @@ android.car.VehicleAreaWindow
 android.car.VehicleGear
 android.car.VehicleHvacFanDirection
 android.car.VehicleIgnitionState
-android.car.hardware.property.VehicleLightState
 android.car.VehicleOilLevel
 android.car.VehiclePropertyAccess
 android.car.VehiclePropertyIds
@@ -156,6 +155,7 @@ android.car.hardware.property.PropertyNotAvailableException
 android.car.hardware.property.VehicleElectronicTollCollectionCardStatus
 android.car.hardware.property.VehicleElectronicTollCollectionCardType
 android.car.hardware.property.VehicleHalStatusCode
+android.car.hardware.property.VehicleLightState
 android.car.hardware.property.VehicleLightSwitch
 android.car.hardware.property.VehicleTurnSignal
 android.car.hardware.property.VehicleVendorPermission

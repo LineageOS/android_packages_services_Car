@@ -17,9 +17,16 @@ package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.car.Car;
+import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
+import android.car.builtin.os.ProcessHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -31,6 +38,7 @@ import android.util.Log;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -42,6 +50,18 @@ import java.util.Set;
  */
 public class SystemActivityMonitoringService implements CarServiceBase {
 
+    /** Injector for injecting some system related operations. */
+    @VisibleForTesting
+    /* package */ interface Injector {
+        void registerProcessObserverCallback(ProcessObserverCallback callback);
+        void unregisterProcessObserverCallback(ProcessObserverCallback callback);
+        long getPassengerActivitySetProcessGroupRetryTimeoutMs();
+    }
+
+    // Passenger Activity might not be in top-app group in the 1st try. In that case, try
+    // again after this time. Retry will happen only once.
+    private static final long PASSENGER_ACTIVITY_SET_PROCESS_GROUP_RETRY_MS = 2_000;
+
     private final ProcessObserverCallback mProcessObserver = new ProcessObserver();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
@@ -49,21 +69,52 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private final ActivityMonitorHandler mHandler = new ActivityMonitorHandler(
             mMonitorHandlerThread.getLooper(), this);
 
+    private final Context mContext;
+
+    private final Injector mInjector;
+
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
 
+    @GuardedBy("mLock")
+    private boolean mAssignPassengerActivityToFgGroup;
+
+    public SystemActivityMonitoringService(Context context) {
+        this(context, new DefaultInjector());
+    }
+
+    @VisibleForTesting
+    /*package*/ SystemActivityMonitoringService(Context context, Injector injector) {
+        mContext = context;
+        mInjector = injector;
+    }
+
     @Override
     public void init() {
+        boolean assignPassengerActivityToFgGroup = false;
+        if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            if (mContext.getResources().getBoolean(
+                    R.bool.config_assignPassengerActivityToForegroundCpuGroup)) {
+                CarOccupantZoneService occupantService = CarLocalServices.getService(
+                        CarOccupantZoneService.class);
+                if (occupantService.hasDriverZone() && occupantService.hasPassengerZones()) {
+                    assignPassengerActivityToFgGroup = true;
+                }
+            }
+        }
+        synchronized (mLock) {
+            mAssignPassengerActivityToFgGroup = assignPassengerActivityToFgGroup;
+        }
         // Monitoring both listeners are necessary as there are cases where one listener cannot
         // monitor activity change.
-        ActivityManagerHelper.registerProcessObserverCallback(mProcessObserver);
+        mInjector.registerProcessObserverCallback(mProcessObserver);
     }
 
     @Override
     public void release() {
-        ActivityManagerHelper.unregisterProcessObserverCallback(mProcessObserver);
+        mInjector.unregisterProcessObserverCallback(mProcessObserver);
     }
 
     @Override
@@ -80,20 +131,30 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 }
                 writer.println("uid:" + key + ", pids:" + Arrays.toString(pids.toArray()));
             }
+            writer.println(
+                    "mAssignPassengerActivityToFgGroup:" + mAssignPassengerActivityToFgGroup);
         }
     }
 
+    /**
+     * Returns {@code true} if given pid-uid pair is in foreground.
+     */
     public boolean isInForeground(int pid, int uid) {
-        synchronized (mLock) {
-            Set<Integer> pids = mForegroundUidPids.get(uid);
-            if (pids == null) {
-                return false;
-            }
-            if (pids.contains(pid)) {
-                return true;
-            }
+        Set<Integer> pids = getPidsOfForegroudApp(uid);
+        if (pids == null) {
+            return false;
         }
-        return false;
+        return pids.contains(pid);
+    }
+
+    /**
+     * Returns PIDs of foreground apps launched from the given UID.
+     */
+    @Nullable
+    public Set<Integer> getPidsOfForegroudApp(int uid) {
+        synchronized (mLock) {
+            return mForegroundUidPids.get(uid);
+        }
     }
 
     private void handleForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
@@ -128,13 +189,67 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
+    /**
+     * Updates the process group for given PID if it is passenger app and returns true if it should
+     * be retried.
+     */
+    private boolean doHandleProcessGroupForFgApp(int pid, int uid) {
+        synchronized (mLock) {
+            if (!mAssignPassengerActivityToFgGroup) {
+                return false;
+            }
+        }
+        int userId = UserManagerHelper.getUserId(uid);
+        // Current user will be driver. So do not touch it.
+        // User 0 will be either current user or common system UI which should run with higher
+        // priority.
+        if (userId == ActivityManager.getCurrentUser() || userId == UserManagerHelper.USER_SYSTEM) {
+            return false;
+        }
+        // TODO(b/261783537) ignore profile of the current user
+
+        CarServiceHelperWrapper helper = CarServiceHelperWrapper.getInstance();
+        boolean shouldRetry = false;
+        try {
+            int processGroup = helper.getProcessGroup(pid);
+            switch (processGroup) {
+                case ProcessHelper.THREAD_GROUP_FOREGROUND:
+                    // already in FG group, ignore
+                    break;
+                case ProcessHelper.THREAD_GROUP_TOP_APP:
+                    // Changing to FOREGROUND requires setting it to DEFAULT
+                    helper.setProcessGroup(pid, ProcessHelper.THREAD_GROUP_DEFAULT);
+                    break;
+                default:
+                    // not in top-app yet, should retry
+                    shouldRetry = true;
+                    break;
+            }
+        } catch (Exception e) {
+            Slogf.w(CarLog.TAG_AM, e, "Process group manipulation failed for pid:%d uid:%d",
+                    pid, uid);
+            // no need to retry as this PID may be already invalid.
+        }
+        return shouldRetry;
+    }
+
+    private void handleProcessGroupForFgApp(int pid, int uid) {
+        if (doHandleProcessGroupForFgApp(pid, uid)) {
+            mHandler.postDelayed(() -> doHandleProcessGroupForFgApp(pid, uid),
+                    mInjector.getPassengerActivitySetProcessGroupRetryTimeoutMs());
+        }
+    }
+
     private class ProcessObserver extends ProcessObserverCallback {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
-            if (Slogf.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-                Slogf.i(CarLog.TAG_AM,
+            if (Slogf.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
+                Slogf.d(CarLog.TAG_AM,
                         String.format("onForegroundActivitiesChanged uid %d pid %d fg %b",
                                 uid, pid, foregroundActivities));
+            }
+            if (foregroundActivities) {
+                handleProcessGroupForFgApp(pid, uid);
             }
             mHandler.requestForegroundActivitiesChanged(pid, uid, foregroundActivities);
         }
@@ -188,6 +303,23 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                 default:
                     break;
             }
+        }
+    }
+
+    private static class DefaultInjector implements Injector {
+        @Override
+        public void registerProcessObserverCallback(ProcessObserverCallback callback) {
+            ActivityManagerHelper.registerProcessObserverCallback(callback);
+        }
+
+        @Override
+        public void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
+            ActivityManagerHelper.unregisterProcessObserverCallback(callback);
+        }
+
+        @Override
+        public long getPassengerActivitySetProcessGroupRetryTimeoutMs() {
+            return PASSENGER_ACTIVITY_SET_PROCESS_GROUP_RETRY_MS;
         }
     }
 }
