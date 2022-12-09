@@ -16,7 +16,10 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+
 import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
 
 import java.util.List;
 import java.util.Objects;
@@ -76,5 +79,22 @@ final class CarVolumeInfoWrapper {
 
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         return mCarAudioService.getVolumeGroupInfosForZone(zoneId);
+    }
+
+    public List<AudioAttributes> getActiveAudioAttributesForZone(int zoneId) {
+        return mCarAudioService.getActiveAudioAttributesForZone(zoneId);
+    }
+
+    public int getCallStateForZone(int zoneId) {
+        return mCarAudioService.getCallStateForZone(zoneId);
+    }
+
+    public List<AudioAttributes> getActiveAudioAttributesForAudioZone(int zoneId) {
+        return mCarAudioService.getActiveAudioAttributesForZone(zoneId);
+    }
+
+    public int getVolumeGroupIdForPrimaryZone() {
+        return mCarAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE,
+                getSuggestedAudioContextForPrimaryZone());
     }
 }

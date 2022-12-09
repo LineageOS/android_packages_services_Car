@@ -29,10 +29,12 @@ final class CarDuckingUtils {
     private CarDuckingUtils() {
     }
 
-    static CarDuckingInfo generateDuckingInfo(
-            CarDuckingInfo oldDuckingInfo, List<AudioFocusInfo> focusHolders, CarAudioZone zone) {
-        List<AudioAttributes> attributesHoldingFocus = getAudioAttributesHoldingFocus(focusHolders);
-        List<String> addressesToDuck = getAddressesToDuck(attributesHoldingFocus, zone);
+    static CarDuckingInfo generateDuckingInfo(CarDuckingInfo oldDuckingInfo,
+            List<AudioAttributes> attributesToDuck, List<AudioAttributes> attributesHoldingFocus,
+            CarAudioZone zone) {
+
+        List<String> addressesToDuck =
+                getAddressesToDuck(attributesToDuck, attributesHoldingFocus, zone);
         List<String> addressesToUnduck =
                 getAddressesToUnduck(addressesToDuck, oldDuckingInfo.mAddressesToDuck);
 
@@ -51,11 +53,12 @@ final class CarDuckingUtils {
         return CarAudioContext.getUniqueAttributesHoldingFocus(audioAttributes);
     }
 
-    static List<String> getAddressesToDuck(List<AudioAttributes> audioAttributes,
-            CarAudioZone zone) {
-        Set<Integer> uniqueContexts =
-                zone.getCarAudioContext().getUniqueContextsForAudioAttributes(audioAttributes);
-        Set<Integer> contextsToDuck = getContextsToDuck(uniqueContexts);
+    private static List<String> getAddressesToDuck(List<AudioAttributes> audioAttributesToDuck,
+            List<AudioAttributes> activeAudioAttributes, CarAudioZone zone) {
+        Set<Integer> uniqueContexts = zone.getCarAudioContext()
+                .getUniqueContextsForAudioAttributes(activeAudioAttributes);
+        Set<Integer> contextsToDuck = zone.getCarAudioContext()
+                .getUniqueContextsForAudioAttributes(audioAttributesToDuck);
         Set<String> addressesToDuck = getAddressesForContexts(contextsToDuck, zone);
 
         Set<Integer> unduckedContexts = getUnduckedContexts(uniqueContexts, contextsToDuck);
@@ -66,7 +69,7 @@ final class CarDuckingUtils {
         return new ArrayList<>(addressesToDuck);
     }
 
-    static List<String> getAddressesToUnduck(List<String> addressesToDuck,
+    private static List<String> getAddressesToUnduck(List<String> addressesToDuck,
             List<String> oldAddressesToDuck) {
         List<String> addressesToUnduck = new ArrayList<>(oldAddressesToDuck);
         addressesToUnduck.removeAll(addressesToDuck);

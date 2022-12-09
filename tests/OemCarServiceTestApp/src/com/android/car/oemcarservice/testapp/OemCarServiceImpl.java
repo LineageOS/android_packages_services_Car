@@ -17,10 +17,13 @@
 package com.android.car.oemcarservice.testapp;
 
 import android.car.CarVersion;
+import android.car.oem.OemCarAudioDuckingService;
 import android.car.oem.OemCarAudioFocusService;
+import android.car.oem.OemCarAudioVolumeService;
 import android.car.oem.OemCarService;
-import android.util.Log;
 import android.util.Slog;
+
+import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -28,13 +31,19 @@ import java.io.PrintWriter;
 public final class OemCarServiceImpl extends OemCarService {
 
     private static final String TAG = OemCarServiceImpl.class.getSimpleName();
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = true;
     private static final CarVersion SUPPORTED_CAR_VERSION =
             CarVersion.VERSION_CODES.TIRAMISU_2;
 
 
     private final OemCarAudioFocusServiceImpl mOemCarAudioFocusServiceImpl =
             new OemCarAudioFocusServiceImpl();
+    private final OemCarAudioDuckingServiceImpl mOemCarAudioDuckingService =
+            new OemCarAudioDuckingServiceImpl();
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private OemCarAudioVolumeServiceImp mOemCarAudioVolumeService;
 
     @Override
     public void onCreate() {
@@ -62,15 +71,37 @@ public final class OemCarServiceImpl extends OemCarService {
         }
         writer.println("Dump OemCarServiceImpl");
         writer.printf("\tSUPPORTED_CAR_VERSION: %s", SUPPORTED_CAR_VERSION);
-        mOemCarAudioFocusServiceImpl.dump(writer, args);
+        super.dump(fd, writer, args);
     }
 
     @Override
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DEBUG) {
-            Slog.d(TAG, "getOemAudioFocusService returned " + mOemCarAudioFocusServiceImpl);
+            Slog.d(TAG, "getOemAudioFocusService returning car audio focus service");
         }
         return mOemCarAudioFocusServiceImpl;
+    }
+
+    @Override
+    public OemCarAudioDuckingService getOemAudioDuckingService() {
+        if (DEBUG) {
+            Slog.d(TAG, "getOemAudioDuckingService returning car ducking service");
+        }
+        return mOemCarAudioDuckingService;
+    }
+
+    @Override
+    public OemCarAudioVolumeService getOemAudioVolumeService() {
+        if (DEBUG) {
+            Slog.d(TAG, "getOemAudioVolumeService returning car ducking service");
+        }
+
+        synchronized (mLock) {
+            if (mOemCarAudioVolumeService == null) {
+                mOemCarAudioVolumeService = new OemCarAudioVolumeServiceImp(this);
+            }
+            return mOemCarAudioVolumeService;
+        }
     }
 
     @Override
@@ -78,7 +109,6 @@ public final class OemCarServiceImpl extends OemCarService {
         if (DEBUG) {
             Slog.d(TAG, "onCarServiceReady");
         }
-        mOemCarAudioFocusServiceImpl.onCarServiceReady();
     }
 
     @Override
