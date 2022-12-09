@@ -36,7 +36,7 @@ cc_defaults {
     static_libs: [
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
+        "android.hardware.graphics.common-V4-ndk",
         "libaidlcommonsupport",
         "libc++fs",
         "libcutils",
@@ -102,7 +102,7 @@ cc_library {
     static_libs: [
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
+        "android.hardware.graphics.common-V4-ndk",
         "libaidlcommonsupport",
     ],
     header_libs: [
