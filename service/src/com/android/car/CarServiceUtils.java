@@ -80,6 +80,8 @@ public final class CarServiceUtils {
     public  static final int[] EMPTY_INT_ARRAY = new int[0];
     private static final String COMMON_HANDLER_THREAD_NAME =
             "CarServiceUtils_COMMON_HANDLER_THREAD";
+    private static final byte[] CHAR_POOL_FOR_RANDOM_STRING =
+            "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes();
 
     private static final String PACKAGE_NOT_FOUND = "Package not found:";
 
@@ -174,7 +176,6 @@ public final class CarServiceUtils {
         return String.format("%0" + length + "d",
                 ThreadLocalRandom.current().nextInt((int) Math.pow(10, length)));
     }
-
 
     /**
      * Concatentate the given 2 byte arrays
@@ -759,5 +760,19 @@ public final class CarServiceUtils {
             Slogf.w(TAG, e, "Cannot start user picker as user 0 on display:%d", displayId);
             return false;
         }
+    }
+
+    /**
+     * Generates a random string which consists of captial letters and numbers.
+     */
+    @SuppressLint("DefaultLocale")  // Should always have the same format regardless of locale
+    public static String generateRandomAlphaNumericString(int length) {
+        StringBuilder sb = new StringBuilder();
+
+        int poolSize = CHAR_POOL_FOR_RANDOM_STRING.length;
+        for (int i = 0; i < length; i++) {
+            sb.append(CHAR_POOL_FOR_RANDOM_STRING[ThreadLocalRandom.current().nextInt(poolSize)]);
+        }
+        return sb.toString();
     }
 }

@@ -290,6 +290,11 @@
     <!-- Permission text: apps control display units [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_display_units">Control display units.</string>
 
+    <!-- Permission text: apps control information of car's powertrain [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_powertrain">control car\u2019s powertrain information</string>
+    <!-- Permission text: apps control information of car's powertrain [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_powertrain">Control car\u2019s powertrain information.</string>
+
     <!-- Permission text: apps read information of car's powertrain [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_powertrain">read car\u2019s powertrain information</string>
     <!-- Permission text: apps read information of car's powertrain [CHAR LIMIT=NONE] -->

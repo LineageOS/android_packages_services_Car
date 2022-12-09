@@ -465,6 +465,33 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
+     * Current battery capacity for EV or hybrid vehicle
+     *
+     * <p>Returns the actual value of battery capacity in {@link android.car.VehicleUnit#WATT_HOUR},
+     * if EV or hybrid. This property captures the real-time battery capacity taking into account
+     * factors such as battery aging and temperature dependency. Therefore, this value might be
+     * different from {@link #INFO_EV_BATTERY_CAPACITY} because {@link #INFO_EV_BATTERY_CAPACITY}
+     * returns the nominal battery capacity from when the vehicle was new.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_ENERGY)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int EV_CURRENT_BATTERY_CAPACITY = 291504909;
+    /**
      * EV charge port open.
      *
      * <p>Property Config:
@@ -717,6 +744,34 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     @AddedInOrBefore(majorVersion = 33)
     public static final int PARKING_BRAKE_AUTO_APPLY = 287310851;
+    /**
+     * Regenerative braking level of a electronic vehicle
+     *
+     * <p>Returns the current regenerative braking level. Larger values mean more energy regenerated
+     * from braking while smaller values mean less energy regenerated from braking. 0 means no
+     * regenerative braking. See {@link CarPropertyConfig#getMaxValue(int)} and {@link
+     * CarPropertyConfig#getMinValue(int)} for the range of possible values.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_POWERTRAIN))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_POWERTRAIN))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int EV_BRAKE_REGENERATION_LEVEL = 289408012;
     /**
      * Warning for fuel low level.
      *

@@ -483,6 +483,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EV_BATTERY_LEVEL, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CURRENT_BATTERY_CAPACITY, new Pair<>(
+                Car.PERMISSION_ENERGY,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT, new Pair<>(
                 Car.PERMISSION_ENERGY, Car.PERMISSION_CONTROL_CAR_ENERGY));
         mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_PERCENT_LIMIT, new Pair<>(
@@ -530,6 +533,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.PARKING_BRAKE_AUTO_APPLY, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.EV_BRAKE_REGENERATION_LEVEL, new Pair<>(
+                Car.PERMISSION_POWERTRAIN,
+                Car.PERMISSION_CONTROL_POWERTRAIN));
         mHalPropIdToPermissions.put(VehicleProperty.FUEL_LEVEL_LOW, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));

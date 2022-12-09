@@ -45,7 +45,6 @@ import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
 import android.car.user.ExperimentalCarUserManager;
@@ -71,12 +70,6 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
     public CarGetCarManagerTest(Class<?> managerClass, String serviceName) {
         this.mCarManagerClass = managerClass;
         this.mCarServiceName = serviceName;
-    }
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
     }
 
     @Parameterized.Parameters
