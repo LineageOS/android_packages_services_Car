@@ -29,6 +29,7 @@ import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -59,11 +60,24 @@ public final class CarOemProxyServiceHelper {
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int EXIT_FLAG = 10;
-
-    private static final int MAX_CIRCULAR_CALLS_PER_CALLER = 5;
-    private static final int MAX_CIRCULAR_CALL_TOTAL = 10;
     private static final int MAX_THREAD_POOL_SIZE = 16;
     private static final int MIN_THREAD_POOL_SIZE = 8;
+
+    @VisibleForTesting
+    /**
+     * Max number of circular calls per caller. A circular is call between CarService and OEM
+     * Service where CarService calls OEM service and OEM services calls back to CarService.
+     */
+    static final int MAX_CIRCULAR_CALLS_PER_CALLER = 5;
+
+    @VisibleForTesting
+    /**
+     * Max number of total circular calls. A circular is call between CarService and OEM
+     * Service where CarService calls OEM service and OEM services calls back to CarService.
+     *
+     * <p>MAX_CIRCULAR_CALL_TOTAL should be less than MIN_THREAD_POOL_SIZE
+     */
+    static final int MAX_CIRCULAR_CALL_TOTAL = 6;
 
     private final Object mLock = new Object();
 
@@ -326,32 +340,28 @@ public final class CarOemProxyServiceHelper {
         int totalCircularCallsInProcess;
 
         synchronized (mLock) {
-            currentCircularCallForTag = mCallerTracker.getOrDefault(callerTag, 0);
-            totalCircularCallsInProcess = mTotalCircularCallsInProcess;
+            currentCircularCallForTag = mCallerTracker.getOrDefault(callerTag, 0) + 1;
+            mCallerTracker.put(callerTag, currentCircularCallForTag);
+            totalCircularCallsInProcess = mTotalCircularCallsInProcess + 1;
+            mTotalCircularCallsInProcess = totalCircularCallsInProcess;
         }
 
         Slogf.w(TAG, "Possible circular call for %s. Current circular calls are %d."
                 + " Total circular calls are %d.", callerTag, currentCircularCallForTag,
                 totalCircularCallsInProcess);
 
-        if (currentCircularCallForTag + 1 > MAX_CIRCULAR_CALLS_PER_CALLER) {
+        if (currentCircularCallForTag > MAX_CIRCULAR_CALLS_PER_CALLER) {
             Slogf.e(TAG, "Current Circular Calls for %s is %d which is more than the limit %d."
-                    + " Calling to crash CarService", callerTag, (currentCircularCallForTag + 1),
+                    + " Calling to crash CarService", callerTag, currentCircularCallForTag,
                     MAX_CIRCULAR_CALLS_PER_CALLER);
             crashCarService("Max Circular call for " + callerTag);
         }
 
-        if (totalCircularCallsInProcess + 1 > MAX_CIRCULAR_CALL_TOTAL) {
+        if (totalCircularCallsInProcess > MAX_CIRCULAR_CALL_TOTAL) {
             Slogf.e(TAG, "Total Circular Calls is %d which is more than the limit %d."
-                    + " Calling to crash CarService", (totalCircularCallsInProcess + 1),
+                    + " Calling to crash CarService", totalCircularCallsInProcess,
                     MAX_CIRCULAR_CALL_TOTAL);
             crashCarService("Max Circular calls overall");
-        }
-
-        // update tracker
-        synchronized (mLock) {
-            mCallerTracker.put(callerTag, mCallerTracker.getOrDefault(callerTag, 0) + 1);
-            mTotalCircularCallsInProcess = mTotalCircularCallsInProcess + 1;
         }
     }
 
@@ -445,10 +455,13 @@ public final class CarOemProxyServiceHelper {
         if (oemStackTracer != null) {
             Slogf.e(TAG, "OEM Service stack-");
             int timeoutMs = 2000;
+            String stack = "";
+            // Call OEM service directly. Calling any doBinderCallXXX here can lead to infinite loop
+            Future<String> result = mThreadPool.submit(oemStackTracer);
             try {
-                String stack = doBinderTimedCallWithTimeout(TAG, oemStackTracer, timeoutMs);
+                stack = result.get(timeoutMs, TimeUnit.MILLISECONDS);
                 Slogf.e(TAG, stack);
-            } catch (TimeoutException e) {
+            } catch (Exception e) {
                 Slogf.e(TAG, "Didn't received OEM stack within %d milliseconds.\n", timeoutMs);
             }
         }
