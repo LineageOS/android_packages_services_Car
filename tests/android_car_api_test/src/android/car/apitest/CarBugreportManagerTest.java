@@ -27,7 +27,6 @@ import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.car.test.ApiCheckerRule.Builder;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
-import android.os.SystemProperties;
 import android.test.suitebuilder.annotation.LargeTest;
 import android.util.Log;
 
@@ -215,10 +214,7 @@ public final class CarBugreportManagerTest extends CarApiTestBase {
                 try (InputStream entryStream = zipFile.getInputStream(entry)) {
                     String data = streamToText(entryStream, /* maxSizeBytes= */  51200);
                     assertThat(data).contains("== dumpstate: ");
-                    // TODO(b/244668890): Delete this isCuttlefish check after the bug is fixed.
-                    if (!isCuttlefish(SystemProperties.get("ro.product.name"))) {
-                        assertThat(data).contains("dry_run=1");
-                    }
+                    assertThat(data).contains("dry_run=1");
                     assertThat(data).contains("Build fingerprint: ");
                 }
                 return;
@@ -247,14 +243,6 @@ public final class CarBugreportManagerTest extends CarApiTestBase {
         return ParcelFileDescriptor.open(
                 new File("/dev/null"),
                 ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_APPEND);
-    }
-
-    private static boolean isCuttlefish(String productName) {
-        return (null != productName)
-                && (productName.startsWith("aosp_cf_x86")
-                || productName.startsWith("aosp_cf_arm")
-                || productName.startsWith("cf_x86")
-                || productName.startsWith("cf_arm"));
     }
 
     /**

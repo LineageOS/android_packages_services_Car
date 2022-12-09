@@ -279,5 +279,21 @@ public class CarSettings {
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.VISIBLE_USER_ALLOCATION_PER_ZONE";
+
+        /**
+         * Key to indicate whether to allow the driver user to allow controlling media sessions of
+         * a passenger user.
+         *
+         * <p>This is per user setting and the drvier's Media Control Center app will query this
+         * to check whether it can connect/control other user's media session.
+         * The value type is boolean (1 for true, or 0 for false. false by default).
+         *
+         * @hide
+         */
+        @SystemApi
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public static final String KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA =
+                "android.car.DRIVER_ALLOWED_TO_CONTROL_MEDIA";
     }
 }
