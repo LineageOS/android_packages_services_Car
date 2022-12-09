@@ -17,6 +17,8 @@
 package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.USAGE_ALARM;
+import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.android.car.audio.CarAudioContext.CALL;
 
@@ -27,6 +29,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
+import android.telephony.TelephonyManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -55,6 +59,10 @@ public final class CarVolumeInfoWrapperTest {
                     PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP)
                     .setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
                     .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
+    private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+    private static final AudioAttributes TEST_ALARM_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ALARM).build();
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 
@@ -79,6 +87,10 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(TEST_SECONDARY_VOLUME_INFO);
         when(carAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
                 .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO));
+        when(carAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE, TEST_ALARM_AUDIO_ATTRIBUTE));
+        when(carAudioService.getCallStateForZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(TelephonyManager.CALL_STATE_OFFHOOK);
 
         mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(carAudioService);
     }
@@ -163,5 +175,19 @@ public final class CarVolumeInfoWrapperTest {
         assertWithMessage("Car volume group volume groups")
                 .that(mCarVolumeInfoWrapper.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
                 .containsExactly(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO);
+    }
+
+    @Test
+    public void getActiveAudioAttributesForZone() {
+        assertWithMessage("Car volume group active audio attributes")
+                .that(mCarVolumeInfoWrapper.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+                .containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE, TEST_ALARM_AUDIO_ATTRIBUTE);
+    }
+
+    @Test
+    public void getCallStateForZone() {
+        assertWithMessage("Car volume telephony state")
+                .that(mCarVolumeInfoWrapper.getCallStateForZone(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(TelephonyManager.CALL_STATE_OFFHOOK);
     }
 }

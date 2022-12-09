@@ -17,6 +17,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.oemcarservice.testapp">
 
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME" />
+
     <application>
         <service android:name="com.android.car.oemcarservice.testapp.OemCarServiceImpl"
                  android:directBootAware="true"
