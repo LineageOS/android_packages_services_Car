@@ -21,7 +21,6 @@ import static com.android.car.audio.CarAudioUtils.hasExpired;
 
 import android.annotation.NonNull;
 import android.media.AudioAttributes;
-import android.media.AudioManager;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
 
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-final class ZoneAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback {
+final class ZoneAudioPlaybackCallback {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final ArrayMap<AudioAttributes, Long> mAudioAttributesStartTime = new ArrayMap<>();
@@ -53,7 +52,6 @@ final class ZoneAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback
                 "Volume key event timeout must be positive");
     }
 
-    @Override
     public void onPlaybackConfigChanged(List<AudioPlaybackConfiguration> configurations) {
         ArrayMap<String, AudioPlaybackConfiguration> newActiveConfigs =
                 filterNewActiveConfiguration(configurations);
@@ -74,7 +72,7 @@ final class ZoneAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback
      * @return all active audio contexts, including those that recently became inactive but are
      * considered active due to the audio playback timeout.
      */
-    public List<AudioAttributes> getAllActiveAudioAttributesForPrimaryZone() {
+    public List<AudioAttributes> getAllActiveAudioAttributes() {
         synchronized (mLock) {
             List<AudioAttributes> activeContexts = getCurrentlyActiveAttributesLocked();
             activeContexts

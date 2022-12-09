@@ -186,7 +186,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
     private Map<Integer, Integer> mUidToZoneMap;
-    private ZoneAudioPlaybackCallback mZoneAudioPlaybackCallback;
+    private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
     private CarAudioPowerListener mCarAudioPowerListener;
 
     private final HalAudioGainCallback mHalAudioGainCallback =
@@ -694,10 +694,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @GuardedBy("mImplLock")
     private void setupAudioConfigurationCallbackLocked() {
-        mZoneAudioPlaybackCallback =
-                new ZoneAudioPlaybackCallback(getCarAudioZone(PRIMARY_AUDIO_ZONE),
+        mCarAudioPlaybackCallback =
+                new CarAudioPlaybackCallback(mCarAudioZones,
                         mClock, mKeyEventTimeoutMs);
-        mAudioManager.registerAudioPlaybackCallback(mZoneAudioPlaybackCallback, null);
+        mAudioManager.registerAudioPlaybackCallback(mCarAudioPlaybackCallback, null);
     }
 
     @GuardedBy("mImplLock")
@@ -1646,7 +1646,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         synchronized (mImplLock) {
             mCarVolume.resetSelectedVolumeContext();
-            mZoneAudioPlaybackCallback.resetStillActiveContexts();
+            mCarAudioPlaybackCallback.resetStillActiveContexts();
         }
     }
 
@@ -1664,7 +1664,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private List<AudioAttributes> getAllActiveAttributesForPrimaryZone() {
         synchronized (mImplLock) {
-            return mZoneAudioPlaybackCallback.getAllActiveAudioAttributesForPrimaryZone();
+            return mCarAudioPlaybackCallback.getAllActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE);
         }
     }
 
