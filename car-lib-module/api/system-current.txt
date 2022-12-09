@@ -1040,12 +1040,6 @@ package android.car.input {
     field public static final int INPUT_CAPTURE_RESPONSE_FAILED = 1; // 0x1
     field public static final int INPUT_CAPTURE_RESPONSE_SUCCEEDED = 0; // 0x0
     field public static final int INPUT_TYPE_ALL_INPUTS = 1; // 0x1
-    field public static final int INPUT_TYPE_CUSTOM_INPUT_EVENT = 200; // 0xc8
-    field public static final int INPUT_TYPE_DPAD_KEYS = 100; // 0x64
-    field public static final int INPUT_TYPE_NAVIGATE_KEYS = 101; // 0x65
-    field public static final int INPUT_TYPE_ROTARY_NAVIGATION = 10; // 0xa
-    field public static final int INPUT_TYPE_ROTARY_VOLUME = 11; // 0xb
-    field public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102; // 0x66
   }
 
   public static interface CarInputManager.CarInputCaptureCallback {

@@ -48,4 +48,5 @@ interface ICarOccupantZone {
     boolean hasDriverZone();
     boolean hasPassengerZones();
     int getUserForDisplayId(int displayId);
+    int[] getSupportedInputTypes(in int occupantZoneId, in int inputType);
 }
