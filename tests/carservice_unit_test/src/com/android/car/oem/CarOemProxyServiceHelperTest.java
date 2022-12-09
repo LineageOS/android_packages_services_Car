@@ -16,7 +16,7 @@
 
 package com.android.car.oem;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -39,11 +39,16 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Optional;
+import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoTestCase {
     private static final String CALLER_TAG = "test";
+
+    private static final int TIMEOUT_MS = 60_000;
 
     @Mock
     private Context mContext;
@@ -107,9 +112,7 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
 
     @Test
     public void testDoBinderCallTimeoutCrash_withCrash() throws Exception {
-        doAnswer(inv -> {
-            throw new IllegalStateException();
-        }).when(() -> Process.killProcess(anyInt()));
+        doThrow(new IllegalStateException()).when(() -> Process.killProcess(anyInt()));
 
         mockCallTimeout(/* timeoutMs= */ 10);
         CarOemProxyServiceHelper carOemProxyServiceHelper = new CarOemProxyServiceHelper(mContext);
@@ -154,12 +157,93 @@ public final class CarOemProxyServiceHelperTest extends AbstractExtendedMockitoT
 
     @Test
     public void testCrashCarService() {
-        doAnswer(inv -> {
-            throw new IllegalStateException();
-        }).when(() -> Process.killProcess(anyInt()));
+        doThrow(new IllegalStateException()).when(() -> Process.killProcess(anyInt()));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarOemProxyServiceHelper.crashCarService(""));
+    }
+
+    @Test
+    public void testCircularCallSingleCaller() throws Exception {
+        doThrow(new IllegalStateException()).when(() -> Process.killProcess(anyInt()));
+
+        CountDownLatch latch = new CountDownLatch(
+                CarOemProxyServiceHelper.MAX_CIRCULAR_CALLS_PER_CALLER);
+        CountDownLatch latchForReleasing = new CountDownLatch(1);
+        Callable<Integer> callable = () -> {
+            latch.countDown();
+            latchForReleasing.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            return 42;
+        };
+
+        // set test process pid as OEM pid
+        mCarOemProxyServiceHelper.updateOemPid(Process.myPid());
+        // No exception till this allowable circular call
+        for (int i = 0; i < CarOemProxyServiceHelper.MAX_CIRCULAR_CALLS_PER_CALLER; i++) {
+            String threadName = "testCircularCallSingleCaller-" + i;
+            new Thread(() -> {
+                try {
+                    mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, callable,
+                            /* timeoutMs= */ 10000);
+                } catch (TimeoutException e) {
+                }
+            }, threadName).start();
+        }
+        try {
+
+            // wait for all threads to queue operation
+            assertThat(latch.await(5000, TimeUnit.MILLISECONDS)).isTrue();
+
+            assertThrows(IllegalStateException.class, () -> {
+                mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, callable,
+                        /* timeoutMs= */ 3000);
+            });
+        } finally {
+            latchForReleasing.countDown();
+        }
+    }
+
+    @Test
+    public void testCircularCallMultipleCaller() throws Exception {
+        doThrow(new IllegalStateException()).when(() -> Process.killProcess(anyInt()));
+
+        CountDownLatch latch = new CountDownLatch(
+                CarOemProxyServiceHelper.MAX_CIRCULAR_CALL_TOTAL);
+        CountDownLatch latchForReleasing = new CountDownLatch(1);
+
+        Callable<Integer> callable = () -> {
+            latch.countDown();
+            latchForReleasing.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            return 42;
+        };
+
+        // set test process pid as OEM pid
+        mCarOemProxyServiceHelper.updateOemPid(Process.myPid());
+
+        // No exception till this allowable circular call
+        for (int i = 0; i < CarOemProxyServiceHelper.MAX_CIRCULAR_CALL_TOTAL; i++) {
+            String threadName = "testCircularCallMultipleCaller-" + i;
+            new Thread(() -> {
+                try {
+                    String callerTagId = Integer.toString((new Random()).nextInt());
+                    mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG + callerTagId,
+                            callable,
+                            /* timeoutMs= */ 10000);
+                } catch (TimeoutException e) {
+                }
+            }, threadName).start();
+        }
+
+        try {
+            assertThat(latch.await(5000, TimeUnit.MILLISECONDS)).isTrue();
+
+            assertThrows(IllegalStateException.class, () -> {
+                mCarOemProxyServiceHelper.doBinderTimedCallWithTimeout(CALLER_TAG, callable,
+                        /* timeoutMs= */ 30000);
+            });
+        } finally {
+            latchForReleasing.countDown();
+        }
     }
 
     private void mockCallTimeout(int timeoutMs) {
