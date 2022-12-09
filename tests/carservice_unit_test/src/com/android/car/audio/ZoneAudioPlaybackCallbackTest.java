@@ -24,6 +24,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class CarAudioPlaybackCallbackTest {
+public final class ZoneAudioPlaybackCallbackTest {
 
     private static final int PRIMARY_ZONE_ID = 0;
     private static final String PRIMARY_MEDIA_ADDRESS = "music_bus0";
@@ -89,32 +90,40 @@ public final class CarAudioPlaybackCallbackTest {
     }
 
     @Test
-    public void createCarAudioPlaybackCallback_withNullCarAudioZones_fails() throws Exception {
-        assertThrows(NullPointerException.class, () -> {
-            new CarAudioPlaybackCallback(null, mClock, KEY_EVENT_TIMEOUT_MS);
-        });
+    public void createZoneAudioPlaybackCallback_withNullCarAudioZones_fails() throws Exception {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new ZoneAudioPlaybackCallback(null, mClock, KEY_EVENT_TIMEOUT_MS));
+
+        assertWithMessage("Zone audio playback callback constructor")
+                .that(thrown).hasMessageThat().contains("Audio zone cannot be null");
     }
 
     @Test
-    public void createCarAudioPlaybackCallback_withNullSystemClockWrapper_fails() throws Exception {
-        assertThrows(NullPointerException.class, () -> {
-            new CarAudioPlaybackCallback(mPrimaryZone, null, KEY_EVENT_TIMEOUT_MS);
-        });
+    public void createZoneAudioPlaybackCallback_withNullSystemClockWrapper_fails()
+            throws Exception {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new ZoneAudioPlaybackCallback(mPrimaryZone, null, KEY_EVENT_TIMEOUT_MS));
+
+        assertWithMessage("Zone audio playback callback constructor")
+                .that(thrown).hasMessageThat().contains("Clock cannot be null");
     }
 
     @Test
     public void
-            createCarAudioPlaybackCallback_withNegativeKeyEventTimeout_fails() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> {
-            new CarAudioPlaybackCallback(mPrimaryZone, mClock, -KEY_EVENT_TIMEOUT_MS);
-        });
+            createZoneAudioPlaybackCallback_withNegativeKeyEventTimeout_fails() throws Exception {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, -KEY_EVENT_TIMEOUT_MS));
+
+        assertWithMessage("Zone audio playback callback constructor")
+                .that(thrown).hasMessageThat()
+                .contains("Volume key event timeout must be positive");
     }
 
     @Test
     public void
             getAllActiveContextsForPrimaryZone_withNoOnPlaybackConfigChanged_returnsEmptyList() {
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
                 callback.getAllActiveAudioAttributesForPrimaryZone();
@@ -132,8 +141,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -157,8 +166,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -185,8 +194,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(configurations);
 
@@ -212,8 +221,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -249,8 +258,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -293,8 +302,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -337,8 +346,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -380,8 +389,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -421,8 +430,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -451,8 +460,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
@@ -489,8 +498,8 @@ public final class CarAudioPlaybackCallbackTest {
                         .build()
         );
 
-        CarAudioPlaybackCallback callback =
-                new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
+        ZoneAudioPlaybackCallback callback =
+                new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
