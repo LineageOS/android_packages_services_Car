@@ -90,6 +90,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
+import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
 import android.media.audiopolicy.AudioPolicy;
 import android.net.Uri;
@@ -106,7 +107,9 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlFactory;
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
+import com.android.car.audio.hal.HalFocusListener;
 import com.android.car.oem.CarOemProxyService;
 import com.android.car.test.utils.TemporaryFile;
 
@@ -114,6 +117,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -200,6 +204,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private Uri mNavSettingUri;
     @Mock
     private CarVolumeCallbackHandler mCarVolumeCallbackHandler;
+    @Mock
+    private AudioControlWrapperAidl mAudioControlWrapperAidl;
 
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
@@ -209,7 +215,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private Context mContext;
-    private AudioControlWrapperAidl mAudioControlWrapperAidl;
     private AudioDeviceInfo mTunerDevice;
     private AudioDeviceInfo mMediaOutputDevice;
 
@@ -269,13 +274,20 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void setupAudioControlHAL() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mAudioControl);
         doReturn(mBinder).when(AudioControlWrapperAidl::getService);
-        mAudioControlWrapperAidl = new AudioControlWrapperAidl(mBinder);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)).thenReturn(true);
+        when(mAudioControlWrapperAidl.supportsFeature(
+                AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)).thenReturn(true);
         doReturn(mAudioControlWrapperAidl)
                 .when(() -> AudioControlFactory.newAudioControl());
     }
 
     private void setupService() throws Exception {
-        when(mMockContext.getSystemService(Context.TELECOM_SERVICE))
+        when(mMockContext.getSystemService(Context.TELEPHONY_SERVICE))
                 .thenReturn(mMockTelephonyManager);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         doReturn(true)
@@ -1358,6 +1370,76 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Volume group audio attributes with dynamic routing disabled")
                 .that(audioAttributes).isEmpty();
+    }
+
+    @Test
+    public void getActiveAudioAttributesForZone() {
+        mCarAudioService.init();
+
+        assertWithMessage("Default active audio attributes").that(
+                mCarAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE)).isEmpty();
+    }
+
+    @Test
+    public void getActiveAudioAttributesForZone_withActiveHalFocus() {
+        when(mAudioManager.requestAudioFocus(any())).thenReturn(
+                AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+        mCarAudioService.init();
+        requestHalAudioFocus(USAGE_ALARM);
+
+        assertWithMessage("HAL active audio attributes")
+                .that(mCarAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+                .containsExactly(new AudioAttributes.Builder().setUsage(USAGE_ALARM).build());
+    }
+
+    @Test
+    public void getActiveAudioAttributesForZone_withActivePlayback() {
+        mCarAudioService.init();
+        mockActivePlayback();
+
+        assertWithMessage("Playback active audio attributes")
+                .that(mCarAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+                .containsExactly(new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build());
+    }
+
+    @Test
+    public void getActiveAudioAttributesForZone_withActiveHalAndPlayback() {
+        mCarAudioService.init();
+        mockActivePlayback();
+        when(mAudioManager.requestAudioFocus(any())).thenReturn(
+                AudioManager.AUDIOFOCUS_REQUEST_GRANTED);
+        requestHalAudioFocus(USAGE_VOICE_COMMUNICATION);
+
+        assertWithMessage("Playback active audio attributes")
+                .that(mCarAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+                .containsExactly(new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build(),
+                        new AudioAttributes.Builder().setUsage(USAGE_VOICE_COMMUNICATION).build());
+    }
+
+    private void requestHalAudioFocus(int usage) {
+        ArgumentCaptor<HalFocusListener> captor =
+                ArgumentCaptor.forClass(HalFocusListener.class);
+        verify(mAudioControlWrapperAidl).registerFocusListener(captor.capture());
+        HalFocusListener halFocusListener = captor.getValue();
+        halFocusListener.requestAudioFocus(usage, PRIMARY_AUDIO_ZONE,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+    }
+
+    private void mockActivePlayback() {
+        List<AudioPlaybackConfiguration> configurations = List.of(getPlaybackConfig());
+        when(mAudioManager.getActivePlaybackConfigurations())
+                .thenReturn(configurations);
+    }
+
+    private AudioPlaybackConfiguration getPlaybackConfig() {
+        AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                .setUsage(USAGE_MEDIA).build();
+        AudioPlaybackConfiguration config = mock(AudioPlaybackConfiguration.class);
+        when(config.getAudioAttributes()).thenReturn(audioAttributes);
+        when(config.getAudioDeviceInfo()).thenReturn(mMediaOutputDevice);
+        when(config.isActive()).thenReturn(true);
+
+        return config;
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {

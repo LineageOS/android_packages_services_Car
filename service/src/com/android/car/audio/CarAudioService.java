@@ -1008,7 +1008,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * returns the current call state ({@code CALL_STATE_OFFHOOK}, {@code CALL_STATE_RINGING},
      * {@code CALL_STATE_IDLE}) from the telephony manager.
      */
-    private int getCallStateForZone(int zoneId) {
+    int getCallStateForZone(int zoneId) {
         synchronized (mImplLock) {
             // Only driver can use telephony stack
             if (getUserIdForZoneLocked(zoneId) == mOccupantZoneService.getDriverUserId()) {
@@ -1664,6 +1664,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         return mutedGroups;
+    }
+
+    List<AudioAttributes> getActiveAudioAttributesForZone(int zoneId) {
+        List<AudioAttributes> activeAudioAttributes = new ArrayList<>();
+        activeAudioAttributes.addAll(getActiveAttributesFromPlaybackConfigurations(zoneId));
+        activeAudioAttributes.addAll(getActiveHalAudioAttributesForZone(zoneId));
+
+        return activeAudioAttributes;
     }
 
     static final class SystemClockWrapper {

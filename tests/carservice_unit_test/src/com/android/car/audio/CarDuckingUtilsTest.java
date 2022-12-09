@@ -16,15 +16,12 @@
 
 package com.android.car.audio;
 
-import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_CALL_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
-import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_SAFETY;
-import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -43,6 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -164,111 +162,12 @@ public class CarDuckingUtilsTest {
     }
 
     @Test
-    public void getAddressesToDuck_withOneUsage_returnsEmptyList() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).isEmpty();
-    }
-
-    @Test
-    public void getAddressesToDuck_withMultipleUsagesForTheSameContext_returnsEmptyList() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).isEmpty();
-    }
-
-    @Test
-    public void getAddressesToDuck_onlyReturnsDevicesForUsagesHoldingFocus() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).containsExactly(MEDIA_ADDRESS, NAVIGATION_ADDRESS);
-    }
-
-    @Test
-    public void getAddressesToDuck_doesNotConsidersInvalidUsage() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_VIRTUAL_SOURCE));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).isEmpty();
-    }
-
-    @Test
-    public void getAddressesToDuck_withDuckedAndUnduckedContextsSharingDevice_excludesThatDevice() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        when(mockZone.getAddressForContext(CarAudioContext.SAFETY)).thenReturn(NAVIGATION_ADDRESS);
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).containsExactly(MEDIA_ADDRESS);
-    }
-
-    @Test
-    public void getAddressesToDuck_withDuckedContextsSharingADevice_includesAddressOnce() {
-        CarAudioZone mockZone = generateAudioZoneMock();
-        when(mockZone.getAddressForContext(CarAudioContext.ALARM)).thenReturn(MEDIA_ADDRESS);
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ALARM));
-
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
-
-        assertThat(addresses).containsExactly(MEDIA_ADDRESS);
-    }
-
-
-    @Test
-    public void getAddressesToUnduck_onlyReturnsAddressesThatWerePreviouslyDucked() {
-        List<String> oldAddressesToDuck = List.of("one", "three", "four");
-        List<String> addressesToDuck = List.of("one", "two");
-
-        List<String> result = CarDuckingUtils.getAddressesToUnduck(addressesToDuck,
-                oldAddressesToDuck);
-
-        assertThat(result).containsExactly("three", "four");
-    }
-
-    @Test
-    public void getAddressesToUnduck_withNoPreviouslyDuckedAddresses_returnsEmptyArray() {
-        List<String> oldAddressesToDuck = new ArrayList<>();
-        List<String> addressesToDuck = List.of("one", "two");
-
-        List<String> result = CarDuckingUtils.getAddressesToUnduck(addressesToDuck,
-                oldAddressesToDuck);
-
-        assertThat(result).isEmpty();
-    }
-
-    @Test
     public void generateDuckingInfo_succeed() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = new ArrayList<>(/* initialCapacity= */ 3);
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY));
-        audioAttributes.add(CarAudioContext
+        List<AudioAttributes> activeAudioAttributes = new ArrayList<>(/* initialCapacity= */ 3);
+        activeAudioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+        activeAudioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY));
+        activeAudioAttributes.add(CarAudioContext
                 .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
         List<AudioAttributes> audioAttributesWithoutSafety =
                 new ArrayList<>(/* initialCapacity= */ 2);
@@ -279,14 +178,14 @@ public class CarDuckingUtilsTest {
                 new ArrayList<>(/* initialCapacity= */ 1);
         audioAttributesWithOnlyMedia.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
-        List<AudioFocusInfo> focusHolders =
-                generateAudioFocusInfoForAudioAttributes(audioAttributes);
         List<PlaybackTrackMetadata> playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributes, mockZone);
+                CarHalAudioUtils.audioAttributesToMetadatas(activeAudioAttributes, mockZone);
+        List<AudioAttributes> attributesToDuck =
+                CarAudioContext.evaluateAudioAttributesToDuck(activeAudioAttributes);
 
         CarDuckingInfo duckingInfo =
-                CarDuckingUtils.generateDuckingInfo(
-                        getEmptyCarDuckingInfo(), focusHolders, mockZone);
+                CarDuckingUtils.generateDuckingInfo(getEmptyCarDuckingInfo(),
+                        attributesToDuck, activeAudioAttributes, mockZone);
 
         assertThat(duckingInfo.getZoneId()).isEqualTo(ZONE_ID);
         assertThat(duckingInfo.getAddressesToDuck())
@@ -296,13 +195,15 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // Then decimate safety
-        focusHolders = generateAudioFocusInfoForAudioAttributes(audioAttributesWithoutSafety);
+        attributesToDuck = CarAudioContext
+                .evaluateAudioAttributesToDuck(audioAttributesWithoutSafety);
         playbackTrackMetadataHoldingFocus =
                 CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithoutSafety,
                         mockZone);
 
         CarDuckingInfo duckingInfo1 =
-                CarDuckingUtils.generateDuckingInfo(duckingInfo, focusHolders, mockZone);
+                CarDuckingUtils.generateDuckingInfo(duckingInfo, attributesToDuck,
+                        audioAttributesWithoutSafety, mockZone);
 
         assertThat(duckingInfo1.getZoneId()).isEqualTo(ZONE_ID);
         assertThat(duckingInfo1.getAddressesToDuck()).containsExactly(MEDIA_ADDRESS);
@@ -311,12 +212,14 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // Then decimate nav
-        focusHolders = generateAudioFocusInfoForAudioAttributes(audioAttributesWithOnlyMedia);
+        attributesToDuck = CarAudioContext
+                .evaluateAudioAttributesToDuck(audioAttributesWithOnlyMedia);
         playbackTrackMetadataHoldingFocus =
                 CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
 
         CarDuckingInfo duckingInfo2 =
-                CarDuckingUtils.generateDuckingInfo(duckingInfo1, focusHolders, mockZone);
+                CarDuckingUtils.generateDuckingInfo(duckingInfo1, attributesToDuck,
+                        audioAttributesWithOnlyMedia, mockZone);
 
         assertThat(duckingInfo2.getZoneId()).isEqualTo(ZONE_ID);
         assertThat(duckingInfo2.getAddressesToDuck()).isEmpty();
@@ -325,12 +228,12 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // back to none holding focus
-        focusHolders = new ArrayList<AudioFocusInfo>();
         playbackTrackMetadataHoldingFocus =
                 CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
 
         CarDuckingInfo duckingInfo3 =
-                CarDuckingUtils.generateDuckingInfo(duckingInfo2, focusHolders, mockZone);
+                CarDuckingUtils.generateDuckingInfo(duckingInfo2, Collections.EMPTY_LIST,
+                        Collections.EMPTY_LIST, mockZone);
 
         assertThat(duckingInfo3.getZoneId()).isEqualTo(ZONE_ID);
         assertThat(duckingInfo3.getAddressesToDuck()).isEmpty();

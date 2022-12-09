@@ -19,9 +19,9 @@ package {
 }
 
 java_library {
-    name: "com.android.car.oem.focus",
+    name: "com.android.car.oem",
     srcs: [
-        "src/com/android/car/oem/focus/*.java",
+        "src/com/android/car/oem/**/*.java",
         ],
     static_libs: [
         "androidx.annotation_annotation",
@@ -43,5 +43,6 @@ android_app {
     libs: [
         "android.car",
         ],
-    static_libs: ["com.android.car.oem.focus"],
+    static_libs: ["com.android.car.oem"],
+    required: ["allowed_privapp_com.android.car.oemcarservice.testapp"],
 }

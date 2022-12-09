@@ -23,6 +23,8 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.android.car.oem.utils.AudioUtils.getAudioAttributeFromUsage;
+
 import android.car.oem.AudioFocusEntry;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
@@ -33,7 +35,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Slog;
 
-import com.android.internal.annotations.VisibleForTesting;
+import com.android.car.oem.utils.AudioAttributesWrapper;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -76,7 +78,6 @@ public final class FocusInteraction {
     };
 
     static final AudioAttributes[] CALL_ATTRIBUTES = new AudioAttributes[] {
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE),
             getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
             getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
             getAudioAttributeFromUsage(AudioAttributes
@@ -97,7 +98,7 @@ public final class FocusInteraction {
     };
 
     static final AudioAttributes[] EMERGENCY_ATTRIBUTES = new AudioAttributes[]{
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY)
+            getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY)
     };
 
     static final AudioAttributes[] SAFETY_ATTRIBUTES = new AudioAttributes[]{
@@ -512,21 +513,6 @@ public final class FocusInteraction {
                 != 0;
     }
 
-    /**
-     * Returns an audio attribute for a given usage
-     *
-     * @param usage input usage, can be an audio attribute system usage
-     */
-    public static AudioAttributes getAudioAttributeFromUsage(int usage) {
-        AudioAttributes.Builder builder = new AudioAttributes.Builder();
-        if (AudioAttributes.isSystemUsage(usage)) {
-            builder.setSystemUsage(usage);
-        } else {
-            builder.setUsage(usage);
-        }
-        return builder.build();
-    }
-
     public void dump(PrintWriter writer, String indent) {
         writer.printf("%sInteractions: \n", indent);
         Set<AudioAttributesWrapper> audioAttributesWrapperSet =
@@ -562,52 +548,6 @@ public final class FocusInteraction {
                 // fall through
             default:
                 return "INVALID";
-        }
-    }
-
-    /**
-     * Class wraps an audio attributes object. This can be used for comparing audio attributes.
-     *
-     * <p>Currently the audio attributes class compares all the attributes in the two objects.
-     * In automotive only the audio attribute usage is currently used, thus this class can be used
-     * to compare that audio attribute usage.
-     */
-    public static final class AudioAttributesWrapper {
-
-        private final AudioAttributes mAudioAttributes;
-
-        @VisibleForTesting
-        AudioAttributesWrapper(AudioAttributes audioAttributes) {
-            mAudioAttributes = audioAttributes;
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (this == object) return true;
-            if (!(object instanceof AudioAttributesWrapper)) {
-                return false;
-            }
-
-            AudioAttributesWrapper that = (AudioAttributesWrapper) object;
-
-            return mAudioAttributes.getSystemUsage() == that.mAudioAttributes.getSystemUsage();
-        }
-
-        @Override
-        public int hashCode() {
-            return Integer.hashCode(mAudioAttributes.getSystemUsage());
-        }
-
-        @Override
-        public String toString() {
-            return mAudioAttributes.toString();
-        }
-
-        /**
-         * Returns the audio attributes for the wrapper
-         */
-        public AudioAttributes getAudioAttributes() {
-            return mAudioAttributes;
         }
     }
 

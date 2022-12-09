@@ -409,6 +409,37 @@ public final class CarAudioContext {
         }
     }
 
+    static List<AudioAttributes> evaluateAudioAttributesToDuck(
+            List<AudioAttributes> activePlaybackAttributes) {
+        ArraySet<AudioAttributesWrapper> attributesToDuck = new ArraySet<>();
+        List<AudioAttributesWrapper> wrappers = new ArrayList<>(activePlaybackAttributes.size());
+        for (int index = 0; index < activePlaybackAttributes.size(); index++) {
+            AudioAttributesWrapper wrapper =
+                    new AudioAttributesWrapper(activePlaybackAttributes.get(index));
+            wrappers.add(wrapper);
+            int context = AUDIO_ATTRIBUTE_TO_CONTEXT.getOrDefault(wrapper, INVALID);
+            if (isInvalidContextId(context)) {
+                continue;
+            }
+            List<Integer> contextsToDuck = sContextsToDuck.get(context);
+            for (int contextIndex = 0; contextIndex < contextsToDuck.size(); contextIndex++) {
+                AudioAttributes[] duckedAttributes =
+                        CONTEXT_TO_ATTRIBUTES.get(contextsToDuck.get(contextIndex));
+                for (int i = 0; i < duckedAttributes.length; i++) {
+                    attributesToDuck.add(new AudioAttributesWrapper(duckedAttributes[i]));
+                }
+            }
+        }
+        attributesToDuck.retainAll(wrappers);
+
+        List<AudioAttributes> duckedAudioAttributes = new ArrayList<>(attributesToDuck.size());
+        for (int index = 0; index < attributesToDuck.size(); index++) {
+            duckedAudioAttributes.add(attributesToDuck.valueAt(index).getAudioAttributes());
+        }
+
+        return duckedAudioAttributes;
+    }
+
     /**
      * Checks if the audio attribute usage is valid, throws an {@link IllegalArgumentException}
      * if the {@code usage} is not valid.
