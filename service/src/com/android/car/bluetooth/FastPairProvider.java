@@ -218,6 +218,8 @@ public class FastPairProvider {
      */
     public void stop() {
         if (!mStarted) return;
+        stopGatt();
+        stopAdvertising();
         mContext.unregisterReceiver(mDiscoveryModeChanged);
         mStarted = false;
     }
