@@ -35,7 +35,7 @@ public final class AppBlockingPackageInfoTest extends CarLessApiTestBase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 
     @Test
-    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#toString"})
+    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#CREATOR"})
     public void testParcellingSystemInfo() throws Exception {
         AppBlockingPackageInfo carServiceInfo = createInfoCarService(mContext);
         Parcel dest = Parcel.obtain();
@@ -47,7 +47,7 @@ public final class AppBlockingPackageInfoTest extends CarLessApiTestBase {
     }
 
     @Test
-    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#toString"})
+    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#CREATOR"})
     public void testParcellingNonSystemInfo() throws Exception {
         AppBlockingPackageInfo selfInfo = createInfoSelf(mContext);
         Parcel dest = Parcel.obtain();

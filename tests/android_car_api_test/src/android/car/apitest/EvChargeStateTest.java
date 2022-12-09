@@ -57,7 +57,11 @@ public final class EvChargeStateTest extends CarLessApiTestBase {
     }
 
     @Test
-    @ApiTest(apis = {"android.car.hardware.property.EvChargeState#toString"})
+    @ApiTest(apis = {"android.car.hardware.property.EvChargeState#STATE_UNKNOWN",
+            "android.car.hardware.property.EvChargeState#STATE_CHARGING",
+            "android.car.hardware.property.EvChargeState#STATE_FULLY_CHARGED",
+            "android.car.hardware.property.EvChargeState#STATE_NOT_CHARGING",
+            "android.car.hardware.property.EvChargeState#STATE_ERROR"})
     public void testMatchWithVehicleHal() {
         assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
     }

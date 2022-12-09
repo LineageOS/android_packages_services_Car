@@ -32,8 +32,8 @@ public final class CarAppBlockingPolicyTest extends CarLessApiTestBase {
     private static final String TAG = AppBlockingPackageInfoTest.class.getSimpleName();
 
     @Test
-    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#toString",
-            "android.car.content.pm.CarAppBlockingPolicy#toString"})
+    @ApiTest(apis = {"android.car.content.pm.AppBlockingPackageInfo#CREATOR",
+            "android.car.content.pm.CarAppBlockingPolicy#CREATOR"})
     public void testParcelling() throws Exception {
         AppBlockingPackageInfo carServiceInfo =
                 AppBlockingPackageInfoTest.createInfoCarService(mContext);
