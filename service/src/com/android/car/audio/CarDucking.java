@@ -49,8 +49,10 @@ final class CarDucking implements CarFocusCallback {
         mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper);
         for (int i = 0; i < carAudioZones.size(); i++) {
             int zoneId = carAudioZones.keyAt(i);
-            mCurrentDuckingInfo.put(zoneId,
-                    new CarDuckingInfo(zoneId, new ArrayList<>(), new ArrayList<>(), new int[0]));
+            mCurrentDuckingInfo.put(
+                    zoneId,
+                    new CarDuckingInfo(
+                            zoneId, new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));
         }
     }
 
@@ -104,11 +106,6 @@ final class CarDucking implements CarFocusCallback {
         int zoneId = oldDuckingInfo.mZoneId;
         CarAudioZone zone = mCarAudioZones.get(zoneId);
 
-        int[] usagesHoldingFocus = CarDuckingUtils.getUsagesHoldingFocus(focusHolders);
-        List<String> addressesToDuck = CarDuckingUtils.getAddressesToDuck(usagesHoldingFocus, zone);
-        List<String> addressesToUnduck = CarDuckingUtils.getAddressesToUnduck(addressesToDuck,
-                oldDuckingInfo.mAddressesToDuck);
-
-        return new CarDuckingInfo(zoneId, addressesToDuck, addressesToUnduck, usagesHoldingFocus);
+        return CarDuckingUtils.generateDuckingInfo(oldDuckingInfo, focusHolders, zone);
     }
 }

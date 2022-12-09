@@ -18,6 +18,16 @@ package com.android.car.telemetry.publisher;
 
 import static android.car.hardware.property.CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
 
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_BOOLEAN_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_BYTE_ARRAY_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_FLOAT_ARRAY_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_FLOAT_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_INT_ARRAY_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_INT_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_LONG_ARRAY_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_LONG_KEY;
+import static com.android.car.telemetry.publisher.VehiclePropertyPublisher.BUNDLE_STRING_KEY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -51,24 +61,133 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VehiclePropertyPublisherTest {
-    private static final int PROP_ID_1 = 100;
-    private static final int PROP_ID_2 = 102;
+    private static final int PROP_STRING_ID = 0x00100000;
+    private static final int PROP_BOOLEAN_ID = 0x00200000;
+    private static final int PROP_INT_ID = 0x00400000;
+    private static final int PROP_INT_ID_2 = 0x00400001;
+    private static final int PROP_INT_VEC_ID = 0x00410000;
+    private static final int PROP_LONG_ID = 0x00500000;
+    private static final int PROP_LONG_VEC_ID = 0x00510000;
+    private static final int PROP_FLOAT_ID = 0x00600000;
+    private static final int PROP_FLOAT_VEC_ID = 0x00610000;
+    private static final int PROP_BYTES_ID = 0x00700000;
+    private static final int PROP_MIXED_ID = 0x00e00000;
     private static final int AREA_ID = 20;
     private static final float PROP_READ_RATE = 0.0f;
-    private static final CarPropertyEvent PROP_EVENT_1 =
+    private static final CarPropertyEvent PROP_STRING_EVENT =
             new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
-                    new CarPropertyValue<>(PROP_ID_1, AREA_ID, /* value= */ 1));
+                    new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, "hi"));
+    private static final CarPropertyEvent PROP_BOOLEAN_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_BOOLEAN_ID, AREA_ID, true));
+    private static final CarPropertyEvent PROP_INT_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_INT_ID, AREA_ID, 1));
+    private static final CarPropertyEvent PROP_INT_VEC_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_INT_VEC_ID, AREA_ID, new Integer[] {1, 2}));
+    private static final CarPropertyEvent PROP_LONG_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_LONG_ID, AREA_ID, 10L));
+    private static final CarPropertyEvent PROP_LONG_VEC_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_LONG_VEC_ID, AREA_ID, new Long[] {10L, 20L}));
+    private static final CarPropertyEvent PROP_FLOAT_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_FLOAT_ID, AREA_ID, 1f));
+    private static final CarPropertyEvent PROP_FLOAT_VEC_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_FLOAT_VEC_ID, AREA_ID, new Float[] {1f, 2f}));
+    private static final CarPropertyEvent PROP_BYTES_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_BYTES_ID, AREA_ID,
+                            new byte[] {(byte) 1, (byte) 2}));
+    private static final CarPropertyEvent PROP_MIXED_EVENT =
+            new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                    new CarPropertyValue<>(PROP_MIXED_ID, AREA_ID, new Object[] {
+                            "test",
+                            (Boolean) true,
+                            (Integer) 1,
+                            (Integer) 2,
+                            (Integer) 3,
+                            (Integer) 4,
+                            (Long) 2L,
+                            (Long) 5L,
+                            (Long) 6L,
+                            (Float) 3f,
+                            (Float) 7f,
+                            (Float) 8f,
+                            (byte) 5,
+                            (byte) 6
+                    }));
 
-    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_1 =
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_STRING =
             TelemetryProto.Publisher.newBuilder()
                     .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
                             .setReadRate(PROP_READ_RATE)
-                            .setVehiclePropertyId(PROP_ID_1))
+                            .setVehiclePropertyId(PROP_STRING_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_BOOLEAN =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_BOOLEAN_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_INT =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_INT_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_INT_VEC =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_INT_VEC_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_LONG =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_LONG_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_LONG_VEC =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_LONG_VEC_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_FLOAT =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_FLOAT_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_FLOAT_VEC =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_FLOAT_VEC_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_BYTES =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_BYTES_ID))
+                    .build();
+    private static final TelemetryProto.Publisher PUBLISHER_PARAMS_MIXED =
+            TelemetryProto.Publisher.newBuilder()
+                    .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
+                            .setReadRate(PROP_READ_RATE)
+                            .setVehiclePropertyId(PROP_MIXED_ID))
                     .build();
     private static final TelemetryProto.Publisher PUBLISHER_PARAMS_INVALID =
             TelemetryProto.Publisher.newBuilder()
@@ -78,11 +197,40 @@ public class VehiclePropertyPublisherTest {
                     .build();
 
     // CarPropertyConfigs for mMockCarPropertyService.
-    private static final CarPropertyConfig<Integer> PROP_CONFIG_1 =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_ID_1, AREA_ID).setAccess(
+    private static final CarPropertyConfig<Integer> PROP_STRING_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_STRING_ID, AREA_ID).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_BOOLEAN_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_BOOLEAN_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_INT_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_INT_VEC_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_VEC_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_LONG_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_LONG_VEC_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_LONG_VEC_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_FLOAT_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_FLOAT_VEC_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_FLOAT_VEC_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_BYTES_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_BYTES_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
+    private static final CarPropertyConfig<Integer> PROP_MIXED_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_MIXED_ID, AREA_ID).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ)
+                        .setConfigArray(new ArrayList<Integer>(
+                                Arrays.asList(1, 1, 1, 3, 1, 2, 1, 2, 2))).build();
     private static final CarPropertyConfig<Integer> PROP_CONFIG_2_WRITE_ONLY =
-            CarPropertyConfig.newBuilder(Integer.class, PROP_ID_2, AREA_ID).setAccess(
+            CarPropertyConfig.newBuilder(Integer.class, PROP_INT_ID_2, AREA_ID).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build();
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
@@ -90,7 +238,25 @@ public class VehiclePropertyPublisherTest {
     private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
 
     @Mock
-    private DataSubscriber mMockDataSubscriber;
+    private DataSubscriber mMockStringDataSubscriber;
+    @Mock
+    private DataSubscriber mMockBoolDataSubscriber;
+    @Mock
+    private DataSubscriber mMockIntDataSubscriber;
+    @Mock
+    private DataSubscriber mMockIntVecDataSubscriber;
+    @Mock
+    private DataSubscriber mMockLongDataSubscriber;
+    @Mock
+    private DataSubscriber mMockLongVecDataSubscriber;
+    @Mock
+    private DataSubscriber mMockFloatDataSubscriber;
+    @Mock
+    private DataSubscriber mMockFloatVecDataSubscriber;
+    @Mock
+    private DataSubscriber mMockBytesDataSubscriber;
+    @Mock
+    private DataSubscriber mMockMixedDataSubscriber;
     @Mock
     private CarPropertyService mMockCarPropertyService;
 
@@ -103,9 +269,30 @@ public class VehiclePropertyPublisherTest {
 
     @Before
     public void setUp() {
-        when(mMockDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+        when(mMockStringDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_STRING);
+        when(mMockBoolDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_BOOLEAN);
+        when(mMockIntDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_INT);
+        when(mMockIntVecDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_INT_VEC);
+        when(mMockLongDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_LONG);
+        when(mMockLongVecDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_LONG_VEC);
+        when(mMockFloatDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_FLOAT);
+        when(mMockFloatVecDataSubscriber.getPublisherParam())
+            .thenReturn(PUBLISHER_PARAMS_FLOAT_VEC);
+        when(mMockBytesDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_BYTES);
+        when(mMockMixedDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_MIXED);
         when(mMockCarPropertyService.getPropertyList())
-                .thenReturn(List.of(PROP_CONFIG_1, PROP_CONFIG_2_WRITE_ONLY));
+                .thenReturn(List.of(
+                        PROP_STRING_CONFIG,
+                        PROP_BOOLEAN_CONFIG,
+                        PROP_INT_CONFIG,
+                        PROP_INT_VEC_CONFIG,
+                        PROP_LONG_CONFIG,
+                        PROP_LONG_VEC_CONFIG,
+                        PROP_FLOAT_CONFIG,
+                        PROP_FLOAT_VEC_CONFIG,
+                        PROP_BYTES_CONFIG,
+                        PROP_MIXED_CONFIG,
+                        PROP_CONFIG_2_WRITE_ONLY));
         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
                 mMockCarPropertyService,
                 mFakePublisherListener,
@@ -114,23 +301,24 @@ public class VehiclePropertyPublisherTest {
 
     @Test
     public void testAddDataSubscriber_registersNewCallback() {
-        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
 
-        verify(mMockCarPropertyService).registerListener(eq(PROP_ID_1), eq(PROP_READ_RATE), any());
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        verify(mMockCarPropertyService).registerListener(
+                eq(PROP_INT_ID), eq(PROP_READ_RATE), any());
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isTrue();
     }
 
     @Test
     public void testAddDataSubscriber_withSamePropertyId_registersSingleListener() {
         DataSubscriber subscriber2 = mock(DataSubscriber.class);
-        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_INT);
 
-        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
         mVehiclePropertyPublisher.addDataSubscriber(subscriber2);
 
         verify(mMockCarPropertyService, times(1))
-                .registerListener(eq(PROP_ID_1), eq(PROP_READ_RATE), any());
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+                .registerListener(eq(PROP_INT_ID), eq(PROP_READ_RATE), any());
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isTrue();
         assertThat(mVehiclePropertyPublisher.hasDataSubscriber(subscriber2)).isTrue();
     }
 
@@ -141,14 +329,14 @@ public class VehiclePropertyPublisherTest {
                 TelemetryProto.Publisher.newBuilder()
                         .setVehicleProperty(TelemetryProto.VehiclePropertyPublisher.newBuilder()
                                 .setReadRate(PROP_READ_RATE)
-                                .setVehiclePropertyId(PROP_ID_2))
+                                .setVehiclePropertyId(PROP_INT_ID_2))
                         .build());
 
         Throwable error = assertThrows(IllegalArgumentException.class,
                 () -> mVehiclePropertyPublisher.addDataSubscriber(invalidDataSubscriber));
 
         assertThat(error).hasMessageThat().contains("No access.");
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isFalse();
     }
 
     @Test
@@ -160,48 +348,120 @@ public class VehiclePropertyPublisherTest {
                 () -> mVehiclePropertyPublisher.addDataSubscriber(invalidDataSubscriber));
 
         assertThat(error).hasMessageThat().contains("not found");
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isFalse();
     }
 
     @Test
     public void testRemoveDataSubscriber_succeeds() {
-        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
 
-        mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.removeDataSubscriber(mMockIntDataSubscriber);
 
-        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_ID_1), any());
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_INT_ID), any());
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isFalse();
     }
 
     @Test
     public void testRemoveDataSubscriber_ignoresIfNotFound() {
-        mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.removeDataSubscriber(mMockIntDataSubscriber);
     }
 
     @Test
     public void testRemoveAllDataSubscribers_succeeds() {
         DataSubscriber subscriber2 = mock(DataSubscriber.class);
-        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
-        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_INT);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
         mVehiclePropertyPublisher.addDataSubscriber(subscriber2);
 
         mVehiclePropertyPublisher.removeAllDataSubscribers();
 
-        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockIntDataSubscriber)).isFalse();
         assertThat(mVehiclePropertyPublisher.hasDataSubscriber(subscriber2)).isFalse();
-        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_ID_1), any());
+        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_INT_ID), any());
     }
 
     @Test
     public void testOnNewCarPropertyEvent_pushesValueToDataSubscriber() throws Exception {
         doNothing().when(mMockCarPropertyService).registerListener(
                 anyInt(), anyFloat(), mCarPropertyCallbackCaptor.capture());
-        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
 
-        mCarPropertyCallbackCaptor.getValue().onEvent(Collections.singletonList(PROP_EVENT_1));
+        mCarPropertyCallbackCaptor.getValue().onEvent(Collections.singletonList(PROP_INT_EVENT));
 
-        verify(mMockDataSubscriber).push(mBundleCaptor.capture());
-        // TODO(b/197269115): add more assertions on the contents of
-        // PersistableBundle object.
+        verify(mMockIntDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+    }
+
+    @Test
+    public void testOnNewCarPropertyEvent_parsesValueCorrectly() throws Exception {
+        doNothing().when(mMockCarPropertyService).registerListener(
+                anyInt(), anyFloat(), mCarPropertyCallbackCaptor.capture());
+        mVehiclePropertyPublisher.addDataSubscriber(mMockStringDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockBoolDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockIntVecDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockLongDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockLongVecDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockFloatDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockFloatVecDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockBytesDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockMixedDataSubscriber);
+        ICarPropertyEventListener eventListener = mCarPropertyCallbackCaptor.getValue();
+        eventListener.onEvent(Collections.singletonList(PROP_STRING_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_BOOLEAN_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_INT_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_INT_VEC_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_LONG_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_LONG_VEC_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_FLOAT_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_FLOAT_VEC_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_BYTES_EVENT));
+        eventListener.onEvent(Collections.singletonList(PROP_MIXED_EVENT));
+
+        verify(mMockStringDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getString(BUNDLE_STRING_KEY)).isEqualTo("hi");
+
+        verify(mMockBoolDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
+
+        verify(mMockIntDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+
+        verify(mMockIntVecDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getIntArray(BUNDLE_INT_ARRAY_KEY))
+            .isEqualTo(new int[] {1, 2});
+
+        verify(mMockLongDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getLong(BUNDLE_LONG_KEY)).isEqualTo(10L);
+
+        verify(mMockLongVecDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getLongArray(BUNDLE_LONG_ARRAY_KEY))
+            .isEqualTo(new long[] {10L, 20L});
+
+        verify(mMockFloatDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(1d);
+
+        verify(mMockFloatVecDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+            .isEqualTo(new double[] {1d, 2d});
+
+        verify(mMockBytesDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getString(BUNDLE_BYTE_ARRAY_KEY))
+            .isEqualTo(new String(new byte[] {(byte) 1, (byte) 2}, StandardCharsets.UTF_8));
+
+        verify(mMockMixedDataSubscriber).push(mBundleCaptor.capture());
+        assertThat(mBundleCaptor.getValue().getString(BUNDLE_STRING_KEY)).isEqualTo("test");
+        assertThat(mBundleCaptor.getValue().getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
+        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        assertThat(mBundleCaptor.getValue().getIntArray(BUNDLE_INT_ARRAY_KEY))
+            .isEqualTo(new int[] {2, 3, 4});
+        assertThat(mBundleCaptor.getValue().getLong(BUNDLE_LONG_KEY)).isEqualTo(2L);
+        assertThat(mBundleCaptor.getValue().getLongArray(BUNDLE_LONG_ARRAY_KEY))
+            .isEqualTo(new long[] {5L, 6L});
+        assertThat(mBundleCaptor.getValue().getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(3d);
+        assertThat(mBundleCaptor.getValue().getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+            .isEqualTo(new double[] {7d, 8d});
+        assertThat(mBundleCaptor.getValue().getString(BUNDLE_BYTE_ARRAY_KEY))
+            .isEqualTo(new String(new byte[] {(byte) 5, (byte) 6}, StandardCharsets.UTF_8));
     }
 }

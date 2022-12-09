@@ -19,9 +19,13 @@ package com.android.systemui.car.displayarea;
 import android.content.Context;
 import android.os.Handler;
 
+import com.android.systemui.car.CarDeviceProvisionedController;
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.qs.QSHost;
+import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
@@ -49,9 +53,14 @@ public abstract class CarDisplayAreaModule {
     static CarDisplayAreaController provideCarDisplayAreaController(Context context,
             SyncTransactionQueue syncQueue, CarFullscreenTaskListener carFullscreenTaskListener,
             ConfigurationController configurationController, QSHost host,
-            ShellExecutor mainExecutor, CarDisplayAreaOrganizer organizer) {
+            ShellExecutor mainExecutor, CarServiceProvider carServiceProvider,
+            CarDisplayAreaOrganizer organizer, CarUiPortraitDisplaySystemBarsController
+            carUiPortraitDisplaySystemBarsController, CommandQueue commandQueue,
+            CarDeviceProvisionedController deviceProvisionedController) {
         return new CarDisplayAreaController(context, syncQueue, carFullscreenTaskListener,
-                mainExecutor, configurationController, host, organizer);
+                mainExecutor, configurationController, host, carServiceProvider, organizer,
+                carUiPortraitDisplaySystemBarsController, commandQueue,
+                deviceProvisionedController);
     }
 
     @Provides

@@ -31,12 +31,18 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
@@ -300,6 +306,63 @@ public class CarAudioZoneTest {
         when(nullAddressDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
 
         assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isTrue();
+    }
+
+    @Test
+    public void onAudioGainChanged_withDeviceAddressesInZone() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mMockNavGroup);
+
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+
+        AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();
+        musicGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
+        musicGainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
+        AudioGainConfigInfo navGainInfo = new AudioGainConfigInfo();
+        navGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        navGainInfo.devicePortAddress = NAV_ADDRESS;
+        navGainInfo.volumeIndex = 999;
+        CarAudioGainConfigInfo carNavGainInfo = new CarAudioGainConfigInfo(navGainInfo);
+
+        List<CarAudioGainConfigInfo> carGains = List.of(carMusicGainInfo, carNavGainInfo);
+
+        mTestAudioZone.onAudioGainChanged(reasons, carGains);
+
+        verify(mMockMusicGroup).onAudioGainChanged(eq(reasons), eq(carMusicGainInfo));
+        verify(mMockNavGroup).onAudioGainChanged(eq(reasons), eq(carNavGainInfo));
+        verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());
+    }
+
+    @Test
+    public void onAudioGainChanged_withoutAnyDeviceAddressInZone() {
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+
+        AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();
+        musicGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
+        musicGainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
+        AudioGainConfigInfo navGainInfo = new AudioGainConfigInfo();
+        navGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        navGainInfo.devicePortAddress = NAV_ADDRESS;
+        navGainInfo.volumeIndex = 999;
+        CarAudioGainConfigInfo carNavGainInfo = new CarAudioGainConfigInfo(navGainInfo);
+        AudioGainConfigInfo voiceGainInfo = new AudioGainConfigInfo();
+        voiceGainInfo.zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
+        voiceGainInfo.devicePortAddress = VOICE_ADDRESS;
+        voiceGainInfo.volumeIndex = 777;
+        CarAudioGainConfigInfo carVoiceGainInfo = new CarAudioGainConfigInfo(voiceGainInfo);
+
+        List<CarAudioGainConfigInfo> carGains =
+                List.of(carMusicGainInfo, carNavGainInfo, carVoiceGainInfo);
+
+        mTestAudioZone.onAudioGainChanged(reasons, carGains);
+
+        verify(mMockMusicGroup, never()).onAudioGainChanged(any(), any());
+        verify(mMockNavGroup, never()).onAudioGainChanged(any(), any());
+        verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());
     }
 
     private static class VolumeGroupBuilder {

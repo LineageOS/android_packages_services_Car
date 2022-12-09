@@ -162,7 +162,7 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             } catch (Exception e) {
                 Log.e(TAG, "Failed to set VHAL property", e);
                 Toast.makeText(mActivity, "Failed to set VHAL property: " + e.getMessage(),
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
             }
         });
 

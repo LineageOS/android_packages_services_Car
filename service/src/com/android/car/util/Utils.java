@@ -28,6 +28,8 @@ import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.UserHandle;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -222,4 +224,25 @@ public final class Utils {
                         Collectors.joining(",")));
         return false;
     }
+
+    /**
+     * Checks if the calling UID owns the give package.
+     *
+     * @throws SecurityException if the calling UID doesn't own the given package.
+     */
+    public static void checkCalledByPackage(Context context, String packageName) {
+        int callingUid = Binder.getCallingUid();
+        PackageManager pm = context.getPackageManager();
+        String[] packages = pm.getPackagesForUid(callingUid);
+        if (packages != null) {
+            for (String candidate: packages) {
+                if (candidate.equals(packageName)) {
+                    return;
+                }
+            }
+        }
+        throw new SecurityException(
+                "Package " + packageName + " is not associated to UID " + callingUid);
+    }
+
 }

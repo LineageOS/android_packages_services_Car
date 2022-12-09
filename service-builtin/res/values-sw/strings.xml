@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"kupachika kwenye huduma ya kuonyesha skrini"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Inaruhusu kishikiliaji kipachikwe katika kiolesura cha kiwango cha juu cha huduma ya kuonyesha. Haipaswi kuhitajika katika programu za kawaida."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Huduma ya Viteja vya VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Ipachike kwenye viteja vya VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Uwasilishaji wa Kikundi cha Zana"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Kupokea data ya kikundi cha zana"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Huduma ya Kuweka Data ya Gari"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Kudhibiti matukio ya kuweka data"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Huwezi kutumia kipengele hiki wakati unaendesha gari"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Ili uanzishe tena ukitumia vipengele salama vya programu, chagua <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Rudi Nyuma"</string>

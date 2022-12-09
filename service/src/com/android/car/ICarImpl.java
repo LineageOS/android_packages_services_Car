@@ -248,6 +248,11 @@ public class ICarImpl extends ICar.Stub {
         mCarUXRestrictionsService = constructWithTrace(t, CarUxRestrictionsManagerService.class,
                 () -> new CarUxRestrictionsManagerService(serviceContext, mCarDrivingStateService,
                         mCarPropertyService, mCarOccupantZoneService));
+        mCarActivityService = constructWithTrace(t, CarActivityService.class,
+                () -> new CarActivityService(serviceContext));
+        mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
+                () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
+                        mCarActivityService, mCarOccupantZoneService));
         if (carUserService != null) {
             mCarUserService = carUserService;
             CarLocalServices.addService(CarUserService.class, carUserService);
@@ -256,7 +261,7 @@ public class ICarImpl extends ICar.Stub {
             int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(serviceContext);
             mCarUserService = constructWithTrace(t, CarUserService.class,
                     () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
-                            maxRunningUsers, mCarUXRestrictionsService));
+                            maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService));
         }
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
@@ -284,11 +289,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mOccupantAwarenessService = null;
         }
-        mCarActivityService = constructWithTrace(t, CarActivityService.class,
-                () -> new CarActivityService(serviceContext));
-        mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
-                () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
-                        mCarActivityService, mCarOccupantZoneService));
         mPerUserCarServiceHelper = constructWithTrace(
                 t, PerUserCarServiceHelper.class,
                 () -> new PerUserCarServiceHelper(serviceContext, mCarUserService));
@@ -369,12 +369,14 @@ public class ICarImpl extends ICar.Stub {
                     () -> new CarWatchdogService(serviceContext, mCarServiceBuiltinPackageContext));
         } else {
             mCarWatchdogService = carWatchdogService;
+            CarLocalServices.addService(CarWatchdogService.class, mCarWatchdogService);
         }
         if (carPerformanceService == null) {
             mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
                     () -> new CarPerformanceService(serviceContext));
         } else {
             mCarPerformanceService = carPerformanceService;
+            CarLocalServices.addService(CarPerformanceService.class, mCarPerformanceService);
         }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
@@ -405,7 +407,8 @@ public class ICarImpl extends ICar.Stub {
         if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
             if (carTelemetryService == null) {
                 mCarTelemetryService = constructWithTrace(t, CarTelemetryService.class,
-                        () -> new CarTelemetryService(serviceContext, mCarPropertyService));
+                        () -> new CarTelemetryService(
+                                serviceContext, mCarPowerManagementService, mCarPropertyService));
             } else {
                 mCarTelemetryService = carTelemetryService;
             }
@@ -786,11 +789,16 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpVersions(IndentingPrintWriter writer) {
         writer.println("*Dump versions*");
-        writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
-        writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
-        writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
-        writer.println("Car Platform minor:" + Car.PLATFORM_VERSION_MINOR_INT);
-        writer.println("CarBuiltin Platform minor:" + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
+        writer.println("Android SDK_INT: " + Build.VERSION.SDK_INT);
+        writer.println("Car Version: " + Car.getCarVersion());
+        writer.println("Platform Version: " + Car.getPlatformVersion());
+        writer.println("CarBuiltin Platform minor: " + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
+        writer.println("Legacy versions (might differ from above as they can't be emulated)");
+        writer.increaseIndent();
+        writer.println("Car API major: " + Car.API_VERSION_MAJOR_INT);
+        writer.println("Car API minor: " + Car.API_VERSION_MINOR_INT);
+        writer.println("Car Platform minor: " + Car.PLATFORM_VERSION_MINOR_INT);
+        writer.decreaseIndent();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -954,6 +962,8 @@ public class ICarImpl extends ICar.Stub {
             mCarUserService.initBootUser();
         }
 
+        // TODO(235524989): Remove this method as on user removed will now go through
+        // onUserLifecycleEvent due to changes in CarServiceProxy and CarUserService.
         @Override
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();

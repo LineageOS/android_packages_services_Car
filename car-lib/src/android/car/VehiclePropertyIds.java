@@ -19,7 +19,9 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
@@ -33,9 +35,10 @@ import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
- * /vehicle/V2_0. Need to update this file when vehicle propertyId is changed in VHAL.
- * Use it as PropertyId in getProperty() and setProperty() in
+ * Based on {@code VehicleProperty.java} generated based on {@code VehicleProperty.aidl} in VHAL
+ * interface.
+ * Need to update this file when vehicle propertyId is changed in VHAL. Use it as PropertyId in
+ * getProperty() and setProperty() in
  * {@link android.car.hardware.property.CarPropertyManager}
  */
 public final class VehiclePropertyIds {
@@ -1024,13 +1027,14 @@ public final class VehiclePropertyIds {
     public static final int HVAC_SEAT_VENTILATION = 356517139;
     /**
      * ELECTRIC DEFROSTER
-     * The property is protected by the signature permission:
+     * The property is a read and write controllable and is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
      *
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556;
     /**
      * Distance units for display.
@@ -2239,6 +2243,19 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
     @AddedInOrBefore(majorVersion = 33)
     public static final int TRAILER_PRESENT = 289410885;
+
+    /**
+     * EU's General security regulation compliance requirement.
+     *
+     * <p>Returns whether general security regulation compliance is required, if
+     * so, what type of requirement. See {@link GsrComplianceType} for possible enums.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_INFO))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
     /*
      * Used to cache the mapping of property Id integer values into property name strings. This

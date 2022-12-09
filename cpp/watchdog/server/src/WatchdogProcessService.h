@@ -92,7 +92,7 @@ public:
             const android::automotive::watchdog::internal::ProcessIdentifier&
                     processIdentifier) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted) = 0;
+    virtual void onUserStateChange(userid_t userId, bool isStarted) = 0;
 };
 
 class WatchdogProcessService final : public WatchdogProcessServiceInterface {
@@ -133,7 +133,7 @@ public:
                     monitor,
             const android::automotive::watchdog::internal::ProcessIdentifier& processIdentifier);
     virtual void setEnabled(bool isEnabled);
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted);
+    virtual void onUserStateChange(userid_t userId, bool isStarted);
 
 private:
     enum ClientType {
@@ -141,16 +141,21 @@ private:
         Service,
     };
 
-    struct ClientInfo {
-        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId) :
+    class ClientInfo {
+    public:
+        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId,
+                   uint64_t startTimeMillis) :
               pid(pid),
               userId(userId),
+              startTimeMillis(startTimeMillis),
               type(ClientType::Regular),
               client(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
-                   const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId) :
+                   const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId,
+                   uint64_t startTimeMillis) :
               pid(pid),
               userId(userId),
+              startTimeMillis(startTimeMillis),
               type(ClientType::Service),
               watchdogServiceHelper(helper),
               watchdogServiceBinder(binder) {}
@@ -170,6 +175,7 @@ private:
 
         pid_t pid;
         userid_t userId;
+        int64_t startTimeMillis;
         int sessionId;
 
     private:
@@ -226,8 +232,7 @@ private:
     };
 
 private:
-    android::binder::Status registerClientLocked(const ClientInfo& clientInfo,
-                                                 TimeoutLength timeout);
+    android::binder::Status registerClient(const ClientInfo& clientInfo, TimeoutLength timeout);
     android::binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
                                                    android::sp<IBinder> binder,
                                                    ClientType clientType);
@@ -270,7 +275,6 @@ private:
 private:
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
     std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
             mNotSupportedVhalProperties;
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
@@ -281,6 +285,7 @@ private:
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mOnBinderDiedCallback;
+    std::function<int64_t(pid_t)> mGetStartTimeForPidFunc;
 
     android::Mutex mMutex;
     std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
@@ -293,6 +298,7 @@ private:
             GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogProcessServicePeer;

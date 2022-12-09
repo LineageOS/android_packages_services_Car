@@ -102,7 +102,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     private void setUpTaskOrganizer() throws Exception {
         Context context = getContext();
         HandlerExecutor mExecutor = new HandlerExecutor(context.getMainThreadHandler());
-        mTaskOrganizer = new ShellTaskOrganizer(mExecutor, context);
+        mTaskOrganizer = new ShellTaskOrganizer(mExecutor);
         TransactionPool transactionPool = new TransactionPool();
         SyncTransactionQueue syncQueue = new SyncTransactionQueue(transactionPool, mExecutor);
         mFullscreenTaskListener = new TestTaskListener(syncQueue);
@@ -117,7 +117,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private class TestTaskListener extends FullscreenTaskListener {
         TestTaskListener(SyncTransactionQueue syncQueue) {
-            super(syncQueue, /* unfoldController= */ Optional.empty());
+            super(syncQueue);
         }
 
         @Override
@@ -293,7 +293,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     private boolean topTasksHasComponent(ComponentName component) {
-        for (TaskInfo topTaskInfoContainer : mService.getTopTasks()) {
+        for (TaskInfo topTaskInfoContainer : mService.getVisibleTasks()) {
             if (topTaskInfoContainer.topActivity.equals(component)) {
                 return true;
             }

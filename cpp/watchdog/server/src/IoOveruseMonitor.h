@@ -122,6 +122,16 @@ public:
         return {};
     }
 
+    android::base::Result<void> onUserSwitchCollection(
+            [[maybe_unused]] time_t time, [[maybe_unused]] userid_t from,
+            [[maybe_unused]] userid_t to,
+            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
+            override {
+        // No I/O overuse monitoring during user switch.
+        return {};
+    }
+
     android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -268,7 +278,7 @@ private:
             mLatestIoOveruseStats;
 
     ListenersByUidMap mOveruseListenersByUid GUARDED_BY(mRwMutex);
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient GUARDED_BY(mRwMutex);
 
     friend class WatchdogPerfService;
 

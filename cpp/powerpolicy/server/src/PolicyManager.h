@@ -85,7 +85,7 @@ public:
     android::base::Result<void> dump(int fd, const android::Vector<String16>& args);
 
 private:
-    void initRegularPowerPolicy();
+    void initRegularPowerPolicy(bool override);
     void initPreemptivePowerPolicy();
     void readPowerPolicyConfiguration();
     void readPowerPolicyFromXml(const tinyxml2::XMLDocument& xmlDoc);

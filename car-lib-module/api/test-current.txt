@@ -5,6 +5,8 @@ package android.car {
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR = "com.android.car.internal.debug.platform_major_version";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR = "com.android.car.internal.debug.platform_minor_version";
   }
 
   public final class CarAppFocusManager {
@@ -77,6 +79,27 @@ package android.car.admin {
     field public static final int STATUS_FAILURE_SYSTEM_USER = 3; // 0x3
     field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
     field public static final int STATUS_SUCCESS = 1; // 0x1
+  }
+
+}
+
+package android.car.annotation {
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD}) public @interface ApiRequirements {
+    method public abstract android.car.annotation.ApiRequirements.CarVersion minCarVersion();
+    method public abstract android.car.annotation.ApiRequirements.PlatformVersion minPlatformVersion();
+  }
+
+  public enum ApiRequirements.CarVersion {
+    method public android.car.CarVersion get();
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
+  }
+
+  public enum ApiRequirements.PlatformVersion {
+    method public android.car.PlatformVersion get();
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
   }
 
 }

@@ -15,10 +15,12 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_width="match_parent">
+    android:gravity="center_vertical">
 
     <!-- optional_image is required by the HomeCardFragment. Intentionally not shown by setting
     0 height and width. -->
@@ -32,42 +34,37 @@
     <TextView
         android:id="@+id/primary_text"
         android:layout_height="wrap_content"
-        android:layout_width="0dp"
-        android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="@dimen/descriptive_text_vertical_margin"/>
-
-    <Chronometer
-        android:id="@+id/optional_timer"
-        android:visibility="gone"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/descriptive_text_vertical_margin"/>
-
-    <TextView
-        android:id="@+id/optional_timer_separator"
-        android:visibility="gone"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/ongoing_call_duration_text_separator"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_toEndOf="@id/optional_timer"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/descriptive_text_vertical_margin"/>
-
-    <TextView
-        android:id="@+id/secondary_text"
-        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:singleLine="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_toEndOf="@id/optional_timer_separator"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="@dimen/descriptive_text_vertical_margin"/>
-</RelativeLayout>
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:gravity="start">
+
+        <Chronometer
+            android:id="@+id/optional_timer"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/optional_timer_separator"
+            android:visibility="gone"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="@string/ongoing_call_duration_text_separator"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+
+        <TextView
+            android:id="@+id/secondary_text"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
+    </LinearLayout>
+</LinearLayout>

@@ -43,4 +43,6 @@ interface ICarWatchdog {
   void updateResourceOveruseConfigurations(in List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs);
   List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> getResourceOveruseConfigurations();
   void controlProcessHealthCheck(in boolean enable);
+  void setThreadPriority(int pid, int tid, int uid, int policy, int priority);
+  android.automotive.watchdog.internal.ThreadPolicyWithPriority getThreadPriority(int pid, int tid, int uid);
 }

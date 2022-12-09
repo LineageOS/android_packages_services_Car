@@ -24,6 +24,9 @@ import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.NativeHandle;
 import android.os.RemoteException;
@@ -39,9 +42,17 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 final class HidlVehicleStub extends VehicleStub {
+
+    private static final String TAG = CarLog.tagFor(HidlVehicleStub.class);
+
+    // The property ID for "SUPPORTED_PROPRETY_IDS". This is the same as SUPPORTED_PROPERTY_IDS as
+    // defined in
+    // {@code platform/hardware/interfaces/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehicleProperty.aidl}.
+    private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
 
     private final IVehicle mHidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
@@ -135,14 +146,31 @@ final class HidlVehicleStub extends VehicleStub {
      */
     @Override
     public HalPropConfig[] getAllPropConfigs() throws RemoteException {
-        ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig> hidlConfigs =
-                mHidlVehicle.getAllPropConfigs();
-        int configSize = hidlConfigs.size();
-        HalPropConfig[] configs = new HalPropConfig[configSize];
-        for (int i = 0; i < configSize; i++) {
-            configs[i] = new HidlHalPropConfig(hidlConfigs.get(i));
+        ArrayList<VehiclePropConfig> configForSupportedProps;
+        try {
+            configForSupportedProps = getPropConfigs(new ArrayList<>(
+                    List.of(VHAL_PROP_SUPPORTED_PROPERTY_IDS)));
+        } catch (Exception e) {
+            Slogf.d(TAG, "Use getAllPropConfigs to fetch all property configs");
+
+            // If the VHAL_PROP_SUPPORTED_PROPERTY_IDS is not supported, fallback to normal API.
+            return vehiclePropConfigsToHalPropConfigs(mHidlVehicle.getAllPropConfigs());
         }
-        return configs;
+
+        if (configForSupportedProps.size() == 0) {
+            Slogf.w(TAG, "getPropConfigs[VHAL_PROP_SUPPORTED_IDS] returns 0 config"
+                    + "assume it is not supported, fall back to getAllPropConfigs.");
+            return vehiclePropConfigsToHalPropConfigs(mHidlVehicle.getAllPropConfigs());
+        }
+
+         // If the VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, VHAL has
+        // too many property configs that cannot be returned in getAllPropConfigs() in one binder
+        // transaction.
+        // We need to get the property list and then divide the list into smaller requests.
+        Slogf.d(TAG, "VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, "
+                + "use multiple getPropConfigs to fetch all property configs");
+
+        return getAllPropConfigsThroughMultipleRequests(configForSupportedProps.get(0));
     }
 
     /**
@@ -158,7 +186,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     private static class GetValueResult {
         public int status;
-        public android.hardware.automotive.vehicle.V2_0.VehiclePropValue value;
+        public VehiclePropValue value;
     }
 
     /**
@@ -173,9 +201,7 @@ final class HidlVehicleStub extends VehicleStub {
     @Nullable
     public HalPropValue get(HalPropValue requestedPropValue)
             throws RemoteException, ServiceSpecificException {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropValue hidlPropValue =
-                (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) requestedPropValue
-                        .toVehiclePropValue();
+        VehiclePropValue hidlPropValue = (VehiclePropValue) requestedPropValue.toVehiclePropValue();
         GetValueResult result = new GetValueResult();
         mHidlVehicle.get(
                 hidlPropValue,
@@ -206,9 +232,7 @@ final class HidlVehicleStub extends VehicleStub {
      */
     @Override
     public void set(HalPropValue propValue) throws RemoteException {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropValue hidlPropValue =
-                (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) propValue
-                        .toVehiclePropValue();
+        VehiclePropValue hidlPropValue = (VehiclePropValue) propValue.toVehiclePropValue();
         int status = mHidlVehicle.set(hidlPropValue);
         if (status != StatusCode.OK) {
             throw new ServiceSpecificException(status, "failed to set value for property: "
@@ -228,9 +252,9 @@ final class HidlVehicleStub extends VehicleStub {
         try {
             return IVehicle.getService(instanceName);
         } catch (RemoteException e) {
-            Slogf.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
+            Slogf.e(TAG, e, "Failed to get IVehicle/" + instanceName + " service");
         } catch (NoSuchElementException e) {
-            Slogf.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
+            Slogf.e(TAG, "IVehicle/" + instanceName + " service not registered yet");
         }
         return null;
     }
@@ -246,18 +270,16 @@ final class HidlVehicleStub extends VehicleStub {
         }
 
         @Override
-        public void onPropertyEvent(
-                ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropValue> propValues) {
+        public void onPropertyEvent(ArrayList<VehiclePropValue> propValues) {
             ArrayList<HalPropValue> values = new ArrayList<>();
-            for (android.hardware.automotive.vehicle.V2_0.VehiclePropValue value : propValues) {
+            for (VehiclePropValue value : propValues) {
                 values.add(mBuilder.build(value));
             }
             mCallback.onPropertyEvent(values);
         }
 
         @Override
-        public void onPropertySet(
-                android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue) {
+        public void onPropertySet(VehiclePropValue propValue) {
             // Deprecated, do nothing.
         }
 
@@ -286,5 +308,77 @@ final class HidlVehicleStub extends VehicleStub {
         public void unsubscribe(int prop) throws RemoteException {
             mHidlVehicle.unsubscribe(this, prop);
         }
+    }
+
+    private static HalPropConfig[] vehiclePropConfigsToHalPropConfigs(
+            List<VehiclePropConfig> hidlConfigs) {
+        int configSize = hidlConfigs.size();
+        HalPropConfig[] configs = new HalPropConfig[configSize];
+        for (int i = 0; i < configSize; i++) {
+            configs[i] = new HidlHalPropConfig(hidlConfigs.get(i));
+        }
+        return configs;
+    }
+
+    private static final class GetPropConfigsResult {
+        public int status;
+        public ArrayList<VehiclePropConfig> propConfigs;
+    }
+
+    private HalPropConfig[] getAllPropConfigsThroughMultipleRequests(
+            VehiclePropConfig configForSupportedProps)
+            throws RemoteException, ServiceSpecificException {
+        if (configForSupportedProps.configArray.size() < 1) {
+            throw new IllegalArgumentException(
+                    "VHAL Property: SUPPORTED_PROPERTY_IDS must have one element: "
+                    + "[num_of_configs_per_request] in the config array");
+        }
+
+        int numConfigsPerRequest = configForSupportedProps.configArray.get(0);
+        if (numConfigsPerRequest <= 0) {
+            throw new IllegalArgumentException("Number of configs per request must be > 0");
+        }
+        HalPropValue propIdsRequestValue = mPropValueBuilder.build(
+                VHAL_PROP_SUPPORTED_PROPERTY_IDS, /* areaId= */ 0);
+        HalPropValue propIdsResultValue;
+        try {
+            propIdsResultValue = get(propIdsRequestValue);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "failed to get SUPPORTED_PROPRETY_IDS");
+            throw e;
+        }
+        int status = propIdsResultValue.getStatus();
+        if (status != VehiclePropertyStatus.AVAILABLE) {
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "got non-okay status: "  + StatusCode.toString(status)
+                    + " for SUPPORTED_PROPERTY_IDS");
+        }
+        int propCount = propIdsResultValue.getInt32ValuesSize();
+        ArrayList<VehiclePropConfig> allConfigs = new ArrayList<>();
+        ArrayList<Integer> requestPropIds = new ArrayList<Integer>();
+        for (int i = 0; i < propCount; i++) {
+            requestPropIds.add(propIdsResultValue.getInt32Value(i));
+            if (requestPropIds.size() == numConfigsPerRequest || (i + 1) == propCount) {
+                ArrayList<VehiclePropConfig> subConfigs = getPropConfigs(requestPropIds);
+                allConfigs.addAll(subConfigs);
+                requestPropIds.clear();
+            }
+        }
+        return vehiclePropConfigsToHalPropConfigs(allConfigs);
+    }
+
+    private ArrayList<VehiclePropConfig> getPropConfigs(ArrayList<Integer> propIds)
+            throws RemoteException {
+        GetPropConfigsResult result = new GetPropConfigsResult();
+        mHidlVehicle.getPropConfigs(propIds,
+                (status, propConfigs) -> {
+                    result.status = status;
+                    result.propConfigs = propConfigs;
+                });
+        if (result.status != StatusCode.OK) {
+            throw new IllegalArgumentException("Part of the property IDs: " + propIds
+                    + " is not supported");
+        }
+        return result.propConfigs;
     }
 }

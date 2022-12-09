@@ -18,6 +18,9 @@
 
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/public
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/private
+ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cartelemetry
+endif
 
 PRODUCT_PACKAGES += \
     Bluetooth \
@@ -28,7 +31,6 @@ PRODUCT_PACKAGES += \
     CarProvision \
     StatementService \
     SystemUpdater
-
 
 PRODUCT_PACKAGES += \
     pppd \
@@ -132,7 +134,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.android.car.carservice.package?=com.android.car.updatable
 
 # Update with PLATFORM_VERSION_MINOR_INT update
-PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
+PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=1
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \

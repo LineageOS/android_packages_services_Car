@@ -67,18 +67,18 @@ struct UserPackageStats {
         }
     };
     struct ProcStats {
-        uint64_t count = 0;
-        struct ProcessCount {
+        uint64_t value = 0;
+        struct ProcessValue {
             std::string comm = "";
-            uint64_t count = 0;
+            uint64_t value = 0;
         };
-        std::vector<ProcessCount> topNProcesses = {};
+        std::vector<ProcessValue> topNProcesses = {};
     };
     uid_t uid = 0;
     std::string genericPackageName = "";
     std::variant<std::monostate, IoStats, ProcStats> stats;
     std::string toString(MetricType metricsType, const int64_t totalIoStats[][UID_STATES]) const;
-    std::string toString(int64_t count) const;
+    std::string toString(int64_t totalValue) const;
 };
 
 /**
@@ -86,12 +86,14 @@ struct UserPackageStats {
  * `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat`, and /proc/[pid]/status` files.
  */
 struct UserPackageSummaryStats {
+    std::vector<UserPackageStats> topNCpuTimes = {};
     std::vector<UserPackageStats> topNIoReads = {};
     std::vector<UserPackageStats> topNIoWrites = {};
     std::vector<UserPackageStats> topNIoBlocked = {};
     std::vector<UserPackageStats> topNMajorFaults = {};
     int64_t totalIoStats[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_map<uid_t, uint64_t> taskCountByUid = {};
+    int64_t totalCpuTimeMillis = 0;
     uint64_t totalMajorFaults = 0;
     // Percentage of increase/decrease in the major page faults since last collection.
     double majorFaultsPercentChange = 0.0;
@@ -100,8 +102,10 @@ struct UserPackageSummaryStats {
 
 // System performance stats collected from the `/proc/stats` file.
 struct SystemSummaryStats {
-    uint64_t cpuIoWaitTime = 0;
-    uint64_t totalCpuTime = 0;
+    int64_t cpuIoWaitTimeMillis = 0;
+    int64_t cpuIdleTimeMillis = 0;
+    int64_t totalCpuTimeMillis = 0;
+    uint64_t contextSwitchesCount = 0;
     uint32_t ioBlockedProcessCount = 0;
     uint32_t totalProcessCount = 0;
     std::string toString() const;
@@ -122,14 +126,22 @@ struct CollectionInfo {
     std::string toString() const;
 };
 
+// Group of performance records collected for a user switch collection event.
+struct UserSwitchCollectionInfo : CollectionInfo {
+    userid_t from = 0;
+    userid_t to = 0;
+};
+
 // IoPerfCollection implements the I/O performance data collection module.
 class IoPerfCollection final : public DataProcessorInterface {
 public:
     IoPerfCollection() :
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
+          mMaxUserSwitchEvents(0),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
+          mUserSwitchCollections({}),
           mCustomCollection({}),
           mLastMajorFaults(0) {}
 
@@ -144,6 +156,11 @@ public:
 
     android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
+            const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+
+    android::base::Result<void> onUserSwitchCollection(
+            time_t time, userid_t from, userid_t to,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
@@ -189,11 +206,17 @@ private:
     void processProcStatLocked(const android::sp<ProcStatCollectorInterface>& procStatCollector,
                                SystemSummaryStats* systemSummaryStats) const;
 
+    // Dump the user switch collection
+    android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
+
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
 
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
+
+    // Max amount of user switch events cached in |mUserSwitchCollections|.
+    size_t mMaxUserSwitchEvents;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
@@ -201,22 +224,19 @@ private:
     // Info for the boot-time collection event. The cache is persisted until system shutdown/reboot.
     CollectionInfo mBoottimeCollection GUARDED_BY(mMutex);
 
-    /**
-     * Info for the periodic collection event. The cache size is limited by
-     * |ro.carwatchdog.periodic_collection_buffer_size|.
-     */
+    // Info for the periodic collection event. The cache size is limited by
+    // |ro.carwatchdog.periodic_collection_buffer_size|.
     CollectionInfo mPeriodicCollection GUARDED_BY(mMutex);
 
-    /**
-     * Info for the custom collection event. The info is cleared at the end of every custom
-     * collection.
-     */
+    // Cache for user switch collection events. Events are cached from oldest to newest.
+    std::vector<UserSwitchCollectionInfo> mUserSwitchCollections GUARDED_BY(mMutex);
+
+    // Info for the custom collection event. The info is cleared at the end of every custom
+    // collection.
     CollectionInfo mCustomCollection GUARDED_BY(mMutex);
 
-    /**
-     * Major faults delta from last collection. Useful when calculating the percentage change in
-     * major faults since last collection.
-     */
+    // Major faults delta from last collection. Useful when calculating the percentage change in
+    // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;

@@ -49,6 +49,7 @@ import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
+import com.android.car.pm.CarPackageManagerService;
 import com.android.car.user.CarUserService;
 import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
@@ -85,6 +86,7 @@ public class CarInputRotaryServiceTest {
     @Mock private CarOccupantZoneService mCarOccupantZoneService;
     @Mock private CarUxRestrictionsManagerService mUxRestrictionService;
     @Mock private CarBluetoothService mCarBluetoothService;
+    @Mock private CarPackageManagerService mCarPackageManagerService;
 
     @Spy private final Context mContext = ApplicationProvider.getApplicationContext();
     @Spy private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -287,7 +289,7 @@ public class CarInputRotaryServiceTest {
         UserHalService userHal = mock(UserHalService.class);
         mCarUserService = new CarUserService(mMockContext, userHal,
                 userManager, /* maxRunningUsers= */ 2,
-                mUxRestrictionService);
+                mUxRestrictionService, mCarPackageManagerService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mCarBluetoothService, mHandler, mTelecomManager,

@@ -451,7 +451,7 @@ bool isSystemPowerPolicy(const std::string& policyId) {
 }
 
 void PolicyManager::init() {
-    initRegularPowerPolicy();
+    initRegularPowerPolicy(/*override=*/true);
     mPolicyGroups.clear();
     initPreemptivePowerPolicy();
     readPowerPolicyConfiguration();
@@ -586,6 +586,7 @@ void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
     }
 
     mRegisteredPowerPolicies = registeredPoliciesMap;
+    initRegularPowerPolicy(/*override=*/false);
     mPolicyGroups = *policyGroups;
     reconstructNoUserInteractionPolicy(*systemPolicyOverrides);
 }
@@ -601,8 +602,10 @@ void PolicyManager::reconstructNoUserInteractionPolicy(
     }
 }
 
-void PolicyManager::initRegularPowerPolicy() {
-    mRegisteredPowerPolicies.clear();
+void PolicyManager::initRegularPowerPolicy(bool override) {
+    if (override) {
+        mRegisteredPowerPolicies.clear();
+    }
     mRegisteredPowerPolicies.emplace(kSystemPolicyIdAllOn,
                                      createPolicy(kSystemPolicyIdAllOn, kAllComponents,
                                                   kNoComponents));

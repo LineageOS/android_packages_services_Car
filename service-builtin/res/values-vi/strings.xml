@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"liên kết với dịch vụ chiếu"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Cho phép khung liên kết với giao diện cấp cao nhất của dịch vụ chiếu. Điều này không cần thiết đối với các ứng dụng thông thường."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Dịch vụ ứng dụng VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Liên kết với ứng dụng VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Hiển thị nhóm dụng cụ"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Nhận dữ liệu nhóm dụng cụ"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Dịch vụ nhập dành cho ô tô"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Xử lý sự kiện nhập"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Bạn không thể dùng tính năng này khi đang lái xe"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Để bắt đầu lại với các tính năng an toàn của ứng dụng, hãy chọn <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Quay lại"</string>

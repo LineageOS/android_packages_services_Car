@@ -80,7 +80,9 @@ namespace internal {
 class WatchdogProcessServicePeer final {
 public:
     explicit WatchdogProcessServicePeer(const sp<WatchdogProcessService>& watchdogProcessService) :
-          mWatchdogProcessService(watchdogProcessService) {}
+          mWatchdogProcessService(watchdogProcessService) {
+        mWatchdogProcessService->mGetStartTimeForPidFunc = [](pid_t) -> uint64_t { return 12356; };
+    }
 
     void setVhalService(std::shared_ptr<afav::IVhalClient> service) {
         mWatchdogProcessService->mVhalService = service;

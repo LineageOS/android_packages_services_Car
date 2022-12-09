@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"کسی پروجیکشن سروس کا پابند بنیں"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"حامل کو پروجیکشن سروس کے اعلی سطحی انٹرفیس کا پابند ہونے کی اجازت دیتا ہے۔ عام ایپس کے لیے کبھی بھی اس کی ضرورت نہيں ہونی چاہئے۔"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS کلائنٹ سروس"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS کلائنٹس کا پابند بنیں"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"آلہ کے گروہ کی رینڈرنگ"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"آلہ کے گروہ کا ڈیٹا موصول کریں"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"کار کی ان پٹ سروس"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ایونٹس کے ان پٹ کو ہینڈل کریں"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ڈرائیونگ کے دوران آپ یہ خصوصیت استعمال نہیں کر سکتے"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"محفوظ اپپ کی خصوصیات کے ساتھ شروع کرنے کے لیے <xliff:g id="EXIT_BUTTON">%s</xliff:g> پر کلک کریں۔"</string>
     <string name="exit_button" msgid="3491899413031549265">"پیچھے"</string>

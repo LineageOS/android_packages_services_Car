@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"პროეცირების სერვისთან მიბმა"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"მფლობელს აძლევს პროეცირების სერვისის ზედა დონის ინტერფეისთან მიბმის საშუალებას. ნორმალურ აპებს არასოდეს უნდა დაჭირდეთ."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS კლიენტის სერვისი"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS კლიენტებთან მიბმა"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"რენდერი ხელსაწყოთა პანელზე"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ხელსაწყოთა პანელის მონაცემების მიღება"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"მანქანის შეყვანის სერვისი"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"შეტანის მოვლენების დამუშავება"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"მანქანის მართვისას ამ ფუნქციას ვერ გამოიყენებთ"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"აპის უსაფრთხო რეჟიმში გასაშვებად აირჩიეთ „<xliff:g id="EXIT_BUTTON">%s</xliff:g>“."</string>
     <string name="exit_button" msgid="3491899413031549265">"უკან"</string>

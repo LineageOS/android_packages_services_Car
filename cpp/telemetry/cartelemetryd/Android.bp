@@ -24,7 +24,7 @@ cc_defaults {
         "-Wno-unused-parameter",
     ],
     shared_libs: [
-        "android.automotive.telemetry.internal-V1-ndk",
+        "android.automotive.telemetry.internal-V2-ndk",
         "android.frameworks.automotive.telemetry-V1-ndk",
         "libbase",
         "libbinder_ndk",
@@ -73,7 +73,7 @@ cc_test {
     // Statically link only in tests, for portability reason.
     static_libs: [
         "android.automotive.telemetryd@1.0-impl",
-        "android.automotive.telemetry.internal-V1-ndk",
+        "android.automotive.telemetry.internal-V2-ndk",
         "android.frameworks.automotive.telemetry-V1-ndk",
         "libgmock",
         "libgtest",

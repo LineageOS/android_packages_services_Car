@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"projeksiyon hizmetine bağlanma"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Cihazın sahibine bir projeksiyon hizmetinin en üst düzey arayüzüne bağlanma izni verir. Normal uygulamalarda hiçbir zaman gerek duyulmaz."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS İstemci Hizmeti"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS istemcilerine bağla"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Gösterge Grubunda Oluşturma"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Gösterge grubu verilerini alma"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Araç Giriş Hizmeti"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Giriş olaylarını işleme"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Sürüş sırasında bu özelliği kullanamazsınız"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Güvenli uygulama özellikleriyle baştan başlamak için <xliff:g id="EXIT_BUTTON">%s</xliff:g> düğmesini seçin."</string>
     <string name="exit_button" msgid="3491899413031549265">"Geri"</string>

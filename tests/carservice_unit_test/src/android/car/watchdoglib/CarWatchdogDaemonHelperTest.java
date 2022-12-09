@@ -38,6 +38,7 @@ import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.os.Binder;
 import android.os.IBinder;
@@ -70,13 +71,14 @@ public class CarWatchdogDaemonHelperTest {
     private MockitoSession mMockSession;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         mMockSession = mockitoSession()
                 .initMocks(this)
                 .strictness(Strictness.LENIENT)
                 .spyStatic(ServiceManager.class)
                 .startMocking();
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mBinder, mFakeCarWatchdog);
+        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(2);
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper();
         mCarWatchdogDaemonHelper.connect();
     }
@@ -223,6 +225,66 @@ public class CarWatchdogDaemonHelperTest {
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogDaemonHelper.unregisterCarWatchdogService(service));
     }
+
+    @Test
+    public void testSetThreadPriority() throws Exception {
+        int testPid = 1;
+        int testTid = 2;
+        int testUid = 3;
+        int testPolicy = 4;
+        int testPriority = 5;
+
+        mCarWatchdogDaemonHelper.setThreadPriority(
+                    testPid, testTid, testUid, testPolicy, testPriority);
+
+        verify(mFakeCarWatchdog).setThreadPriority(
+                testPid, testTid, testUid, testPolicy, testPriority);
+    }
+
+    @Test
+    public void testSetThreadPriority_DaemonVersionTooLow() throws Exception {
+        int testPid = 1;
+        int testTid = 2;
+        int testUid = 3;
+        int testPolicy = 4;
+        int testPriority = 5;
+        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(1);
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> mCarWatchdogDaemonHelper.setThreadPriority(
+                        testPid, testTid, testUid, testPolicy, testPriority));
+    }
+
+    @Test
+    public void testGetThreadPriority() throws Exception {
+        int testPid = 1;
+        int testTid = 2;
+        int testUid = 3;
+        int testPolicy = 4;
+        int testPriority = 5;
+        ThreadPolicyWithPriority p = new ThreadPolicyWithPriority();
+        p.policy = testPolicy;
+        p.priority = testPriority;
+        when(mFakeCarWatchdog.getThreadPriority(testPid, testTid, testUid))
+                .thenReturn(p);
+
+        int[] result = mCarWatchdogDaemonHelper.getThreadPriority(testPid, testTid, testUid);
+
+        assertThat(result[0]).isEqualTo(testPolicy);
+        assertThat(result[1]).isEqualTo(testPriority);
+    }
+
+    @Test
+    public void testGetThreadPriority_DaemonVersionTooLow() throws Exception {
+        int testPid = 1;
+        int testTid = 2;
+        int testUid = 3;
+        when(mFakeCarWatchdog.getInterfaceVersion()).thenReturn(1);
+
+        assertThrows(UnsupportedOperationException.class,
+                () -> mCarWatchdogDaemonHelper.getThreadPriority(testPid, testTid, testUid));
+    }
+
 
     // FakeCarWatchdog mimics ICarWatchdog daemon in local process.
     private final class FakeCarWatchdog extends ICarWatchdog.Default {

@@ -51,6 +51,7 @@
     <item target="id/explicit_icon_with_subtitle" value="@id/explicit_icon_with_subtitle" />
     <item target="id/subtitle" value="@id/subtitle" />
     <item target="id/right_arrow" value="@id/right_arrow" />
+    <item target="id/focus_area" value="@id/focus_area" />
 
     <item target="layout/fragment_error" value="@layout/fragment_error"/>
     <item target="layout/media_browse_grid_icons_item" value="@layout/media_browse_grid_icons_item"/>

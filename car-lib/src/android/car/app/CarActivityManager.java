@@ -26,6 +26,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -41,6 +42,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * API to manage {@link android.app.Activity} in Car.
@@ -232,6 +235,23 @@ public final class CarActivityManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
+    }
+
+    /**
+     * Returns all the visible tasks. The order is not guaranteed.
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+        try {
+            return mService.getVisibleTasks();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return Collections.emptyList();
     }
 
     private boolean hasValidToken() {

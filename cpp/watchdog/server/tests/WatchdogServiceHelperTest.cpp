@@ -209,25 +209,29 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
+    sp<IBinder> binder = static_cast<sp<IBinder>>(mMockCarWatchdogServiceForSystemBinder);
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
+            .WillOnce(Return(Status::ok()));
     EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
             .WillOnce(Return(DEAD_OBJECT));
-    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on register service with dead binder";
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessServiceError) {
     sp<IBinder> binder = static_cast<sp<IBinder>>(mMockCarWatchdogServiceForSystemBinder);
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0))
-            .WillOnce(Return(OK));
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, linkToDeath(_, nullptr, 0)).Times(0);
     EXPECT_CALL(*mMockCarWatchdogServiceForSystemBinder, unlinkToDeath(_, nullptr, 0, nullptr))
-            .WillOnce(Return(OK));
+            .Times(0);
     EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE)));
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on error from watchdog process service";
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 }
 
 TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {

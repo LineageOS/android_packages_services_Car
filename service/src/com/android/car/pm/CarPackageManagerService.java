@@ -35,6 +35,7 @@ import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.app.TaskInfo;
 import android.car.Car;
+import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
@@ -60,6 +61,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -86,6 +88,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.accessibility.AccessibilityEvent;
@@ -105,6 +108,7 @@ import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
+import com.android.car.util.Utils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -123,12 +127,16 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-
-    static final boolean DBG = false;
+/**
+ * Package manager service for cars.
+ */
+public final class CarPackageManagerService extends ICarPackageManager.Stub
+        implements CarServiceBase {
 
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(CarPackageManagerService.class);
+
+    static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Delimiters to parse packages and activities in the configuration XML resource.
     private static final String PACKAGE_DELIMITER = ",";
@@ -165,6 +173,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private Map<String, Set<String>> mConfiguredBlocklistMap;
 
     private final List<String> mAllowedAppInstallSources;
+
+    // A SparseBooleanArray to handle the already blocked display IDs when iterating on the visible
+    // tasks. This is defined as an instance variable to avoid frequent creations.
+    // This Array is cleared everytime before its use.
+    private final SparseBooleanArray mBlockedDisplayIds = new SparseBooleanArray();
 
     @GuardedBy("mLock")
     private final SparseArray<ComponentName> mTopActivityWithDialogPerDisplay = new SparseArray<>();
@@ -1291,17 +1304,33 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void blockTopActivitiesIfNecessary() {
-        List<TaskInfo> topTasks = mActivityService.getTopTasks();
-        for (TaskInfo topTask : topTasks) {
+        List<? extends TaskInfo> visibleTasks = mActivityService.getVisibleTasks();
+        mBlockedDisplayIds.clear();
+        for (TaskInfo topTask : visibleTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");
                 continue;
             }
-            blockTopActivityIfNecessary(topTask);
+
+            int displayIdOfTask = TaskInfoHelper.getDisplayId(topTask);
+            if (mBlockedDisplayIds.indexOfKey(displayIdOfTask) != -1) {
+                if (DBG) {
+                    Slogf.d(TAG, "This display has already been blocked.");
+                }
+                continue;
+            }
+
+            boolean blocked = blockTopActivityIfNecessary(topTask);
+            if (blocked) {
+                mBlockedDisplayIds.append(displayIdOfTask, true);
+            }
         }
     }
 
-    private void blockTopActivityIfNecessary(TaskInfo topTask) {
+    /**
+     * @return {@code True} if the {@code topTask} was blocked, {@code False} otherwise.
+     */
+    private boolean blockTopActivityIfNecessary(TaskInfo topTask) {
         int displayId = TaskInfoHelper.getDisplayId(topTask);
         synchronized (mLock) {
             if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
@@ -1313,30 +1342,34 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             }
         }
         if (isUxRestrictedOnDisplay(displayId)) {
-            doBlockTopActivityIfNotAllowed(displayId, topTask);
+            return doBlockTopActivityIfNotAllowed(displayId, topTask);
         }
+        return false;
     }
 
-    private void doBlockTopActivityIfNotAllowed(int displayId, TaskInfo topTask) {
+    /**
+     * @return {@code True} if the {@code topTask} was blocked, {@code False} otherwise.
+     */
+    private boolean doBlockTopActivityIfNotAllowed(int displayId, TaskInfo topTask) {
         if (topTask.topActivity == null) {
-            return;
+            return false;
         }
         if (topTask.topActivity.equals(mActivityBlockingActivity)) {
             mBlockingActivityLaunchTimes.put(displayId, 0);
             mBlockingActivityTargets.put(displayId, null);
-            return;
+            return false;
         }
         boolean allowed = isActivityAllowed(topTask);
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "new activity:" + topTask.toString() + " allowed:" + allowed);
         }
         if (allowed) {
-            return;
+            return false;
         }
         if (!mEnableActivityBlocking) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
                     + " not allowed, blocking disabled.");
-            return;
+            return false;
         }
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
@@ -1351,7 +1384,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             long blockingActivityLaunchTime = mBlockingActivityLaunchTimes.get(displayId);
             if (SystemClock.uptimeMillis() - blockingActivityLaunchTime < ABA_LAUNCH_TIMEOUT_MS) {
                 Slogf.d(TAG, "Waiting for BlockingActivity to be shown: displayId=%d", displayId);
-                return;
+                return false;
             }
         }
 
@@ -1378,6 +1411,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mBlockingActivityLaunchTimes.put(displayId, SystemClock.uptimeMillis());
         mBlockingActivityTargets.put(displayId, topTask.topActivity);
         mActivityService.blockActivity(topTask, newActivityIntent);
+        return true;
     }
 
     private boolean isActivityAllowed(TaskInfo topTaskInfoContainer) {
@@ -1507,6 +1541,52 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     + " does not have the right signature");
         }
         mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
+    }
+
+    @Override
+    public CarVersion getTargetCarVersion(String packageName) {
+        return getTargetCarVersion(Binder.getCallingUserHandle(), packageName);
+    }
+
+    @Override
+    public CarVersion getSelfTargetCarVersion(String packageName) {
+        Utils.checkCalledByPackage(mContext, packageName);
+
+        return getTargetCarVersion(Binder.getCallingUserHandle(), packageName);
+    }
+
+    /**
+     * Public, as it's also used by {@code ICarImpl}.
+     */
+    public CarVersion getTargetCarVersion(UserHandle user, String packageName) {
+        Context context = mContext.createContextAsUser(user, /* flags= */ 0);
+        return getTargetCarVersion(context, packageName);
+    }
+
+    /**
+     * Used by {@code CarShellCommand} as well.
+     */
+    @Nullable
+    public static CarVersion getTargetCarVersion(Context context, String packageName) {
+        String permission = android.Manifest.permission.QUERY_ALL_PACKAGES;
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            Slogf.w(TAG, "getTargetCarVersion(%s): UID %d doesn't have %s permission",
+                    packageName, Binder.getCallingUid(), permission);
+            throw new SecurityException("requires permission " + permission);
+        }
+        ApplicationInfo info = null;
+        try {
+            info = context.getPackageManager().getApplicationInfo(packageName,
+                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA));
+        } catch (NameNotFoundException e) {
+            if (DBG) {
+                Slogf.d(TAG, "getTargetCarVersion(%s, %s): not found: %s", context.getUser(),
+                        packageName, e);
+            }
+            throw new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
+                    e.getMessage());
+        }
+        return CarVersionParser.getTargetCarVersion(info);
     }
 
     /**
@@ -1768,7 +1848,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     void onWindowChangeEvent(@NonNull AccessibilityEvent event) {
         Slogf.d(TAG, "onWindowChange event received");
         boolean receivedFromActivityBlockingActivity =
-                mActivityBlockingActivity.getPackageName().contentEquals(event.getPackageName())
+                event.getPackageName() != null && event.getClassName() != null
+                        && mActivityBlockingActivity.getPackageName().contentEquals(
+                        event.getPackageName())
                         && mActivityBlockingActivity.getClassName().contentEquals(
                         event.getClassName());
         if (!receivedFromActivityBlockingActivity) {

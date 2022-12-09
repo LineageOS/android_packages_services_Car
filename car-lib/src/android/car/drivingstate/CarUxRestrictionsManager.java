@@ -19,6 +19,7 @@ package android.car.drivingstate;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
@@ -54,6 +55,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final String UX_RESTRICTION_MODE_BASELINE = "baseline";
 
     private final Object mLock = new Object();
@@ -67,7 +69,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     private CarUxRestrictionsChangeListenerToService mListenerToService;
 
     /** @hide */
-    public CarUxRestrictionsManager(Car car, IBinder service) {
+    public CarUxRestrictionsManager(@NonNull Car car, @NonNull IBinder service) {
         super(car);
         mUxRService = ICarUxRestrictionsManager.Stub.asInterface(service);
         mEventCallbackHandler = new EventCallbackHandler(this,
@@ -77,6 +79,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     /** @hide */
     @Override
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public void onCarDisconnected() {
         synchronized (mLock) {
             mListenerToService = null;
@@ -116,7 +119,16 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
     public void registerListener(@NonNull OnUxRestrictionsChangedListener listener, int displayId) {
+        setListener(displayId, listener);
+    }
+    /**
+     * @hide
+     */
+    @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
+    public void setListener(int displayId, @NonNull OnUxRestrictionsChangedListener listener) {
         CarUxRestrictionsChangeListenerToService serviceListener;
         synchronized (mLock) {
             // Check if the listener has been already registered.
@@ -182,8 +194,9 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public boolean saveUxRestrictionsConfigurationForNextBoot(
-            List<CarUxRestrictionsConfiguration> configs) {
+            @NonNull List<CarUxRestrictionsConfiguration> configs) {
         try {
             return mUxRService.saveUxRestrictionsConfigurationForNextBoot(configs);
         } catch (RemoteException e) {
@@ -207,6 +220,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public CarUxRestrictions getCurrentCarUxRestrictions(int displayId) {
         try {
             return mUxRService.getCurrentUxRestrictions(displayId);
@@ -233,6 +247,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public boolean setRestrictionMode(@NonNull String mode) {
         Objects.requireNonNull(mode, "mode must not be null");
         try {
@@ -255,6 +270,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public String getRestrictionMode() {
         try {
             return mUxRService.getRestrictionMode();
@@ -275,8 +291,9 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      */
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public boolean saveUxRestrictionsConfigurationForNextBoot(
-            CarUxRestrictionsConfiguration config) {
+            @NonNull CarUxRestrictionsConfiguration config) {
         return saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(config));
     }
 
@@ -295,6 +312,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     @Nullable
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
         try {
             return mUxRService.getStagedConfigs();
@@ -309,8 +327,10 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
      * @return current configurations that is in effect.
      * @hide
      */
+    @Nullable
     @RequiresPermission(value = Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public List<CarUxRestrictionsConfiguration> getConfigs() {
         try {
             return mUxRService.getConfigs();

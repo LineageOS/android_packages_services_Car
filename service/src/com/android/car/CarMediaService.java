@@ -288,6 +288,9 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                         }
                     }
                     PlaybackState oldState = mediaController.getPlaybackState();
+                    if (oldState == null) {
+                        return;
+                    }
                     savePlaybackState(
                             // The new state is the same as the old state, except for play/pause
                             new PlaybackState.Builder(oldState)

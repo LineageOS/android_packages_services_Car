@@ -39,6 +39,16 @@
         <item name="buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
     </style>
 
+    <style name="Theme.SubSettings" parent="@android:style/Theme.DeviceDefault.NoActionBar">
+        <item name="alertDialogTheme">@style/Theme.AlertDialog</item>
+        <item name="switchBarTheme">@style/ThemeOverlay.SwitchBar.Settings</item>
+    </style>
+
+    <style name="CollapsingToolbarTitle.Expanded" parent="CollapsingToolbarTitle.Collapsed">
+        <item name="android:textSize">36dp</item>
+        <item name="android:textColor">@*android:color/car_body1</item>
+    </style>
+
     <style name="MainSwitchText">
         <item name="android:textSize">@*android:dimen/car_body4_size</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
@@ -58,5 +68,4 @@
     <style name="CarDeveloperOptionsPreferenceFragment" parent="@style/PreferenceFragment.CarUi">
         <item name="android:layout">@layout/preference_list_fragment</item>
     </style>
-
 </resources>

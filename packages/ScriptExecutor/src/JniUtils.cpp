@@ -54,6 +54,7 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
     ScopedLocalRef<jclass> stringClass(env, env->FindClass("java/lang/String"));
     ScopedLocalRef<jclass> intArrayClass(env, env->FindClass("[I"));
     ScopedLocalRef<jclass> longArrayClass(env, env->FindClass("[J"));
+    ScopedLocalRef<jclass> doubleArrayClass(env, env->FindClass("[D"));
     ScopedLocalRef<jclass> stringArrayClass(env, env->FindClass("[Ljava/lang/String;"));
     // TODO(b/188816922): Handle more types such as float and integer arrays,
     // and perhaps nested Bundles.
@@ -105,7 +106,7 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
             lua_createtable(lua, kLength, 0);
             jint* rawIntArray = env->GetIntArrayElements(intArray, nullptr);
             // Fills in the table at stack idx -2 with key value pairs, where key is a
-            // Lua index and value is an integer from the byte array at that index
+            // Lua index and value is an integer from the int array at that index
             for (int i = 0; i < kLength; i++) {
                 // Stack at index -1 is rawIntArray[i] after this push.
                 lua_pushinteger(lua, rawIntArray[i]);
@@ -123,7 +124,7 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
             lua_createtable(lua, kLength, 0);
             jlong* rawLongArray = env->GetLongArrayElements(longArray, nullptr);
             // Fills in the table at stack idx -2 with key value pairs, where key is a
-            // Lua index and value is an integer from the byte array at that index
+            // Lua index and value is an integer from the long array at that index
             for (int i = 0; i < kLength; i++) {
                 lua_pushinteger(lua, rawLongArray[i]);
                 lua_rawseti(lua, /* idx= */ -2,
@@ -131,6 +132,22 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
             }
             // JNI_ABORT is used because we do not need to copy back elements.
             env->ReleaseLongArrayElements(longArray, rawLongArray, JNI_ABORT);
+        } else if (env->IsInstanceOf(value.get(), doubleArrayClass.get())) {
+            jdoubleArray doubleArray = static_cast<jdoubleArray>(value.get());
+            const auto kLength = env->GetArrayLength(doubleArray);
+            // Arrays are represented as a table of sequential elements in Lua.
+            // We are creating a nested table to represent this array. We specify number of elements
+            // in the Java array to preallocate memory accordingly.
+            lua_createtable(lua, kLength, 0);
+            jdouble* rawDoubleArray = env->GetDoubleArrayElements(doubleArray, nullptr);
+            // Fills in the table at stack idx -2 with key value pairs, where key is a
+            // Lua index and value is an double from the double array at that index
+            for (int i = 0; i < kLength; i++) {
+                lua_pushnumber(lua, rawDoubleArray[i]);
+                lua_rawseti(lua, /* idx= */ -2,
+                            i + 1);  // lua index starts from 1
+            }
+            env->ReleaseDoubleArrayElements(doubleArray, rawDoubleArray, JNI_ABORT);
         } else if (env->IsInstanceOf(value.get(), stringArrayClass.get())) {
             jobjectArray stringArray = static_cast<jobjectArray>(value.get());
             const auto kLength = env->GetArrayLength(stringArray);

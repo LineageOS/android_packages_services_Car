@@ -66,6 +66,9 @@ constexpr const char* kNonExistingPowerPolicyId = "non_existing_power_poicy_id";
 constexpr const char* kValidPowerPolicyGroupId = "mixed_policy_group";
 constexpr const char* kInvalidPowerPolicyGroupId = "invalid_policy_group";
 constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
+constexpr const char* kSystemPolicyIdInitialOn = "system_power_policy_initial_on";
+constexpr const char* kSystemPolicyIdInitialAllOn = "system_power_policy_all_on";
+constexpr const char* kSystemPolicyIdSuspendPrep = "system_power_policy_suspend_prep";
 
 const VehicleApPowerStateReport kExistingTransition = VehicleApPowerStateReport::WAIT_FOR_VHAL;
 const VehicleApPowerStateReport kNonExistingTransition = static_cast<VehicleApPowerStateReport>(-1);
@@ -217,6 +220,13 @@ void checkInvalidPolicies(const PolicyManager& policyManager) {
     ASSERT_TRUE(isEqual(*policyMeta->powerPolicy, kSystemPowerPolicyNoUserInteraction));
 }
 
+void assertDefaultPolicies(const PolicyManager& policyManager) {
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdSuspendPrep).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdNoUserInteraction).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdInitialOn).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdInitialAllOn).ok());
+}
+
 }  // namespace
 
 namespace internal {
@@ -224,7 +234,7 @@ namespace internal {
 class PolicyManagerPeer {
 public:
     explicit PolicyManagerPeer(PolicyManager* manager) : mManager(manager) {
-        manager->initRegularPowerPolicy();
+        manager->initRegularPowerPolicy(/*override=*/true);
         manager->initPreemptivePowerPolicy();
     }
 
@@ -332,6 +342,21 @@ TEST_F(PolicyManagerTest, TestValidXml_SystemPowerPolicyOnly) {
                     .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kNonExistingTransition)
                     .ok());
     checkSystemPowerPolicy(policyManager, kModifiedSystemPowerPolicy);
+}
+
+TEST_F(PolicyManagerTest, TestDefaultPowerPolicies) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+
+    assertDefaultPolicies(policyManager);
+}
+
+TEST_F(PolicyManagerTest, TestValidXml_DefaultPowerPolicies) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
+
+    assertDefaultPolicies(policyManager);
 }
 
 TEST_F(PolicyManagerTest, TestInvalidPowerPolicyXml) {

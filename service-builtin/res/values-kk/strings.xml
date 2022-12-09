@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"проекция қызметімен байланыстыру"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Пайдаланушыға проекция қызметінің жоғары деңгейлі интерфейсімен байланыстыруға мүмкіндік береді. Қалыпты қолданбаларға қажет емес."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS клиенттік қызметі"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS клиенттерімен байланыстыруға болады."</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Құралдар кластерін көрсету"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Құралдар кластері туралы дерек алу"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Көліктің дерек енгізу қызметі"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Деректерді енгізу оқиғаларын басқаруға болады"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Бұл функцияны көлік жүргізген кезде пайдалана алмайсыз."</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Қолданбаны қауіпсіз күйде қайта іске қосу үшін <xliff:g id="EXIT_BUTTON">%s</xliff:g> түймесін басыңыз."</string>
     <string name="exit_button" msgid="3491899413031549265">"Артқа"</string>
