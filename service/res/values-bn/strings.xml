@@ -110,10 +110,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"গাড়ির আয়না নিয়ন্ত্রণ করা।"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"গাড়ির সিট নিয়ন্ত্রণ করা"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"গাড়ির সিট নিয়ন্ত্রণ করা।"</string>
-    <!-- no translation found for car_permission_label_control_car_airbags (6823727183218389617) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_airbags (6181671903761622348) -->
-    <skip />
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"গাড়ির এয়ারব্যাগ নিয়ন্ত্রণ করুন"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"গাড়ির এয়ারব্যাগ নিয়ন্ত্রণ করুন।"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"গাড়ির সাধারণ তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"গাড়ির সাধারণ তথ্য অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"শুধুমাত্র নির্দিষ্ট পার্টি অ্যাক্সেস করতে পারে গাড়ির এমন তথ্য অ্যাক্সেস করুন"</string>
@@ -140,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"ডিসপ্লে ইউনিট দেখা।"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"গাড়ির ডিসপ্লে ইউনিট নিয়ন্ত্রণ করা"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"ডিসপ্লে ইউনিট নিয়ন্ত্রণ করা।"</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"গাড়ির পাওয়ারট্রেনের তথ্য পড়া"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"গাড়ির পাওয়ারট্রেনের তথ্য অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"গাড়ির পাওয়ারের স্ট্যাটাস দেখা"</string>

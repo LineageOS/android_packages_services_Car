@@ -138,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"讀取顯示裝置。"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"控制汽車顯示裝置"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"控制顯示裝置。"</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"讀取汽車動力傳動系統資訊"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"存取汽車動力傳動系統資訊。"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"讀取汽車的能源狀態"</string>

@@ -110,10 +110,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"ควบคุมกระจกรถ"</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"ควบคุมที่นั่งในรถ"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"ควบคุมที่นั่งในรถ"</string>
-    <!-- no translation found for car_permission_label_control_car_airbags (6823727183218389617) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_airbags (6181671903761622348) -->
-    <skip />
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"ควบคุมถุงลมนิรภัยของรถ"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"ควบคุมถุงลมนิรภัยของรถ"</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"เข้าถึงข้อมูลเบื้องต้นของรถ"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"เข้าถึงข้อมูลเบื้องต้นของรถ"</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"เข้าถึงข้อมูลที่เป็นสิทธิ์เฉพาะบุคคลของรถยนต์"</string>
@@ -140,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"อ่านหน่วยแสดงผล"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"ควบคุมหน่วยแสดงผลของรถ"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"ควบคุมหน่วยแสดงผล"</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"อ่านข้อมูลระบบส่งกำลังของรถ"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"เข้าถึงข้อมูลระบบส่งกำลังของรถ"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"อ่านสถานะพลังงานของรถ"</string>
