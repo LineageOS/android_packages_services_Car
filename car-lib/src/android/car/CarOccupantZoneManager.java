@@ -920,7 +920,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
         List<Integer> inputTypes;
         try {
             int[] ints = mService.getSupportedInputTypes(occupantZoneInfo.zoneId, displayType);
-            inputTypes = Lists.asIntegerList(ints);
+            inputTypes = Lists.asImmutableList(ints);
         } catch (RemoteException e) {
             inputTypes = handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
