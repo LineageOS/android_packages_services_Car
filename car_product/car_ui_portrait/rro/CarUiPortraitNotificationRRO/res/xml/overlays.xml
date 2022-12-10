@@ -28,6 +28,7 @@
     <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
     <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>
     <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
+    <item target="bool/config_showExpansionHeader" value="@bool/config_showExpansionHeader"/>
     <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
     <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
     <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
@@ -48,6 +49,7 @@
     <item target="color/emergency_primary_text_color" value="@color/emergency_primary_text_color"/>
     <item target="color/emergency_secondary_text_color" value="@color/emergency_secondary_text_color"/>
     <item target="color/first_action_button_text_color" value="@color/first_action_button_text_color"/>
+    <item target="color/group_notification_background_color" value="@color/group_notification_background_color"/>
     <item target="color/information_background_color" value="@color/information_background_color"/>
     <item target="color/information_primary_text_color" value="@color/information_primary_text_color"/>
     <item target="color/information_secondary_text_color" value="@color/information_secondary_text_color"/>
@@ -83,12 +85,16 @@
     <item target="dimen/clear_all_button_min_width" value="@dimen/clear_all_button_min_width" />
     <item target="dimen/clear_all_button_padding" value="@dimen/clear_all_button_padding" />
     <item target="dimen/config_olderNotificationsAlpha" value="@dimen/config_olderNotificationsAlpha" />
+    <item target="dimen/expanded_package_name_margin" value="@dimen/expanded_package_name_margin" />
     <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
     <item target="dimen/mute_icon_width" value="@dimen/mute_icon_width"/>
+    <item target="dimen/notification_card_footer_height" value="@dimen/notification_card_footer_height"/>
+    <item target="dimen/notification_card_header_height" value="@dimen/notification_card_header_height"/>
     <item target="dimen/notification_card_margin_horizontal" value="@dimen/notification_card_margin_horizontal"/>
     <item target="dimen/notification_card_radius" value="@dimen/notification_card_radius"/>
     <item target="dimen/notification_headsup_card_margin_horizontal" value="@dimen/notification_headsup_card_margin_horizontal" />
     <item target="dimen/notification_heads_up_icon_size" value="@dimen/notification_heads_up_icon_size" />
+    <item target="dimen/notification_list_divider_height" value="@dimen/notification_list_divider_height" />
     <item target="dimen/notification_touch_target_size" value="@dimen/notification_touch_target_size"/>
     <item target="dimen/play_arrow_width" value="@dimen/play_arrow_width"/>
     <item target="dimen/play_arrow_height" value="@dimen/play_arrow_height"/>
@@ -136,6 +142,7 @@
     <item target="id/touch_interceptor_view" value="@id/touch_interceptor_view"/>
 
     <item target="layout/basic_notification_template" value="@layout/basic_notification_template"/>
+    <item target="layout/dismiss_button" value="@layout/dismiss_button"/>
     <item target="layout/message_notification_template" value="@layout/message_notification_template"/>
     <item target="layout/group_notification_template" value="@layout/group_notification_template"/>
     <item target="layout/inbox_notification_template" value="@layout/inbox_notification_template"/>
@@ -153,6 +160,7 @@
     <item target="layout/notification_center_activity" value="@layout/notification_center_activity"/>
 
     <item target="drawable/action_button_background" value="@drawable/action_button_background"/>
+    <item target="drawable/expand_less" value="@drawable/expand_less"/>
     <item target="drawable/ic_reply" value="@drawable/ic_reply"/>
     <item target="drawable/ic_play_arrow" value="@drawable/ic_play_arrow"/>
     <item target="drawable/ic_mute" value="@drawable/ic_mute"/>
@@ -165,6 +173,7 @@
     <item target="string/action_mute_short" value="@string/action_mute_short"/>
 
     <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
+    <item target="style/ExpandedGroupNotificationHeaderText" value="@style/ExpandedGroupNotificationHeaderText"/>
     <item target="style/GroupNotificationFooterText" value="@style/GroupNotificationFooterText"/>
     <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
     <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
