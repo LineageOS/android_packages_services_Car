@@ -22,7 +22,7 @@
     <color name="notification_background_color">@color/car_surface_1</color>
     <color name="hun_background_color">@color/car_surface_2</color>
     <color name="primary_text_color">@color/car_on_surface</color>
-    <color name="notification_list_divider_color">@color/car_on_surface</color>
+    <color name="notification_list_divider_color">@color/car_secondary</color>
     <color name="secondary_text_color">@color/car_on_surface_variant</color>
     <color name="icon_tint">@color/car_on_secondary_container</color>
     <color name="notification_accent_color">@color/car_on_secondary_container</color>

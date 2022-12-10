@@ -40,6 +40,7 @@ import android.car.PlatformVersion;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
+import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
@@ -73,6 +74,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -86,6 +88,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private static final String ALL_COMPONENTS = "*";
 
     private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
+
+    private static final int[] EMPTY_INPUT_SUPPORT_TYPES = new int[0];
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -111,10 +115,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     static class DisplayConfig {
         public final int displayType;
         public final int occupantZoneId;
+        public final int[] inputTypes;
 
-        DisplayConfig(int displayType, int occupantZoneId) {
+        DisplayConfig(int displayType, int occupantZoneId, IntArray inputTypes) {
             this.displayType = displayType;
             this.occupantZoneId = occupantZoneId;
+            if (inputTypes == null && Car.getPlatformVersion().isAtLeast(
+                    PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+                Slogf.w(TAG, "No input type was defined for displayType:%d "
+                        + " and occupantZoneId:%d", displayType, occupantZoneId);
+            }
+            this.inputTypes = inputTypes == null ? EMPTY_INPUT_SUPPORT_TYPES : inputTypes.toArray();
         }
 
         @Override
@@ -125,6 +136,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             b.append(Integer.toHexString(displayType));
             b.append(" occupantZoneId=");
             b.append(occupantZoneId);
+            b.append(" inputTypes=");
+            b.append(Arrays.toString(inputTypes));
             b.append("}");
             return b.toString();
         }
@@ -1244,9 +1257,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @GuardedBy("mLock")
     private void parseDisplayConfigsLocked() {
         final Resources res = mContext.getResources();
+        final SparseArray<IntArray> inputTypesPerDisplay = new SparseArray<>();
         // examples:
-        // <item>displayPort=0,displayType=MAIN,occupantZoneId=0</item>
-        // <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0</item>
+        // <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=DPAD_KEYS|
+        //            NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        // <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,
+        //              inputTypes=DPAD_KEYS</item>
         for (String config : res.getStringArray(R.array.config_occupant_display_mapping)) {
             int port = INVALID_PORT;
             String uniqueId = null;
@@ -1287,22 +1303,65 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                                         "Unrecognized display type:" + entry);
                                 break;
                         }
+                        inputTypesPerDisplay.set(type, new IntArray());
                         break;
                     case "occupantZoneId":
                         zoneId = Integer.parseInt(keyValuePair[1]);
                         break;
+                    case "inputTypes":
+                        String[] inputStrings = keyValuePair[1].split("\\|");
+                        for (int i = 0; i < inputStrings.length; i++) {
+                            switch (inputStrings[i].trim()) {
+                                case "ROTARY_NAVIGATION":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION);
+                                    break;
+                                case "ROTARY_VOLUME":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_ROTARY_VOLUME);
+                                    break;
+                                case "DPAD_KEYS":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_DPAD_KEYS);
+                                    break;
+                                case "NAVIGATE_KEYS":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_NAVIGATE_KEYS);
+                                    break;
+                                case "SYSTEM_NAVIGATE_KEYS":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS);
+                                    break;
+                                case "CUSTOM_INPUT_EVENT":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT);
+                                    break;
+                                case "TOUCH_SCREEN":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_TOUCH_SCREEN);
+                                    break;
+                                case "NONE":
+                                    inputTypesPerDisplay.get(type).add(
+                                            CarInputManager.INPUT_TYPE_NONE);
+                                    break;
+                                default:
+                                    throw new IllegalArgumentException("Invalid input type: "
+                                            + inputStrings[i]);
+                            }
+                        }
+                        break;
                     default:
                         throwFormatErrorInDisplayMapping("Unrecognized key:" + entry);
                         break;
-
                 }
             }
+
             // Now check validity
+            checkInputTypeNoneLocked(inputTypesPerDisplay);
             if (port == INVALID_PORT && uniqueId == null) {
                 throwFormatErrorInDisplayMapping(
                         "Missing or invalid displayPort and displayUniqueId:" + config);
             }
-
             if (type == CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN) {
                 throwFormatErrorInDisplayMapping("Missing or invalid displayType:" + config);
             }
@@ -1313,7 +1372,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 throwFormatErrorInDisplayMapping(
                         "Missing or invalid occupantZoneId:" + config);
             }
-            DisplayConfig displayConfig = new DisplayConfig(type, zoneId);
+            final DisplayConfig displayConfig = new DisplayConfig(type, zoneId,
+                    inputTypesPerDisplay.get(type));
             if (port != INVALID_PORT) {
                 if (mDisplayPortConfigs.contains(port)) {
                     throwFormatErrorInDisplayMapping("Duplicate displayPort:" + config);
@@ -1326,6 +1386,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 mDisplayUniqueIdConfigs.put(uniqueId, displayConfig);
             }
         }
+
         Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
         if (findDisplayConfigForDisplayLocked(defaultDisplay) == null) {
             int zoneForDefaultDisplay = mDriverZoneId;
@@ -1338,7 +1399,21 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     + zoneForDefaultDisplay);
             mDisplayUniqueIdConfigs.put(DisplayHelper.getUniqueId(defaultDisplay),
                     new DisplayConfig(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                            zoneForDefaultDisplay));
+                            zoneForDefaultDisplay, inputTypesPerDisplay.get(
+                                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN)));
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void checkInputTypeNoneLocked(SparseArray<IntArray> inputTypesPerDisplay) {
+        for (int i = 0; i < inputTypesPerDisplay.size(); ++i) {
+            IntArray inputTypes = inputTypesPerDisplay.valueAt(i);
+            for (int j = 0; j < inputTypes.size(); ++j) {
+                if (inputTypes.get(j) == CarInputManager.INPUT_TYPE_NONE && inputTypes.size() > 1) {
+                    throw new IllegalArgumentException("Display {" + inputTypesPerDisplay.keyAt(i)
+                            + "} has input type NONE defined along with other input types");
+                }
+            }
         }
     }
 
@@ -1561,6 +1636,43 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (mContext.checkCallingOrSelfPermission(permissionName)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires permission " + permissionName);
+        }
+    }
+
+    /**
+     * Returns the supported input types for the occupant zone info and display type passed as
+     * the argument.
+     *
+     * @param occupantZoneId the occupant zone id of the supported input types to find
+     * @param displayType    the display type of the supported input types to find
+     * @return the supported input types for the occupant zone info and display type passed in as
+     * the argument
+     */
+    public int[] getSupportedInputTypes(int occupantZoneId, int displayType) {
+        checkOccupantZone(occupantZoneId, displayType);
+        synchronized (mLock) {
+            // Search input type in mDisplayPortConfigs
+            for (int i = 0; i < mDisplayPortConfigs.size(); i++) {
+                DisplayConfig config = mDisplayPortConfigs.valueAt(i);
+                if (config.displayType == displayType && config.occupantZoneId == occupantZoneId) {
+                    return config.inputTypes;
+                }
+            }
+            // Search input type in mDisplayUniqueIdConfigs
+            for (int i = 0; i < mDisplayUniqueIdConfigs.size(); i++) {
+                DisplayConfig config = mDisplayUniqueIdConfigs.valueAt(i);
+                if (config.displayType == displayType && config.occupantZoneId == occupantZoneId) {
+                    return config.inputTypes;
+                }
+            }
+        }
+        return EMPTY_INPUT_SUPPORT_TYPES;
+    }
+
+    private void checkOccupantZone(int occupantZoneId, int displayType) {
+        if (Display.INVALID_DISPLAY == getDisplayForOccupant(occupantZoneId, displayType)) {
+            throw new IllegalArgumentException("No display is associated with OccupantZoneInfo "
+                    + occupantZoneId);
         }
     }
 }

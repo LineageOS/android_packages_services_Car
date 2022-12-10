@@ -19,8 +19,9 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleUnit;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,12 +35,6 @@ import java.util.Collection;
 public final class VehicleUnitTest extends CarLessApiTestBase {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
-
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
 
     public VehicleUnitTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
@@ -98,6 +93,22 @@ public final class VehicleUnitTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.VehicleUnit#SHOULD_NOT_USE",
+            "android.car.VehicleUnit#METER_PER_SEC", "android.car.VehicleUnit#RPM",
+            "android.car.VehicleUnit#HERTZ", "android.car.VehicleUnit#PERCENTILE",
+            "android.car.VehicleUnit#MILLIMETER", "android.car.VehicleUnit#METER",
+            "android.car.VehicleUnit#KILOMETER", "android.car.VehicleUnit#MILE",
+            "android.car.VehicleUnit#CELSIUS", "android.car.VehicleUnit#FAHRENHEIT",
+            "android.car.VehicleUnit#KELVIN", "android.car.VehicleUnit#LITER",
+            "android.car.VehicleUnit#US_GALLON", "android.car.VehicleUnit#IMPERIAL_GALLON",
+            "android.car.VehicleUnit#NANO_SECS", "android.car.VehicleUnit#SECS",
+            "android.car.VehicleUnit#YEAR", "android.car.VehicleUnit#WATT_HOUR",
+            "android.car.VehicleUnit#MILLIAMPERE", "android.car.VehicleUnit#MILLIVOLT",
+            "android.car.VehicleUnit#MILLIWATTS", "android.car.VehicleUnit#AMPERE_HOURS",
+            "android.car.VehicleUnit#KILOWATT_HOUR", "android.car.VehicleUnit#KILOPASCAL",
+            "android.car.VehicleUnit#PSI", "android.car.VehicleUnit#BAR",
+            "android.car.VehicleUnit#DEGREES", "android.car.VehicleUnit#MILES_PER_HOUR",
+            "android.car.VehicleUnit#KILOMETERS_PER_HOUR"})
     public void testMatchWithVehicleHal() {
         assertThat(mJavaConstantValue).isEqualTo(mHalConstantValue);
     }

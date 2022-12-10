@@ -100,16 +100,22 @@ binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_
         if (auto result = mWatchdogPerfService->onCustomCollection(fd, args, numArgs);
             !result.ok()) {
             std::string mode =
-                    EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ? "start" : "end";
-            std::string errorMsg = StringPrintf("Failed to %s custom I/O perf collection: %s",
+                    EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ? "start" : "stop";
+            std::string errorMsg = StringPrintf("Failed to %s custom perf collection: %s",
                                                 mode.c_str(), result.error().message().c_str());
             if (result.error().code() == BAD_VALUE) {
                 dumpHelpText(fd, errorMsg);
             } else {
                 ALOGW("%s", errorMsg.c_str());
+                WriteStringToFd(StringPrintf("Error: %s\n", errorMsg.c_str()), fd);
             }
             return result.error().code();
         }
+        std::string mode =
+                EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ? "started" : "stopped";
+        // The message returned on success is used in the integration tests. If this message is
+        // updated, the CarWatchdog's integration tests must be updated too.
+        WriteStringToFd(StringPrintf("Successfully %s custom perf collection\n", mode.c_str()), fd);
         return OK;
     }
     if (numArgs == 2 && EqualsIgnoreCase(args[0], kResetResourceOveruseStatsFlag)) {

@@ -34,6 +34,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaSeat;
+import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -159,12 +160,13 @@ public class CarOccupantZoneServiceTest {
     // port address set to mocked displayid + 10 so that any possible mix of port address and
     // display id can be detected.
     private static final String[] DEFAULT_OCCUPANT_DISPLAY_MAPPING = {
-            "displayPort=10,displayType=MAIN,occupantZoneId=0",
+            "displayPort=10,displayType=MAIN,occupantZoneId=0,inputTypes=TOUCH_SCREEN|DPAD_KEYS"
+                    + "|NAVIGATE_KEYS|ROTARY_NAVIGATION",
             "displayUniqueId=" + CLUSTER_DISPLAY_UNIQUE_ID
-                    + ",displayType=INSTRUMENT_CLUSTER,occupantZoneId=0",
-            "displayPort=12,displayType=MAIN,occupantZoneId=1",
-            "displayPort=13,displayType=MAIN,occupantZoneId=2",
-            "displayPort=14,displayType=MAIN,occupantZoneId=3"
+                    + ",displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,inputTypes=NAVIGATE_KEYS",
+            "displayPort=12,displayType=MAIN,occupantZoneId=1,inputTypes=TOUCH_SCREEN|DPAD_KEYS",
+            "displayPort=13,displayType=MAIN,occupantZoneId=2,inputTypes=TOUCH_SCREEN|DPAD_KEYS",
+            "displayPort=14,displayType=MAIN,occupantZoneId=3,inputTypes=TOUCH_SCREEN|NAVIGATE_KEYS"
     };
 
     // Stores last changeFlags from onOccupantZoneConfigChanged call.
@@ -1129,6 +1131,98 @@ public class CarOccupantZoneServiceTest {
     private void resetVisibleUser(int userId) {
         mVisibleUsers.clear();
         mVisibleUsers.add(userId);
+    }
+
+    @Test
+    public void testGetSupportedInputTypes_driverZoneInfo() {
+        mService.init();
+
+        assertThat(mService.getSupportedInputTypes(/* zoneId= */ 0,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
+                .INPUT_TYPE_DPAD_KEYS, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS, CarInputManager
+                .INPUT_TYPE_ROTARY_NAVIGATION, CarInputManager.INPUT_TYPE_TOUCH_SCREEN);
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_mainDisplayContainsTouchInput() {
+        when(mResources.getStringArray(R.array.config_occupant_display_mapping)).thenReturn(
+                new String[]{"displayPort=10,displayType=MAIN"
+                        + ",occupantZoneId=" + mZoneDriverLHD.zoneId
+                        + ",inputTypes=TOUCH_SCREEN"});
+
+        mService.init();
+
+        assertThat(mService.getSupportedInputTypes(mZoneDriverLHD.zoneId,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
+                .INPUT_TYPE_TOUCH_SCREEN);
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_mainDisplayContainsAllInputs() {
+        when(mResources.getStringArray(R.array.config_occupant_display_mapping)).thenReturn(
+                new String[]{"displayPort=10,displayType=MAIN"
+                        + ",occupantZoneId=" + mZoneDriverLHD.zoneId
+                        + ",inputTypes=TOUCH_SCREEN"});
+
+        mService.init();
+
+        assertThat(mService.getSupportedInputTypes(mZoneDriverLHD.zoneId,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
+                .INPUT_TYPE_TOUCH_SCREEN);
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_displayUniqueConfig() {
+        when(mResources.getStringArray(R.array.config_occupant_display_mapping)).thenReturn(
+                new String[]{"displayUniqueId=virtual:com.example:MainD,displayType=MAIN"
+                        + ",occupantZoneId=" + mZoneDriverLHD.zoneId
+                        + ",inputTypes=TOUCH_SCREEN"});
+
+        mService.init();
+
+        assertThat(mService.getSupportedInputTypes(mZoneDriverLHD.zoneId,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
+                .INPUT_TYPE_TOUCH_SCREEN);
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_malFormedInputTypes() {
+        when(mResources.getStringArray(R.array.config_occupant_display_mapping)).thenReturn(
+                new String[]{"displayUniqueId=virtual:com.example:MainD,displayType=MAIN"
+                        + ",occupantZoneId=" + mZoneDriverLHD.zoneId
+                        + ",inputTypes=    \t  \n\r TOUCH_SCREEN   \t|\t DPAD_KEYS"});
+
+        mService.init();
+
+        assertThat(mService.getSupportedInputTypes(mZoneDriverLHD.zoneId,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).asList().containsExactly(CarInputManager
+                .INPUT_TYPE_TOUCH_SCREEN, CarInputManager.INPUT_TYPE_DPAD_KEYS);
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_inputTypeNoneMustBeDefinedAlone() {
+        when(mResources.getStringArray(R.array.config_occupant_display_mapping)).thenReturn(
+                new String[]{"displayUniqueId=virtual:com.example:MainD,displayType=MAIN,"
+                        + "occupantZoneId=" + mZoneDriverLHD.zoneId
+                        + ",inputTypes=DPAD_KEYS|NONE"});
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class,
+                        () -> mService.init());
+        assertThat(thrown).hasMessageThat().matches(
+                "Display \\{[0-9]*\\} has input type NONE defined along with other input types");
+    }
+
+    @Test
+    public void testInit_configOccupantDisplayMapping_mainDisplayMustBeAssociatedWithDriver() {
+        mService.init();
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class,
+                        () -> mService.getSupportedInputTypes(UNMAPPED_AUDIO_ZONE_ID_OCCUPANT,
+                                CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
+        assertThat(thrown).hasMessageThat().matches(
+                "No display is associated with OccupantZoneInfo 2");
     }
 
     private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {

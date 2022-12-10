@@ -117,6 +117,8 @@
           <item type="integer" name="config_oemCarService_crashCall_timeout_ms"/>
           <item type="integer" name="config_oemCarService_thread_pool_size"/>
           <item type="integer" name="config_allowedSystemUpTimeForRemoteAccess"/>
+          <item type="bool" name="config_assignPassengerActivityToForegroundCpuGroup"/>
+
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

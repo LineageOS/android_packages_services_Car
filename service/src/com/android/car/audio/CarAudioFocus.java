@@ -589,8 +589,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
 
             int interactionResult = mFocusInteraction
-                    .evaluateRequest(requestedContext, entry, changedEntries, allowDucking,
-                            allowDelayedFocus);
+                    .evaluateRequest(requestedContext, entry, allowDucking, allowDelayedFocus,
+                            changedEntries);
             if (interactionResult == AUDIOFOCUS_REQUEST_FAILED) {
                 return FocusEvaluation.FOCUS_EVALUATION_FAILED;
             }

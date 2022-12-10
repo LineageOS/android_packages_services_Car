@@ -128,6 +128,7 @@ package android.car {
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(int, int);
     method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForUser(@NonNull android.os.UserHandle);
+    method @NonNull public java.util.List<java.lang.Integer> getSupportedInputTypes(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
     method public int getUserForDisplayId(int);
     method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public boolean hasDriverZone();
@@ -910,6 +911,21 @@ package android.car.hardware.property {
     field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD = 1; // 0x1
     field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD_V2 = 2; // 0x2
     field public static final int UNKNOWN = 0; // 0x0
+  }
+
+}
+
+package android.car.input {
+
+  public final class CarInputManager {
+    field public static final int INPUT_TYPE_CUSTOM_INPUT_EVENT = 200; // 0xc8
+    field public static final int INPUT_TYPE_DPAD_KEYS = 100; // 0x64
+    field public static final int INPUT_TYPE_NAVIGATE_KEYS = 101; // 0x65
+    field public static final int INPUT_TYPE_NONE = -1; // 0xffffffff
+    field public static final int INPUT_TYPE_ROTARY_NAVIGATION = 10; // 0xa
+    field public static final int INPUT_TYPE_ROTARY_VOLUME = 11; // 0xb
+    field public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102; // 0x66
+    field public static final int INPUT_TYPE_TOUCH_SCREEN = 210; // 0xd2
   }
 
 }

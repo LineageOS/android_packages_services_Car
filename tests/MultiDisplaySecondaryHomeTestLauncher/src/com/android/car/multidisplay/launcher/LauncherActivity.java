@@ -33,6 +33,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -132,8 +133,12 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         mScrimView = findViewById(R.id.Scrim);
         mAppDrawerView = findViewById(R.id.FloatingSheet);
 
-        mBackgroundDrawable = new TextDrawable(this, Color.WHITE, /* defaultSize= */ 150,
-                "User #" + userId, "Display #" + displayId);
+        int pid = Process.myPid();
+        mBackgroundDrawable = new TextDrawable(this, Color.WHITE, /* defaultSize= */ 100,
+                "User #" + userId,
+                "Display #" + displayId,
+                "PID " + pid,
+                "ProcessGrp " + Process.getProcessGroup(pid));
         mRootView.setBackground(mBackgroundDrawable);
 
         // get system insets and apply padding accordingly to the content view

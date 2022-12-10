@@ -16,23 +16,28 @@
 package android.car.apitest;
 
 import android.car.VehicleAreaWindow;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 
 @SmallTest
 public final class VehicleWindowTest extends CarLessApiTestBase {
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.VehicleAreaWindow#WINDOW_FRONT_WINDSHIELD",
+            "android.car.VehicleAreaWindow#WINDOW_REAR_WINDSHIELD",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_1_LEFT",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_1_RIGHT",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_2_LEFT",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_2_RIGHT",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_3_LEFT",
+            "android.car.VehicleAreaWindow#WINDOW_ROW_3_RIGHT",
+            "android.car.VehicleAreaWindow#WINDOW_ROOF_TOP_1",
+            "android.car.VehicleAreaWindow#WINDOW_ROOF_TOP_2"})
     public void testMatchWithVehicleHal() {
         assertThat(VehicleAreaWindow.WINDOW_FRONT_WINDSHIELD).isEqualTo(
                 android.hardware.automotive.vehicle.VehicleAreaWindow.FRONT_WINDSHIELD);

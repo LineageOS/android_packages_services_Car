@@ -40,6 +40,7 @@ import android.util.Log;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.ElementType;
@@ -880,5 +881,49 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
+    }
+
+    /**
+     * Returns the supported input types for the occupant zone info and display type passed as
+     * the argument.
+     *
+     * <p>It returns an empty list if the input type is unknown. Starting in Android
+     * {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, all associated occupant zones and
+     * display types in {@code config_occupant_display_mapping} must define at least one input type.
+     *
+     * <p>If the display doesn't have any input type associated, then it should return a list
+     * containing {@link android.car.input.CarInputManager#INPUT_TYPE_NONE} only.
+     *
+     * <p>This is the list of all available input types this method may return:
+     * <ul>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_ROTARY_NAVIGATION}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_ROTARY_VOLUME}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_DPAD_KEYS}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_NAVIGATE_KEYS}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_SYSTEM_NAVIGATE_KEYS}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_CUSTOM_INPUT_EVENT}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_TOUCH_SCREEN}</li>
+     *   <li>{@link android.car.input.CarInputManager#INPUT_TYPE_NONE}</li>
+     * </ul>
+     *
+     * @param occupantZoneInfo the occupant zone info of the supported input types to find
+     * @param displayType      the display type of the supported input types to find
+     * @return the supported input types for the occupant zone info and display type passed in as
+     * the argument (see the full list of supported input types in the above)
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    public List<Integer> getSupportedInputTypes(@NonNull OccupantZoneInfo occupantZoneInfo,
+            @DisplayTypeEnum int displayType) {
+        assertNonNullOccupant(occupantZoneInfo);
+        List<Integer> inputTypes;
+        try {
+            int[] ints = mService.getSupportedInputTypes(occupantZoneInfo.zoneId, displayType);
+            inputTypes = Lists.asIntegerList(ints);
+        } catch (RemoteException e) {
+            inputTypes = handleRemoteExceptionFromCarService(e, Collections.emptyList());
+        }
+        return inputTypes;
     }
 }

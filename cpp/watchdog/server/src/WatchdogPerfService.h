@@ -272,9 +272,9 @@ private:
         // Collection or monitor event.
         EventType eventType = EventType::LAST_EVENT;
         // Interval between subsequent events.
-        std::chrono::nanoseconds interval = 0ns;
+        std::chrono::nanoseconds pollingIntervalNs = 0ns;
         // Used to calculate the uptime for next event.
-        nsecs_t lastUptime = 0;
+        nsecs_t lastPollUptimeNs = 0;
         // Filter the results only to the specified packages.
         std::unordered_set<std::string> filterPackages;
 
@@ -340,7 +340,7 @@ private:
      * Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
      * nullptr on invalid collection event.
      */
-    EventMetadata* currCollectionMetadataLocked();
+    EventMetadata* getCurrentCollectionMetadataLocked();
 
     // Duration to extend a system event collection after the final signal is received.
     std::chrono::nanoseconds mPostSystemEventDurationNs;

@@ -49,6 +49,9 @@
     <!-- Whether to collapse notification shade panel after manage button click -->
     <bool name="config_collapseShadePanelAfterManageButtonPress">false</bool>
 
+    <!-- Whether to show expansion header in group notifications.  -->
+    <bool name="config_showExpansionHeader">false</bool>
+
     <!-- When true, ignore the notification color for warning notification background and use @color/warning_background_color instead. -->
     <bool name="config_useCustomColorForWarningNotification">true</bool>
 

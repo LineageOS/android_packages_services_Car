@@ -25,6 +25,7 @@ import android.car.os.CarPerformanceManager;
 import android.car.os.ThreadPolicyWithPriority;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Process;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.android.internal.os.BackgroundThread;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
@@ -77,6 +80,15 @@ public final class CarPerformanceTestFragment extends Fragment {
         mThreadPolicySelect.setAdapter(adapter);
 
         mThreadPriorityInput = v.findViewById(R.id.priority_input);
+
+        int pid = Process.myPid();
+        ((TextView) v.findViewById(R.id.pid_value)).setText(Integer.toString(pid));
+        ((TextView) v.findViewById(R.id.uid_value)).setText(Integer.toString(Process.myUid()));
+        ((TextView) v.findViewById(R.id.process_group_value)).setText(Integer.toString(
+                Process.getProcessGroup(pid)));
+        int bgThreadTid = BackgroundThread.get().getThreadId();
+        ((TextView) v.findViewById(R.id.bg_thread_process_group_value)).setText(Integer.toString(
+                Process.getProcessGroup(bgThreadTid)));
 
         return v;
     }

@@ -16,6 +16,8 @@
 
 package android.car.testapi;
 
+import android.content.Context;
+
 import com.android.car.SystemActivityMonitoringService;
 
 /**
@@ -30,6 +32,14 @@ public class FakeSystemActivityMonitoringService extends SystemActivityMonitorin
 
     private int mForegroundPid = DEFAULT_FOREGROUND_ID;
     private int mForegroundUid = DEFAULT_FOREGROUND_ID;
+
+    public FakeSystemActivityMonitoringService(Context context) {
+        super(context);
+    }
+
+    public FakeSystemActivityMonitoringService() {
+        this(/*context=*/ null);
+    }
 
     @Override
     public boolean isInForeground(int pid, int uid) {

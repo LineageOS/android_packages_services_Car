@@ -51,4 +51,49 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"/>
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/pid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PID"/>
+        <TextView
+            android:id="@+id/pid_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+        <Button
+            android:id="@+id/uid"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="UID"/>
+        <TextView
+            android:id="@+id/uid_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+        <Button
+            android:id="@+id/process_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ProcessGrp"/>
+        <TextView
+            android:id="@+id/process_group_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+        <Button
+            android:id="@+id/bg_thread_process_group"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="BgThreadProcessGrp"/>
+        <TextView
+            android:id="@+id/bg_thread_process_group_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""/>
+    </LinearLayout>
 </LinearLayout>

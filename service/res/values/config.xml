@@ -331,11 +331,16 @@
         occupant. DEFAULT_DISPLAY, if assigned here, should be always assigned to the DRIVER zone.
 
         Some examples are:
-        <item>displayPort=0,displayType=MAIN,occupantZoneId=0</item>
-        <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0</item>
-        <item>displayPort=2,displayType=MAIN,occupantZoneId=1</item>
-        <item>displayPort=3,displayType=MAIN,occupantZoneId=2</item>
-        <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3</item>
+        <item>displayPort=0,displayType=MAIN,occupantZoneId=0,inputTypes=DPAD_KEYS|
+            NAVIGATE_KEYS|ROTARY_NAVIGATION</item>
+        <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0,
+            inputTypes=DPAD_KEYS</item>
+        <item>displayPort=2,displayType=MAIN,occupantZoneId=1,
+            inputTypes=NAVIGATE_KEYS</item>
+        <item>displayPort=3,displayType=MAIN,occupantZoneId=2,
+            inputTypes=NAVIGATE_KEYS</item>
+        <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3,
+            inputTypes=NAVIGATE_KEYS</item>
 
         NOTE: each item should have displayPort or displayUniqueId, if it has both, displayPort
           will be used.
@@ -346,6 +351,7 @@
                        CarOccupantZoneManager.DISPLAY_TYPE_* like MAIN, INSTRUMENT_CLUSTER and
                        etc.
         occupantZoneId: occupantZoneId specified from config_occupant_zones.
+        inputTypes: supported input types for the corresponding display.
 
     -->
     <string-array translatable="false" name="config_occupant_display_mapping">
@@ -543,4 +549,8 @@
          30 seconds -->
     <integer name="config_allowedSystemUpTimeForRemoteAccess">300</integer>
 
+    <!-- Assigns passenger Activities to foreground cpuset rather than the top app cpuset.
+         This is enabled only for a system having both driver and passenger zones. If the system
+         has only driver zone or passenger zones, this configuration will be ignored. -->
+    <bool name="config_assignPassengerActivityToForegroundCpuGroup">true</bool>
 </resources>

@@ -22,6 +22,7 @@ import static android.os.IBinder.DeathRecipient;
 
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -31,6 +32,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -196,6 +198,20 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void registerFocusListener_throws() throws Exception {
+        doThrow(new RemoteException()).when(mAudioControl)
+                .registerFocusListener(any(IFocusListener.class));
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mAudioControlWrapperAidl.registerFocusListener(mockListener));
+
+        assertWithMessage("Exception thrown when registerFocusListener failed")
+                .that(thrown).hasMessageThat()
+                .contains("IAudioControl#registerFocusListener failed");
+    }
+
+    @Test
     public void requestAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
@@ -226,6 +242,19 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         mAudioControlWrapperAidl.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN);
 
         verify(mAudioControl).onAudioFocusChange(USAGE_NAME, ZONE_ID, FOCUS_GAIN);
+    }
+
+    @Test
+    public void onAudioFocusChange_throws() throws Exception {
+        doThrow(new RemoteException()).when(mAudioControl)
+                .onAudioFocusChange(anyString(), anyInt(), anyInt());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mAudioControlWrapperAidl.onAudioFocusChange(USAGE, ZONE_ID, FOCUS_GAIN));
+
+        assertWithMessage("Exception thrown when onAudioFocusChange failed")
+                .that(thrown).hasMessageThat()
+                .contains("Failed to query IAudioControl#onAudioFocusChange");
     }
 
     @Test
@@ -347,6 +376,19 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         mAudioControlWrapperAidl.linkToDeath(null);
 
         verify(mBinder).linkToDeath(any(DeathRecipient.class), eq(0));
+    }
+
+    @Test
+    public void linkToDeath_throws() throws Exception {
+        doThrow(new RemoteException()).when(mBinder)
+                .linkToDeath(any(DeathRecipient.class), anyInt());
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mAudioControlWrapperAidl.linkToDeath(null));
+
+        assertWithMessage("Exception thrown when linkToDeath failed")
+                .that(thrown).hasMessageThat()
+                .contains("Call to IAudioControl#linkToDeath failed");
     }
 
     @Test
@@ -561,13 +603,22 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void supportsFeature_forAudioFocusWithMetadataThrowsExcpetion_returnFalse()
+            throws Exception {
+        doThrow(new RemoteException()).when(mAudioControl).getInterfaceVersion();
+
+        assertThat(mAudioControlWrapperAidl
+                .supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA)).isFalse();
+    }
+
+    @Test
     public void registerAudioGainCallback_succeeds() throws Exception {
         mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
         verify(mAudioControl).registerGainCallback(any());
     }
 
     @Test
-    public void registerAudioGainCallback_Throws() throws Exception {
+    public void registerAudioGainCallback_throws() throws Exception {
         doThrow(new RemoteException("D'OH!")).when(mAudioControl).registerGainCallback(any());
 
         IllegalStateException thrown =

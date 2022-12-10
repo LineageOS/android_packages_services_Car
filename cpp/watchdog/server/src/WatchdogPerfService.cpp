@@ -51,7 +51,7 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 
-// Minimum required collection interval between subsequent collections.
+// Minimum required collection polling interval between subsequent collections.
 const std::chrono::nanoseconds kMinEventInterval = 1s;
 const std::chrono::seconds kDefaultSystemEventCollectionInterval = 1s;
 const std::chrono::seconds kDefaultPeriodicCollectionInterval = 20s;
@@ -141,8 +141,9 @@ constexpr const char* toString(SystemState systemState) {
 
 std::string WatchdogPerfService::EventMetadata::toString() const {
     std::string buffer;
-    const auto intervalInSecs = std::chrono::duration_cast<std::chrono::seconds>(interval).count();
-    StringAppendF(&buffer, "Event interval: %lld second%s\n", intervalInSecs,
+    const auto intervalInSecs =
+            std::chrono::duration_cast<std::chrono::seconds>(pollingIntervalNs).count();
+    StringAppendF(&buffer, "Event polling interval: %lld second%s\n", intervalInSecs,
                   ((intervalInSecs > 1) ? "s" : ""));
     if (!filterPackages.empty()) {
         std::vector<std::string> packages(filterPackages.begin(), filterPackages.end());
@@ -187,28 +188,23 @@ Result<void> WatchdogPerfService::start() {
                                 kDefaultPeriodicMonitorInterval.count())));
         mBoottimeCollection = {
                 .eventType = EventType::BOOT_TIME_COLLECTION,
-                .interval = systemEventCollectionInterval,
-                .lastUptime = 0,
+                .pollingIntervalNs = systemEventCollectionInterval,
         };
         mPeriodicCollection = {
                 .eventType = EventType::PERIODIC_COLLECTION,
-                .interval = periodicCollectionInterval,
-                .lastUptime = 0,
+                .pollingIntervalNs = periodicCollectionInterval,
         };
         mUserSwitchCollection = {{
                 .eventType = EventType::USER_SWITCH_COLLECTION,
-                .interval = systemEventCollectionInterval,
-                .lastUptime = 0,
+                .pollingIntervalNs = systemEventCollectionInterval,
         }};
         mWakeUpCollection = {
                 .eventType = EventType::WAKE_UP_COLLECTION,
-                .interval = systemEventCollectionInterval,
-                .lastUptime = 0,
+                .pollingIntervalNs = systemEventCollectionInterval,
         };
         mPeriodicMonitor = {
                 .eventType = EventType::PERIODIC_MONITOR,
-                .interval = periodicMonitorInterval,
-                .lastUptime = 0,
+                .pollingIntervalNs = periodicMonitorInterval,
         };
         if (mDataProcessors.empty()) {
             ALOGE("Terminating %s: No data processor is registered", kServiceName);
@@ -231,7 +227,7 @@ Result<void> WatchdogPerfService::start() {
             }
             notifySystemStartUpLocked();
             mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
-            mBoottimeCollection.lastUptime = mHandlerLooper->now();
+            mBoottimeCollection.lastPollUptimeNs = mHandlerLooper->now();
             mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
             mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
                                         EventType::BOOT_TIME_COLLECTION);
@@ -308,8 +304,7 @@ Result<void> WatchdogPerfService::onBootFinished() {
               toString(expected));
         return {};
     }
-    nsecs_t endBootCollectionTime = mHandlerLooper->now() + mPostSystemEventDurationNs.count();
-    mHandlerLooper->sendMessageAtTime(endBootCollectionTime,
+    mHandlerLooper->sendMessageAtTime(mHandlerLooper->now() + mPostSystemEventDurationNs.count(),
                                       sp<WatchdogPerfService>::fromExisting(this),
                                       SwitchMessage::END_BOOTTIME_COLLECTION);
     if (DEBUG) {
@@ -391,13 +386,13 @@ Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserS
 Result<void> WatchdogPerfService::startUserSwitchCollection() {
     auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     mHandlerLooper->removeMessages(thiz);
-    mUserSwitchCollection.lastUptime = mHandlerLooper->now();
+    mUserSwitchCollection.lastPollUptimeNs = mHandlerLooper->now();
     // End |EventType::USER_SWITCH_COLLECTION| after a timeout because the user switch end
     // signal won't be received within a few seconds when the switch is blocked due to a
     // keyguard event. Otherwise, polling beyond a few seconds will lead to unnecessary data
     // collection.
-    nsecs_t uptime = mHandlerLooper->now() + mUserSwitchTimeoutNs.count();
-    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_USER_SWITCH_COLLECTION);
+    mHandlerLooper->sendMessageAtTime(mHandlerLooper->now() + mUserSwitchTimeoutNs.count(), thiz,
+                                      SwitchMessage::END_USER_SWITCH_COLLECTION);
     mCurrCollectionEvent = EventType::USER_SWITCH_COLLECTION;
     mHandlerLooper->sendMessage(thiz, EventType::USER_SWITCH_COLLECTION);
     return {};
@@ -420,9 +415,10 @@ Result<void> WatchdogPerfService::onSuspendExit() {
     notifySystemStartUpLocked();
     auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     mHandlerLooper->removeMessages(thiz);
-    mWakeUpCollection.lastUptime = mHandlerLooper->now();
-    nsecs_t uptime = mHandlerLooper->now() + mWakeUpDurationNs.count();
-    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_WAKE_UP_COLLECTION);
+    nsecs_t now = mHandlerLooper->now();
+    mWakeUpCollection.lastPollUptimeNs = now;
+    mHandlerLooper->sendMessageAtTime(now + mWakeUpDurationNs.count(), thiz,
+                                      SwitchMessage::END_WAKE_UP_COLLECTION);
     mCurrCollectionEvent = EventType::WAKE_UP_COLLECTION;
     mHandlerLooper->sendMessage(thiz, EventType::WAKE_UP_COLLECTION);
     ALOGI("Switching to %s", toString(mCurrCollectionEvent));
@@ -486,18 +482,15 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const char** args, 
                 ++i;
                 continue;
             }
-            ALOGW("Unknown flag %s provided to start custom performance data collection", args[i]);
             return Error(BAD_VALUE) << "Unknown flag " << args[i]
                                     << " provided to start custom performance data collection";
         }
         if (const auto& result = startCustomCollection(interval, maxDuration, filterPackages);
             !result.ok()) {
-            WriteStringToFd(result.error().message(), fd);
             return result;
         }
         return {};
     }
-
     if (EqualsIgnoreCase(args[0], kEndCustomCollectionFlag)) {
         if (numArgs != 1) {
             ALOGW("Number of arguments to stop custom performance data collection cannot exceed 1. "
@@ -508,7 +501,6 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const char** args, 
         }
         return endCustomCollection(fd);
     }
-
     return Error(BAD_VALUE) << "Custom perf collection dump arguments start neither with "
                             << kStartCustomCollectionFlag << " nor with "
                             << kEndCustomCollectionFlag << " flags";
@@ -593,29 +585,32 @@ Result<void> WatchdogPerfService::startCustomCollection(
         const std::unordered_set<std::string>& filterPackages) {
     if (interval < kMinEventInterval || maxDuration < kMinEventInterval) {
         return Error(INVALID_OPERATION)
-                << "Collection interval and maximum duration must be >= "
+                << "Collection polling interval and maximum duration must be >= "
                 << std::chrono::duration_cast<std::chrono::milliseconds>(kMinEventInterval).count()
-                << " milliseconds.";
+                << " milliseconds";
     }
     Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::CUSTOM_COLLECTION) {
+        return Error(INVALID_OPERATION) << "Cannot start custom collection more than once";
+    }
     if (EventType expected = EventType::PERIODIC_COLLECTION; mCurrCollectionEvent != expected) {
         return Error(INVALID_OPERATION)
                 << "Cannot start a custom collection when the current collection event "
-                << toString(mCurrCollectionEvent) << " != " << toString(expected)
-                << " collection event";
+                << mCurrCollectionEvent << " is not " << expected << " collection event";
     }
 
+    nsecs_t now = mHandlerLooper->now();
     mCustomCollection = {
             .eventType = EventType::CUSTOM_COLLECTION,
-            .interval = interval,
-            .lastUptime = mHandlerLooper->now(),
+            .pollingIntervalNs = interval,
+            .lastPollUptimeNs = now,
             .filterPackages = filterPackages,
     };
 
     auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     mHandlerLooper->removeMessages(thiz);
-    nsecs_t uptime = mHandlerLooper->now() + maxDuration.count();
-    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_CUSTOM_COLLECTION);
+    mHandlerLooper->sendMessageAtTime(now + maxDuration.count(), thiz,
+                                      SwitchMessage::END_CUSTOM_COLLECTION);
     mCurrCollectionEvent = EventType::CUSTOM_COLLECTION;
     mHandlerLooper->sendMessage(thiz, EventType::CUSTOM_COLLECTION);
     ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
@@ -645,8 +640,9 @@ Result<void> WatchdogPerfService::endCustomCollection(int fd) {
 
     for (const auto& processor : mDataProcessors) {
         if (const auto result = processor->onCustomCollectionDump(fd); !result.ok()) {
-            return Error() << processor->name() << " failed on " << toString(mCurrCollectionEvent)
-                           << " collection: " << result.error();
+            return Error(FAILED_TRANSACTION)
+                    << processor->name() << " failed on " << toString(mCurrCollectionEvent)
+                    << " collection: " << result.error();
         }
     }
 
@@ -666,16 +662,17 @@ void WatchdogPerfService::switchToPeriodicLocked(bool startNow) {
     auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     mHandlerLooper->removeMessages(thiz);
     mCurrCollectionEvent = EventType::PERIODIC_COLLECTION;
-    mPeriodicCollection.lastUptime = mHandlerLooper->now();
+    mPeriodicCollection.lastPollUptimeNs = mHandlerLooper->now();
     if (startNow) {
         mHandlerLooper->sendMessage(thiz, EventType::PERIODIC_COLLECTION);
     } else {
-        mPeriodicCollection.lastUptime += mPeriodicCollection.interval.count();
-        mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastUptime, thiz,
+        mPeriodicCollection.lastPollUptimeNs += mPeriodicCollection.pollingIntervalNs.count();
+        mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastPollUptimeNs, thiz,
                                           EventType::PERIODIC_COLLECTION);
     }
-    mPeriodicMonitor.lastUptime = mHandlerLooper->now() + mPeriodicMonitor.interval.count();
-    mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastUptime, thiz,
+    mPeriodicMonitor.lastPollUptimeNs =
+            mHandlerLooper->now() + mPeriodicMonitor.pollingIntervalNs.count();
+    mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastPollUptimeNs, thiz,
                                       EventType::PERIODIC_MONITOR);
     ALOGI("Switching to %s and %s", toString(mCurrCollectionEvent),
           toString(EventType::PERIODIC_MONITOR));
@@ -775,10 +772,11 @@ Result<void> WatchdogPerfService::processCollectionEvent(
     if (DEBUG) {
         ALOGD("Processing %s collection event", toString(metadata->eventType));
     }
-    if (metadata->interval < kMinEventInterval) {
+    if (metadata->pollingIntervalNs < kMinEventInterval) {
         return Error()
-                << "Collection interval of "
-                << std::chrono::duration_cast<std::chrono::seconds>(metadata->interval).count()
+                << "Collection polling interval of "
+                << std::chrono::duration_cast<std::chrono::seconds>(metadata->pollingIntervalNs)
+                           .count()
                 << " seconds for " << toString(metadata->eventType)
                 << " collection cannot be less than "
                 << std::chrono::duration_cast<std::chrono::seconds>(kMinEventInterval).count()
@@ -787,8 +785,8 @@ Result<void> WatchdogPerfService::processCollectionEvent(
     if (const auto result = collectLocked(metadata); !result.ok()) {
         return Error() << toString(metadata->eventType) << " collection failed: " << result.error();
     }
-    metadata->lastUptime += metadata->interval.count();
-    mHandlerLooper->sendMessageAtTime(metadata->lastUptime,
+    metadata->lastPollUptimeNs += metadata->pollingIntervalNs.count();
+    mHandlerLooper->sendMessageAtTime(metadata->lastPollUptimeNs,
                                       sp<WatchdogPerfService>::fromExisting(this),
                                       metadata->eventType);
     return {};
@@ -859,10 +857,11 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     if (DEBUG) {
         ALOGD("Processing %s monitor event", toString(metadata->eventType));
     }
-    if (metadata->interval < kMinEventInterval) {
+    if (metadata->pollingIntervalNs < kMinEventInterval) {
         return Error()
-                << "Monitor interval of "
-                << std::chrono::duration_cast<std::chrono::seconds>(metadata->interval).count()
+                << "Monitor polling interval of "
+                << std::chrono::duration_cast<std::chrono::seconds>(metadata->pollingIntervalNs)
+                           .count()
                 << " seconds for " << toString(metadata->eventType) << " event cannot be less than "
                 << std::chrono::duration_cast<std::chrono::seconds>(kMinEventInterval).count()
                 << " seconds";
@@ -875,7 +874,7 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     if (const auto result = mProcDiskStatsCollector->collect(); !result.ok()) {
         return Error() << "Failed to collect disk stats: " << result.error();
     }
-    auto* currCollectionMetadata = currCollectionMetadataLocked();
+    auto* currCollectionMetadata = getCurrentCollectionMetadataLocked();
     if (currCollectionMetadata == nullptr) {
         return Error() << "No metadata available for current collection event: "
                        << toString(mCurrCollectionEvent);
@@ -886,13 +885,14 @@ Result<void> WatchdogPerfService::processMonitorEvent(
         if (requestedCollection) {
             return;
         }
-        const nsecs_t prevUptime =
-                currCollectionMetadata->lastUptime - currCollectionMetadata->interval.count();
-        nsecs_t uptime = mHandlerLooper->now();
-        if (const auto delta = std::abs(uptime - prevUptime); delta < kMinEventInterval.count()) {
+        const nsecs_t prevUptimeNs = currCollectionMetadata->lastPollUptimeNs -
+                currCollectionMetadata->pollingIntervalNs.count();
+        nsecs_t uptimeNs = mHandlerLooper->now();
+        if (const auto delta = std::abs(uptimeNs - prevUptimeNs);
+            delta < kMinEventInterval.count()) {
             return;
         }
-        currCollectionMetadata->lastUptime = uptime;
+        currCollectionMetadata->lastPollUptimeNs = uptimeNs;
         mHandlerLooper->removeMessages(thiz, currCollectionMetadata->eventType);
         mHandlerLooper->sendMessage(thiz, currCollectionMetadata->eventType);
         requestedCollection = true;
@@ -905,15 +905,15 @@ Result<void> WatchdogPerfService::processMonitorEvent(
                            << ": " << result.error();
         }
     }
-    metadata->lastUptime += metadata->interval.count();
-    if (metadata->lastUptime == currCollectionMetadata->lastUptime) {
+    metadata->lastPollUptimeNs += metadata->pollingIntervalNs.count();
+    if (metadata->lastPollUptimeNs == currCollectionMetadata->lastPollUptimeNs) {
         /*
          * If the |PERIODIC_MONITOR| and  *_COLLECTION events overlap, skip the |PERIODIC_MONITOR|
          * event.
          */
-        metadata->lastUptime += metadata->interval.count();
+        metadata->lastPollUptimeNs += metadata->pollingIntervalNs.count();
     }
-    mHandlerLooper->sendMessageAtTime(metadata->lastUptime, thiz, metadata->eventType);
+    mHandlerLooper->sendMessageAtTime(metadata->lastPollUptimeNs, thiz, metadata->eventType);
     return {};
 }
 
@@ -927,12 +927,16 @@ Result<void> WatchdogPerfService::notifySystemStartUpLocked() {
     return {};
 }
 
-WatchdogPerfService::EventMetadata* WatchdogPerfService::currCollectionMetadataLocked() {
+WatchdogPerfService::EventMetadata* WatchdogPerfService::getCurrentCollectionMetadataLocked() {
     switch (mCurrCollectionEvent) {
         case EventType::BOOT_TIME_COLLECTION:
             return &mBoottimeCollection;
         case EventType::PERIODIC_COLLECTION:
             return &mPeriodicCollection;
+        case EventType::USER_SWITCH_COLLECTION:
+            return &mUserSwitchCollection;
+        case EventType::WAKE_UP_COLLECTION:
+            return &mWakeUpCollection;
         case EventType::CUSTOM_COLLECTION:
             return &mCustomCollection;
         default:

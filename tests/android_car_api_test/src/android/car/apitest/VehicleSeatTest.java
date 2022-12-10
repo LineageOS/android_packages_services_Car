@@ -18,21 +18,25 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleAreaSeat;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 
 @SmallTest
 public final class VehicleSeatTest extends CarLessApiTestBase {
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.VehicleAreaSeat#SEAT_ROW_1_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_RIGHT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_RIGHT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_RIGHT"})
     public void testMatchWithVehicleHal() {
         assertThat(VehicleAreaSeat.SEAT_ROW_1_LEFT)
                 .isEqualTo(android.hardware.automotive.vehicle.VehicleAreaSeat.ROW_1_LEFT);
@@ -55,6 +59,16 @@ public final class VehicleSeatTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.VehicleAreaSeat#SEAT_UNKNOWN",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_1_RIGHT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_2_RIGHT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_LEFT",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_CENTER",
+            "android.car.VehicleAreaSeat#SEAT_ROW_3_RIGHT"})
     public void testFromRowAndSide() {
         assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
                 .isEqualTo(VehicleAreaSeat.fromRowAndSide(0, VehicleAreaSeat.SIDE_LEFT));

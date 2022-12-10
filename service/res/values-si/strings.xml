@@ -110,10 +110,8 @@
     <string name="car_permission_desc_control_car_mirrors" msgid="1224135684068855032">"මෝටර් රථයේ දර්පණ පාලනය කරන්න."</string>
     <string name="car_permission_label_control_car_seats" msgid="1826934820585497135">"මෝටර් රථයේ ආසන පාලනය කරන්න"</string>
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"මෝටර් රථයේ ආසන පාලනය කරන්න."</string>
-    <!-- no translation found for car_permission_label_control_car_airbags (6823727183218389617) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_airbags (6181671903761622348) -->
-    <skip />
+    <string name="car_permission_label_control_car_airbags" msgid="6823727183218389617">"මෝටර් රථයේ වායු බෑග් පාලනය කරන්න"</string>
+    <string name="car_permission_desc_control_car_airbags" msgid="6181671903761622348">"මෝටර් රථයේ වායු බෑග් පාලනය කරන්න."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"මෝටර් රථයේ මූලික තොරතුරුවලට ප්‍රවේශ වන්න"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"මෝටර් රථයේ මූලික තොරතුරුවලට ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"මෝටර් රථයේ වරප්‍රසාද ලත් තොරතුරු වෙත ප්‍රවේශ වන්න"</string>
@@ -140,6 +138,10 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"සංදර්ශන ඒකක කියවන්න."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"මෝටර් රථයේ සංදර්ශන ඒකක පාලනය කරන්න"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"සංදර්ශන ඒකක පාලනය කරන්න."</string>
+    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
+    <skip />
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"මෝටර් රථයේ ජව දාම තොරතුරු කියවන්න"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"මෝටර් රථයේ ජව දාම තොරතුරුවලට ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"මෝටර් රථයේ බලය තත්ත්වය කියවන්න"</string>
