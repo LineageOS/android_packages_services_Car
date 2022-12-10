@@ -18,9 +18,11 @@ package com.android.car.am;
 
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_ACTIVITY_TASKS;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
@@ -33,19 +35,24 @@ import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.view.SurfaceControlHelper;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Display;
+import android.view.SurfaceControl;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -75,6 +82,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int MAX_RUNNING_TASKS_TO_GET = 100;
+    private static final int MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
 
     private final Context mContext;
 
@@ -86,6 +94,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     @GuardedBy("mLock")
     private final LinkedHashMap<Integer, ActivityManager.RunningTaskInfo> mTasks =
             new LinkedHashMap<>();
+    @GuardedBy("mLock")
+    private final SparseArray<SurfaceControl> mTaskToSurfaceMap = new SparseArray<>();
+
     @GuardedBy("mLock")
     private final ArrayMap<IBinder, IBinder.DeathRecipient> mTokens = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -146,7 +157,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void registerTaskMonitor(IBinder token) {
         if (DBG) Slogf.d(TAG, "registerTaskMonitor: %s", token);
-        ensurePermission();
+        ensureManageActivityTasksPermission();
 
         IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
             @Override
@@ -170,7 +181,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
-    private void ensurePermission() {
+    private void ensureManageActivityTasksPermission() {
         if (mContext.checkCallingOrSelfPermission(MANAGE_ACTIVITY_TASKS)
                 != PackageManager.PERMISSION_GRANTED) {
             throw new SecurityException("requires permission " + MANAGE_ACTIVITY_TASKS);
@@ -190,16 +201,20 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
-    public void onTaskAppeared(IBinder token, ActivityManager.RunningTaskInfo taskInfo) {
+    public void onTaskAppeared(IBinder token,
+            ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
         if (DBG) {
             Slogf.d(TAG, "onTaskAppeared: %s, %s", token, TaskInfoHelper.toString(taskInfo));
         }
-        ensurePermission();
+        ensureManageActivityTasksPermission();
         synchronized (mLock) {
             if (!isAllowedToUpdateLocked(token)) {
                 return;
             }
             mTasks.put(taskInfo.taskId, taskInfo);
+            if (leash != null) {
+                mTaskToSurfaceMap.put(taskInfo.taskId, leash);
+            }
         }
         if (TaskInfoHelper.isVisible(taskInfo)) {
             mHandler.post(() -> notifyActivityLaunch(taskInfo));
@@ -234,12 +249,13 @@ public final class CarActivityService extends ICarActivityService.Stub
         if (DBG) {
             Slogf.d(TAG, "onTaskVanished: %s, %s", token, TaskInfoHelper.toString(taskInfo));
         }
-        ensurePermission();
+        ensureManageActivityTasksPermission();
         synchronized (mLock) {
             if (!isAllowedToUpdateLocked(token)) {
                 return;
             }
             mTasks.remove(taskInfo.taskId);
+            mTaskToSurfaceMap.remove(taskInfo.taskId);
         }
     }
 
@@ -248,7 +264,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         if (DBG) {
             Slogf.d(TAG, "onTaskInfoChanged: %s, %s", token, TaskInfoHelper.toString(taskInfo));
         }
-        ensurePermission();
+        ensureManageActivityTasksPermission();
         synchronized (mLock) {
             if (!isAllowedToUpdateLocked(token)) {
                 return;
@@ -268,7 +284,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void unregisterTaskMonitor(IBinder token) {
         if (DBG) Slogf.d(TAG, "unregisterTaskMonitor: %s", token);
-        ensurePermission();
+        ensureManageActivityTasksPermission();
         cleanUpToken(token);
     }
 
@@ -317,6 +333,60 @@ public final class CarActivityService extends ICarActivityService.Stub
             }
         }
         CarServiceUtils.startUserPickerOnDisplay(mContext, displayId, userPickerName);
+    }
+
+    private static final class MirroringToken extends Binder {
+        final int mTaskId;
+        final long mCreationTimeMs;
+        MirroringToken(int id) {
+            mTaskId = id;
+            // Uses elapsedRealtime() because the token should be expired during sleep.
+            mCreationTimeMs = SystemClock.elapsedRealtime();
+        }
+    };
+
+    @Override
+    public IBinder createMirroringToken(int taskId) {
+        ensureManageActivityTasksPermission();
+        synchronized (mLock) {
+            if (!mTaskToSurfaceMap.contains(taskId)) {
+                throw new IllegalArgumentException("Non-existent Task#" + taskId);
+            }
+        }
+        return new MirroringToken(taskId);
+    }
+
+    @Override
+    public SurfaceControl getMirroredSurface(IBinder token, Rect bounds) {
+        return getMirroredSurfaceInternal(token, bounds, MIRRORING_TOKEN_TIMEOUT_MS);
+    }
+
+    @VisibleForTesting
+    SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect bounds, long tokenTimeoutMs) {
+        assertPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0);
+        // TODO(b/254333504): Check permission.
+        MirroringToken mirroringToken;
+        try {
+            mirroringToken = (MirroringToken) token;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Bad token");
+        }
+        if (SystemClock.elapsedRealtime() - mirroringToken.mCreationTimeMs > tokenTimeoutMs) {
+            throw new IllegalArgumentException(
+                    "Expired token: created=" + mirroringToken.mCreationTimeMs);
+        }
+
+        SurfaceControl taskSurface;
+        TaskInfo taskInfo;
+        synchronized (mLock) {
+            taskInfo = mTasks.get(mirroringToken.mTaskId);
+            taskSurface = mTaskToSurfaceMap.get(mirroringToken.mTaskId);
+        }
+        if (taskInfo == null || taskSurface == null || !taskInfo.isVisible()) {
+            throw new IllegalStateException("Given Task is invisible: taskInfo=" + taskInfo);
+        }
+        bounds.set(TaskInfoHelper.getBounds(taskInfo));
+        return SurfaceControlHelper.mirrorSurface(taskSurface);
     }
 
     /**
@@ -408,6 +478,7 @@ public final class CarActivityService extends ICarActivityService.Stub
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
+            writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
         }
     }
 }

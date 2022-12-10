@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
@@ -41,6 +42,8 @@ import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -56,9 +59,12 @@ import com.android.wm.shell.common.SyncTransactionQueue;
 import com.android.wm.shell.common.TransactionPool;
 import com.android.wm.shell.fullscreen.FullscreenTaskListener;
 
+import com.google.common.truth.Expect;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -90,6 +96,15 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private ShellTaskOrganizer mTaskOrganizer;
     private FullscreenTaskListener mFullscreenTaskListener;
+
+    private final ComponentName mActivityA = new ComponentName(getTestContext(), ActivityA.class);
+    private final ComponentName mActivityB = new ComponentName(getTestContext(), ActivityB.class);
+    private final ComponentName mActivityC = new ComponentName(getTestContext(), ActivityC.class);
+    private final ComponentName mBlockingActivity = new ComponentName(
+            getTestContext(), BlockingActivity.class);
+
+    @Rule
+    public final Expect expect = Expect.create();
 
     @Before
     public void setUp() throws Exception {
@@ -135,7 +150,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         @Override
         public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
             super.onTaskAppeared(taskInfo, leash);
-            mService.onTaskAppeared(mToken, taskInfo);
+            mService.onTaskAppeared(mToken, taskInfo, leash);
         }
 
         @Override
@@ -153,23 +168,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Test
     public void testActivityLaunch() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
-        mService.registerActivityLaunchListener(listenerA);
-        startActivity(activityA);
-        listenerA.assertTopTaskActivityLaunched();
+        startActivityAndAssertLaunched(mActivityA);
 
-        ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-        FilteredLaunchListener listenerB = new FilteredLaunchListener(activityB);
-        mService.registerActivityLaunchListener(listenerB);
-        startActivity(activityB);
-        listenerB.assertTopTaskActivityLaunched();
+        startActivityAndAssertLaunched(mActivityB);
     }
 
     @Test
     public void testDeathRecipientIsSet() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(mActivityA);
         mService.registerActivityLaunchListener(listenerA);
 
         verify(mToken).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
@@ -177,8 +183,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Test
     public void testBinderDied_cleansUpDeathRecipient() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(mActivityA);
         mService.registerActivityLaunchListener(listenerA);
 
         verify(mToken).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
@@ -187,7 +192,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         // Checks if binderDied() will clean-up the death recipient.
         verify(mToken).unlinkToDeath(eq(mDeathRecipientCaptor.getValue()), anyInt());
 
-        startActivity(activityA);
+        startActivity(mActivityA);
         // Starting a Activity shouldn't trigger the listener since the token is invalid.
         assertWithMessage("Shouldn't trigger the ActivityLaunched listener")
                 .that(listenerA.waitForTopTaskActivityLaunched(NO_ACTIVITY_TIMEOUT_MS)).isFalse();
@@ -195,20 +200,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Test
     public void testActivityBlocking() throws Exception {
-        ComponentName denyListedActivity = toComponentName(getTestContext(), ActivityC.class);
-        ComponentName blockingActivity = toComponentName(getTestContext(), BlockingActivity.class);
         Intent blockingIntent = new Intent();
-        blockingIntent.setComponent(blockingActivity);
+        blockingIntent.setComponent(mBlockingActivity);
 
         // start a black listed activity
-        FilteredLaunchListener listenerDenyListed =
-                new FilteredLaunchListener(denyListedActivity);
-        mService.registerActivityLaunchListener(listenerDenyListed);
-        startActivity(denyListedActivity);
-        listenerDenyListed.assertTopTaskActivityLaunched();
+        FilteredLaunchListener listenerDenyListed = startActivityAndAssertLaunched(mActivityC);
 
         // Instead of start activity, invoke blockActivity.
-        FilteredLaunchListener listenerBlocking = new FilteredLaunchListener(blockingActivity);
+        FilteredLaunchListener listenerBlocking = new FilteredLaunchListener(mBlockingActivity);
         mService.registerActivityLaunchListener(listenerBlocking);
         mService.blockActivity(listenerDenyListed.mTopTask, blockingIntent);
         listenerBlocking.assertTopTaskActivityLaunched();
@@ -216,15 +215,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Test
     public void testRemovesFromTopTasks() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(mActivityA);
         mService.registerActivityLaunchListener(listenerA);
-        Activity launchedActivity = startActivity(activityA);
+        Activity launchedActivity = startActivity(mActivityA);
         listenerA.assertTopTaskActivityLaunched();
-        assertTrue(topTasksHasComponent(activityA));
+        assertTrue(topTasksHasComponent(mActivityA));
 
         getInstrumentation().runOnMainSync(launchedActivity::finish);
-        waitUntil(() -> !topTasksHasComponent(activityA));
+        waitUntil(() -> !topTasksHasComponent(mActivityA));
     }
 
     @Test
@@ -235,92 +233,130 @@ public class CarActivityServiceTaskMonitorUnitTest {
             int virtualDisplayId = session.createDisplayWithDefaultDisplayMetricsAndWait(
                     getTestContext(), /* isPrivate= */ false).getDisplayId();
 
-            ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-            FilteredLaunchListener
-                    listenerA = new FilteredLaunchListener(activityA);
-            mService.registerActivityLaunchListener(listenerA);
-            startActivity(activityA, Display.DEFAULT_DISPLAY);
-            listenerA.assertTopTaskActivityLaunched();
-            assertTrue(topTasksHasComponent(activityA));
+            startActivityAndAssertLaunched(mActivityA);
+            assertTrue(topTasksHasComponent(mActivityA));
 
-            ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-            FilteredLaunchListener
-                    listenerB = new FilteredLaunchListener(activityB);
-            mService.registerActivityLaunchListener(listenerB);
-            startActivity(activityB, virtualDisplayId);
-            listenerB.assertTopTaskActivityLaunched();
-            assertTrue(topTasksHasComponent(activityB));
-            assertTrue(topTasksHasComponent(activityA));
+            startActivityAndAssertLaunched(mActivityB);
+            assertTrue(topTasksHasComponent(mActivityB));
+            assertTrue(topTasksHasComponent(mActivityA));
 
-            ComponentName activityC = toComponentName(getTestContext(), ActivityC.class);
-            FilteredLaunchListener
-                    listenerC = new FilteredLaunchListener(activityC);
-            mService.registerActivityLaunchListener(listenerC);
-            startActivity(activityC, virtualDisplayId);
-            listenerC.assertTopTaskActivityLaunched();
-            assertTrue(topTasksHasComponent(activityC));
-            assertFalse(topTasksHasComponent(activityB));
-            assertTrue(topTasksHasComponent(activityA));
+            startActivityAndAssertLaunched(mActivityC);
+            assertTrue(topTasksHasComponent(mActivityC));
+            assertFalse(topTasksHasComponent(mActivityB));
+            assertTrue(topTasksHasComponent(mActivityA));
         }
     }
 
     @Test
     public void testGetTopTasksOnDefaultDisplay() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener
-                listenerA = new FilteredLaunchListener(activityA);
-        mService.registerActivityLaunchListener(listenerA);
-        startActivity(activityA, Display.DEFAULT_DISPLAY);
-        listenerA.assertTopTaskActivityLaunched();
-        assertTrue(topTasksHasComponent(activityA));
+        startActivityAndAssertLaunched(mActivityA);
+        assertTrue(topTasksHasComponent(mActivityA));
 
-        ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-        FilteredLaunchListener
-                listenerB = new FilteredLaunchListener(activityB);
-        mService.registerActivityLaunchListener(listenerB);
-        startActivity(activityB, Display.DEFAULT_DISPLAY);
-        listenerB.assertTopTaskActivityLaunched();
-        assertTrue(topTasksHasComponent(activityB));
-        assertFalse(topTasksHasComponent(activityA));
+        startActivityAndAssertLaunched(mActivityB);
+        assertTrue(topTasksHasComponent(mActivityB));
+        assertFalse(topTasksHasComponent(mActivityA));
     }
 
     @Test
     public void testGetTaskInfoForTopActivity() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener
-                listenerA = new FilteredLaunchListener(activityA);
-        mService.registerActivityLaunchListener(listenerA);
-        startActivity(activityA);
-        listenerA.assertTopTaskActivityLaunched();
+        startActivityAndAssertLaunched(mActivityA);
 
-        TaskInfo taskInfo = mService.getTaskInfoForTopActivity(activityA);
+        TaskInfo taskInfo = mService.getTaskInfoForTopActivity(mActivityA);
         assertNotNull(taskInfo);
-        assertEquals(activityA, taskInfo.topActivity);
+        assertEquals(mActivityA, taskInfo.topActivity);
     }
 
     @Test
     public void testRestartTask() throws Exception {
-        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
-        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
-        mService.registerActivityLaunchListener(listenerA);
-        startActivity(activityA);
-        listenerA.assertTopTaskActivityLaunched();
+        startActivityAndAssertLaunched(mActivityA);
 
-        ComponentName activityB = toComponentName(getTestContext(), ActivityB.class);
-        FilteredLaunchListener listenerB = new FilteredLaunchListener(activityB);
-        mService.registerActivityLaunchListener(listenerB);
-        startActivity(activityB);
-        listenerB.assertTopTaskActivityLaunched();
+        startActivityAndAssertLaunched(mActivityB);
 
-        FilteredLaunchListener listenerRestartA = new FilteredLaunchListener(activityA);
+        FilteredLaunchListener listenerRestartA = new FilteredLaunchListener(mActivityA);
         mService.registerActivityLaunchListener(listenerRestartA);
 
         // ActivityA and ActivityB are in the same package, so ActivityA becomes the root task of
         // ActivityB, so when we restarts ActivityB, it'll start ActivityA.
-        TaskInfo taskInfo = mService.getTaskInfoForTopActivity(activityB);
+        TaskInfo taskInfo = mService.getTaskInfoForTopActivity(mActivityB);
         mService.restartTask(taskInfo.taskId);
 
         listenerRestartA.assertTopTaskActivityLaunched();
+    }
+
+    @Test
+    public void testCreateMirroredToken_throwsExceptionForNonExistentTask() {
+        int nonExistentTaskId = -999;
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.createMirroringToken(nonExistentTaskId));
+    }
+
+    @Test
+    public void testCreateMirroredToken_returnsToken() throws Exception {
+        FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
+
+        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        assertThat(token).isNotNull();
+    }
+
+    @Test
+    public void testGetMirroredSurface_throwsExceptionForInvalidToken() {
+        IBinder invalidToken = new Binder();
+        Rect outBounds = new Rect();
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.getMirroredSurface(invalidToken, outBounds));
+    }
+
+    @Test
+    public void testGetMirroredSurface_throwsExceptionForExpiredToken() throws Exception {
+        FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
+
+        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        Rect outBounds = new Rect();
+
+        SystemClock.sleep(2);
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.getMirroredSurfaceInternal(token, outBounds, /* timeOutMs= */ 1));
+    }
+
+    @Test
+    public void testGetMirroredSurface_throwsExceptionForInvisibleToken() throws Exception {
+        FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
+
+        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+
+        // Uses the Activity with the different taskAffinity to make the previous Task hidden.
+        startActivityAndAssertLaunched(mBlockingActivity);
+        // Now the Surface of the token will be invisible.
+
+        Rect outBounds = new Rect();
+        assertThrows(IllegalStateException.class,
+                () -> mService.getMirroredSurface(token, outBounds));
+    }
+
+    @Test
+    public void testGetMirroredSurface_returnsSurface() throws Exception {
+        FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
+
+        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        Rect outBounds = new Rect();
+
+        SurfaceControl mirror = mService.getMirroredSurface(token, outBounds);
+
+        expect.that(outBounds.isEmpty()).isFalse();
+        expect.that(outBounds).isEqualTo(
+                listenerA.mTopTask.getConfiguration().windowConfiguration.getBounds());
+        assertThat(mirror).isNotNull();
+        assertThat(mirror.isValid()).isTrue();
+    }
+
+    private FilteredLaunchListener startActivityAndAssertLaunched(ComponentName activity)
+            throws InterruptedException {
+        FilteredLaunchListener listener = new FilteredLaunchListener(activity);
+        mService.registerActivityLaunchListener(listener);
+        startActivity(activity);
+        listener.assertTopTaskActivityLaunched();
+        return listener;
     }
 
     private void waitUntil(BooleanSupplier condition) {
@@ -364,10 +400,6 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private static Context getTestContext() {
         return getInstrumentation().getContext();
-    }
-
-    private static ComponentName toComponentName(Context ctx, Class<?> cls) {
-        return ComponentName.createRelative(ctx, cls.getName());
     }
 
     private static Activity startActivity(ComponentName name) {
