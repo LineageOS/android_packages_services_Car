@@ -92,6 +92,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -915,6 +916,20 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
 
             return groupInfos;
+        }
+    }
+
+    @Override
+    public List<AudioAttributes> getAudioAttributesForVolumeGroup(CarVolumeGroupInfo groupInfo) {
+        Objects.requireNonNull(groupInfo, "Car volume group info can not be null");
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        if (!mUseDynamicRouting) {
+            return Collections.EMPTY_LIST;
+        }
+
+        synchronized (mImplLock) {
+            return getCarAudioZoneLocked(groupInfo.getZoneId())
+                    .getVolumeGroup(groupInfo.getId()).getAudioAttributes();
         }
     }
 

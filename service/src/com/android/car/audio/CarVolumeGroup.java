@@ -637,6 +637,20 @@ import java.util.Objects;
                 .setAttenuated(isAttenuated).build();
     }
 
+    List<AudioAttributes> getAudioAttributes() {
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        for (int index = 0; index < mContextToAddress.size(); index++) {
+            int context = mContextToAddress.keyAt(index);
+            AudioAttributes[] contextAttributes =
+                    mCarAudioContext.getAudioAttributesForContext(context);
+            for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                audioAttributes.add(contextAttributes[attrIndex]);
+            }
+        }
+
+        return audioAttributes;
+    }
+
     static final class Builder {
         private static final int UNSET_STEP_SIZE = -1;
 

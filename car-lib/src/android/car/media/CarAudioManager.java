@@ -591,6 +591,30 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Returns a list of audio attributes associated with the volume group info.
+     *
+     * @param groupInfo group info to query
+     * @throws NullPointerException if the volume group info is {@code null}
+     *
+     * @return list of audio attributes associated with the volume group info
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @NonNull
+    public List<AudioAttributes> getAudioAttributesForVolumeGroup(
+            @NonNull CarVolumeGroupInfo groupInfo) {
+        try {
+            return mService.getAudioAttributesForVolumeGroup(groupInfo);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
      * Gets array of {@link AudioAttributes} usages for a volume group in a zone.
      *
      * @param zoneId The zone id whose volume group is queried.

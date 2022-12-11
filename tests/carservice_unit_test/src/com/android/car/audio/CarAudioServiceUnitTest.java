@@ -118,6 +118,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
@@ -1203,6 +1204,160 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Muted volume groups for secondary zone")
                 .that(mCarAudioService.getMutedVolumeGroups(SECONDARY_ZONE_ID)).isEmpty();
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone() {
+        mCarAudioService.init();
+        int groupCount = mCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+        CarVolumeGroupInfo[] infos =
+                mCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
+
+        for (int index = 0; index < groupCount; index++) {
+            CarVolumeGroupInfo info = mCarAudioService
+                    .getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
+            assertWithMessage("Car volume group infos for primary zone and info %s", info)
+                    .that(infos).asList().contains(info);
+        }
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone_forDynamicRoutingDisabled() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        CarVolumeGroupInfo[] infos =
+                nonDynamicAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
+
+        assertWithMessage("Car volume group infos with dynamic routing disabled")
+                .that(infos).isEmpty();
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone_size() {
+        mCarAudioService.init();
+        int groupCount = mCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+        CarVolumeGroupInfo[] infos =
+                mCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
+
+        assertWithMessage("Car volume group infos size for primary zone")
+                .that(infos).hasLength(groupCount);
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone_forInvalidZone() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class, () ->
+                        mCarAudioService.getVolumeGroupInfosForZone(INVALID_AUDIO_ZONE));
+
+        assertWithMessage("Exception for volume group infos size for invalid zone")
+                .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getVolumeGroupInfo() {
+        CarVolumeGroupInfo testVolumeGroupInfo =
+                new CarVolumeGroupInfo.Builder(TEST_PRIMARY_VOLUME_INFO).setMuted(false).build();
+        mCarAudioService.init();
+
+        assertWithMessage("Car volume group info for primary zone")
+                .that(mCarAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(testVolumeGroupInfo);
+    }
+
+    @Test
+    public void getVolumeGroupInfo_forInvalidZone() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class, () ->
+                        mCarAudioService.getVolumeGroupInfo(INVALID_AUDIO_ZONE,
+                                TEST_PRIMARY_GROUP));
+
+        assertWithMessage("Exception for volume group info size for invalid zone")
+                .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getVolumeGroupInfo_forInvalidGroup() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class, () ->
+                        mCarAudioService.getVolumeGroupInfo(INVALID_AUDIO_ZONE,
+                                TEST_PRIMARY_GROUP));
+
+        assertWithMessage("Exception for volume groups info size for invalid group id")
+                .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getVolumeGroupInfo_forGroupOverRange() {
+        mCarAudioService.init();
+        int groupCount = mCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+        IllegalArgumentException thrown =
+                assertThrows(IllegalArgumentException.class, () ->
+                        mCarAudioService.getVolumeGroupInfo(INVALID_AUDIO_ZONE,
+                                groupCount));
+
+        assertWithMessage("Exception for volume groups info size for out of range group")
+                .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup() {
+        mCarAudioService.init();
+        CarVolumeGroupInfo info = mCarAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_GROUP);
+
+        List<AudioAttributes> audioAttributes =
+                mCarAudioService.getAudioAttributesForVolumeGroup(info);
+
+        assertWithMessage("Volume group audio attributes").that(audioAttributes)
+                .containsExactly(
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_EVENT),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup_withNullInfo_fails() {
+        mCarAudioService.init();
+
+        NullPointerException thrown =
+                assertThrows(NullPointerException.class, () ->
+                        mCarAudioService.getAudioAttributesForVolumeGroup(/* groupInfo= */ null));
+
+        assertWithMessage("Volume group audio attributes with null info exception")
+                .that(thrown).hasMessageThat().contains("Car volume group info");
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup_withDynamicRoutingDisabled() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        List<AudioAttributes> audioAttributes =
+                nonDynamicAudioService.getAudioAttributesForVolumeGroup(TEST_PRIMARY_VOLUME_INFO);
+
+        assertWithMessage("Volume group audio attributes with dynamic routing disabled")
+                .that(audioAttributes).isEmpty();
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
