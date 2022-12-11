@@ -19,9 +19,11 @@ package com.android.car.audio;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
+import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -39,6 +41,7 @@ import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioAttributes;
 import android.os.UserHandle;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -1242,6 +1245,19 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(info.isBlocked()).isEqualTo(carVolumeGroup.isBlocked());
         expectWithMessage("Car volume group info attenuated state")
                 .that(info.isAttenuated()).isEqualTo(carVolumeGroup.isAttenuated());
+    }
+
+    @Test
+    public void getAudioAttributes() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        List<AudioAttributes> audioAttributes = carVolumeGroup.getAudioAttributes();
+
+        expectWithMessage("Group audio attributes").that(audioAttributes).containsExactly(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
+
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
