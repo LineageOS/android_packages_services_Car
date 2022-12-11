@@ -235,9 +235,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         private long mBuilderFieldsSet = 0L;
 
         /**
-         * Creates a new Builder.
-         *
-         * @hide
+         * Creates a new Builder
          */
         public Builder(boolean volumeChanged) {
             mVolumeChanged = volumeChanged;

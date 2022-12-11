@@ -187,11 +187,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_PRIMARY_GROUP, PRIMARY_AUDIO_ZONE,
-                    TEST_PRIMARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
+                    TEST_PRIMARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP, PRIMARY_AUDIO_ZONE,
-                    TEST_SECONDARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
+                    TEST_SECONDARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
 
     private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
             new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
