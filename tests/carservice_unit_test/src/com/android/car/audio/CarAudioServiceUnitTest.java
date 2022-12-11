@@ -58,6 +58,8 @@ import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
 import static com.android.car.R.integer.audioVolumeKeyEventTimeoutMs;
 import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -160,11 +162,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_PRIMARY_GROUP, PRIMARY_AUDIO_ZONE,
-                    TEST_PRIMARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
+                    TEST_PRIMARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP, PRIMARY_AUDIO_ZONE,
-                    TEST_SECONDARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
+                    TEST_SECONDARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
 
     private CarAudioService mCarAudioService;
     @Mock

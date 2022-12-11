@@ -1231,7 +1231,11 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Car volume group info zone id")
                 .that(info.getId()).isEqualTo(GROUP_ID);
         expectWithMessage("Car volume group info current gain")
-                .that(info.getVolumeGain()).isEqualTo(MIN_GAIN);
+                .that(info.getVolumeGainIndex()).isEqualTo(carVolumeGroup.getCurrentGainIndex());
+        expectWithMessage("Car volume group info max gain")
+                .that(info.getMaxVolumeGainIndex()).isEqualTo(carVolumeGroup.getMaxGainIndex());
+        expectWithMessage("Car volume group info min gain")
+                .that(info.getMinVolumeGainIndex()).isEqualTo(carVolumeGroup.getMinGainIndex());
         expectWithMessage("Car volume group info muted state")
                 .that(info.isMuted()).isEqualTo(carVolumeGroup.isMuted());
         expectWithMessage("Car volume group info blocked state")
