@@ -632,7 +632,8 @@ import java.util.Objects;
         }
 
         return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
-                .setVolumeGain(getGainForIndex(gainIndex)).setMuted(isMuted).setBlocked(isBlocked)
+                .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
+                .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
                 .setAttenuated(isAttenuated).build();
     }
 
