@@ -138,6 +138,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.InputStream;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
@@ -1760,6 +1761,53 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Exception for volume groups info size for out of range group")
                 .that(thrown).hasMessageThat().contains("audio zone Id");
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup() {
+        mCarAudioService.init();
+        CarVolumeGroupInfo info = mCarAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_GROUP);
+
+        List<AudioAttributes> audioAttributes =
+                mCarAudioService.getAudioAttributesForVolumeGroup(info);
+
+        expectWithMessage("Volume group audio attributes").that(audioAttributes)
+                .containsExactly(
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_EVENT),
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup_withNullInfo_fails() {
+        mCarAudioService.init();
+
+        NullPointerException thrown =
+                assertThrows(NullPointerException.class, () ->
+                        mCarAudioService.getAudioAttributesForVolumeGroup(/* groupInfo= */ null));
+
+        expectWithMessage("Volume group audio attributes with null info exception")
+                .that(thrown).hasMessageThat().contains("Car volume group info");
+    }
+
+    @Test
+    public void getAudioAttributesForVolumeGroup_withDynamicRoutingDisabled() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonDynamicAudioService.init();
+
+        List<AudioAttributes> audioAttributes =
+                nonDynamicAudioService.getAudioAttributesForVolumeGroup(TEST_PRIMARY_VOLUME_INFO);
+
+        expectWithMessage("Volume group audio attributes with dynamic routing disabled")
+                .that(audioAttributes).isEmpty();
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
