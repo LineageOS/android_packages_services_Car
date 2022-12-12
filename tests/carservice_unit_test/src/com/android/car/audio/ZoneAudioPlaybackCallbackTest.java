@@ -16,7 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.media.AudioAttributes.AttributeUsage;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -27,11 +26,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.media.AudioAttributes;
-import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 
 import com.google.common.collect.ImmutableList;
@@ -126,7 +123,7 @@ public final class ZoneAudioPlaybackCallbackTest {
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -147,7 +144,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(activeConfigurations);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
@@ -172,7 +169,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(activeConfigurations);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes)
                 .containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE,
@@ -200,7 +197,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(configurations);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
@@ -227,7 +224,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(activeConfigurations);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -268,7 +265,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes)
                 .containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE,
@@ -312,7 +309,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes)
                 .containsExactly(TEST_NAVIGATION_AUDIO_ATTRIBUTE,
@@ -358,7 +355,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -399,7 +396,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         when(mClock.uptimeMillis()).thenReturn(TIMER_AFTER_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
@@ -440,7 +437,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         when(mClock.uptimeMillis()).thenReturn(TIMER_AFTER_TIMEOUT_MS);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -466,7 +463,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(activeConfigurations);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -506,7 +503,7 @@ public final class ZoneAudioPlaybackCallbackTest {
         callback.onPlaybackConfigChanged(configurationsChanged);
 
         List<AudioAttributes> activeAttributes =
-                callback.getAllActiveAudioAttributesForPrimaryZone();
+                callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
     }
@@ -526,47 +523,5 @@ public final class ZoneAudioPlaybackCallbackTest {
                                 PRIMARY_VOICE_ADDRESS)
                         .build())
                 .build();
-    }
-
-    private static class AudioPlaybackConfigurationBuilder {
-        private @AttributeUsage int mUsage = USAGE_MEDIA;
-        private boolean mIsActive = true;
-        private String mDeviceAddress = "";
-
-        AudioPlaybackConfigurationBuilder setUsage(@AttributeUsage int usage) {
-            mUsage = usage;
-            return this;
-        }
-
-        AudioPlaybackConfigurationBuilder setDeviceAddress(String deviceAddress) {
-            mDeviceAddress = deviceAddress;
-            return this;
-        }
-
-        AudioPlaybackConfigurationBuilder setInactive() {
-            mIsActive = false;
-            return this;
-        }
-
-        AudioPlaybackConfiguration build() {
-            AudioPlaybackConfiguration configuration = mock(AudioPlaybackConfiguration.class);
-            AudioAttributes attributes = new AudioAttributes.Builder().setUsage(mUsage).build();
-            AudioDeviceInfo outputDevice = generateOutAudioDeviceInfo(mDeviceAddress);
-            when(configuration.getAudioAttributes()).thenReturn(attributes);
-            when(configuration.getAudioDeviceInfo()).thenReturn(outputDevice);
-            when(configuration.isActive()).thenReturn(mIsActive);
-            return configuration;
-        }
-
-        private AudioDeviceInfo generateOutAudioDeviceInfo(String address) {
-            AudioDeviceInfo audioDeviceInfo = mock(AudioDeviceInfo.class);
-            when(audioDeviceInfo.getAddress()).thenReturn(address);
-            when(audioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
-            when(audioDeviceInfo.isSource()).thenReturn(false);
-            when(audioDeviceInfo.isSink()).thenReturn(true);
-            when(audioDeviceInfo.getInternalType()).thenReturn(AudioDeviceInfo
-                    .convertDeviceTypeToInternalInputDevice(AudioDeviceInfo.TYPE_BUS));
-            return audioDeviceInfo;
-        }
     }
 }
