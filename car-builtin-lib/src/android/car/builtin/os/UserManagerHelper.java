@@ -196,9 +196,9 @@ public final class UserManagerHelper {
         return UserHandle.getUserId(uid);
     }
 
-    /** Check {@link UserManager#isUsersOnSecondaryDisplaysSupported()}. */
+    /** Check {@link UserManager#isVisibleBackgroundUsersSupported()}. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static boolean isUsersOnSecondaryDisplaysSupported(@NonNull UserManager userManager) {
-        return userManager.isUsersOnSecondaryDisplaysSupported();
+    public static boolean isVisibleBackgroundUsersSupported(@NonNull UserManager userManager) {
+        return userManager.isVisibleBackgroundUsersSupported();
     }
 }

@@ -340,11 +340,12 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 .that(result.isSuccess()).isTrue();
     }
 
-    protected static void startUserInBackgroundOnSecondaryDisplay(@UserIdInt int userId,
-            int displayId) throws Exception {
+    protected void startUserInBackgroundOnSecondaryDisplay(@UserIdInt int userId, int displayId)
+            throws Exception {
         Log.i(TAG, "Starting background user " + userId + " on display " + displayId);
         // TODO(b/257335554): Call CarUserManager method when ready.
-        ActivityManager.getService().startUserInBackgroundOnSecondaryDisplay(userId, displayId);
+        getContext().getSystemService(ActivityManager.class)
+                .startUserInBackgroundVisibleOnDisplay(userId, displayId);
     }
 
     protected static void forceStopUser(@UserIdInt int userId) throws Exception {
@@ -406,7 +407,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         assumeTrue(
                 "The device does not support multiple users on multiple displays",
                 getTargetContext().getSystemService(UserManager.class)
-                        .isUsersOnSecondaryDisplaysSupported());
+                        .isVisibleBackgroundUsersSupported());
     }
 
     /**
@@ -417,7 +418,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
      */
     protected int getDisplayForStartingBackgroundUser() {
         int[] displayIds = getTargetContext().getSystemService(ActivityManager.class)
-                .getSecondaryDisplayIdsForStartingBackgroundUsers();
+                .getDisplayIdsForStartingVisibleBackgroundUsers();
         Log.d(TAG, "getSecondaryDisplayIdsForStartingBackgroundUsers() display IDs"
                 + " returned by AM: " + Arrays.toString(displayIds));
         if (displayIds == null || displayIds.length == 0) {

@@ -22,7 +22,12 @@ import android.os.UserHandle;
 import java.util.List;
 
 /**
- * Helper API for car service. Only for interaction between system server and car service.
+ * Helper API for CarService.
+ *
+ * Only for interaction between system server and car service, so it can be changed (without
+ * breaking Car Mainline)
+ *
+ *
  * @hide
  */
 interface ICarServiceHelper {
@@ -81,9 +86,9 @@ interface ICarServiceHelper {
     int getUserAssignedToDisplay(int displayId) = 10;
 
     /**
-     * Check {@link android.app.AcitivityManager#startUserInBackgroundOnSecondaryDisplay(int, int)}
+     * Check {@link android.app.AcitivityManager#startUserInBackgroundVisibleOnDisplay(int, int)}
      */
-    boolean startUserInBackgroundOnSecondaryDisplay(int userId, int displayId) = 11;
+    boolean startUserInBackgroundVisibleOnDisplay(int userId, int displayId) = 11;
 
     /** Check {@link android.os.Process#setProcessProfile(int, int, String)}. */
     void setProcessProfile(int pid, int uid, in String profile) = 12;
