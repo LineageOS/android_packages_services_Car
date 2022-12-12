@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -23,6 +25,8 @@ import android.media.AudioPlaybackConfiguration;
 import android.util.SparseArray;
 
 import com.android.car.audio.CarAudioService.SystemClockWrapper;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -50,6 +54,26 @@ final class CarAudioPlaybackCallback extends AudioManager.AudioPlaybackCallback 
                     new ZoneAudioPlaybackCallback(zone, clock, volumeKeyEventTimeoutMs));
         }
         return carAudioZonesToZonePlaybackCallback;
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dump(IndentingPrintWriter writer) {
+        writer.println("CarAudioPlaybackCallback");
+        writer.increaseIndent();
+
+        writer.println("Audio playback callback for zones");
+        writer.increaseIndent();
+        dumpZoneCallbacks(writer);
+        writer.decreaseIndent();
+
+        writer.decreaseIndent();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpZoneCallbacks(IndentingPrintWriter writer) {
+        for (int i = 0; i < mCarAudioZonesToZonePlaybackCallback.size(); i++) {
+            mCarAudioZonesToZonePlaybackCallback.valueAt(i).dump(writer);
+        }
     }
 
     @Override

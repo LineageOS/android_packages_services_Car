@@ -18,12 +18,15 @@ package com.android.car.audio;
 
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 import static com.android.car.audio.CarAudioUtils.hasExpired;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -151,6 +154,33 @@ final class ZoneAudioPlaybackCallback {
     void resetStillActiveContexts() {
         synchronized (mLock) {
             mAudioAttributesStartTime.clear();
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dump(IndentingPrintWriter writer) {
+        writer.printf("Audio zone: %d\n", mCarAudioZone.getId());
+
+        dumpLastActiveConfigsAndAudioAttributesStartTime(writer);
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpLastActiveConfigsAndAudioAttributesStartTime(IndentingPrintWriter writer) {
+        synchronized (mLock) {
+            writer.println("Last active configs:");
+            writer.increaseIndent();
+            for (int i = 0; i < mLastActiveConfigs.size(); i++) {
+                writer.printf("Audio device address %s to config %s\n",
+                        mLastActiveConfigs.keyAt(i), mLastActiveConfigs.valueAt(i));
+            }
+            writer.decreaseIndent();
+            writer.println("Audio attributes start times:");
+            writer.increaseIndent();
+            for (int i = 0; i < mAudioAttributesStartTime.size(); i++) {
+                writer.printf("Audio Attributes %s mapped to start time of %d\n",
+                        mAudioAttributesStartTime.keyAt(i), mAudioAttributesStartTime.valueAt(i));
+            }
+            writer.decreaseIndent();
         }
     }
 }
