@@ -320,7 +320,9 @@ public final class CarOemProxyService implements CarServiceBase {
                 }
             }
             // Dump helper
-            mHelper.dump(writer);
+            if (mHelper != null) {
+                mHelper.dump(writer);
+            }
         }
         writer.decreaseIndent();
     }
