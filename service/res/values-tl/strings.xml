@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Basahin ang mga display unit."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrolin ang mga display unit ng sasakyan"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Kontrolin ang mga display unit."</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"kontrolin ang impormasyon ng powertrain ng kotse"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Kontrolin ang impormasyon ng powertrain ng kotse."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"basahin ang impormasyon ng powertrain ng sasakyan"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"I-access ang impormasyon ng powertrain ng sasakyan."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"basahin ang status ng power ng sasakyan"</string>

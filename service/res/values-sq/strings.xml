@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Lexo njësitë e ekranit."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kontrollo njësitë e ekranit të makinës"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Kontrollo njësitë e ekranit."</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"kontrollo informacionet e sistemit të transmetimit të makinës"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Kontrollo informacionet e sistemit të transmetimit të makinës."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"lexo informacionet e sistemit të transmetimit të makinës"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Qasu tek informacionet e sistemit të transmetimit të makinës."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"lexo gjendjen e fuqisë së makinës"</string>
