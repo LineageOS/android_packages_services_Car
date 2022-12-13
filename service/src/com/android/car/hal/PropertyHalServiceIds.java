@@ -614,6 +614,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
                 null,
                 Car.PERMISSION_CAR_EPOCH_TIME));
+        mHalPropIdToPermissions.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_ENABLED, new Pair<>(
+                Car.PERMISSION_READ_ADAS_SETTINGS,
+                Car.PERMISSION_CONTROL_ADAS_SETTINGS));
         // Display_Units
         mHalPropIdToPermissions.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
