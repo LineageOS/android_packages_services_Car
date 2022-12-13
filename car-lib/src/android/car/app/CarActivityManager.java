@@ -28,6 +28,7 @@ import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
+import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
@@ -300,7 +301,7 @@ public final class CarActivityManager extends CarManagerBase {
      *
      * @param taskId The Task to mirror.
      * @return A token to access the Task Surface. The token is used to identify the target
-     *     Task's Surface for {@code MirroredSurfaceView}.
+     *     Task's Surface for {@link MirroredSurfaceView}.
      * @hide  STOPSHIP(b/254333504): Enable this after API review.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
@@ -320,7 +321,7 @@ public final class CarActivityManager extends CarManagerBase {
      *
      * @param displayId The Display to mirror.
      * @return A token to access the Display Surface. The token is used to identify the target
-     *     Display's Surface for {@code MirroredSurfaceView}.
+     *     Display's Surface for {@link MirroredSurfaceView}.
      * @hide STOPSHIP(b / 254333504): Enable this after API review.
      */
     // STOPSHIP(b/254333504): Enable the permission after API review.
