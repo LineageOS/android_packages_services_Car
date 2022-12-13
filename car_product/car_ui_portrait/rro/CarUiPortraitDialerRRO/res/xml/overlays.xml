@@ -69,11 +69,13 @@
     <item target="bool/config_always_show_incall_dialpad" value="@bool/config_always_show_incall_dialpad" />
 
     <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
+    <item target="integer/favorite_fragment_grid_column" value="@integer/favorite_fragment_grid_column" />
 
     <item target="dimen/avatar_icon_size" value="@dimen/avatar_icon_size" />
     <item target="dimen/call_history_item_height" value="@dimen/call_history_item_height" />
     <item target="dimen/contact_avatar_corner_radius_percent" value="@dimen/contact_avatar_corner_radius_percent" />
     <item target="dimen/contact_list_item_height" value="@dimen/contact_list_item_height" />
+    <item target="dimen/favorite_item_padding" value="@dimen/favorite_item_padding" />
     <item target="dimen/favorites_avatar_margin_bottom" value="@dimen/favorites_avatar_margin_bottom" />
     <item target="dimen/large_avatar_icon_size" value="@dimen/large_avatar_icon_size" />
     <item target="dimen/list_item_height" value="@dimen/list_item_height" />
