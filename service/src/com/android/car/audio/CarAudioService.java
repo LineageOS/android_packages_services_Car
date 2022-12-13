@@ -25,6 +25,9 @@ import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.media.AudioManager.FLAG_SHOW_UI;
+import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
+import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
+import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
@@ -67,7 +70,10 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.view.KeyEvent;
 
+import com.android.car.CarInputService;
+import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarOccupantZoneService;
@@ -123,6 +129,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             "/system/etc/car_audio_configuration.xml"
     };
 
+    private static final List<Integer> KEYCODES_OF_INTEREST = List.of(
+            KEYCODE_VOLUME_DOWN,
+            KEYCODE_VOLUME_UP,
+            KEYCODE_VOLUME_MUTE
+    );
+
     private final Object mImplLock = new Object();
 
     private final Context mContext;
@@ -169,6 +181,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 }
     };
 
+    private final KeyEventListener mCarKeyEventListener = new KeyEventListener() {
+        @Override
+        public void onKeyEvent(KeyEvent event, int displayType, int seat) {
+            // TODO(b/247170915): Handle volume changes
+            Slogf.i(TAG, "On key event for audio with display type: %d and seat %d", displayType,
+                    seat);
+        }
+    };
+
     private AudioPolicy mAudioPolicy;
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
@@ -188,6 +209,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private Map<Integer, Integer> mUidToZoneMap;
     private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
     private CarAudioPowerListener mCarAudioPowerListener;
+    private CarInputService mCarInputService;
 
     private final HalAudioGainCallback mHalAudioGainCallback =
             new HalAudioGainCallback() {
@@ -260,12 +282,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void init() {
         synchronized (mImplLock) {
             mOccupantZoneService = CarLocalServices.getService(CarOccupantZoneService.class);
+            mCarInputService = CarLocalServices.getService(CarInputService.class);
             if (mUseDynamicRouting) {
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
                 setupHalAudioGainCallbackLocked();
                 setupAudioConfigurationCallbackLocked();
                 setupPowerPolicyListener();
+                mCarInputService.registerKeyEventListener(mCarKeyEventListener,
+                        KEYCODES_OF_INTEREST);
             } else {
                 Slogf.i(TAG, "Audio dynamic routing not enabled, run in legacy mode");
                 setupLegacyVolumeChangedListener();
