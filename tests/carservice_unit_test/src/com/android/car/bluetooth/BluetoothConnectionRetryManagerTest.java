@@ -25,7 +25,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothStatusCodes;
 import android.bluetooth.BluetoothUuid;
@@ -41,6 +43,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -78,6 +81,8 @@ public class BluetoothConnectionRetryManagerTest
     private final String mConnectionAction = BluetoothUtils.HFP_CLIENT_CONNECTION_STATE_CHANGED;
 
     private MockContext mMockContext;
+    @Mock private BluetoothManager mMockBluetoothManager;
+    @Mock private BluetoothAdapter mMockBluetoothAdapter;
 
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
@@ -86,6 +91,15 @@ public class BluetoothConnectionRetryManagerTest
     @Before
     public void setUp() {
         mMockContext = new MockContext(InstrumentationRegistry.getTargetContext());
+        mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getUuidsList()).thenReturn(
+                Arrays.asList(new ParcelUuid[]{BluetoothUuid.HFP}));
+
+        mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getUuidsList()).thenReturn(
+                Arrays.asList(new ParcelUuid[]{BluetoothUuid.HFP}));
 
         mConnectionRetryManager = BluetoothConnectionRetryManager.create(mMockContext);
         assertThat(mConnectionRetryManager).isNotNull();

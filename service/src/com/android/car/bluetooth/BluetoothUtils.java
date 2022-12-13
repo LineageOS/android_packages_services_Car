@@ -16,6 +16,7 @@
 
 package com.android.car.bluetooth;
 
+import android.bluetooth.BluetoothA2dp;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -30,6 +31,7 @@ import android.os.ParcelUuid;
 import android.util.SparseArray;
 
 import java.util.HashMap;
+import java.util.List;
 
 /** Utils for Bluetooth */
 public final class BluetoothUtils {
@@ -37,6 +39,8 @@ public final class BluetoothUtils {
         throw new UnsupportedOperationException();
     }
 
+    public static final String A2DP_SOURCE_CONNECTION_STATE_CHANGED =
+            BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED;
     public static final String A2DP_SINK_CONNECTION_STATE_CHANGED =
             BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED;
     public static final String HFP_CLIENT_CONNECTION_STATE_CHANGED =
@@ -47,6 +51,25 @@ public final class BluetoothUtils {
             BluetoothPan.ACTION_CONNECTION_STATE_CHANGED;
     public static final String PBAP_CLIENT_CONNECTION_STATE_CHANGED =
             BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED;
+
+    private static final ParcelUuid[] A2DP_SOURCE_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.A2DP_SOURCE};
+    private static final ParcelUuid[] A2DP_SINK_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.A2DP_SINK};
+    private static final ParcelUuid[] HFP_HF_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.HFP};
+    private static final ParcelUuid[] HFP_AG_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.HFP_AG, BluetoothUuid.HSP_AG};
+    private static final ParcelUuid[] MAP_CLIENT_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.MAP, BluetoothUuid.MNS};
+    private static final ParcelUuid[] MAP_SERVER_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.MAS};
+    private static final ParcelUuid[] PAN_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.PANU, BluetoothUuid.NAP};
+    private static final ParcelUuid[] PBAP_CLIENT_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.PBAP_PCE};
+    private static final ParcelUuid[] PBAP_SERVER_UUIDS =
+            new ParcelUuid[]{BluetoothUuid.PBAP_PSE};
 
     /*
      * Maps of types and status to human readable strings
@@ -102,6 +125,7 @@ public final class BluetoothUtils {
 
         // Profile Names
         sProfileNames.put(BluetoothProfile.PAN, "PAN");
+        sProfileNames.put(BluetoothProfile.A2DP, "A2DP Source");
         sProfileNames.put(BluetoothProfile.A2DP_SINK, "A2DP Sink");
         sProfileNames.put(BluetoothProfile.AVRCP_CONTROLLER, "AVRCP Controller");
         sProfileNames.put(BluetoothProfile.HEADSET_CLIENT, "HFP Client");
@@ -109,6 +133,7 @@ public final class BluetoothUtils {
         sProfileNames.put(BluetoothProfile.MAP_CLIENT, "MAP Client");
 
         // Profile actions to ints
+        sProfileActions.put(A2DP_SOURCE_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP);
         sProfileActions.put(A2DP_SINK_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP_SINK);
         sProfileActions.put(HFP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.HEADSET_CLIENT);
         sProfileActions.put(MAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.MAP_CLIENT);
@@ -192,30 +217,37 @@ public final class BluetoothUtils {
         return profile != null ? profile.intValue() : -1;
     }
 
-    static boolean isProfileSupported(BluetoothDevice device, int profile) {
-        if (device == null) return false;
+    static boolean isProfileSupported(List<ParcelUuid> localUuids, BluetoothDevice device,
+            int profile) {
+        if (device == null || localUuids == null || localUuids.isEmpty()) {
+            return false;
+        }
 
+        ParcelUuid[] ourUuids = localUuids.toArray(new ParcelUuid[localUuids.size()]);
         ParcelUuid[] uuids = device.getUuids();
 
         if (uuids == null || uuids.length == 0) {
             return false;
         }
         switch (profile) {
+            case BluetoothProfile.A2DP:
+                return BluetoothUuid.containsAnyUuid(ourUuids, A2DP_SOURCE_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, A2DP_SINK_UUIDS);
             case BluetoothProfile.A2DP_SINK:
-                return BluetoothUuid.containsAnyUuid(uuids,
-                        new ParcelUuid[]{BluetoothUuid.ADV_AUDIO_DIST, BluetoothUuid.A2DP_SOURCE});
+                return BluetoothUuid.containsAnyUuid(ourUuids, A2DP_SINK_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, A2DP_SOURCE_UUIDS);
             case BluetoothProfile.HEADSET_CLIENT:
-                return BluetoothUuid.containsAnyUuid(uuids,
-                        new ParcelUuid[]{BluetoothUuid.HFP_AG, BluetoothUuid.HSP_AG});
+                return BluetoothUuid.containsAnyUuid(ourUuids, HFP_HF_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, HFP_AG_UUIDS);
             case BluetoothProfile.MAP_CLIENT:
-                return BluetoothUuid.containsAnyUuid(uuids,
-                        new ParcelUuid[]{BluetoothUuid.MAS});
+                return BluetoothUuid.containsAnyUuid(ourUuids, MAP_CLIENT_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, MAP_SERVER_UUIDS);
             case BluetoothProfile.PAN:
-                return BluetoothUuid.containsAnyUuid(uuids,
-                        new ParcelUuid[]{BluetoothUuid.PANU});
+                return BluetoothUuid.containsAnyUuid(ourUuids, PAN_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, PAN_UUIDS);
             case BluetoothProfile.PBAP_CLIENT:
-                return BluetoothUuid.containsAnyUuid(uuids,
-                        new ParcelUuid[]{BluetoothUuid.PBAP_PSE});
+                return BluetoothUuid.containsAnyUuid(ourUuids, PBAP_CLIENT_UUIDS)
+                        && BluetoothUuid.containsAnyUuid(uuids, PBAP_SERVER_UUIDS);
             default:
                 return false;
         }

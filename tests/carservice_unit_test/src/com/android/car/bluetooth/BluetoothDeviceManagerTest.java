@@ -105,6 +105,8 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
     private static final String CONNECTION_STATE =
             "android.bluetooth.mapmce.profile.action.CONNECTION_STATE_CHANGED";
 
+    private ParcelUuid[] mLocalUuids = new ParcelUuid[] {
+            BluetoothUuid.MAP, BluetoothUuid.MNS};
     private ParcelUuid[] mUuids = new ParcelUuid[] {
             BluetoothUuid.MAS};
 
@@ -131,6 +133,7 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
 
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getUuidsList()).thenReturn(Arrays.asList(mLocalUuids));
 
         /**
          * Mocks {@link BluetoothAdapter#getRemoteDevice(boolean)}
