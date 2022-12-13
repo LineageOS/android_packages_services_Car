@@ -382,6 +382,8 @@ public class FastPairProviderTest {
     public void testStopWhileStarted_fastPairStopped() {
         startFastPairProvider();
         mFastPairProvider.stop();
+        assertThat(mFastPairGattService).isNull();
+        assertThat(mAdvertisingSetCallback).isNull();
         assertThat(mFastPairProvider.isStarted()).isFalse();
         assertThat(mFastPairProvider.isEnabled()).isTrue();
     }
