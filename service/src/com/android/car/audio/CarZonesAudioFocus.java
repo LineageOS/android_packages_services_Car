@@ -81,7 +81,8 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
             CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
                     packageManager, new FocusInteraction(carAudioSettings,
-                    new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI)),
+                    new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI),
+                    audioZone.getCarAudioContext()),
                     audioZone.getCarAudioContext(), carVolumeInfoWrapper, audioZoneId);
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }

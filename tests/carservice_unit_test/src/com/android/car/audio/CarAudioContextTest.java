@@ -47,8 +47,9 @@ import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
-import android.support.test.runner.AndroidJUnit4;
 import android.util.ArraySet;
+
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 

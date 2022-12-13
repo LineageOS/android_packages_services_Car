@@ -109,7 +109,9 @@ public class CarAudioFocusUnitTest {
 
     @Before
     public void setUp() {
-        mFocusInteraction = new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory);
+        mFocusInteraction =
+                new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory,
+                        TEST_CAR_AUDIO_CONTEXT);
         CarLocalServices.removeServiceForTest(CarOemProxyService.class);
         CarLocalServices.addService(CarOemProxyService.class, mMockCarOemProxyService);
     }

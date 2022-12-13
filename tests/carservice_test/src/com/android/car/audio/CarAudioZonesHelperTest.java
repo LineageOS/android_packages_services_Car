@@ -719,7 +719,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
 
             RuntimeException thrown =
-                    expectThrows(RuntimeException.class, () -> cazh.loadAudioZones());
+                    assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
 
             assertThat(thrown).hasMessageThat().contains(
                     "group name attribute can not be empty when relying on core volume groups");
@@ -737,19 +737,11 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
 
             RuntimeException thrown =
-                    expectThrows(RuntimeException.class, () -> cazh.loadAudioZones());
+                    assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
 
             assertThat(thrown).hasMessageThat().contains(
                     "Egg and chicken issue, context shall be parsed first");
         }
-    }
-
-    private List<Integer> getListOfZoneIds(SparseArray<CarAudioZone> zones) {
-        List<Integer> zoneIds = new ArrayList<>();
-        for (int i = 0; i < zones.size(); i++) {
-            zoneIds.add(zones.keyAt(i));
-        }
-        return zoneIds;
     }
 
     private void setupAudioManagerMock() {

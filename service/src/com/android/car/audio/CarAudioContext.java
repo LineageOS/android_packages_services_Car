@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
@@ -344,6 +345,7 @@ public final class CarAudioContext {
     private static final Map<AudioAttributesWrapper, Integer> AUDIO_ATTRIBUTE_TO_CONTEXT =
             new ArrayMap<>();
     private static final List<AudioAttributesWrapper> ALL_SUPPORTED_ATTRIBUTES = new ArrayList<>();
+    private final SparseArray<List<Integer>> mContextsToDuck;
 
     static {
         for (int index = 0; index < CAR_CONTEXT_INFO.size(); index++) {
@@ -396,12 +398,18 @@ public final class CarAudioContext {
                 "Car audio contexts must not be empty");
         mCarAudioContextInfos = carAudioContexts;
         mUseCoreAudioRouting = useCoreAudioRouting;
+        if (!mUseCoreAudioRouting) {
+            mContextsToDuck = sContextsToDuck.clone();
+        } else {
+            mContextsToDuck = new SparseArray<>(carAudioContexts.size());
+        }
         for (int index = 0; index < carAudioContexts.size(); index++) {
             CarAudioContextInfo info = carAudioContexts.get(index);
             int contextId = info.getId();
             mContextToNames.put(info.getId(), info.getName());
             mContextToAttributes.put(info.getId(), info.getAudioAttributes());
             if (mUseCoreAudioRouting) {
+                mContextsToDuck.put(contextId, Collections.emptyList());
                 int[] sdkUsages = convertAttributesToUsage(info.getAudioAttributes());
                 boolean isOemExtension = false;
                 // At least one of the attributes prevents this context from being addressed only
@@ -466,6 +474,10 @@ public final class CarAudioContext {
         }
 
         return duckedAudioAttributes;
+    }
+
+    boolean useCoreAudioRouting() {
+        return mUseCoreAudioRouting;
     }
 
     boolean isOemExtensionAudioContext(@AudioContext int audioContext) {
@@ -681,6 +693,11 @@ public final class CarAudioContext {
         return CAR_CONTEXT_INFO;
     }
 
+    @Nullable
+    public List<CarAudioContextInfo> getContextsInfo() {
+        return mCarAudioContextInfos;
+    }
+
     static List<CarAudioContextInfo> getAllNonCarSystemContextsInfo() {
         return List.of(
                 CAR_CONTEXT_INFO_MUSIC,
@@ -701,6 +718,10 @@ public final class CarAudioContext {
                 CAR_CONTEXT_INFO_VEHICLE_STATUS,
                 CAR_CONTEXT_INFO_ANNOUNCEMENT
         );
+    }
+
+    List<Integer> getContextsToDuck(@AudioContext int context) {
+        return mContextsToDuck.get(context);
     }
 
     static @AudioContext int getInvalidContext() {
