@@ -47,6 +47,8 @@ import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
 import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.NonApiTest;
+import com.android.compatibility.common.util.ReasonType;
 
 import org.junit.Test;
 import org.junit.runner.Description;
@@ -95,6 +97,9 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     private static final String VALID_API_ADDED_IN_OR_BEFORE =
             "android.car.test.ApiCheckerRuleTest#annotatedWithAddedInOrBefore";
 
+    // Example justification for a NonApiTest.
+    private static final String NON_API_TEST_JUSTIFICATION = "METRIC";
+
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
 
     @Override
@@ -112,7 +117,24 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
-                .matches(".*missing.*@ApiTest.*@CddTest.*annotation.*");
+                .matches(".*missing.*@ApiTest.*@NonApiTest.*@CddTest.*annotation.*");
+    }
+
+    @Test
+    public void failWhenTestMethodHasNonApiTestAndCddTest() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
+                CddTestAnnotation.forRequirement("Boot in 1s"),
+                new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
+                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .matches(".*both.*NonApiTest.*CddTest.*annotation.*");
     }
 
     @Test
@@ -279,6 +301,34 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .matches(".*CddTest.*missing.*ApiRequirements.*");
+    }
+
+    @Test
+    public void failWhenTestMethodHasNonApiTestAnnotationButNoApiRequirements() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .matches(".*NonApiTest.*missing.*ApiRequirements.*");
+    }
+
+    @Test
+    public void passWhenTestMethodHasNonApiTestAnnotation() throws Throwable {
+        Description testMethod = newTestMethod(
+                new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
+                new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
+                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
     }
 
     @Test
@@ -1085,6 +1135,39 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         public String toString() {
             return "@CddTestAnnotation(requirement='" + mRequirement + "', requirements="
                     + Arrays.toString(mRequirements) + ")";
+        }
+    }
+
+    @SuppressWarnings("BadAnnotationImplementation")// We don't care about equals() / hashCode()
+    private static final class NonApiTestAnnotation implements NonApiTest {
+
+        private final ReasonType[] mExemptionReasons;
+        private final String mJustification;
+
+        NonApiTestAnnotation(ReasonType[] exemptionReasons, String justification) {
+            mExemptionReasons = exemptionReasons;
+            mJustification = justification;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return NonApiTest.class;
+        }
+
+        @Override
+        public ReasonType[] exemptionReasons() {
+            return mExemptionReasons;
+        }
+
+        @Override
+        public String justification() {
+            return mJustification;
+        }
+
+        @Override
+        public String toString() {
+            return "@NonApiTest(exemptionReasons=" + Arrays.toString(mExemptionReasons)
+                    + ", justification=" + mJustification + ")";
         }
     }
 
