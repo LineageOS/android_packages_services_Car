@@ -18,8 +18,8 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.annotation.ApiRequirements;
 import android.car.apitest.CarLessApiTestBase;
-import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -27,11 +27,11 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Parcel;
-import android.util.Log;
 
 import androidx.test.filters.SmallTest;
 
 import com.android.car.internal.LargeParcelable;
+import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,13 +53,6 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
 
     private IJavaTestBinder mBinder;
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        Log.w(TAG, "Disabling API requirements check");
-        builder.disableAnnotationsCheck();
-    }
-
     @Before
     public void setUp() throws Exception {
         LargeParcelable.setClassLoader(mContext.getClassLoader());
@@ -76,16 +69,28 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testLocalSerializationDeserializationSmallPayload() throws Exception {
         doTestLocalSerializationDeserialization(ARRAY_LENGTH_SMALL);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testLocalSerializationDeserializationBigPayload() throws Exception {
         doTestLocalSerializationDeserialization(ARRAY_LENGTH_BIG);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testLocalSerializationDeserializationNullPayload() throws Exception {
         TestLargeParcelable origParcelable = new TestLargeParcelable();
         Parcel dest = Parcel.obtain();
@@ -98,6 +103,10 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testRemoteNullPayload() throws Exception {
         TestLargeParcelable origParcelable = new TestLargeParcelable();
 
@@ -108,26 +117,46 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testTestParcelableSmallPayload() throws Exception {
         doTestLargeParcelable(ARRAY_LENGTH_SMALL);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testTestParcelableBigPayload() throws Exception {
         doTestLargeParcelable(ARRAY_LENGTH_BIG);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testLargeParcelableSmallPayload() throws Exception {
         doTestTestLargeParcelable(ARRAY_LENGTH_SMALL);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testLargeParcelableBigPayload() throws Exception {
         doTestTestLargeParcelable(ARRAY_LENGTH_BIG);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMultiArgsWithNullPayload() throws Exception {
         TestLargeParcelable origParcelable = new TestLargeParcelable();
         long argValue = 0x12345678;
@@ -138,11 +167,19 @@ public final class LargeParcelableTest extends CarLessApiTestBase {
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMultiArgsSmallPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_SMALL);
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Testing large parcelable, which is a "
+            + "hidden API")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMultiArgsBigPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_BIG);
     }
