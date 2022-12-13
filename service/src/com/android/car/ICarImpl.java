@@ -80,6 +80,7 @@ import com.android.car.oem.CarOemProxyService;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.CarTelemetryService;
@@ -161,6 +162,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarTelemetryService mCarTelemetryService;
     private final CarActivityService mCarActivityService;
     private final CarOccupantConnectionService mCarOccupantConnectionService;
+    private final CarRemoteAccessService mCarRemoteAccessService;
 
     private final CarSystemService[] mAllServices;
 
@@ -430,6 +432,13 @@ public class ICarImpl extends ICar.Stub {
             mCarTelemetryService = null;
         }
 
+        if (mFeatureController.isFeatureEnabled((Car.CAR_REMOTE_ACCESS_SERVICE))) {
+            mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
+                    () -> new CarRemoteAccessService(serviceContext, systemInterface), allServices);
+        } else {
+            mCarRemoteAccessService = null;
+        }
+
         // Always put mCarExperimentalFeatureServiceController in last.
         if (!BuildHelper.isUserBuild()) {
             mCarExperimentalFeatureServiceController = constructWithTrace(
@@ -651,6 +660,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarOccupantConnectionService;
             case Car.CAR_REMOTE_DEVICE_SERVICE:
                 return mCarOccupantConnectionService;
+            case Car.CAR_REMOTE_ACCESS_SERVICE:
+                return mCarRemoteAccessService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

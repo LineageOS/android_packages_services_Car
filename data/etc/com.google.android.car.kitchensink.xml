@@ -123,5 +123,7 @@
         <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
         <!-- use for DriveModeSwitchFragment -->
         <permission name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
+        <!-- use for RemoteTaskClientService -->
+        <permission name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
     </privapp-permissions>
 </permissions>

@@ -1467,6 +1467,19 @@ public final class Car {
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
 
+    /**
+     * Intent for being recognized as a remote task client service.
+     *
+     * <p>Services that use this intent must have a {@code PERMISSION_CONTROL_REMOTE_ACCESS}.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE =
+            "android.car.remoteaccess.RemoteTaskClientService";
+
     /** @hide */
     @VisibleForHiddenApiCheck
     @AddedInOrBefore(majorVersion = 33)

@@ -35,6 +35,7 @@ import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.compatibility.common.util.PollingCheck;
 
 import org.junit.After;
@@ -61,6 +62,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
     @Mock private RemoteAccessHalWrapper mRemoteAccessHal;
+    @Mock private SystemInterface mSystemInterface;
     @Mock private CarPowerManagementService mCarPowerManagementService;
 
     @Before
@@ -73,7 +75,7 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mRemoteAccessHal.getDeviceId()).thenReturn(TEST_DEVICE_ID);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
-        mService = new CarRemoteAccessService(mContext, mRemoteAccessHal);
+        mService = new CarRemoteAccessService(mContext, mSystemInterface, mRemoteAccessHal);
         mService.init();
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
         mOldCarPowerManagementService = CarLocalServices.getService(
