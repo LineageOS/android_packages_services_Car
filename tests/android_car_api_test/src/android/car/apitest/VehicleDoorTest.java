@@ -16,23 +16,25 @@
 package android.car.apitest;
 
 import android.car.VehicleAreaDoor;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 
 @SmallTest
 public final class VehicleDoorTest extends CarLessApiTestBase {
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.VehicleAreaDoor#DOOR_HOOD",
+            "android.car.VehicleAreaDoor#DOOR_REAR", "android.car.VehicleAreaDoor#DOOR_ROW_1_LEFT",
+            "android.car.VehicleAreaDoor#DOOR_ROW_1_RIGHT",
+            "android.car.VehicleAreaDoor#DOOR_ROW_2_LEFT",
+            "android.car.VehicleAreaDoor#DOOR_ROW_2_RIGHT",
+            "android.car.VehicleAreaDoor#DOOR_ROW_3_LEFT",
+            "android.car.VehicleAreaDoor#DOOR_ROW_3_RIGHT"})
     public void testMatchWithVehicleHal() {
         assertThat(VehicleAreaDoor.DOOR_HOOD)
                 .isEqualTo(android.hardware.automotive.vehicle.VehicleAreaDoor.HOOD);
