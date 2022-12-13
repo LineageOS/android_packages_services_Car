@@ -156,8 +156,6 @@ import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.view.Display;
 
-import androidx.test.filters.FlakyTest;
-
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
@@ -201,7 +199,6 @@ import java.util.function.BiConsumer;
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
  */
 @RunWith(MockitoJUnitRunner.class)
-@FlakyTest  // TODO(b/259280359): Remove this annotation once the flakiness is fixed.
 public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
             "android.automotive.watchdog.internal.ICarWatchdog/default";

@@ -51,6 +51,8 @@ import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.UserManager;
 
+import androidx.test.filters.FlakyTest;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,6 +71,9 @@ import java.util.Map;
  *
  * Run: atest FastPairProviderTest
  */
+// TODO(b/261725690): Remove the {@link FlakyTest} annotation once the test is fixed to safely
+//  remove the looper messages before exiting the test.
+@FlakyTest
 @RunWith(MockitoJUnitRunner.class)
 public class FastPairProviderTest {
     private static final String KEY_NUM_ACCOUNT_KEYS = "AccountKeysCount";

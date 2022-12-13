@@ -193,17 +193,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP, PRIMARY_AUDIO_ZONE,
                     TEST_SECONDARY_GROUP).setMuted(true).setVolumeGain(DEFAULT_GAIN).build();
 
-    private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
-            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
-            .setType(TYPE_BUILTIN_MIC)
-            .setIsSource(true)
-            .build();
-    private static final AudioDeviceInfo FM_TUNER_TEST_DEVICE =
-            new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
-            .setType(TYPE_FM_TUNER)
-            .setIsSource(true)
-            .build();
-
     private CarAudioService mCarAudioService;
     @Mock
     private Context mMockContext;
@@ -244,6 +233,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private Context mContext;
+    private AudioDeviceInfo mMicrophoneInputDevice;
+    private AudioDeviceInfo mFmTunerInputDevice;
     private AudioDeviceInfo mMediaOutputDevice;
     @Captor
     private ArgumentCaptor<BroadcastReceiver> mVolumeReceiverCaptor;
@@ -638,7 +629,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, true));
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
                 .when(() -> AudioManagerHelper
-                        .createAudioPatch(FM_TUNER_TEST_DEVICE, mMediaOutputDevice, DEFAULT_GAIN));
+                        .createAudioPatch(mFmTunerInputDevice, mMediaOutputDevice, DEFAULT_GAIN));
 
         CarAudioPatchHandle audioPatch = mCarAudioService
                 .createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS, USAGE_MEDIA, DEFAULT_GAIN);
@@ -688,7 +679,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mockGrantCarControlAudioSettingsPermission();
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
                 .when(() -> AudioManagerHelper
-                        .createAudioPatch(FM_TUNER_TEST_DEVICE, mMediaOutputDevice, DEFAULT_GAIN));
+                        .createAudioPatch(mFmTunerInputDevice, mMediaOutputDevice, DEFAULT_GAIN));
 
         CarAudioPatchHandle audioPatch = mock(CarAudioPatchHandle.class);
         when(audioPatch.getSourceAddress()).thenReturn(null);
@@ -1477,7 +1468,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Get input device for primary zone id")
                 .that(mCarAudioService.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE))
-                .containsExactly(new AudioDeviceAttributes(MICROPHONE_TEST_DEVICE));
+                .containsExactly(new AudioDeviceAttributes(mMicrophoneInputDevice));
     }
 
     @Test
@@ -1774,7 +1765,17 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private AudioDeviceInfo[] generateInputDeviceInfos() {
-        return new AudioDeviceInfo[]{MICROPHONE_TEST_DEVICE, FM_TUNER_TEST_DEVICE};
+        mMicrophoneInputDevice = new AudioDeviceInfoBuilder()
+                .setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
+                .setType(TYPE_BUILTIN_MIC)
+                .setIsSource(true)
+                .build();
+        mFmTunerInputDevice = new AudioDeviceInfoBuilder()
+                .setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
+                .setType(TYPE_FM_TUNER)
+                .setIsSource(true)
+                .build();
+        return new AudioDeviceInfo[]{mMicrophoneInputDevice, mFmTunerInputDevice};
     }
 
     private AudioDeviceInfo[] generateOutputDeviceInfos() {
