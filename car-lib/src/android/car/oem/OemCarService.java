@@ -19,7 +19,6 @@ package android.car.oem;
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarVersion;
 import android.car.annotation.ApiRequirements;
@@ -48,7 +47,6 @@ import java.util.Map;
  *
  * @hide
  */
-@SystemApi
 public abstract class OemCarService extends Service {
 
     private static final String TAG = OemCarService.class.getSimpleName();

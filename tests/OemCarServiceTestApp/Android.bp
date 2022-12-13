@@ -25,5 +25,5 @@ android_app {
     privileged: true,
     certificate: "platform",
     platform_apis: true,
-    libs: ["android.car-system-stubs"],
+    libs: ["android.car"],
 }

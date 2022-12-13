@@ -110,6 +110,9 @@ public class ICarImpl extends ICar.Stub {
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
+    // Disable OEM service for TM-QPR2 release.
+    private static final boolean ENABLE_OEM_SERVICE = false;
+
     private final Context mContext;
     private final Context mCarServiceBuiltinPackageContext;
     private final VehicleHal mHal;
@@ -118,6 +121,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final SystemInterface mSystemInterface;
 
+    @Nullable
     private final CarOemProxyService mCarOemService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
@@ -210,8 +214,12 @@ public class ICarImpl extends ICar.Stub {
             mCarServiceBuiltinPackageContext = builtinContext;
         }
 
-        mCarOemService = constructWithTrace(t, CarOemProxyService.class,
-                () -> new CarOemProxyService(serviceContext));
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService = constructWithTrace(t, CarOemProxyService.class,
+                    () -> new CarOemProxyService(serviceContext));
+        } else {
+            mCarOemService = null;
+        }
 
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
@@ -494,7 +502,9 @@ public class ICarImpl extends ICar.Stub {
             t.traceEnd();
         }
         t.traceBegin("CarOemService.initComplete");
-        mCarOemService.onInitComplete();
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService.onInitComplete();
+        }
         t.traceEnd();
         t.traceEnd(); // "CarService.initAllServices"
         t.traceEnd(); // "ICarImpl.init"
@@ -771,11 +781,20 @@ public class ICarImpl extends ICar.Stub {
     }
 
     private void dumpOemService(IndentingPrintWriter writer) {
-        mCarOemService.dump(writer);
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService.dump(writer);
+            return;
+        }
+
+        writer.println("OEM service is disabled.");
     }
 
     public String getOemServiceName() {
-        return mCarOemService.getOemServiceName();
+        if (ENABLE_OEM_SERVICE) {
+            return mCarOemService.getOemServiceName();
+        }
+
+        return "";
     }
 
     private void dumpAll(IndentingPrintWriter writer) {
