@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="left"
+    android:gravity="start"
     android:clipToPadding="false"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:paddingStart="?android:attr/listPreferredItemPaddingStart"
@@ -30,7 +30,7 @@
     <com.android.car.ui.uxr.DrawableStateLinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         android:orientation="horizontal">
 
         <com.android.car.ui.uxr.DrawableStateImageView
