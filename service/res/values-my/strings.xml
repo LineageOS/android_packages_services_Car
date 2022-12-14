@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"မျက်နှာပြင်ပြသမှု ယူနစ်များကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"ကား၏ မျက်နှာပြင်ပြသမှုယူနစ်များကို ထိန်းချုပ်ပါမည်"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"မျက်နှာပြင်ပြသမှု ယူနစ်များ ထိန်းချုပ်ပါမည်။"</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"အင်ဂျင်အားဖြင့် ကားဝင်ရိုးလည်ပတ်မှု အချက်အလက်ကို ထိန်းချုပ်ရန်"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"အင်ဂျင်အားဖြင့် ကားဝင်ရိုးလည်ပတ်မှု အချက်အလက်ကို ထိန်းချုပ်ပါ။"</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"ကား၏ အင်ဂျင်အားဖြင့် ဝင်ရိုးလည်ပတ်မှုအချက်အလက်များကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"အင်ဂျင်အားဖြင့် ကားဝင်ရိုးလည်ပတ်မှုအ‌ချက်အလက်များကို ရယူပါမည်"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"ကား၏ ပါဝါအခြေအနေကို ကြည့်ပါမည်"</string>
