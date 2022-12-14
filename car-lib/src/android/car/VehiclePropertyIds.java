@@ -2860,6 +2860,44 @@ public final class VehiclePropertyIds {
     public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920;
 
     /**
+     * Enable or disable lane centering assist (LCA).
+     *
+     * <p>Returns true if LCA is enabled and false if LCA is disabled. When LCA is enabled, the ADAS
+     * system in the vehicle should be turned on and waiting for an activation signal from the
+     * driver. Once the feature is activated, the ADAS system should be steering the vehicle to keep
+     * it centered in its current lane.
+     *
+     * <p>This is different from Lane Keep Assist (LKA) which monitors if the driver unintentionally
+     * drifts toward or over the lane marking. If an unintentional lane departure is detected, the
+     * system applies steering control to return the vehicle into the current lane.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
