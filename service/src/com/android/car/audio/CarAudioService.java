@@ -440,6 +440,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 if (mCarVolumeGroupMuting != null) {
                     mCarVolumeGroupMuting.dump(writer);
                 }
+                if (mCarAudioPlaybackCallback != null) {
+                    mCarAudioPlaybackCallback.dump(writer);
+                }
 
             }
             writer.decreaseIndent();
