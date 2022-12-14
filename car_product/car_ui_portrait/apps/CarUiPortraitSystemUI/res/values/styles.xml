@@ -32,6 +32,14 @@
         <item name="selectedAlpha">1.0</item>
     </style>
 
+    <style name="CarTopSystemBarButton">
+        <item name="android:layout_width">@dimen/top_system_bar_icon_size</item>
+        <item name="android:layout_height">@dimen/top_system_bar_icon_size</item>
+        <item name="android:layout_marginEnd">@dimen/top_system_bar_icon_horizontal_margin</item>
+        <item name="android:layout_marginStart">@dimen/top_system_bar_icon_horizontal_margin</item>
+        <item name="android:gravity">center</item>
+    </style>
+
     <style name="QCFooterButtonStyle"
            parent="android:Widget.DeviceDefault.Button.Colored">
         <item name="android:layout_width">match_parent</item>
@@ -47,7 +55,8 @@
     <style name="TextAppearance.TopSystemBar.Text"
            parent="@*android:style/TextAppearance.StatusBar.Icon">
         <item name="android:textSize">@dimen/car_body1_size</item>
-        <item name="android:textColor">@color/car_on_surface</item>
+        <!-- Change back to car_on_surface after day mode top system bar background is not black -->
+        <item name="android:textColor">@color/car_neutral_90</item>
     </style>
 
     <style name="TextAppearance.QC" parent="android:TextAppearance.DeviceDefault">
@@ -61,5 +70,12 @@
     <style name="TextAppearance.QC.Subtitle">
         <item name="android:textColor">@color/car_primary</item>
         <item name="android:textSize">@dimen/car_ui_body3_size</item>
+    </style>
+
+    <style name="QuickControlEntryPointButton">
+        <item name="android:layout_marginEnd">@dimen/top_system_bar_icon_horizontal_margin</item>
+        <item name="android:background">@drawable/status_icon_background</item>
+        <item name="android:layout_width">@dimen/top_system_bar_icon_size</item>
+        <item name="android:layout_height">@dimen/top_system_bar_icon_size</item>
     </style>
 </resources>

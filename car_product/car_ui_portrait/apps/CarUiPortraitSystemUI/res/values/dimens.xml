@@ -74,4 +74,9 @@
     <dimen name="statusbar_sensor_text_width">88dp</dimen>
 
     <dimen name="privacy_chip_horizontal_padding">0dp</dimen>
+    <dimen name="privacy_chip_width">@dimen/top_system_bar_icon_size</dimen>
+    <dimen name="top_system_bar_icon_drawing_size">35dp</dimen>
+    <dimen name="top_system_bar_icon_size">56dp</dimen>
+    <dimen name="top_system_bar_icon_horizontal_margin">12dp</dimen>
+
 </resources>

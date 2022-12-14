@@ -17,6 +17,42 @@
 
 <selector
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--    TODO(b/253496310): support rotary colors -->
+    <item
+        android:state_focused="true"
+        android:state_selected="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/status_icon_selected_button_color"/>
+                    <size android:width="@dimen/top_system_bar_icon_size"
+                          android:height="@dimen/top_system_bar_icon_size"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item
+        android:state_focused="true"
+        android:state_selected="false">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/system_bar_background_pill_color"/>
+                    <size android:width="@dimen/top_system_bar_icon_size"
+                          android:height="@dimen/top_system_bar_icon_size"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
+    <item android:state_selected="true">
+        <layer-list>
+            <item>
+                <shape android:shape="oval">
+                    <solid android:color="@color/status_icon_selected_button_color"/>
+                    <size android:width="@dimen/top_system_bar_icon_size"
+                          android:height="@dimen/top_system_bar_icon_size"/>
+                </shape>
+            </item>
+        </layer-list>
+    </item>
     <item android:drawable="@drawable/system_bar_background_pill"/>
 </selector>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2022 The Android Open Source Project
   ~
@@ -14,16 +14,18 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list
+
+<com.android.systemui.car.privacy.CameraPrivacyChip
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt">
-    <item>
-        <aapt:attr name="android:drawable">
-            <shape android:shape="oval">
-                <solid android:color="@color/system_bar_background_pill_color"/>
-                <size android:width="@dimen/top_system_bar_icon_size"
-                      android:height="@dimen/top_system_bar_icon_size"/>
-            </shape>
-        </aapt:attr>
-    </item>
-</layer-list>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/camera_privacy_chip"
+    android:layout_width="@dimen/privacy_chip_width"
+    android:layout_height="match_parent"
+    android:visibility="gone"
+    android:paddingEnd="@dimen/privacy_chip_horizontal_padding"
+    android:focusable="false"
+    app:layoutDescription="@xml/camera_privacy_chip_scene">
+
+    <include layout="@layout/privacy_chip_content"/>
+
+</com.android.systemui.car.privacy.CameraPrivacyChip>

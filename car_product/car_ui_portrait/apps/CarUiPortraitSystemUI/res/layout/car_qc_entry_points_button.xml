@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2022 The Android Open Source Project
   ~
@@ -15,17 +15,13 @@
   ~ limitations under the License.
   -->
 
-<layer-list
-xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:aapt="http://schemas.android.com/aapt">
-<item>
-    <aapt:attr name="android:drawable">
-        <shape android:shape="rectangle">
-            <solid android:color="@color/system_bar_background_pill_color"/>
-            <corners android:radius="@dimen/user_avatar_background_radius"/>
-            <size android:width="@dimen/top_system_bar_icon_size"
-                  android:height="@dimen/top_system_bar_icon_size"/>
-        </shape>
-    </aapt:attr>
-</item>
-</layer-list>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/QuickControlEntryPointButton">
+    <ImageView
+        android:layout_width="@dimen/top_system_bar_icon_drawing_size"
+        android:layout_height="@dimen/top_system_bar_icon_drawing_size"
+        android:layout_gravity="center"
+        android:tag="@string/qc_icon_tag"/>
+</FrameLayout>
+
