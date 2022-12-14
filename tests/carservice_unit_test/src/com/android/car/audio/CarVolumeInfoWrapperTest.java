@@ -59,7 +59,7 @@ public final class CarVolumeInfoWrapperTest {
     public void setUp() {
         CarAudioService carAudioService = mock(CarAudioService.class);
 
-        when(carAudioService.getSuggestedAudioContextForPrimaryZone()).thenReturn(CALL);
+        when(carAudioService.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE)).thenReturn(CALL);
         when(carAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
                 .thenReturn(TEST_GROUP_ID);
         when(carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
@@ -91,8 +91,8 @@ public final class CarVolumeInfoWrapperTest {
     }
 
     @Test
-    public void getSuggestedAudioContextForPrimaryZone_returnsAudioContext() {
-        int context = mCarVolumeInfoWrapper.getSuggestedAudioContextForPrimaryZone();
+    public void getSuggestedAudioContextForZone_inPrimaryZone_returnsAudioContext() {
+        int context = mCarVolumeInfoWrapper.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car Audio Context")
                 .that(context).isEqualTo(CALL);

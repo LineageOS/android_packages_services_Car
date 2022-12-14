@@ -29,13 +29,13 @@ final class CarVolumeInfoWrapper {
                 "Car Audio Service Can not be null");
     }
 
-    public int getSuggestedAudioContextForPrimaryZone() {
-        return mCarAudioService.getSuggestedAudioContextForPrimaryZone();
+    public int getSuggestedAudioContextForZone(int zoneId) {
+        return mCarAudioService.getSuggestedAudioContextForZone(zoneId);
     }
 
     public int getVolumeGroupIdForAudioZone(int zoneId) {
         return mCarAudioService.getVolumeGroupIdForAudioContext(zoneId,
-                getSuggestedAudioContextForPrimaryZone());
+                getSuggestedAudioContextForZone(zoneId));
     }
 
     public int getGroupVolume(int zoneId, int groupId) {

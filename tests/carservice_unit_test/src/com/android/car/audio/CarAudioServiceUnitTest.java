@@ -1092,14 +1092,34 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void getSuggestedAudioContextForPrimaryZone() {
+    public void getSuggestedAudioContextForZone_inPrimaryZone() {
         mCarAudioService.init();
         int defaultAudioContext = mCarAudioService.getCarAudioContext()
                 .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE);
 
         expectWithMessage("Suggested audio context for primary zone")
-                .that(mCarAudioService.getSuggestedAudioContextForPrimaryZone())
+                .that(mCarAudioService.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE))
                 .isEqualTo(defaultAudioContext);
+    }
+
+    @Test
+    public void getSuggestedAudioContextForZone_inSecondaryZone() {
+        mCarAudioService.init();
+        int defaultAudioContext = mCarAudioService.getCarAudioContext()
+                .getContextForAudioAttribute(CAR_DEFAULT_AUDIO_ATTRIBUTE);
+
+        expectWithMessage("Suggested audio context for secondary zone")
+                .that(mCarAudioService.getSuggestedAudioContextForZone(SECONDARY_ZONE_ID))
+                .isEqualTo(defaultAudioContext);
+    }
+
+    @Test
+    public void getSuggestedAudioContextForZone_inInvalidZone() {
+        mCarAudioService.init();
+
+        expectWithMessage("Suggested audio context for invalid zone")
+                .that(mCarAudioService.getSuggestedAudioContextForZone(INVALID_AUDIO_ZONE))
+                .isEqualTo(CarAudioContext.getInvalidContext());
     }
 
     @Test
