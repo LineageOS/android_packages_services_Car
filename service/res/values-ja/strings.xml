@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"ディスプレイ ユニットを読み取ります。"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"車のディスプレイ ユニットの操作"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"ディスプレイ ユニットを操作します。"</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"車のパワートレイン情報の管理"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"車のパワートレイン情報の管理"</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"車のパワートレイン情報の読み取り"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"車のパワートレイン情報にアクセスします。"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"車の電力状態の読み取り"</string>

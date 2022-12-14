@@ -17,23 +17,22 @@
 package android.car.apitest;
 
 import android.car.PortLocationType;
-import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.Test;
 
 @SmallTest
 public final class PortLocationTypeTest extends CarLessApiTestBase {
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @ApiTest(apis = {"android.car.PortLocationType#UNKNOWN",
+            "android.car.PortLocationType#FRONT_LEFT", "android.car.PortLocationType#FRONT_RIGHT",
+            "android.car.PortLocationType#REAR_RIGHT", "android.car.PortLocationType#REAR_LEFT",
+            "android.car.PortLocationType#FRONT", "android.car.PortLocationType#REAR"})
     public void testMatchWithVehicleHal() {
         assertThat(PortLocationType.UNKNOWN)
                 .isEqualTo(android.hardware.automotive.vehicle.PortLocationType.UNKNOWN);
