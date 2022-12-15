@@ -36,7 +36,7 @@
     <!-- Dialog button layout height -->
     <dimen name="button_layout_height">88dp</dimen>
     <!-- Default dialog button margin -->
-    <dimen name="car_alert_dialog_button_margin">24dp</dimen>
+    <dimen name="car_alert_dialog_button_margin">16dp</dimen>
 
     <!-- ****** Toast dimens ***** -->
 
