@@ -16,8 +16,8 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="@dimen/system_bar_icon_drawing_size"
-        android:height="@dimen/system_bar_icon_drawing_size"
+        android:width="@dimen/top_system_bar_icon_drawing_size"
+        android:height="@dimen/top_system_bar_icon_drawing_size"
         android:viewportWidth="16"
         android:viewportHeight="16">
     <path

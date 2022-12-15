@@ -23,7 +23,7 @@ import android.car.annotation.ApiRequirements;
 import android.platform.test.annotations.Presubmit;
 import android.text.TextUtils;
 
-import com.android.compatibility.common.util.CddTest;
+import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.Test;
 
@@ -32,7 +32,8 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
 
 
     @Test
-    @CddTest(requirements = {"TODO(b/248089652)"})
+    @NonApiTest(exemptionReasons = {}, justification = "Testing package allowlist, which is not "
+            + "an API or CDD requirement")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testNoCriticalErrors_currentMode() {
@@ -40,7 +41,8 @@ public final class PreInstalledPackagesTest extends CarLessApiTestBase {
     }
 
     @Test
-    @CddTest(requirements = {"TODO(b/248089652)"})
+    @NonApiTest(exemptionReasons = {}, justification = "Testing package allowlist, which is not "
+            + "an API or CDD requirement")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testNoCriticalErrors_enforceMode() {
