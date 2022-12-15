@@ -129,7 +129,7 @@ public final class Car {
     @Deprecated
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int API_VERSION_MINOR_INT = 1;
+    public static final int API_VERSION_MINOR_INT = 2;
 
     /**
      * @deprecated - use {@code getPlatformApiVersion().getMinorVersion()} instead
