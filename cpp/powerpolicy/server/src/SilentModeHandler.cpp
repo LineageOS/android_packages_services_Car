@@ -29,8 +29,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <filesystem>
-
 namespace android {
 namespace frameworks {
 namespace automotive {
@@ -51,45 +49,30 @@ using ::android::base::WriteStringToFd;
 namespace {
 
 constexpr const char kPropertySystemBootReason[] = "sys.boot.reason";
-constexpr const char kHwStateFilename[] = "pm_silentmode_hw_state";
-constexpr const char kKernelStateFilename[] = "pm_silentmode_kernel_state";
+constexpr const char kSilentModeHwStateFilename[] = "/sys/power/pm_silentmode_hw_state";
+constexpr const char kKernelSilentModeFilename[] = "/sys/power/pm_silentmode_kernel_state";
 // To prevent boot animation from being started.
 constexpr const char kPropertyNoBootAnimation[] = "debug.sf.nobootanimation";
 // To stop boot animation while it is being played.
 constexpr const char kPropertyBootAnimationExit[] = "service.bootanim.exit";
-constexpr const char* kSysfsDirForSilentMode[] = {"/sys/kernel/silent_boot", "/sys/power"};
 
 bool fileExists(const char* filename) {
     struct stat buffer;
     return stat(filename, &buffer) == 0;
 }
 
-// We search for the folder where sysfs files for Silent Mode are located in the following order:
-//   1. /sys/kernel/silent_boot
-//   2. /sys/power (only for backward compatibility)
-std::string searchForSysfsDir() {
-    std::error_code ec;
-    for (const char* dir : kSysfsDirForSilentMode) {
-        if (std::filesystem::is_directory(dir, ec)) {
-            return std::string(dir) + "/";
-        }
-    }
-    return std::string(kSysfsDirForSilentMode[0]) + "/";
-}
-
 }  // namespace
 
 SilentModeHandler::SilentModeHandler(ISilentModeChangeHandler* handler) :
       mSilentModeByHwState(false),
+      mSilentModeHwStateFilename(kSilentModeHwStateFilename),
+      mKernelSilentModeFilename(kKernelSilentModeFilename),
       mSilentModeChangeHandler(handler),
       mSysfsMonitor(sp<SysfsMonitor>::make()) {
     mBootReason = GetProperty(kPropertySystemBootReason, "");
 }
 
 void SilentModeHandler::init() {
-    std::string sysfsDir = searchForSysfsDir();
-    mSilentModeHwStateFilename = sysfsDir + kHwStateFilename;
-    mKernelSilentModeFilename = sysfsDir + kKernelStateFilename;
     if (mBootReason == kBootReasonForcedSilent) {
         mForcedMode = true;
         mSilentModeByHwState = true;
@@ -127,12 +110,6 @@ void SilentModeHandler::stopMonitoringSilentModeHwState() {
 
 Result<void> SilentModeHandler::dump(int fd, const Vector<String16>& /*args*/) {
     const char* indent = "  ";
-    WriteStringToFd(StringPrintf("%sHW state filename: %s\n", indent,
-                                 mSilentModeHwStateFilename.c_str()),
-                    fd);
-    WriteStringToFd(StringPrintf("%sKernel state filename: %s\n", indent,
-                                 mKernelSilentModeFilename.c_str()),
-                    fd);
     WriteStringToFd(StringPrintf("%sMonitoring HW state: %s\n", indent,
                                  mIsMonitoring ? "true" : "false"),
                     fd);
