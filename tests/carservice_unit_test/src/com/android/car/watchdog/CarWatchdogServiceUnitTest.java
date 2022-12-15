@@ -435,6 +435,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         testClientHealthCheck(new BadTestClient(), 1);
     }
 
+    // TODO(b/262301082): Add a unit test to verify the race condition that caused watchdog to
+    //  incorrectly terminate clients that were recently unregistered - b/261766872.
+
     @Test
     public void testGarageModeStateChangeToOn() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
