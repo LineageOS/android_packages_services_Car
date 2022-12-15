@@ -67,6 +67,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
     field public static final String PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG = "android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG";
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
+    field public static final String PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS = "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_CONTROL_POWERTRAIN = "android.car.permission.CONTROL_CAR_POWERTRAIN";
@@ -83,6 +84,8 @@ package android.car {
     field public static final String PERMISSION_READ_ADAS_STATES = "android.car.permission.READ_ADAS_STATES";
     field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
     field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
+    field public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS = "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
+    field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
     field public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY = "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";

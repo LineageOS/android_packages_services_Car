@@ -120,6 +120,21 @@
     <string name="car_permission_label_control_car_occupant_awareness_system">Control Occupant Awareness System Graph</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system">Allows controlling the start and stopping of the Occupant Awareness System detection graph</string>
 
+    <!-- Permission text: apps can read car driver monitoring settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_driver_monitoring_settings">Read car\u2019s driver monitoring settings information</string>
+    <!-- Permission text: apps can read car driver monitoring settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_driver_monitoring_settings">Read car\u2019s driver monitoring settings information.</string>
+
+    <!-- Permission text: apps can control car driver monitoring settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_driver_monitoring_settings">Control car\u2019s driver monitoring settings information</string>
+    <!-- Permission text: apps can control car driver monitoring settings information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_driver_monitoring_settings">Control car\u2019s driver monitoring settings information.</string>
+
+    <!-- Permission text: apps can read car driver monitoring states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_driver_monitoring_states">Read car\u2019s driver monitoring states information</string>
+    <!-- Permission text: apps can read car driver monitoring states information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_driver_monitoring_states">Read car\u2019s driver monitoring states information.</string>
+
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">read diagnostic data</string>
     <!-- Permission text: apps can read diagnostic data from the car [CHAR LIMIT=NONE] -->
