@@ -96,7 +96,6 @@ android.car.evs.CarEvsManager$CarEvsStreamCallback
 android.car.evs.CarEvsStatus
 android.car.hardware.CarHvacFanDirection
 android.car.hardware.CarPropertyConfig
-android.car.hardware.CarPropertyConfig$AreaConfig
 android.car.hardware.CarPropertyConfig$Builder
 android.car.hardware.CarPropertyValue
 android.car.hardware.CarSensorConfig
@@ -136,6 +135,8 @@ android.car.hardware.power.CarPowerPolicy
 android.car.hardware.power.CarPowerPolicyFilter
 android.car.hardware.power.CarPowerPolicyFilter$Builder
 android.car.hardware.power.PowerComponentUtil
+android.car.hardware.property.AreaIdConfig
+android.car.hardware.property.AreaIdConfig$Builder
 android.car.hardware.property.CarInternalErrorException
 android.car.hardware.property.CarPropertyEvent
 android.car.hardware.property.CarPropertyManager

@@ -569,16 +569,18 @@ package android.car.hardware {
   public final class CarPropertyConfig<T> implements android.os.Parcelable {
     method public int describeContents();
     method public int getAccess();
+    method @NonNull public android.car.hardware.property.AreaIdConfig<T> getAreaIdConfig(int);
+    method @NonNull public java.util.List<android.car.hardware.property.AreaIdConfig<T>> getAreaIdConfigs();
     method @NonNull public int[] getAreaIds();
     method public int getAreaType();
     method public int getChangeMode();
     method @NonNull public java.util.List<java.lang.Integer> getConfigArray();
     method public float getMaxSampleRate();
-    method @Nullable public T getMaxValue(int);
-    method @Nullable public T getMaxValue();
+    method @Deprecated @Nullable public T getMaxValue(int);
+    method @Deprecated @Nullable public T getMaxValue();
     method public float getMinSampleRate();
-    method @Nullable public T getMinValue(int);
-    method @Nullable public T getMinValue();
+    method @Deprecated @Nullable public T getMinValue(int);
+    method @Deprecated @Nullable public T getMinValue();
     method public int getPropertyId();
     method @NonNull public Class<T> getPropertyType();
     method public boolean isGlobalProperty();
@@ -748,6 +750,15 @@ package android.car.hardware.power {
 }
 
 package android.car.hardware.property {
+
+  public final class AreaIdConfig<T> implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAreaId();
+    method @Nullable public T getMaxValue();
+    method @Nullable public T getMinValue();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<java.lang.Object>> CREATOR;
+  }
 
   public class CarInternalErrorException extends java.lang.RuntimeException {
   }
