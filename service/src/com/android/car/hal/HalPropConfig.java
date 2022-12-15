@@ -23,6 +23,7 @@ import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * HalPropConfig represents a vehicle property config.
@@ -112,10 +113,22 @@ public abstract class HalPropConfig {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
                 int areaId = halAreaConfig.getAreaId();
                 AreaIdConfig.Builder areaIdConfigBuilder = new AreaIdConfig.Builder(areaId);
-                if (classMatched(Integer.class, clazz) && (halAreaConfig.getMinInt32Value() != 0
-                        || halAreaConfig.getMaxInt32Value() != 0)) {
-                    areaIdConfigBuilder.setMinValue(halAreaConfig.getMinInt32Value()).setMaxValue(
-                            halAreaConfig.getMaxInt32Value());
+                if (classMatched(Integer.class, clazz)) {
+                    if ((halAreaConfig.getMinInt32Value() != 0
+                            || halAreaConfig.getMaxInt32Value() != 0)) {
+                        areaIdConfigBuilder.setMinValue(
+                                halAreaConfig.getMinInt32Value()).setMaxValue(
+                                halAreaConfig.getMaxInt32Value());
+                    }
+                    long[] supportedEnumValuesArray = halAreaConfig.getSupportedEnumValues();
+                    if (supportedEnumValuesArray != null && supportedEnumValuesArray.length > 0) {
+                        List<Integer> supportedEnumValues = new ArrayList<>(
+                                supportedEnumValuesArray.length);
+                        for (int i = 0; i < supportedEnumValuesArray.length; i++) {
+                            supportedEnumValues.add((int) supportedEnumValuesArray[i]);
+                        }
+                        areaIdConfigBuilder.setSupportedEnumValues(supportedEnumValues);
+                    }
                 } else if (classMatched(Float.class, clazz) && (
                         halAreaConfig.getMinFloatValue() != 0
                                 || halAreaConfig.getMaxFloatValue() != 0)) {

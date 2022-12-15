@@ -23,6 +23,9 @@ import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * Represents area ID specific configuration information for a vehicle property.
  *
@@ -38,11 +41,14 @@ public final class AreaIdConfig<T> implements Parcelable {
     private final int mAreaId;
     @Nullable private final T mMinValue;
     @Nullable private final T mMaxValue;
+    private final List<T> mSupportedEnumValues;
 
-    private AreaIdConfig(int areaId, @Nullable T minValue, @Nullable T maxValue) {
+    private AreaIdConfig(
+            int areaId, @Nullable T minValue, @Nullable T maxValue, List<T> supportedEnumValues) {
         mAreaId = areaId;
         mMinValue = minValue;
         mMaxValue = maxValue;
+        mSupportedEnumValues = supportedEnumValues;
     }
 
     @SuppressWarnings("unchecked")
@@ -50,6 +56,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         mAreaId = in.readInt();
         mMinValue = (T) in.readValue(getClass().getClassLoader());
         mMaxValue = (T) in.readValue(getClass().getClassLoader());
+        mSupportedEnumValues = in.readArrayList(getClass().getClassLoader());
     }
 
     private static <E> Parcelable.Creator<AreaIdConfig<E>> getCreator() {
@@ -105,6 +112,18 @@ public final class AreaIdConfig<T> implements Parcelable {
         return mMaxValue;
     }
 
+    /**
+     * Returns the supported enum values for the {@link #getAreaId()}. If list is empty, the
+     * property does not support an enum.
+     */
+    @NonNull
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public List<T> getSupportedEnumValues() {
+        return Collections.unmodifiableList(mSupportedEnumValues);
+    }
+
     @Override
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -121,6 +140,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         dest.writeInt(mAreaId);
         dest.writeValue(mMinValue);
         dest.writeValue(mMaxValue);
+        dest.writeList(mSupportedEnumValues);
     }
 
     @Override
@@ -135,6 +155,8 @@ public final class AreaIdConfig<T> implements Parcelable {
                 + mMinValue
                 + ", mMaxValue="
                 + mMaxValue
+                + ", mSupportedEnumValues="
+                + mSupportedEnumValues
                 + '}';
     }
 
@@ -147,6 +169,7 @@ public final class AreaIdConfig<T> implements Parcelable {
         private final int mAreaId;
         private T mMinValue = null;
         private T mMaxValue = null;
+        private List<T> mSupportedEnumValues = Collections.EMPTY_LIST;
 
         public Builder(int areaId) {
             mAreaId = areaId;
@@ -172,13 +195,23 @@ public final class AreaIdConfig<T> implements Parcelable {
             return this;
         }
 
+        /** Set the supported enum values for the {@link AreaIdConfig}. */
+        @NonNull
+        @ApiRequirements(
+                minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public Builder<T> setSupportedEnumValues(@NonNull List<T> supportedEnumValues) {
+            mSupportedEnumValues = supportedEnumValues;
+            return this;
+        }
+
         /** Builds a new {@link android.car.hardware.property.AreaIdConfig}. */
         @NonNull
         @ApiRequirements(
                 minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public AreaIdConfig<T> build() {
-            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue);
+            return new AreaIdConfig<>(mAreaId, mMinValue, mMaxValue, mSupportedEnumValues);
         }
     }
 }
