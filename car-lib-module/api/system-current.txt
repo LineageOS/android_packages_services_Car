@@ -1137,31 +1137,6 @@ package android.car.navigation {
 
 }
 
-package android.car.oem {
-
-  public interface OemCarAudioFocusService extends android.car.oem.OemCarServiceComponent {
-    method public void audioFocusChanged(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
-  }
-
-  public abstract class OemCarService extends android.app.Service {
-    ctor public OemCarService();
-    method @CallSuper public void dump(@Nullable java.io.FileDescriptor, @Nullable java.io.PrintWriter, @Nullable String[]);
-    method @Nullable public android.car.oem.OemCarAudioFocusService getOemAudioFocusService();
-    method @NonNull public abstract android.car.CarVersion getSupportedCarVersion();
-    method @NonNull public final android.os.IBinder onBind(@Nullable android.content.Intent);
-    method public abstract void onCarServiceReady();
-    method public final int onStartCommand(@Nullable android.content.Intent, int, int);
-  }
-
-  public interface OemCarServiceComponent {
-    method public void dump(@Nullable java.io.PrintWriter, @Nullable String[]);
-    method public void init();
-    method public void onCarServiceReady();
-    method public void release();
-  }
-
-}
-
 package android.car.os {
 
   public final class CarPerformanceManager {
