@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Lire des unités d\'affichage."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"contrôler les unités d\'affichage de la voiture"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Contrôler les unités d\'affichage."</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"contrôler les renseignements sur le groupe motopropulseur de la voiture"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Contrôler les renseignements sur le groupe motopropulseur de la voiture."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"lire des renseignements sur le groupe motopropulseur de la voiture"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Accéder aux renseignements sur le groupe motopropulseur de la voiture."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"lecture de l\'état de l\'alimentation de la voiture"</string>

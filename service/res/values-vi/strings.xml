@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"Đọc thiết bị hiển thị."</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"kiểm soát các thiết bị hiển thị trên ô tô"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"Kiểm soát thiết bị hiển thị."</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"kiểm soát thông tin hệ truyền động của ô tô"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"Kiểm soát thông tin hệ truyền động của ô tô."</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"đọc thông tin về hệ thống truyền động trên ô tô"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"Truy cập vào thông tin về hệ thống truyền động của ô tô."</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"đọc trạng thái nguồn của ô tô"</string>
