@@ -314,6 +314,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         mControlBarView.getHeight() - mCornerRadius;
                 updateBottomOverlap(mRootAppAreaState);
 
+                if (mRootAppAreaContainer != null) {
+                    int bottomPadding = isFullScreen(mRootAppAreaState) ? 0
+                            : mControlBarHeightMinusCornerRadius;
+                    mRootAppAreaContainer.setPadding(/* start= */ 0, /* top= */ 0, /* end= */ 0,
+                            bottomPadding);
+                    mRootTaskView.onLocationChanged();
+                }
+
                 if (mShouldSetInsetsOnBackgroundTaskView) {
                     return;
                 }
@@ -324,12 +332,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         backgroundAppAreaLayoutParams.setMargins(/* left= */ 0, /* top= */
                                 0, /* right= */ 0, mControlBarHeightMinusCornerRadius);
                     }
-                }
-                if (mRootAppAreaContainer != null) {
-                    int bottomPadding = isFullScreen(mRootAppAreaState) ? 0
-                            : mControlBarHeightMinusCornerRadius;
-                    mRootAppAreaContainer.setPadding(/* start= */ 0, /* top= */ 0, /* end= */ 0,
-                            bottomPadding);
                 }
             };
 
@@ -651,6 +653,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(true));
                 mGripBar.post(() -> updateBottomOverlap(STATE_OPEN));
                 mRootTaskView.setZOrderOnTop(false);
+                mRootTaskView.onLocationChanged();
                 mIsAnimating = false;
             };
         } else if (newRootAppAreaState == STATE_CLOSE) {
@@ -665,6 +668,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(false));
                 mRootTaskView.setZOrderOnTop(false);
                 mIsAnimating = false;
+                mRootTaskView.onLocationChanged();
                 updateNonAppAreaComponents(newRootAppAreaState);
             };
         } else if (newRootAppAreaState == STATE_FULL_WITHOUT_SYS_BAR) {
@@ -676,6 +680,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITHOUT_SYS_BAR));
                 mIsAnimating = false;
                 setHomeScreenBottomMargin(/* bottomMargin= */ 0);
+                mRootTaskView.onLocationChanged();
                 updateNonAppAreaComponents(newRootAppAreaState);
             };
         } else {
@@ -689,6 +694,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
                 mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITH_SYS_BAR));
                 mIsAnimating = false;
+                mRootTaskView.onLocationChanged();
                 updateNonAppAreaComponents(newRootAppAreaState);
             };
         }
