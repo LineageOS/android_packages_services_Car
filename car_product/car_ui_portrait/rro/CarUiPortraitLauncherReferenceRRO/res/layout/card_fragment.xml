@@ -52,6 +52,8 @@
                 android:id="@+id/card_icon"
                 android:layout_width="@dimen/control_bar_app_icon_size"
                 android:layout_height="@dimen/control_bar_app_icon_size"
+                android:layout_marginEnd="@dimen/control_bar_app_icon_margin"
+                android:layout_marginBottom="@dimen/control_bar_app_icon_margin"
                 android:layout_gravity="bottom|end"
                 android:scaleType="centerInside"/>
         </FrameLayout>
