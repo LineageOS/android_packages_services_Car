@@ -272,18 +272,22 @@ public class MainActivity extends AppCompatActivity
 
     private void showStagedUxRestrictionsConfig() {
         try {
-            CarUxRestrictionsConfiguration stagedConfig =
-                    mCarUxRestrictionsManager.getStagedConfigs().get(0);
-            if (stagedConfig == null) {
+            List<CarUxRestrictionsConfiguration> stagedConfigs =
+                    mCarUxRestrictionsManager.getStagedConfigs();
+            if (stagedConfigs == null || stagedConfigs.size() == 0) {
                 new AlertDialog.Builder(this)
                         .setMessage(R.string.no_staged_config)
                         .show();
                 return;
             }
             CharArrayWriter charWriter = new CharArrayWriter();
-            JsonWriter writer = new JsonWriter(charWriter);
-            writer.setIndent("\t");
-            stagedConfig.writeJson(writer);
+            for (int i = 0; i < stagedConfigs.size(); i++) {
+                CarUxRestrictionsConfiguration stagedConfig =
+                        stagedConfigs.get(i);
+                JsonWriter writer = new JsonWriter(charWriter);
+                writer.setIndent("\t");
+                stagedConfig.writeJson(writer);
+            }
             new AlertDialog.Builder(this)
                     .setTitle(R.string.staged_config_title)
                     .setMessage(charWriter.toString())
@@ -306,8 +310,7 @@ public class MainActivity extends AppCompatActivity
 
             CharArrayWriter charWriter = new CharArrayWriter();
             for (int i = 0; i < configs.size(); i++) {
-                CarUxRestrictionsConfiguration prodConfig =
-                        mCarUxRestrictionsManager.getConfigs().get(i);
+                CarUxRestrictionsConfiguration prodConfig = configs.get(i);
                 JsonWriter writer = new JsonWriter(charWriter);
                 writer.setIndent("\t");
                 // TODO(b/241589812): Also show the config for the current display.

@@ -685,6 +685,8 @@ package android.car.drivingstate {
 
   public final class CarUxRestrictionsConfiguration implements android.os.Parcelable {
     method public int describeContents();
+    method public int getDisplayType();
+    method public int getOccupantZoneId();
     method @Nullable public Integer getPhysicalPort();
     method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, float);
     method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, @FloatRange(from=0.0f) float, @NonNull String);

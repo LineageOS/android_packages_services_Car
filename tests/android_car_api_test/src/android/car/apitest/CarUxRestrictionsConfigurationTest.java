@@ -127,6 +127,44 @@ public final class CarUxRestrictionsConfigurationTest extends CarLessApiTestBase
     }
 
     @Test
+    public void testBuilderValidation_twoWaysToIdentifyDisplay() {
+        Builder builder = new Builder()
+                .setPhysicalPort(1)
+                .setOccupantZoneId(1)
+                .setDisplayType(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThrows(IllegalStateException.class, () -> builder.build());
+    }
+
+    @Test
+    public void testBuilderValidation_missingDisplayType() {
+        Builder builder = new Builder()
+                .setOccupantZoneId(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThrows(IllegalStateException.class, () -> builder.build());
+    }
+
+    @Test
+    public void testBuilderValidation_missingOccupantZoneId() {
+        Builder builder = new Builder()
+                .setDisplayType(1)
+                .setUxRestrictions(DRIVING_STATE_MOVING, true, UX_RESTRICTIONS_FULLY_RESTRICTED);
+        assertThrows(IllegalStateException.class, () -> builder.build());
+    }
+
+    @Test
+    public void testBuilderValidation_invalidOccupantZoneId() {
+        Builder builder = new Builder();
+        assertThrows(IllegalArgumentException.class, () -> builder.validateOccupantZoneId(-1));
+    }
+
+    @Test
+    public void testBuilderValidation_invalidDisplayType() {
+        Builder builder = new Builder();
+        assertThrows(IllegalArgumentException.class, () -> builder.validateDisplayType(0));
+    }
+
+    @Test
     public void testBuilderValidation_NonMovingStateHasOneRestriction() {
         Builder builder = new Builder();
         builder.setUxRestrictions(DRIVING_STATE_IDLING,
@@ -817,14 +855,55 @@ public final class CarUxRestrictionsConfigurationTest extends CarLessApiTestBase
                         .setSpeedRange(new Builder.SpeedRange(0f, 5f)))
                 .build();
         Parcel parcel = Parcel.obtain();
-        config.writeToParcel(parcel, 0);
+        try {
+            config.writeToParcel(parcel, 0);
 
-        // Reset parcel data position for reading.
-        parcel.setDataPosition(0);
+            // Reset parcel data position for reading.
+            parcel.setDataPosition(0);
 
-        CarUxRestrictionsConfiguration deserialized =
-                CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
-        assertThat(config).isEqualTo(deserialized);
+            CarUxRestrictionsConfiguration deserialized =
+                    CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
+            assertThat(config).isEqualTo(deserialized);
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void testParcelableConfiguration_displayConfig() {
+        CarUxRestrictionsConfiguration config = new CarUxRestrictionsConfiguration.Builder()
+                .setOccupantZoneId(1)
+                .setDisplayType(1)
+                .setMaxStringLength(1)
+                .setMaxCumulativeContentItems(1)
+                .setMaxContentDepth(1)
+                .setUxRestrictions(DRIVING_STATE_PARKED,
+                        new DrivingStateRestrictions().setRestrictions(
+                                UX_RESTRICTIONS_FULLY_RESTRICTED))
+                .setUxRestrictions(DRIVING_STATE_PARKED, new DrivingStateRestrictions()
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER))
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions())
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 5f)))
+                .build();
+        Parcel parcel = Parcel.obtain();
+        try {
+            config.writeToParcel(parcel, 0);
+
+            // Reset parcel data position for reading.
+            parcel.setDataPosition(0);
+
+            CarUxRestrictionsConfiguration deserialized =
+                    CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
+            expectWithMessage("UxR config with display config serialize/deserialize")
+                    .that(config)
+                    .isEqualTo(deserialized);
+        } finally {
+            parcel.recycle();
+        }
     }
 
     @Test
@@ -840,15 +919,19 @@ public final class CarUxRestrictionsConfigurationTest extends CarLessApiTestBase
                                 UX_RESTRICTIONS_FULLY_RESTRICTED))
                 .build();
         Parcel parcel = Parcel.obtain();
-        config.writeToParcel(parcel, 0);
+        try {
+            config.writeToParcel(parcel, 0);
 
-        // Reset parcel data position for reading.
-        parcel.setDataPosition(0);
+            // Reset parcel data position for reading.
+            parcel.setDataPosition(0);
 
-        CarUxRestrictionsConfiguration deserialized =
-                CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
-        assertThat(config).isEqualTo(deserialized);
-        assertThat(deserialized.getPhysicalPort()).isNull();
+            CarUxRestrictionsConfiguration deserialized =
+                    CarUxRestrictionsConfiguration.CREATOR.createFromParcel(parcel);
+            assertThat(config).isEqualTo(deserialized);
+            assertThat(deserialized.getPhysicalPort()).isNull();
+        } finally {
+            parcel.recycle();
+        }
     }
 
     /**
