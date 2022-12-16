@@ -16,7 +16,6 @@
 package android.car.oem;
 
 import android.annotation.NonNull;
-import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.media.AudioFocusInfo;
 
@@ -32,7 +31,6 @@ import java.util.List;
  *
  * @hide
  */
-@SystemApi
 public interface OemCarAudioFocusService extends OemCarServiceComponent {
     /**
      * Updates audio focus change. It is one way call for OEM Service.
