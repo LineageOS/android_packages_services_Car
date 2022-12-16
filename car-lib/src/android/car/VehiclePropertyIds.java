@@ -349,6 +349,30 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_RPM = 291504901;
     /**
+     * Represents feature for engine idle automatic stop.
+     *
+     * If true, the vehicle may automatically shut off the engine when it is not needed and then
+     * automatically restart it when needed.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CAR_ENGINE_DETAILED} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624;
+    /**
      * Reports wheel ticks.
      *
      * <ul>

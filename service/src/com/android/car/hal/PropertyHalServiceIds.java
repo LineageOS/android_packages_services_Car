@@ -474,6 +474,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.ENGINE_RPM, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_IDLE_AUTO_STOP_ENABLED, new Pair<>(
+                Car.PERMISSION_CAR_ENGINE_DETAILED,
+                Car.PERMISSION_CAR_ENGINE_DETAILED));
         mHalPropIdToPermissions.put(VehicleProperty.WHEEL_TICK, new Pair<>(
                 Car.PERMISSION_SPEED,
                 null));
