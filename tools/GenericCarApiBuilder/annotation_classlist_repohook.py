@@ -64,12 +64,31 @@ java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiB
                                     "--ANDROID-BUILD-TOP " + rootDir
 new_hidden_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
 
+# Determine all remaining hidden, system or public APIs:
+java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
+                                    "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
+                                    "--ANDROID-BUILD-TOP " + rootDir
+all_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
+
 # read existing hidden APIs
 previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
                              "/car_hidden_apis.txt"
+
+# TODO(b/263402554): Ideally the file `car_hidden_apis_current_release` should be a list of
+# the hidden APIs of the previous release, because we want to compare with hidden APIs
+# already exposed in previous releases. For example, if some hidden API is added in T-QPR
+# and removed in master, then we should be able to figure it out. Also accordingly, we have
+# to update this file for each release. There could be multiple such files for different releases.
+previous_hidden_apis_current_release_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+                                                      "/car_hidden_apis_current_release.txt"
+
 previous_hidden_apis = []
 with open(previous_hidden_apis_path) as f:
     previous_hidden_apis.extend(f.read().splitlines())
+
+previous_hidden_apis_current_release = []
+with open(previous_hidden_apis_current_release_path) as f:
+    previous_hidden_apis_current_release.extend(f.read().splitlines())
 
 # All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
@@ -84,4 +103,16 @@ if len(modified_or_added_hidden_api) > 0:
     print("\nIf adding hidden API is the only way, please run following command to fix repohook error")
     print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
           "--update-hidden-api-for-test")
+    sys.exit(1)
+
+# Hidden APIs should not be removed. Check that any of the previously hidden apis still exist in the remaining apis.
+# This is different from hidden APIs that were upgraded to system or public APIs.
+removed_hidden_api = []
+for api in previous_hidden_apis_current_release:
+    if api not in all_apis:
+        removed_hidden_api.append(api)
+
+if len(removed_hidden_api) > 0:
+    print("\nHidden APIs should not be removed. Following Hidden APIs were removed:")
+    print("\n".join(removed_hidden_api))
     sys.exit(1)
