@@ -106,6 +106,7 @@
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textColor">@color/car_on_primary</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Small" parent="Widget.DeviceDefault.Button">
