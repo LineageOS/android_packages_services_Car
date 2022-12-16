@@ -1915,6 +1915,35 @@ public final class VehiclePropertyIds {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SEAT_LUMBAR_VERTICAL_MOVE = 356518818;
     /**
+     * Represents property that indicates the current walk-in position of the seat.
+     *
+     * {@link CarPropertyConfig#getMinValue(int)} indicates the normal seat position.
+     * {@link CarPropertyConfig#getMaxValue(int)} indicates the seat is in the full walk-in
+     * position.
+     *
+     * All integers in between the min and max values are supported and indicate a transition state
+     * between the normal and walk-in positions. The area IDs match the seats that actually move
+     * when the walk-in feature activates.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Int32} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
+     *  write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_WALK_IN_POS = 356518819;
+    /**
      * Seat Occupancy
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_SEATS.
