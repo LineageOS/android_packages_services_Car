@@ -36,6 +36,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.remoteaccess.CarRemoteAccessManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -250,6 +251,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     @CarPowerManager.CarPowerState
     private int mStateForCompletion = CarPowerManager.STATE_INVALID;
+    @GuardedBy("mLock")
+    @CarRemoteAccessManager.NextPowerState
+    private int mLastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_OFF;
 
     @GuardedBy("mLock")
     @Nullable
@@ -419,6 +423,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mSystemInterface.isSystemSupportingDeepSleep());
             writer.printf("kernel support S2D: %b\n",
                     mSystemInterface.isSystemSupportingHibernation());
+            writer.printf("mLastShutdownState: %d\n", mLastShutdownState);
         }
         mPolicyReader.dump(writer);
         mPowerComponentHandler.dump(writer);
@@ -580,8 +585,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
+        int lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_OFF;
         switch (carPowerStateListenerState) {
             case CarPowerManager.STATE_WAIT_FOR_VHAL:
+                lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_OFF;
                 mHal.sendWaitForVhal();
                 break;
             case CarPowerManager.STATE_SHUTDOWN_CANCELLED:
@@ -591,11 +598,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendShutdownCancel();
                 break;
             case CarPowerManager.STATE_SUSPEND_EXIT:
+                lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM;
                 mHal.sendSleepExit();
                 break;
             case CarPowerManager.STATE_HIBERNATION_EXIT:
+                lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK;
                 mHal.sendHibernationExit();
                 break;
+        }
+        synchronized (mLock) {
+            mLastShutdownState = lastShutdownState;
         }
         if (mWifiAdjustmentForSuspend) restoreWifi();
     }
@@ -2435,6 +2447,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
+    }
+
+    /**
+     * Returns the last shutdown state.
+     */
+    public int getLastShutdownState() {
+        synchronized (mLock) {
+            return mLastShutdownState;
+        }
     }
 
     /**

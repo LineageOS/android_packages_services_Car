@@ -25,8 +25,9 @@ import android.annotation.SystemApi;
 import android.car.VehicleAreaType;
 import android.car.VehicleAreaType.VehicleAreaTypeValue;
 import android.car.VehiclePropertyIds;
-import android.car.VehiclePropertyType;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
+import android.car.hardware.property.AreaIdConfig;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -35,7 +36,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,13 +57,14 @@ public final class CarPropertyConfig<T> implements Parcelable {
     private final float mMaxSampleRate;
     private final float mMinSampleRate;
     private final int mPropertyId;
-    private final SparseArray<AreaConfig<T>> mAreaIdToAreaConfig;
+    private final List<AreaIdConfig<T>> mAreaIdConfigs;
+    private final SparseArray<AreaIdConfig<T>> mAreaIdToAreaIdConfig;
     private final Class<T> mType;
 
     private CarPropertyConfig(int access, int areaType, int changeMode,
             ArrayList<Integer> configArray, String configString,
             float maxSampleRate, float minSampleRate, int propertyId,
-            SparseArray<AreaConfig<T>> areaIdToAreaConfig, Class<T> type) {
+            List<AreaIdConfig<T>> areaIdConfigs, Class<T> type) {
         mAccess = access;
         mAreaType = areaType;
         mChangeMode = changeMode;
@@ -72,7 +73,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
         mMaxSampleRate = maxSampleRate;
         mMinSampleRate = minSampleRate;
         mPropertyId = propertyId;
-        mAreaIdToAreaConfig = areaIdToAreaConfig;
+        mAreaIdConfigs = areaIdConfigs;
+        mAreaIdToAreaIdConfig = generateAreaIdToAreaIdConfig(areaIdConfigs);
         mType = type;
     }
 
@@ -247,8 +249,33 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     *
-     * @return true if this property doesn't hold car area-specific configuration.
+     * @return list of {@link AreaIdConfig} instances for this property.
+     */
+    @NonNull
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public List<AreaIdConfig<T>> getAreaIdConfigs() {
+        return Collections.unmodifiableList(mAreaIdConfigs);
+    }
+
+    /**
+     * @return {@link AreaIdConfig} instance for passed {@code areaId}
+     * @throws IllegalArgumentException if {@code areaId} is not supported for property
+     */
+    @NonNull
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public AreaIdConfig<T> getAreaIdConfig(int areaId) {
+        if (!mAreaIdToAreaIdConfig.contains(areaId)) {
+            throw new IllegalArgumentException("Area ID: " + Integer.toHexString(areaId)
+                    + " is not supported for property ID: " + VehiclePropertyIds.toString(
+                    mPropertyId));
+        }
+        return mAreaIdToAreaIdConfig.get(areaId);
+    }
+
+    /**
+     * @return true if this property is area type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isGlobalProperty() {
@@ -262,7 +289,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaCount() {
-        return mAreaIdToAreaConfig.size();
+        return mAreaIdConfigs.size();
     }
 
     /**
@@ -271,6 +298,10 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * and is represented using a bitmask of Area enums. Different AreaTypes may
      * not be mixed in a single AreaID. For instance, a window area cannot be
      * combined with a seat area in an AreaID.
+     *
+     * For properties that {@link #getAreaType()} equals
+     * {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, it has a single area ID of {@code 0}.
+     *
      * Rules for mapping a zoned property to AreaIDs:
      *  - A property must be mapped to an array of AreaIDs that are impacted when
      *    the property value changes.
@@ -287,9 +318,9 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
     public int[] getAreaIds() {
-        int[] areaIds = new int[mAreaIdToAreaConfig.size()];
+        int[] areaIds = new int[mAreaIdConfigs.size()];
         for (int i = 0; i < areaIds.length; i++) {
-            areaIds[i] = mAreaIdToAreaConfig.keyAt(i);
+            areaIds[i] = mAreaIdConfigs.get(i).getAreaId();
         }
         return areaIds;
     }
@@ -301,14 +332,12 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getFirstAndOnlyAreaId() {
-        if (mAreaIdToAreaConfig.size() != 1) {
+        if (mAreaIdConfigs.size() != 1) {
             throw new IllegalStateException("Expected one and only area in this property. PropId: "
                     + VehiclePropertyIds.toString(mPropertyId));
         }
-        return mAreaIdToAreaConfig.keyAt(0);
+        return mAreaIdConfigs.get(0).getAreaId();
     }
-
-
 
     /**
      *
@@ -318,53 +347,61 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean hasArea(int areaId) {
-        return mAreaIdToAreaConfig.indexOfKey(areaId) >= 0;
+        return mAreaIdToAreaIdConfig.indexOfKey(areaId) >= 0;
     }
 
     /**
+     * @deprecated - use {@link #getAreaIdConfigs()} or {@link #getAreaIdConfig(int)} instead.
      *
      * @param areaId
      * @return Min value in given areaId. Null if not have min value in given area.
      */
+    @Deprecated
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMinValue(int areaId) {
-        AreaConfig<T> area = mAreaIdToAreaConfig.get(areaId);
-        return area == null ? null : area.getMinValue();
+        AreaIdConfig<T> areaIdConfig = mAreaIdToAreaIdConfig.get(areaId);
+        return areaIdConfig == null ? null : areaIdConfig.getMinValue();
     }
 
     /**
+     * @deprecated - use {@link #getAreaIdConfigs()} or {@link #getAreaIdConfig(int)} instead.
      *
      * @param areaId
      * @return Max value in given areaId. Null if not have max value in given area.
      */
+    @Deprecated
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue(int areaId) {
-        AreaConfig<T> area = mAreaIdToAreaConfig.get(areaId);
-        return area == null ? null : area.getMaxValue();
+        AreaIdConfig<T> areaIdConfig = mAreaIdToAreaIdConfig.get(areaId);
+        return areaIdConfig == null ? null : areaIdConfig.getMaxValue();
     }
 
     /**
+     * @deprecated - use {@link #getAreaIdConfigs()} or {@link #getAreaIdConfig(int)} instead.
      *
      * @return Min value in areaId 0. Null if not have min value.
      */
+    @Deprecated
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMinValue() {
-        AreaConfig<T> area = mAreaIdToAreaConfig.get(0);
-        return area == null ? null : area.getMinValue();
+        AreaIdConfig<T> areaIdConfig = mAreaIdToAreaIdConfig.get(0);
+        return areaIdConfig == null ? null : areaIdConfig.getMinValue();
     }
 
     /**
+     * @deprecated - use {@link #getAreaIdConfigs()} or {@link #getAreaIdConfig(int)} instead.
      *
      * @return Max value in areaId 0. Null if not have max value.
      */
+    @Deprecated
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue() {
-        AreaConfig<T> area = mAreaIdToAreaConfig.get(0);
-        return area == null ? null : area.getMaxValue();
+        AreaIdConfig<T> areaIdConfig = mAreaIdToAreaIdConfig.get(0);
+        return areaIdConfig == null ? null : areaIdConfig.getMaxValue();
     }
 
     @Override
@@ -388,11 +425,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         dest.writeFloat(mMaxSampleRate);
         dest.writeFloat(mMinSampleRate);
         dest.writeInt(mPropertyId);
-        dest.writeInt(mAreaIdToAreaConfig.size());
-        for (int i = 0; i < mAreaIdToAreaConfig.size(); i++) {
-            dest.writeInt(mAreaIdToAreaConfig.keyAt(i));
-            dest.writeParcelable(mAreaIdToAreaConfig.valueAt(i), flags);
-        }
+        dest.writeList(mAreaIdConfigs);
         dest.writeString(mType.getName());
     }
 
@@ -410,13 +443,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
         mMaxSampleRate = in.readFloat();
         mMinSampleRate = in.readFloat();
         mPropertyId = in.readInt();
-        int areaSize = in.readInt();
-        mAreaIdToAreaConfig = new SparseArray<>(areaSize);
-        for (int i = 0; i < areaSize; i++) {
-            int areaId = in.readInt();
-            AreaConfig<T> area = in.readParcelable(getClass().getClassLoader());
-            mAreaIdToAreaConfig.put(areaId, area);
-        }
+        mAreaIdConfigs = in.readArrayList(getClass().getClassLoader());
+        mAreaIdToAreaIdConfig = generateAreaIdToAreaIdConfig(mAreaIdConfigs);
         String className = in.readString();
         try {
             mType = (Class<T>) Class.forName(className);
@@ -451,81 +479,11 @@ public final class CarPropertyConfig<T> implements Parcelable {
                 + ", mConfigString=" + mConfigString
                 + ", mMaxSampleRate=" + mMaxSampleRate
                 + ", mMinSampleRate=" + mMinSampleRate
-                + ", mAreaIdToAreaConfig =" + mAreaIdToAreaConfig
+                + ", mAreaIdConfigs =" + mAreaIdConfigs
                 + ", mType=" + mType
                 + '}';
     }
 
-    /**
-     * Represents min/max value of car property.
-     * @param <T>
-     * @hide
-     */
-    public static class AreaConfig<T> implements Parcelable {
-        @Nullable private final T mMinValue;
-        @Nullable private final T mMaxValue;
-
-        private AreaConfig(T minValue, T maxValue) {
-            mMinValue = minValue;
-            mMaxValue = maxValue;
-        }
-
-        @AddedInOrBefore(majorVersion = 33)
-        public static final Parcelable.Creator<AreaConfig<Object>> CREATOR =
-                getCreator(Object.class);
-
-        private static <E> Parcelable.Creator<AreaConfig<E>> getCreator(final Class<E> clazz) {
-            return new Creator<AreaConfig<E>>() {
-                @Override
-                public AreaConfig<E> createFromParcel(Parcel source) {
-                    return new AreaConfig<>(source);
-                }
-
-                @Override @SuppressWarnings("unchecked")
-                public AreaConfig<E>[] newArray(int size) {
-                    return (AreaConfig<E>[]) Array.newInstance(clazz, size);
-                }
-            };
-        }
-
-        @SuppressWarnings("unchecked")
-        private AreaConfig(Parcel in) {
-            mMinValue = (T) in.readValue(getClass().getClassLoader());
-            mMaxValue = (T) in.readValue(getClass().getClassLoader());
-        }
-
-        @AddedInOrBefore(majorVersion = 33)
-        @Nullable public T getMinValue() {
-            return mMinValue;
-        }
-
-        @AddedInOrBefore(majorVersion = 33)
-        @Nullable public T getMaxValue() {
-            return mMaxValue;
-        }
-
-        @Override
-        @AddedInOrBefore(majorVersion = 33)
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        @AddedInOrBefore(majorVersion = 33)
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeValue(mMinValue);
-            dest.writeValue(mMaxValue);
-        }
-
-        @Override
-        @AddedInOrBefore(majorVersion = 33)
-        public String toString() {
-            return "CarAreaConfig{"
-                    + "mMinValue=" + mMinValue
-                    + ", mMaxValue=" + mMaxValue
-                    + '}';
-        }
-    }
 
     /**
      * Prepare an instance of CarPropertyConfig
@@ -537,7 +495,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public static <T> Builder<T> newBuilder(Class<T> type, int propertyId, int areaType,
                                             int areaCapacity) {
-        return new Builder<>(areaCapacity, areaType, propertyId, type);
+        return new Builder<>(areaType, propertyId, type);
     }
 
 
@@ -549,7 +507,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static <T> Builder<T> newBuilder(Class<T> type, int propertyId, int areaType) {
-        return new Builder<>(0, areaType, propertyId, type);
+        return new Builder<>(areaType, propertyId, type);
     }
 
 
@@ -562,63 +520,78 @@ public final class CarPropertyConfig<T> implements Parcelable {
         private int mAccess;
         private final int mAreaType;
         private int mChangeMode;
-        private final ArrayList<Integer> mConfigArray;
+        private final ArrayList<Integer> mConfigArray = new ArrayList<>();
         private String mConfigString;
         private float mMaxSampleRate;
         private float mMinSampleRate;
         private final int mPropertyId;
-        private final SparseArray<AreaConfig<T>> mAreaIdToAreaConfig;
+        private final List<AreaIdConfig<T>> mAreaIdConfigs = new ArrayList<>();
         private final Class<T> mType;
 
-        private Builder(int areaCapacity, int areaType, int propertyId, Class<T> type) {
+        private Builder(int areaType, int propertyId, Class<T> type) {
             mAreaType = areaType;
-            mConfigArray = new ArrayList<>();
             mPropertyId = propertyId;
-            if (areaCapacity != 0) {
-                mAreaIdToAreaConfig = new SparseArray<>(areaCapacity);
-            } else {
-                mAreaIdToAreaConfig = new SparseArray<>();
-            }
             mType = type;
         }
 
         /**
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         *
          * Add supported areas parameter to CarPropertyConfig
          *
          * @return Builder<T>
          */
+        @Deprecated
         @AddedInOrBefore(majorVersion = 33)
         public Builder<T> addAreas(int[] areaIds) {
-            for (int id : areaIds) {
-                mAreaIdToAreaConfig.put(id, null);
+            for (int areaId : areaIds) {
+                mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
             }
             return this;
         }
 
         /**
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         *
          * Add area to CarPropertyConfig
          *
          * @return Builder<T>
          */
+        @Deprecated
         @AddedInOrBefore(majorVersion = 33)
         public Builder<T> addArea(int areaId) {
-            return addAreaConfig(areaId, null, null);
+            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).build());
+            return this;
         }
 
         /**
+         * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
+         *
          * Add areaConfig to CarPropertyConfig
          *
          * @return Builder<T>
          */
+        @Deprecated
         @AddedInOrBefore(majorVersion = 33)
         public Builder<T> addAreaConfig(int areaId, T min, T max) {
-            if (!isRangeAvailable(min, max)) {
-                mAreaIdToAreaConfig.put(areaId, null);
-            } else {
-                mAreaIdToAreaConfig.put(areaId, new AreaConfig<>(min, max));
-            }
+            mAreaIdConfigs.add(new AreaIdConfig.Builder<T>(areaId).setMinValue(min).setMaxValue(
+                    max).build());
             return this;
         }
+
+        /**
+         * Add {@link AreaIdConfig} to CarPropertyConfig.
+         *
+         * @return Builder<T>
+         */
+        @NonNull
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public Builder<T> addAreaIdConfig(@NonNull AreaIdConfig<T> areaIdConfig) {
+            mAreaIdConfigs.add(areaIdConfig);
+            return this;
+        }
+
 
         /**
          * Set access parameter to CarPropertyConfig
@@ -694,24 +667,17 @@ public final class CarPropertyConfig<T> implements Parcelable {
         public CarPropertyConfig<T> build() {
             return new CarPropertyConfig<>(mAccess, mAreaType, mChangeMode, mConfigArray,
                                            mConfigString, mMaxSampleRate, mMinSampleRate,
-                                           mPropertyId, mAreaIdToAreaConfig, mType);
+                                           mPropertyId, mAreaIdConfigs, mType);
         }
+    }
 
-        private boolean isRangeAvailable(T min, T max) {
-            if (min == null || max == null) {
-                return false;
-            }
-            int propertyType = mPropertyId & VehiclePropertyType.MASK;
-            switch (propertyType) {
-                case VehiclePropertyType.INT32:
-                    return (Integer) min  != 0 || (Integer) max != 0;
-                case VehiclePropertyType.INT64:
-                    return (Long) min != 0L || (Long) max != 0L;
-                case VehiclePropertyType.FLOAT:
-                    return (Float) min != 0f || (Float) max != 0f;
-                default:
-                    return false;
-            }
+    private static <U> SparseArray<AreaIdConfig<U>> generateAreaIdToAreaIdConfig(
+            List<AreaIdConfig<U>> areaIdConfigs) {
+        SparseArray<AreaIdConfig<U>> areaIdToAreaIdConfig = new SparseArray<>(areaIdConfigs.size());
+        for (int i = 0; i < areaIdConfigs.size(); i++) {
+            AreaIdConfig<U> areaIdConfig = areaIdConfigs.get(i);
+            areaIdToAreaIdConfig.put(areaIdConfig.getAreaId(), areaIdConfig);
         }
+        return areaIdToAreaIdConfig;
     }
 }

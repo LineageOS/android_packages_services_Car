@@ -26,7 +26,7 @@
                 </shape>
             </item>
             <item android:gravity="center"
-                android:drawable="@drawable/chevron_down_icon"/>
+                  android:drawable="@drawable/chevron_down_icon"/>
         </layer-list>
     </item>
     <item>
@@ -38,7 +38,7 @@
                 </shape>
             </item>
             <item android:gravity="center"
-                android:drawable="@drawable/chevron_up_icon"/>
+                  android:drawable="@drawable/chevron_up_icon"/>
         </layer-list>
     </item>
 </selector>
