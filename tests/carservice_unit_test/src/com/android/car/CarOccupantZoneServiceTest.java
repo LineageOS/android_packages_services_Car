@@ -284,6 +284,40 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
+    public void testFindDisplayConfigForDisplayId() {
+        mService.init();
+
+        DisplayConfig displayConfig0 = mService.findDisplayConfigForDisplayId(0);
+        assertThat(displayConfig0.occupantZoneId).isEqualTo(0);
+        assertThat(displayConfig0.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        DisplayConfig displayConfig2 = mService.findDisplayConfigForDisplayId(2);
+        assertThat(displayConfig2.occupantZoneId).isEqualTo(1);
+        assertThat(displayConfig2.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        DisplayConfig displayConfig4 = mService.findDisplayConfigForDisplayId(4);
+        assertThat(displayConfig4.occupantZoneId).isEqualTo(3);
+        assertThat(displayConfig4.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+    }
+
+    @Test
+    public void testFindDisplayConfigForPort() {
+        mService.init();
+
+        DisplayConfig displayConfig0 = mService.findDisplayConfigForPort(10);
+        assertThat(displayConfig0.occupantZoneId).isEqualTo(0);
+        assertThat(displayConfig0.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        DisplayConfig displayConfig2 = mService.findDisplayConfigForPort(12);
+        assertThat(displayConfig2.occupantZoneId).isEqualTo(1);
+        assertThat(displayConfig2.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        DisplayConfig displayConfig4 = mService.findDisplayConfigForPort(14);
+        assertThat(displayConfig4.occupantZoneId).isEqualTo(3);
+        assertThat(displayConfig4.displayType).isEqualTo(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+    }
+
+    @Test
     public void testDefaultOccupantConfig() {
         mService.init();
 

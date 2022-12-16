@@ -111,8 +111,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @GuardedBy("mLock")
     private final SparseArray<OccupantZoneInfo> mOccupantsConfig = new SparseArray<>();
 
-    @VisibleForTesting
-    static class DisplayConfig {
+    /**
+     * The config of a display identified by occupant zone id and display type.
+     */
+    public static final class DisplayConfig {
         public final int displayType;
         public final int occupantZoneId;
         public final int[] inputTypes;
@@ -629,6 +631,26 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    /**
+     * Finds the DisplayConfig for a logical display id.
+     */
+    @Nullable
+    public DisplayConfig findDisplayConfigForDisplayId(int displayId) {
+        synchronized (mLock) {
+            return findDisplayConfigForDisplayIdLocked(displayId);
+        }
+    }
+
+    /**
+     * Finds the DisplayConfig for a physical display port.
+     */
+    @Nullable
+    public DisplayConfig findDisplayConfigForPort(int portAddress) {
+        synchronized (mLock) {
+            return findDisplayConfigForPortLocked(portAddress);
+        }
+    }
+
     @GuardedBy("mLock")
     @Nullable
     private DisplayConfig findDisplayConfigForDisplayIdLocked(int displayId) {
@@ -650,6 +672,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
         }
         return mDisplayUniqueIdConfigs.get(DisplayHelper.getUniqueId(display));
+    }
+
+    @GuardedBy("mLock")
+    @Nullable
+    private DisplayConfig findDisplayConfigForPortLocked(int portAddress) {
+        return portAddress != INVALID_PORT ? mDisplayPortConfigs.get(portAddress) : null;
     }
 
     @Override
