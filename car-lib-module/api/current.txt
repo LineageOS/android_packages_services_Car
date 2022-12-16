@@ -756,6 +756,7 @@ package android.car.hardware.property {
     method public int getAreaId();
     method @Nullable public T getMaxValue();
     method @Nullable public T getMinValue();
+    method @NonNull public java.util.List<T> getSupportedEnumValues();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.AreaIdConfig<java.lang.Object>> CREATOR;
   }

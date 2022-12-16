@@ -55,6 +55,7 @@ public final class HalPropConfigTest {
     private static final long MAX_INT64_VALUE = 30;
     private static final float MIN_FLOAT_VALUE = 31.0f;
     private static final float MAX_FLOAT_VALUE = 40.0f;
+    private static final long[] SUPPORTED_ENUM_VALUES = new long[]{99, 100};
 
     private static android.hardware.automotive.vehicle.V2_0.VehiclePropConfig
             getTestHidlPropConfig() {
@@ -106,6 +107,7 @@ public final class HalPropConfigTest {
         aidlAreaConfig.maxInt64Value = MAX_INT64_VALUE;
         aidlAreaConfig.minFloatValue = MIN_FLOAT_VALUE;
         aidlAreaConfig.maxFloatValue = MAX_FLOAT_VALUE;
+        aidlAreaConfig.supportedEnumValues = SUPPORTED_ENUM_VALUES;
         return aidlAreaConfig;
     }
 
@@ -321,5 +323,39 @@ public final class HalPropConfigTest {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(TEST_AREA_ID);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
+    }
+
+    @Test
+    public void toCarPropertyConfig_aidlHandlesNullSupportedEnumsValues() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
+    public void toCarPropertyConfig_aidlHandlesSupportedEnumsValues() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getSupportedEnumValues()).containsExactly(99, 100);
+    }
+
+    @Test
+    public void toCarPropertyConfig_hidlGetSupportedEnumsValuesReturnsEmpty() {
+        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlVehiclePropConfig =
+                getTestHidlPropConfig();
+        hidlVehiclePropConfig.areaConfigs =
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig>(
+                        Arrays.asList(getTestHidlAreaConfig()));
+        HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
     }
 }
