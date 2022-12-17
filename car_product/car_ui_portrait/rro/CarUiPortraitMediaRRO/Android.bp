@@ -27,5 +27,6 @@ android_app {
         "androidx-constraintlayout_constraintlayout-solver",
         "car-apps-common",
         "car-ui-lib",
+        "car-portrait-ui-common"
     ],
 }

@@ -35,7 +35,7 @@
             android:id="@+id/thumbnail"
             android:layout_width="@dimen/media_browse_grid_icons_item_art_size"
             android:layout_height="@dimen/media_browse_grid_icons_item_art_size"
-            style="@style/MediaIconContainerStyle"
+            style="@style/MediaGridIconContainerStyle"
             android:scaleType="centerCrop"/>
     </FrameLayout>
 
@@ -107,9 +107,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:includeFontPadding="false"
+                android:includeFontPadding="true"
                 android:duplicateParentState="true"
-                android:padding="@dimen/media_browse_grid_item_padding"
+                android:paddingHorizontal="@dimen/media_browse_grid_item_padding"
                 android:layout_marginBottom="@dimen/media_browse_grid_item_margin_bottom" />
         </LinearLayout>
     </LinearLayout>
