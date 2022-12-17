@@ -20,10 +20,13 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.car.CarOccupantZoneManager;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.content.Context;
@@ -171,6 +174,10 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
         expected.add(2);
         for (CarUxRestrictionsConfiguration config : configs) {
             assertTrue(expected.contains(config.getPhysicalPort()));
+            assertThat(config.getOccupantZoneId()).isEqualTo(
+                    CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID);
+            assertThat(config.getDisplayType()).isEqualTo(
+                    CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN);
         }
     }
 
@@ -187,5 +194,19 @@ public class CarUxRestrictionsConfigurationXmlParserTest {
             assertEquals(1, r.getMaxCumulativeContentItems());
             assertEquals(1, r.getMaxRestrictedStringLength());
         }
+    }
+
+    @Test
+    public void testParsingConfigurationWithDisplayConfig()
+            throws IOException, XmlPullParserException {
+        List<CarUxRestrictionsConfiguration> configs =
+                CarUxRestrictionsConfigurationXmlParser.parse(
+                        getContext(), R.xml.ux_restrictions_display_config);
+
+        assertThat(configs).hasSize(1);
+        CarUxRestrictionsConfiguration config = configs.get(0);
+        // occupant zone id and display type are specified in the xml file.
+        assertThat(config.getOccupantZoneId()).isEqualTo(1);
+        assertThat(config.getDisplayType()).isEqualTo(1);
     }
 }

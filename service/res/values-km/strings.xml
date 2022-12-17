@@ -138,10 +138,8 @@
     <string name="car_permission_desc_read_car_display_units" msgid="6891898275208542385">"អាន​អំពីផ្ទាំងអេក្រង់។"</string>
     <string name="car_permission_label_control_car_display_units" msgid="4975303668183173076">"គ្រប់គ្រងផ្ទាំងអេក្រង់​របស់​រថយន្ត"</string>
     <string name="car_permission_desc_control_car_display_units" msgid="8744397195158556945">"គ្រប់គ្រងផ្ទាំងអេក្រង់​។"</string>
-    <!-- no translation found for car_permission_label_control_car_powertrain (234831541490237603) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_powertrain (8205110385130069179) -->
-    <skip />
+    <string name="car_permission_label_control_car_powertrain" msgid="234831541490237603">"គ្រប់គ្រងព័ត៌មានអំពី​ប្រព័ន្ធម៉ាស៊ីន​រថយន្ត"</string>
+    <string name="car_permission_desc_control_car_powertrain" msgid="8205110385130069179">"គ្រប់គ្រងព័ត៌មានអំពី​ប្រព័ន្ធម៉ាស៊ីន​រថយន្ត។"</string>
     <string name="car_permission_label_car_powertrain" msgid="4586122326622134886">"អានព័ត៌មានអំពី​ប្រព័ន្ធម៉ាស៊ីន​រថយន្ត"</string>
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"ចូលប្រើ​ព័ត៌មាន​អំពីប្រព័ន្ធម៉ាស៊ីនរថយន្ត។"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"អានស្ថានភាព​ថាមពល​របស់រថយន្ត"</string>

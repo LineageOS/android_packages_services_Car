@@ -23,6 +23,8 @@ import android.os.Parcel;
 
 import org.junit.Test;
 
+import java.util.List;
+
 /**
  * Unit tests for {@link AreaIdConfig}
  */
@@ -30,8 +32,10 @@ public class AreaIdConfigTest {
     private static final int AREA_ID = 99;
     private static final int MAX_VALUE = 10;
     private static final int MIN_VALUE = 1;
+    private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(2, 3, 4);
     private static final AreaIdConfig<Integer> AREA_ID_CONFIG = new AreaIdConfig.Builder<Integer>(
-            AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).build();
+            AREA_ID).setMaxValue(MAX_VALUE).setMinValue(MIN_VALUE).setSupportedEnumValues(
+            SUPPORTED_ENUM_VALUES).build();
 
     @Test
     public void getAreaId_returnsExpectedValue() {
@@ -59,6 +63,18 @@ public class AreaIdConfigTest {
     }
 
     @Test
+    public void getSupportedEnumValues_returnsExpectedValue() {
+        assertThat(AREA_ID_CONFIG.getSupportedEnumValues()).containsExactlyElementsIn(
+                SUPPORTED_ENUM_VALUES);
+    }
+
+    @Test
+    public void getSupportedEnumValues_returnsEmptyListIfNoSet() {
+        assertThat(new AreaIdConfig.Builder<Long>(
+                AREA_ID).build().getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
     public void describeContents_returnsExpectedValue() {
         assertThat(AREA_ID_CONFIG.describeContents()).isEqualTo(0);
     }
@@ -74,6 +90,9 @@ public class AreaIdConfigTest {
         AreaIdConfig<Object> areaIdConfig = AreaIdConfig.CREATOR.createFromParcel(parcel);
         assertThat((Integer) areaIdConfig.getMaxValue()).isEqualTo(MAX_VALUE);
         assertThat((Integer) areaIdConfig.getMinValue()).isEqualTo(MIN_VALUE);
+        assertThat(
+                (List<?>) areaIdConfig.getSupportedEnumValues()).containsExactlyElementsIn(
+                SUPPORTED_ENUM_VALUES);
     }
 
     @Test

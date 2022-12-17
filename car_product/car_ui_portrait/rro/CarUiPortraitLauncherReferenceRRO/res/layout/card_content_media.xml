@@ -24,9 +24,9 @@
     android:gravity="bottom">
 
     <FrameLayout
-        android:layout_width="0dp"
+        android:layout_width="@dimen/media_descriptive_text_container_width"
         android:layout_height="@dimen/media_descriptive_text_container_height"
-        android:layout_weight="1"
+        android:layout_marginEnd="@dimen/media_descriptive_text_container_margin"
         android:layout_gravity="bottom">
 
         <include layout="@layout/descriptive_text"
