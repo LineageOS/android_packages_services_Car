@@ -24,7 +24,7 @@
         android:id="@+id/play_pause_stop"
         android:src="@drawable/ic_play_pause_stop_animated"
         android:background="@drawable/play_pause_stop_animated_background"
-        style="@style/Widget.ActionButton.PlayPause"/>
+        style="@style/PlayPauseButtonStyle"/>
     <ProgressBar
         android:id="@+id/circular_progress_bar"
         android:layout_width="@dimen/fab_spinner_size"
