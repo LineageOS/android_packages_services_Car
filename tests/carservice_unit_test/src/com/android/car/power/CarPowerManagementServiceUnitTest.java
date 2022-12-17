@@ -16,6 +16,8 @@
 
 package com.android.car.power;
 
+import static android.net.ConnectivityManager.TETHERING_WIFI;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -27,6 +29,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -52,6 +55,7 @@ import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemN
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.net.TetheringManager;
 import android.net.wifi.WifiManager;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -138,6 +142,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private CarUserService mUserService;
     @Mock
     private WifiManager mWifiManager;
+    @Mock
+    private TetheringManager mTetheringManager;
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         super(CarPowerManagementService.TAG);
@@ -186,6 +192,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         // During the test, changing Wifi state according to a power policy takes long time, leading
         // to timeout. Also, we don't want to actually change Wifi state.
         doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
+        doReturn(mTetheringManager).when(mContext).getSystemService(TetheringManager.class);
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))
@@ -216,8 +223,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);
     }
-
-
 
     @Test
     public void testShutdown() throws Exception {
@@ -859,6 +864,43 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         assertThat(mService.getCurrentPowerPolicy().getPolicyId())
                 .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
+    }
+
+    @Test
+    public void testDisableWifiAndTethering() throws Exception {
+        grantPowerPolicyPermission();
+        when(mResources.getBoolean(R.bool.config_wifiAdjustmentForSuspend))
+                .thenReturn(true);
+        when(mWifiManager.isWifiEnabled()).thenReturn(true);
+        when(mWifiManager.isWifiApEnabled()).thenReturn(true);
+        mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
+                mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
+                mFileHwStateMonitoring.getFile().getPath(),
+                mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mService);
+        mService.init();
+        mService.setShutdownTimersForTest(/* pollingIntervalMs= */ 0, /* shutdownTimeoutMs= */ 0);
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
+
+        suspendDevice();
+
+        verify(mWifiManager, atLeastOnce()).setWifiEnabled(false);
+        verify(mTetheringManager).stopTethering(TETHERING_WIFI);
+    }
+
+    private void suspendDevice() throws Exception {
+        mService.handleOn();
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.setWakeupCausedByTimer(true);
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
     }
 
     private void suspendWithFailure(Integer nextPowerState) throws Exception {
