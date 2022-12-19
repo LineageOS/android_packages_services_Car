@@ -20,6 +20,9 @@
     <!-- Height of the bottom navigation / climate bar. -->
     <dimen name="navigation_bar_height">160dp</dimen>
     <dimen name="navigation_bar_height_landscape">160dp</dimen>
+    <!-- Focus -->
+    <dimen name="car_focus_ring_width">4dp</dimen>
+    <dimen name="car_focus_ring_pressed_width">4dp</dimen>
 
     <!-- ****** Alert dialog dimens ***** -->
 
@@ -53,7 +56,7 @@
 
     <!-- ****** Buttons dimens ***** -->
 
-    <dimen name="car_button_focus_ring_width">4dp</dimen>
+    <dimen name="car_button_focus_ring_width">@dimen/car_focus_ring_width</dimen>
     <dimen name="car_button_height">88dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
     <dimen name="car_button_horizontal_padding">48dp</dimen>
@@ -63,6 +66,22 @@
     <dimen name="car_touch_target_size">76dp</dimen>
 
     <!-- ****** Checkbox dimens ***** -->
-    <dimen name="car_checkbox_focus_ring_width">4dp</dimen>
+    <dimen name="car_checkbox_focus_ring_width">@dimen/car_focus_ring_width</dimen>
+
+    <!-- ****** Switch dimens ***** -->
+    <dimen name="car_switch_thumb_size">40dp</dimen>
+    <dimen name="car_switch_track_height">48dp</dimen>
+    <dimen name="car_switch_track_rounded_corner_radius">24dp</dimen>
+    <dimen name="car_switch_thumb_margin_size">4dp</dimen>
+    <dimen name="car_switch_track_margin_horizontal">6dp</dimen>
+    <dimen name="car_switch_track_padding_horizontal">10dp</dimen>
+    <dimen name="car_switch_track_margin_size">10dp</dimen>
+    <dimen name="car_switch_focus_ring_width">@dimen/car_focus_ring_width</dimen>
+    <dimen name="car_switch_focus_ring_pressed_width">@dimen/car_focus_ring_pressed_width</dimen>
+
+    <!-- ****** Seekbar dimens ***** -->
+    <dimen name="car_seekbar_height">4dp</dimen>
+    <dimen name="car_seekbar_rounded_corner_radius">2dp</dimen>
+    <dimen name="car_seekbar_thumb_size">16dp</dimen>
 
 </resources>
