@@ -119,6 +119,14 @@
          android:label="@string/car_permission_label_control_car_windows"
          android:description="@string/car_permission_desc_control_car_windows"/>
 
+    <!-- Allows an application to control the vehicle glove box.
+        <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_GLOVE_BOX"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_glove_box"
+                android:description="@string/car_permission_desc_control_glove_box"/>
+
     <!-- Allows an application to control the vehicle mirrors.
          <p>Protection level: signature|privileged
     -->

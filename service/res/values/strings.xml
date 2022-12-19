@@ -260,6 +260,11 @@
     <!-- Permission text: apps access car's exterior lights state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_exterior_lights">Access car\u2019s exterior lights state.</string>
 
+    <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_glove_box">access car\u2019s glove box state</string>
+    <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_glove_box">Access car\u2019s glove box state.</string>
+
     <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_epoch_time">access car\u2019s epoch time</string>
     <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->

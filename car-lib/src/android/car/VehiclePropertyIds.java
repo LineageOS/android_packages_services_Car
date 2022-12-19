@@ -1614,6 +1614,40 @@ public final class VehiclePropertyIds {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int MIRROR_AUTO_TILT_ENABLED = 337644359;
     /**
+     * Property that represents the current position of the glove box door.
+     *
+     * {@link CarPropertyConfig#getMinValue(int)} indicates that the glove box is closed.
+     * {@link CarPropertyConfig#getMaxValue(int)} indicates that the glove box is fully open.
+     *
+     * All integers between the min and max values are supported and indicate a transition state
+     * between the closed and fully open positions.
+     *
+     * The supported area IDs match the seat(s) by which the glove box is intended to be used (e.g.
+     * if the front right dashboard has a glove box embedded in it, then the area ID should be
+     * ROW_1_RIGHT).
+     *
+     * <p>Property Config:
+     * <ul>
+     *     <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *     <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *     <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *     <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *     <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_GLOVE_BOX} to read and
+     *     write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_GLOVE_BOX)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int GLOVE_BOX_DOOR_POS = 356518896;
+    /**
      * Seat memory select
      *
      * This parameter selects the memory preset to use to select the seat
