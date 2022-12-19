@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -1223,6 +1225,45 @@ public class CarOccupantZoneServiceTest {
                                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
         assertThat(thrown).hasMessageThat().matches(
                 "No display is associated with OccupantZoneInfo 2");
+    }
+
+    @Test
+    public void getAudioZoneIdFromSeat_forUnknownSeat_returnsInvalidAudioZone() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertWithMessage("Audio zone for unknown seat")
+                .that(mService.getAudioZoneIdForSeat(SEAT_UNKNOWN))
+                .isEqualTo(CarAudioManager.INVALID_AUDIO_ZONE);
+    }
+
+    @Test
+    public void getAudioZoneIdForSeat_forDriver() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertWithMessage("Audio zone for driver seat")
+                .that(mService.getAudioZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_1_LEFT))
+                .isEqualTo(PRIMARY_AUDIO_ZONE_ID);
+    }
+
+    @Test
+    public void getAudioZoneIdForSeat_forRearPassenger() {
+        mService.init();
+        SparseIntArray audioZoneIdToOccupantZoneMapping =
+                getDefaultAudioZoneToOccupantZoneMapping();
+
+        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
+
+        assertWithMessage("Audio zone for rear seat")
+                .that(mService.getAudioZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_2_RIGHT))
+                .isEqualTo(SECONDARY_AUDIO_ZONE_ID);
     }
 
     private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {
