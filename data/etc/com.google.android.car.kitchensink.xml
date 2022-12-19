@@ -95,6 +95,10 @@
         <permission name="android.car.permission.STORAGE_MONITORING"/>
         <permission name="android.car.permission.CONTROL_STEERING_WHEEL"/>
         <permission name="android.car.permission.CONTROL_CAR_POWERTRAIN"/>
+        <permission name="android.car.permission.READ_ADAS_SETTINGS"/>
+        <permission name="android.car.permission.CONTROL_ADAS_SETTINGS"/>
+        <permission name="android.car.permission.READ_ADAS_STATES"/>
+        <permission name="android.car.permission.CONTROL_ADAS_STATES"/>
 
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>
