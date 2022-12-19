@@ -54,6 +54,7 @@ import android.media.session.MediaController;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
@@ -86,6 +87,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     private static final String MEDIA_CLASS2 = "test_class2";
 
     private static final int TEST_USER_ID = 100;
+    private static final int ANOTHER_TEST_USER_ID = 333;
 
     private static final ComponentName MEDIA_COMPONENT =
             new ComponentName(MEDIA_PACKAGE, MEDIA_CLASS);
@@ -111,7 +113,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(ActivityManager.class);
+        builder.spyStatic(ActivityManager.class).spyStatic(Binder.class);
     }
 
     @Before
@@ -135,6 +137,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
         AndroidMockitoHelper.mockAmGetCurrentUser(TEST_USER_ID);
+        mockGetCallingUserHandle(TEST_USER_ID);
         when(mUserHandleHelper.isEphemeralUser(UserHandle.of(TEST_USER_ID))).thenReturn(false);
         doReturn(mMediaSessionManager).when(mContext).getSystemService(MediaSessionManager.class);
 
@@ -209,6 +212,28 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSetMediaSource_multiUsers() {
+        // Set a media source for one user.
+        mockGetCallingUserHandle(TEST_USER_ID);
+        initMediaService();
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK);
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
+                .isEqualTo(MEDIA_COMPONENT);
+
+        // Set a different media source for another user.
+        mockGetCallingUserHandle(ANOTHER_TEST_USER_ID);
+        mCarMediaService.initUser(ANOTHER_TEST_USER_ID);
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT2, MEDIA_SOURCE_MODE_PLAYBACK);
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
+                .isEqualTo(MEDIA_COMPONENT2);
+
+        // Setting a media source for a user should not affect other users.
+        mockGetCallingUserHandle(TEST_USER_ID);
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
+                .isEqualTo(MEDIA_COMPONENT);
+    }
+
+    @Test
     public void testMediaSourceListener_Independent() throws Exception {
         mCarMediaService.setIndependentPlaybackConfig(true);
         initMediaService();
@@ -271,6 +296,30 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testMediaSourceListener_multiUsers() throws Exception {
+        mockGetCallingUserHandle(TEST_USER_ID);
+        initMediaService();
+        ICarMediaSourceListener user1Listener = mockMediaSourceListener();
+        mCarMediaService.registerMediaSourceListener(user1Listener, MEDIA_SOURCE_MODE_PLAYBACK);
+
+        mockGetCallingUserHandle(ANOTHER_TEST_USER_ID);
+        mCarMediaService.initUser(ANOTHER_TEST_USER_ID);
+        ICarMediaSourceListener user2Listener = mockMediaSourceListener();
+        mCarMediaService.registerMediaSourceListener(user2Listener, MEDIA_SOURCE_MODE_PLAYBACK);
+
+        // Set a media source for user2. Only the user2 callback is invoked.
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT2, MEDIA_SOURCE_MODE_PLAYBACK);
+        verify(user1Listener, never()).onMediaSourceChanged(any());
+        verify(user2Listener).onMediaSourceChanged(MEDIA_COMPONENT2);
+
+        // Set a media source for user1. Only the user1 callback is invoked.
+        mockGetCallingUserHandle(TEST_USER_ID);
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK);
+        verify(user1Listener).onMediaSourceChanged(MEDIA_COMPONENT);
+        verify(user2Listener).onMediaSourceChanged(MEDIA_COMPONENT2);
+    }
+
+    @Test
     public void testGetLastMediaSources() {
         initMediaService();
 
@@ -293,6 +342,23 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testIsIndependentPlaybackConfig_multiUsers() {
+        // Set a value for one user.
+        mockGetCallingUserHandle(TEST_USER_ID);
+        mCarMediaService.setIndependentPlaybackConfig(false);
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isFalse();
+
+        // Set a different value for another user.
+        mockGetCallingUserHandle(ANOTHER_TEST_USER_ID);
+        mCarMediaService.setIndependentPlaybackConfig(true);
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isTrue();
+
+        // Setting a value for a user should not affect other users.
+        mockGetCallingUserHandle(TEST_USER_ID);
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isFalse();
+    }
+
+    @Test
     public void testDefaultMediaSource() {
         initMediaService(MEDIA_CLASS);
 
@@ -304,7 +370,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     public void testUnresolvedMediaPackage() {
         initializeMockPackageManager();
 
-        assertThat(mCarMediaService.isMediaService(MEDIA_COMPONENT)).isFalse();
+        assertThat(mCarMediaService.isMediaService(MEDIA_COMPONENT, TEST_USER_ID)).isFalse();
     }
 
     // Tests that PlaybackState changing to STATE_PLAYING will result the media source changing
@@ -330,7 +396,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         // New Media source should be null
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK)).isNull();
         // service start should happen on init but not on media source change
-        verify(mContext, times(1)).startForegroundService(any());
+        verify(mContext).startForegroundService(any());
     }
 
     @Test
@@ -369,7 +435,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
                 .isEqualTo(MEDIA_COMPONENT);
-        verify(mContext, times(1)).startForegroundService(any());
+        verify(mContext).startForegroundService(any());
     }
 
     @Test
@@ -452,7 +518,9 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         List<MediaController> controllers = new ArrayList<>();
         MediaController mockController = mock(MediaController.class);
         when(mockController.getPackageName()).thenReturn(MEDIA_PACKAGE2);
-        when(mockController.getSessionToken()).thenReturn(mock(MediaSession.Token.class));
+        MediaSession.Token mockSessionToken = mock(MediaSession.Token.class);
+        when(mockController.getSessionToken()).thenReturn(mockSessionToken);
+        when(mockSessionToken.getUid()).thenReturn(TEST_USER_ID * UserHandle.PER_USER_RANGE);
         Bundle sessionExtras = new Bundle();
         sessionExtras.putString(Car.CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION, MEDIA_CLASS2);
         when(mockController.getExtras()).thenReturn(sessionExtras);
