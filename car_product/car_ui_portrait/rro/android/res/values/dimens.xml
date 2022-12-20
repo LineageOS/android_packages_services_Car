@@ -34,8 +34,6 @@
     <dimen name="car_card_header_height">88dp</dimen>
     <!-- Dialog image size -->
     <dimen name="car_alert_dialog_title_image_size">@dimen/car_card_header_height</dimen>
-    <!-- Default dialog margin -->
-    <dimen name="car_alert_dialog_margin">48dp</dimen>
     <!-- Dialog button layout height -->
     <dimen name="button_layout_height">88dp</dimen>
     <!-- Default dialog button margin -->

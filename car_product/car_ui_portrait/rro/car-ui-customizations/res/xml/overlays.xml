@@ -32,6 +32,13 @@
     <item target="dimen/car_ui_list_item_avatar_icon_width" value="@dimen/car_ui_list_item_avatar_icon_width"/>
     <item target="dimen/car_ui_list_item_avatar_icon_height" value="@dimen/car_ui_list_item_avatar_icon_height"/>
 
+    <item target="dimen/car_ui_dialog_edittext_height" value="@dimen/car_ui_dialog_edittext_height"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_bottom" value="@dimen/car_ui_dialog_edittext_margin_bottom"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_end" value="@dimen/car_ui_dialog_edittext_margin_end"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_start" value="@dimen/car_ui_dialog_edittext_margin_start"/>
+    <item target="dimen/car_ui_dialog_edittext_margin_top" value="@dimen/car_ui_dialog_edittext_margin_top"/>
+    <item target="dimen/car_ui_list_item_text_no_icon_start_margin" value="@dimen/car_ui_list_item_text_no_icon_start_margin"/>
+
     <item target="drawable/car_ui_recyclerview_ic_up" value="@drawable/car_ui_recyclerview_ic_up" />
     <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />
     <item target="drawable/car_ui_recyclerview_scrollbar_thumb" value="@drawable/car_ui_recyclerview_scrollbar_thumb" />

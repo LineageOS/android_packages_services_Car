@@ -76,8 +76,15 @@
 
     <dimen name="privacy_chip_horizontal_padding">0dp</dimen>
     <dimen name="privacy_chip_width">@dimen/top_system_bar_icon_size</dimen>
-    <dimen name="top_system_bar_icon_drawing_size">36dp</dimen>
-    <dimen name="top_system_bar_icon_size">56dp</dimen>
-    <dimen name="top_system_bar_icon_horizontal_margin">24dp</dimen>
+    <!-- TODO(b/264936974): combine top_system_bar_qc_icon_drawing_size and top_system_bar_icon_drawing_size-->
+    <dimen name="top_system_bar_qc_icon_drawing_size">30dp</dimen>
+    <dimen name="top_system_bar_icon_drawing_size">42dp</dimen>
+    <dimen name="top_system_bar_icon_size">64dp</dimen>
+    <dimen name="top_system_bar_icon_horizontal_margin">20dp</dimen>
 
+    <dimen name="car_status_icon_panel_border_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
+    <dimen name="car_status_icon_panel_padding_bottom">42dp</dimen>
+    <dimen name="car_status_icon_panel_padding_top">42dp</dimen>
+
+    <dimen name="dialog_button_bar_top_padding">0dp</dimen>
 </resources>
