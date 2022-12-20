@@ -217,8 +217,17 @@ public final class SimpleUserPickerFragment extends Fragment {
     private void updateTextInfo() {
         int displayId = mDisplayAttached.getDisplayId();
         OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
-        int userId = mZoneManager.getUserForOccupant(zoneInfo);
-        mDisplayIdText.setText("DisplayId: " + displayId + " ZoneId: " + zoneInfo.zoneId);
+        int userId = CarOccupantZoneManager.INVALID_USER_ID;
+        try {
+            if (zoneInfo != null) {
+                userId = mZoneManager.getUserForOccupant(zoneInfo);
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "updateTextInfo: encountered exception in getting user for occupant", e);
+        }
+        int zoneId = zoneInfo == null ? CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID
+                : zoneInfo.zoneId;
+        mDisplayIdText.setText("DisplayId: " + displayId + " ZoneId: " + zoneId);
         String userString = userId == CarOccupantZoneManager.INVALID_USER_ID
                 ? "unassigned" : Integer.toString(userId);
         mUserOnDisplayText.setText("User on display: " + userString);
