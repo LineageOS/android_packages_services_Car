@@ -28,6 +28,8 @@ import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -78,7 +80,7 @@ public class CarAudioPolicyVolumeCallbackTest {
         mCarAudioPolicyVolumeCallback =
                 new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
                         mMockVolumeInfoWrapper, false);
-        when(mMockVolumeInfoWrapper.getSuggestedAudioContextForPrimaryZone())
+        when(mMockVolumeInfoWrapper.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE))
                 .thenReturn(VOICE_COMMAND);
         when(mMockVolumeInfoWrapper.getVolumeGroupIdForAudioZone(anyInt()))
                 .thenReturn(TEST_VOLUME_GROUP);
@@ -89,35 +91,52 @@ public class CarAudioPolicyVolumeCallbackTest {
     }
 
     @Test
+    public void createCarAudioPolicyVolumeCallback_withNullCarAudioCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new CarAudioPolicyVolumeCallback(/* volumeCallback = */ null, mMockAudioManager,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting = */ false));
+
+        assertWithMessage("Car audio policy volume callback constructor")
+                .that(thrown).hasMessageThat().contains("Volume Callback cannot be null");
+    }
+
+    @Test
+    public void createCarAudioPolicyVolumeCallback_withNullAudioManager_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, /* audioManager = */ null,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting = */ false));
+
+        assertWithMessage("Car audio policy volume callback constructor")
+                .that(thrown).hasMessageThat().contains("AudioManager cannot be null");
+    }
+
+    @Test
+    public void createCarAudioPolicyVolumeCallback_withNullCarVolumeInfo_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
+                        /* carVolumeInfo = */ null, /* useCarVolumeGroupMuting = */ false));
+
+        assertWithMessage("Car audio policy volume callback constructor")
+                .that(thrown).hasMessageThat().contains("Volume Info cannot be null");
+    }
+
+    @Test
     public void addVolumeCallbackToPolicy_withNullPolicyBuilder_fails() {
-        assertThrows(NullPointerException.class, () ->
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
                 CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(
-                        null, mVolumeCallbackInternal, mMockAudioManager,
-                        mMockVolumeInfoWrapper, false));
-    }
+                        /* policyBuilder = */ null, new CarAudioPolicyVolumeCallback(
+                                mVolumeCallbackInternal, mMockAudioManager, mMockVolumeInfoWrapper,
+                                /* useCarVolumeGroupMuting = */ false)));
 
-    @Test
-    public void addVolumeCallbackToPolicy_withNullCarAudioService_fails() {
-        assertThrows(NullPointerException.class, () ->
-                CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                        null, mMockAudioManager, mMockVolumeInfoWrapper,
-                        false));
+        assertWithMessage("Add volume callback to policy")
+                .that(thrown).hasMessageThat().contains("AudioPolicy.Builder cannot be null");
     }
-
-    @Test
-    public void addVolumeCallbackToPolicy_withNullAudioManager_fails() {
-        assertThrows(NullPointerException.class, () ->
-                CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                        mVolumeCallbackInternal, null, mMockVolumeInfoWrapper,
-                        false));
-    }
-
 
     @Test
     public void addVolumeCallbackToPolicy_registersVolumePolicy() {
         CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                mVolumeCallbackInternal, mMockAudioManager, mMockVolumeInfoWrapper,
-                false);
+                new CarAudioPolicyVolumeCallback(mVolumeCallbackInternal, mMockAudioManager,
+                        mMockVolumeInfoWrapper, /* useCarVolumeGroupMuting = */ false));
 
         verify(mMockBuilder).setAudioPolicyVolumeCallback(any());
     }
