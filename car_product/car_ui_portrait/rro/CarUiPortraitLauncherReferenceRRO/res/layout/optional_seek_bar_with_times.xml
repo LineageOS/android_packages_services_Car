@@ -43,7 +43,7 @@
         android:id="@+id/optional_times"
         android:layout_width="@dimen/seekbar_times_width"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.Car.Sub.Medium"
+        style="@style/TextAppearance.Car.Sub.Medium"
         android:layout_marginStart="@dimen/seekbar_times_margin_start"
         android:gravity="center_vertical | end"
         android:textColor="@color/car_on_surface_variant"/>
