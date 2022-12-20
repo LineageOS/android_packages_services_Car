@@ -70,7 +70,6 @@ import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
-import com.google.android.car.kitchensink.input.DisplayInputLockTestFragment;
 import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
 import com.google.android.car.kitchensink.mainline.CarMainlineFragment;
 import com.google.android.car.kitchensink.media.MultidisplayMediaFragment;
@@ -242,7 +241,6 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("device policy", DevicePolicyFragment.class),
             new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
-            new FragmentMenuEntry("display input lock", DisplayInputLockTestFragment.class),
             new FragmentMenuEntry("display mirroring", DisplayMirroringFragment.class),
             new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
