@@ -52,6 +52,7 @@
     <dimen name="hvac_panel_button_internal_margin">32dp</dimen>
     <dimen name="hvac_temperature_text_size">56sp</dimen>
     <dimen name="hvac_temperature_text_padding">12dp</dimen>
+    <dimen name="hvac_temperature_text_width">108dp</dimen>
     <dimen name="hvac_temperature_button_size">64dp</dimen>
 
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
@@ -75,8 +76,8 @@
 
     <dimen name="privacy_chip_horizontal_padding">0dp</dimen>
     <dimen name="privacy_chip_width">@dimen/top_system_bar_icon_size</dimen>
-    <dimen name="top_system_bar_icon_drawing_size">35dp</dimen>
+    <dimen name="top_system_bar_icon_drawing_size">36dp</dimen>
     <dimen name="top_system_bar_icon_size">56dp</dimen>
-    <dimen name="top_system_bar_icon_horizontal_margin">12dp</dimen>
+    <dimen name="top_system_bar_icon_horizontal_margin">24dp</dimen>
 
 </resources>
