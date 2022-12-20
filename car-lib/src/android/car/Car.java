@@ -1201,6 +1201,59 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PERMISSION_CONTROL_STEERING_WHEEL =
             "android.car.permission.CONTROL_STEERING_WHEEL";
+
+    /**
+     * Permission necessary to read ADAS settings information.
+     *
+     * Examples of settings include the ENABLED properties for the supported ADAS features.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_ADAS_SETTINGS =
+            "android.car.permission.READ_ADAS_SETTINGS";
+
+    /**
+     * Permission necessary to control ADAS settings information.
+     *
+     * Examples of settings include the ENABLED properties for the supported ADAS features.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_ADAS_SETTINGS =
+            "android.car.permission.CONTROL_ADAS_SETTINGS";
+
+    /**
+     * Permission necessary to read ADAS states information.
+     *
+     * Examples include the STATE properties for the supported ADAS features.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_ADAS_STATES =
+            "android.car.permission.READ_ADAS_STATES";
+
+    /**
+     * Permission necessary to control ADAS states information.
+     *
+     * Examples include the STATE properties for the supported ADAS features.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_ADAS_STATES =
+            "android.car.permission.CONTROL_ADAS_STATES";
+
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
