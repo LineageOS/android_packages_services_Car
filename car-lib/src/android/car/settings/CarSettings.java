@@ -127,24 +127,6 @@ public class CarSettings {
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
-
-        /**
-         * Defines passenger displays to lock their touch input.
-         *
-         * <p> The value of this will be a ',' separated list of display's unique id. For example,
-         * "local:4630946674560563248,local:4630946674560563349" with input lock enabled for both
-         * displays.
-         *
-         * <p> Input lock will be applied to those passenger displays. If any entry in the value
-         * is invalid, then the invalid entry is ignored. If there are duplicate entries, then
-         * only one entry is valid and the other duplicates are ignored.
-         * @hide
-         */
-        @SystemApi
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        public static final String DISPLAY_INPUT_LOCK =
-                        "android.car.DISPLAY_INPUT_LOCK";
     }
 
     /**
