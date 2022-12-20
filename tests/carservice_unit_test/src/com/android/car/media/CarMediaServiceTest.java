@@ -16,6 +16,8 @@
 
 package com.android.car.media;
 
+import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
+import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 
@@ -27,12 +29,14 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
@@ -56,10 +60,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.view.KeyEvent;
 
+import com.android.car.CarInputService;
+import com.android.car.CarInputService.KeyEventListener;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarMediaService;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
@@ -82,6 +90,11 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int TEST_USER_ID = 100;
     private static final int ANOTHER_TEST_USER_ID = 333;
+    private static final int DISPLAY_TYPE_IGNORED = 314;
+    private static final int SEAT_NUMBER = 23;
+    private static final int OCCUPANT_ZONE_ID = 41;
+    private static final KeyEvent MEDIA_KEY_EVENT =
+            new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_PLAY);
 
     private static final ComponentName MEDIA_COMPONENT =
             new ComponentName(MEDIA_PACKAGE, MEDIA_CLASS);
@@ -90,6 +103,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock private Context mContext;
     @Mock private Resources mResources;
+    @Mock private CarInputService mMockInputService;
+    @Mock private CarOccupantZoneService mMockOccupantZoneService;
     @Mock private CarUserService mUserService;
     @Mock private UserManager mUserManager;
     @Mock private PackageManager mPackageManager;
@@ -100,6 +115,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private SharedPreferences.Editor mMockSharedPreferencesEditor;
 
     private CarMediaService mCarMediaService;
+
+    private KeyEventListener mListener;
 
     public CarMediaServiceTest() {
         super(CarLog.TAG_MEDIA);
@@ -127,6 +144,10 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(mMockSharedPreferencesEditor);
         when(mMockSharedPreferencesEditor.putString(anyString(), anyString()))
                 .thenReturn(mMockSharedPreferencesEditor);
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(SEAT_NUMBER))
+                .thenReturn(OCCUPANT_ZONE_ID);
+        when(mMockOccupantZoneService.getUserForOccupant(OCCUPANT_ZONE_ID))
+                .thenReturn(TEST_USER_ID);
 
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
@@ -135,14 +156,20 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         when(mUserHandleHelper.isEphemeralUser(UserHandle.of(TEST_USER_ID))).thenReturn(false);
         doReturn(mMediaSessionManager).when(mContext).getSystemService(MediaSessionManager.class);
 
-        mCarMediaService = new CarMediaService(mContext, mUserService, mUserHandleHelper);
+        mCarMediaService = new CarMediaService(mContext, mMockOccupantZoneService, mUserService,
+                mUserHandleHelper);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mMockCarPowerManagementService);
+        CarLocalServices.removeServiceForTest(CarInputService.class);
+        CarLocalServices.addService(CarInputService.class, mMockInputService);
+        mockInputServiceKeyEvents();
     }
 
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarInputService.class);
     }
 
     @Test
@@ -432,6 +459,44 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mContext).startForegroundService(any());
     }
 
+    @Test
+    public void testMediaKeyEventListenerOnKeyEvent_ignoresInvalidOccupantZone() {
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(SEAT_NUMBER))
+                .thenReturn(INVALID_ZONE_ID);
+        mCarMediaService.init();
+
+        sendKeyEvent(MEDIA_KEY_EVENT, DISPLAY_TYPE_IGNORED, SEAT_NUMBER);
+
+        verifyZeroInteractions(mMediaSessionManager);
+    }
+
+    @Test
+    public void testMediaKeyEventListenerOnKeyEvent_ignoresInvalidUser() {
+        when(mMockOccupantZoneService.getUserForOccupant(OCCUPANT_ZONE_ID))
+                .thenReturn(INVALID_USER_ID);
+        mCarMediaService.init();
+
+        sendKeyEvent(MEDIA_KEY_EVENT, DISPLAY_TYPE_IGNORED, SEAT_NUMBER);
+
+        verifyZeroInteractions(mMediaSessionManager);
+    }
+
+    @Test
+    public void testMediaKeyEventListenerOnKeyEvent_stopsAfterFirstDelivery() {
+        MediaController mockController1 = createMockMediaController(/* dispatchResult== */ false);
+        MediaController mockController2 = createMockMediaController(/* dispatchResult== */ true);
+        MediaController mockController3 = createMockMediaController(/* dispatchResult== */ true);
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(mockController1, mockController2, mockController3));
+        mCarMediaService.init();
+
+        sendKeyEvent(MEDIA_KEY_EVENT, DISPLAY_TYPE_IGNORED, SEAT_NUMBER);
+
+        verify(mockController1).dispatchMediaButtonEvent(MEDIA_KEY_EVENT);
+        verify(mockController2).dispatchMediaButtonEvent(MEDIA_KEY_EVENT);
+        verify(mockController3, never()).dispatchMediaButtonEvent(any());
+    }
+
     private void initMediaService(String... classesToResolve) {
         initializeMockPackageManager(classesToResolve);
         mockUserUnlocked(true);
@@ -441,6 +506,26 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockUserUnlocked(boolean unlocked) {
         when(mUserManager.isUserUnlocked(any())).thenReturn(unlocked);
+    }
+
+    /** Sets {@code mListener} to the key event listener that is being registered. */
+    private void mockInputServiceKeyEvents() {
+        doAnswer(invocation -> {
+            mListener = invocation.getArgument(0);
+            return null;
+        }).when(mMockInputService).registerKeyEventListener(notNull(), notNull());
+    }
+
+    /** Sends the given {@code keyEvent} to the listener stored in {@code mListener}. */
+    private void sendKeyEvent(KeyEvent keyEvent, int displayType, int seat) {
+        mListener.onKeyEvent(keyEvent, displayType, seat);
+    }
+
+    private MediaController createMockMediaController(boolean dispatchResult) {
+        MediaController mockController = mock(MediaController.class);
+        when(mockController.dispatchMediaButtonEvent(any())).thenReturn(dispatchResult);
+
+        return mockController;
     }
 
     private ICarMediaSourceListener mockMediaSourceListener() {
