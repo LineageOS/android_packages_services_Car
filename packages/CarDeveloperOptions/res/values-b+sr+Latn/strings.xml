@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_pref_category_title" msgid="5776370242269122076">"Automobil"</string>
-    <string name="car_ui_plugin_enabled_pref_title" msgid="606705126746748119">"Omogući dodatnu komponentu za biblioteku korisničkog interfejsa automobila"</string>
-    <string name="car_ui_plugin_not_found_text" msgid="7654699744630868262">"Dodatna komponenta korisničkog interfejsa automobila nije pronađena"</string>
+    <string name="car_pref_category_title" msgid="5776370242269122076">"Аутомобил"</string>
+    <string name="car_ui_plugin_enabled_pref_title" msgid="606705126746748119">"Омогући додатну компоненту за библиотеку корисничког интерфејса аутомобила"</string>
+    <string name="car_ui_plugin_not_found_text" msgid="7654699744630868262">"Додатна компонента корисничког интерфејса аутомобила није пронађена"</string>
 </resources>
