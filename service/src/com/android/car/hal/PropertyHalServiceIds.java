@@ -453,6 +453,9 @@ public class PropertyHalServiceIds {
                     null));
 
         // Sensor properties
+        mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_ENABLED, new Pair<>(
+                Car.PERMISSION_READ_ADAS_SETTINGS,
+                Car.PERMISSION_CONTROL_ADAS_SETTINGS));
         mHalPropIdToPermissions.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
                 Car.PERMISSION_MILEAGE,
                 null));
