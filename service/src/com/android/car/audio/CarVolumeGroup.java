@@ -630,8 +630,23 @@ import java.util.Objects;
         }
 
         return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
-                .setVolumeGain(getGainForIndex(gainIndex)).setMuted(isMuted).setBlocked(isBlocked)
+                .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
+                .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
                 .setAttenuated(isAttenuated).build();
+    }
+
+    List<AudioAttributes> getAudioAttributes() {
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        for (int index = 0; index < mContextToAddress.size(); index++) {
+            int context = mContextToAddress.keyAt(index);
+            AudioAttributes[] contextAttributes =
+                    mCarAudioContext.getAudioAttributesForContext(context);
+            for (int attrIndex = 0; attrIndex < contextAttributes.length; attrIndex++) {
+                audioAttributes.add(contextAttributes[attrIndex]);
+            }
+        }
+
+        return audioAttributes;
     }
 
     static final class Builder {

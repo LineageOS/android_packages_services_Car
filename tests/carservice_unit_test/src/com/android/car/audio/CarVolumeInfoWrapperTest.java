@@ -47,11 +47,14 @@ public final class CarVolumeInfoWrapperTest {
     private static final boolean TEST_VOLUME_GROUP_MUTE = true;
     private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_AUDIO_ZONE,
-                    TEST_GROUP_ID).build();
+                    TEST_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP,
-                    PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP).build();
+                    PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP)
+                    .setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 

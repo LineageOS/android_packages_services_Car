@@ -50,10 +50,12 @@ public final class OemCarAudioFocusEvaluationRequestUnitTest extends AbstractExp
     private static final String TEST_GROUP_NAME = "media";
     private static final CarVolumeGroupInfo TEST_MUTED_VOLUME_GROUP =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, CarAudioManager.PRIMARY_AUDIO_ZONE,
-                    TEST_VOLUME_GROUP_ID).build();
+                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
+                    .build();
     private static final CarVolumeGroupInfo TEST_MUTED_VOLUME_GROUP_2 =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                    TEST_VOLUME_GROUP_ID).build();
+                    TEST_VOLUME_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
+                    .build();
 
     @Test
     public void build() {

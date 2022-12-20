@@ -19,9 +19,11 @@ package com.android.car.audio;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
+import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
+import static android.media.AudioAttributes.USAGE_UNKNOWN;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -38,6 +40,7 @@ import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioAttributes;
 import android.os.UserHandle;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -1230,13 +1233,30 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Car volume group info zone id")
                 .that(info.getId()).isEqualTo(GROUP_ID);
         expectWithMessage("Car volume group info current gain")
-                .that(info.getVolumeGain()).isEqualTo(MIN_GAIN);
+                .that(info.getVolumeGainIndex()).isEqualTo(carVolumeGroup.getCurrentGainIndex());
+        expectWithMessage("Car volume group info max gain")
+                .that(info.getMaxVolumeGainIndex()).isEqualTo(carVolumeGroup.getMaxGainIndex());
+        expectWithMessage("Car volume group info min gain")
+                .that(info.getMinVolumeGainIndex()).isEqualTo(carVolumeGroup.getMinGainIndex());
         expectWithMessage("Car volume group info muted state")
                 .that(info.isMuted()).isEqualTo(carVolumeGroup.isMuted());
         expectWithMessage("Car volume group info blocked state")
                 .that(info.isBlocked()).isEqualTo(carVolumeGroup.isBlocked());
         expectWithMessage("Car volume group info attenuated state")
                 .that(info.isAttenuated()).isEqualTo(carVolumeGroup.isAttenuated());
+    }
+
+    @Test
+    public void getAudioAttributes() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        List<AudioAttributes> audioAttributes = carVolumeGroup.getAudioAttributes();
+
+        expectWithMessage("Group audio attributes").that(audioAttributes).containsExactly(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN));
+
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
