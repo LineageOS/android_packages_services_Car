@@ -78,8 +78,7 @@ public final class CarVolumeInfoWrapperTest {
         when(carAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
                 .thenReturn(TEST_SECONDARY_VOLUME_INFO);
         when(carAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
-                .thenReturn(new CarVolumeGroupInfo[] {TEST_PRIMARY_GROUP_INFO,
-                        TEST_SECONDARY_VOLUME_INFO});
+                .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO));
 
         mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(carAudioService);
     }
@@ -163,6 +162,6 @@ public final class CarVolumeInfoWrapperTest {
     public void getVolumeGroupInfosForZone() {
         assertWithMessage("Car volume group volume groups")
                 .that(mCarVolumeInfoWrapper.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
-                .asList().containsExactly(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO);
+                .containsExactly(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO);
     }
 }

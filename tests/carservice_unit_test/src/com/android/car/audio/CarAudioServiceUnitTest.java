@@ -1211,14 +1211,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mCarAudioService.init();
         int groupCount = mCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
 
-        CarVolumeGroupInfo[] infos =
+        List<CarVolumeGroupInfo> infos =
                 mCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
 
         for (int index = 0; index < groupCount; index++) {
             CarVolumeGroupInfo info = mCarAudioService
                     .getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
             assertWithMessage("Car volume group infos for primary zone and info %s", info)
-                    .that(infos).asList().contains(info);
+                    .that(infos).contains(info);
         }
     }
 
@@ -1231,7 +1231,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 mCarVolumeCallbackHandler);
         nonDynamicAudioService.init();
 
-        CarVolumeGroupInfo[] infos =
+        List<CarVolumeGroupInfo> infos =
                 nonDynamicAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car volume group infos with dynamic routing disabled")
@@ -1243,11 +1243,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mCarAudioService.init();
         int groupCount = mCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
 
-        CarVolumeGroupInfo[] infos =
+        List<CarVolumeGroupInfo> infos =
                 mCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car volume group infos size for primary zone")
-                .that(infos).hasLength(groupCount);
+                .that(infos).hasSize(groupCount);
     }
 
     @Test

@@ -901,21 +901,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId) {
+    public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         if (!mUseDynamicRouting) {
-            return new CarVolumeGroupInfo[0];
+            return Collections.EMPTY_LIST;
         }
         synchronized (mImplLock) {
-
-            CarAudioZone zone = getCarAudioZoneLocked(zoneId);
-
-            CarVolumeGroupInfo[] groupInfos = new CarVolumeGroupInfo[zone.getVolumeGroupCount()];
-            for (int index = 0; index < zone.getVolumeGroupCount(); index++) {
-                groupInfos[index] = zone.getVolumeGroup(index).getCarVolumeGroupInfo();
-            }
-
-            return groupInfos;
+            return getCarAudioZoneLocked(zoneId).getVolumeGroupInfos();
         }
     }
 
