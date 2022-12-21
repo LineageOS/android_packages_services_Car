@@ -69,12 +69,15 @@
     </style>
     <style name="TextAppearance.Car.Subhead.Large">
         <item name="android:textSize">36sp</item>
+        <item name="android:lineHeight">44dp</item>
     </style>
     <style name="TextAppearance.Car.Subhead.Medium">
         <item name="android:textSize">32sp</item>
+        <item name="android:lineHeight">40dp</item>
     </style>
     <style name="TextAppearance.Car.Subhead.Small">
         <item name="android:textSize">28sp</item>
+        <item name="android:lineHeight">36dp</item>
     </style>
 
 
