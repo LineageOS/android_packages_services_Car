@@ -43,7 +43,6 @@ import com.android.car.internal.annotation.AttributeUsage;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -584,9 +583,9 @@ public final class CarAudioManager extends CarManagerBase {
     @NonNull
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         try {
-            return Arrays.asList(mService.getVolumeGroupInfosForZone(zoneId));
+            return mService.getVolumeGroupInfosForZone(zoneId);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
     }
 
@@ -782,7 +781,7 @@ public final class CarAudioManager extends CarManagerBase {
                     mService.getInputDevicesForZoneId(zoneId),
                     AudioManager.GET_DEVICES_INPUTS);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
     }
 

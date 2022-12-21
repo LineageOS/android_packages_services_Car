@@ -23,8 +23,6 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
@@ -34,6 +32,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CarAudioZoneTest {
+public class CarAudioZoneTest extends AbstractExpectableTestCase {
     private static final String MUSIC_ADDRESS = "bus0_music";
     private static final String NAV_ADDRESS = "bus1_nav";
     private static final String VOICE_ADDRESS = "bus3_voice";
@@ -116,11 +116,13 @@ public class CarAudioZoneTest {
 
         String musicAddress = mTestAudioZone.getAddressForContext(
                 TEST_MEDIA_CONTEXT);
-        assertThat(musicAddress).isEqualTo(MUSIC_ADDRESS);
+        expectWithMessage("Music volume group address")
+                .that(musicAddress).isEqualTo(MUSIC_ADDRESS);
 
         String navAddress = mTestAudioZone.getAddressForContext(
                 TEST_NAVIGATION_CONTEXT);
-        assertThat(navAddress).matches(NAV_ADDRESS);
+        expectWithMessage("Navigation volume group address")
+                .that(navAddress).matches(NAV_ADDRESS);
     }
 
     @Test
@@ -130,7 +132,7 @@ public class CarAudioZoneTest {
                         () -> mTestAudioZone.getAddressForContext(CarAudioContext
                                 .getInvalidContext()));
 
-        assertThat(thrown).hasMessageThat()
+        expectWithMessage("Invalid context exception").that(thrown).hasMessageThat()
                 .contains("is invalid");
     }
 
@@ -141,7 +143,8 @@ public class CarAudioZoneTest {
                         () -> mTestAudioZone.getAddressForContext(
                                 TEST_MEDIA_CONTEXT));
 
-        assertThat(thrown).hasMessageThat().contains("Could not find output device in zone");
+        expectWithMessage("Non-existing context exception").that(thrown).hasMessageThat()
+                .contains("Could not find output device in zone");
     }
 
     @Test
@@ -155,8 +158,8 @@ public class CarAudioZoneTest {
                         () -> mTestAudioZone
                                 .findActiveAudioAttributesFromPlaybackConfigurations(null));
 
-        assertThat(thrown).hasMessageThat()
-                .contains("Audio playback configurations can not be null");
+        expectWithMessage("Null playback configuration exception").that(thrown)
+                .hasMessageThat().contains("Audio playback configurations can not be null");
     }
 
     @Test
@@ -173,7 +176,7 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes)
+        expectWithMessage("Active playback audio attributes").that(activeAttributes)
                 .containsExactly(TEST_MEDIA_ATTRIBUTE, TEST_NAVIGATION_ATTRIBUTE);
     }
 
@@ -192,7 +195,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes).isEmpty();
+        expectWithMessage("Non matching active playback audio attributes")
+                .that(activeAttributes).isEmpty();
     }
 
     @Test
@@ -213,7 +217,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes)
+        expectWithMessage("Single volume group active playback audio attributes")
+                .that(activeAttributes)
                 .containsExactly(TEST_ASSISTANT_ATTRIBUTE, TEST_ALARM_ATTRIBUTE);
     }
 
@@ -234,7 +239,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes).containsExactly(TEST_ALARM_ATTRIBUTE);
+        expectWithMessage("Non matching address active playback audio attributes")
+                .that(activeAttributes).containsExactly(TEST_ALARM_ATTRIBUTE);
     }
 
     @Test
@@ -253,7 +259,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes).containsExactly(TEST_SYSTEM_ATTRIBUTE);
+        expectWithMessage("Non matching context active playback audio attributes")
+                .that(activeAttributes).containsExactly(TEST_SYSTEM_ATTRIBUTE);
     }
 
     @Test
@@ -274,8 +281,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeContexts = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeContexts)
-                .containsExactly(TEST_ALARM_ATTRIBUTE, TEST_MEDIA_ATTRIBUTE);
+        expectWithMessage("Multi group match active playback audio attributes")
+                .that(activeContexts).containsExactly(TEST_ALARM_ATTRIBUTE, TEST_MEDIA_ATTRIBUTE);
     }
 
     @Test
@@ -289,7 +296,8 @@ public class CarAudioZoneTest {
         List<AudioAttributes> activeAttributes = mTestAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(activeConfigurations);
 
-        assertThat(activeAttributes).isEmpty();
+        expectWithMessage("Empty active playback audio attributes")
+                .that(activeAttributes).isEmpty();
     }
 
     @Test
@@ -308,7 +316,8 @@ public class CarAudioZoneTest {
     public void isAudioDeviceInfoValidForZone_withNullAudioDeviceInfo_returnsFalse() {
         mTestAudioZone.addVolumeGroup(mMockMusicGroup);
 
-        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(null)).isFalse();
+        expectWithMessage("Null audio device info")
+                .that(mTestAudioZone.isAudioDeviceInfoValidForZone(null)).isFalse();
     }
 
     @Test
@@ -317,7 +326,8 @@ public class CarAudioZoneTest {
         AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         when(nullAddressDeviceInfo.getAddress()).thenReturn(null);
 
-        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+        expectWithMessage("Invalid audio device info").that(
+                mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
     }
 
     @Test
@@ -326,7 +336,8 @@ public class CarAudioZoneTest {
         AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         when(nullAddressDeviceInfo.getAddress()).thenReturn("");
 
-        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+        expectWithMessage("Device info with invalid address").that(
+                mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
     }
 
     @Test
@@ -335,7 +346,8 @@ public class CarAudioZoneTest {
         AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         when(nullAddressDeviceInfo.getAddress()).thenReturn(VOICE_ADDRESS);
 
-        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
+        expectWithMessage("Non zone audio device info").that(
+                mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isFalse();
     }
 
     @Test
@@ -344,7 +356,8 @@ public class CarAudioZoneTest {
         AudioDeviceInfo nullAddressDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
         when(nullAddressDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
 
-        assertThat(mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isTrue();
+        expectWithMessage("Valid audio device info").that(
+                mTestAudioZone.isAudioDeviceInfoValidForZone(nullAddressDeviceInfo)).isTrue();
     }
 
     @Test
@@ -402,6 +415,17 @@ public class CarAudioZoneTest {
         verify(mMockMusicGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockNavGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());
+    }
+
+    @Test
+    public void getCarVolumeGroupInfos() {
+        mTestAudioZone.addVolumeGroup(mMockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mMockNavGroup);
+        mTestAudioZone.addVolumeGroup(mMockVoiceGroup);
+
+        List<CarVolumeGroupInfo> infos = mTestAudioZone.getVolumeGroupInfos();
+
+        expectWithMessage("Car volume group infos").that(infos).hasSize(3);
     }
 
     private static class VolumeGroupBuilder {
