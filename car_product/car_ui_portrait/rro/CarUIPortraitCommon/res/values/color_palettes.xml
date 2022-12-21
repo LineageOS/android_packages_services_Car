@@ -118,4 +118,8 @@
     <!-- control highlight colors -->
     <color name="car_control_highlight">#99003fa4</color>
 
+    <!-- control focus colors -->
+    <color name="car_focus_ring">@color/car_primary</color>
+    <color name="car_focus_background">#990856cf</color>
+
 </resources>

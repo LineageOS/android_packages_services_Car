@@ -42,9 +42,6 @@
         android:id="@+id/app_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/car_on_surface"
-        android:textAppearance="@style/TextAppearance.Car.Body.Small"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:layout_marginBottom="@dimen/app_name_margin_bottom"/>
+        android:layout_marginBottom="@dimen/app_name_margin_bottom"
+        style="@style/AppGridTitleStyle"/>
 </LinearLayout>

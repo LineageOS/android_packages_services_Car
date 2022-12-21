@@ -968,20 +968,20 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     /**
-     * Gets the audio zone for the seat.
+     * Gets the occupant zone id for the seat
      *
      * @param seat The vehicle area seat to be used
      *
-     * @return The audio zone id for the given seat
+     * @return The occupant zone id for the given seat
      */
-    public int getAudioZoneIdForSeat(@VehicleAreaSeat.Enum int seat) {
+    public int getOccupantZoneIdForSeat(@VehicleAreaSeat.Enum int seat) {
         synchronized (mLock) {
-            return getAudioZoneIdForOccupantLocked(getOccupantZoneIdFromSeatLocked(seat));
+            return getOccupantZoneIdForSeatLocked(seat);
         }
     }
 
     @GuardedBy("mLock")
-    private int getOccupantZoneIdFromSeatLocked(@VehicleAreaSeat.Enum int seat) {
+    private int getOccupantZoneIdForSeatLocked(@VehicleAreaSeat.Enum int seat) {
         for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
             int zoneId = mActiveOccupantConfigs.keyAt(i);
             OccupantZoneInfo info = mOccupantsConfig.get(zoneId);

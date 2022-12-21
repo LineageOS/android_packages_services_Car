@@ -1103,6 +1103,7 @@ package android.car.media {
 
   public final class CarAudioManager {
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.media.AudioAttributes> getAudioAttributesForVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getAudioZoneIds();
     method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public String[] getExternalSources();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int);
@@ -1157,8 +1158,10 @@ package android.car.media {
   public final class CarVolumeGroupInfo implements android.os.Parcelable {
     method public int describeContents();
     method public int getId();
+    method public int getMaxVolumeGainIndex();
+    method public int getMinVolumeGainIndex();
     method @NonNull public String getName();
-    method public int getVolumeGain();
+    method public int getVolumeGainIndex();
     method public int getZoneId();
     method public boolean isAttenuated();
     method public boolean isBlocked();
@@ -1174,8 +1177,10 @@ package android.car.media {
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
-    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGain(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGainIndex(int);
   }
 
 }
@@ -1339,6 +1344,7 @@ package android.car.oem {
   }
 
   public static final class OemCarVolumeChangeInfo.Builder {
+    ctor public OemCarVolumeChangeInfo.Builder(boolean);
     method @NonNull public android.car.oem.OemCarVolumeChangeInfo build();
     method @NonNull public android.car.oem.OemCarVolumeChangeInfo.Builder setChangedVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
   }

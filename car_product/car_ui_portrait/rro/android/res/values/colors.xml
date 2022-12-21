@@ -19,4 +19,9 @@
     <color name="car_alert_dialog_background_color">@color/car_surface_2</color>
     <color name="car_alert_dialog_message_text_color">@color/car_on_surface</color>
     <color name="car_alert_dialog_button_text_color">@color/car_on_secondary_container</color>
+
+    <!-- ****** Seekbar colors ***** -->
+    <color name="car_seekbar_background_color">@color/car_secondary_container</color>
+    <color name="car_seekbar_primary_color">@color/car_primary</color>
+    <color name="car_seekbar_secondary_color">@color/car_secondary</color>
 </resources>

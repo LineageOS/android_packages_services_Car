@@ -31,8 +31,8 @@ public final class OemCarVolumeChangeInfoUnitTest extends AbstractExpectableTest
     private static final String TEST_GROUP_NAME = "3";
 
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
-            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-            TEST_PRIMARY_GROUP_ID).build();
+            new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                    .setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0).build();
 
     @Test
     public void build() {

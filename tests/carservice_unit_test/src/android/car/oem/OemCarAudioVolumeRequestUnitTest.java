@@ -44,10 +44,12 @@ public final class OemCarAudioVolumeRequestUnitTest extends AbstractExpectableTe
 
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, PRIMARY_AUDIO_ZONE,
-                    TEST_PRIMARY_GROUP_ID).build();
+                    TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
+                    .build();
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO_2 =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, PRIMARY_AUDIO_ZONE,
-                    TEST_SECONDARY_GROUP_ID).build();
+                    TEST_SECONDARY_GROUP_ID).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0)
+                    .build();
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);

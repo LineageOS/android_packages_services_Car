@@ -33,21 +33,29 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     private static final boolean TEST_DEFAULT_MUTE_STATE = false;
     private static final boolean TEST_DEFAULT_BLOCKED_STATE = false;
     private static final boolean TEST_DEFAULT_ATTENUATED_STATE = false;
+    public static final int TEST_MAX_GAIN_INDEX = 9_005;
+    public static final int TEST_MIN_GAIN_INDEX = 0;
 
     private static final CarVolumeGroupInfo TEST_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-            TEST_PRIMARY_GROUP_ID).build();
+            TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX).build();
 
     private final CarVolumeGroupInfo.Builder mTestGroupInfoBuilder =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
             TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID).setAttenuated(TEST_DEFAULT_ATTENUATED_STATE)
-                    .setVolumeGain(TEST_CURRENT_GAIN).setBlocked(TEST_DEFAULT_BLOCKED_STATE)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setVolumeGainIndex(TEST_CURRENT_GAIN).setBlocked(TEST_DEFAULT_BLOCKED_STATE)
                     .setMuted(TEST_DEFAULT_MUTE_STATE);
 
     @Test
     public void build_buildsGroupInfo() {
-        CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                        TEST_PRIMARY_GROUP_ID).build();
+        CarVolumeGroupInfo info = new CarVolumeGroupInfo
+                .Builder(TEST_GROUP_NAME, TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
 
         expectWithMessage("Car volume info build info zone id")
                 .that(info.getZoneId()).isEqualTo(TEST_ZONE_ID);
@@ -69,11 +77,53 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
-    public void setVolumeGain_buildsGroupInfo() {
-        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setVolumeGain(9_001).build();
+    public void setVolumeGainIndex_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setVolumeGainIndex(9_001).build();
 
         expectWithMessage("Car volume info gain")
-                .that(info.getVolumeGain()).isEqualTo(9_001);
+                .that(info.getVolumeGainIndex()).isEqualTo(9_001);
+    }
+
+    @Test
+    public void setMinVolumeGainIndex_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setMinVolumeGainIndex(10).build();
+
+        expectWithMessage("Car volume info min gain")
+                .that(info.getMinVolumeGainIndex()).isEqualTo(10);
+    }
+
+    @Test
+    public void setMaxVolumeGainIndex_buildsGroupInfo() {
+        CarVolumeGroupInfo info = mTestGroupInfoBuilder.setMaxVolumeGainIndex(9_002).build();
+
+        expectWithMessage("Car volume info max gain")
+                .that(info.getMaxVolumeGainIndex()).isEqualTo(9_002);
+    }
+
+    @Test
+    public void setMaxVolumeGainIndex_withMinLargerThanMax_buildFails() {
+        CarVolumeGroupInfo.Builder infoBuilder =
+                mTestGroupInfoBuilder.setMinVolumeGainIndex(9003)
+                        .setMaxVolumeGainIndex(9_002);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> infoBuilder.build());
+
+        expectWithMessage("Max volume gain smaller than min gain exception")
+                .that(thrown).hasMessageThat().contains("must be smaller than max");
+    }
+
+    @Test
+    public void setVolumeGainIndex_withGainOutOfMinMaxRange_buildFails() {
+        CarVolumeGroupInfo.Builder infoBuilder =
+                mTestGroupInfoBuilder.setMinVolumeGainIndex(10)
+                        .setMaxVolumeGainIndex(100).setVolumeGainIndex(0);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> infoBuilder.build());
+
+        expectWithMessage("Volume gain index out of range exception")
+                .that(thrown).hasMessageThat().contains("out of range");
     }
 
     @Test
@@ -103,7 +153,10 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void builder_withReuse_fails() {
         CarVolumeGroupInfo.Builder builder = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME,
-                TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID);
+                TEST_ZONE_ID, TEST_PRIMARY_GROUP_ID)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN);
         builder.build();
 
         IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
@@ -148,7 +201,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void equals_forSameContent() {
         CarVolumeGroupInfo infoWithSameContent =
-                new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO).build();
+                new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
+                        .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                        .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX).build();
 
         expectWithMessage("Car volume info with same content")
                 .that(infoWithSameContent).isEqualTo(TEST_VOLUME_INFO);
@@ -157,7 +212,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void equals_forNull() {
         CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID).build();
+                TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
 
         expectWithMessage("Car volume info null content")
                 .that(info.equals(null)).isFalse();
@@ -166,7 +223,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void describeContents() {
         CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID).build();
+                TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
 
         expectWithMessage("Car volume info contents")
                 .that(info.describeContents()).isEqualTo(0);
@@ -175,6 +234,8 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void hashCode_forSameContent() {
         CarVolumeGroupInfo infoWithSameContent = new CarVolumeGroupInfo.Builder(TEST_VOLUME_INFO)
+                .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
                 .build();
 
         expectWithMessage("Car volume info hash with same content")
@@ -184,7 +245,9 @@ public final class CarVolumeGroupInfoUnitTest extends AbstractExpectableTestCase
     @Test
     public void toString_forContent() {
         CarVolumeGroupInfo info = new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME, TEST_ZONE_ID,
-                TEST_PRIMARY_GROUP_ID).build();
+                TEST_PRIMARY_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                .setVolumeGainIndex(TEST_CURRENT_GAIN).build();
 
         expectWithMessage("Car volume info name")
                 .that(info.toString()).contains(TEST_GROUP_NAME);

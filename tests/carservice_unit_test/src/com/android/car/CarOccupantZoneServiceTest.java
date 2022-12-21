@@ -1228,42 +1228,30 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
-    public void getAudioZoneIdFromSeat_forUnknownSeat_returnsInvalidAudioZone() {
+    public void getOccupantZoneIdForSeat_forUnknownSeat_returnsInvalidAudioZone() {
         mService.init();
-        SparseIntArray audioZoneIdToOccupantZoneMapping =
-                getDefaultAudioZoneToOccupantZoneMapping();
 
-        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
-
-        assertWithMessage("Audio zone for unknown seat")
-                .that(mService.getAudioZoneIdForSeat(SEAT_UNKNOWN))
-                .isEqualTo(CarAudioManager.INVALID_AUDIO_ZONE);
+        assertWithMessage("Occupant zone for unknown seat")
+                .that(mService.getOccupantZoneIdForSeat(SEAT_UNKNOWN))
+                .isEqualTo(OccupantZoneInfo.INVALID_ZONE_ID);
     }
 
     @Test
-    public void getAudioZoneIdForSeat_forDriver() {
+    public void getOccupantZoneIdForSeat_forDriver() {
         mService.init();
-        SparseIntArray audioZoneIdToOccupantZoneMapping =
-                getDefaultAudioZoneToOccupantZoneMapping();
 
-        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
-
-        assertWithMessage("Audio zone for driver seat")
-                .that(mService.getAudioZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_1_LEFT))
-                .isEqualTo(PRIMARY_AUDIO_ZONE_ID);
+        assertWithMessage("Occupant zone for driver seat")
+                .that(mService.getOccupantZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_1_LEFT))
+                .isEqualTo(mZoneDriverLHD.zoneId);
     }
 
     @Test
-    public void getAudioZoneIdForSeat_forRearPassenger() {
+    public void getOccupantZoneIdForSeat_forRearPassenger() {
         mService.init();
-        SparseIntArray audioZoneIdToOccupantZoneMapping =
-                getDefaultAudioZoneToOccupantZoneMapping();
 
-        mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
-
-        assertWithMessage("Audio zone for rear seat")
-                .that(mService.getAudioZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_2_RIGHT))
-                .isEqualTo(SECONDARY_AUDIO_ZONE_ID);
+        assertWithMessage("Occupant zone for rear seat")
+                .that(mService.getOccupantZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_2_RIGHT))
+                .isEqualTo(mZoneRearRight.zoneId);
     }
 
     private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {

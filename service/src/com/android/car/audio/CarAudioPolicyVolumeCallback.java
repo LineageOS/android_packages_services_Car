@@ -47,13 +47,9 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
     private final CarVolumeInfoWrapper mCarVolumeInfo;
 
     static void addVolumeCallbackToPolicy(AudioPolicy.Builder policyBuilder,
-            AudioPolicyVolumeCallbackInternal volumeCallback,
-            AudioManager audioManager,  CarVolumeInfoWrapper carVolumeInfo,
-            boolean useCarVolumeGroupMuting) {
+            CarAudioPolicyVolumeCallback callback) {
         Objects.requireNonNull(policyBuilder, "AudioPolicy.Builder cannot be null");
-        policyBuilder.setAudioPolicyVolumeCallback(
-                new CarAudioPolicyVolumeCallback(volumeCallback, audioManager, carVolumeInfo,
-                        useCarVolumeGroupMuting));
+        policyBuilder.setAudioPolicyVolumeCallback(callback);
         if (Slogf.isLoggable(TAG_AUDIO, DEBUG)) {
             Slogf.d(TAG_AUDIO, "Registered car audio policy volume callback");
         }
@@ -69,9 +65,7 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
     }
 
-    @Override
-    public void onVolumeAdjustment(int adjustment) {
-        int zoneId = PRIMARY_AUDIO_ZONE;
+    void onVolumeAdjustment(int adjustment, int zoneId) {
         int groupId = mCarVolumeInfo.getVolumeGroupIdForAudioZone(zoneId);
         boolean isMuted = isMuted(zoneId, groupId);
 
@@ -112,6 +106,11 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
             default:
                 break;
         }
+    }
+
+    @Override
+    public void onVolumeAdjustment(int adjustment) {
+        onVolumeAdjustment(adjustment, PRIMARY_AUDIO_ZONE);
     }
 
     private boolean isMuted(int zoneId, int groupId) {

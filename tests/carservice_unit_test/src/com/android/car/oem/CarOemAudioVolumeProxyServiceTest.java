@@ -42,7 +42,7 @@ public final class CarOemAudioVolumeProxyServiceTest extends AbstractExtendedMoc
 
     private static final CarVolumeGroupInfo TEST_CAR_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("Group name", PRIMARY_AUDIO_ZONE,
-            /* id= */ 0).build();
+            /* id= */ 0).setMaxVolumeGainIndex(9_000).setMinVolumeGainIndex(0).build();
 
     private static final OemCarVolumeChangeInfo TEST_CAR_VOLUME_CHANGE_INFO =
             new OemCarVolumeChangeInfo.Builder(/* volumeChanged= */ true)

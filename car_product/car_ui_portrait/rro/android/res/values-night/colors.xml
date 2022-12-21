@@ -15,17 +15,7 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <style name="TextAppearance.DescriptiveText.PrimaryText" parent="TextAppearance.Car.Body.Large" >
-        <item name="android:textColor">@color/car_on_surface</item>
-    </style>
-    <style name="TextAppearance.DescriptiveText.SecondaryText" parent="TextAppearance.Car.Body.Small" >
-        <item name="android:textColor">@color/car_on_surface_variant</item>
-    </style>
-    <style name="AppGridTitleStyle">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body.Small</item>
-        <item name="android:textColor">@color/car_on_surface</item>
-        <item name="android:lineHeight">36dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-    </style>
+
+    <!-- ****** Seekbar colors ***** -->
+    <color name="car_seekbar_primary_color">@color/car_on_primary_container</color>
 </resources>

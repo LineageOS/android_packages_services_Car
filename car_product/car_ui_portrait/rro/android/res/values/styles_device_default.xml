@@ -106,6 +106,7 @@
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textColor">@color/car_on_primary</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Small" parent="Widget.DeviceDefault.Button">
@@ -150,8 +151,8 @@
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="android:Widget.Material.CompoundButton.Switch">
-        <item name="android:thumb">@*android:drawable/car_switch_thumb</item>
-        <item name="android:track">@*android:drawable/car_switch_track</item>
+        <item name="android:thumb">@drawable/car_switch_thumb</item>
+        <item name="android:track">@drawable/car_switch_track</item>
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
@@ -161,8 +162,8 @@
     </style>
 
     <style name="Widget.DeviceDefault.SeekBar" parent="android:Widget.Material.SeekBar">
-        <item name="android:progressDrawable">@*android:drawable/car_seekbar_track</item>
-        <item name="android:thumb">@*android:drawable/car_seekbar_thumb</item>
+        <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
+        <item name="android:thumb">@drawable/car_seekbar_thumb</item>
     </style>
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">

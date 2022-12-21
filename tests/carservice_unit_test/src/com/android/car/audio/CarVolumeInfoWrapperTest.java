@@ -47,11 +47,14 @@ public final class CarVolumeInfoWrapperTest {
     private static final boolean TEST_VOLUME_GROUP_MUTE = true;
     private static final CarVolumeGroupInfo TEST_PRIMARY_GROUP_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_AUDIO_ZONE,
-                    TEST_GROUP_ID).build();
+                    TEST_GROUP_ID).setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP,
-                    PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP).build();
+                    PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP)
+                    .setMaxVolumeGainIndex(TEST_MAX_GROUP_VOLUME)
+                    .setMinVolumeGainIndex(TEST_MIN_GROUP_VOLUME).build();
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 
@@ -59,7 +62,7 @@ public final class CarVolumeInfoWrapperTest {
     public void setUp() {
         CarAudioService carAudioService = mock(CarAudioService.class);
 
-        when(carAudioService.getSuggestedAudioContextForPrimaryZone()).thenReturn(CALL);
+        when(carAudioService.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE)).thenReturn(CALL);
         when(carAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
                 .thenReturn(TEST_GROUP_ID);
         when(carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
@@ -91,8 +94,8 @@ public final class CarVolumeInfoWrapperTest {
     }
 
     @Test
-    public void getSuggestedAudioContextForPrimaryZone_returnsAudioContext() {
-        int context = mCarVolumeInfoWrapper.getSuggestedAudioContextForPrimaryZone();
+    public void getSuggestedAudioContextForZone_inPrimaryZone_returnsAudioContext() {
+        int context = mCarVolumeInfoWrapper.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car Audio Context")
                 .that(context).isEqualTo(CALL);
