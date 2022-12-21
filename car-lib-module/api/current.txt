@@ -310,6 +310,7 @@ package android.car {
     ctor @Deprecated public VehiclePropertyIds();
     method public static String toString(int);
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int ABS_ACTIVE = 287310858; // 0x1120040a
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int ADAPTIVE_CRUISE_CONTROL_ENABLED = 287313935; // 0x1120100f
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_BOOTUP_REASON = 289409538; // 0x11400a02
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REPORT = 289475073; // 0x11410a01
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
