@@ -1460,6 +1460,7 @@ package android.car.settings {
   }
 
   public static final class CarSettings.Global {
+    field public static final String DISPLAY_INPUT_LOCK = "android.car.DISPLAY_INPUT_LOCK";
     field public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
   }
 
