@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  * {@link android.car.Car#API_VERSION_MINOR_INT} for minor version. Should only be used for
  * {@code majorVersion = 33, minorVersion = 0}.
  *
- * @deprecated - use {@code AddedIn} instead.
+ * @deprecated - use {@code ApiRequirements} instead.
  *
  * @hide
  */
