@@ -111,7 +111,7 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         Log.d(TAG, "Starting user " + user.toFullString() + " on display " + mDisplayId);
         try {
             boolean started = mContext.getSystemService(ActivityManager.class)
-                    .startUserInBackgroundOnSecondaryDisplay(user.id, mDisplayId);
+                    .startUserInBackgroundVisibleOnDisplay(user.id, mDisplayId);
             logAndToastMessage("%s user %d on display %d",
                     (started ? "Started" : "Failed to start"), user.id, mDisplayId);
         } catch (Exception e) {

@@ -16,6 +16,7 @@
 package com.google.android.car.kitchensink.users;
 
 import android.annotation.Nullable;
+import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
@@ -261,16 +262,9 @@ public final class SimpleUserPickerFragment extends Fragment {
         }
 
         // Start the user on display.
-        Log.i(TAG, "start user: " + userId + " in background on secondary display " + displayId);
-        boolean started = mActivityManager.startUserInBackgroundOnSecondaryDisplay(
-                userId, displayId);
-        if (!started) {
-            setMessage(ERROR_MESSAGE, "Cannot start user " + userId + " on display " + displayId);
+        if (!startUserVisibleOnDisplay(userId, displayId)) {
             return;
         }
-
-        setMessage(INFO_MESSAGE,
-                "Started user " + userId + " on display " + displayId);
         mUsersSpinner.updateEntries(getUnassignedUsers());
         updateTextInfo();
     }
@@ -335,19 +329,22 @@ public final class SimpleUserPickerFragment extends Fragment {
         }
 
         int displayId = mDisplayAttached.getDisplayId();
-
-        Log.i(TAG, "start user: " + userId + " in background on secondary display: " + displayId);
-        boolean started = mActivityManager.startUserInBackgroundOnSecondaryDisplay(
-                userId, displayId);
-        if (!started) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot start user " + userId + " on secondary display " + displayId);
+        if (!startUserVisibleOnDisplay(userId, displayId)) {
             return;
         }
-
-        setMessage(INFO_MESSAGE, "Switched to user " + userId + " on display " + displayId);
         mUsersSpinner.updateEntries(getUnassignedUsers());
         updateTextInfo();
+    }
+
+    private boolean startUserVisibleOnDisplay(@UserIdInt int userId, int displayId) {
+        Log.i(TAG, "start user: " + userId + " in background on display: " + displayId);
+        boolean started = mActivityManager.startUserInBackgroundVisibleOnDisplay(userId, displayId);
+        if (!started) {
+            setMessage(ERROR_MESSAGE, "Cannot start user " + userId + " on display " + displayId);
+        } else {
+            setMessage(INFO_MESSAGE, "Started user " + userId + " on display " + displayId);
+        }
+        return started;
     }
 
     private void createUser() {
