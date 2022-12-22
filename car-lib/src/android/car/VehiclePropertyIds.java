@@ -3175,6 +3175,43 @@ public final class VehiclePropertyIds {
     public static final int LANE_DEPARTURE_WARNING_ENABLED = 287313926;
 
     /**
+     * Enable or disable Lane Keep Assist (LKA).
+     *
+     * <p>Returns true if LKA is enabled and false if LKA is disabled. When LKA is enabled, the ADAS
+     * system in the vehicle should be turned on and monitoring if the driver unintentionally drifts
+     * toward or over the lane marking. If an unintentional lane departure is detected, the system
+     * applies steering control to return the vehicle into the current lane.
+     *
+     * <p>This is different from Lane Centering Assist (LCA) which, when activated, applies
+     * continuous steering control to keep the vehicle centered in the current lane.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int LANE_KEEP_ASSIST_ENABLED = 287313928;
+
+    /**
      * Enable or disable lane centering assist (LCA).
      *
      * <p>Returns true if LCA is enabled and false if LCA is disabled. When LCA is enabled, the ADAS
