@@ -306,6 +306,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_VERTICAL_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_WALK_IN_POS, new Pair<>(
+                Car.PERMISSION_CONTROL_CAR_SEATS,
+                Car.PERMISSION_CONTROL_CAR_SEATS));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_OCCUPANCY, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 null));
@@ -471,6 +474,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.ENGINE_RPM, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_IDLE_AUTO_STOP_ENABLED, new Pair<>(
+                Car.PERMISSION_CAR_ENGINE_DETAILED,
+                Car.PERMISSION_CAR_ENGINE_DETAILED));
         mHalPropIdToPermissions.put(VehicleProperty.WHEEL_TICK, new Pair<>(
                 Car.PERMISSION_SPEED,
                 null));

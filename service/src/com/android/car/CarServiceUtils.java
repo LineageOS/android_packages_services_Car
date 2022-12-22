@@ -662,7 +662,7 @@ public final class CarServiceUtils {
      */
     public static boolean isMultipleUsersOnMultipleDisplaysSupported(UserManager userManager) {
         return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
-                && UserManagerHelper.isUsersOnSecondaryDisplaysSupported(userManager);
+                && UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
     }
 
     /**

@@ -114,8 +114,8 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     }
 
     @Override
-    public boolean startUserInBackgroundOnSecondaryDisplay(int userId, int displayId) {
-        Log.d(TAG, "startUserInBackgroundOnSecondaryDisplay(" + userId + ",displaId" + displayId
+    public boolean startUserInBackgroundVisibleOnDisplay(int userId, int displayId) {
+        Log.d(TAG, "startUserInBackgroundVisibleOnDisplay(" + userId + ",displaId" + displayId
                 + ")");
 
         return false;

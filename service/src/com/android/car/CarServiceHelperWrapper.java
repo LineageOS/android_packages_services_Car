@@ -255,9 +255,9 @@ public final class CarServiceHelperWrapper {
     /**
      * See {@code ICarServiceHelper}.
      */
-    public boolean startUserInBackgroundOnSecondaryDisplay(int userId, int displayId) {
+    public boolean startUserInBackgroundVisibleOnDisplay(int userId, int displayId) {
         try {
-            return waitForCarServiceHelper().startUserInBackgroundOnSecondaryDisplay(userId,
+            return waitForCarServiceHelper().startUserInBackgroundVisibleOnDisplay(userId,
                     displayId);
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
