@@ -503,6 +503,7 @@ public class CarPropertyService extends ICarProperty.Stub
      *
      * @return null if property is not implemented or there is an exception in the vehicle.
      */
+    @Nullable
     public CarPropertyValue getPropertySafe(int propertyId, int areaId) {
         try {
             return getProperty(propertyId, areaId);

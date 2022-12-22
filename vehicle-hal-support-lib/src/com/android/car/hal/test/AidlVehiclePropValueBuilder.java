@@ -18,8 +18,8 @@ package com.android.car.hal.test;
 
 import android.annotation.CheckResult;
 import android.hardware.automotive.vehicle.RawPropValues;
-import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.SystemClock;
 
 /** A builder class for {@link VehiclePropValue} */
@@ -101,7 +101,7 @@ public final class AidlVehiclePropValueBuilder {
      * Set the status
      */
     @CheckResult
-    public AidlVehiclePropValueBuilder setStatus(@StatusCode int status) {
+    public AidlVehiclePropValueBuilder setStatus(@VehiclePropertyStatus int status) {
         mPropValue.status = status;
         return this;
     }

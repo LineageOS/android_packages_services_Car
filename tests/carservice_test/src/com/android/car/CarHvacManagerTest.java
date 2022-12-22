@@ -28,7 +28,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.hvac.CarHvacManager.CarHvacEventCallback;
 import android.car.hardware.hvac.CarHvacManager.PropertyId;
-import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleAreaWindow;
 import android.hardware.automotive.vehicle.VehiclePropValue;
@@ -66,24 +65,22 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     private float mEventFloatVal;
     private int mEventIntVal;
     private int mEventZoneVal;
+    private final HvacPropertyHandler mHandler = new HvacPropertyHandler();
 
     @Override
     protected void configureMockedHal() {
-        HvacPropertyHandler handler = new HvacPropertyHandler();
-        addAidlProperty(VehicleProperty.HVAC_DEFROSTER, handler)
+        addAidlProperty(VehicleProperty.HVAC_DEFROSTER, mHandler)
                 .addAreaConfig(VehicleAreaWindow.FRONT_WINDSHIELD, 0, 0);
-        addAidlProperty(VehicleProperty.HVAC_FAN_SPEED, handler)
+        addAidlProperty(VehicleProperty.HVAC_FAN_SPEED, mHandler)
                 .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT, 0, 0);
-        addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_SET, handler)
+        addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_SET, mHandler)
                 .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT, 0, 0);
-        addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_CURRENT, handler)
+        addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_CURRENT, mHandler)
                 .setChangeMode(VehiclePropertyChangeMode.CONTINUOUS)
                 .setAccess(VehiclePropertyAccess.READ)
                 .addAreaConfig(VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT, 0, 0);
-        addAidlProperty(VehicleProperty.HVAC_AC_ON, AidlVehiclePropValueBuilder.newBuilder(
-                VehicleProperty.HVAC_AC_ON).setAreaId(VehicleAreaSeat.ROW_1_CENTER).setStatus(
-                StatusCode.NOT_AVAILABLE).setBooleanValue(true).build()).addAreaConfig(
-                VehicleAreaSeat.ROW_1_CENTER);
+        addAidlProperty(VehicleProperty.HVAC_AC_ON, mHandler)
+                .addAreaConfig(VehicleAreaSeat.ROW_1_CENTER);
     }
 
     @Override
@@ -288,8 +285,25 @@ public class CarHvacManagerTest extends MockedCarTestBase {
             Log.d(TAG, "onPropertySubscribe property " + property + " sampleRate " + sampleRate);
             if (mMap.get(property) == null) {
                 Log.d(TAG, "onPropertySubscribe add placeholder property: " + property);
+                int areaId = 0;
+                switch (property) {
+                    case VehicleProperty.HVAC_DEFROSTER:
+                        areaId = VehicleAreaWindow.FRONT_WINDSHIELD;
+                        break;
+                    case VehicleProperty.HVAC_FAN_SPEED:
+                        // Fall through
+                    case VehicleProperty.HVAC_TEMPERATURE_SET:
+                        areaId = VehicleAreaSeat.ROW_1_LEFT;
+                        break;
+                    case VehicleProperty.HVAC_AC_ON:
+                        areaId = VehicleAreaSeat.ROW_1_CENTER;
+                        break;
+                    case VehicleProperty.HVAC_TEMPERATURE_CURRENT:
+                        areaId = VehicleAreaSeat.ROW_1_LEFT | VehicleAreaSeat.ROW_1_RIGHT;
+                        break;
+                }
                 VehiclePropValue placeholderValue = AidlVehiclePropValueBuilder.newBuilder(property)
-                        .setAreaId(0)
+                        .setAreaId(areaId)
                         .setTimestamp(SystemClock.elapsedRealtimeNanos())
                         .addIntValues(1)
                         .addFloatValues(1)
