@@ -1017,8 +1017,10 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * @hide
      */
-    @TestApi
-    @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
     public static String lifecycleEventTypeToString(@UserLifecycleEventType int type) {
         switch (type) {
             case USER_LIFECYCLE_EVENT_TYPE_STARTING:
