@@ -156,7 +156,10 @@ cc_test {
 cc_test_library {
     name: "libmockevshal",
     defaults: ["android.hardware.graphics.common-ndk_static"],
-    local_include_dirs: ["tests/include"],
+    local_include_dirs: [
+        "include",
+        "tests/include"
+    ],
     export_include_dirs: ["tests/include"],
     srcs: ["tests/src/MockEvsHal.cpp"],
     shared_libs: [
