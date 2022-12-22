@@ -69,6 +69,15 @@ public final class GenerateAPI {
     private static final String GENERATE_FULL_API_LIST = "--generate-full-api-list";
     private static final String UPDATE_HIDDEN_API_FOR_TEST = "--update-hidden-api-for-test";
     private static final String PRINT_HIDDEN_API_FOR_TEST = "--print-hidden-api-for-test";
+    private static final String PRINT_SHORTFORM_FULL_API_FOR_TEST =
+            "--print-shortform-full-api-for-test";
+
+    // Print Level: Describes desired print level for the tool
+    // PRINT_SHORT prints only a condensed version of the APIs.
+    // PRINT_HIDDEN_ONLY prints only hidden APIs.
+    private static final int PRINT_DEFAULT = 0;
+    private static final int PRINT_SHORT = 1;
+    private static final int PRINT_HIDDEN_ONLY = 2;
 
     /**
      * Main method for generate API txt file.
@@ -125,7 +134,7 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), true));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY));
                 }
                 writeListToFile(rootDir + CAR_HIDDEN_API_FILE, allCarAPIs);
                 return;
@@ -135,7 +144,17 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), true));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY));
+                }
+                print(allCarAPIs);
+                return;
+            }
+
+            if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_SHORTFORM_FULL_API_FOR_TEST)) {
+                List<String> allCarAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    allCarAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_SHORT));
                 }
                 print(allCarAPIs);
                 return;
@@ -145,14 +164,14 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), false));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_DEFAULT));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_API_LIST, allCarAPIs);
 
                 List<String> allCarBuiltInAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
                     allCarBuiltInAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), false));
+                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), PRINT_DEFAULT));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_BUILT_IN_API_LIST,
                         allCarBuiltInAPIs);
@@ -245,7 +264,7 @@ public final class GenerateAPI {
         }.visit(cu, null);
     }
 
-    private static List<String> parseJavaFile(File file, boolean writeHiddenOnlyApi)
+    private static List<String> parseJavaFile(File file, int printLevel)
             throws Exception {
         List<String> parsedList = new ArrayList<>();
 
@@ -285,7 +304,7 @@ public final class GenerateAPI {
                         + packageName;
 
                 boolean wholeClassIsHidden = hiddenClass && !isClassSystemAPI;
-                if (!writeHiddenOnlyApi) {
+                if (printLevel == PRINT_DEFAULT) {
                     parsedList.add(classDeclaration);
                 }
 
@@ -376,13 +395,24 @@ public final class GenerateAPI {
                         System.out.printf("%s%s\n", TAB, sb);
                     }
 
-                    if (!writeHiddenOnlyApi) {
-                        parsedList.add(TAB + sb);
-                    } else {
-                        if (wholeClassIsHidden || (isHidden && !isSystem)) {
-                            parsedList.add(packageName + " " + className + " "
-                                    + fieldType + " " + fieldName);
-                        }
+                    String parsedName = packageName + " " + className + " "
+                            + fieldType + " " + fieldName;
+
+                    switch (printLevel) {
+                        case PRINT_DEFAULT:
+                            parsedList.add(TAB + sb);
+                            break;
+                        case PRINT_SHORT:
+                            parsedList.add(parsedName);
+                            break;
+                        case PRINT_HIDDEN_ONLY:
+                            if (wholeClassIsHidden || (isHidden && !isSystem)) {
+                                parsedList.add(parsedName);
+                            }
+                            break;
+                        default:
+                            System.err.println("Unknown print level specified");
+                            break;
                     }
                 }
 
@@ -468,13 +498,25 @@ public final class GenerateAPI {
                     if (DBG) {
                         System.out.printf("%s%s\n", TAB, sb);
                     }
-                    if (!writeHiddenOnlyApi) {
-                        parsedList.add(TAB + sb);
-                    } else {
-                        if (wholeClassIsHidden || (isHidden && !isSystem)) {
-                            parsedList.add(packageName + " " + className + " "
-                                    + returnType + " " + methodName + parametersString.toString());
-                        }
+
+                    String parsedName = packageName + " " + className + " "
+                            + returnType + " " + methodName + parametersString;
+
+                    switch (printLevel) {
+                        case PRINT_DEFAULT:
+                            parsedList.add(TAB + sb);
+                            break;
+                        case PRINT_SHORT:
+                            parsedList.add(parsedName);
+                            break;
+                        case PRINT_HIDDEN_ONLY:
+                            if (wholeClassIsHidden || (isHidden && !isSystem)) {
+                                parsedList.add(parsedName);
+                            }
+                            break;
+                        default:
+                            System.err.println("Unknown print level specified");
+                            break;
                     }
                 }
 
