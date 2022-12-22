@@ -2053,6 +2053,19 @@ public final class Car {
         }
     }
 
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("GenericException")
+    protected void finalize() throws Throwable {
+        try {
+            Log.i(TAG_CAR, "Calling finalize on Car Object.");
+            disconnect();
+        } finally {
+            super.finalize();
+        }
+    }
+
     /**
      * Tells if it is connected to the service or not. This will return false if it is still
      * connecting.
