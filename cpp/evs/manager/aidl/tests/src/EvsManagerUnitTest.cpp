@@ -593,8 +593,7 @@ bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t fr
             receivedFrames.push_back(std::move(dup));
         }
 
-        LOG(INFO) << name << " received frames from " << forwarded[0].deviceId << ", "
-                   << ++counter;
+        LOG(INFO) << name << " received frames from " << forwarded[0].deviceId << ", " << ++counter;
         gotFrameCallback = true;
         cv.notify_all();
         return ::ndk::ScopedAStatus::ok();

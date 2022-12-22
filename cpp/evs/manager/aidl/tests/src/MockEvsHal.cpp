@@ -23,11 +23,12 @@
 #include <android-base/logging.h>
 #include <camera/CameraMetadata.h>
 #include <hardware/gralloc.h>
-#include <system/graphics-base.h>
 #include <utils/SystemClock.h>
 
 #include <functional>
 #include <future>
+
+#include <system/graphics-base.h>
 
 namespace {
 
@@ -179,9 +180,8 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward, const std::string
          mStreamState[deviceId] == StreamState::kRunning && count < numberOfFramesToForward;
          ++count) {
         if (mBufferPool.empty()) {
-            if (!mBufferAvailableSignal.wait_for(l, /* rel_time= */ 10s, [this]() {
+            if (!mBufferAvailableSignal.wait_for(l, /* rel_time= */ 10s, [this]() REQUIRES(mLock) {
                     // Waiting for a buffer to use.
-                    ::android::base::ScopedLockAssertion lock_assertion(mLock);
                     return !mBufferPool.empty();
                 })) {
                 LOG(ERROR) << "Buffer timeout; " << count << "/" << numberOfFramesToForward
@@ -215,7 +215,7 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward, const std::string
         packet.push_back(std::move(bufferToForward));
         it->second->deliverFrame(packet);
 
-        LOG(ERROR) << deviceId << ": " << (count + 1) << "/" << numberOfFramesToForward
+        LOG(DEBUG) << deviceId << ": " << (count + 1) << "/" << numberOfFramesToForward
                    << " frames are sent";
         std::this_thread::sleep_for(33ms);  // 30 frames per seconds
         l.lock();
@@ -223,7 +223,6 @@ void MockEvsHal::forwardFrames(size_t numberOfFramesToForward, const std::string
 
     if (mStreamState.find(deviceId) != mStreamState.end()) {
         mStreamState[deviceId] = StreamState::kStopped;
-
     }
 }
 
