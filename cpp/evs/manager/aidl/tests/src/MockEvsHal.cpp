@@ -16,6 +16,8 @@
 
 #include "MockEvsHal.h"
 
+#include "Constants.h"
+
 #include <aidl/android/hardware/automotive/evs/Rotation.h>
 #include <aidl/android/hardware/automotive/evs/StreamType.h>
 #include <aidl/android/hardware/common/NativeHandle.h>
@@ -65,7 +67,6 @@ inline constexpr int32_t kCameraParamDefaultMaxValue = 255;
 inline constexpr int32_t kCameraParamDefaultStepValue = 3;
 inline constexpr size_t kMinimumNumBuffers = 2;
 inline constexpr size_t kMaximumNumBuffers = 10;
-inline constexpr int kExclusiveMainDisplayId = 255;
 
 NativeHandle copyNativeHandle(const NativeHandle& handle, bool doDup) {
     NativeHandle dup;
@@ -538,10 +539,10 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
                             n = mNumberOfFramesToSend;
                         }
 
+                        std::lock_guard l(mLock);
                         std::packaged_task<void(MockEvsHal*, size_t, const std::string&)> task(
                                 &MockEvsHal::forwardFrames);
                         std::thread t(std::move(task), this, /* numberOfFramesForward= */ n, id);
-                        std::lock_guard l(mLock);
                         mCameraFrameThread.insert_or_assign(id, std::move(t));
 
                         return ndk::ScopedAStatus::ok();
@@ -886,7 +887,7 @@ void MockEvsHal::configureEnumerator() {
 
     ON_CALL(*mockEnumerator, openDisplay)
             .WillByDefault([this](int32_t id, std::shared_ptr<IEvsDisplay>* out) {
-                if (id == kExclusiveMainDisplayId) {
+                if (id == kExclusiveDisplayId) {
                     if (mDisplayOwnedExclusively && !mActiveDisplay.expired()) {
                         return ndk::ScopedAStatus::fromServiceSpecificError(
                                 static_cast<int>(EvsResult::RESOURCE_BUSY));
