@@ -16,7 +16,9 @@
 
 package com.android.car.hal;
 
+import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Log;
 
@@ -166,11 +168,20 @@ public abstract class HalPropValue {
     /**
      * Turns this class to a {@link CarPropertyValue}.
      *
+     * The property status must be {@link VehiclePropertyStatus#AVAILABLE}.
+     *
      * @param mgrPropId The property ID used in {@link android.car.VehiclePropertyIds}.
      * @param config The config for the property.
-     * @return A CarPropertyValue that could be passed to upper layer.
+     * @return A CarPropertyValue that could be passed to upper layer
+     * @throws IllegalStateException If the property value is not valid or the property status
+     *                               is not available.
      */
     public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config) {
+        if (getStatus() != VehiclePropertyStatus.AVAILABLE) {
+            throw new IllegalStateException("The property status is " + getStatus()
+                    + ", not available, cannot convert to CarPropertyValue. This should never"
+                    + " happen and is likely indicating a bug.");
+        }
         if (isMixedTypeProperty(getPropId())) {
             int[] configArray = config.getConfigArray();
             boolean containStringType = configArray[0] == 1;
@@ -261,16 +272,33 @@ public abstract class HalPropValue {
         int areaId = getAreaId();
         int status = getStatus();
         long timestamp = getTimestamp();
+        String propertyName = VehiclePropertyIds.toString(propertyId);
 
         // Handles each return value from {@link getJavaClass}.
         if (Boolean.class == clazz) {
+            if (getInt32ValuesSize() < 1) {
+                throw new IllegalStateException("empty int32 values for property ID: "
+                        + propertyName + ", areaID: " + areaId);
+            }
             return new CarPropertyValue<>(
                     propertyId, areaId, status, timestamp, getInt32Value(0) == 1);
         } else if (Float.class == clazz) {
+            if (getFloatValuesSize() < 1) {
+                throw new IllegalStateException("empty float values for property ID: "
+                        + propertyName + ", areaID: " + areaId);
+            }
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getFloatValue(0));
         } else if (Integer.class == clazz) {
+            if (getInt32ValuesSize() < 1) {
+                throw new IllegalStateException("empty int32 values for property ID: "
+                        + propertyName + ", areaID: " + areaId);
+            }
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getInt32Value(0));
         } else if (Long.class == clazz) {
+            if (getInt64ValuesSize() < 1) {
+                throw new IllegalStateException("empty int64 values for property ID: "
+                        + propertyName + ", areaID: " + areaId);
+            }
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getInt64Value(0));
         } else if (Float[].class == clazz) {
             return new CarPropertyValue<>(
@@ -286,7 +314,7 @@ public abstract class HalPropValue {
         } else if (byte[].class == clazz) {
             return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getByteArray());
         } else {
-            throw new IllegalArgumentException("Unexpected type in: " + propertyId);
+            throw new IllegalStateException("Unexpected type in: " + propertyName);
         }
     }
 
@@ -295,12 +323,17 @@ public abstract class HalPropValue {
         int areaId = getAreaId();
         int status = getStatus();
         long timestamp = getTimestamp();
+        String propertyName = VehiclePropertyIds.toString(propertyId);
 
         List<Object> valuesList = new ArrayList<>();
         if (containString) {
             valuesList.add(getStringValue());
         }
         if (containBoolean) {
+            if (getInt32ValuesSize() < 1) {
+                throw new IllegalStateException("empty int32 values for property ID: "
+                        + propertyName + ", areaID: " + areaId);
+            }
             boolean boolValue = getInt32Value(0) == 1;
             valuesList.add(boolValue);
             for (int i = 1; i < getInt32ValuesSize(); i++) {

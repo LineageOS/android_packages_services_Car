@@ -17,6 +17,8 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -39,8 +41,10 @@ import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import androidx.test.runner.AndroidJUnit4;
 
@@ -48,6 +52,7 @@ import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 
 import com.google.common.collect.ImmutableList;
 
@@ -88,6 +93,7 @@ public class PropertyHalServiceTest {
     private static final int RECEIVED_REQUEST_ID_1 = 0;
     private static final int RECEIVED_REQUEST_ID_2 = 1;
     private static final int RECEIVED_REQUEST_ID_3 = 2;
+    private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
     private static final GetPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_1 =
             new GetPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /*areaId=*/0);
     private static final GetPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
@@ -510,5 +516,58 @@ public class PropertyHalServiceTest {
         mPropertyHalService.cancelRequests(new int[]{0});
 
         verify(mVehicleHal, never()).cancelRequests(any());
+    }
+
+    @Test
+    public void testGetPropertySync() throws Exception {
+        HalPropValue value = mPropValueBuilder.build(INT32_PROP, /* areaId= */ 0, /* value= */ 123);
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+
+        CarPropertyValue carPropValue = mPropertyHalService.getProperty(
+                INT32_PROP, /* areaId= */ 0);
+
+        assertThat(carPropValue.getValue()).isEqualTo(123);
+    }
+
+    @Test
+    public void testGetPropertySyncErrorPropStatus() throws Exception {
+        HalPropValue value = mPropValueBuilder.build(
+                AidlVehiclePropValueBuilder.newBuilder(INT32_PROP)
+                        .setStatus(VehiclePropertyStatus.ERROR).build());
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+
+        // If the property has ERROR status, getProperty will throw ServiceSpecificException with
+        // STATUS_INTERNAL_ERROR as error code.
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
+                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
+        assertThat(e.errorCode).isEqualTo(STATUS_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testGetPropertySyncUnavailablePropStatus() throws Exception {
+        HalPropValue value = mPropValueBuilder.build(
+                AidlVehiclePropValueBuilder.newBuilder(INT32_PROP)
+                        .setStatus(VehiclePropertyStatus.UNAVAILABLE).build());
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+
+        // If the property has UNAVAILABLE status, getProperty will throw ServiceSpecificException
+        // with STATUS_NOT_AVAILABLE as error code.
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
+                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
+        assertThat(e.errorCode).isEqualTo(STATUS_NOT_AVAILABLE);
+    }
+
+    @Test
+    public void testGetPropertySyncInvalidProp() throws Exception {
+        // This property has no valid int array element.
+        HalPropValue value = mPropValueBuilder.build(
+                AidlVehiclePropValueBuilder.newBuilder(INT32_PROP).build());
+        when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
+
+        // If the property value is not valid and cannot be converted to CarPropertyValue,
+        // getProperty will throw ServiceSpecificException with STATUS_INTERNAL_ERROR.
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
+                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
+        assertThat(e.errorCode).isEqualTo(STATUS_INTERNAL_ERROR);
     }
 }

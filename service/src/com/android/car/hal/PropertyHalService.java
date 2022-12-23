@@ -15,6 +15,9 @@
  */
 package com.android.car.hal;
 
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -32,6 +35,7 @@ import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
@@ -241,11 +245,32 @@ public class PropertyHalService extends HalServiceBase {
                     }
 
                     // For okay status, convert the property value to the type the client expects.
-                    int managerPropertyId = clientRequestInfo.getPropertyId();
+                    int mgrPropId = clientRequestInfo.getPropertyId();
                     HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(
-                            managerToHalPropId(managerPropertyId));
-                    CarPropertyValue carPropertyValue = getVehicleStubAsyncResult.getHalPropValue()
-                            .toCarPropertyValue(managerPropertyId, halPropConfig);
+                            managerToHalPropId(mgrPropId));
+                    HalPropValue halPropValue = getVehicleStubAsyncResult.getHalPropValue();
+                    if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
+                        getValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                                STATUS_NOT_AVAILABLE));
+                        continue;
+                    }
+                    if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                        getValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                                STATUS_INTERNAL_ERROR));
+                        continue;
+                    }
+                    CarPropertyValue carPropertyValue;
+                    try {
+                        carPropertyValue = halPropValue.toCarPropertyValue(mgrPropId,
+                                halPropConfig);
+                    } catch (IllegalStateException e) {
+                        Slogf.e(TAG, e, "Cannot convert halPropValue to carPropertyValue, property:"
+                                + " %s, areaId: %d, exception: %s",
+                                VehiclePropertyIds.toString(mgrPropId), halPropValue.getAreaId());
+                        getValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                                STATUS_INTERNAL_ERROR));
+                        continue;
+                    }
                     getValueResults.add(clientRequestInfo.toOkayGetValueResult(carPropertyValue));
                 }
             }
@@ -297,6 +322,20 @@ public class PropertyHalService extends HalServiceBase {
      */
     private static int halToManagerPropId(int halPropId) {
         return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
+    }
+
+    private static void checkHalPropValueStatus(HalPropValue halPropValue, int mgrPropId,
+            int areaId) {
+        if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
+            throw new ServiceSpecificException(STATUS_NOT_AVAILABLE,
+                    "VHAL returned property status as UNAVAILABLE for property: "
+                    + VehiclePropertyIds.toString(mgrPropId) + ", areaId: " + areaId);
+        }
+        if (halPropValue.getStatus() == VehiclePropertyStatus.ERROR) {
+            throw new ServiceSpecificException(STATUS_INTERNAL_ERROR,
+                    "VHAL returned property status as ERROR for property: "
+                    + VehiclePropertyIds.toString(mgrPropId) + ", areaId: " + areaId);
+        }
     }
 
     // Generates a {@link AsyncGetSetRequest} according to a {@link AsyncGetRequestInfo}.
@@ -381,26 +420,31 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     * Returns property or null if property is not ready yet.
+     * Returns property value.
      *
      * @param mgrPropId property id in {@link VehiclePropertyIds}
      * @throws IllegalArgumentException if argument is not valid.
-     * @throws ServiceSpecificException if there is an exception in HAL.
+     * @throws ServiceSpecificException if there is an exception in HAL or the property status is
+     *                                  not available.
      */
-    @Nullable
     public CarPropertyValue getProperty(int mgrPropId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         int halPropId = managerToHalPropId(mgrPropId);
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         HalPropValue halPropValue = mVehicleHal.get(halPropId, areaId);
-        if (halPropValue == null) {
-            return null;
-        }
         HalPropConfig halPropConfig;
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
         }
-        return halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
+        checkHalPropValueStatus(halPropValue, mgrPropId, areaId);
+        try {
+            return halPropValue.toCarPropertyValue(mgrPropId, halPropConfig);
+        } catch (IllegalStateException e) {
+            throw new ServiceSpecificException(STATUS_INTERNAL_ERROR,
+                    "Cannot convert halPropValue to carPropertyValue, property: "
+                    + VehiclePropertyIds.toString(mgrPropId) + " areaId: " + areaId
+                    + ", exception: " + e);
+        }
     }
 
     /**
@@ -605,11 +649,20 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
                 int mgrPropId = halToManagerPropId(halPropId);
-                CarPropertyValue<?> carPropertyValue = halPropValue.toCarPropertyValue(mgrPropId,
-                        halPropConfig);
-                CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
-                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
-                mEventsToDispatch.add(carPropertyEvent);
+                if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
+                    Slogf.w(TAG, "Drop event %s with status that is not AVAILABLE", halPropValue);
+                    continue;
+                }
+                try {
+                    CarPropertyValue<?> carPropertyValue = halPropValue.toCarPropertyValue(
+                            mgrPropId, halPropConfig);
+                    CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
+                            CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
+                    mEventsToDispatch.add(carPropertyEvent);
+                } catch (IllegalStateException e) {
+                    Slogf.w(TAG, "Drop event %s that does not have valid value", halPropValue);
+                    continue;
+                }
             }
             propertyHalListener.onPropertyChange(mEventsToDispatch);
             mEventsToDispatch.clear();
