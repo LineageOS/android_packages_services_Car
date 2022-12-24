@@ -30,7 +30,7 @@ aidl_interface {
 aidl_interface {
     name: "android.automotive.computepipe.registry",
     vendor_available: true,
-    imports: ["android.automotive.computepipe.runner"],
+    imports: ["android.automotive.computepipe.runner-V2"],
     srcs: [
         "android/automotive/computepipe/registry/*.aidl",
         "android/automotive/computepipe/*.aidl",
