@@ -36,6 +36,8 @@ import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
@@ -74,6 +76,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PropertyHalService extends HalServiceBase {
     // This must be set to false for release.
     private static final boolean DBG = false;
+    private static final int ASYNC_RETRY_SLEEP_IN_MS = 100;
 
     private static final class AsyncGetRequestInfo {
         private final GetPropertyServiceRequest mPropMgrRequest;
@@ -158,6 +161,10 @@ public class PropertyHalService extends HalServiceBase {
     private PropertyHalListener mPropertyHalListener;
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new ArraySet<>();
+
+    private final HandlerThread mHandlerThread =
+            CarServiceUtils.getHandlerThread(getClass().getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private class VehicleStubCallback extends VehicleStubCallbackInterface {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
@@ -279,7 +286,9 @@ public class PropertyHalService extends HalServiceBase {
             sendGetValueResults(getValueResults);
 
             if (!retryRequestInfo.isEmpty()) {
-                retryIfNotExpired(retryRequestInfo);
+                mHandler.postDelayed(() -> {
+                    retryIfNotExpired(retryRequestInfo);
+                }, ASYNC_RETRY_SLEEP_IN_MS);
             }
         }
 
