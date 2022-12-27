@@ -72,7 +72,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * extend this class.
  */
 public class PropertyHalService extends HalServiceBase {
-    private static final boolean DBG = true;
+    // This must be set to false for release.
+    private static final boolean DBG = false;
 
     private static final class AsyncGetRequestInfo {
         private final GetPropertyServiceRequest mPropMgrRequest;
