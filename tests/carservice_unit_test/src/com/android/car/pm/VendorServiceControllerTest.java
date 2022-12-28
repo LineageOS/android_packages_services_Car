@@ -17,7 +17,8 @@
 package com.android.car.pm;
 
 import static android.car.test.mocks.CarArgumentMatchers.isUserHandle;
-import static android.view.Display.INVALID_DISPLAY;
+
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -52,10 +53,8 @@ import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
-import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -125,9 +124,6 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Mock
     private CarPackageManagerService mCarPackageManagerService;
 
-    @Mock
-    private ICarServiceHelper mICarServiceHelper;
-
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
@@ -147,11 +143,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService);
+        spyOn(mCarUserService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
-        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
-        wrapper.setCarServiceHelper(mICarServiceHelper);
         // No visible users by default.
-        when(mICarServiceHelper.getDisplayAssignedToUser(anyInt())).thenReturn(INVALID_DISPLAY);
+        doReturn(false).when(mCarUserService).isUserVisible(anyInt());
 
         mController = new VendorServiceController(mContext, Looper.getMainLooper());
 
@@ -165,7 +160,6 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
-        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test
@@ -384,11 +378,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     }
 
     private void mockIsUserVisible(@UserIdInt int userId, boolean visible) throws Exception {
-        if (visible) {
-            when(mICarServiceHelper.getDisplayAssignedToUser(userId)).thenReturn(42);
-        } else {
-            when(mICarServiceHelper.getDisplayAssignedToUser(userId)).thenReturn(INVALID_DISPLAY);
-        }
+        doReturn(visible).when(mCarUserService).isUserVisible(userId);
     }
 
     private static void runOnMainThreadAndWaitForIdle(Runnable r) {
