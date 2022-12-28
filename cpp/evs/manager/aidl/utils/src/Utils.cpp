@@ -565,15 +565,6 @@ ScopedAStatus Utils::buildScopedAStatusFromEvsResult(EvsResult result) {
     }
 }
 
-ScopedAStatus Utils::buildScopedAStatusFromEvsResult(Return<EvsResult>& result) {
-    if (!result.isOk()) {
-        return ScopedAStatus::fromServiceSpecificError(
-                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
-    }
-
-    return Utils::buildScopedAStatusFromEvsResult(static_cast<EvsResult>(result));
-}
-
 ScopedAStatus Utils::buildScopedAStatusFromEvsResult(hidlevs::V1_0::EvsResult result) {
     if (result != hidlevs::V1_0::EvsResult::OK) {
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(makeFromHidl(result)));
@@ -589,54 +580,6 @@ ScopedAStatus Utils::buildScopedAStatusFromEvsResult(Return<hidlevs::V1_0::EvsRe
     }
 
     return Utils::buildScopedAStatusFromEvsResult(static_cast<hidlevs::V1_0::EvsResult>(result));
-}
-
-std::string Utils::toString(const EvsEventType& type) {
-    switch (type) {
-        case EvsEventType::STREAM_STARTED:
-            return "STREAM_STARTED";
-        case EvsEventType::STREAM_STOPPED:
-            return "STREAM_STOPPED";
-        case EvsEventType::FRAME_DROPPED:
-            return "FRAME_DROPPED";
-        case EvsEventType::TIMEOUT:
-            return "TIMEOUT";
-        case EvsEventType::PARAMETER_CHANGED:
-            return "PARAMETER_CHANGED";
-        case EvsEventType::MASTER_RELEASED:
-            return "MASTER_RELEASED";
-        case EvsEventType::STREAM_ERROR:
-            return "STREAM_ERROR";
-    }
-}
-
-std::string_view Utils::toString(EvsResult result) {
-    switch (result) {
-        case EvsResult::OK:
-            return "OK";
-        case EvsResult::INVALID_ARG:
-            return "INVALID_ARG";
-        case EvsResult::STREAM_ALREADY_RUNNING:
-            return "STREAM_ALREADY_RUNNING";
-        case EvsResult::BUFFER_NOT_AVAILABLE:
-            return "BUFFER_NOT_AVAILABLE";
-        case EvsResult::OWNERSHIP_LOST:
-            return "OWNERSHIP_LOST";
-        case EvsResult::UNDERLYING_SERVICE_ERROR:
-            return "UNDERLYING_SERVICE_ERROR";
-        case EvsResult::PERMISSION_DENIED:
-            return "PERMISSION_DENIED";
-        case EvsResult::RESOURCE_NOT_AVAILABLE:
-            return "RESOURCE_NOT_AVAILABLE";
-        case EvsResult::RESOURCE_BUSY:
-            return "RESOURCE_BUSY";
-        case EvsResult::NOT_IMPLEMENTED:
-            return "NOT_IMPLEMENTED";
-        case EvsResult::NOT_SUPPORTED:
-            return "NOT_SUPPORTED";
-        default:
-            return "UNKNOWN";
-    }
 }
 
 }  // namespace aidl::android::automotive::evs::implementation

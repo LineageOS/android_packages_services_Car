@@ -102,7 +102,7 @@ ScopedAStatus AidlCameraStream::ImplV0::notify(const EvsEventDesc& event) {
 
         default:
             // HIDL v1.0 interface does not support events
-            LOG(INFO) << "Event " << Utils::toString(event.aType)
+            LOG(INFO) << "Event " << toString(event.aType)
                       << " is received but ignored for HIDL v1.0 client";
             break;
     }
@@ -142,7 +142,7 @@ ScopedAStatus AidlCameraStream::ImplV1::notify(const EvsEventDesc& event) {
     }
 
     if (auto status = mStream->notify(hidlEvent); !status.isOk()) {
-        LOG(ERROR) << "Failed to forward an event, " << Utils::toString(event.aType);
+        LOG(ERROR) << "Failed to forward an event, " << toString(event.aType);
         return ScopedAStatus::fromStatus(STATUS_FAILED_TRANSACTION);
     }
 
