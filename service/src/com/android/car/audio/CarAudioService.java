@@ -22,6 +22,10 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTIN
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioManager.ADJUST_LOWER;
+import static android.media.AudioManager.ADJUST_RAISE;
+import static android.media.AudioManager.ADJUST_SAME;
+import static android.media.AudioManager.ADJUST_TOGGLE_MUTE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.media.AudioManager.FLAG_SHOW_UI;
@@ -185,9 +189,33 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final KeyEventListener mCarKeyEventListener = new KeyEventListener() {
         @Override
         public void onKeyEvent(KeyEvent event, int displayType, int seat) {
-            // TODO(b/247170915): Handle volume changes
             Slogf.i(TAG, "On key event for audio with display type: %d and seat %d", displayType,
                     seat);
+            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(
+                    mOccupantZoneService.getOccupantZoneIdForSeat(seat));
+            if (!isAudioZoneIdValid(audioZoneId)) {
+                Slogf.e(TAG, "Audio zone is invalid for event %s, displayType %d, and seat %d",
+                        event, displayType, seat);
+                return;
+            }
+            int adjustment;
+            switch (event.getKeyCode()) {
+                case KEYCODE_VOLUME_DOWN:
+                    adjustment = ADJUST_LOWER;
+                    break;
+                case KEYCODE_VOLUME_UP:
+                    adjustment = ADJUST_RAISE;
+                    break;
+                case KEYCODE_VOLUME_MUTE:
+                    adjustment = ADJUST_TOGGLE_MUTE;
+                    break;
+                default:
+                    adjustment = ADJUST_SAME;
+                    break;
+            }
+            synchronized (mImplLock) {
+                mCarAudioPolicyVolumeCallback.onVolumeAdjustment(adjustment, audioZoneId);
+            }
         }
     };
 
@@ -670,7 +698,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             @Override
             public void onMuteChange(boolean mute, int zoneId, int groupId, int flags) {
                 if (mUseCarVolumeGroupMuting) {
-                    setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, mute, flags);
+                    setVolumeGroupMute(zoneId, groupId, mute, flags);
                     return;
                 }
                 setMasterMute(mute, flags);
@@ -728,8 +756,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @GuardedBy("mImplLock")
     private void setupAudioConfigurationCallbackLocked() {
         mCarAudioPlaybackCallback =
-                new CarAudioPlaybackCallback(mCarAudioZones,
-                        mClock, mKeyEventTimeoutMs);
+                new CarAudioPlaybackCallback(mCarAudioZones, mClock, mKeyEventTimeoutMs);
         mAudioManager.registerAudioPlaybackCallback(mCarAudioPlaybackCallback, null);
     }
 

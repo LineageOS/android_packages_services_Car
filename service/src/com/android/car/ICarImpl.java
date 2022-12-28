@@ -366,7 +366,8 @@ public class ICarImpl extends ICar.Stub {
         mCarLocationService = constructWithTrace(t, CarLocationService.class,
                 () -> new CarLocationService(serviceContext), allServices);
         mCarMediaService = constructWithTrace(t, CarMediaService.class,
-                () -> new CarMediaService(serviceContext, mCarUserService), allServices);
+                () -> new CarMediaService(serviceContext, mCarOccupantZoneService, mCarUserService),
+                allServices);
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
                 () -> new CarBugreportManagerService(serviceContext), allServices);
         if (carWatchdogService == null) {

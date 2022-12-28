@@ -57,6 +57,11 @@ import static android.media.AudioManager.STREAM_MUSIC;
 import static android.media.AudioManager.SUCCESS;
 import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.view.KeyEvent.ACTION_DOWN;
+import static android.view.KeyEvent.KEYCODE_UNKNOWN;
+import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
+import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
+import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupMuting;
@@ -106,6 +111,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
+import android.media.AudioManager.AudioPlaybackCallback;
 import android.media.IAudioService;
 import android.media.audiopolicy.AudioPolicy;
 import android.net.Uri;
@@ -115,6 +121,7 @@ import android.os.SystemProperties;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
 
@@ -166,10 +173,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int SECONDARY_ZONE_VOLUME_GROUP_ID = SECONDARY_ZONE_VOLUME_GROUP_COUNT - 1;
     private static final int TEST_PRIMARY_GROUP = 0;
     private static final int TEST_SECONDARY_GROUP = 1;
+    private static final int TEST_THIRD_GROUP = 2;
     private static final int TEST_PRIMARY_GROUP_INDEX = 0;
     private static final int TEST_FLAGS = 0;
     private static final float TEST_VALUE = -.75f;
     private static final float INVALID_TEST_VALUE = -1.5f;
+    private static final int TEST_DISPLAY_TYPE = 2;
+    private static final int TEST_SEAT = 2;
+    private static final int PRIMARY_OCCUPANT_ZONE = 0;
+    private static final int SECONDARY_OCCUPANT_ZONE = 1;
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -1824,6 +1836,232 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Volume group audio attributes with dynamic routing disabled")
                 .that(audioAttributes).isEmpty();
+    }
+
+    @Test
+    public void onKeyEvent_forInvalidAudioZone() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(INVALID_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_UNKNOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after invalid audio zone")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forInvalidEvent() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_UNKNOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after unknown key event")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeUpEvent_inPrimaryZone() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume up in primary zone in primary group")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isGreaterThan(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeDownEvent_inPrimaryZone() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_DOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume down in primary zone in primary group")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isLessThan(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeDownEvent_inPrimaryZone_forSecondaryGroup() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_SECONDARY_GROUP);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        callback.onPlaybackConfigChanged(List.of(new AudioPlaybackConfigurationBuilder()
+                .setUsage(USAGE_ASSISTANT)
+                .setDeviceAddress(VOICE_TEST_DEVICE)
+                .build())
+        );
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_DOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage(
+                "Assistant volume group volume after volume down")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
+                .isLessThan(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeDownEvent_inPrimaryZone_withHigherPriority() {
+        mCarAudioService.init();
+        int primaryGroupVolumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_GROUP);
+        int voiceVolumeGroupBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_THIRD_GROUP);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        callback.onPlaybackConfigChanged(List.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_VOICE_COMMUNICATION)
+                        .setDeviceAddress(CALL_TEST_DEVICE)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(MEDIA_TEST_DEVICE)
+                        .build())
+        );
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_DOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Media volume group volume after volume down")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(primaryGroupVolumeBefore);
+        expectWithMessage("Call volume group volume after volume do")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_THIRD_GROUP))
+                .isLessThan(voiceVolumeGroupBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeMuteEvent_inPrimaryZone() {
+        mCarAudioService.init();
+        boolean muteBefore = mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_MUTE);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume mute")
+                .that(mCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isNotEqualTo(muteBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeUpEvent_inSecondaryZone() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID,
+                SECONDARY_ZONE_VOLUME_GROUP_ID);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(SECONDARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(SECONDARY_OCCUPANT_ZONE))
+                .thenReturn(SECONDARY_ZONE_ID);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Secondary zone volume group after volume up")
+                .that(mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID,
+                        SECONDARY_ZONE_VOLUME_GROUP_ID))
+                .isGreaterThan(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeDownEvent_inSecondaryZone() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID,
+                SECONDARY_ZONE_VOLUME_GROUP_ID);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(SECONDARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(SECONDARY_OCCUPANT_ZONE))
+                .thenReturn(SECONDARY_ZONE_ID);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_DOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Secondary zone volume group after volume down")
+                .that(mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID,
+                        SECONDARY_ZONE_VOLUME_GROUP_ID))
+                .isLessThan(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeMuteEvent_inSecondaryZone() {
+        mCarAudioService.init();
+        boolean muteBefore = mCarAudioService.isVolumeGroupMuted(SECONDARY_ZONE_ID,
+                SECONDARY_ZONE_VOLUME_GROUP_ID);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(SECONDARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(SECONDARY_OCCUPANT_ZONE))
+                .thenReturn(SECONDARY_ZONE_ID);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_MUTE);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Secondary zone volume group after volume mute")
+                .that(mCarAudioService.isVolumeGroupMuted(SECONDARY_ZONE_ID,
+                        SECONDARY_ZONE_VOLUME_GROUP_ID))
+                .isNotEqualTo(muteBefore);
+    }
+
+    private AudioPlaybackCallback getCarAudioPlaybackCallback() {
+        ArgumentCaptor<AudioPlaybackCallback> captor = ArgumentCaptor.forClass(
+                AudioPlaybackCallback.class);
+        verify(mAudioManager).registerAudioPlaybackCallback(captor.capture(), any());
+        return captor.getValue();
+    }
+
+    private CarInputService.KeyEventListener getAudioKeyEventListener() {
+        ArgumentCaptor<CarInputService.KeyEventListener> captor =
+                ArgumentCaptor.forClass(CarInputService.KeyEventListener.class);
+        verify(mMockCarInputService).registerKeyEventListener(captor.capture(), any());
+        return captor.getValue();
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
