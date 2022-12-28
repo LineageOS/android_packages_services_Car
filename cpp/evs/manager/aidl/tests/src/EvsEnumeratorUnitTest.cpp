@@ -19,9 +19,12 @@
 #include "MockEvsHal.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "hardware/gralloc.h"
 #include "utils/include/Utils.h"
 
+#include <aidlcommonsupport/NativeHandle.h>
 #include <cutils/android_filesystem_config.h>
+#include <ui/GraphicBufferAllocator.h>
 
 #include <unistd.h>
 
@@ -40,6 +43,7 @@ using ::aidl::android::hardware::automotive::evs::DisplayDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
 using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
 using ::aidl::android::hardware::automotive::evs::EvsEventType;
+using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::IEvsCamera;
 using ::aidl::android::hardware::automotive::evs::IEvsDisplay;
 using ::aidl::android::hardware::automotive::evs::IEvsEnumerator;
@@ -542,6 +546,68 @@ TEST_F(EvsEnumeratorUnitTest, VerifyDisplayBuffer) {
     }
 }
 
+TEST_F(EvsEnumeratorUnitTest, VerifyImportExternalBuffer) {
+    constexpr size_t kNumExternalBuffers = 5;
+    constexpr size_t kExternalBufferWidth = 64;
+    constexpr size_t kExternalBufferHeight = 32;
+    constexpr int32_t kBufferIdOffset = 0x100;
+    constexpr auto usage =
+            GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_OFTEN;
+
+    buffer_handle_t memHandle = nullptr;
+    ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
+    std::vector<BufferDesc> buffers;
+    for (size_t i = 0; i < kNumExternalBuffers; ++i) {
+        unsigned pixelsPerLine;
+        ::android::status_t result =
+                alloc.allocate(kExternalBufferWidth, kExternalBufferHeight,
+                               /* format= */ HAL_PIXEL_FORMAT_RGBA_8888, /* layers= */ 1, usage,
+                               &memHandle, &pixelsPerLine, 0, "EvsEnumeratorUnitTest");
+        if (result != ::android::NO_ERROR) {
+            ADD_FAILURE();
+            return;
+        }
+
+        BufferDesc buf;
+        AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<AHardwareBuffer_Desc*>(&buf.buffer.description);
+        pDesc->width = kExternalBufferWidth;
+        pDesc->height = kExternalBufferHeight;
+        pDesc->layers = 1;
+        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        pDesc->usage = usage;
+        pDesc->stride = pixelsPerLine;
+        buf.buffer.handle = ::android::dupToAidl(memHandle);
+        buf.bufferId = kBufferIdOffset + i;  // Unique number to identify this buffer
+        buffers.push_back(std::move(buf));
+    }
+
+    // Retrieve a list of available cameras.
+    std::vector<CameraDesc> cameras;
+    EXPECT_TRUE(mEnumerator->getCameraList(&cameras).isOk());
+
+    // Open a camera with the first configuration.
+    std::shared_ptr<IEvsCamera> c;
+    EXPECT_TRUE(mEnumerator->openCamera(cameras[0].id, {}, &c).isOk());
+    EXPECT_NE(nullptr, c);
+
+    int delta = 0;
+    EXPECT_TRUE(c->importExternalBuffers(buffers, &delta).isOk());
+    EXPECT_EQ(delta, kNumExternalBuffers);
+
+    EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
+}
+
+TEST_F(EvsEnumeratorUnitTest, VerifyEvsResultConversion) {
+    for (const auto& v : ndk::enum_range<EvsResult>()) {
+        if (v == EvsResult::OK) {
+            EXPECT_TRUE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+        } else {
+            EXPECT_FALSE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+        }
+    }
+}
+
 TEST_F(EvsEnumeratorUnitTest, VerifyUltrasonicsArray) {
     EXPECT_FALSE(mEnumerator->getUltrasonicsArrayList(nullptr).isOk());
     EXPECT_FALSE(mEnumerator->openUltrasonicsArray(/* id= */ "invalidId", nullptr).isOk());
@@ -666,6 +732,7 @@ bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t fr
         std::lock_guard lk(m);
         for (const auto& frame : forwarded) {
             BufferDesc dup = Utils::dupBufferDesc(frame, /* doDup= */ true);
+            EXPECT_TRUE(Utils::validateNativeHandle(dup.buffer.handle));
             receivedFrames.push_back(std::move(dup));
         }
 

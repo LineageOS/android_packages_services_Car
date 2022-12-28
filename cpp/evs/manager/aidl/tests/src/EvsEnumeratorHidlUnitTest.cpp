@@ -19,6 +19,7 @@
 #include "MockHidlEvsHal.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "hardware/gralloc.h"
 #include "utils/include/Utils.h"
 #include "wrappers/include/AidlCamera.h"
 #include "wrappers/include/AidlDisplay.h"
@@ -29,6 +30,7 @@
 #include <cutils/android_filesystem_config.h>
 #include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
+#include <ui/GraphicBufferAllocator.h>
 
 #include <unistd.h>
 
@@ -247,6 +249,10 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyOpenAndCloseDisplay_1_0) {
     hidlevs::V1_0::DisplayDesc desc;
     d->getDisplayInfo([&desc](const auto& read) { desc = read; });
     EXPECT_EQ(0, desc.vendorFlags);
+
+    ::aidl::android::hardware::automotive::evs::DisplayDesc aidlDesc = Utils::makeFromHidl(desc);
+    EXPECT_EQ(aidlDesc.id, desc.displayId);
+    EXPECT_EQ(aidlDesc.vendorFlags, desc.vendorFlags);
 
     EXPECT_EQ(d->getDisplayState(), hidlevs::V1_0::DisplayState::NOT_VISIBLE);
 
@@ -656,7 +662,7 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyIntParameters) {
         EXPECT_NE(0, step);
     }
 
-    for (auto param : ::android::hardware::details::hidl_enum_values<hidlevs::V1_1::CameraParam>) {
+    for (const auto& param : ::android::hardware::hidl_enum_range<hidlevs::V1_1::CameraParam>()) {
         auto it = std::find(parameters.begin(), parameters.end(), param);
         if (it != parameters.end()) {
             continue;
@@ -714,7 +720,127 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyDisplayBuffer) {
     }
 }
 
+TEST_F(EvsEnumeratorHidlUnitTest, VerifyImportExternalBuffer) {
+    constexpr size_t kNumExternalBuffers = 5;
+    constexpr size_t kExternalBufferWidth = 64;
+    constexpr size_t kExternalBufferHeight = 32;
+    constexpr int32_t kBufferIdOffset = 0x100;
+    constexpr auto usage =
+            GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_OFTEN;
+
+    buffer_handle_t memHandle = nullptr;
+    ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
+    ::android::hardware::hidl_vec<::android::hardware::automotive::evs::V1_1::BufferDesc> buffers(
+            kNumExternalBuffers);
+    for (size_t i = 0; i < kNumExternalBuffers; ++i) {
+        unsigned pixelsPerLine;
+        ::android::status_t result =
+                alloc.allocate(kExternalBufferWidth, kExternalBufferHeight,
+                               /* format= */ HAL_PIXEL_FORMAT_RGBA_8888, /* layers= */ 1, usage,
+                               &memHandle, &pixelsPerLine, 0, "EvsEnumeratorUnitTest");
+        if (result != ::android::NO_ERROR) {
+            ADD_FAILURE();
+            return;
+        }
+
+        ::android::hardware::automotive::evs::V1_1::BufferDesc buf;
+        AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<AHardwareBuffer_Desc*>(&buf.buffer.description);
+        pDesc->width = kExternalBufferWidth;
+        pDesc->height = kExternalBufferHeight;
+        pDesc->layers = 1;
+        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        pDesc->usage = usage;
+        pDesc->stride = pixelsPerLine;
+        buf.buffer.nativeHandle = memHandle;
+        buf.bufferId = kBufferIdOffset + i;  // Unique number to identify this buffer
+        buffers[i] = buf;
+    }
+
+    // Retrieve a list of available cameras.
+    ::android::hardware::hidl_vec<hidlevs::V1_1::CameraDesc> cameras;
+    mEnumerator->getCameraList_1_1([&cameras](const auto& list) { cameras = list; });
+    EXPECT_EQ(kNumMockEvsCameras, cameras.size());
+
+    ::android::sp<hidlevs::V1_1::IEvsCamera> c =
+            mEnumerator->openCamera_1_1(cameras[0].v1.cameraId, /* streamCfg= */ {});
+    EXPECT_NE(nullptr, c);
+
+    int delta = 0;
+    hidlevs::V1_0::EvsResult result = hidlevs::V1_0::EvsResult::OK;
+    c->importExternalBuffers(buffers, [&](auto _result, auto _delta) {
+        result = _result;
+        delta = _delta;
+    });
+    EXPECT_EQ(hidlevs::V1_0::EvsResult::OK, result);
+    EXPECT_EQ(delta, kNumExternalBuffers);
+
+    // Create AidlCamera object and call importExternalBuffers().
+    std::shared_ptr<AidlCamera> aidlCamera =
+            ndk::SharedRefBase::make<AidlCamera>(c, /* forceV1_0= */ true);
+    EXPECT_NE(nullptr, aidlCamera);
+    EXPECT_FALSE(aidlCamera->importExternalBuffers({}, nullptr).isOk());
+
+    EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
+}
+
+TEST_F(EvsEnumeratorHidlUnitTest, VerifyOpenAndCloseDisplayWithAidlWrapper) {
+    std::shared_ptr<AidlEnumerator> aidlWrapper =
+            ndk::SharedRefBase::make<AidlEnumerator>(mEnumerator);
+    EXPECT_NE(nullptr, aidlWrapper);
+
+    std::vector<uint8_t> displays;
+    EXPECT_TRUE(aidlWrapper->getDisplayIdList(&displays).isOk());
+    EXPECT_EQ(kNumMockEvsDisplays, displays.size());
+
+    const uint8_t displayIdToUse = displays[0];
+    std::shared_ptr<::aidl::android::hardware::automotive::evs::IEvsDisplay> d;
+    EXPECT_TRUE(aidlWrapper->openDisplay(displayIdToUse, &d).isOk());
+
+    ::aidl::android::hardware::automotive::evs::DisplayDesc desc;
+    EXPECT_TRUE(d->getDisplayInfo(&desc).isOk());
+
+    ::aidl::android::hardware::automotive::evs::DisplayState state;
+    EXPECT_TRUE(aidlWrapper->getDisplayState(&state).isOk());
+    EXPECT_EQ(::aidl::android::hardware::automotive::evs::DisplayState::NOT_VISIBLE, state);
+
+    aidlWrapper = ndk::SharedRefBase::make<AidlEnumerator>(mEnumerator, /* forceV1_0= */ true);
+    EXPECT_NE(nullptr, aidlWrapper);
+
+    // hidlevs::V1_0::IEvsEnumerator returns an erroneous status.
+    displays.clear();
+    EXPECT_FALSE(aidlWrapper->getDisplayIdList(&displays).isOk());
+    EXPECT_TRUE(displays.empty());
+
+    d = nullptr;
+    EXPECT_TRUE(aidlWrapper->openDisplay(displayIdToUse, &d).isOk());
+    EXPECT_TRUE(d->getDisplayInfo(&desc).isOk());
+
+    EXPECT_TRUE(aidlWrapper->getDisplayState(&state).isOk());
+    EXPECT_EQ(::aidl::android::hardware::automotive::evs::DisplayState::NOT_VISIBLE, state);
+}
+
 TEST_F(EvsEnumeratorHidlUnitTest, VerifyAidlEnumeratorWrapper) {
+    std::shared_ptr<AidlEnumerator> aidlWrapper =
+            ndk::SharedRefBase::make<AidlEnumerator>(mEnumerator);
+    EXPECT_NE(nullptr, aidlWrapper);
+
+    bool isHardware = false;
+    EXPECT_TRUE(aidlWrapper->isHardware(&isHardware).isOk());
+    // AidlEnumerator class will always be used to wrap around HIDL EVS HAL
+    // implementation.
+    EXPECT_TRUE(isHardware);
+
+    // Below methods are not implemented yet.
+    std::vector<::aidl::android::hardware::automotive::evs::UltrasonicsArrayDesc> descs;
+    EXPECT_FALSE(aidlWrapper->getUltrasonicsArrayList(&descs).isOk());
+
+    std::shared_ptr<::aidl::android::hardware::automotive::evs::IEvsUltrasonicsArray> ptr;
+    EXPECT_FALSE(aidlWrapper->openUltrasonicsArray(/* id= */ "invalid", &ptr).isOk());
+    EXPECT_FALSE(aidlWrapper->closeUltrasonicsArray(ptr).isOk());
+}
+
+TEST_F(EvsEnumeratorHidlUnitTest, VerifyOpenAndCloseCameraWithAidlWrapper) {
     std::shared_ptr<AidlEnumerator> aidlWrapper =
             ndk::SharedRefBase::make<AidlEnumerator>(mEnumerator);
     EXPECT_NE(nullptr, aidlWrapper);
@@ -742,6 +868,19 @@ TEST_F(EvsEnumeratorHidlUnitTest, VerifyAidlEnumeratorWrapper) {
 
     EXPECT_TRUE(aidlWrapper->openCamera(cameras[0].id, configs[0], &c).isOk());
     EXPECT_TRUE(aidlWrapper->closeCamera(c).isOk());
+}
+
+TEST_F(EvsEnumeratorHidlUnitTest, VerifyEvsResultConversion) {
+    for (const auto& v : ::android::hardware::hidl_enum_range<hidlevs::V1_0::EvsResult>()) {
+        ::android::hardware::Return<hidlevs::V1_0::EvsResult> wrapped = v;
+        if (v == hidlevs::V1_0::EvsResult::OK) {
+            EXPECT_TRUE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+            EXPECT_TRUE(Utils::buildScopedAStatusFromEvsResult(wrapped).isOk());
+        } else {
+            EXPECT_FALSE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+            EXPECT_FALSE(Utils::buildScopedAStatusFromEvsResult(wrapped).isOk());
+        }
+    }
 }
 
 TEST_F(EvsEnumeratorHidlUnitTest, VerifyUltrasonicsArray) {
@@ -797,6 +936,7 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream(const hidlevs::V1_1::CameraDe
     ::android::sp<hidlevs::V1_1::IEvsCamera> c =
             mEnumerator->openCamera_1_1(desc.v1.cameraId, /* streamCfg= */ {});
     EXPECT_NE(nullptr, c);
+    EXPECT_EQ(hidlevs::V1_0::EvsResult::OK, c->setMaxFramesInFlight(/* bufferCount= */ 3));
 
     // Request to start a video stream and wait for a given number of frames.
     ::android::sp<StreamCallback> cb = new (std::nothrow) StreamCallback(frameCb, eventCb);
@@ -874,6 +1014,7 @@ bool EvsEnumeratorHidlUnitTest::VerifyCameraStream_1_0(
 
     ::android::sp<hidlevs::V1_0::IEvsCamera> c = mEnumerator->openCamera(desc.cameraId);
     EXPECT_NE(nullptr, c);
+    EXPECT_EQ(hidlevs::V1_0::EvsResult::OK, c->setMaxFramesInFlight(/* bufferCount= */ 3));
 
     // Request to start a video stream and wait for a given number of frames.
     ::android::sp<StreamCallback_1_0> cb = new (std::nothrow) StreamCallback_1_0(frameCb);

@@ -145,6 +145,7 @@ cc_test {
     shared_libs: [
         "libcamera_client",
         "libnativewindow",
+        "libui",
     ],
     static_libs: [
         "libgmock",

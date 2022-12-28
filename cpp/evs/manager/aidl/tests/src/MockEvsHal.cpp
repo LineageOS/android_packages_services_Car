@@ -443,6 +443,7 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
     ON_CALL(*mockCamera, importExternalBuffers)
             .WillByDefault([this](const std::vector<BufferDesc>& buffers, int32_t* num) {
                 std::lock_guard l(mLock);
+                size_t count = 0;
                 for (auto i = 0; i < buffers.size(); ++i) {
                     auto it = std::find_if(mBufferPool.begin(), mBufferPool.end(),
                                            [&](const BufferDesc& b) {
@@ -456,9 +457,13 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
 
                     // TODO(b/235110887): Explicitly copies external buffers
                     //                    stores them in mBufferPool.
+                    //
+                    // Temporarily, we count the number of buffers that
+                    // identifiers do not conflict with existing buffers.
+                    ++count;
                 }
 
-                *num = mBufferPool.size();
+                *num = count;
                 return ndk::ScopedAStatus::ok();
             });
 
@@ -504,23 +509,32 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
     ON_CALL(*mockCamera, setMaxFramesInFlight)
             .WillByDefault([this, id = mockCamera->getId()](int32_t bufferCount) {
                 std::lock_guard l(mLock);
-                size_t totalSize = mBufferPoolSize + bufferCount;
-                if (totalSize < kMinimumNumBuffers) {
+                if (bufferCount < kMinimumNumBuffers) {
                     LOG(WARNING) << "Requested buffer pool size is too small to run a camera; "
                                     "adjusting the pool size to "
                                  << kMinimumNumBuffers;
-                    totalSize = kMinimumNumBuffers;
-                } else if (totalSize > kMaximumNumBuffers) {
+                    bufferCount = kMinimumNumBuffers;
+                }
+
+                int64_t delta = bufferCount;
+                auto it = mCameraBufferPoolSize.find(id);
+                if (it != mCameraBufferPoolSize.end()) {
+                    delta -= it->second;
+                }
+
+                if (!delta) {
+                    // No further action required.
+                    return ndk::ScopedAStatus::ok();
+                }
+
+                size_t totalSize = mBufferPoolSize + delta;
+                if (totalSize > kMaximumNumBuffers) {
                     LOG(ERROR) << "Requested size, " << totalSize << ", exceeds the limitation.";
                     return ndk::ScopedAStatus::fromServiceSpecificError(
                             static_cast<int>(EvsResult::INVALID_ARG));
                 }
 
                 mBufferPoolSize = totalSize;
-                auto it = mCameraBufferPoolSize.find(id);
-                if (it != mCameraBufferPoolSize.end()) {
-                    bufferCount += it->second;
-                }
                 mCameraBufferPoolSize.insert_or_assign(id, bufferCount);
                 return ndk::ScopedAStatus::ok();
             });
