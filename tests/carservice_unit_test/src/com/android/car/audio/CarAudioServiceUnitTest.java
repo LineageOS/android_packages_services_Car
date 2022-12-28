@@ -104,7 +104,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
+import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -133,6 +135,7 @@ import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
+import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.oem.CarOemProxyService;
 import com.android.car.test.utils.TemporaryFile;
 
@@ -198,6 +201,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_DRIVER_USER_ID = 10;
     private static final int TEST_USER_ID = 11;
     private static final int TEST_USER_ID_SECONDARY = 12;
+    private static final int TEST_GAIN_INDEX = 4;
 
     private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_PRIMARY_GROUP, PRIMARY_AUDIO_ZONE,
@@ -2048,6 +2052,85 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(mCarAudioService.isVolumeGroupMuted(SECONDARY_ZONE_ID,
                         SECONDARY_ZONE_VOLUME_GROUP_ID))
                 .isNotEqualTo(muteBefore);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_forPrimaryZone_changesVolume() {
+        mCarAudioService.init();
+        HalAudioGainCallback callback = getHalAudioGainCallback();
+        CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
+                MEDIA_TEST_DEVICE, TEST_GAIN_INDEX);
+
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+
+        expectWithMessage("New audio gains for primary zone")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_forSecondaryZone_changesVolume() {
+        mCarAudioService.init();
+        HalAudioGainCallback callback = getHalAudioGainCallback();
+        CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(SECONDARY_ZONE_ID,
+                SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+
+        expectWithMessage("New audio gains for secondary zone")
+                .that(mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID, TEST_PRIMARY_GROUP))
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_forIncorrectDeviceAddress_sameVolume() {
+        mCarAudioService.init();
+        HalAudioGainCallback callback = getHalAudioGainCallback();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
+                SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+
+        expectWithMessage("Same audio gains for primary zone")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_forMultipleZones_changesVolume() {
+        mCarAudioService.init();
+        HalAudioGainCallback callback = getHalAudioGainCallback();
+        CarAudioGainConfigInfo primaryAudioZoneCarGain = createCarAudioGainConfigInfo(
+                PRIMARY_AUDIO_ZONE, MEDIA_TEST_DEVICE, TEST_GAIN_INDEX);
+        CarAudioGainConfigInfo secondaryAudioZoneCarGain = createCarAudioGainConfigInfo(
+                SECONDARY_ZONE_ID, SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.THERMAL_LIMITATION),
+                List.of(primaryAudioZoneCarGain, secondaryAudioZoneCarGain));
+
+        expectWithMessage("New audio gains for primary zone")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(TEST_GAIN_INDEX);
+        expectWithMessage("New audio gains for secondary zone")
+                .that(mCarAudioService.getGroupVolume(SECONDARY_ZONE_ID, TEST_PRIMARY_GROUP))
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    private CarAudioGainConfigInfo createCarAudioGainConfigInfo(int zoneId,
+            String devicePortAddress, int volumeIndex) {
+        AudioGainConfigInfo configInfo = new AudioGainConfigInfo();
+        configInfo.zoneId = zoneId;
+        configInfo.devicePortAddress = devicePortAddress;
+        configInfo.volumeIndex = volumeIndex;
+        return new CarAudioGainConfigInfo(configInfo);
+    }
+
+    private HalAudioGainCallback getHalAudioGainCallback() {
+        ArgumentCaptor<HalAudioGainCallback> captor = ArgumentCaptor.forClass(
+                HalAudioGainCallback.class);
+        verify(mAudioControlWrapperAidl).registerAudioGainCallback(captor.capture());
+        return captor.getValue();
     }
 
     private AudioPlaybackCallback getCarAudioPlaybackCallback() {
