@@ -75,6 +75,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.CarTaskView;
 import com.android.car.carlauncher.ControlledCarTaskViewCallbacks;
+import com.android.car.carlauncher.ControlledCarTaskViewConfig;
 import com.android.car.carlauncher.LaunchRootCarTaskViewCallbacks;
 import com.android.car.carlauncher.SemiControlledCarTaskViewCallbacks;
 import com.android.car.carlauncher.TaskViewManager;
@@ -880,8 +881,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void setUpBackgroundTaskView(ViewGroup parent) {
         mTaskViewManager.createControlledCarTaskView(getMainExecutor(),
-                CarLauncherUtils.getMapsIntent(getApplicationContext()),
-                true,
+                ControlledCarTaskViewConfig.builder()
+                        .setActivityIntent(CarLauncherUtils.getMapsIntent(getApplicationContext()))
+                        .setAutoRestartOnCrash(true)
+                        .build(),
                 new ControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
