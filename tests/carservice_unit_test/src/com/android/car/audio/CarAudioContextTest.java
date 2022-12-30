@@ -55,6 +55,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -737,7 +738,7 @@ public class CarAudioContextTest extends AbstractExpectableTestCase {
     @Test
     public void constructor_withEmptyContextInfos_fails() {
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioContext(/* carAudioContexts= */ List.of()));
+                () -> new CarAudioContext(/* carAudioContexts= */ Collections.EMPTY_LIST));
 
         assertWithMessage("Empty list constructor exception")
                 .that(thrown).hasMessageThat()
@@ -773,5 +774,38 @@ public class CarAudioContextTest extends AbstractExpectableTestCase {
             expectWithMessage("Context info id for %s", info)
                     .that(info.getId()).isIn(nonCarContextIds);
         }
+    }
+
+    @Test
+    public void evaluateAttributesToDuck() {
+        List<AudioAttributes> focusHolders = Collections.EMPTY_LIST;
+
+        List<AudioAttributes> attributesToDuck =
+                CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
+
+        expectWithMessage("Audio attributes to duck").that(attributesToDuck).isEmpty();
+    }
+
+    @Test
+    public void evaluateAudioAttributesToDuck_withMedia() {
+        List<AudioAttributes> focusHolders = List.of(TEST_MEDIA_ATTRIBUTE);
+
+        List<AudioAttributes> attributesToDuck =
+                CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
+
+        expectWithMessage("Audio attributes to duck with media")
+                .that(attributesToDuck).isEmpty();
+    }
+
+    @Test
+    public void evaluateAudioAttributesToDuck_withCallAndEmergency() {
+        List<AudioAttributes> focusHolders =
+                List.of(TEST_EMERGENCY_ATTRIBUTE, TEST_CALL_ATTRIBUTE);
+
+        List<AudioAttributes> attributesToDuck =
+                CarAudioContext.evaluateAudioAttributesToDuck(focusHolders);
+
+        expectWithMessage("Audio attributes to duck with media and emergency")
+                .that(attributesToDuck).containsExactly(TEST_CALL_ATTRIBUTE);
     }
 }

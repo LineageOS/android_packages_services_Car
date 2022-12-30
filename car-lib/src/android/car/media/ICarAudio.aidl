@@ -53,7 +53,7 @@ interface ICarAudio {
     boolean isVolumeGroupMuted(int zoneId, int groupId);
     void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags);
     CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId);
-    CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId);
+    List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId);
 
     List<AudioAttributes> getAudioAttributesForVolumeGroup(in CarVolumeGroupInfo groupInfo);
 
