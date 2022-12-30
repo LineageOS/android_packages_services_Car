@@ -16,6 +16,6 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="6575346965016311017">"Мапе"</string>
-    <string name="error_text" msgid="5575174711944349180">"Није инсталирана апликација за мапе. Контактирајте произвођача аутомобила."</string>
+    <string name="app_name" msgid="6575346965016311017">"Mape"</string>
+    <string name="error_text" msgid="5575174711944349180">"Nije instalirana aplikacija za mape. Kontaktirajte proizvođača automobila."</string>
 </resources>
