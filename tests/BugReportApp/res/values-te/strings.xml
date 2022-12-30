@@ -25,7 +25,7 @@
     <string name="bugreport_dialog_submit" msgid="2789636252713280633">"సమర్పించండి"</string>
     <string name="bugreport_dialog_cancel" msgid="4741928791364757040">"రద్దు చేయండి"</string>
     <string name="bugreport_dialog_upload" msgid="2517386929450370781">"అప్‌లోడ్ చేయి"</string>
-    <string name="bugreport_dialog_save" msgid="3291363266190644226">"సేవ్ చేయి"</string>
+    <string name="bugreport_dialog_save" msgid="3291363266190644226">"సేవ్ చేయండి"</string>
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"బగ్ రిపోర్ట్‌లను చూపండి"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"మూసివేయి"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"మాట్లాడండి &amp; సమస్యను వివరించండి"</string>
