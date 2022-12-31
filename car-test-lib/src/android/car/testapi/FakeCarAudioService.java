@@ -100,8 +100,8 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     }
 
     @Override
-    public CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId) {
-        return new CarVolumeGroupInfo[0];
+    public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
+        return Collections.EMPTY_LIST;
     }
 
     @Override

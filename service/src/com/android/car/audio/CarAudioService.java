@@ -988,21 +988,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @Override
-    public CarVolumeGroupInfo[] getVolumeGroupInfosForZone(int zoneId) {
+    public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         if (!mUseDynamicRouting) {
-            return new CarVolumeGroupInfo[0];
+            return Collections.EMPTY_LIST;
         }
         synchronized (mImplLock) {
-
-            CarAudioZone zone = getCarAudioZoneLocked(zoneId);
-
-            CarVolumeGroupInfo[] groupInfos = new CarVolumeGroupInfo[zone.getVolumeGroupCount()];
-            for (int index = 0; index < zone.getVolumeGroupCount(); index++) {
-                groupInfos[index] = zone.getVolumeGroup(index).getCarVolumeGroupInfo();
-            }
-
-            return groupInfos;
+            return getCarAudioZoneLocked(zoneId).getVolumeGroupInfos();
         }
     }
 
@@ -1103,7 +1095,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * returns the current call state ({@code CALL_STATE_OFFHOOK}, {@code CALL_STATE_RINGING},
      * {@code CALL_STATE_IDLE}) from the telephony manager.
      */
-    private int getCallStateForZone(int zoneId) {
+    int getCallStateForZone(int zoneId) {
         synchronized (mImplLock) {
             // Only driver can use telephony stack
             if (getUserIdForZoneLocked(zoneId) == mOccupantZoneService.getDriverUserId()) {
@@ -1764,6 +1756,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         return mutedGroups;
+    }
+
+    List<AudioAttributes> getActiveAudioAttributesForZone(int zoneId) {
+        List<AudioAttributes> activeAudioAttributes = new ArrayList<>();
+        activeAudioAttributes.addAll(getAllActiveAttributesForZone(zoneId));
+        activeAudioAttributes.addAll(getActiveHalAudioAttributesForZone(zoneId));
+
+        return activeAudioAttributes;
     }
 
     static final class SystemClockWrapper {

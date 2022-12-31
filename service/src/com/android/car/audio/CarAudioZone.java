@@ -19,6 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
@@ -293,5 +294,17 @@ public class CarAudioZone {
      */
     public CarAudioContext getCarAudioContext() {
         return mCarAudioContext;
+    }
+
+    /**
+     * Returns the car volume infos for all the volume groups in the audio zone
+     */
+    List<CarVolumeGroupInfo> getVolumeGroupInfos() {
+        List<CarVolumeGroupInfo> groupInfos = new ArrayList<>(mVolumeGroups.size());
+        for (int index = 0; index < mVolumeGroups.size(); index++) {
+            groupInfos.add(mVolumeGroups.get(index).getCarVolumeGroupInfo());
+        }
+
+        return groupInfos;
     }
 }
