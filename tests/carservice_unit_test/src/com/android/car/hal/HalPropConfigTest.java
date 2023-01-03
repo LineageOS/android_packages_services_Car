@@ -18,17 +18,21 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.VehicleOilLevel;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class HalPropConfigTest {
 
@@ -42,7 +46,7 @@ public final class HalPropConfigTest {
             1 | VehicleArea.GLOBAL | VehiclePropertyType.INT32_VEC;
     private static final int TEST_AREA_ID = 2;
     private static final int TEST_ACCESS = 2;
-    private static final int TEST_CHANGE_MODE = 3;
+    private static final int TEST_CHANGE_MODE = VehiclePropertyChangeMode.ON_CHANGE;
     private static final int[] TEST_CONFIG_ARRAY = new int[]{1, 2, 3};
     private static final ArrayList<Integer> TEST_CONFIG_ARRAY_LIST = new ArrayList<Integer>(
             Arrays.asList(1, 2, 3));
@@ -214,6 +218,7 @@ public final class HalPropConfigTest {
         assertThat(areaIdConfig.getAreaId()).isEqualTo(/*areaId=*/0);
         assertThat(areaIdConfig.getMinValue()).isNull();
         assertThat(areaIdConfig.getMaxValue()).isNull();
+        assertThat(areaIdConfig.getSupportedEnumValues()).isEmpty();
     }
 
     @Test
@@ -344,6 +349,31 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).containsExactly(99, 100);
+    }
+
+    @Test
+    public void toCarPropertyConfig_aidlSkipsSupportedEnumValuesIfNonOnChangeProperty() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
+    public void toCarPropertyConfig_aidlAutoPopulatesSupportedEnumValuesIfEmpty() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.prop = VehicleProperty.ENGINE_OIL_LEVEL;
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        aidlVehiclePropConfig.areaConfigs[0].supportedEnumValues = null;
+        HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+
+        assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                TEST_AREA_ID).getSupportedEnumValues()).containsExactlyElementsIn(
+                List.of(VehicleOilLevel.CRITICALLY_LOW, VehicleOilLevel.LOW, VehicleOilLevel.NORMAL,
+                        VehicleOilLevel.HIGH, VehicleOilLevel.ERROR));
     }
 
     @Test

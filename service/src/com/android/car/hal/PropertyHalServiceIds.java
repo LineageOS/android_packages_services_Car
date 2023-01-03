@@ -58,6 +58,7 @@ import com.android.car.CarLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -76,8 +77,6 @@ public class PropertyHalServiceIds {
      */
     private final SparseArray<Pair<String, String>> mHalPropIdToPermissions = new SparseArray<>();
     private final HashSet<Integer> mHalPropIdsForUnits = new HashSet<>();
-    // Key: propId, Value: possible value for the property
-    private final SparseArray<Set<Integer>> mHalPropIdToValidValues = new SparseArray<>();
     private final SparseIntArray mHalPropIdToValidBitFlag = new SparseIntArray();
     private static final String TAG = CarLog.tagFor(PropertyHalServiceIds.class);
     // Enums are used as return value in Vehicle HAL.
@@ -130,6 +129,77 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> BLIND_SPOT_WARNING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 BlindSpotWarningState.class, ErrorState.class));
+
+    // TODO(b/264946993): Autogenerate HAL_PROP_ID_TO_ENUM_SET directly from AIDL definition.
+    private static final SparseArray<Set<Integer>> HAL_PROP_ID_TO_ENUM_SET = new SparseArray<>();
+    static {
+        // HAL_PROP_ID_TO_ENUM_SET should contain all properties which have @data_enum in
+        // VehicleProperty.aidl
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, PORT_LOCATION);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.INFO_DRIVER_SEAT, VEHICLE_SEAT);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, PORT_LOCATION);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.ENGINE_OIL_LEVEL, OIL_LEVEL);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.GEAR_SELECTION, VEHICLE_GEAR);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CURRENT_GEAR, VEHICLE_GEAR);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.TURN_SIGNAL_STATE, TURN_SIGNAL);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.IGNITION_STATE, IGNITION_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
+                EV_REGENERATIVE_BREAKING_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
+                ETC_CARD_TYPE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
+                ETC_CARD_STATUS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.TRAILER_PRESENT,
+                TRAILER_PRESENT);
+        HAL_PROP_ID_TO_ENUM_SET.put(
+                VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
+                GSR_COMP_TYPE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_STOPPING_MODE,
+                EV_STOPPING_MODE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH,
+                VEHICLE_LIGHT_SWITCH);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
+                VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
+                AUTOMATIC_EMERGENCY_BRAKING_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
+                FORWARD_COLLISION_WARNING_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.BLIND_SPOT_WARNING_STATE,
+                BLIND_SPOT_WARNING_STATE);
+    }
+
+    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
+            Set.of(VehicleProperty.GEAR_SELECTION, VehicleProperty.CURRENT_GEAR,
+                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
+                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
+                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
+                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
+                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS);
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -725,62 +795,6 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(
                 VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
                 new Pair<>(Car.PERMISSION_CAR_INFO, null));
-        // mPropToValidValue should contain all properties which has @data_enum in types.hal
-        mHalPropIdToValidValues.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
-        mHalPropIdToValidValues.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
-        mHalPropIdToValidValues.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, PORT_LOCATION);
-        mHalPropIdToValidValues.put(VehicleProperty.INFO_DRIVER_SEAT, VEHICLE_SEAT);
-        mHalPropIdToValidValues.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, PORT_LOCATION);
-        mHalPropIdToValidValues.put(VehicleProperty.ENGINE_OIL_LEVEL, OIL_LEVEL);
-        mHalPropIdToValidValues.put(VehicleProperty.GEAR_SELECTION, VEHICLE_GEAR);
-        mHalPropIdToValidValues.put(VehicleProperty.CURRENT_GEAR, VEHICLE_GEAR);
-        mHalPropIdToValidValues.put(VehicleProperty.TURN_SIGNAL_STATE, TURN_SIGNAL);
-        mHalPropIdToValidValues.put(VehicleProperty.IGNITION_STATE, IGNITION_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mHalPropIdToValidValues.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mHalPropIdToValidValues.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
-        mHalPropIdToValidValues.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mHalPropIdToValidValues.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
-        mHalPropIdToValidValues.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
-                VEHICLE_LIGHT_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
-                EV_REGENERATIVE_BREAKING_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.EV_STOPPING_MODE, EV_STOPPING_MODE);
-        mHalPropIdToValidValues.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH,
-                VEHICLE_LIGHT_SWITCH);
-        mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
-                ETC_CARD_STATUS);
-        mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
-                ETC_CARD_TYPE);
-        mHalPropIdToValidValues.put(VehicleProperty.TRAILER_PRESENT,
-                TRAILER_PRESENT);
-        mHalPropIdToValidValues.put(
-                VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
-                GSR_COMP_TYPE);
-        mHalPropIdToValidValues.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
-                AUTOMATIC_EMERGENCY_BRAKING_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
-                FORWARD_COLLISION_WARNING_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.BLIND_SPOT_WARNING_STATE,
-                BLIND_SPOT_WARNING_STATE);
 
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
@@ -842,6 +856,17 @@ public class PropertyHalServiceIds {
     public boolean isSupportedProperty(int propId) {
         // Property is in the list of supported properties
         return mHalPropIdToPermissions.get(propId) != null || isVendorProperty(propId);
+    }
+
+    /**
+     * Returns all possible supported enum values for the {@code halPropId}. If property does not
+     * support an enum, then it returns {@code null}.
+     */
+    @Nullable
+    public static Set<Integer> getAllPossibleSupportedEnumValues(int halPropId) {
+        return HAL_PROP_ID_TO_ENUM_SET.contains(halPropId)
+                && !CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES.contains(halPropId)
+                ? Collections.unmodifiableSet(HAL_PROP_ID_TO_ENUM_SET.get(halPropId)) : null;
     }
 
     /**
@@ -984,7 +1009,7 @@ public class PropertyHalServiceIds {
             Slogf.e(TAG, "Property value" + propValue + "has an invalid data format");
             return false;
         }
-        if (mHalPropIdToValidValues.contains(propId)) {
+        if (HAL_PROP_ID_TO_ENUM_SET.contains(propId)) {
             return checkDataEnum(propValue);
         }
         if (mHalPropIdToValidBitFlag.indexOfKey(propId) >= 0) {
@@ -1039,7 +1064,7 @@ public class PropertyHalServiceIds {
     }
     private boolean checkDataEnum(HalPropValue propValue) {
         int propId = propValue.getPropId();
-        Set<Integer> validValue = mHalPropIdToValidValues.get(propId);
+        Set<Integer> validValue = HAL_PROP_ID_TO_ENUM_SET.get(propId);
         for (int i = 0; i < propValue.getInt32ValuesSize(); i++) {
             if (!validValue.contains(propValue.getInt32Value(i))) {
                 return false;
