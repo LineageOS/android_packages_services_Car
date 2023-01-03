@@ -44,7 +44,7 @@
     <bool name="config_enableMessageNotificationDirectReply">true</bool>
 
     <!-- Alpha for older notifications when config_showRecentAndOldHeaders is true -->
-    <item name="config_olderNotificationsAlpha" format="float" type="dimen">0.5</item>
+    <item name="config_olderNotificationsAlpha" format="float" type="dimen">1</item>
 
     <!-- Whether to collapse notification shade panel after manage button click -->
     <bool name="config_collapseShadePanelAfterManageButtonPress">false</bool>
