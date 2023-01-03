@@ -1731,14 +1731,64 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804;
+
     /**
-     * Headrest height position
-     * The property is protected by the signature permission:
-     * android.car.permission.CONTROL_CAR_SEATS.
+     * @deprecated This property is deprecated because it is defined as type {@link
+     * VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, which means all seats use the same value. Use
+     * {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead which fixes this issue by being defined as type
+     * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}.
+     *
+     * Headrest height position.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read
+     *  and write property.
+     * </ul>
      */
+    @Deprecated
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_HEIGHT_POS = 289409941;
+
+    /**
+     * Headrest height position.
+     *
+     * <p>Returns the height of the headrest for supported seats. This value is not in any
+     * particular unit but in a specified range of steps. The {@link
+     * CarPropertyConfig#getMaxValue(int)} indicates the tallest height. See {@link
+     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)}
+     * for the range of possible positions.
+     *
+     * <p>{@link CarPropertyConfig#getAreaIdConfigs()} specifies which seats are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read
+     *  and write property.
+     * </ul>
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int SEAT_HEADREST_HEIGHT_POS_V2 = 356518820;
+
     /**
      * Headrest height move
      * The property is protected by the signature permission:
