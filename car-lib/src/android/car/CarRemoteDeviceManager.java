@@ -20,6 +20,7 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.annotation.ApiRequirements;
 import android.car.occupantconnection.ICarOccupantConnection;
@@ -235,9 +236,9 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * @param executor the Executor to run the callback
      * @throws IllegalStateException if the {@code callback} was registered already
      */
-    // TODO(b/257118072): this method (and others) should be protected by a permission.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void registerOccupantZoneStateCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull OccupantZoneStateCallback callback) {
         Objects.requireNonNull(executor, "executor cannot be null");
@@ -284,6 +285,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void unregisterOccupantZoneStateCallback(@NonNull OccupantZoneStateCallback callback) {
         Objects.requireNonNull(callback, "callback cannot be null");
         synchronized (mLock) {
@@ -307,12 +309,14 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     @Nullable
     public PackageInfo getEndpointPackageInfo(@NonNull OccupantZoneInfo occupantZone) {
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
             return mService.getEndpointPackageInfo(occupantZone);
         } catch (RemoteException e) {
+            Log.e(TAG, "Failed to get peer endpoint PackageInfo in " + occupantZone);
             return handleRemoteExceptionFromCarService(e, null);
         }
     }
@@ -330,8 +334,15 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void controlOccupantZonePower(@NonNull OccupantZoneInfo occupantZone, boolean powerOn) {
-        // TODO(b/257117236): implement this method.
+        Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
+        try {
+            mService.controlOccupantZonePower(occupantZone, powerOn);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to control the power of " + occupantZone);
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -340,8 +351,14 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public boolean isOccupantZonePowerOn(@NonNull OccupantZoneInfo occupantZone) {
-        // TODO(b/257117236): implement this method.
-        return true;
+        Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
+        try {
+            return mService.isOccupantZonePowerOn(occupantZone);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to get power state of " + occupantZone);
+            return handleRemoteExceptionFromCarService(e, false);
+        }
     }
 }

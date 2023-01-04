@@ -16,8 +16,10 @@
 
 package com.android.car.occupantconnection;
 
+import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
@@ -25,6 +27,7 @@ import android.car.occupantconnection.IConnectionStateCallback;
 import android.car.occupantconnection.IOccupantZoneStateCallback;
 import android.car.occupantconnection.IPayloadCallback;
 import android.car.occupantconnection.Payload;
+import android.content.Context;
 import android.content.pm.PackageInfo;
 
 import com.android.car.CarServiceBase;
@@ -39,7 +42,10 @@ import com.android.car.internal.util.IndentingPrintWriter;
 public class CarOccupantConnectionService extends ICarOccupantConnection.Stub implements
         CarServiceBase {
 
-    public CarOccupantConnectionService() {
+    private final Context mContext;
+
+    public CarOccupantConnectionService(Context context) {
+        mContext = context;
     }
 
     @Override
@@ -58,55 +64,92 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
     @Override
     public void registerOccupantZoneStateCallback(IOccupantZoneStateCallback callback) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void unregisterOccupantZoneStateCallback() {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public PackageInfo getEndpointPackageInfo(OccupantZoneInfo occupantZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        // TODO(b/257117236): implement this method.
         return null;
     }
 
     @Override
+    public void controlOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        // TODO(b/257117236): implement this method.
+    }
+
+    @Override
+    public boolean isOccupantZonePowerOn(OccupantZoneInfo occupantZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        // TODO(b/257117236): implement this method.
+        return true;
+    }
+
+    @Override
     public void registerReceiver(String receiverEndpointId, IPayloadCallback callback) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
         // TODO(b/257118072): handle client death (by registering death receipant).
     }
 
     @Override
     public void unregisterReceiver(String receiverEndpointId) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void requestConnection(OccupantZoneInfo receiverZone,
             IConnectionRequestCallback callback) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void cancelConnection(OccupantZoneInfo receiverZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void sendPayload(OccupantZoneInfo receiverZone,
             Payload payload) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void disconnect(OccupantZoneInfo receiverZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public boolean isConnected(OccupantZoneInfo receiverZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
         return false;
     }
 
     @Override
     public void registerConnectionStateCallback(OccupantZoneInfo receiverZone,
             IConnectionStateCallback callback) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 
     @Override
     public void unregisterConnectionStateCallback(OccupantZoneInfo receiverZone) {
+        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        // TODO(b/257117236): implement this method.
     }
 }
