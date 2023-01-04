@@ -45,7 +45,8 @@ interface ICarOccupantConnection {
     void registerReceiver(in String receiverEndpointId, in IPayloadCallback callback);
     void unregisterReceiver(in String receiverEndpointId);
 
-    void requestConnection(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
+    void requestConnection(int requestId,
+        in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         in IConnectionRequestCallback callback);
     void cancelConnection(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 

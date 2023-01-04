@@ -26,8 +26,14 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
 import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
-import android.util.Log;
+import android.util.Pair;
+import android.util.Slog;
+import android.util.SparseArray;
+
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -275,12 +281,81 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public final class PayloadTransferException extends Exception {
     }
 
+    private static final int ICONNECTION_REQUEST_CALLBACK_ON_CONNECTED = 1;
+    private static final int ICONNECTION_REQUEST_CALLBACK_ON_REJECTED = 2;
+    private static final int ICONNECTION_REQUEST_CALLBACK_ON_FAILED = 3;
+    private static final int ICONNECTION_REQUEST_CALLBACK_ON_DISCONNECTED = 4;
+
+    private static final int UNUSED_INT_PARAMETER = 0;
+
     private final ICarOccupantConnection mService;
+
+    private final Object mLock = new Object();
+
+    /**
+     * A map of connection requests. The key is the ID of the request, and the value is the callback
+     * and executor.
+     */
+    @GuardedBy("mLock")
+    private final SparseArray<Pair<ConnectionRequestCallback, Executor>>
+            mConnectionRequestMap = new SparseArray<>();
+
+    private final IConnectionRequestCallback mBinderConnectionRequestCallback =
+            new IConnectionRequestCallback.Stub() {
+                @Override
+                public void onConnected(int requestId, OccupantZoneInfo receiverZone) {
+                    onConnectionRequestCallbackInvoked(ICONNECTION_REQUEST_CALLBACK_ON_CONNECTED,
+                            requestId,
+                            receiverZone,
+                            /* rejectionReason= */ UNUSED_INT_PARAMETER,
+                            /* connectionError= */ UNUSED_INT_PARAMETER);
+                }
+
+                @Override
+                public void onRejected(int requestId, OccupantZoneInfo receiverZone,
+                        int rejectionReason) {
+                    onConnectionRequestCallbackInvoked(ICONNECTION_REQUEST_CALLBACK_ON_REJECTED,
+                            requestId,
+                            receiverZone,
+                            rejectionReason,
+                            /* connectionError= */ UNUSED_INT_PARAMETER);
+                }
+
+                @Override
+                public void onFailed(int requestId, OccupantZoneInfo receiverZone,
+                        int connectionError) {
+                    onConnectionRequestCallbackInvoked(ICONNECTION_REQUEST_CALLBACK_ON_FAILED,
+                            requestId,
+                            receiverZone,
+                            /* rejectionReason= */ UNUSED_INT_PARAMETER,
+                            connectionError);
+                }
+
+                @Override
+                public void onDisconnected(int requestId, OccupantZoneInfo receiverZone) {
+                    onConnectionRequestCallbackInvoked(ICONNECTION_REQUEST_CALLBACK_ON_DISCONNECTED,
+                            requestId,
+                            receiverZone,
+                            /* rejectionReason= */ UNUSED_INT_PARAMETER,
+                            /* connectionError= */ UNUSED_INT_PARAMETER);
+                }
+            };
+
+    /**
+     * The ID for the current connection request. It will increase by one each time {@link
+     * #requestConnection} is called.
+     */
+    @GuardedBy("mLock")
+    private int mCurrentRequestId;
 
     /** @hide */
     public CarOccupantConnectionManager(Car car, IBinder service) {
         super(car);
         mService = ICarOccupantConnection.Stub.asInterface(service);
+        // mCurrentRequestId can start with any value, such as 0. The non-zero starting value here
+        // is mainly for debugging.
+        int userId = Process.myUserHandle().getIdentifier();
+        mCurrentRequestId = userId * 10000;
     }
 
     /** @hide */
@@ -288,7 +363,9 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
-        // TODO(b/257118072): remove the saved callbacks like in CarRemoteDeviceManager.
+        synchronized (mLock) {
+            mConnectionRequestMap.clear();
+        }
     }
 
     /**
@@ -363,7 +440,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * @param callback     the callback notified for the request result
      * @throws IllegalStateException if the {@code callback} was registered already
      */
-    // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
@@ -373,7 +449,19 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
-        // TODO(b/257117236): implement this method.
+        Preconditions.checkState(!hasConnectionRequestCallback(callback),
+                "The ConnectionRequestCallback was registered already");
+        synchronized (mLock) {
+            try {
+                mService.requestConnection(mCurrentRequestId, receiverZone,
+                        mBinderConnectionRequestCallback);
+                mConnectionRequestMap.put(mCurrentRequestId, new Pair<>(callback, executor));
+                mCurrentRequestId++;
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to request connection");
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
     }
 
     /**
@@ -395,7 +483,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         try {
             mService.cancelConnection(receiverZone);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to cancel connection");
+            Slog.e(TAG, "Failed to cancel connection");
             handleRemoteExceptionFromCarService(e);
         }
     }
@@ -421,7 +509,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         try {
             mService.sendPayload(receiverZone, payload);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to send Payload");
+            Slog.e(TAG, "Failed to send Payload");
             handleRemoteExceptionFromCarService(e);
         }
     }
@@ -449,7 +537,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         try {
             mService.disconnect(receiverZone);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to disconnect");
+            Slog.e(TAG, "Failed to disconnect");
             handleRemoteExceptionFromCarService(e);
         }
     }
@@ -466,7 +554,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         try {
             return mService.isConnected(receiverZone);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to get connection state");
+            Slog.e(TAG, "Failed to get connection state");
             return handleRemoteExceptionFromCarService(e, false);
         }
     }
@@ -512,5 +600,50 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void unregisterConnectionStateCallback(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         // TODO(b/257117236): implement this method.
+    }
+
+    private void onConnectionRequestCallbackInvoked(int callbackId, int requestId,
+            OccupantZoneInfo receiverZone, int rejectionReason, int connectionError) {
+        Pair<ConnectionRequestCallback, Executor> pair;
+        synchronized (mLock) {
+            pair = mConnectionRequestMap.get(requestId);
+        }
+        if (pair == null) {
+            // This should never happen, but let's be cautious.
+            Slog.e(TAG, "Failed to find the request " + requestId);
+            return;
+        }
+        ConnectionRequestCallback callback = pair.first;
+        Executor executor = pair.second;
+        switch (callbackId) {
+            case ICONNECTION_REQUEST_CALLBACK_ON_CONNECTED:
+                executor.execute(() -> callback.onConnected(receiverZone));
+                break;
+            case ICONNECTION_REQUEST_CALLBACK_ON_REJECTED:
+                executor.execute(() -> callback.onRejected(receiverZone, rejectionReason));
+                break;
+            case ICONNECTION_REQUEST_CALLBACK_ON_FAILED:
+                executor.execute(() -> callback.onFailed(receiverZone, connectionError));
+                break;
+            case ICONNECTION_REQUEST_CALLBACK_ON_DISCONNECTED:
+                executor.execute(() -> callback.onDisconnected(receiverZone));
+                break;
+            default:
+                // Failing into this case means a bug in this class.
+                throw new IllegalArgumentException("Invalid ConnectionRequestCallback ID");
+        }
+    }
+
+    private boolean hasConnectionRequestCallback(@NonNull ConnectionRequestCallback callback) {
+        synchronized (mLock) {
+            for (int i = 0; i < mConnectionRequestMap.size(); i++) {
+                ConnectionRequestCallback registeredCallback =
+                        mConnectionRequestMap.valueAt(i).first;
+                if (registeredCallback == callback) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
