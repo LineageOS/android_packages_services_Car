@@ -623,6 +623,15 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.FORWARD_COLLISION_WARNING_ENABLED, new Pair<>(
+                Car.PERMISSION_READ_ADAS_SETTINGS,
+                Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.BLIND_SPOT_WARNING_ENABLED, new Pair<>(
+                Car.PERMISSION_READ_ADAS_SETTINGS,
+                Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.LANE_DEPARTURE_WARNING_ENABLED, new Pair<>(
+                Car.PERMISSION_READ_ADAS_SETTINGS,
+                Car.PERMISSION_CONTROL_ADAS_SETTINGS));
         mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
