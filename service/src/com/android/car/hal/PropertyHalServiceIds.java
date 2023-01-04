@@ -605,10 +605,16 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.CABIN_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_READ_INTERIOR_LIGHTS,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE, new Pair<>(
+                Car.PERMISSION_READ_INTERIOR_LIGHTS,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.READING_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
         mHalPropIdToPermissions.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
+                Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
+        mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
         mHalPropIdToPermissions.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
@@ -682,6 +688,8 @@ public class PropertyHalServiceIds {
         mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
+                VEHICLE_LIGHT_STATE);
         mHalPropIdToValidValues.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
         mHalPropIdToValidValues.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
                 EV_REGENERATIVE_BREAKING_STATE);
@@ -693,6 +701,8 @@ public class PropertyHalServiceIds {
         mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH,
+                VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
                 ETC_CARD_STATUS);
         mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
