@@ -797,6 +797,34 @@ public final class VehiclePropertyIds {
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int EV_BRAKE_REGENERATION_LEVEL = 289408012;
     /**
+     * Represents property for the current stopping mode of the vehicle.
+     *
+     * <p>For the global area ID, the {@link AreaIdConfig#getSupportedEnumValues()} obtained from
+     * {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from
+     * {@link EvStoppingMode} are supported. EvStoppingMode may be extended to include more states
+     * in the future.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_POWERTRAIN))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_POWERTRAIN))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int EV_STOPPING_MODE = 289408013;
+    /**
      * Warning for fuel low level.
      *
      * <p>{@code FUEL_LEVEL_LOW} corresponds to the low fuel warning on the dashboard. Once {@code

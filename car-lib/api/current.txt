@@ -347,6 +347,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_CHARGE_TIME_REMAINING = 289410883; // 0x11400f43
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int EV_CURRENT_BATTERY_CAPACITY = 291504909; // 0x1160030d
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_REGENERATIVE_BRAKING_STATE = 289410884; // 0x11400f44
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_CAR_POWERTRAIN")) public static final int EV_STOPPING_MODE = 289408013; // 0x1140040d
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int FOG_LIGHTS_STATE = 289410562; // 0x11400e02
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int FOG_LIGHTS_SWITCH = 289410578; // 0x11400e12
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int FORWARD_COLLISION_WARNING_ENABLED = 287313922; // 0x11201002

@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
 import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.hardware.automotive.vehicle.EvRegenerativeBrakingState;
+import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
 import android.hardware.automotive.vehicle.PortLocationType;
@@ -110,6 +111,8 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(EvChargeState.class));
     private static final Set<Integer> EV_REGENERATIVE_BREAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
+    private static final Set<Integer> EV_STOPPING_MODE =
+            new HashSet<>(getIntegersFromDataEnums(EvStoppingMode.class));
     private static final Set<Integer> TRAILER_PRESENT =
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
     private static final Set<Integer> GSR_COMP_TYPE =
@@ -548,6 +551,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EV_BRAKE_REGENERATION_LEVEL, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 Car.PERMISSION_CONTROL_POWERTRAIN));
+        mHalPropIdToPermissions.put(VehicleProperty.EV_STOPPING_MODE, new Pair<>(
+                Car.PERMISSION_POWERTRAIN,
+                Car.PERMISSION_CONTROL_POWERTRAIN));
         mHalPropIdToPermissions.put(VehicleProperty.FUEL_LEVEL_LOW, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
@@ -712,6 +718,7 @@ public class PropertyHalServiceIds {
         mHalPropIdToValidValues.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
         mHalPropIdToValidValues.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
                 EV_REGENERATIVE_BREAKING_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.EV_STOPPING_MODE, EV_STOPPING_MODE);
         mHalPropIdToValidValues.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mHalPropIdToValidValues.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
