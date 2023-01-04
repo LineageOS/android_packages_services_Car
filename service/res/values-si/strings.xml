@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"පදිංචිකරුවන් දැනුවත් කිරීමේ පද්ධතිය සඳහා තත්ත්වය සහ අනාවරණ දත්ත කියවීමට ඉඩ දෙයි"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"පදිංචිකරුවන් දැනුවත් කිරීමේ පද්ධති ප්‍රස්ථාරය"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"පදිංචිකරුවන් දැනුවත් කිරීමේ පද්ධති අනාවරණ ප්‍රස්ථාරයෙහි ආරම්භය සහ නැවැත්වීම පාලනයට ඉඩ දෙයි"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"දෝෂනිර්ණ දත්ත කියවන්න"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"මෝටර් රථයෙන් දෝෂනිර්ණ දත්ත කියවන්න."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"දෝෂනිර්ණ දත්ත හිස් කරන්න"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"දුරස්ථ ප්‍රවේශය පාලනය කරන්න."</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"මෝටර් රථයේ සුක්කානම පාලනය කරන්න"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"මෝටර් රථයේ සුක්කානම පාලනය කරන්න."</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"මෝටර් රථයේ ADAS සැකසීම් තොරතුරු කියවන්න"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"මෝටර් රථයේ ADAS සැකසීම් තොරතුරු කියවන්න."</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"මෝටර් රථයේ ADAS සැකසීම් තොරතුරු පාලනය කරන්න"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"මෝටර් රථයේ ADAS සැකසීම් තොරතුරු පාලනය කරන්න."</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"මෝටර් රථයේ ADAS තත්ත්ව තොරතුරු කියවන්න"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"මෝටර් රථයේ ADAS තත්ත්ව තොරතුරු කියවන්න."</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"මෝටර් රථයේ ADAS තට්ත්ව තොරතුරු පාලනය කරන්න"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"මෝටර් රථයේ ADAS තට්ත්ව තොරතුරු පාලනය කරන්න."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN බස් අසාර්ථකයි"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN බස් ප්‍රතිචාර නොදක්වයි. හෙඩ්යුනිට් පෙට්ටිය පේනු ඉවත් කර ආපසු පේනුගත කර, මෝටර් රථය යළි අරඹන්න"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"මගේ උපාංගය"</string>
