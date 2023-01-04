@@ -2828,6 +2828,38 @@ public final class VehiclePropertyIds {
     public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
     /**
+     * Enable or disable automatic emergency braking (AEB).
+     *
+     * <p>Returns true if AEB is enabled and false if AEB is disabled. When AEB is enabled, the ADAS
+     * system in the vehicle should be turned on and monitoring to avoid potential collisions.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
