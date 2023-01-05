@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.Car.getPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
@@ -51,8 +52,10 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.Car;
 import android.car.CarVersion;
 import android.car.ICarResultReceiver;
+import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -117,6 +120,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     public CarUserServiceTest() {
         super(CarUserService.TAG);
+    }
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        super.onSessionBuilder(builder);
+
+        builder.spyStatic(Car.class);
     }
 
     @Before
@@ -2522,13 +2532,33 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testIsUserVisible_platformVersionAtLeastUDC() throws Exception {
+        when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
+        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisible(42)").that(visible).isTrue();
+    }
+
+    @Test
+    public void testIsUserVisible_platformVersionNotAtLeastUDC() throws Exception {
+        when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
+    }
+
+    @Test
     public void testIsUserVisible_helperNotSet_remoteException() throws Exception {
         when(mICarServiceHelper.getDisplayAssignedToUser(42))
                 .thenThrow(new RemoteException("D'OH!"));
 
         boolean visible = mCarUserService.isUserVisible(42);
 
-        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
+        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
     }
 
     @Test
@@ -2537,7 +2567,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         boolean visible = mCarUserService.isUserVisible(42);
 
-        assertWithMessage("isUserVisbile(42)").that(visible).isTrue();
+        assertWithMessage("isUserVisible(42)").that(visible).isTrue();
     }
 
     @Test
@@ -2546,7 +2576,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         boolean visible = mCarUserService.isUserVisible(42);
 
-        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
+        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
     }
 
 
