@@ -16,11 +16,14 @@
 
 package com.android.car.occupantconnection;
 
+import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
+
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
 import android.car.occupantconnection.IConnectionStateCallback;
@@ -29,7 +32,10 @@ import android.car.occupantconnection.IPayloadCallback;
 import android.car.occupantconnection.Payload;
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.UserHandle;
 
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -42,10 +48,15 @@ import com.android.car.internal.util.IndentingPrintWriter;
 public class CarOccupantConnectionService extends ICarOccupantConnection.Stub implements
         CarServiceBase {
 
-    private final Context mContext;
+    private static final String TAG = CarOccupantConnectionService.class.getSimpleName();
 
-    public CarOccupantConnectionService(Context context) {
+    private final Context mContext;
+    private final CarOccupantZoneService mOccupantZoneService;
+
+    public CarOccupantConnectionService(Context context,
+            CarOccupantZoneService occupantZoneService) {
         mContext = context;
+        mOccupantZoneService = occupantZoneService;
     }
 
     @Override
@@ -75,12 +86,35 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public PackageInfo getEndpointPackageInfo(OccupantZoneInfo occupantZone) {
+    public PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        // TODO(b/257117236): implement this method.
-        return null;
+
+        // PackageManager#getPackageInfoAsUser() can do this with few lines, but it's hidden API.
+        int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
+        if (userId == INVALID_USER_ID) {
+            Slogf.e(TAG, "Invalid user ID for occupant zone " + occupantZoneId);
+            return null;
+        }
+        UserHandle userHandle = UserHandle.of(userId);
+        Context userContext = mContext.createContextAsUser(userHandle, /* flags= */ 0);
+        PackageManager pm = userContext.getPackageManager();
+        if (pm == null) {
+            Slogf.e(TAG, "Failed to get PackageManager as user " + userId);
+            return null;
+        }
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = pm.getPackageInfo(packageName,
+                    PackageManager.PackageInfoFlags.of(/* value= */ 0));
+        } catch (PackageManager.NameNotFoundException e) {
+            // The client app should be installed in all occupant zones, so log an error.
+            Slogf.e(TAG, "Didn't find " + packageName + " in occupant zone " + occupantZoneId);
+        }
+        return packageInfo;
     }
 
+    // TODO(b/257117236): replace OccupantZoneInfo with occupantZoneId for this method and
+    // other methods.
     @Override
     public void controlOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
