@@ -44,6 +44,7 @@ import android.car.ICarUserService;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.util.UserTestingHelper;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserHandleSwitchUiCallback;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.CarUserManager.UserSwitchUiCallback;
 import android.car.user.UserCreationResult;
@@ -381,8 +382,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testSetSwitchUserUICallback_success() throws Exception {
-        UserSwitchUiCallback callback = (u)-> { };
+    public void testSetSwitchUserIdUICallback_success() throws Exception {
+        UserSwitchUiCallback callback = (u)-> {};
 
         mMgr.setUserSwitchUiCallback(callback);
 
@@ -392,6 +393,15 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testSetSwitchUserUICallback_nullCallback() throws Exception {
         assertThrows(IllegalArgumentException.class, () -> mMgr.setUserSwitchUiCallback(null));
+    }
+
+    @Test
+    public void testSetSwitchUserUICallback_success() throws Exception {
+        UserHandleSwitchUiCallback callback = (u)-> {};
+
+        mMgr.setUserSwitchUiCallback(Runnable::run, callback);
+
+        verify(mService).setUserSwitchUiCallback(any());
     }
 
     @Test

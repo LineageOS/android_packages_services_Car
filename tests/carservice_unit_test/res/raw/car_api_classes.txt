@@ -250,6 +250,7 @@ android.car.user.CarUserManager
 android.car.user.CarUserManager$UserLifecycleEvent
 android.car.user.CarUserManager$UserLifecycleListener
 android.car.user.CarUserManager$UserSwitchUiCallback
+android.car.user.CarUserManager$UserHandleSwitchUiCallback
 android.car.user.ExperimentalCarUserManager
 android.car.user.OperationResult
 android.car.user.UserCreationResult
