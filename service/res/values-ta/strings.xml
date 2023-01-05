@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்திற்கு வாசிக்கும் நிலையையும் கண்டறிதல் தரவையும் அனுமதிக்கிறது"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் வரைபடத்தைக் கட்டுப்படுத்த வேண்டும்"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"உள்ளிருப்போருக்கான விழிப்புணர்வு சிஸ்டத்தின் கண்டறிதல் வரைபடத்தை தொடங்குவதற்கும் நிறுத்துவதற்கும் கட்டுப்படுத்த அனுமதிக்கிறது"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ஆய்வுத் தரவை அறிய வேண்டும்"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"கார் தொடர்பான ஆய்வுத் தரவை அறிய வேண்டும்."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ஆய்வுத் தரவை அழிக்க வேண்டும்"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"தொலைநிலை அணுகலைக் கட்டுப்படுத்தும்."</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"காரின் ஸ்டீரிங் வீலைக் கட்டுப்படுத்தும்"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"காரின் ஸ்டீரிங் வீலைக் கட்டுப்படுத்தும்."</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"காரின் ADAS அமைப்புகள் தொடர்பான தகவல்களைப் படித்தல்"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"காரின் ADAS அமைப்புகள் தொடர்பான தகவல்களைப் படிக்கும்."</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"காரின் ADAS அமைப்புகள் தொடர்பான தகவல்களைக் கட்டுப்படுத்துதல்"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"காரின் ADAS அமைப்புகள் தொடர்பான தகவல்களைக் கட்டுப்படுத்தும்."</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"காரின் ADAS நிலைகள் குறித்த தகவல்களைப் படித்தல்"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"காரின் ADAS நிலைகள் குறித்த தகவல்களைப் படிக்கும்."</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"காரின் ADAS நிலைகள் குறித்த தகவல்களைக் கட்டுப்படுத்துதல்"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"காரின் ADAS நிலைகள் குறித்த தகவல்களைக் கட்டுப்படுத்தும்."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"எனது சாதனம்"</string>

@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Дозволяє переглядати статус і дані системи визначення присутності пасажира"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Керування графіком визначення присутності пасажира"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Дозволяє керувати графіком визначення присутності пасажира"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"перегляд даних діагностики"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Перегляд даних діагностики автомобіля."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"очищення даних діагностики"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Керування віддаленим доступом."</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"керувати кермом автомобіля"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Керування кермом автомобіля."</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"переглядати інформацію про налаштування Удосконаленої системи допомоги водію автомобіля"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"Перегляд інформації про налаштування Удосконаленої системи допомоги водію автомобіля."</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"керувати інформацією про налаштування Удосконаленої системи допомоги водію автомобіля"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"Керування інформацією про налаштування Удосконаленої системи допомоги водію автомобіля."</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"переглядати інформацію про стан Удосконаленої системи допомоги водію автомобіля."</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Перегляд інформації про стан Удосконаленої системи допомоги водію автомобіля."</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"керувати інформацією про стан Удосконаленої системи допомоги водію автомобіля"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Керування інформацією про стан Удосконаленої системи допомоги водію автомобіля."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Помилка CAN-шини"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шина не відповідає. Від’єднайте та знову під’єднайте головний пристрій аудіосистеми й заведіть автомобіль ще раз"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мій пристрій"</string>

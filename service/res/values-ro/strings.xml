@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permite citirea stării și a datelor de detectare pentru Sistemul de avertizare privind ocupanții"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controlează graficul Sistemului de avertizare privind ocupanții"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permite controlarea începerii și opririi graficului de detectare a Sistemului de avertizare privind ocupanții"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"Citește datele de diagnosticare"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Citește datele de diagnosticare de la mașină."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"Șterge datele de diagnosticare"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"Controlează accesul la distanță."</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"controlează volanul mașinii"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"Controlează volanul mașinii."</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"să citească informațiile din setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"Să citească informațiile din setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"să gestioneze informațiile din setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"Să gestioneze informațiile din setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"să citească informațiile despre setările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Să citească informațiile despre setările ADAS ale mașinii."</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"să gestioneze informațiile despre stările ADAS ale mașinii"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Să gestioneze informațiile despre stările ADAS ale mașinii."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Magistrala CAN nu a reușit"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Magistrala CAN nu răspunde. Deconectează și reconectează unitatea radio, apoi repornește mașina"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispozitivul meu"</string>
