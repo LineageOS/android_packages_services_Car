@@ -524,6 +524,45 @@ public final class Car {
     @SystemApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
+    /**
+     * Permission necessary to read driver monitoring systems settings information.
+     *
+     * Examples of settings include the ENABLED properties for the supported driver monitoring
+     * features.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS =
+            "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
+    /**
+     * Permission necessary to control driver monitoring systems settings information.
+     *
+     * Examples of settings include the ENABLED properties for the supported driver monitoring
+     * features.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS =
+            "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS";
+    /**
+     * Permission necessary to read driver monitoring systems states information.
+     *
+     * Examples of states include the STATE and WARNING properties for the supported driver
+     * monitoring features.
+     *
+     * This is different from {@link PERMISSION_READ_DRIVER_MONITORING_SETTINGS}, which allows an
+     * app to read the system settings, such as whether the system is enabled or disabled.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_DRIVER_MONITORING_STATES =
+            "android.car.permission.READ_DRIVER_MONITORING_STATES";
 
     /** Permission necessary to access car's mileage information.
      *  @hide
@@ -2050,6 +2089,19 @@ public final class Car {
                 mContext.unbindService(mServiceConnectionListener);
                 mServiceBound = false;
             }
+        }
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("GenericException")
+    protected void finalize() throws Throwable {
+        try {
+            Log.i(TAG_CAR, "Calling finalize on Car Object.");
+            disconnect();
+        } finally {
+            super.finalize();
         }
     }
 

@@ -26,6 +26,27 @@
      the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
     -->
 
+    <!-- Allows an application to read the driver monitoring settings information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_read_driver_monitoring_settings"
+                android:description="@string/car_permission_desc_read_driver_monitoring_settings"/>
+    <!-- Allows an application to control the driver monitoring settings information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_driver_monitoring_settings"
+                android:description="@string/car_permission_desc_control_driver_monitoring_settings"/>
+    <!-- Allows an application to read the driver monitoring states information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.READ_DRIVER_MONITORING_STATES"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_read_driver_monitoring_states"
+                android:description="@string/car_permission_desc_read_driver_monitoring_states"/>
     <!-- Used for runtime permissions related to monitoring vehicle information. -->
     <permission-group android:name="android.car.permission-group.CAR_MONITORING"
          android:icon="@drawable/perm_group_car"
