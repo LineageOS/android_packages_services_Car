@@ -3353,6 +3353,41 @@ public final class VehiclePropertyIds {
     public static final int HANDS_ON_DETECTION_ENABLED = 287313941;
 
     /**
+     * Enable or disable driver attention monitoring.
+     *
+     * <p>Return true if driver attention monitoring is enabled and false if driver attention
+     * monitoring is disabled. When driver attention monitoring is enabled, a system inside the
+     * vehicle should be monitoring the attention level of the driver and should send a warning if
+     * it detects that the driver is distracted.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
+     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  to read property.
+     *  <li> Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS))
+    @RequiresPermission.Write(@RequiresPermission(
+            Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313944;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
