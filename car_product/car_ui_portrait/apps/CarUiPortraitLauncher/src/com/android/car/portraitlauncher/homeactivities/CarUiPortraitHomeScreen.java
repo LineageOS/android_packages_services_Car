@@ -653,6 +653,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 mGripBar.post(() -> updateBottomOverlap(STATE_OPEN));
                 mRootTaskView.setZOrderOnTop(false);
                 mIsAnimating = false;
+                mRootTaskView.post(() -> mRootTaskView.onLocationChanged());
             };
         } else if (newRootAppAreaState == STATE_CLOSE) {
             rootAppAreaTopMargin = mContainer.getMeasuredHeight();
@@ -691,6 +692,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITH_SYS_BAR));
                 mIsAnimating = false;
                 updateNonAppAreaComponents(newRootAppAreaState);
+                mRootTaskView.post(() -> mRootTaskView.onLocationChanged());
             };
         }
         logIfDebuggable("Root App Area top margin = " + rootAppAreaTopMargin);
