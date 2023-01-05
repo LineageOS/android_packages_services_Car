@@ -983,6 +983,23 @@ package android.car.hardware.property {
     method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setSupportedEnumValues(@NonNull java.util.List<T>);
   }
 
+  public final class AutomaticEmergencyBrakingState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 3; // 0x3
+  }
+
+  public final class ErrorState {
+    method @NonNull public static String toString(int);
+    field public static final int NOT_AVAILABLE_DISABLED = -2; // 0xfffffffe
+    field public static final int NOT_AVAILABLE_SAFETY = -5; // 0xfffffffb
+    field public static final int NOT_AVAILABLE_SPEED_HIGH = -4; // 0xfffffffc
+    field public static final int NOT_AVAILABLE_SPEED_LOW = -3; // 0xfffffffd
+    field public static final int OTHER_ERROR_STATE = -1; // 0xffffffff
+  }
+
   public final class EvStoppingMode {
     method @NonNull public static String toString(int);
     field public static final int STATE_CREEP = 1; // 0x1

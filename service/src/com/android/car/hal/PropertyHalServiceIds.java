@@ -24,8 +24,10 @@ import android.car.Car;
 import android.car.VehicleHvacFanDirection;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.VehicleVendorPermission;
+import android.hardware.automotive.vehicle.AutomaticEmergencyBrakingState;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
+import android.hardware.automotive.vehicle.ErrorState;
 import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.hardware.automotive.vehicle.EvRegenerativeBrakingState;
@@ -117,6 +119,9 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
     private static final Set<Integer> GSR_COMP_TYPE =
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
+    private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                AutomaticEmergencyBrakingState.class, ErrorState.class));
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -647,6 +652,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.FORWARD_COLLISION_WARNING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
@@ -753,6 +761,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToValidValues.put(
                 VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
                 GSR_COMP_TYPE);
+        mHalPropIdToValidValues.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
+                AUTOMATIC_EMERGENCY_BRAKING_STATE);
+
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
@@ -1019,15 +1030,17 @@ public class PropertyHalServiceIds {
         return true;
     }
 
-    private static List<Integer> getIntegersFromDataEnums(Class clazz) {
-        Field[] fields = clazz.getDeclaredFields();
+    private static List<Integer> getIntegersFromDataEnums(Class... clazz) {
         List<Integer> integerList = new ArrayList<>(5);
-        for (Field f : fields) {
-            if (f.getType() == int.class) {
-                try {
-                    integerList.add(f.getInt(clazz));
-                } catch (IllegalAccessException | RuntimeException e) {
-                    Slogf.w(TAG, "Failed to get value");
+        for (Class c: clazz) {
+            Field[] fields = c.getDeclaredFields();
+            for (Field f : fields) {
+                if (f.getType() == int.class) {
+                    try {
+                        integerList.add(f.getInt(c));
+                    } catch (IllegalAccessException | RuntimeException e) {
+                        Slogf.w(TAG, "Failed to get value");
+                    }
                 }
             }
         }
