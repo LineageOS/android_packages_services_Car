@@ -29,6 +29,7 @@ import static android.media.AudioManager.ADJUST_TOGGLE_MUTE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.media.AudioManager.FLAG_SHOW_UI;
+import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
@@ -191,6 +192,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         public void onKeyEvent(KeyEvent event, int displayType, int seat) {
             Slogf.i(TAG, "On key event for audio with display type: %d and seat %d", displayType,
                     seat);
+            if (event.getAction() != ACTION_DOWN) {
+                return;
+            }
             int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(
                     mOccupantZoneService.getOccupantZoneIdForSeat(seat));
             if (!isAudioZoneIdValid(audioZoneId)) {
