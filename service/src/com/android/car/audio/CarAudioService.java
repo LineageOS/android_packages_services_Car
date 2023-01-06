@@ -437,6 +437,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         callbackGroupVolumeChange(zoneId, groupId, flags);
         // For legacy stream type based volume control
+        boolean wasMute;
         if (!mUseDynamicRouting) {
             mAudioManager.setStreamVolume(
                     CarAudioDynamicRouting.STREAM_TYPES[groupId], index, flags);
@@ -444,8 +445,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
         synchronized (mImplLock) {
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            wasMute = group.isMuted();
             group.setCurrentGainIndex(index);
         }
+        if (wasMute) {
+            handleMuteChanged(zoneId, groupId, flags);
+        }
+    }
+
+    private void handleMuteChanged(int zoneId, int groupId, int flags) {
+        callbackGroupMuteChanged(zoneId, groupId, flags);
+        mCarVolumeGroupMuting.carMuteChanged();
     }
 
     private void callbackGroupVolumeChange(int zoneId, int groupId, int flags) {
@@ -1244,9 +1254,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         synchronized (mImplLock) {
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             group.setMute(mute);
-            callbackGroupMuteChanged(zoneId, groupId, flags);
         }
-        mCarVolumeGroupMuting.carMuteChanged();
+        handleMuteChanged(zoneId, groupId, flags);
     }
 
     @Override
