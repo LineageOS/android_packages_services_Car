@@ -35,6 +35,7 @@ import android.car.CarBugreportManager;
 import android.car.CarNotConnectedException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.hardware.display.DisplayManager;
 import android.media.AudioManager;
 import android.media.Ringtone;
@@ -265,7 +266,8 @@ public class BugReportService extends Service {
         mIsCollectingBugReport.set(true);
         mBugReportProgress.set(0);
 
-        startForeground(BUGREPORT_IN_PROGRESS_NOTIF_ID, buildProgressNotification());
+        startForeground(BUGREPORT_IN_PROGRESS_NOTIF_ID, buildProgressNotification(),
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         showProgressNotification();
 
         collectBugReport();
