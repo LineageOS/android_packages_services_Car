@@ -33,6 +33,7 @@
     <item target="bool/config_showHeaderForNotifications" value="@bool/config_showHeaderForNotifications"/>
     <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
     <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
+    <item target="bool/config_useCustomColorForMessageNotificationCountTextButton" value="@bool/config_useCustomColorForMessageNotificationCountTextButton"/>
     <item target="bool/config_useCustomColorForInformationNotification" value="@bool/config_useCustomColorForInformationNotification"/>
     <item target="bool/config_useCustomColorForWarningNotification" value="@bool/config_useCustomColorForWarningNotification"/>
     <item target="bool/config_useLauncherIcon" value="@bool/config_useLauncherIcon"/>
@@ -44,6 +45,7 @@
 
     <item target="color/action_button_background_color" value="@color/action_button_background_color"/>
     <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
+    <item target="color/count_text" value="@color/count_text"/>
     <item target="color/dark_icon_tint" value="@color/dark_icon_tint"/>
     <item target="color/emergency_background_color" value="@color/emergency_background_color"/>
     <item target="color/emergency_primary_text_color" value="@color/emergency_primary_text_color"/>
@@ -84,6 +86,7 @@
     <item target="dimen/clear_all_button_radius" value="@dimen/clear_all_button_radius" />
     <item target="dimen/clear_all_button_min_width" value="@dimen/clear_all_button_min_width" />
     <item target="dimen/clear_all_button_padding" value="@dimen/clear_all_button_padding" />
+    <item target="dimen/config_disabledCountTextButtonAlpha" value="@dimen/config_disabledCountTextButtonAlpha" />
     <item target="dimen/config_olderNotificationsAlpha" value="@dimen/config_olderNotificationsAlpha" />
     <item target="dimen/expanded_package_name_margin" value="@dimen/expanded_package_name_margin" />
     <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
