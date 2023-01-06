@@ -16,6 +16,8 @@
 
 #include "MockEvsHal.h"
 
+#include "Constants.h"
+
 #include <aidl/android/hardware/automotive/evs/Rotation.h>
 #include <aidl/android/hardware/automotive/evs/StreamType.h>
 #include <aidl/android/hardware/common/NativeHandle.h>
@@ -65,7 +67,6 @@ inline constexpr int32_t kCameraParamDefaultMaxValue = 255;
 inline constexpr int32_t kCameraParamDefaultStepValue = 3;
 inline constexpr size_t kMinimumNumBuffers = 2;
 inline constexpr size_t kMaximumNumBuffers = 10;
-inline constexpr int kExclusiveMainDisplayId = 255;
 
 NativeHandle copyNativeHandle(const NativeHandle& handle, bool doDup) {
     NativeHandle dup;
@@ -442,6 +443,7 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
     ON_CALL(*mockCamera, importExternalBuffers)
             .WillByDefault([this](const std::vector<BufferDesc>& buffers, int32_t* num) {
                 std::lock_guard l(mLock);
+                size_t count = 0;
                 for (auto i = 0; i < buffers.size(); ++i) {
                     auto it = std::find_if(mBufferPool.begin(), mBufferPool.end(),
                                            [&](const BufferDesc& b) {
@@ -455,9 +457,13 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
 
                     // TODO(b/235110887): Explicitly copies external buffers
                     //                    stores them in mBufferPool.
+                    //
+                    // Temporarily, we count the number of buffers that
+                    // identifiers do not conflict with existing buffers.
+                    ++count;
                 }
 
-                *num = mBufferPool.size();
+                *num = count;
                 return ndk::ScopedAStatus::ok();
             });
 
@@ -503,23 +509,32 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
     ON_CALL(*mockCamera, setMaxFramesInFlight)
             .WillByDefault([this, id = mockCamera->getId()](int32_t bufferCount) {
                 std::lock_guard l(mLock);
-                size_t totalSize = mBufferPoolSize + bufferCount;
-                if (totalSize < kMinimumNumBuffers) {
+                if (bufferCount < kMinimumNumBuffers) {
                     LOG(WARNING) << "Requested buffer pool size is too small to run a camera; "
                                     "adjusting the pool size to "
                                  << kMinimumNumBuffers;
-                    totalSize = kMinimumNumBuffers;
-                } else if (totalSize > kMaximumNumBuffers) {
+                    bufferCount = kMinimumNumBuffers;
+                }
+
+                int64_t delta = bufferCount;
+                auto it = mCameraBufferPoolSize.find(id);
+                if (it != mCameraBufferPoolSize.end()) {
+                    delta -= it->second;
+                }
+
+                if (!delta) {
+                    // No further action required.
+                    return ndk::ScopedAStatus::ok();
+                }
+
+                size_t totalSize = mBufferPoolSize + delta;
+                if (totalSize > kMaximumNumBuffers) {
                     LOG(ERROR) << "Requested size, " << totalSize << ", exceeds the limitation.";
                     return ndk::ScopedAStatus::fromServiceSpecificError(
                             static_cast<int>(EvsResult::INVALID_ARG));
                 }
 
                 mBufferPoolSize = totalSize;
-                auto it = mCameraBufferPoolSize.find(id);
-                if (it != mCameraBufferPoolSize.end()) {
-                    bufferCount += it->second;
-                }
                 mCameraBufferPoolSize.insert_or_assign(id, bufferCount);
                 return ndk::ScopedAStatus::ok();
             });
@@ -538,10 +553,10 @@ bool MockEvsHal::addMockCameraDevice(const std::string& deviceId) {
                             n = mNumberOfFramesToSend;
                         }
 
+                        std::lock_guard l(mLock);
                         std::packaged_task<void(MockEvsHal*, size_t, const std::string&)> task(
                                 &MockEvsHal::forwardFrames);
                         std::thread t(std::move(task), this, /* numberOfFramesForward= */ n, id);
-                        std::lock_guard l(mLock);
                         mCameraFrameThread.insert_or_assign(id, std::move(t));
 
                         return ndk::ScopedAStatus::ok();
@@ -886,7 +901,7 @@ void MockEvsHal::configureEnumerator() {
 
     ON_CALL(*mockEnumerator, openDisplay)
             .WillByDefault([this](int32_t id, std::shared_ptr<IEvsDisplay>* out) {
-                if (id == kExclusiveMainDisplayId) {
+                if (id == kExclusiveDisplayId) {
                     if (mDisplayOwnedExclusively && !mActiveDisplay.expired()) {
                         return ndk::ScopedAStatus::fromServiceSpecificError(
                                 static_cast<int>(EvsResult::RESOURCE_BUSY));

@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+#include "Constants.h"
 #include "Enumerator.h"
 #include "MockEvsHal.h"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "hardware/gralloc.h"
 #include "utils/include/Utils.h"
 
+#include <aidlcommonsupport/NativeHandle.h>
 #include <cutils/android_filesystem_config.h>
+#include <ui/GraphicBufferAllocator.h>
 
 #include <unistd.h>
 
@@ -39,6 +43,7 @@ using ::aidl::android::hardware::automotive::evs::DisplayDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
 using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
 using ::aidl::android::hardware::automotive::evs::EvsEventType;
+using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::IEvsCamera;
 using ::aidl::android::hardware::automotive::evs::IEvsDisplay;
 using ::aidl::android::hardware::automotive::evs::IEvsEnumerator;
@@ -50,11 +55,14 @@ using ::aidl::android::hardware::automotive::evs::Stream;
 using FrameCallbackFunc = std::function<::ndk::ScopedAStatus(const std::vector<BufferDesc>&)>;
 using EventCallbackFunc = std::function<::ndk::ScopedAStatus(const EvsEventDesc&)>;
 using StatusCallbackFunc = std::function<::ndk::ScopedAStatus(std::vector<DeviceStatus>)>;
+using StreamStartedCallbackFunc = std::function<void()>;
 
 constexpr size_t kNumMockEvsCameras = 4;
 constexpr size_t kNumMockEvsDisplays = 2;
 
 const std::unordered_set<int32_t> gAllowedUid({AID_ROOT, AID_SYSTEM, AID_AUTOMOTIVE_EVS});
+
+constexpr auto doNothingFunc = []() { /* do nothing */ };
 
 }  // namespace
 
@@ -95,7 +103,7 @@ public:
     bool VerifyCameraStream(const CameraDesc& desc, size_t framesToReceive,
                             std::chrono::duration<long double> maxInterval,
                             std::chrono::duration<long double> eventTimeout,
-                            const std::string& name);
+                            const std::string& name, StreamStartedCallbackFunc cb);
 
 protected:
     // Class members declared here can be used by all tests in the test suite
@@ -226,9 +234,8 @@ TEST_F(EvsEnumeratorUnitTest, CloseInvalidEvsCamera) {
 }
 
 TEST_F(EvsEnumeratorUnitTest, VerifyExclusiveDisplayOwner) {
-    constexpr int kExclusiveMainDisplayId = 255;
     std::shared_ptr<IEvsDisplay> display;
-    EXPECT_TRUE(mEnumerator->openDisplay(kExclusiveMainDisplayId, &display).isOk());
+    EXPECT_TRUE(mEnumerator->openDisplay(kExclusiveDisplayId, &display).isOk());
     EXPECT_NE(nullptr, display);
 
     std::shared_ptr<IEvsDisplay> failed;
@@ -299,7 +306,7 @@ TEST_F(EvsEnumeratorUnitTest, VerifyStartAndStopVideoStream) {
 
         std::packaged_task<bool()> task(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                   desc, kFramesToReceive, kMaxFrameInterval,
-                                                  kEventTimeout, desc.id));
+                                                  kEventTimeout, desc.id, doNothingFunc));
         std::future<bool> result = task.get_future();
         std::thread t(std::move(task));
         t.detach();
@@ -333,10 +340,10 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleClientsStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client0"));
+                                                   kEventTimeout, "client0", doNothingFunc));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, "client1"));
+                                                   kEventTimeout, "client1", doNothingFunc));
 
         std::future<bool> result0 = task0.get_future();
         std::future<bool> result1 = task1.get_future();
@@ -373,10 +380,10 @@ TEST_F(EvsEnumeratorUnitTest, VerifyMultipleCamerasStreaming) {
 
         std::packaged_task<bool()> task0(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc0, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc0.id));
+                                                   kEventTimeout, desc0.id, doNothingFunc));
         std::packaged_task<bool()> task1(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
                                                    desc1, kFramesToReceive, kMaxFrameInterval,
-                                                   kEventTimeout, desc1.id));
+                                                   kEventTimeout, desc1.id, doNothingFunc));
 
         // Start sending a frame early.
         mMockEvsHal->setNumberOfFramesToSend(/* numFramesToSend = */ 100);
@@ -521,6 +528,85 @@ TEST_F(EvsEnumeratorUnitTest, VerifyIntParameters) {
         EXPECT_FALSE(c->getIntParameter(param, &read).isOk());
     }
 }
+TEST_F(EvsEnumeratorUnitTest, VerifyDisplayBuffer) {
+    std::vector<uint8_t> displays;
+
+    EXPECT_TRUE(mEnumerator->getDisplayIdList(&displays).isOk());
+    EXPECT_EQ(kNumMockEvsDisplays, displays.size());
+
+    for (auto& id : displays) {
+        std::shared_ptr<IEvsDisplay> display;
+        EXPECT_TRUE(mEnumerator->openDisplay(id, &display).isOk());
+        EXPECT_NE(nullptr, display);
+
+        BufferDesc displayBuffer;
+        EXPECT_TRUE(display->getTargetBuffer(&displayBuffer).isOk());
+        EXPECT_TRUE(display->returnTargetBufferForDisplay(displayBuffer).isOk());
+        EXPECT_TRUE(mEnumerator->closeDisplay(display).isOk());
+    }
+}
+
+TEST_F(EvsEnumeratorUnitTest, VerifyImportExternalBuffer) {
+    constexpr size_t kNumExternalBuffers = 5;
+    constexpr size_t kExternalBufferWidth = 64;
+    constexpr size_t kExternalBufferHeight = 32;
+    constexpr int32_t kBufferIdOffset = 0x100;
+    constexpr auto usage =
+            GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_OFTEN;
+
+    buffer_handle_t memHandle = nullptr;
+    ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
+    std::vector<BufferDesc> buffers;
+    for (size_t i = 0; i < kNumExternalBuffers; ++i) {
+        unsigned pixelsPerLine;
+        ::android::status_t result =
+                alloc.allocate(kExternalBufferWidth, kExternalBufferHeight,
+                               /* format= */ HAL_PIXEL_FORMAT_RGBA_8888, /* layers= */ 1, usage,
+                               &memHandle, &pixelsPerLine, 0, "EvsEnumeratorUnitTest");
+        if (result != ::android::NO_ERROR) {
+            ADD_FAILURE();
+            return;
+        }
+
+        BufferDesc buf;
+        AHardwareBuffer_Desc* pDesc =
+                reinterpret_cast<AHardwareBuffer_Desc*>(&buf.buffer.description);
+        pDesc->width = kExternalBufferWidth;
+        pDesc->height = kExternalBufferHeight;
+        pDesc->layers = 1;
+        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        pDesc->usage = usage;
+        pDesc->stride = pixelsPerLine;
+        buf.buffer.handle = ::android::dupToAidl(memHandle);
+        buf.bufferId = kBufferIdOffset + i;  // Unique number to identify this buffer
+        buffers.push_back(std::move(buf));
+    }
+
+    // Retrieve a list of available cameras.
+    std::vector<CameraDesc> cameras;
+    EXPECT_TRUE(mEnumerator->getCameraList(&cameras).isOk());
+
+    // Open a camera with the first configuration.
+    std::shared_ptr<IEvsCamera> c;
+    EXPECT_TRUE(mEnumerator->openCamera(cameras[0].id, {}, &c).isOk());
+    EXPECT_NE(nullptr, c);
+
+    int delta = 0;
+    EXPECT_TRUE(c->importExternalBuffers(buffers, &delta).isOk());
+    EXPECT_EQ(delta, kNumExternalBuffers);
+
+    EXPECT_TRUE(mEnumerator->closeCamera(c).isOk());
+}
+
+TEST_F(EvsEnumeratorUnitTest, VerifyEvsResultConversion) {
+    for (const auto& v : ndk::enum_range<EvsResult>()) {
+        if (v == EvsResult::OK) {
+            EXPECT_TRUE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+        } else {
+            EXPECT_FALSE(Utils::buildScopedAStatusFromEvsResult(v).isOk());
+        }
+    }
+}
 
 TEST_F(EvsEnumeratorUnitTest, VerifyUltrasonicsArray) {
     EXPECT_FALSE(mEnumerator->getUltrasonicsArrayList(nullptr).isOk());
@@ -555,8 +641,46 @@ TEST_F(EvsEnumeratorUnitTest, VerifyDumpListCommand) {
 }
 
 TEST_F(EvsEnumeratorUnitTest, VerifyDumpDeviceCommand) {
+    std::vector<CameraDesc> cameras;
+    std::vector<uint8_t> displays;
+
+    EXPECT_TRUE(mEnumerator->getCameraList(&cameras).isOk());
+    EXPECT_TRUE(mEnumerator->getDisplayIdList(&displays).isOk());
+    EXPECT_EQ(kNumMockEvsCameras, cameras.size());
+    EXPECT_EQ(kNumMockEvsDisplays, displays.size());
+
+    std::shared_ptr<IEvsDisplay> d;
+    EXPECT_TRUE(mEnumerator->openDisplay(displays[0], &d).isOk());
+
     std::vector<const char*> args({"--dump", "display"});
     EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
+
+    std::mutex m;
+    std::condition_variable cv;
+    bool gotFirstFrame = false;
+    constexpr auto kFramesToReceive = 100;
+    constexpr auto kMaxFrameInterval = 100ms;
+    constexpr auto kEventTimeout = 1s;
+    constexpr auto kResultTimeout = 10s;
+    auto streamCb = StreamStartedCallbackFunc([&]() {
+        std::lock_guard lk(m);
+        gotFirstFrame = true;
+        LOG(INFO) << "Received the first frame";
+        cv.notify_all();
+    });
+
+    // Start sending a frame early.
+    mMockEvsHal->setNumberOfFramesToSend(/* numFramesToSend = */ kFramesToReceive * 10);
+
+    std::packaged_task<bool()> task(std::bind(&EvsEnumeratorUnitTest::VerifyCameraStream, this,
+                                              cameras[0], kFramesToReceive, kMaxFrameInterval,
+                                              kEventTimeout, cameras[0].id, streamCb));
+    std::future<bool> result = task.get_future();
+    std::thread t(std::move(task));
+    t.detach();
+
+    std::unique_lock lk(m);
+    EXPECT_TRUE(cv.wait_for(lk, /* rel_time= */ 1s, [&gotFirstFrame] { return gotFirstFrame; }));
 
     args.pop_back();
     args.push_back("camera");
@@ -565,35 +689,59 @@ TEST_F(EvsEnumeratorUnitTest, VerifyDumpDeviceCommand) {
     EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
 
     args.pop_back();
-    args.push_back("--collected");
-    EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
-
     args.pop_back();
+    args.push_back(cameras[0].id.c_str());
     args.push_back("--custom");
     args.push_back("start");
     args.push_back("1000");
-    args.push_back("5000");
+    args.push_back("50000");
     EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
+
+    std::this_thread::sleep_for(3s);
+
+    args.pop_back();
+    args.pop_back();
+    args.pop_back();
+    args.push_back("stop");
+    EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
+
+    EXPECT_EQ(std::future_status::ready, result.wait_for(kResultTimeout));
+    EXPECT_TRUE(result.get());
+
+    args.pop_back();
+    args.pop_back();
+    args.push_back("--collected");
+    EXPECT_EQ(STATUS_OK, mEnumerator->dump(fileno(stdout), (const char**)&args[0], args.size()));
+
+    // Close a display
+    EXPECT_TRUE(mEnumerator->closeDisplay(d).isOk());
 }
 
 bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t framesToReceive,
                                                std::chrono::duration<long double> maxInterval,
                                                std::chrono::duration<long double> eventTimeout,
-                                               const std::string& name) {
+                                               const std::string& name,
+                                               StreamStartedCallbackFunc callback) {
     std::mutex m;
     std::condition_variable cv;
     std::vector<BufferDesc> receivedFrames;
     EvsEventDesc receivedEvent;
     size_t counter = 0;
-    bool gotEventCallback = false, gotFrameCallback = false;
+    bool gotEventCallback = false, gotFrameCallback = false, gotFirstFrame = false;
     auto frameCb = FrameCallbackFunc([&](const std::vector<BufferDesc>& forwarded) {
         std::lock_guard lk(m);
         for (const auto& frame : forwarded) {
             BufferDesc dup = Utils::dupBufferDesc(frame, /* doDup= */ true);
+            EXPECT_TRUE(Utils::validateNativeHandle(dup.buffer.handle));
             receivedFrames.push_back(std::move(dup));
         }
 
-        LOG(INFO) << name << " received frames from " << forwarded[0].deviceId << ", " << ++counter;
+        LOG(DEBUG) << name << " received frames from " << forwarded[0].deviceId << ", "
+                   << ++counter;
+        if (!gotFirstFrame) {
+            callback();
+            gotFirstFrame = true;
+        }
         gotFrameCallback = true;
         cv.notify_all();
         return ::ndk::ScopedAStatus::ok();
@@ -636,6 +784,11 @@ bool EvsEnumeratorUnitTest::VerifyCameraStream(const CameraDesc& desc, size_t fr
         gotFrameCallback = false;
     }
     lk.unlock();
+
+    // Call two methods that are not implemented yet in a mock EVS HAL
+    // implementation.
+    EXPECT_TRUE(c->pauseVideoStream().isOk());
+    EXPECT_TRUE(c->resumeVideoStream().isOk());
 
     // Request to stop a video stream and wait.
     EXPECT_TRUE(c->stopVideoStream().isOk());

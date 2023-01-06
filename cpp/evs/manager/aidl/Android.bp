@@ -145,6 +145,7 @@ cc_test {
     shared_libs: [
         "libcamera_client",
         "libnativewindow",
+        "libui",
     ],
     static_libs: [
         "libgmock",
@@ -156,15 +157,25 @@ cc_test {
 cc_test_library {
     name: "libmockevshal",
     defaults: ["android.hardware.graphics.common-ndk_static"],
-    local_include_dirs: ["tests/include"],
+    local_include_dirs: [
+        "include",
+        "tests/include"
+    ],
     export_include_dirs: ["tests/include"],
-    srcs: ["tests/src/MockEvsHal.cpp"],
+    srcs: [
+        "tests/src/MockEvsHal.cpp",
+        "tests/src/MockHidlEvsHal.cpp",
+        "tests/src/MockHidlEvsHal_1_0.cpp",
+    ],
     shared_libs: [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
         "libbase",
         "libbinder_ndk",
         "libcamera_client",
         "libcamera_metadata",
         "libcutils",
+        "libhidlbase",
         "libnativewindow",
         "libui",
         "libutils",
