@@ -40,5 +40,6 @@ android.car.builtin.util.TimingsTraceLog
 android.car.builtin.util.ValidationHelper
 android.car.builtin.view.DisplayHelper
 android.car.builtin.view.KeyEventHelper
+android.car.builtin.view.SurfaceControlHelper
 android.car.builtin.widget.LockPatternHelper
 android.car.builtin.window.DisplayAreaOrganizerHelper

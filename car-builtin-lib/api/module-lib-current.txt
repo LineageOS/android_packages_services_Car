@@ -479,6 +479,10 @@ package android.car.builtin.view {
     method public static void setDisplayId(@NonNull android.view.KeyEvent, int);
   }
 
+  public final class SurfaceControlHelper {
+    method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
+  }
+
 }
 
 package android.car.builtin.widget {
