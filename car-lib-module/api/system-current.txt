@@ -982,6 +982,14 @@ package android.car.hardware.property {
     method @NonNull public android.car.hardware.property.AreaIdConfig.Builder<T> setSupportedEnumValues(@NonNull java.util.List<T>);
   }
 
+  public final class EvStoppingMode {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_CREEP = 1; // 0x1
+    field public static final int STATE_HOLD = 3; // 0x3
+    field public static final int STATE_OTHER = 0; // 0x0
+    field public static final int STATE_ROLL = 2; // 0x2
+  }
+
   public final class VehicleLightState {
     method @NonNull public static String toString(int);
     field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2

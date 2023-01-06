@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System को स्थिति र पत्ता लगाउनेसम्बन्धी डेटा रिड गर्न दिन्छ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System सम्बन्धी ग्राफको नियन्त्रण गर्नुहोस्"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्ने अनुमति दिनुहोस्"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदानसम्बन्धी डेटा हटाउने"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"एप टाढैबाट प्रयोग गर्नेसम्बन्धी अनुमति नियन्त्रण गर्नुहोस्।"</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"कारको स्टियरिङ ह्विल नियन्त्रण गर्न"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"कारको स्टियरिङ ह्विल नियन्त्रण गर्न।"</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"कारको ADAS सेटिङसम्बन्धी जानकारी रिड गर्ने"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"कारको ADAS सेटिङसम्बन्धी जानकारी रिड गर्ने।"</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"कारको ADAS सेटिङसम्बन्धी जानकारी नियन्त्रण गर्ने"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"कारको ADAS सेटिङसम्बन्धी जानकारी नियन्त्रण गर्ने।"</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"कारको ADAS स्थितिसम्बन्धी जानकारी रिड गर्ने"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"कारको ADAS स्थितिसम्बन्धी जानकारी रिड गर्ने।"</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"कारको ADAS स्थितिसम्बन्धी जानकारी नियन्त्रण गर्ने"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"कारको ADAS स्थितिसम्बन्धी जानकारी नियन्त्रण गर्ने।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ले प्रतिक्रिया जनाएन। हेडयुनिट बाकसलाई प्लगबाट निकालेर फेरि प्लगमा घुसाउनुहोस् र कार पुनःसुरु गर्नुहोस्‌"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो डिभाइस"</string>

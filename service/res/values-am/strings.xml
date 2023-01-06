@@ -70,6 +70,18 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ሁኔታን እና ፈልጎ ማግኛን ውሂብ ማንበብን ያስችላል"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ፈልጎ ማወቂያ ግራፍን ይቆጣጠሩ"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"የተሳፋሪ ማስገንዘቢያ ሥርዓት ፈልጎ ማወቂያ ግራፍ ማስጀመርን እና ማስቆምን መቆጣጠርን ያስችላል"</string>
+    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
+    <skip />
+    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
+    <skip />
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"የምርመራ ውሂብን አንብብ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ከመኪናው ላይ የምርመራ ውሂብን ያንብቡ።"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"የምርመራ ውሂብን አጽዳ"</string>
@@ -176,22 +188,14 @@
     <string name="car_permission_desc_control_remote_access" msgid="127215188256669260">"የርቀት መቆጣጠሪያ መዳረሻን ይቆጣጠራሉ።"</string>
     <string name="car_permission_label_control_steering_wheel" msgid="6244908950907824488">"የመኪናውን መሪ ይቆጣጠራል"</string>
     <string name="car_permission_desc_control_steering_wheel" msgid="8408970211196600423">"የመኪናውን መሪ ይቆጣጠራል።"</string>
-    <!-- no translation found for car_permission_label_read_adas_settings (151296373212801328) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_settings (8490545343454791279) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_settings (2535088218472880855) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_settings (8781131640392345285) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_adas_states (8968657466958098106) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_adas_states (5042430899788416991) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_adas_states (758803765406463138) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_adas_states (1893171217779342348) -->
-    <skip />
+    <string name="car_permission_label_read_adas_settings" msgid="151296373212801328">"የመኪናን የADAS ቅንብሮች መረጃ አንብብ"</string>
+    <string name="car_permission_desc_read_adas_settings" msgid="8490545343454791279">"የመኪናን የADAS ቅንብሮች መረጃ አንብብ።"</string>
+    <string name="car_permission_label_control_adas_settings" msgid="2535088218472880855">"የመኪናን የADAS ቅንብሮች መረጃን ተቆጣጠር"</string>
+    <string name="car_permission_desc_control_adas_settings" msgid="8781131640392345285">"የመኪናን የADAS ቅንብሮች መረጃ ተቆጣጠር።"</string>
+    <string name="car_permission_label_read_adas_states" msgid="8968657466958098106">"የመኪናን የADAS ሁኔታዎች መረጃ አንብብ"</string>
+    <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"የADAS ሁኔታዎች መረጃን አንብብ።"</string>
+    <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"የመኪናን የADAS ሁኔታዎች መረጃ ተቆጣጠር"</string>
+    <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"የመኪናን የADAS ሁኔታዎች መረጃ ተቆጣጠር።"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN አውቶብስ አልተሳካም"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN አውቶብስ ምላሽ አይሰጥም። የጭንቅላት አሃድ መያዣ ሳጥኑን ይሰኩ እና ይንቀሉ በመቀጠል መኪናውን ዳግም ያስጀምሩ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"የእኔ መሣሪያ"</string>

@@ -20,6 +20,7 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.AccessForVehicleProperty;
 import android.hardware.automotive.vehicle.ChangeModeForVehicleProperty;
+import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleArea;
@@ -126,6 +127,9 @@ public final class FakeVhalConfigParser {
     private static final int LIGHT_SWITCH_ON = VehicleLightSwitch.ON;
     private static final int LIGHT_SWITCH_OFF = VehicleLightSwitch.OFF;
     private static final int LIGHT_SWITCH_AUTO = VehicleLightSwitch.AUTOMATIC;
+    private static final int EV_STOPPING_MODE_CREEP = EvStoppingMode.CREEP;
+    private static final int EV_STOPPING_MODE_ROLL = EvStoppingMode.ROLL;
+    private static final int EV_STOPPING_MODE_HOLD = EvStoppingMode.HOLD;
     private static final int MIRROR_DRIVER_LEFT_RIGHT = VehicleAreaMirror.DRIVER_LEFT
                                 | VehicleAreaMirror.DRIVER_RIGHT;
     // Following are the test properties whose values are copying from TestPropertyUtils.h file(
@@ -198,6 +202,9 @@ public final class FakeVhalConfigParser {
             Map.entry("LIGHT_SWITCH_ON", LIGHT_SWITCH_ON),
             Map.entry("LIGHT_SWITCH_OFF", LIGHT_SWITCH_OFF),
             Map.entry("LIGHT_SWITCH_AUTO", LIGHT_SWITCH_AUTO),
+            Map.entry("EV_STOPPING_MODE_CREEP", EV_STOPPING_MODE_CREEP),
+            Map.entry("EV_STOPPING_MODE_ROLL", EV_STOPPING_MODE_ROLL),
+            Map.entry("EV_STOPPING_MODE_HOLD", EV_STOPPING_MODE_HOLD),
             Map.entry("MIRROR_DRIVER_LEFT_RIGHT", MIRROR_DRIVER_LEFT_RIGHT),
             Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
             Map.entry("kMixedTypePropertyForTest", K_MIXED_TYPE_PROPERTY_FOR_TEST),
