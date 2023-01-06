@@ -271,7 +271,7 @@ public abstract class HalPropValue {
         Class<?> clazz = CarPropertyUtils.getJavaClass(getPropId() & VehiclePropertyType.MASK);
         int areaId = getAreaId();
         int status = getStatus();
-        long timestamp = getTimestamp();
+        long timestampNanos = getTimestamp();
         String propertyName = VehiclePropertyIds.toString(propertyId);
 
         // Handles each return value from {@link getJavaClass}.
@@ -280,39 +280,39 @@ public abstract class HalPropValue {
                 throw new IllegalStateException("empty int32 values for property ID: "
                         + propertyName + ", areaID: " + areaId);
             }
-            return new CarPropertyValue<>(
-                    propertyId, areaId, status, timestamp, getInt32Value(0) == 1);
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos,
+                    getInt32Value(0) == 1);
         } else if (Float.class == clazz) {
             if (getFloatValuesSize() < 1) {
                 throw new IllegalStateException("empty float values for property ID: "
                         + propertyName + ", areaID: " + areaId);
             }
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getFloatValue(0));
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos, getFloatValue(0));
         } else if (Integer.class == clazz) {
             if (getInt32ValuesSize() < 1) {
                 throw new IllegalStateException("empty int32 values for property ID: "
                         + propertyName + ", areaID: " + areaId);
             }
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getInt32Value(0));
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos, getInt32Value(0));
         } else if (Long.class == clazz) {
             if (getInt64ValuesSize() < 1) {
                 throw new IllegalStateException("empty int64 values for property ID: "
                         + propertyName + ", areaID: " + areaId);
             }
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getInt64Value(0));
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos, getInt64Value(0));
         } else if (Float[].class == clazz) {
-            return new CarPropertyValue<>(
-                    propertyId, areaId, status, timestamp, getFloatContainerArray());
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos,
+                    getFloatContainerArray());
         } else if (Integer[].class == clazz) {
-            return new CarPropertyValue<>(
-                    propertyId, areaId, status, timestamp, getInt32ContainerArray());
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos,
+                    getInt32ContainerArray());
         } else if (Long[].class == clazz) {
-            return new CarPropertyValue<>(
-                    propertyId, areaId, status, timestamp, getInt64ContainerArray());
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos,
+                    getInt64ContainerArray());
         } else if (String.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getStringValue());
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos, getStringValue());
         } else if (byte[].class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, getByteArray());
+            return new CarPropertyValue<>(propertyId, areaId, timestampNanos, getByteArray());
         } else {
             throw new IllegalStateException("Unexpected type in: " + propertyName);
         }
@@ -322,7 +322,7 @@ public abstract class HalPropValue {
             int propertyId, boolean containBoolean, boolean containString) {
         int areaId = getAreaId();
         int status = getStatus();
-        long timestamp = getTimestamp();
+        long timestampNanos = getTimestamp();
         String propertyName = VehiclePropertyIds.toString(propertyId);
 
         List<Object> valuesList = new ArrayList<>();
@@ -353,7 +353,7 @@ public abstract class HalPropValue {
         for (int i = 0; i < getByteValuesSize(); i++) {
             valuesList.add(getByteValue(i));
         }
-        return new CarPropertyValue<>(propertyId, areaId, status, timestamp, valuesList.toArray());
+        return new CarPropertyValue<>(propertyId, areaId, timestampNanos, valuesList.toArray());
     }
 
     private boolean equalInt32Values(HalPropValue argument) {

@@ -34,11 +34,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 public final class CarPropertyEventTest {
     private static final int PROPERTY_ID = 1234;
     private static final int AREA_ID = 5678;
-    private static final int STATUS = CarPropertyValue.STATUS_AVAILABLE;
     private static final long TIMESTAMP_NANOS = 9294;
     private static final Float VALUE = 12.0F;
     private static final CarPropertyValue<Float> CAR_PROPERTY_VALUE = new CarPropertyValue<>(
-            PROPERTY_ID, AREA_ID, STATUS, TIMESTAMP_NANOS, VALUE);
+            PROPERTY_ID, AREA_ID, TIMESTAMP_NANOS, VALUE);
     private static final int EVENT_TYPE = CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE;
     private static final int ERROR_CODE =
             CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
@@ -72,8 +71,6 @@ public final class CarPropertyEventTest {
 
         assertThat(carPropertyEvent.getErrorCode())
                 .isEqualTo(CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
-        assertThat(carPropertyEvent.getCarPropertyValue().getStatus()).isEqualTo(
-                CarPropertyValue.STATUS_ERROR);
         assertThat(carPropertyEvent.getEventType()).isEqualTo(
                 CarPropertyEvent.PROPERTY_EVENT_ERROR);
         assertThat(carPropertyEvent.describeContents()).isEqualTo(0);

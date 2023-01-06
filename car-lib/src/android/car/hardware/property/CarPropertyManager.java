@@ -519,6 +519,7 @@ public class CarPropertyManager extends CarManagerBase {
      * can be registered for a single property or the same callback can be used for different
      * properties. If the same callback is registered again for the same property, it will be
      * updated to new updateRateHz.
+     *
      * <p>Rate could be one of the following:
      * <ul>
      *   <li>{@link CarPropertyManager#SENSOR_RATE_ONCHANGE}</li>
@@ -527,20 +528,35 @@ public class CarPropertyManager extends CarManagerBase {
      *   <li>{@link CarPropertyManager#SENSOR_RATE_FAST}</li>
      *   <li>{@link CarPropertyManager#SENSOR_RATE_FASTEST}</li>
      * </ul>
+     *
      * <p>
      * <b>Note:</b>Rate has no effect if the property has one of the following change modes:
      * <ul>
      *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}</li>
      *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}</li>
      * </ul>
-     * <b>Note:</b>If listener registers for updates for a
-     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} property, it will receive the
-     * property's current value upon registration.
-     * See {@link CarPropertyConfig#getChangeMode()} for details.
-     * If updateRateHz is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be
+     *
+     * <p>
+     * <b>Note:</b>If listener registers a callback for updates for a property for the first time,
+     * it will receive the property's current value via a change event upon registration if the
+     * property is currently available for reading.
+     *
+     * <p>For properties that might be unavailable for reading because their power state is off,
+     * property change events containing the property's initial value will be generated once their
+     * power state is on.
+     *
+     * <p>If updateRateHz is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be
      * registered with max sample updateRateHz.
-     * If updateRateHz is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be
+     *
+     * <p>If updateRateHz is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be
      * registered with min sample updateRateHz.
+     *
+     * <p>
+     * <b>Note:</b>A property change event will only happen when the property is available. Caller
+     * must never depend on the change event to check property's availability. For properties that
+     * might be unavailable because they depend on certain power state, caller should subscribe
+     * to the power state property (e.g. HVAC_POWER_ON for hvac dependant properties) to decide
+     * this property's availability.
      *
      * @param carPropertyEventCallback CarPropertyEventCallback to be registered.
      * @param propertyId               PropertyId to subscribe
