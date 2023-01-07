@@ -29,9 +29,9 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.GetPropertyCallback;
-import android.car.hardware.property.CarPropertyManager.GetPropertyError;
 import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
+import android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
@@ -1378,7 +1378,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         @GuardedBy("mLock")
         private final List<GetPropertyResult<?>> mResultList = new ArrayList<>();
         @GuardedBy("mLock")
-        private final List<GetPropertyError> mErrorList = new ArrayList<>();
+        private final List<PropertyAsyncError> mErrorList = new ArrayList<>();
 
         TestGetPropertyAsyncCallback(Set<Integer> pendingRequests) {
             mNumberOfRequests = pendingRequests.size();
@@ -1402,14 +1402,14 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
 
         @Override
-        public void onFailure(@NonNull GetPropertyError getPropertyError) {
-            int requestId = getPropertyError.getRequestId();
+        public void onFailure(@NonNull PropertyAsyncError propertyAsyncError) {
+            int requestId = propertyAsyncError.getRequestId();
             synchronized (mLock) {
                 if (!mPendingRequests.contains(requestId)) {
                     mTestErrors.add("Request ID: " + requestId + " not present");
                     return;
                 } else {
-                    mErrorList.add(getPropertyError);
+                    mErrorList.add(propertyAsyncError);
                     mPendingRequests.remove(requestId);
                 }
             }
@@ -1446,8 +1446,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             return resultList;
         }
 
-        public List<GetPropertyError> getErrorList() {
-            List<GetPropertyError> errorList;
+        public List<PropertyAsyncError> getErrorList() {
+            List<PropertyAsyncError> errorList;
             synchronized (mLock) {
                 errorList = new ArrayList<>(mErrorList);
             }
