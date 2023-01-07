@@ -117,7 +117,7 @@ private:
     std::vector<uint8_t> mDisplayPorts;
 
     // Display port the internal display is connected to.
-    uint8_t mInternalDisplayPort;
+    int32_t mInternalDisplayPort;
 
     // Collecting camera usage statistics from clients
     ::android::sp<StatsCollector> mClientsMonitor;

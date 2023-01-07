@@ -64,9 +64,6 @@ constexpr int kOptionDumpCameraTypeIndex = 2;
 constexpr int kOptionDumpCameraCommandIndex = 3;
 constexpr int kOptionDumpCameraArgsStartIndex = 4;
 
-// Display ID 255 is reserved for the special purpose.
-constexpr int kExclusiveMainDisplayId = 255;
-
 // Parameters for HAL connection
 constexpr int64_t kSleepTimeMilliseconds = 1000;
 constexpr int64_t kTimeoutMilliseconds = 30000;
@@ -159,20 +156,25 @@ bool Enumerator::init(const std::string_view& hardwareServiceName) {
     }
 
     // Get a list of available displays and identify the internal display
-    if (!mHwEnumerator->getDisplayIdList(&mDisplayPorts).isOk() || mDisplayPorts.empty()) {
-        LOG(ERROR) << "Failed to get a list of available displays";
-        return false;
+    if (!mHwEnumerator->getDisplayIdList(&mDisplayPorts).isOk()) {
+        LOG(WARNING)
+                << "Failed to get a list of available displays. EVS Display may not work properly "
+                   "if an active EVS HAL service implements HIDL v1.1 or AIDL EVS interface.";
     }
 
-    // The first element is the internal display
-    mInternalDisplayPort = mDisplayPorts.front();
-
-    auto it = std::find(mDisplayPorts.begin(), mDisplayPorts.end(), kExclusiveMainDisplayId);
-    if (it != mDisplayPorts.end()) {
-        LOG(WARNING) << kExclusiveMainDisplayId << " is reserved for the special purpose "
-                     << "so will not be available for EVS service.";
-        mDisplayPorts.erase(it);
+    const size_t numDisplays = mDisplayPorts.size();
+    mDisplayPorts.erase(std::remove_if(mDisplayPorts.begin(), mDisplayPorts.end(),
+                                       [](const auto id) { return id == kExclusiveDisplayId; }),
+                        mDisplayPorts.end());
+    if (numDisplays != mDisplayPorts.size()) {
+        LOG(WARNING)
+                << kExclusiveDisplayId
+                << " is reserved for the special purpose so will not be available for EVS service.";
     }
+
+    // The first element is the internal display if a returned list is not
+    // empty.
+    mInternalDisplayPort = mDisplayPorts.empty() ? kDisplayIdUnavailable : mDisplayPorts.front();
     mDisplayOwnedExclusively = false;
 
     // Starts the statistics collection
@@ -449,19 +451,28 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
             if (!mActiveDisplay.expired()) {
                 LOG(ERROR) << "Display is owned exclusively by another client.";
                 return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
-            } else {
-                mDisplayOwnedExclusively = false;
             }
+
+            mDisplayOwnedExclusively = false;
         }
 
-        if (id == kExclusiveMainDisplayId) {
+        bool flagExclusive = false;
+        if (id == kExclusiveDisplayId) {
             // The client requests to open the primary display exclusively.
             id = mInternalDisplayPort;
-            mDisplayOwnedExclusively = true;
+            flagExclusive = true;
             LOG(DEBUG) << "EvsDisplay is now owned exclusively by process "
                        << AIBinder_getCallingPid();
+        } else if (id == kDisplayIdUnavailable || mDisplayPorts.empty()) {
+            // If any display port is not available, it's possible that a
+            // running EVS HAL service implements HIDL EVS v1.0 interfaces.
+            id = mInternalDisplayPort;
+            LOG(WARNING) << "No display port is listed; Does a running EVS HAL service implement "
+                            "HIDL EVS v1.0 interfaces?";
         } else if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) ==
                    mDisplayPorts.end()) {
+            // If we know any available display port, a given display ID must be
+            // one of them.
             LOG(ERROR) << "No display is available on the port " << id;
             return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
         }
@@ -475,6 +486,13 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
         std::shared_ptr<IEvsDisplay> displayHandle;
         if (auto status = mHwEnumerator->openDisplay(id, &displayHandle);
             !status.isOk() || !displayHandle) {
+            // We may fail to open the display in following cases:
+            // 1) If a running EVS HAL service implements HIDL EVS interfaces,
+            // AidlEnumerator validates a given display ID and return a null if
+            // it's out of [0, 255].
+            // 2) If a running EVS HAL service implements AIDL EVS interfaces,
+            // EVS HAL service will return a null if no display is associated
+            // with a given display ID.
             LOG(ERROR) << "EVS Display unavailable";
             return status;
         }
@@ -485,6 +503,7 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
                 ::ndk::SharedRefBase::make<HalDisplay>(displayHandle, id);
         *displayObj = pHalDisplay;
         mActiveDisplay = pHalDisplay;
+        mDisplayOwnedExclusively = flagExclusive;
 
         return ScopedAStatus::ok();
     }
@@ -863,20 +882,25 @@ bool Enumerator::init(std::shared_ptr<IEvsEnumerator>& hwEnumerator, bool enable
     }
 
     // Get a list of available displays and identify the internal display
-    if (!hwEnumerator->getDisplayIdList(&mDisplayPorts).isOk() || mDisplayPorts.empty()) {
-        LOG(ERROR) << "Failed to get a list of available displays";
-        return false;
+    if (!hwEnumerator->getDisplayIdList(&mDisplayPorts).isOk()) {
+        LOG(WARNING)
+                << "Failed to get a list of available displays. EVS Display may not work properly "
+                   "if an active EVS HAL service implements HIDL v1.1 or AIDL EVS interface.";
     }
 
-    // The first element is the internal display
-    mInternalDisplayPort = mDisplayPorts.front();
-
-    auto it = std::find(mDisplayPorts.begin(), mDisplayPorts.end(), kExclusiveMainDisplayId);
-    if (it != mDisplayPorts.end()) {
-        LOG(WARNING) << kExclusiveMainDisplayId << " is reserved for the special purpose "
-                     << "so will not be available for EVS service.";
-        mDisplayPorts.erase(it);
+    const size_t numDisplays = mDisplayPorts.size();
+    mDisplayPorts.erase(std::remove_if(mDisplayPorts.begin(), mDisplayPorts.end(),
+                                       [](const auto id) { return id == kExclusiveDisplayId; }),
+                        mDisplayPorts.end());
+    if (numDisplays != mDisplayPorts.size()) {
+        LOG(WARNING)
+                << kExclusiveDisplayId
+                << " is reserved for the special purpose so will not be available for EVS service.";
     }
+
+    // The first element is the internal display if a returned list is not
+    // empty.
+    mInternalDisplayPort = mDisplayPorts.empty() ? kDisplayIdUnavailable : mDisplayPorts.front();
     mDisplayOwnedExclusively = false;
     mHwEnumerator = hwEnumerator;
 

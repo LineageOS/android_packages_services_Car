@@ -136,10 +136,6 @@ public:
 
     static aidlevs::BufferDesc dupBufferDesc(const aidlevs::BufferDesc& src, bool doDup);
 
-    static std::string toString(const aidlevs::EvsEventType& type);
-
-    static std::string_view toString(aidlevs::EvsResult result);
-
     DISALLOW_IMPLICIT_CONSTRUCTORS(Utils);
 };
 

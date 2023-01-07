@@ -28,6 +28,7 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -676,6 +677,25 @@ public class CarPowerManager extends CarManagerBase {
         if (updateCallbackNeeded) {
             updatePowerPolicyChangeCallback(filter);
         }
+    }
+
+    /**
+     * Turns on or off the individual display.
+     *
+     * <p>Changing the driver display is not allowed.
+     *
+     * @param displayId ID of the display
+     * @param enable Display power state to set
+     * @throw UnsupportedOperationException When trying to change the driver display power state.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void setDisplayPowerState(int displayId, boolean enable) {
+        // TODO(b/260103061): Implement this method.
     }
 
     /**

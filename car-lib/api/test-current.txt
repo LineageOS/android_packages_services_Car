@@ -1007,6 +1007,7 @@ package android.car.hardware.power {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void clearListener();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public int getPowerState();
     method public static boolean isCompletionAllowed(int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setDisplayPowerState(int, boolean);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListener);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS) public void setListenerWithCompletion(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void setPowerPolicyGroup(@NonNull String);

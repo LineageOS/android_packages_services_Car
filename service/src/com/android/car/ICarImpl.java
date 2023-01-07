@@ -75,6 +75,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.occupantconnection.CarOccupantConnectionService;
 import com.android.car.oem.CarOemProxyService;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
@@ -159,6 +160,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarEvsService mCarEvsService;
     private final CarTelemetryService mCarTelemetryService;
     private final CarActivityService mCarActivityService;
+    private final CarOccupantConnectionService mCarOccupantConnectionService;
 
     private final CarSystemService[] mAllServices;
 
@@ -436,6 +438,17 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarExperimentalFeatureServiceController = null;
         }
+
+        if (mFeatureController.isFeatureEnabled(Car.CAR_OCCUPANT_CONNECTION_SERVICE)
+                || mFeatureController.isFeatureEnabled(Car.CAR_REMOTE_DEVICE_SERVICE)) {
+            mCarOccupantConnectionService = constructWithTrace(
+                    t, CarOccupantConnectionService.class,
+                    () -> new CarOccupantConnectionService(),
+                    allServices);
+        } else {
+            mCarOccupantConnectionService = null;
+        }
+
         mAllServices = allServices.toArray(new CarSystemService[allServices.size()]);
 
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
@@ -631,6 +644,12 @@ public class ICarImpl extends ICar.Stub {
                 return mCarTelemetryService;
             case Car.CAR_ACTIVITY_SERVICE:
                 return mCarActivityService;
+            // Both CarOccupantConnectionManager and CarRemoteDeviceManager are implemented by the
+            // same service CarOccupantConnectionService.
+            case Car.CAR_OCCUPANT_CONNECTION_SERVICE:
+                return mCarOccupantConnectionService;
+            case Car.CAR_REMOTE_DEVICE_SERVICE:
+                return mCarOccupantConnectionService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

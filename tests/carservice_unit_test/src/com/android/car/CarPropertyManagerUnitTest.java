@@ -137,7 +137,7 @@ public final class CarPropertyManagerUnitTest {
 
     private static List<CarPropertyEvent> createErrorCarPropertyEventList() {
         CarPropertyValue<Integer> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
-                CarPropertyValue.STATUS_ERROR, 0, -1);
+                CarPropertyValue.STATUS_AVAILABLE, 0, -1);
         CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_ERROR, value,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
