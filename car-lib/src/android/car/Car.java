@@ -58,6 +58,7 @@ import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
+import android.car.occupantconnection.CarOccupantConnectionManager;
 import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
@@ -183,7 +184,7 @@ public final class Car {
     // Car service registry information.
     // This information never changes after the static initialization completes.
     private static final Map<Class<?>, String> CAR_SERVICE_NAMES =
-            new ArrayMap<Class<?>, String>(34);
+            new ArrayMap<Class<?>, String>(36);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -264,6 +265,30 @@ public final class Car {
     @OptionalFeature
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
+
+    /**
+     * Service name for {@link CarOccupantConnectionManager}.
+     *
+     * @hide
+     */
+    @OptionalFeature
+    // TODO(b/257117236): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_OCCUPANT_CONNECTION_SERVICE = "car_occupant_connection_service";
+
+    /**
+     * Service name for {@link CarRemoteDeviceManager}.
+     *
+     * @hide
+     */
+    @OptionalFeature
+    // TODO(b/257117236): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_REMOTE_DEVICE_SERVICE = "car_remote_device_service";
 
     /** Service name for {@link CarOccupantZoneManager} */
     @MandatoryFeature
@@ -1615,6 +1640,8 @@ public final class Car {
         CAR_SERVICE_NAMES.put(CarEvsManager.class, CAR_EVS_SERVICE);
         CAR_SERVICE_NAMES.put(CarTelemetryManager.class, CAR_TELEMETRY_SERVICE);
         CAR_SERVICE_NAMES.put(CarActivityManager.class, CAR_ACTIVITY_SERVICE);
+        CAR_SERVICE_NAMES.put(CarOccupantConnectionManager.class, CAR_OCCUPANT_CONNECTION_SERVICE);
+        CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
         // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
         // as well.
     }
@@ -2555,6 +2582,12 @@ public final class Car {
                 break;
             case CAR_PERFORMANCE_SERVICE:
                 manager = new CarPerformanceManager(this, binder);
+                break;
+            case CAR_OCCUPANT_CONNECTION_SERVICE:
+                manager = new CarOccupantConnectionManager(this, binder);
+                break;
+            case CAR_REMOTE_DEVICE_SERVICE:
+                manager = new CarRemoteDeviceManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing

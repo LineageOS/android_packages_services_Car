@@ -12,6 +12,8 @@ android.car ApiVersion T readFromParcel(Parcel source, ApiVersionFactory<T> fact
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
+android.car Car String CAR_OCCUPANT_CONNECTION_SERVICE
+android.car Car String CAR_REMOTE_DEVICE_SERVICE
 android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
 android.car Car String CAR_INSTRUMENT_CLUSTER_SERVICE
 android.car Car String CLUSTER_HOME_SERVICE
@@ -74,6 +76,7 @@ android.car CarProjectionManager int PROJECTION_AP_FAILED
 android.car CarProjectionManager void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter)
 android.car CarProjectionManager void unregsiterProjectionListener()
 android.car CarProjectionManager void onCarDisconnected()
+android.car CarRemoteDeviceManager void onCarDisconnected()
 android.car VehicleAreaSeat int SIDE_LEFT
 android.car VehicleAreaSeat int SIDE_CENTER
 android.car VehicleAreaSeat int SIDE_RIGHT
@@ -484,6 +487,7 @@ android.car.occupantawareness SystemStatusEvent Parcelable.Creator<SystemStatusE
 android.car.occupantawareness SystemStatusEvent int describeContents()
 android.car.occupantawareness SystemStatusEvent void writeToParcel(Parcel dest, int flags)
 android.car.occupantawareness SystemStatusEvent String toString()
+android.car.occupantconnection CarOccupantConnectionManager void onCarDisconnected()
 android.car.os CarPerformanceManager void onCarDisconnected()
 android.car.os CarPerformanceManager void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener)
 android.car.os CarPerformanceManager void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener)

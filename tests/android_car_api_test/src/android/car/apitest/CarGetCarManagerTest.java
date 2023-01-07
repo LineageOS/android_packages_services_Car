@@ -22,6 +22,7 @@ import android.car.CarBugreportManager;
 import android.car.CarInfoManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
+import android.car.CarRemoteDeviceManager;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.app.CarActivityManager;
 import android.car.cluster.CarInstrumentClusterManager;
@@ -42,6 +43,7 @@ import android.car.media.CarAudioManager;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
+import android.car.occupantconnection.CarOccupantConnectionManager;
 import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
@@ -81,8 +83,10 @@ public final class CarGetCarManagerTest extends CarLessApiTestBase {
             {CarPackageManager.class, Car.PACKAGE_SERVICE},
             {CarAudioManager.class, Car.AUDIO_SERVICE},
             {CarNavigationStatusManager.class, Car.CAR_NAVIGATION_SERVICE},
+            {CarOccupantConnectionManager.class, Car.CAR_OCCUPANT_CONNECTION_SERVICE},
             {CarOccupantZoneManager.class, Car.CAR_OCCUPANT_ZONE_SERVICE},
             {CarUserManager.class, Car.CAR_USER_SERVICE},
+            {CarRemoteDeviceManager.class, Car.CAR_REMOTE_DEVICE_SERVICE},
             {CarDevicePolicyManager.class, Car.CAR_DEVICE_POLICY_SERVICE},
             {CarCabinManager.class, Car.CABIN_SERVICE},
             {CarDiagnosticManager.class, Car.DIAGNOSTIC_SERVICE},
