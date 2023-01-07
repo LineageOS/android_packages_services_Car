@@ -21,11 +21,15 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_product.mk)
 # Default AOSP sounds
 $(call inherit-product-if-exists, frameworks/base/data/sounds/AllAudio.mk)
 
-# Additional settings used in all AOSP builds
+PRODUCT_PACKAGES += \
+    CarSettingsIntelligence
+
+# Additional settings for AAOS builds
 PRODUCT_PRODUCT_PROPERTIES += \
-    ro.config.ringtone?=Ring_Synth_04.ogg \
-    ro.config.notification_sound?=pixiedust.ogg \
     ro.com.android.dataroaming?=true \
+    ro.config.ringtone=Girtab.ogg \
+    ro.config.notification_sound=Tethys.ogg \
+    ro.config.alarm_alert=Oxygen.ogg \
 
 # More AOSP packages
 PRODUCT_PACKAGES += \
@@ -33,3 +37,26 @@ PRODUCT_PACKAGES += \
     PhotoTable \
     preinstalled-packages-platform-aosp-product.xml \
     WallpaperPicker \
+
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/private
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/powerpolicy/sepolicy/private
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/sepolicy/private
+
+ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
+PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/public
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/private
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cartelemetry
+endif
+
+ifeq ($(DISABLE_CAR_PRODUCT_CONFIG_OVERLAY),)
+PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay
+endif
+
+ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
+PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
+endif
+
+$(call inherit-product, device/sample/products/location_overlay.mk)

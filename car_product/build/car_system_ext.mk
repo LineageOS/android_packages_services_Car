@@ -17,3 +17,25 @@
 # This makefile comprises the minimal system_ext partition content for an
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
+
+PRODUCT_PACKAGES += \
+    CarDeveloperOptions \
+    CarProvision \
+    CarSystemUI \
+
+# Default dex optimization configurations
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    dalvik.vm.dex2oat-cpu-set=0,1 \
+    dalvik.vm.dex2oat-threads=2 \
+    pm.dexopt.disable_bg_dexopt=false \
+    pm.dexopt.downgrade_after_inactive_days=10 \
+
+# Disable Prime Shader Cache in SurfaceFlinger to make it available faster
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    service.sf.prime_shader_cache=0
+
+# More configurations for AOSP cars
+PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    ro.carrier=unknown \
+    ro.com.android.dataroaming?=true \
+    keyguard.no_require_sim=true \
