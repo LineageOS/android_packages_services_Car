@@ -663,10 +663,6 @@ public final class CarAudioContext {
         );
     }
 
-    static List<Integer> getContextsToDuck(@AudioContext int context) {
-        return sContextsToDuck.get(context);
-    }
-
     static @AudioContext int getInvalidContext() {
         return INVALID;
     }
