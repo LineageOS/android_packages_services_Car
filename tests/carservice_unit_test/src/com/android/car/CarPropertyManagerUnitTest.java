@@ -21,6 +21,8 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.INVALID;
+import static android.car.hardware.property.CarPropertyManager.GetPropertyError;
+import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_ACCESS_DENIED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
@@ -687,15 +689,18 @@ public final class CarPropertyManagerUnitTest {
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
-        ArgumentCaptor<CarPropertyManager.GetPropertyResult> value = ArgumentCaptor.forClass(
-                CarPropertyManager.GetPropertyResult.class);
+        ArgumentCaptor<GetPropertyResult<?>> value = ArgumentCaptor.forClass(
+                GetPropertyResult.class);
 
         mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         verify(mGetPropertyCallback, timeout(1000)).onSuccess(value.capture());
-        assertThat(value.getValue().getRequestId()).isEqualTo(0);
-        assertThat(value.getValue().getCarPropertyValue().getValue()).isEqualTo(17.0f);
+        GetPropertyResult<Float> gotResult = (GetPropertyResult<Float>) value.getValue();
+        assertThat(gotResult.getRequestId()).isEqualTo(0);
+        assertThat(gotResult.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(gotResult.getAreaId()).isEqualTo(0);
+        assertThat(gotResult.getValue()).isEqualTo(17.0f);
     }
 
     @Test
@@ -724,8 +729,8 @@ public final class CarPropertyManagerUnitTest {
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
-        ArgumentCaptor<CarPropertyManager.GetPropertyResult> value = ArgumentCaptor.forClass(
-                CarPropertyManager.GetPropertyResult.class);
+        ArgumentCaptor<GetPropertyResult<?>> value = ArgumentCaptor.forClass(
+                GetPropertyResult.class);
         List<CarPropertyManager.GetPropertyRequest> getPropertyRequests = new ArrayList<>();
         getPropertyRequests.add(createPropertyRequest());
         getPropertyRequests.add(createPropertyRequest());
@@ -734,10 +739,15 @@ public final class CarPropertyManagerUnitTest {
                 mGetPropertyCallback);
 
         verify(mGetPropertyCallback, timeout(1000).times(2)).onSuccess(value.capture());
-        List<CarPropertyManager.GetPropertyResult> getPropertyResults = value.getAllValues();
-        assertThat(getPropertyResults.get(0).getRequestId()).isEqualTo(0);
-        assertThat(getPropertyResults.get(0).getCarPropertyValue().getValue()).isEqualTo(17.0f);
-        assertThat(getPropertyResults.get(1).getRequestId()).isEqualTo(1);
+        List<GetPropertyResult<?>> gotPropertyResults = value.getAllValues();
+        assertThat(gotPropertyResults.get(0).getRequestId()).isEqualTo(0);
+        assertThat(gotPropertyResults.get(0).getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(gotPropertyResults.get(0).getAreaId()).isEqualTo(0);
+        assertThat(gotPropertyResults.get(0).getValue()).isEqualTo(17.0f);
+        assertThat(gotPropertyResults.get(1).getRequestId()).isEqualTo(1);
+        assertThat(gotPropertyResults.get(1).getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(gotPropertyResults.get(1).getAreaId()).isEqualTo(0);
+        assertThat(gotPropertyResults.get(1).getValue()).isEqualTo(17.0f);
     }
 
     @Test
@@ -760,14 +770,15 @@ public final class CarPropertyManagerUnitTest {
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
-        ArgumentCaptor<CarPropertyManager.GetPropertyError> value = ArgumentCaptor.forClass(
-                CarPropertyManager.GetPropertyError.class);
+        ArgumentCaptor<GetPropertyError> value = ArgumentCaptor.forClass(GetPropertyError.class);
 
         mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         verify(mGetPropertyCallback, timeout(1000)).onFailure(value.capture());
         assertThat(value.getValue().getRequestId()).isEqualTo(0);
+        assertThat(value.getValue().getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(value.getValue().getAreaId()).isEqualTo(0);
         assertThat(value.getValue().getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
