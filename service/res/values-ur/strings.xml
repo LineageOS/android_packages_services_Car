@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"کار میں بیٹھنے والے فرد کے لیے بنے آگاہی کے سسٹم کیلئے پڑھنے کی حیثیت اور ڈیٹا کا پتہ لگانے کی اجازت دیتا ہے"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"کار میں بیٹھنے والے فرد کے لیے بنے آگاہی کے سسٹم کے گراف کو کنٹرول کریں"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"کار میں بیٹھنے والے فرد کے لیے بنا آگاہی کا سسٹم پتہ لگانے کے گراف کو شروع کرنے اور روکنے کی اجازت دیتا ہے"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"کار کے ڈرائیور کی نگرانی کی ترتیبات کی معلومات کو پڑھیں"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"کار کے ڈرائیور کی نگرانی کی ترتیبات کی معلومات کو پڑھیں۔"</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"کار کے ڈرائیور کی نگرانی کی ترتیبات کی معلومات کو کنٹرول کریں"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"کار کے ڈرائیور کی نگرانی کی ترتیبات کی معلومات کو کنٹرول کریں۔"</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"کار کے ڈرائیور کی نگرانی کے اعداد و شمار کو پڑھیں"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"کار کے ڈرائیور کی نگرانی کے اعداد و شمار کو پڑھیں۔"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"تشخیصی ڈیٹا پڑھیں"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"کار کے تشخیصی ڈیٹا کے بارے میں پڑھیں۔"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"تشخیصی ڈیٹا صاف کریں"</string>

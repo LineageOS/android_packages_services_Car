@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemకు చదివే స్టేటస్‌ని, డేటాను గుర్తించడాన్ని అనుమతిస్తుంది"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System గ్రాఫ్‌ను నియంత్రించు"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness Systemను గుర్తించే గ్రాఫ్‌ను ప్రారంభించడాన్ని, ఆపివేయడాన్ని నియంత్రించడానికి అనుమతిస్తుంది"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"కారు డ్రైవర్ మానిటరింగ్ సెట్టింగ్‌ల సమాచారాన్ని చదవండి"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"కారు డ్రైవర్ మానిటరింగ్ సెట్టింగ్‌ల సమాచారాన్ని చదవండి."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"కారు డ్రైవర్ మానిటరింగ్ సెట్టింగ్‌ల సమాచారాన్ని కంట్రోల్ చేయండి"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"కారు డ్రైవర్ మానిటరింగ్ సెట్టింగ్‌ల సమాచారాన్ని కంట్రోల్ చేయండి."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"కారు డ్రైవర్ మానిటరింగ్ స్టేట్స్ సమాచారాన్ని చదవండి"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"కారు డ్రైవర్ మానిటరింగ్ స్టేట్స్ సమాచారాన్ని చదవండి."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"సమస్య విశ్లేషణ డేటాను తెలుసుకోగలవు"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"కారు నుండి విశ్లేషణ డేటాను తెలుసుకోగలవు."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు"</string>
