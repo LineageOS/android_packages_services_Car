@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System ಗಾಗಿ ಓದುವ ಸ್ಥಿತಿ ಮತ್ತು ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಡೇಟಾವನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System Graph ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಗ್ರಾಫ್‌ನ ಪ್ರಾರಂಭಿಸಲು ಮತ್ತು ನಿಲ್ಲಿಸುವುದನ್ನು ನಿಯಂತ್ರಿಸಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ಓದಿ."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸ್ಥಿತಿಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"ಕಾರ್‌ನ ಡ್ರೈವರ್‌ ಮಾನಿಟರಿಂಗ್ ಸ್ಥಿತಿಗಳ ಕುರಿತ ಮಾಹಿತಿಯನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ಕಾರಿನಲ್ಲಿರುವ ಅದರ ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>

@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Sallii Occupant Awareness Systemin tilan ja tunnistusdatan lukemisen"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Ohjata Occupant Awareness System Graphia"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Sallii Occupant Awareness Systemin käynnistyksen ja pysäytyksen ohjaamisen"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Lukee auton ajajaseuranta-asetusten tietoja"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Lukee auton ajajaseuranta-asetusten tietoja."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Ohjaa auton ajajaseuranta-asetusten tietoja"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"Ohjaa auton ajajaseuranta-asetusten tietoja."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"Lukee auton ajajaseuranta-tilojen tietoja"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"Lukee auton ajajaseuranta-tilojen tietoja."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"nähdä diagnostiikkadataa"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"lukea auton diagnostiikkadataa"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"poistaa diagnostiikkatiedot"</string>

@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"इससे Occupant Awareness System की स्थिति और डिटेक्शन सिस्टम के नतीजों को पढ़ने की अनुमति मिलती है. डिटेक्शन सिस्टम यह बताता है कि ड्राइवर कहां देख रहा है."</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"इससे ऐप्लिकेशन को Occupant Awareness System Graph कंट्रोल करने की अनुमति मिलती है"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"इससे Occupant Awareness System के डिटेक्शन ग्राफ़ को शुरू करने या रोकने की अनुमति मिलती है"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"कार के ड्राइवर को मॉनिटर करने वाली सेटिंग की जानकारी पढ़ने की अनुमति दें"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"कार के ड्राइवर को मॉनिटर करने वाली सेटिंग की जानकारी पढ़ने की अनुमति दें."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"कार के ड्राइवर को मॉनिटर करने वाली सेटिंग की जानकारी कंट्रोल करने की अनुमति दें"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"कार के ड्राइवर को मॉनिटर करने वाली सेटिंग की जानकारी कंट्रोल करने की अनुमति दें."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"कार के ड्राइवर को मॉनिटर करने से जुड़ी स्थितियों की जानकारी पढ़ने की अनुमति दें"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"कार के ड्राइवर को मॉनिटर करने से जुड़ी स्थितियों की जानकारी पढ़ने की अनुमति दें."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"गड़बड़ी की पहचान का डेटा देख सकता है"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कार की \'गड़बड़ी की पहचान का डेटा\' देख सकता है."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"गड़बड़ी की पहचान का डेटा मिटा सकता है"</string>
