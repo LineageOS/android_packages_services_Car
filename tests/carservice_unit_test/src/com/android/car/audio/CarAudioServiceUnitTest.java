@@ -1014,7 +1014,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
-                        TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS));
+                        TEST_GAIN_INDEX, TEST_FLAGS));
 
         expectWithMessage("Set Volume Group Permission Exception")
                 .that(thrown).hasMessageThat()
@@ -1031,11 +1031,38 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         nonDynamicAudioService.init();
 
         nonDynamicAudioService.setGroupVolume(
-                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS);
+                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX, TEST_FLAGS);
 
         verify(mAudioManager).setStreamVolume(
                 CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP],
-                TEST_PRIMARY_GROUP_INDEX,
+                TEST_GAIN_INDEX,
+                TEST_FLAGS);
+    }
+
+    @Test
+    public void setGroupVolume_verifyNoCallbacks() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ false, TEST_FLAGS);
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX,
+                TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void setGroupVolume_afterSetVolumeGroupMute() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ true, TEST_FLAGS);
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX,
+                TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
                 TEST_FLAGS);
     }
 
