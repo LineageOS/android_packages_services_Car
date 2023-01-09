@@ -1153,8 +1153,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         throw new RuntimeException("Format error in config_occupant_zones resource:" + msg);
     }
 
-    // For overriding in test
-    @VisibleForTesting
+    /** Returns the driver seat. */
     int getDriverSeat() {
         synchronized (mLock) {
             return mDriverSeat;
