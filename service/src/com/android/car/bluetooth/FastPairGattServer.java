@@ -456,8 +456,21 @@ public class FastPairGattServer {
      *
      * This makes the underlying service and characteristics available and registers us for events.
      */
-    public boolean start() {
+    public synchronized boolean start() {
+        if (DBG) {
+            Slogf.d(TAG, "start()");
+        }
+
         if (isStarted()) {
+            Slogf.w(TAG, "GATT service already started");
+            return true;
+        }
+
+        mBluetoothGattServer = mBluetoothManager
+                .openGattServer(mContext, mBluetoothGattServerCallback);
+
+        if (mBluetoothGattServer == null) {
+            Slogf.e(TAG, "Start failed, could not get a GATT server.");
             return false;
         }
 
@@ -470,15 +483,6 @@ public class FastPairGattServer {
         filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mPairingAttemptsReceiver, filter);
 
-        mBluetoothGattServer = mBluetoothManager
-                .openGattServer(mContext, mBluetoothGattServerCallback);
-
-        if (mBluetoothGattServer == null) {
-            Slogf.e(TAG, "Start failed, could not get a GATT server.");
-            mContext.unregisterReceiver(mPairingAttemptsReceiver);
-            return false;
-        }
-
         mBluetoothGattServer.addService(mFastPairService);
         return true;
     }
@@ -488,22 +492,30 @@ public class FastPairGattServer {
      *
      * This removes our underlying service and clears our state.
      */
-    public boolean stop() {
+    public synchronized boolean stop() {
+        if (DBG) {
+            Slogf.d(TAG, "stop()");
+        }
+
         if (!isStarted()) {
+            Slogf.w(TAG, "GATT service already stopped");
             return true;
         }
 
-        clearSharedSecretKey();
+        mContext.unregisterReceiver(mPairingAttemptsReceiver);
 
         if (isConnected()) {
             mBluetoothGattServer.cancelConnection(mRemoteGattDevice);
             mRemoteGattDevice = null;
             mCallbacks.onPairingCompleted(false);
         }
+
         mPairingPasskey = -1;
-        mSharedSecretKey = null;
+        clearSharedSecretKey();
+
         mBluetoothGattServer.removeService(mFastPairService);
-        mContext.unregisterReceiver(mPairingAttemptsReceiver);
+        mBluetoothGattServer.close();
+        mBluetoothGattServer = null;
         return true;
     }
 
@@ -511,9 +523,7 @@ public class FastPairGattServer {
      * Check if this service is started
      */
     public boolean isStarted() {
-        return (mBluetoothGattServer == null)
-                ? false
-                : mBluetoothGattServer.getService(FAST_PAIR_SERVICE_UUID.getUuid()) != null;
+        return mBluetoothGattServer != null;
     }
 
     /**
