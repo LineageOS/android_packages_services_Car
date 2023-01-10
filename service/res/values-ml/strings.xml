@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"ഒക്യുപന്റ് അവയർനെസ് സിസ്റ്റത്തിനുള്ള വായനാ നിലയും കണ്ടെത്തൽ ഡാറ്റയും അനുവദിക്കുന്നു"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"ഒക്യുപന്റ് അവയർനെസ് സിസ്റ്റം ഗ്രാഫ് നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"ഒക്യുപന്റ് അവയർനെസ് സിസ്റ്റം കണ്ടെത്തൽ ഗ്രാഫിന്റെ ആരംഭവും നിർത്തലും നിയന്ത്രിക്കാൻ അനുവദിക്കുന്നു"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് ക്രമീകരണ വിവരം വായിക്കുക"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് ക്രമീകരണ വിവരം വായിക്കുക."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് ക്രമീകരണ വിവരം നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് ക്രമീകരണ വിവരം നിയന്ത്രിക്കുക."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് നിലകൾ സംബന്ധിച്ച വിവരങ്ങൾ വായിക്കുക"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"കാറിന്റെ ഡ്രൈവർ മോണിറ്ററിംഗ് നിലകൾ സംബന്ധിച്ച വിവരങ്ങൾ വായിക്കുക."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ വായിക്കുക"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"കാറിൽ നിന്നുള്ള പ്രശ്‌നനിർണ്ണയ ഡാറ്റ വായിക്കുക."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"പ്രശ്‌നനിർണ്ണയ ഡാറ്റ മായ്‌ക്കുക"</string>

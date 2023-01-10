@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"იძლევა მძღოლის ინფორმირების სისტემის სტატუსისა და ამოცნობის მონაცემების წაკითხვის საშუალებას"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"მძღოლის ინფორმირების სისტემის დიაგრამის მართვა"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"იძლევა მძღოლის ინფორმირების სისტემის გაშვების მართვისა და ამოცნობის დიაგრამის შეწყვეტის საშუალებას"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"წაიკითხეთ მანქანის მძღოლის მონიტორინგის პარამეტრების ინფორმაცია"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"წაიკითხეთ მანქანის მძღოლის მონიტორინგის პარამეტრების ინფორმაცია."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"აკონტროლეთ მანქანის მძღოლის მონიტორინგის პარამეტრების ინფორმაცია"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"აკონტროლეთ მანქანის მძღოლის მონიტორინგის პარამეტრების ინფორმაცია."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"წაიკითხეთ მანქანის მძღოლის მონიტორინგის სახელმწიფოების ინფორმაცია"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"წაიკითხეთ მანქანის მძღოლის მონიტორინგის სახელმწიფოების ინფორმაცია."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"დიაგნოსტიკური მონაცემების წაკითხვა"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"დიაგნოსტიკური მონაცემების წაკითხვა მანქანიდან."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"დიაგნოსტიკური მონაცემების გასუფთავება"</string>

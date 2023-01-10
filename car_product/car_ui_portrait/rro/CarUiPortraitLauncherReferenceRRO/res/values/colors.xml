@@ -24,7 +24,7 @@
     <color name="icon_tint">#000000</color>
     <color name="media_button_tint">@color/car_on_surface</color>
     <color name="media_button_tint_disabled">@color/car_on_surface_variant</color>
-    <color name="dialer_button_icon_color">@color/car_on_primary</color>
+    <color name="dialer_button_icon_color">@color/car_on_surface</color>
     <color name="recent_apps_line_divider_color">#2E3134</color>
     <color name="seek_bar_color">@color/car_primary</color>
 </resources>

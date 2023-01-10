@@ -58,6 +58,7 @@ import static android.media.AudioManager.SUCCESS;
 import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.KeyEvent.ACTION_DOWN;
+import static android.view.KeyEvent.ACTION_UP;
 import static android.view.KeyEvent.KEYCODE_UNKNOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_DOWN;
 import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
@@ -1014,7 +1015,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
-                        TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS));
+                        TEST_GAIN_INDEX, TEST_FLAGS));
 
         expectWithMessage("Set Volume Group Permission Exception")
                 .that(thrown).hasMessageThat()
@@ -1031,11 +1032,38 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         nonDynamicAudioService.init();
 
         nonDynamicAudioService.setGroupVolume(
-                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS);
+                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX, TEST_FLAGS);
 
         verify(mAudioManager).setStreamVolume(
                 CarAudioDynamicRouting.STREAM_TYPES[TEST_PRIMARY_GROUP],
-                TEST_PRIMARY_GROUP_INDEX,
+                TEST_GAIN_INDEX,
+                TEST_FLAGS);
+    }
+
+    @Test
+    public void setGroupVolume_verifyNoCallbacks() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ false, TEST_FLAGS);
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX,
+                TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void setGroupVolume_afterSetVolumeGroupMute() {
+        mCarAudioService.init();
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                /* mute= */ true, TEST_FLAGS);
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP, TEST_GAIN_INDEX,
+                TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
                 TEST_FLAGS);
     }
 
@@ -1879,6 +1907,46 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Volume group volume after unknown key event")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
                 .isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forActionUp() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_UP, KEYCODE_VOLUME_UP);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume up in primary zone in primary group "
+                + "for action up")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(volumeBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forActionDownFollowedByActionUp() {
+        mCarAudioService.init();
+        int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent actionDownKeyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_UP);
+        KeyEvent actionUpKeyEvent = new KeyEvent(ACTION_UP, KEYCODE_VOLUME_UP);
+        listener.onKeyEvent(actionDownKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        listener.onKeyEvent(actionUpKeyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Volume group volume after volume up in primary zone in primary group "
+                + "for action down then action up")
+                .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
+                .isEqualTo(volumeBefore + 1);
     }
 
     @Test

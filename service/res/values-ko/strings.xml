@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System의 상태 및 감지 데이터를 읽는 것을 허용합니다."</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System 그래프 제어"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System 감지 그래프의 시작 및 중지를 제어하는 것을 허용합니다."</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"차량의 운전자 모니터링 설정 정보 읽기"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"차량의 운전자 모니터링 설정 정보를 읽습니다."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"차량의 운전자 모니터링 설정 정보 관리"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"차량의 운전자 모니터링 설정 정보를 관리합니다."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"차량의 운전자 모니터링 상태 정보 읽기"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"차량의 운전자 모니터링 상태 정보를 읽습니다."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"진단 데이터 읽기"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"차량의 진단 데이터를 읽습니다."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"진단 데이터 삭제"</string>

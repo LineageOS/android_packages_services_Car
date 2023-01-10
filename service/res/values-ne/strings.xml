@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System को स्थिति र पत्ता लगाउनेसम्बन्धी डेटा रिड गर्न दिन्छ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System सम्बन्धी ग्राफको नियन्त्रण गर्नुहोस्"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्ने अनुमति दिनुहोस्"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"कारका चालकको अनुगमनका सेटिङसम्बन्धी जानकारी रिड गर्ने"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"कारका चालकको अनुगमनका सेटिङसम्बन्धी जानकारी रिड गर्ने।"</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"कारका चालकको अनुगमनका सेटिङसम्बन्धी जानकारी नियन्त्रण गर्ने"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"कारका चालकको अनुगमनका सेटिङसम्बन्धी जानकारी नियन्त्रण गर्ने।"</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"कारका चालकको अनुगमनको स्थितिसम्बन्धी जानकारी रिड गर्ने"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"कारका चालकको अनुगमनको स्थितिसम्बन्धी जानकारी रिड गर्ने।"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"निदानसम्बन्धी डेटा पढ्ने"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कारको निदानसम्बन्धी डेटा पढ्ने।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदानसम्बन्धी डेटा हटाउने"</string>

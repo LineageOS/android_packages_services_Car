@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Omogućuje očitavanje statusa i podataka o detektiranju za Sustav detektiranja prisutnosti"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontrola grafikona Sustava detektiranja prisutnosti"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Omogućuje kontroliranje početka i završetka grafikona detektiranja za Sustav detektiranja prisutnosti"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Čitanje podataka o postavkama nadzora vozača automobila"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Čitanje podataka o postavkama nadzora vozača automobila."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Upravljanje podacima o postavkama nadzora vozača automobila"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"Upravljanje podacima o postavkama nadzora vozača automobila."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"Čitanje podataka o stanjima nadzora vozača automobila"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"Čitanje podataka o stanjima nadzora vozača automobila."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"čitati dijagnostičke podatke"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"čitati dijagnostičke podatke automobila"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"izbrisati dijagnostičke podatke"</string>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,26 +20,24 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
-import android.view.KeyEvent;
+import android.view.InputEvent;
 
 /**
- * Provides access to {@code android.view.KeyEvent} calls.
+ * Provides access to {@code android.view.InputEvent} calls.
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public final class KeyEventHelper {
+public final class InputEventHelper {
 
-    private KeyEventHelper() {
+    private InputEventHelper() {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * Sets the display id for the key event passed as argument.
-     * @deprecated Use {@link InputEventHelper} instead of this class.
+     * Sets the display id for the input event passed as argument.
      */
-    @Deprecated
-    @AddedIn(PlatformVersion.TIRAMISU_0)
-    public static void setDisplayId(@NonNull KeyEvent keyEvent, int newDisplayId) {
-        keyEvent.setDisplayId(newDisplayId);
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void setDisplayId(@NonNull InputEvent inputEvent, int newDisplayId) {
+        inputEvent.setDisplayId(newDisplayId);
     }
 }
