@@ -686,7 +686,7 @@ public class CarPowerManager extends CarManagerBase {
      *
      * @param displayId ID of the display
      * @param enable Display power state to set
-     * @throw UnsupportedOperationException When trying to change the driver display power state.
+     * @throws UnsupportedOperationException When trying to change the driver display power state.
      *
      * @hide
      */
