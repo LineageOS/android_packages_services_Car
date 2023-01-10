@@ -266,6 +266,8 @@ ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_APEX_BOOT_JARS += com.android.car.framework:android.car-module
     PRODUCT_APEX_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
 
+    $(call soong_config_set,AUTO,car_bootclasspath_fragment,true)
+
     PRODUCT_HIDDENAPI_STUBS := android.car-module.stubs
     PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-module.stubs.system
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-module.stubs.test
