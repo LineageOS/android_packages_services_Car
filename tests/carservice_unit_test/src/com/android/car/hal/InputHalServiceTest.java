@@ -731,7 +731,7 @@ public class InputHalServiceTest {
     }
 
     @Test
-    public void dump_withNoLastKeyEvent_printsNull() {
+    public void dump_withNoLastKeyEvent_printsEmpty() {
         // Arrange
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -741,34 +741,17 @@ public class InputHalServiceTest {
         // Assert
         verify(mMockPrintWriter, atLeastOnce()).println(stringArgumentCaptor.capture());
         List<String> strings = stringArgumentCaptor.getAllValues();
-        assertThat(strings.get(3)).startsWith("mLastDispatchedV2KeyEvent:null");
+        assertThat(strings.get(5)).startsWith("mLastFewDispatchedV2KeyEvents:");
     }
 
     @Test
-    public void dump_containsLastKeyEvent() {
+    public void dump_containsLastFewKeyEvents() {
         // Arrange
         subscribeListener();
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
-        dispatchSinglePerSeatEvent(
-                /* seat= */ 1,
-                VehicleDisplay.MAIN,
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                KeyEvent.KEYCODE_HOME,
-                Key.UP,
-                /* repeatCount= */ 1,
-                /* downTime= */ SECONDS.toNanos(7),
-                /* timeStampNanos= */ SECONDS.toNanos(8)
-        );
-        dispatchSinglePerSeatEvent(
-                /* seat= */ 1,
-                VehicleDisplay.MAIN,
-                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                KeyEvent.KEYCODE_HOME,
-                Key.DOWN,
-                /* repeatCount= */ 1,
-                /* downTime= */ SECONDS.toNanos(7),
-                /* timeStampNanos= */ SECONDS.toNanos(9)
-        );
+        dispatchMultipleV2KeyEvents(KeyEvent.KEYCODE_HOME, /* times= */ 1);
+        dispatchMultipleV2KeyEvents(KeyEvent.KEYCODE_BACK, /* times= */ 9);
+        dispatchMultipleV2KeyEvents(KeyEvent.KEYCODE_VOLUME_UP, /* times= */ 1);
 
         // Act
         mInputHalService.dump(mMockPrintWriter);
@@ -776,8 +759,22 @@ public class InputHalServiceTest {
         // Assert
         verify(mMockPrintWriter, atLeastOnce()).println(stringArgumentCaptor.capture());
         List<String> strings = stringArgumentCaptor.getAllValues();
-        assertThat(strings.get(3)).startsWith("mLastDispatchedV2KeyEvent:");
-        assertThat(strings.get(3)).contains("action=ACTION_DOWN");
+        int numHomeEvents = 0;
+        int numBackEvents = 0;
+        int numVolUpEvents = 0;
+        assertThat(strings.get(5)).startsWith("mLastFewDispatchedV2KeyEvents:");
+        for (int i = 5; i < strings.size(); i++) {
+            if (strings.get(i).contains("keyCode=KEYCODE_HOME")) {
+                numHomeEvents++;
+            } else if (strings.get(i).contains("keyCode=KEYCODE_BACK")) {
+                numBackEvents++;
+            } else if (strings.get(i).contains("keyCode=KEYCODE_VOLUME_UP")) {
+                numVolUpEvents++;
+            }
+        }
+        assertWithMessage("Number of home events").that(numHomeEvents).isEqualTo(0);
+        assertWithMessage("Number of back events").that(numBackEvents).isEqualTo(9);
+        assertWithMessage("Number of volume up events").that(numVolUpEvents).isEqualTo(1);
     }
 
     @Test
@@ -798,15 +795,13 @@ public class InputHalServiceTest {
         int numMoveEvents = 0;
         int numUpEvents = 0;
         int numDownEvents = 0;
-        assertThat(strings.get(4)).startsWith("mLastFewDispatchedMotionEvents:");
-        for (int i = 4; i < strings.size(); i++) {
+        assertThat(strings.get(6)).startsWith("mLastFewDispatchedMotionEvents:");
+        for (int i = 6; i < strings.size(); i++) {
             if (strings.get(i).contains("action=ACTION_DOWN")) {
                 numDownEvents++;
-            }
-            if (strings.get(i).contains("action=ACTION_MOVE")) {
+            } else if (strings.get(i).contains("action=ACTION_MOVE")) {
                 numMoveEvents++;
-            }
-            if (strings.get(i).contains("action=ACTION_UP")) {
+            } else if (strings.get(i).contains("action=ACTION_UP")) {
                 numUpEvents++;
             }
         }
@@ -839,6 +834,20 @@ public class InputHalServiceTest {
         }
     }
 
+    private void dispatchMultipleV2KeyEvents(int keyCode, int times) {
+        for (int i = 0; i < times; i++) {
+            dispatchSinglePerSeatEvent(
+                    /* seat= */ 1,
+                    VehicleDisplay.MAIN,
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                    keyCode,
+                    Key.DOWN,
+                    /* repeatCount= */ 1,
+                    /* downTime= */ SECONDS.toNanos(7),
+                    /* timeStampNanos= */ SECONDS.toNanos(9)
+            );
+        }
+    }
 
     private void subscribeListener() {
         mInputHalService.takeProperties(Set.of(HW_KEY_INPUT_CONFIG));

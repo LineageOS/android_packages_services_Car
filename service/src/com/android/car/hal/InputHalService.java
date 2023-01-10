@@ -55,10 +55,10 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.LongSupplier;
 
@@ -67,7 +67,7 @@ import java.util.function.LongSupplier;
  */
 public class InputHalService extends HalServiceBase {
 
-    private static final int NUM_MOTION_EVENTS_TO_KEEP = 10;
+    private static final int MAX_EVENTS_TO_KEEP_AS_HISTORY = 10;
     private static final String TAG = CarLog.TAG_INPUT;
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             HW_KEY_INPUT,
@@ -78,11 +78,14 @@ public class InputHalService extends HalServiceBase {
     };
 
     private final VehicleHal mHal;
+
     @GuardedBy("mLock")
-    private final Queue<MotionEvent> mLastFewDispatchedMotionEvents = new ArrayBlockingQueue<>(
-            NUM_MOTION_EVENTS_TO_KEEP);
+    private final Queue<MotionEvent> mLastFewDispatchedMotionEvents =
+            new ArrayDeque<>(MAX_EVENTS_TO_KEEP_AS_HISTORY);
+
     @GuardedBy("mLock")
-    private KeyEvent mLastDispatchedV2KeyEvent;
+    private Queue<KeyEvent> mLastFewDispatchedV2KeyEvents = new ArrayDeque<>(
+            MAX_EVENTS_TO_KEEP_AS_HISTORY);
 
     /**
      * A function to retrieve the current system uptime in milliseconds - replaceable for testing.
@@ -503,12 +506,21 @@ public class InputHalService extends HalServiceBase {
         saveMotionEventInHistory(event);
     }
 
+    private void saveV2KeyInputEventInHistory(KeyEvent keyEvent) {
+        synchronized (mLock) {
+            while (mLastFewDispatchedV2KeyEvents.size() >= MAX_EVENTS_TO_KEEP_AS_HISTORY) {
+                mLastFewDispatchedV2KeyEvents.remove();
+            }
+            mLastFewDispatchedV2KeyEvents.add(keyEvent);
+        }
+    }
+
     private void saveMotionEventInHistory(MotionEvent motionEvent) {
         synchronized (mLock) {
-            if (mLastFewDispatchedMotionEvents.size() == NUM_MOTION_EVENTS_TO_KEEP) {
+            while (mLastFewDispatchedMotionEvents.size() >= MAX_EVENTS_TO_KEEP_AS_HISTORY) {
                 mLastFewDispatchedMotionEvents.remove();
             }
-            mLastFewDispatchedMotionEvents.offer(motionEvent);
+            mLastFewDispatchedMotionEvents.add(motionEvent);
         }
     }
 
@@ -832,9 +844,7 @@ public class InputHalService extends HalServiceBase {
 
         // event.displayId will be set in CarInputService#onKeyEvent
         listener.onKeyEvent(event, display, seat);
-        synchronized (mLock) {
-            mLastDispatchedV2KeyEvent = event;
-        }
+        saveV2KeyInputEventInHistory(event);
     }
 
     private void dispatchCustomInput(InputListener listener, HalPropValue value) {
@@ -892,8 +902,16 @@ public class InputHalService extends HalServiceBase {
             writer.println("*Input HAL*");
             writer.println("mKeyInputSupported:" + mKeyInputSupported);
             writer.println("mRotaryInputSupported:" + mRotaryInputSupported);
-            writer.println("mLastDispatchedV2KeyEvent:" + (mLastDispatchedV2KeyEvent == null
-                    ? "null" : mLastDispatchedV2KeyEvent.toString()));
+            writer.println("mKeyInputV2Supported:" + mKeyInputV2Supported);
+            writer.println("mMotionInputSupported:" + mMotionInputSupported);
+
+            writer.println("mLastFewDispatchedV2KeyEvents:");
+            KeyEvent[] keyEvents = new KeyEvent[mLastFewDispatchedV2KeyEvents.size()];
+            mLastFewDispatchedV2KeyEvents.toArray(keyEvents);
+            for (int i = 0; i < keyEvents.length; i++) {
+                writer.println("Event [" + i + "]: " + keyEvents[i].toString());
+            }
+
             writer.println("mLastFewDispatchedMotionEvents:");
             MotionEvent[] motionEvents = new MotionEvent[mLastFewDispatchedMotionEvents.size()];
             mLastFewDispatchedMotionEvents.toArray(motionEvents);
