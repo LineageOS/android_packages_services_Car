@@ -19,6 +19,7 @@ package android.car.occupantconnection;
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -309,6 +310,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void registerReceiver(@NonNull String receiverEndpointId,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull PayloadCallback callback) {
@@ -331,6 +333,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void unregisterReceiver(@NonNull String receiverEndpointId) {
         Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
         // TODO(b/257117236): implement this method.
@@ -363,6 +366,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void requestConnection(@NonNull OccupantZoneInfo receiverZone,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ConnectionRequestCallback callback) {
@@ -385,6 +389,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
@@ -408,6 +413,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void sendPayload(@NonNull OccupantZoneInfo receiverZone, @NonNull Payload payload)
             throws PayloadTransferException {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
@@ -437,6 +443,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void disconnect(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
@@ -453,6 +460,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public boolean isConnected(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
@@ -479,6 +487,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void registerConnectionStateCallback(@NonNull OccupantZoneInfo receiverZone,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ConnectionStateCallback callback) {
@@ -499,6 +508,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void unregisterConnectionStateCallback(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         // TODO(b/257117236): implement this method.
