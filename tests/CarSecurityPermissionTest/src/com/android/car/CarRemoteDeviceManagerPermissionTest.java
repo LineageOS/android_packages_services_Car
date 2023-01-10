@@ -16,7 +16,6 @@
 
 package com.android.car;
 
-import static android.car.Car.CAR_REMOTE_DEVICE_SERVICE;
 import static android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
@@ -24,6 +23,7 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeNotNull;
 
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -55,8 +55,13 @@ public final class CarRemoteDeviceManagerPermissionTest {
     @Before
     public void setUp() {
         Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarRemoteDeviceManager = (CarRemoteDeviceManager) car.getCarManager(
-                CAR_REMOTE_DEVICE_SERVICE);
+        mCarRemoteDeviceManager =  car.getCarManager(CarRemoteDeviceManager.class);
+        // CarRemoteDeviceManager is available on multi-display builds only.
+        // TODO(b/265091454): annotate the test with @RequireMultipleUsersOnMultipleDisplays.
+        assumeNotNull(
+                "Skip the test because CarRemoteDeviceManager is not available on this build",
+                mCarRemoteDeviceManager);
+
         mReceiverZone = new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER,
                 SEAT_ROW_1_LEFT);
     }
