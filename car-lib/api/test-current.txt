@@ -1763,6 +1763,13 @@ package android.car.user {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserLifecycleEventFilter> CREATOR;
   }
 
+  public static final class UserLifecycleEventFilter.Builder {
+    ctor public UserLifecycleEventFilter.Builder();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.user.UserLifecycleEventFilter.Builder addEventType(int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.user.UserLifecycleEventFilter.Builder addUser(@NonNull android.os.UserHandle);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.user.UserLifecycleEventFilter build();
+  }
+
   public final class UserSwitchResult implements android.os.Parcelable {
     method public int describeContents();
     method @Nullable public String getErrorMessage();

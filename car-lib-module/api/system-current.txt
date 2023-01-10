@@ -1679,6 +1679,13 @@ package android.car.user {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserLifecycleEventFilter> CREATOR;
   }
 
+  public static final class UserLifecycleEventFilter.Builder {
+    ctor public UserLifecycleEventFilter.Builder();
+    method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addEventType(int);
+    method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addUser(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserLifecycleEventFilter build();
+  }
+
 }
 
 package android.car.view {
