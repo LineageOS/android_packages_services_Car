@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
@@ -139,6 +140,9 @@ import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
 import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.audio.hal.HalFocusListener;
+import com.android.car.oem.CarOemAudioDuckingProxyService;
+import com.android.car.oem.CarOemAudioFocusProxyService;
+import com.android.car.oem.CarOemAudioVolumeProxyService;
 import com.android.car.oem.CarOemProxyService;
 import com.android.car.test.utils.TemporaryFile;
 
@@ -1393,6 +1397,59 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Unknown audio feature")
                 .that(thrown).hasMessageThat()
                 .contains("Unknown Audio Feature type: " + INVALID_AUDIO_FEATURE);
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_forDisabledOemService() {
+        mCarAudioService.init();
+
+        boolean isEnabled =
+                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
+
+        expectWithMessage("Oem service enabled with disabled oem service")
+                .that(isEnabled).isFalse();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_withEnabledFocusService() {
+        CarOemAudioFocusProxyService service = mock(CarOemAudioFocusProxyService.class);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService()).thenReturn(service);
+        mCarAudioService.init();
+
+        boolean isEnabled =
+                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
+
+        expectWithMessage("Oem service enabled with enabled focus service")
+                .that(isEnabled).isTrue();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_withEnabledVolumeService() {
+        CarOemAudioVolumeProxyService service = mock(CarOemAudioVolumeProxyService.class);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioVolumeService()).thenReturn(service);
+        mCarAudioService.init();
+
+        boolean isEnabled =
+                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
+
+        expectWithMessage("Oem service enabled with enabled volume service")
+                .that(isEnabled).isTrue();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_withEnabledDuckingService() {
+        CarOemAudioDuckingProxyService service = mock(CarOemAudioDuckingProxyService.class);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioDuckingService()).thenReturn(service);
+        mCarAudioService.init();
+
+        boolean isEnabled =
+                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
+
+        expectWithMessage("Oem service enabled with enabled ducking service")
+                .that(isEnabled).isTrue();
     }
 
     @Test
