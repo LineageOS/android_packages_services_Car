@@ -26,7 +26,7 @@ import android.car.VehiclePropertyIds;
  */
 public class PropertyNotAvailableAndRetryException extends IllegalStateException {
     PropertyNotAvailableAndRetryException(int propertyId, int areaId) {
-        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
                 + toHexString(areaId)
                 + " - is temporarily not available. Try the operation later.");
     }
