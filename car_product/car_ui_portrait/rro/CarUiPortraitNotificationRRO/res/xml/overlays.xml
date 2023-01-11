@@ -26,6 +26,7 @@
     <item target="attr/textColor" value="@attr/textColor"/>
 
     <item target="bool/config_collapseShadePanelAfterManageButtonPress" value="@bool/config_collapseShadePanelAfterManageButtonPress" />
+    <item target="bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" value="@bool/config_dismissMessageHunWhenReplyOrPlayActionButtonPressed" />
     <item target="bool/config_enableMessageNotificationDirectReply" value="@bool/config_enableMessageNotificationDirectReply"/>
     <item target="bool/config_enableMessageNotificationPlay" value="@bool/config_enableMessageNotificationPlay"/>
     <item target="bool/config_showExpansionHeader" value="@bool/config_showExpansionHeader"/>
