@@ -50,6 +50,7 @@ package android.car.builtin.app {
   }
 
   public class TaskInfoHelper {
+    method @NonNull public static android.graphics.Rect getBounds(@NonNull android.app.TaskInfo);
     method public static int getDisplayId(@NonNull android.app.TaskInfo);
     method public static int getUserId(@NonNull android.app.TaskInfo);
     method public static boolean isVisible(@NonNull android.app.TaskInfo);
@@ -482,6 +483,10 @@ package android.car.builtin.view {
 
   public final class KeyEventHelper {
     method @Deprecated public static void setDisplayId(@NonNull android.view.KeyEvent, int);
+  }
+
+  public final class SurfaceControlHelper {
+    method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
   }
 
 }
