@@ -176,6 +176,14 @@ package android.car {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
+  @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static class CarVersion.VERSION_CODES {
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static final android.car.CarVersion TIRAMISU_3;
+  }
+
+  @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static class PlatformVersion.VERSION_CODES {
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static final android.car.PlatformVersion TIRAMISU_3;
+  }
+
   public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
@@ -313,6 +321,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_3;
   }
 
   public enum ApiRequirements.PlatformVersion {
@@ -320,6 +329,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_3;
   }
 
 }

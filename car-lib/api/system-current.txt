@@ -170,6 +170,14 @@ package android.car {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
+  public static class CarVersion.VERSION_CODES {
+    field @NonNull public static final android.car.CarVersion TIRAMISU_3;
+  }
+
+  public static class PlatformVersion.VERSION_CODES {
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_3;
+  }
+
   public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
