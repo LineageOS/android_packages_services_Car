@@ -65,10 +65,9 @@ public final class CarRemoteDeviceManagerPermissionTest {
     public void testRegisterOccupantZoneStateCallback() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarRemoteDeviceManager.registerOccupantZoneStateCallback(Runnable::run,
-                        (occupantZone, occupantZoneStates) -> {
-                        }));
+                        (occupantZone, occupantZoneStates) -> {}));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_REMOTE_DEVICE);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_REMOTE_DEVICE);
     }
 
     @Test
@@ -76,7 +75,7 @@ public final class CarRemoteDeviceManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarRemoteDeviceManager.getEndpointPackageInfo(mReceiverZone));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_REMOTE_DEVICE);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_REMOTE_DEVICE);
     }
 
     @Test
@@ -85,7 +84,7 @@ public final class CarRemoteDeviceManagerPermissionTest {
                 () -> mCarRemoteDeviceManager.controlOccupantZonePower(mReceiverZone,
                         /* powerOn= */ true));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_REMOTE_DEVICE);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_REMOTE_DEVICE);
     }
 
     @Test
@@ -93,6 +92,6 @@ public final class CarRemoteDeviceManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarRemoteDeviceManager.isOccupantZonePowerOn(mReceiverZone));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_REMOTE_DEVICE);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_REMOTE_DEVICE);
     }
 }
