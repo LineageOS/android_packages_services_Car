@@ -44,6 +44,7 @@
     <dimen name="control_bar_image_background_radius">16dp</dimen>
 
     <dimen name="button_tap_target_size">88dp</dimen>
+    <dimen name="end_button_tap_target_size">104dp</dimen>
     <dimen name="recent_apps_row_height">2dp</dimen>
     <dimen name="app_grid_row_margin">57dp</dimen>
     <dimen name="app_grid_divider_height">1dp</dimen>

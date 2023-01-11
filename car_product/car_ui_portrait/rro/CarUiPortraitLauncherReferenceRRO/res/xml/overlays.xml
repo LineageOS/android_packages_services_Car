@@ -86,6 +86,8 @@
     <item target="drawable/control_bar_image_background"
         value="@drawable/control_bar_image_background" />
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background" />
+    <item target="drawable/ic_call_end" value="@drawable/ic_call_end" />
+    <item target="drawable/ic_call_end_button" value="@drawable/ic_call_end_button" />
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses" />
 

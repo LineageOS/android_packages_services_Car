@@ -66,6 +66,8 @@
     <color name="car_red_color_container">#940005</color>
     <color name="car_red_on_color_container">@color/car_error_90</color>
     <color name="car_red_tint">#dc362e</color>
+    <color name="car_decline_red">#d77163</color>
+    <color name="car_on_decline_red">#1c0f0d</color>
 
     <!-- blue colors -->
     <color name="car_blue_color">#acc7ff</color>
