@@ -29,9 +29,19 @@
     <dimen name="car_ui_padding_3">16dp</dimen>
     <dimen name="car_ui_toolbar_title_margin_start">@dimen/car_ui_padding_3</dimen>
     <dimen name="car_ui_toolbar_search_height">0dp</dimen>
-    <dimen name="car_ui_list_item_height">136dp</dimen>
+    <dimen name="car_ui_list_item_height">88dp</dimen>
     <dimen name="car_ui_list_item_content_icon_width">88dp</dimen>
     <dimen name="car_ui_list_item_content_icon_height">88dp</dimen>
     <dimen name="car_ui_list_item_avatar_icon_width">88dp</dimen>
     <dimen name="car_ui_list_item_avatar_icon_height">88dp</dimen>
+
+    <dimen name="car_ui_dialog_edittext_height">88dp</dimen>
+    <dimen name="car_ui_dialog_edittext_margin_bottom">0dp</dimen>
+    <dimen name="car_ui_dialog_edittext_margin_end">0dp</dimen>
+    <dimen name="car_ui_dialog_edittext_margin_start">0dp</dimen>
+    <dimen name="car_ui_dialog_edittext_margin_top">0dp</dimen>
+
+    <dimen name="car_ui_list_item_text_no_icon_start_margin">0dp</dimen>
+
+    <dimen name="car_ui_dialog_icon_size">50dp</dimen>
 </resources>

@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 
+<!-- Also check car_alert_dialog_title.xml when update layout, This title layout is not the only
+     title layout. See com.android.car.ui.AlertDialogBuilder#prepareDialog for details.
+-->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/title_template"
@@ -26,9 +29,9 @@
          class. -->
     <ImageView
         android:id="@+id/car_ui_alert_icon"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:layout_marginTop="@dimen/alert_dialog_margin"
+        android:layout_width="@dimen/car_ui_dialog_icon_size"
+        android:layout_height="@dimen/car_ui_dialog_icon_size"
+        android:layout_marginTop="@dimen/car_alert_dialog_vertical_margin"
         android:scaleType="fitCenter"
         android:tint="@color/car_ui_text_color_primary"
         android:visibility="gone"
@@ -39,14 +42,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/alert_dialog_margin"
         android:layout_marginEnd="@dimen/alert_dialog_margin"
-        android:layout_marginTop="@dimen/alert_dialog_margin"
+        android:layout_marginTop="@dimen/car_alert_dialog_vertical_margin"
         android:orientation="vertical">
         <TextView
             android:id="@+id/car_ui_alert_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:layout_marginBottom="@dimen/alert_dialog_margin"
+            android:layout_marginBottom="@dimen/car_alert_dialog_vertical_margin"
             android:textAppearance="@style/TextAppearance.CarUi.AlertDialog.Title" />
 
         <TextView
@@ -54,6 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="start"
+            android:layout_marginBottom="@dimen/car_alert_dialog_vertical_margin"
             android:textAppearance="@style/TextAppearance.CarUi.AlertDialog.Subtitle"/>
     </LinearLayout>
 
