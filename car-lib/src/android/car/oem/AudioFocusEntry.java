@@ -32,7 +32,7 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class AudioFocusEntry implements Parcelable {
 
@@ -57,7 +57,7 @@ public final class AudioFocusEntry implements Parcelable {
     /**
      * Returns the audio focus info
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull AudioFocusInfo getAudioFocusInfo() {
         return mAudioFocusInfo;
@@ -66,7 +66,7 @@ public final class AudioFocusEntry implements Parcelable {
     /**
      * Returns the caudio context as evaluated from the audio attributes
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAudioContextId() {
         return mAudioContextId;
@@ -75,7 +75,7 @@ public final class AudioFocusEntry implements Parcelable {
     /**
      * Returns the volume group as evaluated from the audio attributes
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAudioVolumeGroupId() {
         return mAudioVolumeGroupId;
@@ -86,14 +86,14 @@ public final class AudioFocusEntry implements Parcelable {
      * {@link AudioManager.AUDIOFOCUS_LOSS}, {@link AudioManager.AUDIOFOCUS_LOSS_TRANSIENT},
      * {@link AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}
      **/
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getAudioFocusResult() {
         return mAudioFocusResult;
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("AudioFocusEntry { audioFocusInfo = ")
@@ -115,7 +115,7 @@ public final class AudioFocusEntry implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         mAudioFocusInfo.writeToParcel(dest, flags);
@@ -125,7 +125,7 @@ public final class AudioFocusEntry implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
@@ -146,7 +146,7 @@ public final class AudioFocusEntry implements Parcelable {
         mAudioFocusResult = focusResult;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<AudioFocusEntry> CREATOR =
@@ -163,7 +163,7 @@ public final class AudioFocusEntry implements Parcelable {
     };
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
@@ -183,7 +183,7 @@ public final class AudioFocusEntry implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mAudioFocusInfo.hashCode(), mAudioContextId, mAudioFocusResult,
@@ -194,7 +194,7 @@ public final class AudioFocusEntry implements Parcelable {
      * A builder for {@link AudioFocusEntry}
      */
     @SuppressWarnings("WeakerAccess")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class Builder {
 
@@ -224,7 +224,7 @@ public final class AudioFocusEntry implements Parcelable {
         }
 
         /** see {@link AudioFocusEntry#getAudioFocusInfo()} */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAudioFocusInfo(@NonNull AudioFocusInfo audioFocusInfo) {
             checkNotUsed();
@@ -235,7 +235,7 @@ public final class AudioFocusEntry implements Parcelable {
         }
 
         /** see {@link AudioFocusEntry#getAudioContextId()} */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAudioContextId(int value) {
             checkNotUsed();
@@ -245,7 +245,7 @@ public final class AudioFocusEntry implements Parcelable {
         }
 
         /** see {@link AudioFocusEntry#getAudioVolumeGroupId()} */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAudioVolumeGroupId(int value) {
             checkNotUsed();
@@ -255,7 +255,7 @@ public final class AudioFocusEntry implements Parcelable {
         }
 
         /** see {@link AudioFocusEntry#getAudioFocusResult()} */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAudioFocusResult(int value) {
             checkNotUsed();
@@ -265,7 +265,7 @@ public final class AudioFocusEntry implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull AudioFocusEntry build() {
             checkNotUsed();

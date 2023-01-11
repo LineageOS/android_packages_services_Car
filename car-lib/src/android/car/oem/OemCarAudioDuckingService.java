@@ -48,8 +48,7 @@ public interface OemCarAudioDuckingService extends OemCarServiceComponent {
      * @return the selected audio attribute which should be ducked.
      *
      */
-    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     List<AudioAttributes> evaluateAttributesToDuck(@NonNull OemCarAudioVolumeRequest requestInfo);
