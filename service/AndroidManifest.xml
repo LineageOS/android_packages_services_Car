@@ -1017,7 +1017,7 @@
          android:description="@string/car_permission_desc_control_adas_states"/>
 
     <!-- Allows an application to monitor the states of other occupant zones in the car and peer
-         apps (apps that have the same packge name with the caller) installed in those zones,
+         apps (apps that have the same package name as the caller) installed in those zones,
          and manage the power of those zones.
          <p>Protection level: signature|privileged
     -->
@@ -1027,7 +1027,7 @@
                 android:description="@string/car_permission_desc_monitor_occupant_zone"/>
 
     <!-- Allows an application to establish connection and communicate to peer apps (apps that have
-         the same packge name with the caller) installed in other occupant zones in the car.
+         the same package name as the caller) installed in other occupant zones in the car.
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CONNECT_OCCUPANT_ZONE"

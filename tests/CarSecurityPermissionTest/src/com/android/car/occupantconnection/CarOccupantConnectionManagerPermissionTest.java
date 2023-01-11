@@ -68,7 +68,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.cancelConnection(mReceiverZone));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
     }
 
     @Test
@@ -77,7 +77,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.sendPayload(mReceiverZone, payload));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
     }
 
     @Test
@@ -85,7 +85,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.disconnect(mReceiverZone));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
     }
 
     @Test
@@ -93,6 +93,6 @@ public final class CarOccupantConnectionManagerPermissionTest {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.isConnected(mReceiverZone));
 
-        assertThat(e.getMessage()).contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
     }
 }

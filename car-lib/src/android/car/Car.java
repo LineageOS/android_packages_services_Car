@@ -1320,7 +1320,7 @@ public final class Car {
 
     /**
      * Permission necessary to monitor the states of other occupant zones in the car and peer apps
-     * (apps that have the same packge name with the caller) installed in those zones,
+     * (apps that have the same package name as the caller) installed in those zones,
      * and manage the power of those zones.
      *
      * @hide
@@ -1334,7 +1334,7 @@ public final class Car {
 
     /**
      * Permission necessary to establish connection and communicate to peer apps (apps that have
-     * the same packge name with the caller) installed in other occupant zones in the car.
+     * the same package name as the caller) installed in other occupant zones in the car.
      *
      * @hide
      */
