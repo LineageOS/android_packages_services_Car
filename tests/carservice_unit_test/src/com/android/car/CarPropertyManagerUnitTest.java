@@ -24,10 +24,6 @@ import static android.car.VehiclePropertyIds.INVALID;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_ACCESS_DENIED;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
-import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -63,7 +59,9 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
+import android.car.hardware.property.PropertyNotAvailableErrorCode;
 import android.car.hardware.property.PropertyNotAvailableException;
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.os.Build;
@@ -206,7 +204,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_notAvailableBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_NOT_AVAILABLE));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -216,7 +214,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_notAvailableEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_NOT_AVAILABLE));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
         assertThrows(PropertyNotAvailableException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -226,7 +224,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0)).isNull();
     }
@@ -235,7 +233,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -245,7 +243,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_accessDeniedBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_ACCESS_DENIED));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_ACCESS_DENIED));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -255,7 +253,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_accessDeniedEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_ACCESS_DENIED));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_ACCESS_DENIED));
 
         assertThrows(PropertyAccessDeniedSecurityException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -265,7 +263,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_internalErrorBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_INTERNAL_ERROR));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -275,7 +273,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_internalErrorEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_INTERNAL_ERROR));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR));
 
         assertThrows(CarInternalErrorException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -325,7 +323,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetPropertyWithClass_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getProperty(Float.class, HVAC_TEMPERATURE_SET, 0))
                 .isNull();
@@ -335,7 +333,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetPropertyWithClass_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getProperty(Float.class, HVAC_TEMPERATURE_SET, 0));
@@ -355,7 +353,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_notAvailableBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_NOT_AVAILABLE));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -365,17 +363,105 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_notAvailableEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_NOT_AVAILABLE));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
         assertThrows(PropertyNotAvailableException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
     }
 
     @Test
+    public void testGetProperty_notAvailableDisabledBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED));
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_notAvailableDisabledAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSafetyBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY));
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSafetyAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSpeedHighBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH));
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSpeedHighAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSpeedLowBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW));
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSpeedLowAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+    }
+
+    @Test
     public void testGetBooleanProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0)).isFalse();
     }
@@ -384,7 +470,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -394,7 +480,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_accessDeniedBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_ACCESS_DENIED));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_ACCESS_DENIED));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -404,7 +490,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_accessDeniedEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_ACCESS_DENIED));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_ACCESS_DENIED));
 
         assertThrows(PropertyAccessDeniedSecurityException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -414,7 +500,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_internalErrorBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_INTERNAL_ERROR));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -424,7 +510,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_internalErrorEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_INTERNAL_ERROR));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR));
 
         assertThrows(CarInternalErrorException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -463,7 +549,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetIntProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(INT32_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getIntProperty(INT32_PROP, 0)).isEqualTo(0);
     }
@@ -472,7 +558,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetIntProperty_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(INT32_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getIntProperty(INT32_PROP, 0));
@@ -493,7 +579,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetIntArrayProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(INT32_VEC_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getIntArrayProperty(INT32_VEC_PROP, 0)).isEqualTo(
                 new int[0]);
@@ -503,7 +589,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetIntArrayProperty_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(INT32_VEC_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getIntArrayProperty(INT32_VEC_PROP, 0));
@@ -522,7 +608,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetFloatProperty_tryAgainBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(FLOAT_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.getFloatProperty(FLOAT_PROP, 0)).isEqualTo(0.f);
     }
@@ -531,7 +617,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetFloatProperty_tryAgainEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(FLOAT_PROP, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThrows(PropertyNotAvailableAndRetryException.class,
                 () -> mCarPropertyManager.getFloatProperty(FLOAT_PROP, 0));
@@ -813,6 +899,110 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()), null, null,
                 mSetPropertyCallback);
         // TODO(b/264719384): improve this test.
+    }
+
+    @Test
+    public void testSetProperty_notAvailableDisabledBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    public void testSetProperty_notAvailableDisabledAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSafetyBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSafetyAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSpeedHighBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSpeedHighAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSpeedLowBeforeU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSpeedLowAfterU() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
     }
 
     @Test
@@ -1181,7 +1371,7 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testIsPropertyAvailable_notAvailable() throws Exception {
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_NOT_AVAILABLE));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_NOT_AVAILABLE));
 
         assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
                 .isFalse();
@@ -1190,7 +1380,7 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testIsPropertyAvailable_tryAgain() throws Exception {
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(STATUS_TRY_AGAIN));
+                new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
 
         assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
                 .isFalse();

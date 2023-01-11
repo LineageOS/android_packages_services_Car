@@ -1361,11 +1361,11 @@ public class CarPropertyManager extends CarManagerBase {
      * @param areaId areaId
      * @param <E> Value type of the property
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars.
      * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
-     * property
+     * property.
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily
-     * not available and likely that retrying will be successful
+     * not available and likely that retrying will be successful.
      * @throws PropertyNotAvailableException when the property is not available and might be
      * unavailable for a while.
      * @throws IllegalArgumentException when the [propId, areaId] is not supported.
@@ -1441,12 +1441,12 @@ public class CarPropertyManager extends CarManagerBase {
      * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      * {@code Integer.class}.
      *
-     * @throws CarInternalErrorException when there is an unexpected error detected in cars
-     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * @throws CarInternalErrorException when there is an unexpected error detected in cars.
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property.
      * @throws PropertyNotAvailableException when the property is not available and might be
      * unavailable for a while.
      * @throws PropertyNotAvailableAndRetryException when the property is temporarily not available
-     * and likely that retrying will be successful
+     * and likely that retrying will be successful.
      * @throws IllegalArgumentException when the [propId, areaId] is not supported.
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -1531,6 +1531,7 @@ public class CarPropertyManager extends CarManagerBase {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
         int errorCode = e.errorCode;
+
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
                 throw new PropertyNotAvailableException(propId, areaId);
@@ -1540,9 +1541,42 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new PropertyAccessDeniedSecurityException(propId, areaId);
             case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
                 throw new CarInternalErrorException(propId, areaId);
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
+                throw new PropertyNotAvailableException(
+                        propId, areaId, getPropertyNotAvailableErrorCodeFromStatusCode(errorCode));
             default:
                 Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
                 throw new CarInternalErrorException(propId, areaId);
+        }
+    }
+
+    /**
+     * Convert {@link VehicleHalStatusCode} into public {@link PropertyNotAvailableErrorCode}
+     * equivalents.
+     *
+     * @throws IllegalArgumentException if an invalid status code is passed in.
+     * @hide
+     */
+    private static int getPropertyNotAvailableErrorCodeFromStatusCode(int statusCode) {
+        switch (statusCode) {
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE;
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED;
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW;
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH;
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_POOR_VISIBILITY;
+            case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
+                return PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY;
+            default:
+                throw new IllegalArgumentException("Invalid status code: " + statusCode);
         }
     }
 

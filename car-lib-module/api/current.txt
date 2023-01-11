@@ -963,7 +963,18 @@ package android.car.hardware.property {
   public class PropertyNotAvailableAndRetryException extends java.lang.IllegalStateException {
   }
 
+  public final class PropertyNotAvailableErrorCode {
+    method @NonNull public static String toString(int);
+    field public static final int NOT_AVAILABLE = 0; // 0x0
+    field public static final int NOT_AVAILABLE_DISABLED = 1; // 0x1
+    field public static final int NOT_AVAILABLE_POOR_VISIBILITY = 4; // 0x4
+    field public static final int NOT_AVAILABLE_SAFETY = 5; // 0x5
+    field public static final int NOT_AVAILABLE_SPEED_HIGH = 3; // 0x3
+    field public static final int NOT_AVAILABLE_SPEED_LOW = 2; // 0x2
+  }
+
   public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+    method public int getDetailedErrorCode();
   }
 
   public class VehicleElectronicTollCollectionCardStatus {

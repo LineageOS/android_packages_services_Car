@@ -19,6 +19,7 @@ package android.car.hardware.property;
 import static java.lang.Integer.toHexString;
 
 import android.car.VehiclePropertyIds;
+import android.car.annotation.ApiRequirements;
 
 /**
  * Exception thrown when the vehicle property is not available because of the current state of the
@@ -28,9 +29,31 @@ import android.car.VehiclePropertyIds;
  * {@link android.car.VehiclePropertyIds#HVAC_POWER_ON} is {@code false}.
  */
 public class PropertyNotAvailableException extends IllegalStateException {
+    private int mDetailedErrorCode = PropertyNotAvailableErrorCode.NOT_AVAILABLE;
+
     PropertyNotAvailableException(int propertyId, int areaId) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
                 + toHexString(areaId)
                 + " - is not available because of the current state of the vehicle.");
+    }
+
+    PropertyNotAvailableException(int propertyId, int areaId, int detailedErrorCode) {
+        super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: 0x"
+                + toHexString(areaId)
+                + " - is not available because of status code: "
+                + PropertyNotAvailableErrorCode.toString(detailedErrorCode));
+        mDetailedErrorCode = detailedErrorCode;
+    }
+
+    /**
+     * {@link PropertyNotAvailableErrorCode} provides more detailed information on why the vehicle
+     * property is not available. These must be a value defined in
+     * {@link PropertyNotAvailableErrorCode}. The values in {@link PropertyNotAvailableErrorCode}
+     * may be extended in the future to include additional error codes.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public int getDetailedErrorCode() {
+        return mDetailedErrorCode;
     }
 }
