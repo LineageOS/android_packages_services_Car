@@ -1059,19 +1059,43 @@ public final class CarUserManager extends CarManagerBase {
      *   <li>Must exist in the device.
      *   <li>Is not in the process of being deleted.
      *   <li>Cannot be the {@link UserHandle#isSystem() system} user on devices that use
-     *   {@link UserManager#isHeadlessSystemUserMode() headless system mode}.
+     *   {@link UserManager#isHeadlessSystemUserMode() headless system user mode}.
      * </ul>
      *
      * @hide
+     * @deprecated use {@link #isValidUser(UserHandle)} instead.
      */
+    @Deprecated
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isValidUser(@UserIdInt int userId) {
+        return isValidUser(UserHandle.of(userId));
+    }
+
+    /**
+     * Checks if the given {@code userHandle} represents a valid user.
+     *
+     * <p>A "valid" user:
+     *
+     * <ul>
+     *   <li>Must exist in the device.
+     *   <li>Is not in the process of being deleted.
+     *   <li>Cannot be the {@link UserHandle#isSystem() system} user on devices that use
+     *   {@link UserManager#isHeadlessSystemUserMode() headless system user mode}.
+     * </ul>
+     *
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @SuppressWarnings("UserHandle")
+    public boolean isValidUser(@NonNull UserHandle userHandle) {
         List<UserHandle> allUsers = mUserManager.getUserHandles(/* excludeDying=*/ true);
         for (int i = 0; i < allUsers.size(); i++) {
             UserHandle user = allUsers.get(i);
-            if (user.getIdentifier() == userId && (userId != UserHandle.SYSTEM.getIdentifier()
+            if (user.equals(userHandle) && (!userHandle.equals(UserHandle.SYSTEM)
                     || !UserManager.isHeadlessSystemUserMode())) {
                 return true;
             }

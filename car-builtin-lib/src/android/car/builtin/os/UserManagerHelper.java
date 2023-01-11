@@ -24,6 +24,7 @@ import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 
@@ -200,5 +201,13 @@ public final class UserManagerHelper {
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVisibleBackgroundUsersSupported(@NonNull UserManager userManager) {
         return userManager.isVisibleBackgroundUsersSupported();
+    }
+
+    /** Check {@link UserManager#getMaxSupportedUsers()}. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int getMaxSupportedUsers(@NonNull Context context) {
+        return Math.max(1, SystemProperties.getInt("fw.max_users",
+                context.getResources().getSystem().getInteger(
+                        com.android.internal.R.integer.config_multiuserMaximumUsers)));
     }
 }

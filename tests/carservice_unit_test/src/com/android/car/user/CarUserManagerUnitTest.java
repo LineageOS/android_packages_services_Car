@@ -17,6 +17,7 @@ package com.android.car.user;
 
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.car.testapi.CarTestingHelper.getResult;
+import static android.os.UserHandle.SYSTEM;
 import static android.os.UserHandle.USER_SYSTEM;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -136,7 +137,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testIsValidUser_headlessSystemUser() {
+    public void testIsValidUserId_headlessSystemUser() {
         mockIsHeadlessSystemUserMode(true);
         setExistingUsers(USER_SYSTEM);
 
@@ -144,7 +145,15 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testIsValidUser_nonHeadlessSystemUser() {
+    public void testIsValidUser_headlessSystemUser() {
+        mockIsHeadlessSystemUserMode(true);
+        setExistingUsers(USER_SYSTEM);
+
+        assertThat(mMgr.isValidUser(SYSTEM)).isFalse();
+    }
+
+    @Test
+    public void testIsValidUserId_nonHeadlessSystemUser() {
         mockIsHeadlessSystemUserMode(false);
         setExistingUsers(USER_SYSTEM);
 
@@ -152,7 +161,15 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testIsValidUser_found() {
+    public void testIsValidUser_nonHeadlessSystemUser() {
+        mockIsHeadlessSystemUserMode(false);
+        setExistingUsers(USER_SYSTEM);
+
+        assertThat(mMgr.isValidUser(SYSTEM)).isTrue();
+    }
+
+    @Test
+    public void testIsValidUserId_found() {
         setExistingUsers(1, 2, 3);
 
         expectThat(mMgr.isValidUser(1)).isTrue();
@@ -161,15 +178,36 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testIsValidUser_notFound() {
+    public void testIsValidUser_found() {
+        setExistingUsers(1, 2, 3);
+
+        expectThat(mMgr.isValidUser(UserHandle.of(1))).isTrue();
+        expectThat(mMgr.isValidUser(UserHandle.of(2))).isTrue();
+        expectThat(mMgr.isValidUser(UserHandle.of(3))).isTrue();
+    }
+
+    @Test
+    public void testIsValidUserId_notFound() {
         setExistingUsers(1, 2, 3);
 
         assertThat(mMgr.isValidUser(4)).isFalse();
     }
 
     @Test
-    public void testIsValidUser_emptyUsers() {
+    public void testIsValidUser_notFound() {
+        setExistingUsers(1, 2, 3);
+
+        assertThat(mMgr.isValidUser(UserHandle.of(4))).isFalse();
+    }
+
+    @Test
+    public void testIsValidUserId_emptyUsers() {
         assertThat(mMgr.isValidUser(666)).isFalse();
+    }
+
+    @Test
+    public void testIsValidUser_emptyUsers() {
+        assertThat(mMgr.isValidUser(UserHandle.of(666))).isFalse();
     }
 
     @Test

@@ -38,6 +38,7 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Handler;
+import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -156,8 +157,14 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
-    public void testIsValidUserPermission() {
+    public void testIsValidUserId() {
         assertThrows(SecurityException.class, () -> mCarUserManager.isValidUser(42));
+    }
+
+    @Test
+    public void testIsValidUser() {
+        assertThrows(SecurityException.class,
+                () -> mCarUserManager.isValidUser(UserHandle.of(42)));
     }
 
     @Test
