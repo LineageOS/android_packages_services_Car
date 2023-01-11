@@ -41,7 +41,7 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 @DataClass(
         genToString = true,
@@ -103,7 +103,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     /**
      * @return the audio zone id where the request belongs
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getAudioZoneId() {
@@ -116,7 +116,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
      * <p>Will be one of {@link TelephonyManager.CALL_STATE_IDLE},
      * {@link TelephonyManager.CALL_STATE_RINGING}, {@link TelephonyManager.CALL_STATE_OFFHOOK},
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getCallState() {
@@ -127,7 +127,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
      * @return audio attributes which are actively playing in the zone obtain by
      * {@code #getAudioZoneId()}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @NonNull List<AudioAttributes> getActivePlaybackAttributes() {
@@ -137,7 +137,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     /**
      * @return the current ducked audio attributes
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @NonNull List<AudioAttributes> getDuckedAudioAttributes() {
@@ -148,7 +148,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
      * @return the zone's volume infos, which can be used to determine the current state for a
      * particular volume change
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @NonNull List<CarVolumeGroupInfo> getCarVolumeGroupInfos() {
@@ -156,7 +156,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     }
 
     // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -174,7 +174,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     }
 
     // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -197,7 +197,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     }
 
     // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -215,7 +215,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     }
 
     // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -231,7 +231,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     }
 
     // TODO(b/260757994): Remove ApiRequirements for overridden methods
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -265,7 +265,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @NonNull Parcelable.Creator<OemCarAudioVolumeRequest> CREATOR
@@ -284,7 +284,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
     /**
      * A builder for {@link OemCarAudioVolumeRequest}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("WeakerAccess")
     @DataClass.Generated.Member
@@ -319,7 +319,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
             mCarVolumeGroupInfos = volumeRequest.mCarVolumeGroupInfos;
         }
 
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder setCallState(int value) {
@@ -329,7 +329,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
             return this;
         }
 
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder setActivePlaybackAttributes(@NonNull List<AudioAttributes> value) {
@@ -341,7 +341,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         }
 
         /** @see #setActivePlaybackAttributes */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder addActivePlaybackAttributes(@NonNull AudioAttributes value) {
@@ -353,7 +353,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
             return this;
         }
 
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder setDuckedAudioAttributes(@NonNull List<AudioAttributes> value) {
@@ -365,7 +365,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         }
 
         /** @see #setDuckedAudioAttributes */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder addDuckedAudioAttributes(@NonNull AudioAttributes value) {
@@ -377,7 +377,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
             return this;
         }
 
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder setCarVolumeGroupInfos(@NonNull List<CarVolumeGroupInfo> value) {
@@ -389,7 +389,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         }
 
         /** @see #setCarVolumeGroupInfos */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder addCarVolumeGroupInfos(@NonNull CarVolumeGroupInfo value) {
@@ -402,7 +402,7 @@ public final class OemCarAudioVolumeRequest implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull
         OemCarAudioVolumeRequest build() {

@@ -38,7 +38,7 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 @DataClass(
         genToString = true,
@@ -87,7 +87,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
      * <p>The actual changed in volume status will be in the volume group info see
      * {@link #getChangedVolumeGroup}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public boolean isVolumeChanged() {
@@ -102,14 +102,14 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
      * for example, for a request to evaluate {@code AudioManager#ADJUST_UNMUTE} the volume group
      * info's mute state should be unmuted.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @Nullable CarVolumeGroupInfo getChangedVolumeGroup() {
         return mChangedVolumeGroup;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -124,7 +124,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         " }";
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -142,7 +142,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
                 && Objects.equals(mChangedVolumeGroup, that.mChangedVolumeGroup);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -156,7 +156,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         return _hash;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -171,7 +171,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         if (mChangedVolumeGroup != null) dest.writeTypedObject(mChangedVolumeGroup, flags);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
@@ -195,7 +195,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @NonNull Parcelable.Creator<OemCarVolumeChangeInfo> CREATOR
@@ -214,7 +214,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
     /**
      * Helper information to respond when there is no volume change.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final OemCarVolumeChangeInfo EMPTY_OEM_VOLUME_CHANGE =
@@ -223,7 +223,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
     /**
      * A builder for {@link OemCarVolumeChangeInfo}
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("WeakerAccess")
     @DataClass.Generated.Member
@@ -241,7 +241,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
             mVolumeChanged = volumeChanged;
         }
 
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @DataClass.Generated.Member
         public @NonNull Builder setChangedVolumeGroup(@NonNull CarVolumeGroupInfo value) {
@@ -253,7 +253,7 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         }
 
         /** Builds the instance. This builder should not be touched after calling this! */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull OemCarVolumeChangeInfo build() {
             checkNotUsed();
