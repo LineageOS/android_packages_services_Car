@@ -37,6 +37,10 @@
     <dimen name="notification_card_footer_height">88dp</dimen>
     <!-- notification_list_divider_height is intentionally in px in-order to follow UX mocks -->
     <dimen name="notification_list_divider_height">1px</dimen>
+    <dimen name="progress_bar_bottom_margin">24dp</dimen>
+    <dimen name="progress_bar_end_margin">24dp</dimen>
+    <dimen name="progress_bar_top_margin">8dp</dimen>
+    <dimen name="progress_bar_start_margin">24dp</dimen>
 
     <dimen name="play_arrow_width">30dp</dimen>
     <dimen name="play_arrow_height">36dp</dimen>

@@ -59,6 +59,8 @@
     <item target="color/notification_background_color" value="@color/notification_background_color"/>
     <item target="color/notification_list_divider_color" value="@color/notification_list_divider_color"/>
     <item target="color/primary_text_color" value="@color/primary_text_color"/>
+    <item target="color/progress_bar_bg_color" value="@color/progress_bar_bg_color"/>
+    <item target="color/progress_bar_color" value="@color/progress_bar_color"/>
     <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
     <item target="color/unmute_button" value="@color/unmute_button"/>
     <item target="color/warning_background_color" value="@color/warning_background_color"/>
