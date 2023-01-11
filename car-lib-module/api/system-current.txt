@@ -1681,6 +1681,14 @@ package android.car.user {
 
 }
 
+package android.car.view {
+
+  public final class DisplayHelper {
+    method @Nullable public static String getUniqueId(@NonNull android.view.Display);
+  }
+
+}
+
 package android.car.vms {
 
   public final class VmsAssociatedLayer implements android.os.Parcelable {

@@ -260,6 +260,7 @@ android.car.user.UserSwitchResult
 android.car.util.concurrent.AndroidAsyncFuture
 android.car.util.concurrent.AndroidFuture
 android.car.util.concurrent.AsyncFuture
+android.car.view.DisplayHelper
 android.car.vms.VmsAssociatedLayer
 android.car.vms.VmsAvailableLayers
 android.car.vms.VmsClient
