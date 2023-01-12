@@ -55,6 +55,7 @@
         <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
         <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
         <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
+        <item>com.android.mtp/com.android.mtp.ReceiverActivity</item>
     </string-array>
 
     <string name="config_controlBarActivity" translatable="false">
@@ -62,6 +63,9 @@
     </string>
     <string name="config_notificationCenterActivity" translatable="false">
         com.android.car.notification/.CarNotificationCenterActivity
+    </string>
+    <string name="config_homeActivity" translatable="false">
+        com.android.car.carlauncher/.CarLauncher
     </string>
     <!--  default relaunch will be the first item  -->
     <string-array name="config_backgroundActivities" translatable="false">

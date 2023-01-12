@@ -48,7 +48,7 @@ using PolicyGroup = std::unordered_map<int32_t, std::string>;
 
 constexpr const char kSystemPolicyIdNoUserInteraction[] = "system_power_policy_no_user_interaction";
 constexpr const char kSystemPolicyIdAllOn[] = "system_power_policy_all_on";
-constexpr const char kSystemPolicyIdInitialOn[] = "system_power_policy_initiall_on";
+constexpr const char kSystemPolicyIdInitialOn[] = "system_power_policy_initial_on";
 constexpr const char kSystemPolicyIdSuspendPrep[] = "system_power_policy_suspend_prep";
 
 // Forward declaration for testing use only.
@@ -83,6 +83,7 @@ public:
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents);
     android::base::Result<void> dump(int fd, const android::Vector<String16>& args);
+    std::string getDefaultPolicyGroup() const;
 
 private:
     void initRegularPowerPolicy(bool override);
@@ -95,6 +96,7 @@ private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mRegisteredPowerPolicies;
     std::unordered_map<std::string, CarPowerPolicyPtr> mPreemptivePowerPolicies;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
+    std::string mDefaultPolicyGroup;
 
     // For unit tests.
     friend class internal::PolicyManagerPeer;

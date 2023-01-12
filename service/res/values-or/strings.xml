@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"କାର୍‌ର ସୂଚନା"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"ଆପଣଙ୍କ କାରର ସୂଚନା ଆକ୍ସେସ କରନ୍ତୁ"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"ଆପଣଙ୍କ କାରର ସୂଚନା ଆକ୍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"କାର୍\'ର କ୍ୟାମେରାକୁ ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"ଆପଣଙ୍କ କାର୍‍ର କ୍ୟାମେରା(ଗୁଡ଼ିକ) ଆକ୍ସେସ୍ କରିପାରେ।"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"କାର୍\'ର ଏନାର୍ଜି ସୂଚନାକୁ ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ"</string>
@@ -164,8 +164,6 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"ଟେମ୍ପଲେଟ୍ ରେଣ୍ଡର୍ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"ଆପ୍ଲିକେସନଗୁଡ଼ିକର ଲଞ୍ଚିଂକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"ଆପ୍ଲିକେସନଗୁଡ଼ିକର ଲଞ୍ଚିଂକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>
-    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"ଥ୍ରେଡ ପ୍ରାଥମିକତାକୁ ପରିଚାଳନା କରନ୍ତୁ"</string>
-    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"ଥ୍ରେଡ ପ୍ରାଥମିକତାକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

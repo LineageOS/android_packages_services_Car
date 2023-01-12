@@ -49,9 +49,10 @@ class SilentModeHandlerPeer;
 }  // namespace internal
 
 /**
- * SilentModeHandler monitors {@code /sys/power/pm_silentmode_hw_state} in sysfs to detect Silent
- * Mode change by a vehicle processor. Also, it updates
- * {@code /sys/power/pm_silentmode_kernel_state} in sysfs to tell kernel the current Silent Mode.
+ * SilentModeHandler monitors {@code /sys/kernel/silent_boot/pm_silentmode_hw_state} in sysfs to
+ * detect Silent Mode change by a vehicle processor. Also, it updates
+ * {@code /sys/kernel/silent_boot/pm_silentmode_kernel_state} in sysfs to tell kernel the current
+ * Silent Mode.
  */
 class SilentModeHandler final {
 public:
@@ -63,7 +64,7 @@ public:
     void release();
     // Returns the current Silent Mode.
     bool isSilentMode();
-    // Stops monitoring the change on /sys/power/pm_silentmode_hw_state.
+    // Stops monitoring the change on pm_silentmode_hw_state.
     void stopMonitoringSilentModeHwState(bool shouldWaitThread);
     // Dumps the internal state.
     android::base::Result<void> dump(int fd, const Vector<String16>& args);

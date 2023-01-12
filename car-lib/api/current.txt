@@ -28,7 +28,7 @@ package android.car {
     method public boolean isConnecting();
     method public boolean isFeatureEnabled(@NonNull String);
     field @Deprecated public static final int API_VERSION_MAJOR_INT = 33; // 0x21
-    field @Deprecated public static final int API_VERSION_MINOR_INT = 1; // 0x1
+    field @Deprecated public static final int API_VERSION_MINOR_INT = 2; // 0x2
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
@@ -164,6 +164,7 @@ package android.car {
   public static class CarVersion.VERSION_CODES {
     field @NonNull public static final android.car.CarVersion TIRAMISU_0;
     field @NonNull public static final android.car.CarVersion TIRAMISU_1;
+    field @NonNull public static final android.car.CarVersion TIRAMISU_2;
   }
 
   @Deprecated public final class EvConnectorType {
@@ -214,6 +215,7 @@ package android.car {
   public static class PlatformVersion.VERSION_CODES {
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_0;
     field @NonNull public static final android.car.PlatformVersion TIRAMISU_1;
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_2;
   }
 
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {

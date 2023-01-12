@@ -62,11 +62,11 @@
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"الانتباه إلى تغييرات حالة التنقل على شاشة مجموعة العدادات"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"ضبط قيود تجربة المستخدم"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ضبط قيود تجربة المُستخدِم"</string>
-    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"الإذن بالاطّلاع على معرّف الشاشة الخاص"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"إذن الوصول لقراءة معرّف الشاشة الخاص"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"يتيح إذن الوصول هذا قراءة معرّف الشاشة الخاص."</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"التواصل مع جهاز USB في وضع AOAP"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"يتيح للتطبيق التواصل مع جهاز في وضع AOAP."</string>
-    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"الإذن بالاطّلاع على Occupant Awareness System"</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"الوصول لقراءة Occupant Awareness System"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"السماح بقراءة حالة Occupant Awareness System وبيانات التعرف عليه"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"التحكّم في الرسم البياني لنظام Occupant Awareness System"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"السماح بالتحكّم في بدء وإيقاف الرسم البياني للتعرف على Occupant Awareness System"</string>
@@ -164,8 +164,6 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"عرض النماذج"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"التحكم في تشغيل التطبيقات"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"التحكم في تشغيل التطبيقات"</string>
-    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"إدارة أولوية سلسلة المحادثات"</string>
-    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"يمكنك إدارة أولوية سلسلة المحادثات."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"حدث خطأ في موصّل CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"لا استجابة من موصّل CAN. يمكنك فصل صندوق وحدة الرأس وإعادة تشغيل السيارة."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"جهازي"</string>

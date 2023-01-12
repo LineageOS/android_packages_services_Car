@@ -42,6 +42,15 @@ prop {
     prop_name: "ro.carwatchdog.post_system_event_duration"
 }
 
+# Duration in seconds of data collection for a system wake up event.
+prop {
+    api_name: "wakeUpEventDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.wake_up_event_duration"
+}
+
 # Maximum number of periodically collected records to be cached in memory.
 prop {
     api_name: "periodicCollectionBufferSize"

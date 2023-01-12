@@ -435,6 +435,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         testClientHealthCheck(new BadTestClient(), 1);
     }
 
+    // TODO(b/262301082): Add a unit test to verify the race condition that caused watchdog to
+    //  incorrectly terminate clients that were recently unregistered - b/261766872.
+
     @Test
     public void testGarageModeStateChangeToOn() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
@@ -506,6 +509,34 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 100,
                 UserState.USER_STATE_REMOVED);
         verify(mSpiedWatchdogStorage).syncUsers(new int[] {101, 102});
+    }
+
+    @Test
+    public void testPowerCycleStateChangesDuringSuspend() throws Exception {
+        setCarPowerState(CarPowerManager.STATE_SUSPEND_ENTER);
+        setCarPowerState(CarPowerManager.STATE_SUSPEND_EXIT);
+        setCarPowerState(CarPowerManager.STATE_ON);
+
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
+    }
+
+    @Test
+    public void testPowerCycleStateChangesDuringHibernation() throws Exception {
+        setCarPowerState(CarPowerManager.STATE_HIBERNATION_ENTER);
+        setCarPowerState(CarPowerManager.STATE_HIBERNATION_EXIT);
+        setCarPowerState(CarPowerManager.STATE_ON);
+
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
     }
 
     @Test
@@ -4537,11 +4568,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             int userId = userIds[i];
             UserHandle userHandle = UserHandle.of(userId);
 
-            mBroadcastReceiver
-                    .onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                    .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                    .putExtra(Intent.EXTRA_USER, userHandle)
-                    .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+            mCarWatchdogService.performResourceOveruseKill(packageName, userId);
 
             verify(mSpiedPackageManager, atLeastOnce())
                     .getApplicationEnabledSetting(packageName, userId);

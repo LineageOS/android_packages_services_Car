@@ -170,10 +170,6 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
     switch (type) {
         case aawi::StateType::POWER_CYCLE: {
             PowerCycle powerCycle = static_cast<PowerCycle>(static_cast<uint32_t>(arg1));
-            if (powerCycle >= PowerCycle::NUM_POWER_CYLES) {
-                return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                         StringPrintf("Invalid power cycle %d", powerCycle));
-            }
             return handlePowerCycleChange(powerCycle);
         }
         case aawi::StateType::GARAGE_MODE: {
@@ -212,6 +208,11 @@ Status WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCycle) {
         case PowerCycle::POWER_CYCLE_SHUTDOWN_ENTER:
             ALOGI("Received SHUTDOWN_ENTER power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            mWatchdogPerfService->onShutdownEnter();
+            break;
+        case PowerCycle::POWER_CYCLE_SUSPEND_EXIT:
+            ALOGI("Received SUSPEND_EXIT power cycle");
+            mWatchdogPerfService->onSuspendExit();
             break;
         case PowerCycle::POWER_CYCLE_RESUME:
             ALOGI("Received RESUME power cycle");

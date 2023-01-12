@@ -387,8 +387,7 @@ public class StatsPublisherTest {
 
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
         Message msg = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        long expectedPullPeriodMillis = 10 * 60 * 1000;  // 10 minutes
-        assertThatMessageIsScheduledWithGivenDelay(msg, expectedPullPeriodMillis);
+        assertThatMessageIsScheduledWithGivenDelay(msg, 0);
     }
 
     @Test
@@ -454,17 +453,17 @@ public class StatsPublisherTest {
 
         verify(subscriber1).push(mBundleCaptor.capture(), anyBoolean());
         PersistableBundle bundle1 = mBundleCaptor.getValue();
-        assertThat(bundle1.getLongArray("elapsed_timestamp_nanos"))
+        assertThat(bundle1.getLongArray("stats.elapsed_timestamp_nanos"))
             .asList().containsExactly(99999999L);
-        assertThat(bundle1.getIntArray("uid")).asList().containsExactly(1000);
-        assertThat(Arrays.asList(bundle1.getStringArray("activity_name")))
+        assertThat(bundle1.getIntArray("stats.uid")).asList().containsExactly(1000);
+        assertThat(Arrays.asList(bundle1.getStringArray("stats.activity_name")))
             .containsExactly("activityName");
-        assertThat(bundle1.getLongArray("rss_in_bytes")).asList().containsExactly(1234L);
+        assertThat(bundle1.getLongArray("stats.rss_in_bytes")).asList().containsExactly(1234L);
         verify(subscriber2).push(mBundleCaptor.capture(), anyBoolean());
         PersistableBundle bundle2 = mBundleCaptor.getValue();
-        assertThat(bundle2.getIntArray("uid")).asList().containsExactly(234);
-        assertThat(bundle2.getLongArray("rss_in_bytes")).asList().containsExactly(4567L);
-        assertThat(bundle2.getLongArray("elapsed_timestamp_nanos"))
+        assertThat(bundle2.getIntArray("stats.uid")).asList().containsExactly(234);
+        assertThat(bundle2.getLongArray("stats.rss_in_bytes")).asList().containsExactly(4567L);
+        assertThat(bundle2.getLongArray("stats.elapsed_timestamp_nanos"))
             .asList().containsExactly(445678901L);
     }
 

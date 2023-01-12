@@ -55,6 +55,7 @@ class WatchdogPerfServicePeer;
 }  // namespace internal
 
 constexpr std::chrono::seconds kDefaultPostSystemEventDurationSec = 30s;
+constexpr std::chrono::seconds kDefaultWakeUpEventDurationSec = 30s;
 constexpr std::chrono::seconds kDefaultUserSwitchTimeoutSec = 30s;
 constexpr const char* kStartCustomCollectionFlag = "--start_perf";
 constexpr const char* kEndCustomCollectionFlag = "--stop_perf";
@@ -81,8 +82,15 @@ public:
     virtual android::base::Result<void> init() = 0;
     // Callback to terminate the data processor.
     virtual void terminate() = 0;
+    // Callback to perform actions (such as clearing stats from previous system startup events)
+    // before starting boot-time or wake-up collections.
+    virtual android::base::Result<void> onSystemStartup() = 0;
     // Callback to process the data collected during boot-time.
     virtual android::base::Result<void> onBoottimeCollection(
+            time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+    // Callback to process the data collected during a wake-up event.
+    virtual android::base::Result<void> onWakeUpCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
     // Callback to process the data collected periodically post boot complete.
@@ -95,6 +103,7 @@ public:
             time_t time, userid_t from, userid_t to,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+
     /**
      * Callback to process the data collected on custom collection and filter the results only to
      * the specified |filterPackages|.
@@ -128,6 +137,7 @@ enum EventType {
     BOOT_TIME_COLLECTION,
     PERIODIC_COLLECTION,
     USER_SWITCH_COLLECTION,
+    WAKE_UP_COLLECTION,
     CUSTOM_COLLECTION,
 
     // Monitor event.
@@ -150,6 +160,12 @@ enum SwitchMessage {
     END_USER_SWITCH_COLLECTION,
 
     /**
+     * On receiving this message, collect the last wake up record and start periodic collection and
+     * monitor.
+     */
+    END_WAKE_UP_COLLECTION,
+
+    /**
      * On receiving this message, ends custom collection, discard collected data and start periodic
      * collection and monitor.
      */
@@ -157,9 +173,9 @@ enum SwitchMessage {
 };
 
 /**
- * WatchdogPerfServiceInterface collects performance data during boot-time and periodically post
- * boot complete. It exposes APIs that the main thread and binder service can call to start a
- * collection, switch the collection type, and generate collection dumps.
+ * WatchdogPerfServiceInterface collects performance data during boot-time, user switch, system wake
+ * up and periodically post system events. It exposes APIs that the main thread and binder service
+ * can call to start a collection, switch the collection type, and generate collection dumps.
  */
 class WatchdogPerfServiceInterface : public MessageHandler {
 public:
@@ -182,6 +198,10 @@ public:
     virtual android::base::Result<void> onUserStateChange(
             userid_t userId,
             const android::automotive::watchdog::internal::UserState& userState) = 0;
+    // Starts wake-up collection. Any running collection is stopped, except for custom collections.
+    virtual android::base::Result<void> onSuspendExit() = 0;
+    // Called on shutdown enter, suspend enter and hibernation enter.
+    virtual android::base::Result<void> onShutdownEnter() = 0;
 
     /**
      * Depending on the arguments, it either:
@@ -203,6 +223,9 @@ public:
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::postSystemEventDuration().value_or(
                           kDefaultPostSystemEventDurationSec.count())))),
+          mWakeUpDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                  std::chrono::seconds(sysprop::wakeUpEventDuration().value_or(
+                          kDefaultWakeUpEventDurationSec.count())))),
           mUserSwitchTimeoutNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::userSwitchTimeout().value_or(
                           kDefaultUserSwitchTimeoutSec.count())))),
@@ -233,6 +256,10 @@ public:
     android::base::Result<void> onUserStateChange(
             userid_t userId,
             const android::automotive::watchdog::internal::UserState& userState) override;
+
+    android::base::Result<void> onSuspendExit() override;
+
+    android::base::Result<void> onShutdownEnter() override;
 
     android::base::Result<void> onCustomCollection(int fd,
                                                    const Vector<android::String16>& args) override;
@@ -290,6 +317,9 @@ private:
     // Start a user switch collection.
     android::base::Result<void> startUserSwitchCollection();
 
+    // Switch to periodic collection and periodic monitor.
+    void switchToPeriodicLocked(bool startNow);
+
     // Handles the messages received by the lopper.
     void handleMessage(const Message& message) override;
 
@@ -302,6 +332,11 @@ private:
     // Processes the monitor events received by |handleMessage|.
     android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
 
+    // Notifies all registered data processors that either boot-time or wake-up collection will
+    // start. Individual implementations of data processors may clear stats collected during
+    // previous system startup events.
+    android::base::Result<void> notifySystemStartUpLocked();
+
     /**
      * Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
      * nullptr on invalid collection event.
@@ -310,6 +345,9 @@ private:
 
     // Duration to extend a system event collection after the final signal is received.
     std::chrono::nanoseconds mPostSystemEventDurationNs;
+
+    // Duration of the wake-up collection event.
+    std::chrono::nanoseconds mWakeUpDurationNs;
 
     // Timeout duration for user switch collection in case final signal isn't received.
     std::chrono::nanoseconds mUserSwitchTimeoutNs;
@@ -334,6 +372,9 @@ private:
 
     // Info for the |EventType::USER_SWITCH_COLLECTION| collection event.
     UserSwitchEventMetadata mUserSwitchCollection GUARDED_BY(mMutex);
+
+    // Info for the |EventType::WAKE_UP_COLLECTION| collection event.
+    EventMetadata mWakeUpCollection GUARDED_BY(mMutex);
 
     // Info for the |EventType::CUSTOM_COLLECTION| collection event. The info is cleared at the end
     // of every custom collection.

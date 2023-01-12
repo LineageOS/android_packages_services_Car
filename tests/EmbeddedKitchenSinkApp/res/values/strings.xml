@@ -145,6 +145,9 @@
     <string name="phone_audio_player" translatable="false">Phone Player</string>
     <string name="track_audio_player" translatable="false">Track Player Tone Generator </string>
     <string name="select_tone_to_hear_on_speaker" translatable="false">Tone</string>
+    <string name="file_path" translatable="false">File Path</string>
+    <string name="stop_recording" translatable="false">Stop Recording</string>
+    <string name="start_recording" translatable="false">Start Recording</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
@@ -387,7 +390,7 @@
 
     <!-- CarTelemetryService Test -->
     <string name="gear_change_config" translatable="false">on_gear_change:</string>
-    <string name="process_memory_config" translatable="false">process_memory:</string>
+    <string name="process_memory_config" translatable="false">process_memory_state:</string>
     <string name="app_start_memory_state_captured_config" translatable="false">app_start_memory_state_captured:</string>
     <string name="activity_foreground_state_changed_config" translatable="false">activity_foreground_state_changed:</string>
     <string name="process_cpu_time_config" translatable="false">process_cpu_time:</string>
@@ -397,6 +400,7 @@
     <string name="wifi_netstats_config" translatable="false">wifi_netstats_top_consumers:</string>
     <string name="stats_and_connectivity_config" translatable="false">stats and connectivity:</string>
     <string name="memory_config" translatable="false">memory:</string>
+    <string name="process_memory_snapshot_config" translatable="false">process_memory_snapshot:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="download_data" translatable="false">Download Data</string>
