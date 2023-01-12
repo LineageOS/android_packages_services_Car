@@ -139,6 +139,7 @@ bootclasspath_fragment {
             "android.car.test",
             "android.car.user",
             "android.car.util",
+            "android.car.view",
             "android.car.vms",
             "android.car.watchdog",
             "com.android.car",

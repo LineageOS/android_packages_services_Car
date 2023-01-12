@@ -19,8 +19,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/QuickControlEntryPointButton">
     <ImageView
-        android:layout_width="@dimen/top_system_bar_icon_drawing_size"
-        android:layout_height="@dimen/top_system_bar_icon_drawing_size"
+        android:layout_width="@dimen/top_system_bar_qc_icon_drawing_size"
+        android:layout_height="@dimen/top_system_bar_qc_icon_drawing_size"
         android:layout_gravity="center"
         android:tag="@string/qc_icon_tag"/>
 </FrameLayout>

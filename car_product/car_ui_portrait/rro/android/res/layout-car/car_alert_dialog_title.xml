@@ -14,6 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<!-- Also check car_ui_alert_dialog_title_with_subtitle.xml when update layout, This title layout is
+     not the only title layout. See com.android.car.ui.AlertDialogBuilder#prepareDialog for details.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@*android:id/topPanel"
               android:layout_width="match_parent"
@@ -25,9 +28,9 @@
         android:id="@*android:id/title_template"
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_card_header_height"
-        android:layout_marginStart="@dimen/car_alert_dialog_margin"
-        android:layout_marginEnd="@dimen/car_alert_dialog_margin"
-    android:orientation="horizontal">
+        android:layout_marginStart="@dimen/car_alert_dialog_horizontal_margin"
+        android:layout_marginEnd="@dimen/car_alert_dialog_horizontal_margin"
+        android:orientation="horizontal">
         <ImageView
             android:id="@android:id/icon"
             android:layout_width="44dp"

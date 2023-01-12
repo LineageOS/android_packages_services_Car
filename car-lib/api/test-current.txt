@@ -1795,6 +1795,14 @@ package android.car.util.concurrent {
 
 }
 
+package android.car.view {
+
+  public final class DisplayHelper {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @Nullable public static String getUniqueId(@NonNull android.view.Display);
+  }
+
+}
+
 package android.car.vms {
 
   public final class VmsAssociatedLayer implements android.os.Parcelable {

@@ -22,6 +22,7 @@ import android.annotation.SystemApi;
 import android.app.TaskInfo;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.graphics.Rect;
 
 /**
  * Provides the access to the hidden fields of {@code android.app.TaskInfo}.
@@ -65,6 +66,13 @@ public class TaskInfoHelper {
                 + " topActivity=" + task.topActivity
                 + " baseIntent=" + task.baseIntent + " baseActivity=" + task.baseActivity
                 + "}";
+    }
+
+    /** Returns the task bounds */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
+    public static Rect getBounds(@NonNull TaskInfo task) {
+        return task.getConfiguration().windowConfiguration.getBounds();
     }
 
     private TaskInfoHelper() {

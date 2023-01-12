@@ -59,4 +59,7 @@
 
     <color name="car_volume_dialog_background_color">@color/car_surface</color>
     <color name="car_volume_dialog_tint">@color/car_on_surface</color>
+
+    <color name="car_user_switcher_add_user_background_color">@color/car_secondary_container</color>
+    <color name="car_user_switcher_add_user_add_sign_color">@color/car_on_secondary_container</color>
 </resources>

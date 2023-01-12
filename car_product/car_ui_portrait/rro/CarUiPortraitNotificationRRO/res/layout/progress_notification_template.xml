@@ -72,10 +72,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/notification_body"
-                android:layout_marginStart="@dimen/card_start_margin"
-                android:layout_marginEnd="@dimen/card_end_margin"
-                android:layout_marginTop="@dimen/card_body_margin_top"
-                android:layout_marginBottom="@dimen/card_body_margin_bottom"
+                android:layout_marginStart="@dimen/progress_bar_start_margin"
+                android:layout_marginEnd="@dimen/progress_bar_end_margin"
+                android:layout_marginTop="@dimen/progress_bar_top_margin"
+                android:layout_marginBottom="@dimen/progress_bar_bottom_margin"
                 style="?android:attr/progressBarStyleHorizontal"/>
 
             <com.android.car.notification.template.CarNotificationActionsView

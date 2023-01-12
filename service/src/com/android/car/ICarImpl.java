@@ -444,7 +444,7 @@ public class ICarImpl extends ICar.Stub {
                 || mFeatureController.isFeatureEnabled(Car.CAR_REMOTE_DEVICE_SERVICE)) {
             mCarOccupantConnectionService = constructWithTrace(
                     t, CarOccupantConnectionService.class,
-                    () -> new CarOccupantConnectionService(),
+                    () -> new CarOccupantConnectionService(serviceContext),
                     allServices);
         } else {
             mCarOccupantConnectionService = null;

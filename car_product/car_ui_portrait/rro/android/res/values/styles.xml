@@ -17,11 +17,24 @@
 
 
 <resources>
-    <style name="DialogActionButton">
-        <item name="android:textSize">32sp</item>
-        <item name="android:textColor">@android:color/white</item>
+    <style name="CarDialogActionButton" parent="TextAppearance.Car.Button.Medium">
+        <item name="android:fontFamily">google-sans-text</item>
         <item name="android:textStyle">normal</item>
+        <item name="android:lineHeight">40dp</item>
         <item name="android:background">@drawable/car_dialog_button_background</item>
+        <item name="android:textColor">@color/car_alert_dialog_button_text_color</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="CarDialogActionButton1" parent="CarDialogActionButton">
+        <item name="android:textColor">@color/car_alert_dialog_button1_text_color</item>
+    </style>
+
+    <style name="CarDialogMessage" parent="TextAppearance.Car.Body.Medium">
+        <item name="android:textStyle">normal</item>
+        <item name="android:lineHeight">40dp</item>
+        <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <!-- Override the default activity transitions. We have to do a full copy and not just inherit

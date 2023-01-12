@@ -1319,6 +1319,33 @@ public final class Car {
             "android.car.permission.CONTROL_ADAS_STATES";
 
     /**
+     * Permission necessary to monitor the states of other occupant zones in the car and peer apps
+     * (apps that have the same package name as the caller) installed in those zones,
+     * and manage the power of those zones.
+     *
+     * @hide
+     */
+    // STOPSHIP(b/257117236): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_MANAGE_REMOTE_DEVICE =
+            "android.car.permission.MANAGE_REMOTE_DEVICE";
+
+    /**
+     * Permission necessary to establish connection and communicate to peer apps (apps that have
+     * the same package name as the caller) installed in other occupant zones in the car.
+     *
+     * @hide
+     */
+    // STOPSHIP(b/257117236): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_MANAGE_OCCUPANT_CONNECTION =
+            "android.car.permission.MANAGE_OCCUPANT_CONNECTION";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

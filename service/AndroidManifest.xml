@@ -1016,6 +1016,25 @@
          android:label="@string/car_permission_label_control_adas_states"
          android:description="@string/car_permission_desc_control_adas_states"/>
 
+    <!-- Allows an application to monitor the states of other occupant zones in the car and peer
+         apps (apps that have the same package name as the caller) installed in those zones,
+         and manage the power of those zones.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.MONITOR_OCCUPANT_ZONE"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_monitor_occupant_zone"
+                android:description="@string/car_permission_desc_monitor_occupant_zone"/>
+
+    <!-- Allows an application to establish connection and communicate to peer apps (apps that have
+         the same package name as the caller) installed in other occupant zones in the car.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONNECT_OCCUPANT_ZONE"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_connect_occupant_zone"
+                android:description="@string/car_permission_desc_connect_occupant_zone"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
