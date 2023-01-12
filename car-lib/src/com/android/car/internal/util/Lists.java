@@ -74,13 +74,11 @@ public class Lists {
     /**
      * Converts the array of primitive integers passed as argument into an unmodifiable list of
      * {@code java.lang.Integer}.
-     *
-     * TODO(b/260737307): Add tests for this method
      */
     @NonNull
-    public static List<Integer> asIntegerList(@NonNull int[] ints) {
+    public static List<Integer> asImmutableList(@NonNull int[] ints) {
         int[] unmodifiableInts = Arrays.copyOf(ints, ints.length);
-        return new AbstractList<Integer>() {
+        return new AbstractList<>() {
             public Integer get(int i) {
                 return unmodifiableInts[i];
             }
