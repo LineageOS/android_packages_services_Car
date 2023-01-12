@@ -36,6 +36,7 @@ import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.ForwardCollisionWarningState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
+import android.hardware.automotive.vehicle.LaneCenteringAssistState;
 import android.hardware.automotive.vehicle.LaneKeepAssistState;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.TrailerState;
@@ -133,6 +134,9 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> LANE_KEEP_ASSIST_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 LaneKeepAssistState.class, ErrorState.class));
+    private static final Set<Integer> LANE_CENTERING_ASSIST_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                LaneCenteringAssistState.class, ErrorState.class));
 
     // TODO(b/264946993): Autogenerate HAL_PROP_ID_TO_ENUM_SET directly from AIDL definition.
     private static final SparseArray<Set<Integer>> HAL_PROP_ID_TO_ENUM_SET = new SparseArray<>();
@@ -197,6 +201,8 @@ public class PropertyHalServiceIds {
                 BLIND_SPOT_WARNING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_KEEP_ASSIST_STATE,
                 LANE_KEEP_ASSIST_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE,
+                LANE_CENTERING_ASSIST_STATE);
     }
 
     private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
@@ -763,6 +769,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                null));
 
         // Display_Units
         mHalPropIdToPermissions.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
