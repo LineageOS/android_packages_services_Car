@@ -340,6 +340,13 @@ package android.car.builtin.util {
     method public static void writeCarHelperUserSwitching(int, int);
     method public static void writeCarHelperUserUnlocked(int);
     method public static void writeCarHelperUserUnlocking(int);
+    method public static void writeCarInitialUserFallbackDefaultBehavior(@Nullable String);
+    method public static void writeCarInitialUserInfo(int, boolean, int, @Nullable String, int, boolean, @Nullable String);
+    method public static void writeCarInitialUserReplaceGuest(int);
+    method public static void writeCarInitialUserResetGlobalProperty(@Nullable String);
+    method public static void writeCarInitialUserSetLastActive(int);
+    method public static void writeCarInitialUserStartFgUser(int);
+    method public static void writeCarInitialUserUnlockSystemUser();
     method public static void writeCarPowerManagerStateChange(int);
     method public static void writeCarPowerManagerStateRequest(int, int);
     method public static void writeCarServiceConnected(@Nullable String);

@@ -15,10 +15,13 @@
  */
 package com.android.car.user;
 
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
+
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -29,6 +32,7 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.provider.SettingsHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.builtin.widget.LockPatternHelper;
@@ -328,6 +332,12 @@ final class InitialUserSetter {
     public void set(@NonNull InitialUserInfo info) {
         Preconditions.checkArgument(info != null, "info cannot be null");
 
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserInfo(info.type, info.replaceGuest, info.switchUserId,
+                    info.newUserName, info.newUserFlags,
+                    info.supportsOverrideUserIdProperty, info.userLocales);
+        }
+
         switch (info.type) {
             case TYPE_DEFAULT_BEHAVIOR:
                 executeDefaultBehavior(info, /* fallback= */ false);
@@ -420,6 +430,10 @@ final class InitialUserSetter {
             // Must explicitly tell listener that initial user could not be determined
             notifyListener(/*initialUser= */ null);
             return;
+        }
+
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserFallbackDefaultBehavior(reason);
         }
         Slogf.w(TAG, "Falling back to default behavior. Reason: " + reason);
         executeDefaultBehavior(info, /* fallback= */ false);
@@ -516,6 +530,9 @@ final class InitialUserSetter {
             return user;
         }
 
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserReplaceGuest(user.getIdentifier());
+        }
         Slogf.i(TAG, "Replacing guest (" + user + ")");
 
         int halFlags = UserInfo.USER_FLAG_GUEST;
@@ -631,6 +648,9 @@ final class InitialUserSetter {
 
     @VisibleForTesting
     void unlockSystemUser() {
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserUnlockSystemUser();
+        }
         Slogf.i(TAG, "unlocking system user");
         TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("UnlockSystemUser");
@@ -655,6 +675,9 @@ final class InitialUserSetter {
 
     @VisibleForTesting
     boolean startForegroundUser(@UserIdInt int userId) {
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserStartFgUser(userId);
+        }
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
             // System User doesn't associate with real person, can not be switched to.
             return false;
@@ -682,6 +705,10 @@ final class InitialUserSetter {
      * Sets the last active user.
      */
     public void setLastActiveUser(@UserIdInt int userId) {
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserSetLastActive(userId);
+        }
+
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
             if (DBG) Slogf.d(TAG, "setLastActiveUser(): ignoring headless system user " + userId);
             return;
@@ -852,7 +879,9 @@ final class InitialUserSetter {
     }
 
     private void resetUserIdGlobalProperty(@NonNull String name) {
-        if (DBG) Slogf.d(TAG, "resetting global property " + name);
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            EventLogHelper.writeCarInitialUserResetGlobalProperty(name);
+        }
 
         Settings.Global.putInt(mContext.getContentResolver(), name, UserManagerHelper.USER_NULL);
     }
