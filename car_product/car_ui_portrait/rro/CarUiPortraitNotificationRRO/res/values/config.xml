@@ -63,5 +63,8 @@
 
     <!-- When true, ignore the notification color for information notification background and use @color/information_background_color instead. -->
     <bool name="config_useCustomColorForInformationNotification">true</bool>
+
+    <!-- When true, message HUN will be dismissed when reply or play action buttons are pressed. -->
+    <bool name="config_dismissMessageHunWhenReplyOrPlayActionButtonPressed">true</bool>
 </resources>
 
