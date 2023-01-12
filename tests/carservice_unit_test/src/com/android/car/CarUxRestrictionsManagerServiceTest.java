@@ -344,7 +344,7 @@ public class CarUxRestrictionsManagerServiceTest {
         mService.validateConfigs(Arrays.asList(createEmptyConfig(null), createEmptyConfig(null)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testValidateConfigs_MultipleConfigsMustHaveUniquePort() throws Exception {
         mService.validateConfigs(Arrays.asList(
                 createEmptyConfig(0), createEmptyConfig(0)));
