@@ -3435,6 +3435,51 @@ public final class VehiclePropertyIds {
     public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930;
 
     /**
+     * Lane Centering Assist (LCA) commands.
+     *
+     * <p>Commands to activate and suspend LCA. They are only valid when {@link
+     * #LANE_CENTERING_ASSIST_ENABLED} = {@code true}. Otherwise, these commands will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>When the command {@link android.car.hardware.property.LaneCenteringAssistCommand#ACTIVATE}
+     * is sent, {@link #LANE_CENTERING_ASSIST_STATE} will be set to {@link
+     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATION_REQUESTED}. When the
+     * command {@link android.car.hardware.property.LaneCenteringAssistCommand#ACTIVATE} succeeds,
+     * {@link #LANE_CENTERING_ASSIST_STATE} will be set to {@link
+     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATED}. When the command {@link
+     * android.car.hardware.property.LaneCenteringAssistCommand#DEACTIVATE} succeeds, {@link
+     * #LANE_CENTERING_ASSIST_STATE} will be set to {@link
+     * android.car.hardware.property.LaneCenteringAssistState#ENABLED}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum
+     * values from {@link android.car.hardware.property.LaneCenteringAssistCommand} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Property is not readable.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int LANE_CENTERING_ASSIST_COMMAND = 289411083;
+
+    /**
      * Lane Centering Assist (LCA) state.
      *
      * <p>Returns the current state of LCA. This property will always return a valid state defined

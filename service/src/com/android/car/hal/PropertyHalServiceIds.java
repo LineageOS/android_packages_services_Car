@@ -36,6 +36,7 @@ import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.ForwardCollisionWarningState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
+import android.hardware.automotive.vehicle.LaneCenteringAssistCommand;
 import android.hardware.automotive.vehicle.LaneCenteringAssistState;
 import android.hardware.automotive.vehicle.LaneKeepAssistState;
 import android.hardware.automotive.vehicle.PortLocationType;
@@ -134,6 +135,8 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> LANE_KEEP_ASSIST_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 LaneKeepAssistState.class, ErrorState.class));
+    private static final Set<Integer> LANE_CENTERING_ASSIST_COMMAND =
+            new HashSet<>(getIntegersFromDataEnums(LaneCenteringAssistCommand.class));
     private static final Set<Integer> LANE_CENTERING_ASSIST_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 LaneCenteringAssistState.class, ErrorState.class));
@@ -201,6 +204,8 @@ public class PropertyHalServiceIds {
                 BLIND_SPOT_WARNING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_KEEP_ASSIST_STATE,
                 LANE_KEEP_ASSIST_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_CENTERING_ASSIST_COMMAND,
+                LANE_CENTERING_ASSIST_COMMAND);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE,
                 LANE_CENTERING_ASSIST_STATE);
     }
@@ -769,6 +774,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_COMMAND, new Pair<>(
+                null,
+                Car.PERMISSION_CONTROL_ADAS_STATES));
         mHalPropIdToPermissions.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE, new Pair<>(
                 Car.PERMISSION_READ_ADAS_STATES,
                 null));
