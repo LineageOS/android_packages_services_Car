@@ -679,24 +679,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private EvsHalEvent mLastEvsHalEvent = new EvsHalEvent(/* timestamp= */ 0,
             CarEvsManager.SERVICE_TYPE_REARVIEW, /* on= */ false);
 
-    // Stops a current video stream and unregisters a callback
-    private void stopVideoStreamAndUnregisterCallback(ICarEvsStreamCallback callback) {
-        synchronized (mLock) {
-            if (callback == null || callback.asBinder() != mStreamCallback.asBinder()) {
-                Slogf.i(TAG_EVS, "Declines a request to stop a video not from a current client.");
-                return;
-            }
-
-            // Notify the client that the stream has ended.
-            notifyStreamStopped(callback);
-
-            unlinkToDeathStreamCallbackLocked();
-            mStreamCallback = null;
-            Slogf.i(TAG_EVS, "Last stream client has been disconnected.");
-            mHalWrapper.requestToStopVideoStream();
-        }
-    }
-
     // Starts a service and its video stream
     @GuardedBy("mLock")
     private @CarEvsError int startServiceAndVideoStream(
