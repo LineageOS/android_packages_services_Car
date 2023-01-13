@@ -35,6 +35,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaType;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
@@ -67,9 +68,11 @@ import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
+import android.util.SparseArray;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
 import com.android.car.systeminterface.SystemInterface;
@@ -119,6 +122,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
+
+    // Using 8 as the initial capacity for several data structures as the number of displays
+    // will most likely be below 8.
+    private static final int INITIAL_DISPLAYS_SIZE = 8;
 
     private static final int UNKNOWN_JSON_SCHEMA_VERSION = -1;
     private static final int JSON_SCHEMA_VERSION_V1 = 1;
@@ -200,15 +207,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
     }
 
-    // In memory representation of Ux Restrictions config, key'ed by display id by zone
+    // In memory representation of Ux Restrictions config, key'ed by DisplayIdentifier
     // (occupant zone id, display type).
     @GuardedBy("mLock")
     private Map<DisplayIdentifier, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
 
-    // TODO(b/241589812): Change to SparseIntArray.
     // Current Ux Restrictions, key'ed by logical display id.
     @GuardedBy("mLock")
-    private Map<Integer, CarUxRestrictions> mCurrentUxRestrictions = new ArrayMap<>();
+    private SparseArray<CarUxRestrictions> mCurrentUxRestrictions;
 
     @GuardedBy("mLock")
     private String mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
@@ -222,7 +228,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     // Logical display ids for all displays.
     @GuardedBy("mLock")
-    private final Set<Integer> mDisplayIds = new ArraySet<>();
+    private IntArray mDisplayIds = new IntArray(INITIAL_DISPLAYS_SIZE);
 
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("mLock")
@@ -231,6 +237,77 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     // For dumpsys logging
     @GuardedBy("mLock")
     private final LinkedList<TransitionLog> mTransitionLogs = new LinkedList<>();
+
+    /**
+     * Callback registered with {@link CarOccupantZoneService} for getting display change
+     * notifications and updating UxRs on changed displays.
+     */
+    private final ICarOccupantZoneCallback mOccupantZoneCallback =
+            new ICarOccupantZoneCallback.Stub() {
+                @Override
+                public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
+                    // Respond to display changes.
+                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) == 0) {
+                        return;
+                    }
+
+                    if (DBG) {
+                        String flagString = DebugUtils.flagsToString(
+                                CarOccupantZoneManager.class, "ZONE_CONFIG_CHANGE_FLAG_", flags);
+                        Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
+                                flagString);
+                    }
+                    List<OccupantZoneInfo> occupantZoneInfos =
+                            mCarOccupantZoneService.getAllOccupantZones();
+                    IntArray updatedDisplayIds = new IntArray(8);
+                    IntArray newlyAddedDisplayIds = new IntArray(8);
+                    CarUxRestrictions unrestrictedRestrictions = createUnrestrictedRestrictions();
+                    synchronized (mLock) {
+                        for (int i = 0; i < occupantZoneInfos.size(); i++) {
+                            OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
+                            int zoneId = occupantZoneInfo.zoneId;
+                            int[] displayIds =
+                                    mCarOccupantZoneService.getAllDisplaysForOccupantZone(
+                                            zoneId);
+                            for (int j = 0; j < displayIds.length; j++) {
+                                int displayId = displayIds[j];
+                                updatedDisplayIds.add(displayId);
+                                // Populate UxR only for newly added displays.
+                                if (mDisplayIds.indexOf(displayId) != -1) {
+                                    continue;
+                                }
+                                newlyAddedDisplayIds.add(displayId);
+                                if (DBG) {
+                                    Slogf.d(TAG, "Populating UxR for display %d", displayId);
+                                }
+                                // UxR will be updated in initializeUxRestrictions below.
+                                mCurrentUxRestrictions.put(displayId, unrestrictedRestrictions);
+                            }
+                        }
+                        // Remove UxR for removed displays from
+                        // mCurrentUxRestrictions.
+                        for (int i = 0; i < mDisplayIds.size(); i++) {
+                            int displayId = mDisplayIds.get(i);
+                            if (updatedDisplayIds.indexOf(displayId) == -1) {
+                                if (DBG) {
+                                    Slogf.d(TAG, "Removing UxR for display %d", displayId);
+                                }
+                                mCurrentUxRestrictions.remove(displayId);
+                            }
+                        }
+
+                        mDisplayIds = updatedDisplayIds;
+                        if (DBG) {
+                            Slogf.d(TAG, "Display ids are updated to: %s", mDisplayIds);
+                        }
+                    }
+
+                    if (newlyAddedDisplayIds.size() > 0) {
+                        // Initialize UxR on newly added displays.
+                        initializeUxRestrictions(newlyAddedDisplayIds);
+                    }
+                }
+            };
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
             CarPropertyService propertyService, CarOccupantZoneService carOccupantZoneService) {
@@ -246,12 +323,16 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         synchronized (mLock) {
             initDisplayIdsLocked();
 
+            // If getCurrentUxRestrictions() is called before init(), null will be returned.
+            mCurrentUxRestrictions = new SparseArray<>(8);
+
             // Unrestricted until driving state information is received. During boot up, we don't
             // want everything to be blocked until data is available from CarPropertyManager.
             // If we start driving and still don't get speed or gear information,
             // we have bigger problems.
             CarUxRestrictions unrestrictedRestrictions = createUnrestrictedRestrictions();
-            for (Integer displayId : mDisplayIds) {
+            for (int i = 0; i < mDisplayIds.size(); i++) {
+                int displayId = mDisplayIds.get(i);
                 mCurrentUxRestrictions.put(displayId, unrestrictedRestrictions);
             }
 
@@ -260,14 +341,21 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mCarUxRestrictionsConfigurations = convertToMapLocked(loadConfig());
         }
 
-        // subscribe to driving state changes
+        // Subscribe to driving state changes.
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
-        // subscribe to property service for speed
+        // Subscribe to property service for speed.
         mCarPropertyService.registerListenerSafe(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
 
-        initializeUxRestrictions();
+        IntArray displayIds;
+        synchronized (mLock) {
+            displayIds = IntArray.fromArray(mDisplayIds.toArray(), mDisplayIds.size());
+        }
+        initializeUxRestrictions(displayIds);
+
+        // Register callback to respond to display changes and update UxRs on changed displays.
+        mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
     }
 
     @Override
@@ -319,7 +407,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         configs = new ArrayList<>();
         synchronized (mLock) {
-            for (int displayId : mDisplayIds) {
+            for (int i = 0; i < mDisplayIds.size(); i++) {
+                int displayId = mDisplayIds.get(i);
                 DisplayIdentifier displayIdentifier = getDisplayIdentifier(displayId);
                 if (displayIdentifier == null) {
                     Slogf.e(TAG, "loadConfig: cannot map display id %d to DisplayIdentifier",
@@ -372,13 +461,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
     }
 
-    // Update current restrictions by getting the current driving state and speed.
-    private void initializeUxRestrictions() {
+    // Update current restrictions on the given displays by getting the current driving state and
+    // speed.
+    private void initializeUxRestrictions(IntArray displayIds) {
         CarDrivingStateEvent currentDrivingStateEvent =
                 mDrivingStateService.getCurrentDrivingState();
         // if we don't have enough information from the CarPropertyService to compute the UX
-        // restrictions, then leave the UX restrictions unchanged from what it was initialized to
-        // in the constructor.
+        // restrictions, then leave the UX restrictions unchanged from what it was initialized to.
         if (currentDrivingStateEvent == null
                 || currentDrivingStateEvent.eventValue == DRIVING_STATE_UNKNOWN) {
             return;
@@ -388,7 +477,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         // compute the UX restrictions that could be potentially different from the initial UX
         // restrictions.
         synchronized (mLock) {
-            handleDrivingStateEventLocked(currentDrivingStateEvent);
+            handleDrivingStateEventOnDisplaysLocked(currentDrivingStateEvent, displayIds);
         }
     }
 
@@ -455,6 +544,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      *
      * @param displayId UX restrictions on this display will be returned.
      */
+    @Nullable
     @Override
     public CarUxRestrictions getCurrentUxRestrictions(int displayId) {
         CarUxRestrictions restrictions = null;
@@ -725,7 +815,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             } else {
                 // fake parked state, so if the system is currently restricted, the restrictions are
                 // relaxed.
-                handleDispatchUxRestrictionsLocked(DRIVING_STATE_PARKED, /* speed= */ 0f);
+                handleDispatchUxRestrictionsLocked(DRIVING_STATE_PARKED, /* speed= */ 0f,
+                        mDisplayIds);
                 mUxRChangeBroadcastEnabled = false;
             }
         }
@@ -745,10 +836,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             writer.increaseIndent();
             BinderHelper.dumpRemoteCallbackList(mUxRClients, writer);
             writer.decreaseIndent();
-
-            for (int displayId : mCurrentUxRestrictions.keySet()) {
-                CarUxRestrictions restrictions = mCurrentUxRestrictions.get(displayId);
-                writer.printf("Display id: %d UXR: %s\n", displayId, restrictions.toString());
+            for (int i = 0; i < mCurrentUxRestrictions.size(); i++) {
+                writer.printf("Display id: %d UXR: %s\n", mCurrentUxRestrictions.keyAt(i),
+                        mCurrentUxRestrictions.valueAt(i));
             }
             if (isDebugBuild()) {
                 writer.println("mUxRChangeBroadcastEnabled? " + mUxRChangeBroadcastEnabled);
@@ -781,13 +871,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             };
 
     /**
-     * Handle the driving state change events coming from the {@link CarDrivingStateService}.
-     * Map the driving state to the corresponding UX Restrictions and dispatch the
+     * Handles the driving state change events coming from the {@link CarDrivingStateService} on
+     * the given displays.
+     * <p>Maps the driving state to the corresponding UX Restrictions and dispatch the
      * UX Restriction change to the registered clients.
      */
-    @VisibleForTesting
     @GuardedBy("mLock")
-    void handleDrivingStateEventLocked(CarDrivingStateEvent event) {
+    void handleDrivingStateEventOnDisplaysLocked(CarDrivingStateEvent event,
+            IntArray displayIds) {
         if (event == null) {
             return;
         }
@@ -796,12 +887,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         if (currentSpeed.isPresent()) {
             mCurrentMovingSpeed = currentSpeed.get();
-            handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed);
+            handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed, displayIds);
         } else if (drivingState != DRIVING_STATE_MOVING) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
             // handled.
             logd("Speed null when driving state is: " + drivingState);
-            handleDispatchUxRestrictionsLocked(drivingState, /* speed= */ 0f);
+            handleDispatchUxRestrictionsLocked(drivingState, /* speed= */ 0f, displayIds);
         } else {
             // If we get here, it means the car is moving while the speed is unavailable.
             // This only happens in the case of a fault. We should take the safest route by assuming
@@ -809,8 +900,22 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Slogf.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
             logd("Treating speed null when driving state is: " + drivingState
                     + " as in highest speed range");
-            handleDispatchUxRestrictionsLocked(DRIVING_STATE_MOVING, /* speed= */ MAX_SPEED);
+            handleDispatchUxRestrictionsLocked(DRIVING_STATE_MOVING, /* speed= */ MAX_SPEED,
+                    displayIds);
         }
+    }
+
+    /**
+     * Handles the driving state change events coming from the {@link CarDrivingStateService} on
+     * all displays.
+     *
+     * <p>Maps the driving state to the corresponding UX Restrictions and dispatch the
+     * UX Restriction change to the registered clients.
+     */
+    @VisibleForTesting
+    @GuardedBy("mLock")
+    void handleDrivingStateEventLocked(CarDrivingStateEvent event) {
+        handleDrivingStateEventOnDisplaysLocked(event, mDisplayIds);
     }
 
     /**
@@ -848,21 +953,22 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             // Ignore speed changes if the vehicle is not moving
             return;
         }
-        handleDispatchUxRestrictionsLocked(currentDrivingState, mCurrentMovingSpeed);
+        handleDispatchUxRestrictionsLocked(currentDrivingState, mCurrentMovingSpeed, mDisplayIds);
     }
 
     /**
-     * Handle dispatching UX restrictions change.
+     * Handle dispatching UX restrictions change on a set of display ids.
      *
      * <p> This method also handles the special case when the car is moving but its speed
      * is unavailable in which case highest speed will be assumed.
      *
      * @param currentDrivingState driving state of the vehicle
      * @param speed               speed of the vehicle
+     * @param displayIds          Ids of displays on which to dispatch Ux restrictions change
      */
     @GuardedBy("mLock")
     private void handleDispatchUxRestrictionsLocked(@CarDrivingState int currentDrivingState,
-            @FloatRange(from = 0f) float speed) {
+            @FloatRange(from = 0f) float speed, IntArray displayIds) {
         Objects.requireNonNull(mCarUxRestrictionsConfigurations,
                 "mCarUxRestrictionsConfigurations must be initialized");
         Objects.requireNonNull(mCurrentUxRestrictions,
@@ -873,8 +979,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        Map<Integer, CarUxRestrictions> newUxRestrictions = new ArrayMap<>();
-        for (int displayId : mDisplayIds) {
+        // keep track of only those changed UxR for dispatching.
+        SparseArray<CarUxRestrictions> updatedUxRestrictions = new SparseArray<>(
+                INITIAL_DISPLAYS_SIZE);
+        IntArray displaysToDispatch = new IntArray(INITIAL_DISPLAYS_SIZE);
+        for (int i = 0; i < displayIds.size(); i++) {
+            int displayId = displayIds.get(i);
             if (DBG) {
                 Slogf.d(TAG,
                         "handleDispatchUxRestrictionsLocked: Recalculating UxR for display %d...",
@@ -913,48 +1023,42 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 }
             }
 
-            if (DBG) {
-                Slogf.d(TAG, "Display id %d\tDO old->new: %b -> %b", displayId,
-                        mCurrentUxRestrictions.get(displayId)
-                                .isRequiresDistractionOptimization(),
-                        uxRestrictions.isRequiresDistractionOptimization());
-                Slogf.d(TAG, "Display id %d\tUxR old->new: 0x%x -> 0x%x", displayId,
-                        mCurrentUxRestrictions.get(displayId).getActiveRestrictions(),
-                        uxRestrictions.getActiveRestrictions());
-            }
-            newUxRestrictions.put(displayId, uxRestrictions);
-        }
-
-        // Ignore dispatching if the restrictions have not changed.
-        Set<Integer> displayToDispatch = new ArraySet<>();
-        for (int displayId : newUxRestrictions.keySet()) {
-            if (!mCurrentUxRestrictions.containsKey(displayId)) {
+            if (!mCurrentUxRestrictions.contains(displayId)) {
                 // This should never happen.
-                // TODO(b/241589812): Re-check this assumption after responding to display changes.
                 Slogf.wtf(TAG, "handleDispatchUxRestrictionsLocked: Unrecognized display %d:"
                         + " in new UxR", displayId);
                 continue;
             }
-            CarUxRestrictions uxRestrictions = newUxRestrictions.get(displayId);
             CarUxRestrictions currentUxRestrictions = mCurrentUxRestrictions.get(displayId);
+            if (DBG) {
+                Slogf.d(TAG, "Display id %d\tDO old->new: %b -> %b", displayId,
+                        currentUxRestrictions.isRequiresDistractionOptimization(),
+                        uxRestrictions.isRequiresDistractionOptimization());
+                Slogf.d(TAG, "Display id %d\tUxR old->new: 0x%x -> 0x%x", displayId,
+                        currentUxRestrictions.getActiveRestrictions(),
+                        uxRestrictions.getActiveRestrictions());
+            }
             if (!currentUxRestrictions.isSameRestrictions(uxRestrictions)) {
-                displayToDispatch.add(displayId);
+                if (DBG) {
+                    Slogf.d(TAG, "Updating UxR on display %d", displayId);
+                }
+                // Update UxR for displayId in place.
+                mCurrentUxRestrictions.put(displayId, uxRestrictions);
+                // Ignore dispatching if the restrictions have not changed.
+                displaysToDispatch.add(displayId);
+                updatedUxRestrictions.put(displayId, uxRestrictions);
                 addTransitionLogLocked(currentUxRestrictions, uxRestrictions);
             }
         }
-        if (displayToDispatch.isEmpty()) {
-            return;
+
+        if (displaysToDispatch.size() != 0) {
+            dispatchRestrictionsToClientsLocked(updatedUxRestrictions, displaysToDispatch);
         }
-
-        dispatchRestrictionsToClients(newUxRestrictions, displayToDispatch);
-
-        mCurrentUxRestrictions = newUxRestrictions;
     }
 
-    // TODO(b/241589812): Respond to display changes to support UxR on virtual displays.
-    private void dispatchRestrictionsToClients(
-            Map<Integer, CarUxRestrictions> displayRestrictions,
-            Set<Integer> displayToDispatch) {
+    private void dispatchRestrictionsToClientsLocked(
+            SparseArray<CarUxRestrictions> updatedUxRestrictions,
+            IntArray displaysToDispatch) {
         logd("dispatching to clients");
         boolean success = mClientDispatchHandler.post(() -> {
             int numClients = mUxRClients.beginBroadcast();
@@ -962,13 +1066,19 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 ICarUxRestrictionsChangeListener callback = mUxRClients.getBroadcastItem(i);
                 RemoteCallbackListCookie cookie =
                         (RemoteCallbackListCookie) mUxRClients.getBroadcastCookie(i);
-                if (!displayToDispatch.contains(cookie.mDisplayId)) {
+                if (displaysToDispatch.indexOf(cookie.mDisplayId) == -1) {
                     continue;
                 }
-                CarUxRestrictions restrictions = displayRestrictions.get(cookie.mDisplayId);
+                CarUxRestrictions restrictions = updatedUxRestrictions.get(cookie.mDisplayId);
                 if (restrictions == null) {
-                    // don't dispatch to displays without configurations
+                    // Don't dispatch to displays without configurations
+                    Slogf.w(TAG, "Can't find UxR on display %d for dispatching",
+                            cookie.mDisplayId);
                     continue;
+                }
+                if (DBG) {
+                    Slogf.d(TAG, "Dispatching UxR change %s to display %d", restrictions,
+                            cookie.mDisplayId);
                 }
                 try {
                     callback.onUxRestrictionsChanged(restrictions);
@@ -981,7 +1091,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         });
 
         if (!success) {
-            Slogf.e(TAG, "Unable to post (" + displayRestrictions + ") event to dispatch handler");
+            Slogf.e(TAG, "Failed to post Ux Restrictions changes event to dispatch handler");
         }
     }
 
