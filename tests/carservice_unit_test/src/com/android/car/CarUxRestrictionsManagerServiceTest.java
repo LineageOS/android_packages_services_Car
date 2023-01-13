@@ -21,6 +21,8 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
+import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_FULLY_RESTRICTED;
+import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
@@ -165,6 +167,7 @@ public class CarUxRestrictionsManagerServiceTest {
         assertFalse(mService.saveUxRestrictionsConfigurationForNextBoot(Arrays.asList(spyConfig)));
     }
 
+    // TODO(b/241589812): Change assertions to go/truth expectatons.
     @Test
     public void testLoadConfig_UseDefaultConfigWhenNoSavedConfigFileNoXml() {
         // Prevent R.xml.car_ux_restrictions_map being returned.
@@ -173,7 +176,23 @@ public class CarUxRestrictionsManagerServiceTest {
         doReturn(null).when(spyResources).getXml(anyInt());
 
         for (CarUxRestrictionsConfiguration config : mService.loadConfig()) {
-            assertTrue(config.equals(mService.createDefaultConfig(config.getPhysicalPort())));
+            CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING,
+                    MAX_SPEED);
+            assertTrue(movingRestrictions.isRequiresDistractionOptimization());
+            assertEquals(movingRestrictions.getActiveRestrictions(),
+                    UX_RESTRICTIONS_FULLY_RESTRICTED);
+
+            CarUxRestrictions parkedRestrictions = config.getUxRestrictions(DRIVING_STATE_PARKED,
+                    0f);
+            assertFalse(parkedRestrictions.isRequiresDistractionOptimization());
+            assertEquals(parkedRestrictions.getActiveRestrictions(),
+                    UX_RESTRICTIONS_BASELINE);
+
+            CarUxRestrictions idlingRestrictions = config.getUxRestrictions(DRIVING_STATE_IDLING,
+                    0f);
+            assertFalse(idlingRestrictions.isRequiresDistractionOptimization());
+            assertEquals(idlingRestrictions.getActiveRestrictions(),
+                    UX_RESTRICTIONS_BASELINE);
         }
     }
 
@@ -325,7 +344,7 @@ public class CarUxRestrictionsManagerServiceTest {
         mService.validateConfigs(Arrays.asList(createEmptyConfig(null), createEmptyConfig(null)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     public void testValidateConfigs_MultipleConfigsMustHaveUniquePort() throws Exception {
         mService.validateConfigs(Arrays.asList(
                 createEmptyConfig(0), createEmptyConfig(0)));

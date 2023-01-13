@@ -16,7 +16,6 @@
 
 package com.android.car.occupantconnection;
 
-import static android.car.Car.CAR_OCCUPANT_CONNECTION_SERVICE;
 import static android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
@@ -24,6 +23,7 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assume.assumeNotNull;
 
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -57,8 +57,13 @@ public final class CarOccupantConnectionManagerPermissionTest {
     @Before
     public void setUp() {
         Car car = Objects.requireNonNull(Car.createCar(mContext, (Handler) null));
-        mCarOccupantConnectionManager = (CarOccupantConnectionManager) car.getCarManager(
-                CAR_OCCUPANT_CONNECTION_SERVICE);
+        mCarOccupantConnectionManager = car.getCarManager(CarOccupantConnectionManager.class);
+        // CarOccupantConnectionManager is available on multi-display builds only.
+        // TODO(b/265091454): annotate the test with @RequireMultipleUsersOnMultipleDisplays.
+        assumeNotNull(
+                "Skip the test because CarOccupantConnectionManager is not available on this build",
+                mCarOccupantConnectionManager);
+
         mReceiverZone = new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER,
                 SEAT_ROW_1_LEFT);
     }

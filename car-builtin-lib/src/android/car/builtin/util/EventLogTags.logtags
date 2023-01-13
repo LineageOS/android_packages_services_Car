@@ -97,6 +97,14 @@ option java_package android.car.builtin.util
 150129 car_user_svc_initial_user_info_req_complete (request_type|1)
 150130 car_user_svc_logout_user_req (user_id|1),(timeout|1)
 150131 car_user_svc_logout_user_resp (hal_callback_status|1),(user_switch_status|1),(error_message|3)
+### InitialSetter is part of CarUserService.
+150132 car_initial_user_start_fg_user (user_id|1)
+150133 car_initial_user_info (type|1), (replace_guest|1), (switch_user_id|1), (new_user_name|3), (new_user_flags|1), (supports_override_user_id_property|1), (user_locales|3)
+150134 car_initial_user_fallback_default_behavior (reason|3)
+150135 car_initial_user_replace_guest (user_id|1)
+150136 car_initial_user_unlock_system_user
+150137 car_initial_user_set_last_active (user_id|1)
+150138 car_initial_user_reset_global_property (name|3)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
 150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)

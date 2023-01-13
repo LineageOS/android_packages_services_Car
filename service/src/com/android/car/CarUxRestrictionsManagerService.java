@@ -34,11 +34,11 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.VehicleAreaType;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
-import android.car.builtin.view.DisplayHelper;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
@@ -61,12 +61,12 @@ import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
-import android.util.SparseIntArray;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -91,7 +91,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -152,27 +151,64 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * Metadata associated with a binder callback.
      */
     private static class RemoteCallbackListCookie {
-        final Integer mPhysicalPort;
+        final int mDisplayId;
 
-        RemoteCallbackListCookie(Integer physicalPort) {
-            mPhysicalPort = physicalPort;
+        RemoteCallbackListCookie(int displayId) {
+            mDisplayId = displayId;
         }
     }
 
     private final Object mLock = new Object();
 
-    /**
-     * This lookup caches the mapping from an int display id to an int that represents a physical
-     * port.
-     */
-    @GuardedBy("mLock")
-    private final SparseIntArray mPortLookup = new SparseIntArray();
+    // DisplayIdentifier identifies a display by the combination of occupant zone id and display
+    // type.
+    private static final class DisplayIdentifier {
+        public final int occupantZoneId;
+        public final int displayType;
+        private int mHashCode;
 
-    @GuardedBy("mLock")
-    private Map<Integer, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
+        DisplayIdentifier(int occupantZoneId, int displayType) {
+            this.displayType = displayType;
+            this.occupantZoneId = occupantZoneId;
+        }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || !(o instanceof DisplayIdentifier)) {
+                return false;
+            }
+            DisplayIdentifier that = (DisplayIdentifier) o;
+            return occupantZoneId == that.occupantZoneId
+                && displayType == that.displayType;
+        }
+
+        @Override
+        public int hashCode() {
+            if (mHashCode == 0) {
+                mHashCode = Objects.hash(occupantZoneId, displayType);
+            }
+            return mHashCode;
+        }
+
+        @Override
+        public String toString() {
+            return "{occupantZoneId=" + occupantZoneId + " displayType="
+                    + Integer.toHexString(displayType) + "}";
+        }
+    }
+
+    // In memory representation of Ux Restrictions config, key'ed by display id by zone
+    // (occupant zone id, display type).
     @GuardedBy("mLock")
-    private Map<Integer, CarUxRestrictions> mCurrentUxRestrictions;
+    private Map<DisplayIdentifier, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
+
+    // TODO(b/241589812): Change to SparseIntArray.
+    // Current Ux Restrictions, key'ed by logical display id.
+    @GuardedBy("mLock")
+    private Map<Integer, CarUxRestrictions> mCurrentUxRestrictions = new ArrayMap<>();
 
     @GuardedBy("mLock")
     private String mRestrictionMode = UX_RESTRICTION_MODE_BASELINE;
@@ -180,12 +216,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @GuardedBy("mLock")
     private float mCurrentMovingSpeed;
 
-    // Represents a physical port for display.
+    // DisplayIdentifier for the default display.
     @GuardedBy("mLock")
-    private int mDefaultDisplayPhysicalPort;
+    private DisplayIdentifier mDefaultDisplayIdentifier;
 
+    // Logical display ids for all displays.
     @GuardedBy("mLock")
-    private final List<Integer> mPhysicalPorts = new ArrayList<>();
+    private final Set<Integer> mDisplayIds = new ArraySet<>();
 
     // Flag to disable broadcasting UXR changes - for development purposes
     @GuardedBy("mLock")
@@ -207,21 +244,20 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public void init() {
         synchronized (mLock) {
-            initPhysicalPortLocked();
+            initDisplayIdsLocked();
 
             // Unrestricted until driving state information is received. During boot up, we don't
-            // want
-            // everything to be blocked until data is available from CarPropertyManager.  If we
-            // start
-            // driving and we don't get speed or gear information, we have bigger problems.
-            mCurrentUxRestrictions = new HashMap<>();
-            for (int port : mPhysicalPorts) {
-                mCurrentUxRestrictions.put(port, createUnrestrictedRestrictions());
+            // want everything to be blocked until data is available from CarPropertyManager.
+            // If we start driving and still don't get speed or gear information,
+            // we have bigger problems.
+            CarUxRestrictions unrestrictedRestrictions = createUnrestrictedRestrictions();
+            for (Integer displayId : mDisplayIds) {
+                mCurrentUxRestrictions.put(displayId, unrestrictedRestrictions);
             }
 
             // Load the prod config, or if there is a staged one, promote that first only if the
             // current driving state, as provided by the driving state service, is parked.
-            mCarUxRestrictionsConfigurations = convertToMap(loadConfig());
+            mCarUxRestrictionsConfigurations = convertToMapLocked(loadConfig());
         }
 
         // subscribe to driving state changes
@@ -283,8 +319,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
         configs = new ArrayList<>();
         synchronized (mLock) {
-            for (int port : mPhysicalPorts) {
-                configs.add(createDefaultConfig(port));
+            for (int displayId : mDisplayIds) {
+                DisplayIdentifier displayIdentifier = getDisplayIdentifier(displayId);
+                if (displayIdentifier == null) {
+                    Slogf.e(TAG, "loadConfig: cannot map display id %d to DisplayIdentifier",
+                            displayId);
+                    continue;
+                }
+                configs.add(createDefaultConfig(displayIdentifier));
             }
         }
         return configs;
@@ -390,15 +432,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Slogf.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
-        int physicalPort;
-        synchronized (mLock) {
-            physicalPort = getPhysicalPortLocked(displayId);
-            if (physicalPort == DisplayHelper.INVALID_PORT) {
-                Slogf.e(TAG, "Invalid displayId=" + displayId);
-                return;
-            }
-        }
-        mUxRClients.register(listener, new RemoteCallbackListCookie(physicalPort));
+        mUxRClients.register(listener, new RemoteCallbackListCookie(displayId));
     }
 
     /**
@@ -424,7 +458,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public CarUxRestrictions getCurrentUxRestrictions(int displayId) {
         CarUxRestrictions restrictions = null;
-        int physicalPort = DisplayHelper.INVALID_PORT;
+        if (DBG) {
+            Slogf.d(TAG, "getCurrentUxRestrictions: display id %d", displayId);
+        }
         synchronized (mLock) {
             if (mCurrentUxRestrictions == null) {
                 Slogf.wtf(TAG, "getCurrentUxRestrictions() called before init()");
@@ -435,21 +471,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 Slogf.d(TAG, "Returning unrestricted UX Restriction due to setting");
                 return createUnrestrictedRestrictions();
             }
-            physicalPort = getPhysicalPortLocked(displayId);
-            if (physicalPort != DisplayHelper.INVALID_PORT) {
-                restrictions = mCurrentUxRestrictions.get(physicalPort);
-            }
+            restrictions = mCurrentUxRestrictions.get(displayId);
         }
 
         if (restrictions == null) {
-            if (physicalPort == DisplayHelper.INVALID_PORT) {
-                Slogf.e(TAG, "Invalid physical port for displayId: " + displayId
-                        + ". Returning full restrictions.");
-
-            } else {
-                Slogf.e(TAG, "Cannot find restrictions for displayId: %d with physical port %d"
-                        + ". Returning full restrictions.", displayId, physicalPort);
-            }
+            Slogf.e(TAG, "Cannot find restrictions for displayId: %d"
+                    + ". Returning full restrictions.", displayId);
             restrictions = createFullyRestrictedRestrictions();
         }
         return restrictions;
@@ -567,7 +594,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         jsonWriter.name(JSON_NAME_SCHEMA_VERSION).value(JSON_SCHEMA_VERSION_V2);
         jsonWriter.name(JSON_NAME_RESTRICTIONS);
         jsonWriter.beginArray();
-        for (CarUxRestrictionsConfiguration config : configs) {
+        for (int i = 0; i < configs.size(); i++) {
+            CarUxRestrictionsConfiguration config = configs.get(i);
             config.writeJson(jsonWriter);
         }
         jsonWriter.endArray();
@@ -718,9 +746,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             BinderHelper.dumpRemoteCallbackList(mUxRClients, writer);
             writer.decreaseIndent();
 
-            for (int port : mCurrentUxRestrictions.keySet()) {
-                CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
-                writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());
+            for (int displayId : mCurrentUxRestrictions.keySet()) {
+                CarUxRestrictions restrictions = mCurrentUxRestrictions.get(displayId);
+                writer.printf("Display id: %d UXR: %s\n", displayId, restrictions.toString());
             }
             if (isDebugBuild()) {
                 writer.println("mUxRChangeBroadcastEnabled? " + mUxRChangeBroadcastEnabled);
@@ -794,7 +822,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 @Override
                 public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
                     synchronized (mLock) {
-                        for (CarPropertyEvent event : events) {
+                        for (int i = 0; i < events.size(); i++) {
+                            CarPropertyEvent event = events.get(i);
                             if ((event.getEventType()
                                     == CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE)
                                     && (event.getCarPropertyValue().getPropertyId()
@@ -844,48 +873,77 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        Map<Integer, CarUxRestrictions> newUxRestrictions = new HashMap<>();
-        for (int port : mPhysicalPorts) {
-            CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(port);
+        Map<Integer, CarUxRestrictions> newUxRestrictions = new ArrayMap<>();
+        for (int displayId : mDisplayIds) {
+            if (DBG) {
+                Slogf.d(TAG,
+                        "handleDispatchUxRestrictionsLocked: Recalculating UxR for display %d...",
+                        displayId);
+            }
+
             CarUxRestrictions uxRestrictions;
-            if (config == null) {
-                // If UxR config is not found for a physical port, assume it's fully restricted.
+            // Map logical display to DisplayIdentifier to get UxR from config based on
+            // DisplayIdentifier.
+            DisplayIdentifier displayIdentifier = getDisplayIdentifier(displayId);
+            if (displayIdentifier == null) {
+                Slogf.w(TAG,
+                        "handleDispatchUxRestrictionsLocked: cannot map display id %d to"
+                        + " DisplayIdentifier based on which to get UxR from config,"
+                        + " defaulting to fully restricted restrictions",
+                        displayId);
                 uxRestrictions = createFullyRestrictedRestrictions();
             } else {
-                uxRestrictions = config.getUxRestrictions(
-                        currentDrivingState, speed, mRestrictionMode);
+                if (DBG) {
+                    Slogf.d(TAG,
+                            "handleDispatchUxRestrictionsLocked: mapped display id %d to"
+                            + " DisplayIdentifier %s", displayId, displayIdentifier);
+                }
+                CarUxRestrictionsConfiguration config = mCarUxRestrictionsConfigurations.get(
+                        displayIdentifier);
+                if (config == null) {
+                    Slogf.w(TAG,
+                            "handleDispatchUxRestrictionsLocked: cannot find UxR"
+                            + " DisplayIdentifier %s from config, defaulting to fully restricted"
+                            + " restrictions", displayIdentifier);
+                    // If UxR config is not found for a physical port, assume it's fully restricted.
+                    uxRestrictions = createFullyRestrictedRestrictions();
+                } else {
+                    uxRestrictions = config.getUxRestrictions(
+                            currentDrivingState, speed, mRestrictionMode);
+                }
             }
-            logd(String.format("Display port 0x%02x\tDO old->new: %b -> %b",
-                    port,
-                    mCurrentUxRestrictions.get(port).isRequiresDistractionOptimization(),
-                    uxRestrictions.isRequiresDistractionOptimization()));
-            logd(String.format("Display port 0x%02x\tUxR old->new: 0x%x -> 0x%x",
-                    port,
-                    mCurrentUxRestrictions.get(port).getActiveRestrictions(),
-                    uxRestrictions.getActiveRestrictions()));
-            newUxRestrictions.put(port, uxRestrictions);
+
+            if (DBG) {
+                Slogf.d(TAG, "Display id %d\tDO old->new: %b -> %b", displayId,
+                        mCurrentUxRestrictions.get(displayId)
+                                .isRequiresDistractionOptimization(),
+                        uxRestrictions.isRequiresDistractionOptimization());
+                Slogf.d(TAG, "Display id %d\tUxR old->new: 0x%x -> 0x%x", displayId,
+                        mCurrentUxRestrictions.get(displayId).getActiveRestrictions(),
+                        uxRestrictions.getActiveRestrictions());
+            }
+            newUxRestrictions.put(displayId, uxRestrictions);
         }
 
-        // Ignore dispatching if the restrictions has not changed.
+        // Ignore dispatching if the restrictions have not changed.
         Set<Integer> displayToDispatch = new ArraySet<>();
-        for (int port : newUxRestrictions.keySet()) {
-            if (!mCurrentUxRestrictions.containsKey(port)) {
+        for (int displayId : newUxRestrictions.keySet()) {
+            if (!mCurrentUxRestrictions.containsKey(displayId)) {
                 // This should never happen.
-                Slogf.wtf(TAG, "Unrecognized port:" + port);
+                // TODO(b/241589812): Re-check this assumption after responding to display changes.
+                Slogf.wtf(TAG, "handleDispatchUxRestrictionsLocked: Unrecognized display %d:"
+                        + " in new UxR", displayId);
                 continue;
             }
-            CarUxRestrictions uxRestrictions = newUxRestrictions.get(port);
-            if (!mCurrentUxRestrictions.get(port).isSameRestrictions(uxRestrictions)) {
-                displayToDispatch.add(port);
+            CarUxRestrictions uxRestrictions = newUxRestrictions.get(displayId);
+            CarUxRestrictions currentUxRestrictions = mCurrentUxRestrictions.get(displayId);
+            if (!currentUxRestrictions.isSameRestrictions(uxRestrictions)) {
+                displayToDispatch.add(displayId);
+                addTransitionLogLocked(currentUxRestrictions, uxRestrictions);
             }
         }
         if (displayToDispatch.isEmpty()) {
             return;
-        }
-
-        for (int port : displayToDispatch) {
-            addTransitionLogLocked(
-                    mCurrentUxRestrictions.get(port), newUxRestrictions.get(port));
         }
 
         dispatchRestrictionsToClients(newUxRestrictions, displayToDispatch);
@@ -893,7 +951,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mCurrentUxRestrictions = newUxRestrictions;
     }
 
-    private void dispatchRestrictionsToClients(Map<Integer, CarUxRestrictions> displayRestrictions,
+    // TODO(b/241589812): Respond to display changes to support UxR on virtual displays.
+    private void dispatchRestrictionsToClients(
+            Map<Integer, CarUxRestrictions> displayRestrictions,
             Set<Integer> displayToDispatch) {
         logd("dispatching to clients");
         boolean success = mClientDispatchHandler.post(() -> {
@@ -902,10 +962,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 ICarUxRestrictionsChangeListener callback = mUxRClients.getBroadcastItem(i);
                 RemoteCallbackListCookie cookie =
                         (RemoteCallbackListCookie) mUxRClients.getBroadcastCookie(i);
-                if (!displayToDispatch.contains(cookie.mPhysicalPort)) {
+                if (!displayToDispatch.contains(cookie.mDisplayId)) {
                     continue;
                 }
-                CarUxRestrictions restrictions = displayRestrictions.get(cookie.mPhysicalPort);
+                CarUxRestrictions restrictions = displayRestrictions.get(cookie.mDisplayId);
                 if (restrictions == null) {
                     // don't dispatch to displays without configurations
                     continue;
@@ -926,8 +986,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @GuardedBy("mLock")
-    private void initPhysicalPortLocked() {
-        // Populate the physical ports of all displays in all occupant zones.
+    private void initDisplayIdsLocked() {
+        // Populate logical display ids of all displays in all occupant zones.
         List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
                 mCarOccupantZoneService.getAllOccupantZones();
         for (int i = 0; i < occupantZoneInfos.size(); i++) {
@@ -936,62 +996,114 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             int[] displayIds = mCarOccupantZoneService.getAllDisplaysForOccupantZone(zoneId);
             for (int j = 0; j < displayIds.length; j++) {
                 int displayId = displayIds[j];
-                int port = getPhysicalPortLocked(displayId);
-                if (port == DisplayHelper.INVALID_PORT) {
-                    Slogf.w(TAG, "Invalid physical port for display id %d", displayId);
-                    // Skip if the display id can not be mapped back to a physical port.
-                    continue;
-                }
-                mPhysicalPorts.add(port);
+                Slogf.i(TAG, "initDisplayIdsLocked: adding display: %d", displayId);
+                mDisplayIds.add(displayId);
             }
         }
 
-        // Find the default physical port from driver main display.
+        // Find the default display id by zone from driver main display.
+        // This will be used when UxR config does not specify display id.
         IntArray displayIds = mCarOccupantZoneService.getAllDisplayIdsForDriver(DISPLAY_TYPE_MAIN);
-        Slogf.d(TAG, "Driver displayIds: " + Arrays.toString(displayIds.toArray()));
+        if (DBG) {
+            Slogf.d(TAG, "Driver displayIds: " + Arrays.toString(displayIds.toArray()));
+        }
         if (displayIds.size() > 0) {
-            int driverMain = displayIds.get(0);
-            int port = getPhysicalPortLocked(driverMain);
-            if (port == DisplayHelper.INVALID_PORT) {
-                Slogf.w(TAG, "Invalid port for driver main display id %d", driverMain);
+            int driverMainDisplayId = displayIds.get(0);
+            DisplayIdentifier displayIdentifier = getDisplayIdentifier(driverMainDisplayId);
+            if (displayIdentifier == null) {
+                Slogf.w(TAG, "initDisplayIdsLocked: cannot map driver main display id %d"
+                        + " to DisplayIdentifier", driverMainDisplayId);
+                displayIdentifier = new DisplayIdentifier(
+                        CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID,
+                        CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN);
             }
-            // The first port from the driver displays will be the default port.
-            Slogf.i(TAG, "Setting default port to %d", port);
-            mDefaultDisplayPhysicalPort = port;
+            // The first display id from the driver displays will be the default display id.
+            Slogf.i(TAG, "initDisplayIdsLocked: setting default display id by zone to %s",
+                    displayIdentifier);
+            mDefaultDisplayIdentifier = displayIdentifier;
         } else {
-            Slogf.w(TAG, "Driver main display not found");
-            mDefaultDisplayPhysicalPort = DisplayHelper.INVALID_PORT;
+            Slogf.w(TAG, "initDisplayIdsLocked: driver main display not found");
+            mDefaultDisplayIdentifier = new DisplayIdentifier(
+                    CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID,
+                    CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN);
         }
     }
 
-    private Map<Integer, CarUxRestrictionsConfiguration> convertToMap(
+    @Nullable
+    private DisplayIdentifier getDisplayIdentifier(int displayId) {
+        CarOccupantZoneService.DisplayConfig displayConfig =
+                mCarOccupantZoneService.findDisplayConfigForDisplayId(displayId);
+        if (displayConfig == null) return null;
+        DisplayIdentifier displayIdentifier = new DisplayIdentifier(
+                displayConfig.occupantZoneId, displayConfig.displayType);
+        return displayIdentifier;
+    }
+
+    @Nullable
+    private DisplayIdentifier getDisplayIdentifierFromPort(int port) {
+        CarOccupantZoneService.DisplayConfig displayConfig =
+                mCarOccupantZoneService.findDisplayConfigForPort(port);
+        if (displayConfig == null) return null;
+        DisplayIdentifier displayIdentifier = new DisplayIdentifier(
+                displayConfig.occupantZoneId, displayConfig.displayType);
+        return displayIdentifier;
+    }
+
+    @GuardedBy("mLock")
+    private Map<DisplayIdentifier, CarUxRestrictionsConfiguration> convertToMapLocked(
             List<CarUxRestrictionsConfiguration> configs) {
         validateConfigs(configs);
 
-        Map<Integer, CarUxRestrictionsConfiguration> result = new HashMap<>();
+        Map<DisplayIdentifier, CarUxRestrictionsConfiguration> result = new ArrayMap<>();
+
         if (configs.size() == 1) {
             CarUxRestrictionsConfiguration config = configs.get(0);
-            synchronized (mLock) {
-                // When there is only one UxR mapping and it doesn't have physical port specified,
-                // the default physical port from the driver display will be assumed.
-                int port = config.getPhysicalPort() == null
-                        ? mDefaultDisplayPhysicalPort
-                        : config.getPhysicalPort();
-                result.put(port, config);
+            if (config.getPhysicalPort() == null
+                    && config.getOccupantZoneId() == OccupantZoneInfo.INVALID_ZONE_ID) {
+                // If no display is specified, the default from driver's main display
+                // is assumed.
+                result.put(mDefaultDisplayIdentifier, config);
+                return result;
             }
-        } else {
-            for (CarUxRestrictionsConfiguration config : configs) {
-                result.put(config.getPhysicalPort(), config);
+        }
+
+        for (int i = 0; i < configs.size(); i++) {
+            CarUxRestrictionsConfiguration config = configs.get(i);
+            DisplayIdentifier displayIdentifier;
+            // A display is specified either by physical port or the combination of occupant zone id
+            // and display type.
+            // Note: physical port and the combination of occupant zone id and display type won't
+            // coexist. This has been checked when parsing the UxR config.
+            if (config.getPhysicalPort() != null) {
+                displayIdentifier = getDisplayIdentifierFromPort(config.getPhysicalPort());
+                if (displayIdentifier != null) {
+                    if (DBG) {
+                        Slogf.d(TAG,
+                                "convertToMapLocked: port %d is mapped to DisplayIdentifier %s",
+                                config.getPhysicalPort(), displayIdentifier);
+                    }
+                } else {
+                    Slogf.w(TAG,
+                            "convertToMapLocked: port %d can't be mapped to DisplayIdentifier",
+                            config.getPhysicalPort());
+                    continue;
+                }
+            } else {
+                displayIdentifier = new DisplayIdentifier(
+                    config.getOccupantZoneId(), config.getDisplayType());
             }
+            result.put(displayIdentifier, config);
         }
         return result;
     }
 
     /**
      * Validates configs for multi-display:
-     * - share the same restrictions parameters;
-     * - each sets display port;
-     * - each has unique display port.
+     * <p><ol>
+     * <li> Each sets either display port or (occupant zone id, display type);
+     * <li> Display port is unique;
+     * <li> The combination of (occupant zone id, display type) is unique.
+     * </ol>
      */
     @VisibleForTesting
     void validateConfigs(List<CarUxRestrictionsConfiguration> configs) {
@@ -1003,54 +1115,34 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
 
-        CarUxRestrictionsConfiguration first = configs.get(0);
-        Set<Integer> existingPorts = new ArraySet<>();
-        for (CarUxRestrictionsConfiguration config : configs) {
-            if (!config.hasSameParameters(first)) {
-                // Input should have the same restriction parameters because:
-                // - it doesn't make sense otherwise; and
-                // - in format it matches how xml can only specify one set of parameters.
-                throw new IllegalArgumentException(
-                        "Configurations should have the same restrictions parameters.");
-            }
-
+        Set<Integer> existingPorts = new ArraySet<>(configs.size());
+        Set<DisplayIdentifier> existingDisplayIdentifiers = new ArraySet<>(configs.size());
+        for (int i = 0; i < configs.size(); i++) {
+            CarUxRestrictionsConfiguration config = configs.get(i);
             Integer port = config.getPhysicalPort();
-            if (port == null) {
+            int occupantZoneId = config.getOccupantZoneId();
+            if (port == null && occupantZoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
                 // Size was checked above; safe to assume there are multiple configs.
                 throw new IllegalArgumentException(
-                        "Input contains multiple configurations; each must set physical port.");
-            }
-            if (existingPorts.contains(port)) {
-                throw new IllegalArgumentException("Multiple configurations for port " + port);
+                        "Input contains multiple configurations; "
+                        + "each must set physical port or the combination of occupant zone id "
+                        + "and display type");
             }
 
-            existingPorts.add(port);
-        }
-    }
-
-    /**
-     * Returns the physical port id for the display or {@code DisplayHelper.INVALID_PORT} if {@link
-     * DisplayManager#getDisplay(int)} is not aware of the provided id.
-     */
-    @Nullable
-    @GuardedBy("mLock")
-    private int getPhysicalPortLocked(int displayId) {
-        int index = mPortLookup.indexOfKey(displayId);
-        if (index < 0) {
-            Display display = mDisplayManager.getDisplay(displayId);
-            if (display == null) {
-                mPortLookup.delete(displayId);
-                Slogf.w(TAG, "Could not retrieve display for id: " + displayId);
-                return DisplayHelper.INVALID_PORT;
+            if (port != null) {
+                if (!existingPorts.add(port)) {
+                    throw new IllegalStateException("Multiple configurations for port " + port);
+                }
+            } else {
+                // TODO(b/241589812): Validate occupant zone.
+                DisplayIdentifier displayIdentifier = new DisplayIdentifier(
+                        occupantZoneId, config.getDisplayType());
+                if (!existingDisplayIdentifiers.add(displayIdentifier)) {
+                    throw new IllegalStateException(
+                            "Multiple configurations for " + displayIdentifier.toString());
+                }
             }
-            int port = DisplayHelper.getPhysicalPort(display);
-            if (port != DisplayHelper.INVALID_PORT) {
-                mPortLookup.put(displayId, port);
-            }
-            // Both valid port and invalid port will be returned here.
-            return port;
         }
-        return mPortLookup.valueAt(index);
     }
 
     private CarUxRestrictions createUnrestrictedRestrictions() {
@@ -1066,9 +1158,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 SystemClock.elapsedRealtimeNanos()).build();
     }
 
-    CarUxRestrictionsConfiguration createDefaultConfig(int port) {
+    CarUxRestrictionsConfiguration createDefaultConfig(DisplayIdentifier displayIdentifier) {
         return new CarUxRestrictionsConfiguration.Builder()
-                .setPhysicalPort(port)
+                .setOccupantZoneId(displayIdentifier.occupantZoneId)
+                .setDisplayType(displayIdentifier.displayType)
                 .setUxRestrictions(DRIVING_STATE_PARKED,
                         false, CarUxRestrictions.UX_RESTRICTIONS_BASELINE)
                 .setUxRestrictions(DRIVING_STATE_IDLING,
