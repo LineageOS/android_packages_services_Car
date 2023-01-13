@@ -116,5 +116,7 @@
         <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
         <!-- use for SimpleUserPickerFragment -->
         <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
+        <!-- use for DriveModeSwitchFragment -->
+        <permission name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
     </privapp-permissions>
 </permissions>
