@@ -26,7 +26,6 @@ import android.util.Log;
 
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -178,7 +177,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
         }
 
         private void assertNotForAnyEvent() {
-            Preconditions.checkState(!mForAnyEvent, "not allowed forAnyEvent()");
+            checkState(!mForAnyEvent, "not allowed forAnyEvent()");
         }
     }
 
@@ -189,7 +188,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
 
             mAllReceivedEvents.add(event);
 
-            if (expectingSpecificUser() && event.getUserId() != mForUserId) {
+            if (expectingSpecificUser() && event.getUserHandle().getIdentifier() != mForUserId) {
                 Log.w(TAG, "ignoring event for different user (expecting " + mForUserId + ")");
                 return;
             }
@@ -227,7 +226,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
      */
     @Nullable
     public UserLifecycleEvent waitForAnyEvent() throws InterruptedException {
-        Preconditions.checkState(isForAnyEvent(),
+        checkState(isForAnyEvent(),
                 "cannot call waitForEvent() when built with expected events");
         waitForExpectedEvents();
 
@@ -249,7 +248,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
      */
     @NonNull
     public List<UserLifecycleEvent> waitForEvents() throws InterruptedException {
-        Preconditions.checkState(!isForAnyEvent(),
+        checkState(!isForAnyEvent(),
                 "cannot call waitForEvents() when built without specific expected events");
         waitForExpectedEvents();
         List<UserLifecycleEvent> events;
@@ -265,7 +264,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
      */
     @NonNull
     public List<UserLifecycleEvent> getAllReceivedEvents() {
-        Preconditions.checkState(!isForAnyEvent(),
+        checkState(!isForAnyEvent(),
                 "cannot call getAllReceivedEvents() when built without specific expected events");
         synchronized (mLock) {
             return Collections.unmodifiableList(new ArrayList<>(mAllReceivedEvents));
@@ -316,5 +315,11 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
 
     private boolean expectingSpecificPreviousUser() {
         return mForPreviousUserId != null;
+    }
+
+    private static void checkState(boolean expression, String errorMessage) {
+        if (!expression) {
+            throw new IllegalStateException(errorMessage);
+        }
     }
 }
