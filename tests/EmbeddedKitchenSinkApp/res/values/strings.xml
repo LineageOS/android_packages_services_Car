@@ -432,4 +432,8 @@
         <item>FIFO</item>
         <item>Round-Robin</item>
     </string-array>
+
+    <!-- Drive Mode Switch -->
+    <string name="drive_mode_state" translatable="false">Drive Mode State</string>
+
 </resources>

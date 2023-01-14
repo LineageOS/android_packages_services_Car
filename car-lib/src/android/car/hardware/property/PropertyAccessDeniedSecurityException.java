@@ -26,6 +26,6 @@ import android.car.VehiclePropertyIds;
 public class PropertyAccessDeniedSecurityException extends SecurityException {
     PropertyAccessDeniedSecurityException(int propertyId, int areaId) {
         super("Cars denied the access of property ID: " + VehiclePropertyIds.toString(propertyId)
-                + " in area ID: " + toHexString(areaId));
+                + " in area ID: 0x" + toHexString(areaId));
     }
 }

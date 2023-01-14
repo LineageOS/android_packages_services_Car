@@ -801,7 +801,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_returnsFalseIfPropertyIdNotSupportedInVehicle()
+    public void testRegisterCallback_returnsFalseIfPropertyIdNotSupportedInVehicle()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VehiclePropertyIds.INVALID, FIRST_UPDATE_RATE_HZ)).isFalse();
@@ -810,7 +810,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersWithServiceOnFirstCallback() throws RemoteException {
+    public void testRegisterCallback_registersWithServiceOnFirstCallback() throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         verify(mICarProperty).registerListener(eq(VENDOR_CONTINUOUS_PROPERTY),
@@ -818,7 +818,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersWithMaxUpdateRateOnFirstCallback()
+    public void testRegisterCallback_registersWithMaxUpdateRateOnFirstCallback()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, MAX_UPDATE_RATE_HZ + 1)).isTrue();
@@ -827,7 +827,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersWithMinUpdateRateOnFirstCallback()
+    public void testRegisterCallback_registersWithMinUpdateRateOnFirstCallback()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, MIN_UPDATE_RATE_HZ - 1)).isTrue();
@@ -836,7 +836,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersWithOnChangeRateForOnChangeProperty()
+    public void testRegisterCallback_registersWithOnChangeRateForOnChangeProperty()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_ON_CHANGE_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
@@ -845,7 +845,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersWithOnChangeRateForStaticProperty()
+    public void testRegisterCallback_registersWithOnChangeRateForStaticProperty()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_STATIC_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
@@ -854,7 +854,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_returnsFalseForRemoteException() throws RemoteException {
+    public void testRegisterCallback_returnsFalseForRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
         doThrow(remoteException).when(mICarProperty).registerListener(eq(VENDOR_ON_CHANGE_PROPERTY),
                 eq(CarPropertyManager.SENSOR_RATE_ONCHANGE), any(ICarPropertyEventListener.class));
@@ -863,7 +863,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_recoversAfterFirstRemoteException() throws RemoteException {
+    public void testRegisterCallback_recoversAfterFirstRemoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
         doThrow(remoteException).doNothing().when(mICarProperty).registerListener(
                 eq(VENDOR_ON_CHANGE_PROPERTY), eq(CarPropertyManager.SENSOR_RATE_ONCHANGE),
@@ -877,7 +877,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersTwiceWithHigherRateCallback() throws RemoteException {
+    public void testRegisterCallback_registersTwiceWithHigherRateCallback() throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback2,
@@ -891,7 +891,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersOnSecondLowerRateWithSameCallback()
+    public void testRegisterCallback_registersOnSecondLowerRateWithSameCallback()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
@@ -906,7 +906,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_doesNotRegistersOnSecondLowerRateCallback()
+    public void testRegisterCallback_doesNotRegistersOnSecondLowerRateCallback()
             throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
@@ -917,7 +917,7 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testTegisterCallback_registersTwiceForDifferentProperties() throws RemoteException {
+    public void testRegisterCallback_registersTwiceForDifferentProperties() throws RemoteException {
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
                 VENDOR_CONTINUOUS_PROPERTY, FIRST_UPDATE_RATE_HZ)).isTrue();
         assertThat(mCarPropertyManager.registerCallback(mCarPropertyEventCallback,
