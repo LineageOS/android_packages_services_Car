@@ -16,48 +16,84 @@
 
 package com.android.car.oemcarservice.testapp;
 
+import android.annotation.NonNull;
+import android.car.oem.OemCarAudioFocusEvaluationRequest;
+import android.car.oem.OemCarAudioFocusResult;
 import android.car.oem.OemCarAudioFocusService;
 import android.media.AudioFocusInfo;
 import android.util.Log;
+import android.util.Slog;
+
+import com.android.car.oem.focus.FocusInteraction;
 
 import java.io.PrintWriter;
 import java.util.List;
 
 public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusService {
 
-    private static final String TAG = OemCarAudioFocusServiceImpl.class.getSimpleName();
+    private static final String TAG = "OemCarAudioFocusSrv";
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+
+    private final FocusInteraction mFocusInteraction;
 
     public OemCarAudioFocusServiceImpl() {
-        Log.d(TAG, "constructor");
+        mFocusInteraction = new FocusInteraction(FocusInteraction.ATTRIBUTES_INTERACTIONS);
+        if (DEBUG) {
+            Slog.d(TAG, "constructor");
+        }
     }
 
     @Override
     public void init() {
-        Log.d(TAG, "init");
-
+        if (DEBUG) {
+            Slog.d(TAG, "init");
+        }
     }
 
     @Override
     public void release() {
-        Log.d(TAG, "release");
+        if (DEBUG) {
+            Slog.d(TAG, "release");
+        }
     }
 
     @Override
     public void onCarServiceReady() {
-        Log.d(TAG, "onCarServiceReady");
+        if (DEBUG) {
+            Slog.d(TAG, "onCarServiceReady");
+        }
         // Do any CarService calls
     }
 
     @Override
     public void dump(PrintWriter writer, String[] args) {
-        Log.d(TAG, "dump");
-        writer.println("Dump OemCarAudioFocusServiceImpl");
+        if (DEBUG) {
+            Slog.d(TAG, "dump");
+        }
+        writer.println("  OemCarAudioFocusServiceImpl");
+        mFocusInteraction.dump(writer, /* indent= */ "  ");
     }
 
     @Override
-    public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
+    public void notifyAudioFocusChange(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
-        Log.d(TAG, "OemCarAudioFocusServiceImpl audioFocusChanged called");
+        if (DEBUG) {
+            Slog.d(TAG, "OemCarAudioFocusServiceImpl audioFocusChanged called zone id " + zoneId);
+            Slog.d(TAG, "OemCarAudioFocusServiceImpl focus holders " + currentFocusHolders);
+            Slog.d(TAG, "OemCarAudioFocusServiceImpl focus losers " + currentFocusLosers);
+        }
     }
 
+    @Override
+    @NonNull
+    public OemCarAudioFocusResult evaluateAudioFocusRequest(
+            @NonNull OemCarAudioFocusEvaluationRequest request) {
+        return mFocusInteraction.evaluateFocusRequest(request);
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder().append("{Class: ").append(TAG).append(", package: ")
+                .append(OemCarAudioFocusServiceImpl.class.getPackage()).append("}").toString();
+    }
 }

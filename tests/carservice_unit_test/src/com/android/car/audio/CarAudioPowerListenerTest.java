@@ -62,12 +62,12 @@ public class CarAudioPowerListenerTest {
     }
 
     @Test
-    public void startListeningForPolicyChanges_withoutPowerService_enablesAudio() {
+    public void startListeningForPolicyChanges_withoutPowerService_doesNothing() {
         CarAudioPowerListener listener = new CarAudioPowerListener(mMockCarAudioService, null);
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).setAudioEnabled(true);
+        verify(mMockCarAudioService, never()).setAudioEnabled(true);
     }
 
     @Test
@@ -87,14 +87,14 @@ public class CarAudioPowerListenerTest {
     }
 
     @Test
-    public void startListeningForPolicyChanges_withNullPolicy_enablesAudio() {
+    public void startListeningForPolicyChanges_withNullPolicy_doesNothing() {
         when(mMockCarPowerService.getCurrentPowerPolicy()).thenReturn(null);
         CarAudioPowerListener listener = new CarAudioPowerListener(mMockCarAudioService,
                 mMockCarPowerService);
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).setAudioEnabled(true);
+        verify(mMockCarAudioService, never()).setAudioEnabled(true);
     }
 
     @Test

@@ -15,12 +15,18 @@
  */
 package com.android.car.oem;
 
+import static android.car.oem.OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+
+import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.OemCarAudioFocusEvaluationRequest;
+import android.car.oem.OemCarAudioFocusResult;
 import android.media.AudioFocusInfo;
 import android.os.RemoteException;
 
 import com.android.car.CarLog;
+import com.android.internal.util.Preconditions;
 
 import java.util.List;
 import java.util.Optional;
@@ -45,12 +51,12 @@ public final class CarOemAudioFocusProxyService {
     /**
      * Updates audio focus changes.
      */
-    public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
+    public void notifyAudioFocusChange(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
         mHelper.doBinderOneWayCall(CALLER_TAG, () -> {
             try {
                 mOemCarAudioFocusService
-                        .audioFocusChanged(currentFocusHolders, currentFocusLosers, zoneId);
+                        .notifyAudioFocusChange(currentFocusHolders, currentFocusLosers, zoneId);
             } catch (RemoteException e) {
                 Slogf.e(TAG, e,
                         "audioFocusChanged call received RemoteException- currentFocusHolders:%s, "
@@ -59,4 +65,34 @@ public final class CarOemAudioFocusProxyService {
             }
         });
     }
+
+    /**
+     * Requests to evaluate a new focus request
+     * @param request which includes the current audio focus info, current focus holders,
+     *                and current focus losers.
+     *
+     * @return the focus evaluation results including any changes to the current focus stack.
+     */
+    @NonNull
+    public OemCarAudioFocusResult evaluateAudioFocusRequest(
+            @NonNull OemCarAudioFocusEvaluationRequest request) {
+        Preconditions.checkArgument(request != null,
+                "Audio focus evaluation request can not be null");
+        Optional<OemCarAudioFocusResult> result = mHelper.doBinderCallWithTimeoutCrash(CALLER_TAG,
+                () -> {
+                    try {
+                        return mOemCarAudioFocusService.evaluateAudioFocusRequest(request);
+                    } catch (RemoteException e) {
+                        Slogf.e(TAG, e,
+                                "evaluateAudioFocusRequest with request " + request);
+                    }
+                    return EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+                });
+        if (result.isEmpty()) {
+            return EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+        }
+
+        return result.get();
+    }
+
 }

@@ -18,12 +18,31 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+java_library {
+    name: "com.android.car.oem",
+    srcs: [
+        "src/com/android/car/oem/**/*.java",
+        ],
+    static_libs: [
+        "androidx.annotation_annotation",
+        ],
+    platform_apis: true,
+    libs: [
+        "android.car-system-stubs",
+        ],
+    min_sdk_version:  "33",
+}
+
 android_app {
     name: "OemCarServiceTestApp",
-    srcs: ["src/**/*.java"],
+    srcs: ["src/com/android/car/oemcarservice/testapp/*.java"],
     min_sdk_version: "33",
     privileged: true,
     certificate: "platform",
     platform_apis: true,
-    libs: ["android.car"],
+    libs: [
+        "android.car",
+        ],
+    static_libs: ["com.android.car.oem"],
+    required: ["allowed_privapp_com.android.car.oemcarservice.testapp"],
 }

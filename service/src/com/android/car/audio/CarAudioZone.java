@@ -17,12 +17,14 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.util.ArraySet;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -30,7 +32,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -45,17 +46,20 @@ import java.util.Set;
  *
  * See also the unified car_audio_configuration.xml
  */
-/* package */ class CarAudioZone {
+public class CarAudioZone {
 
     private final int mId;
     private final String mName;
     private final List<CarVolumeGroup> mVolumeGroups;
     private final Set<String> mDeviceAddresses;
+    private final CarAudioContext mCarAudioContext;
     private List<AudioDeviceAttributes> mInputAudioDevice;
 
-    CarAudioZone(int id, String name) {
-        mId = id;
+    CarAudioZone(CarAudioContext carAudioContext, String name, int id) {
+        mCarAudioContext = Objects.requireNonNull(carAudioContext,
+                "Car audio context can not be null");
         mName = name;
+        mId = id;
         mVolumeGroups = new ArrayList<>();
         mInputAudioDevice = new ArrayList<>();
         mDeviceAddresses = new HashSet<>();
@@ -122,20 +126,24 @@ import java.util.Set;
      * {@link CarVolumeGroup.Builder#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups() {
-        Set<Integer> contexts = new HashSet<>();
-        Set<String> addresses = new HashSet<>();
+        ArraySet<Integer> contexts = new ArraySet<>();
+        ArraySet<String> addresses = new ArraySet<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
             CarVolumeGroup group = mVolumeGroups.get(index);
             // One context should not appear in two groups
-            for (int context : group.getContexts()) {
-                if (!contexts.add(context)) {
-                    Slogf.e(CarLog.TAG_AUDIO, "Context appears in two groups: " + context);
+            int[] groupContexts = group.getContexts();
+            for (int groupIndex = 0; groupIndex < groupContexts.length; groupIndex++) {
+                int contextId = groupContexts[groupIndex];
+                if (!contexts.add(contextId)) {
+                    Slogf.e(CarLog.TAG_AUDIO, "Context appears in two groups %d", contextId);
                     return false;
                 }
             }
 
             // One address should not appear in two groups
-            for (String address : group.getAddresses()) {
+            List<String> groupAddresses = group.getAddresses();
+            for (int addressIndex = 0; addressIndex < groupAddresses.size(); addressIndex++) {
+                String address = groupAddresses.get(addressIndex);
                 if (!addresses.add(address)) {
                     Slogf.e(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
@@ -143,11 +151,24 @@ import java.util.Set;
             }
         }
 
+        boolean allContextValidated = true;
+        List<Integer> allContexts = mCarAudioContext.getAllContextsIds();
+        for (int index = 0; index < allContexts.size(); index++) {
+            if (!contexts.contains(allContexts.get(index))) {
+                Slogf.e(CarLog.TAG_AUDIO, "Audio context %s is not assigned to a group",
+                        mCarAudioContext.toString(allContexts.get(index)));
+                allContextValidated = false;
+            }
+        }
+
+        if (!allContextValidated) {
+            return false;
+        }
+
+        List<Integer> contextList = new ArrayList<>(contexts);
         // All contexts are assigned
-        if (contexts.size() != CarAudioContext.CONTEXTS.length) {
-            Slogf.e(CarLog.TAG_AUDIO, "Some contexts are not assigned to group");
-            Slogf.e(CarLog.TAG_AUDIO, "Assigned contexts " + contexts);
-            Slogf.e(CarLog.TAG_AUDIO, "All contexts " + Arrays.toString(CarAudioContext.CONTEXTS));
+        if (!mCarAudioContext.validateAllAudioAttributesSupported(contextList)) {
+            Slogf.e(CarLog.TAG_AUDIO, "Some audio attributes are not assigned to a group");
             return false;
         }
         return true;
@@ -177,8 +198,11 @@ import java.util.Set;
         writer.decreaseIndent();
     }
 
-    String getAddressForContext(int audioContext) {
-        CarAudioContext.preconditionCheckAudioContext(audioContext);
+    /**
+     * Return the audio device address mapping to a car audio context
+     */
+    public String getAddressForContext(int audioContext) {
+        mCarAudioContext.preconditionCheckAudioContext(audioContext);
         String deviceAddress = null;
         for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
             deviceAddress = volumeGroup.getAddressForContext(audioContext);
@@ -193,7 +217,7 @@ import java.util.Set;
     }
 
     public AudioDeviceInfo getAudioDeviceForContext(int audioContext) {
-        CarAudioContext.preconditionCheckAudioContext(audioContext);
+        mCarAudioContext.preconditionCheckAudioContext(audioContext);
         for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
             AudioDeviceInfo deviceInfo = volumeGroup.getAudioDeviceForContext(audioContext);
             if (deviceInfo != null) {
@@ -224,22 +248,21 @@ import java.util.Set;
         return mInputAudioDevice;
     }
 
-    public @NonNull List<Integer> findActiveContextsFromPlaybackConfigurations(
-            @NonNull List<AudioPlaybackConfiguration> configurations) {
-        Objects.requireNonNull(configurations);
-        List<Integer> activeContexts = new ArrayList<>();
+    public List<AudioAttributes> findActiveAudioAttributesFromPlaybackConfigurations(
+            List<AudioPlaybackConfiguration> configurations) {
+        Objects.requireNonNull(configurations, "Audio playback configurations can not be null");
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
         for (int index = 0; index < configurations.size(); index++) {
             AudioPlaybackConfiguration configuration = configurations.get(index);
             if (configuration.isActive()) {
                 if (isAudioDeviceInfoValidForZone(configuration.getAudioDeviceInfo())) {
                     // Note that address's context and the context actually supplied could be
                     // different
-                    activeContexts.add(CarAudioContext.getContextForUsage(
-                            configuration.getAudioAttributes().getSystemUsage()));
+                    audioAttributes.add(configuration.getAudioAttributes());
                 }
             }
         }
-        return activeContexts;
+        return audioAttributes;
     }
 
     boolean isAudioDeviceInfoValidForZone(AudioDeviceInfo info) {
@@ -264,5 +287,24 @@ import java.util.Set;
                 }
             }
         }
+    }
+
+    /**
+     * Returns the car audio context set for the car audio zone
+     */
+    public CarAudioContext getCarAudioContext() {
+        return mCarAudioContext;
+    }
+
+    /**
+     * Returns the car volume infos for all the volume groups in the audio zone
+     */
+    List<CarVolumeGroupInfo> getVolumeGroupInfos() {
+        List<CarVolumeGroupInfo> groupInfos = new ArrayList<>(mVolumeGroups.size());
+        for (int index = 0; index < mVolumeGroups.size(); index++) {
+            groupInfos.add(mVolumeGroups.get(index).getCarVolumeGroupInfo());
+        }
+
+        return groupInfos;
     }
 }

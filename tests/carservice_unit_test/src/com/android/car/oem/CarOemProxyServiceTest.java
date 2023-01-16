@@ -31,7 +31,9 @@ import static org.mockito.Mockito.when;
 
 import android.car.CarVersion;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.oem.IOemCarAudioDuckingService;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.IOemCarAudioVolumeService;
 import android.car.oem.IOemCarService;
 import android.car.oem.IOemCarServiceCallback;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -120,6 +122,32 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
+    public void getCarOemAudioVolumeService_priorToInit_fails() throws Exception {
+        mockOemCarServiceComponent();
+        CarOemProxyService carOemProxyService = new CarOemProxyService(mContext);
+        mockServiceConnection();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> carOemProxyService.getCarOemAudioVolumeService());
+
+        assertWithMessage("Oem audio volume service exception").that(thrown)
+                .hasMessageThat().contains("should not be call before CarService initialization");
+    }
+
+    @Test
+    public void getCarOemAudioDuckingService_priorToInit_fails() throws Exception {
+        mockOemCarServiceComponent();
+        CarOemProxyService carOemProxyService = new CarOemProxyService(mContext);
+        mockServiceConnection();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> carOemProxyService.getCarOemAudioDuckingService());
+
+        assertWithMessage("Oem audio ducking service exception").that(thrown)
+                .hasMessageThat().contains("should not be call before CarService initialization");
+    }
+
+    @Test
     public void testCarServiceCrash_oemNotConnected() throws Exception {
         mockCallTimeout(/* timeoutMs= */ 100);
         mockOemCarServiceComponent();
@@ -164,6 +192,36 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
                 .that(carOemProxyService.isOemServiceReady()).isTrue());
 
         assertThat(carOemProxyService.getCarOemAudioFocusService()).isNull();
+    }
+
+    @Test
+    public void getCarOemAudioVolumeService_withServiceReady() throws Exception {
+        mockOemCarServiceComponent();
+        CarOemProxyService carOemProxyService = new CarOemProxyService(mContext);
+        mockServiceConnection();
+        mockServiceReady();
+        carOemProxyService.onInitComplete();
+
+        eventually(() -> assertWithMessage("Oem Service not ready.")
+                .that(carOemProxyService.isOemServiceReady()).isTrue());
+
+        assertWithMessage("Oem audio volume service")
+                .that(carOemProxyService.getCarOemAudioVolumeService()).isNull();
+    }
+
+    @Test
+    public void getCarOemAudioDuckingService_withServiceReady() throws Exception {
+        mockOemCarServiceComponent();
+        CarOemProxyService carOemProxyService = new CarOemProxyService(mContext);
+        mockServiceConnection();
+        mockServiceReady();
+        carOemProxyService.onInitComplete();
+
+        eventually(() -> assertWithMessage("Oem Service not ready.")
+                .that(carOemProxyService.isOemServiceReady()).isTrue());
+
+        assertWithMessage("Oem audio ducking service")
+                .that(carOemProxyService.getCarOemAudioDuckingService()).isNull();
     }
 
     @Test
@@ -230,6 +288,16 @@ public final class CarOemProxyServiceTest extends AbstractExtendedMockitoTestCas
 
         @Override
         public IOemCarAudioFocusService getOemAudioFocusService() {
+            return null;
+        }
+
+        @Override
+        public IOemCarAudioVolumeService getOemAudioVolumeService() {
+            return null;
+        }
+
+        @Override
+        public IOemCarAudioDuckingService getOemAudioDuckingService() {
             return null;
         }
 
