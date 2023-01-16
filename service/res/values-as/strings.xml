@@ -70,22 +70,16 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemৰ স্থিতি পঢ়া আৰু ডেটা চিনাক্ত কৰাৰ অনুমতি দিয়ে"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness Systemৰ লেখ নিয়ন্ত্ৰণ কৰক"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System চিনাক্তকৰণৰ লেখৰ আৰম্ভ কৰা আৰু বন্ধ কৰা কার্য নিয়ন্ত্ৰণ কৰাটোৰ অনুমতি দিয়ে"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
-    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়গন’ষ্টিক ডেটা পঢ়িব"</string>
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"গাড়ী চালকৰ নিৰীক্ষণৰ ছেটিঙৰ তথ্য পঢ়া"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"গাড়ী চালকৰ নিৰীক্ষণৰ ছেটিঙৰ তথ্য পঢ়া।"</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"গাড়ী চালকৰ নিৰীক্ষণৰ ছেটিঙৰ তথ্য নিয়ন্ত্ৰণ কৰা"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"গাড়ী চালকৰ নিৰীক্ষণৰ ছেটিঙৰ তথ্য নিয়ন্ত্ৰণ কৰা।"</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"গাড়ী চালকৰ নিৰীক্ষণৰ স্থিতিৰ তথ্য পঢ়া"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"গাড়ী চালকৰ নিৰীক্ষণৰ স্থিতিৰ তথ্য পঢ়া।"</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়েগন’ষ্টিক ডেটা পঢ়িব"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"গাড়ীৰ ডায়গ’ষ্টিক তথ্য পঢ়িব।"</string>
-    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়গন’ষ্টিক ডেটা মচিব"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"গাড়ীৰ পৰা ডায়গন’ষ্টিক ডেটা মচিব।"</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়েগন’ষ্টিক ডেটা মচিব"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"গাড়ীৰ পৰা ডায়েগন’ষ্টিক ডেটা মচিব।"</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS প্ৰকাশক"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS বাৰ্তা প্ৰকাশ কৰিব পাৰে"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS গ্ৰাহক"</string>
@@ -196,6 +190,14 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"গাড়ীৰ ADAS স্থিতিৰ তথ্য পঢ়ক।"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"গাড়ীৰ ADAS স্থিতিৰ তথ্য নিয়ন্ত্ৰণ কৰক"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"গাড়ীৰ ADAS স্থিতিৰ তথ্য নিয়ন্ত্ৰণ কৰক।"</string>
+    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <skip />
+    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাছ বিফল হৈছে"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাছে সঁহাৰি দিয়া নাই। হে’ড ইউনিট বাকচটো আঁতৰাই পুনৰ লগাওক"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"মোৰ ডিভাইচ"</string>

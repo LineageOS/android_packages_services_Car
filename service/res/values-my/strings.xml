@@ -70,18 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"\'စီးနင်းသူ သတိရှိမှု စနစ်\' အတွက် အခြေအနေဖတ်ခြင်းနှင့် ဒေတာရှာဖွေခြင်းတို့ကို ခွင့်ပြုသည်"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"\'စီးနင်းသူ သတိရှိမှု စနစ် ဂရပ်ဖ်\' ကို ထိန်းချုပ်ရန်"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"\'စီးနင်းသူ သတိရှိမှု စနစ်\' သိရှိသည့်ဂရပ်ဖ် စတင်ခြင်းနှင့် ရပ်တန့်ခြင်းကို ထိန်းချုပ်ရန် ခွင့်ပြုသည်"</string>
-    <!-- no translation found for car_permission_label_read_driver_monitoring_settings (5208935577581001710) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_settings (3721117607024237175) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_driver_monitoring_settings (239453247872865455) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_driver_monitoring_settings (7244804817277236221) -->
-    <skip />
-    <!-- no translation found for car_permission_label_read_driver_monitoring_states (1555412806741155523) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_driver_monitoring_states (3124328827934661489) -->
-    <skip />
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားဆက်တင်များ အချက်အလက်ကို ဖတ်ရန်"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားဆက်တင်များ အချက်အလက်ကို ဖတ်နိုင်သည်။"</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားဆက်တင်များ အချက်အလက်ကို ထိန်းချုပ်ရန်"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားဆက်တင်များ အချက်အလက်ကို ထိန်းချုပ်နိုင်သည်။"</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားအခြေအနေများ အချက်အလက်ကို ဖတ်ရန်"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"ယာဉ်မောင်းအားစောင့်ကြည့်သည့် ကားအခြေအနေများ အချက်အလက်ကို ဖတ်နိုင်သည်"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"အမှားရှာပြင်ခြင်းဒေတာများကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ကားအတွင်း အမှားရှာပြင်ခြင်းဒေတာကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"အမှားရှာပြင်ခြင်းဒေတာများကို ရှင်းလင်းပါမည်"</string>
@@ -196,6 +190,14 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ကြည့်နိုင်သည်။"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်။"</string>
+    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <skip />
+    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>

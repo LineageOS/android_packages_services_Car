@@ -190,6 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Read car’s ADAS states information."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"control car’s ADAS states information"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Control car’s ADAS states information."</string>
+    <string name="car_permission_label_monitor_occupant_zone" msgid="8033382754353161311">"monitor the states of other occupant zones in the car and peer apps (apps that have the same package name as the caller) installed in those zones, and manage the power of those zones."</string>
+    <string name="car_permission_desc_monitor_occupant_zone" msgid="1056117956771630969">"Monitor the states of other occupant zones in the car and peer apps (apps that have the same package name as the caller) installed in those zones, and manage the power of those zones."</string>
+    <string name="car_permission_label_connect_occupant_zone" msgid="9100215609130033958">"establish connection and communicate to peer apps (apps that have the same package name as the caller) installed in other occupant zones in the car"</string>
+    <string name="car_permission_desc_connect_occupant_zone" msgid="625459236571295102">"Establish connection and communicate to peer apps (apps that have the same package name as the caller) installed in other occupant zones in the car."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus failed"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus does not respond. Unplug and plug back headunit box and restart the car"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Device"</string>
