@@ -43,6 +43,7 @@ import static org.mockito.Mockito.when;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
@@ -225,6 +226,20 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     }
 
     @Test
+    public void requestAudioFocusWithMetaData_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        verify(mAudioControl).registerFocusListener(captor.capture());
+        PlaybackTrackMetadata playbackTrackmetaData = new PlaybackTrackMetadata();
+
+        captor.getValue().requestAudioFocusWithMetaData(playbackTrackmetaData, ZONE_ID, FOCUS_GAIN);
+
+        verify(mockListener).requestAudioFocus(playbackTrackmetaData.usage, ZONE_ID, FOCUS_GAIN);
+    }
+
+    @Test
     public void abandonAudioFocus_forFocusListenerWrapper_succeeds() throws Exception {
         HalFocusListener mockListener = mock(HalFocusListener.class);
         ArgumentCaptor<IFocusListener.Stub> captor =
@@ -235,6 +250,20 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         captor.getValue().abandonAudioFocus(USAGE_NAME, ZONE_ID);
 
         verify(mockListener).abandonAudioFocus(USAGE, ZONE_ID);
+    }
+
+    @Test
+    public void abandonAudioFocusWithMetaData_forFocusListenerWrapper_succeeds() throws Exception {
+        HalFocusListener mockListener = mock(HalFocusListener.class);
+        ArgumentCaptor<IFocusListener.Stub> captor =
+                ArgumentCaptor.forClass(IFocusListener.Stub.class);
+        mAudioControlWrapperAidl.registerFocusListener(mockListener);
+        verify(mAudioControl).registerFocusListener(captor.capture());
+        PlaybackTrackMetadata playbackTrackmetaData = new PlaybackTrackMetadata();
+
+        captor.getValue().abandonAudioFocusWithMetaData(playbackTrackmetaData, ZONE_ID);
+
+        verify(mockListener).abandonAudioFocus(playbackTrackmetaData.usage, ZONE_ID);
     }
 
     @Test
