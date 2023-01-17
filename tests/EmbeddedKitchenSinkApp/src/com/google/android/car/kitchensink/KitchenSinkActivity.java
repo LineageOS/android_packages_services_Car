@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink;
 
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
@@ -73,6 +74,7 @@ import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestF
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.input.DisplayInputLockTestFragment;
 import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
+import com.google.android.car.kitchensink.key.InjectKeyTestFragment;
 import com.google.android.car.kitchensink.mainline.CarMainlineFragment;
 import com.google.android.car.kitchensink.media.MultidisplayMediaFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
@@ -90,6 +92,7 @@ import com.google.android.car.kitchensink.storagevolumes.StorageVolumesFragment;
 import com.google.android.car.kitchensink.systembars.SystemBarsFragment;
 import com.google.android.car.kitchensink.systemfeatures.SystemFeaturesFragment;
 import com.google.android.car.kitchensink.telemetry.CarTelemetryTestFragment;
+import com.google.android.car.kitchensink.touch.InjectMotionTestFragment;
 import com.google.android.car.kitchensink.touch.TouchTestFragment;
 import com.google.android.car.kitchensink.users.ProfileUserFragment;
 import com.google.android.car.kitchensink.users.UserFragment;
@@ -276,11 +279,14 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
             new FragmentMenuEntry("web links", WebLinksTestFragment.class),
+            new FragmentMenuEntry("inject motion", InjectMotionTestFragment.class),
+            new FragmentMenuEntry("inject key", InjectKeyTestFragment.class),
             new FragmentMenuEntry("window insets full screen",
                     WindowInsetsFullScreenFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;
+    private CarOccupantZoneManager mOccupantZoneManager;
     private CarPowerManager mPowerManager;
     private CarPropertyManager mPropertyManager;
     private CarSensorManager mSensorManager;
@@ -296,6 +302,10 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     public CarHvacManager getHvacManager() {
         return mHvacManager;
+    }
+
+    public CarOccupantZoneManager getOccupantZoneManager() {
+        return mOccupantZoneManager;
     }
 
     public CarPowerManager getPowerManager() {
@@ -582,6 +592,8 @@ public class KitchenSinkActivity extends FragmentActivity {
         synchronized (mPropertyManagerReady) {
             mHvacManager = (CarHvacManager) car.getCarManager(
                     android.car.Car.HVAC_SERVICE);
+            mOccupantZoneManager = (CarOccupantZoneManager) car.getCarManager(
+                    android.car.Car.CAR_OCCUPANT_ZONE_SERVICE);
             mPowerManager = (CarPowerManager) car.getCarManager(
                     android.car.Car.POWER_SERVICE);
             mPropertyManager = (CarPropertyManager) car.getCarManager(
