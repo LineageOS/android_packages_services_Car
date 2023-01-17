@@ -881,7 +881,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         pw.printf("\t%s <USER>", COMMAND_GET_DISPLAY_BY_USER);
         pw.println("\t Gets the display associated to the given user");
-        pw.printf("\t%s <USER>", COMMAND_GET_USER_BY_DISPLAY);
+        pw.printf("\t%s <DISPLAY>", COMMAND_GET_USER_BY_DISPLAY);
         pw.println("\t Gets the user associated with the given display");
     }
 
