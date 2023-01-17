@@ -148,10 +148,12 @@ android.car.app CarActivityManager int ERROR_CODE_ACTIVITY_NOT_FOUND
 android.car.app CarActivityManager void onCarDisconnected()
 android.car.app CarActivityManager boolean registerTaskMonitor()
 android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo)
+android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash)
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void unregisterTaskMonitor()
 android.car.app CarActivityManager List<ActivityManager.RunningTaskInfo> getVisibleTasks()
+android.car.app CarActivityManager IBinder createMirroringToken(int taskId)
 android.car.cluster CarInstrumentClusterManager void onCarDisconnected()
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_NONE
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_HOME
@@ -588,7 +590,6 @@ android.car.user CarUserManager UserIdentificationAssociationResponse getUserIde
 android.car.user CarUserManager AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(int[] types, int[] values)
 android.car.user CarUserManager void setUserSwitchUiCallback(UserSwitchUiCallback callback)
 android.car.user CarUserManager void onCarDisconnected()
-android.car.user CarUserManager String lifecycleEventTypeToString(int type)
 android.car.user CarUserManager boolean isValidUser(int userId)
 android.car.user CarUserManager.UserLifecycleEvent int getUserId()
 android.car.user CarUserManager.UserLifecycleEvent int getPreviousUserId()

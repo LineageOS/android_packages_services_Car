@@ -39,7 +39,7 @@ interface ICarActivityService {
     /**
      * Reports that a Task is created.
      */
-    void onTaskAppeared(in IBinder token, in RunningTaskInfo taskInfo) = 2;
+    void onTaskAppeared(in IBinder token, in RunningTaskInfo taskInfo, in SurfaceControl leash) = 8;
 
     /**
      * Reports that a Task is vanished.
@@ -63,5 +63,9 @@ interface ICarActivityService {
 
     /** See {@link CarActivityManager#startUserPickerOnDisplay(int) */
     void startUserPickerOnDisplay(int displayId) = 7;
+
+    IBinder createMirroringToken(int taskId) = 9;
+
+    SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 10;
 }
 
