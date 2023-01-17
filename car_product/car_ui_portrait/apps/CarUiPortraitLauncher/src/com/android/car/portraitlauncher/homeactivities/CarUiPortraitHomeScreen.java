@@ -58,6 +58,7 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -497,6 +498,26 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         updateVoicePlateActivityMap();
         initializeCards();
         doBindService();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        // This is done to handle the case where 'close' is tapped on ActivityBlockingActivity and
+        // it navigates to the home app. It assumes that the currently display task will be
+        // replaced with the home.
+        // In this case, ABA is actually displayed inside launch-root-task and hence we show apps
+        // grid to make sure that it is replaced.
+        startAppsGrid();
+    }
+
+    private void startAppsGrid() {
+        // Don't start Apps when the display is off for ActivityVisibilityTests.
+        if (getDisplay().getState() != Display.STATE_ON) {
+            return;
+        }
+        startActivity(CarLauncherUtils.getAppsGridIntent());
     }
 
     private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {
