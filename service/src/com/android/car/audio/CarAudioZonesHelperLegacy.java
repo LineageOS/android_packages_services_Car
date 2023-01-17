@@ -146,11 +146,16 @@ class CarAudioZonesHelperLegacy {
     }
 
     SparseArray<CarAudioZone> loadAudioZones() {
-        CarAudioZone zone = new CarAudioZone(mCarAudioContext, "Primary zone",
-                PRIMARY_AUDIO_ZONE);
-        for (CarVolumeGroup volumeGroup : loadVolumeGroups()) {
-            zone.addVolumeGroup(volumeGroup);
+        String zoneName = "Primary zone";
+        CarAudioZoneConfig.Builder zoneConfigBuilder = new CarAudioZoneConfig.Builder(zoneName,
+                PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0, /* isDefault= */ true);
+        List<CarVolumeGroup> volumeGroups = loadVolumeGroups();
+        for (int index = 0; index < volumeGroups.size(); index++) {
+            zoneConfigBuilder.addVolumeGroup(volumeGroups.get(index));
         }
+        CarAudioZone zone = new CarAudioZone(mCarAudioContext, zoneName, PRIMARY_AUDIO_ZONE);
+        zone.addZoneConfig(zoneConfigBuilder.build());
+
         SparseArray<CarAudioZone> carAudioZones = new SparseArray<>();
         addMicrophonesToPrimaryZone(zone);
         carAudioZones.put(PRIMARY_AUDIO_ZONE, zone);

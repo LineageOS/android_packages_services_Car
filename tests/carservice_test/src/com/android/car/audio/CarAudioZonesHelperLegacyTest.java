@@ -251,7 +251,7 @@ public class CarAudioZonesHelperLegacyTest {
                 mMockAudioControlWrapper, mMockCarAudioSettings, getInputDevices());
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         assertThat(volumeGroups).hasLength(2);
     }
 
@@ -300,7 +300,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
 
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         CarVolumeGroup mediaVolumeGroup = volumeGroups[0];
         List<Integer> contexts = IntStream.of(mediaVolumeGroup.getContexts()).boxed().collect(
                 Collectors.toList());
@@ -330,7 +330,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         SparseArray<CarAudioZone> zones = helper.loadAudioZones();
 
-        CarVolumeGroup[] volumeGroups = zones.get(0).getVolumeGroups();
+        CarVolumeGroup[] volumeGroups = zones.get(0).getCurrentVolumeGroups();
         CarVolumeGroup mediaVolumeGroup = volumeGroups[0];
         List<Integer> contexts = IntStream.of(mediaVolumeGroup.getContexts()).boxed().collect(
                 Collectors.toList());
