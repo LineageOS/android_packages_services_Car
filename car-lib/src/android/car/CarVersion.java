@@ -64,6 +64,15 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
                 new CarVersion("TIRAMISU_2", Build.VERSION_CODES.TIRAMISU, 2);
 
         /**
+         * Helper object for third minor upgrade of Android 13.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final CarVersion TIRAMISU_3 =
+                new CarVersion("TIRAMISU_3", Build.VERSION_CODES.TIRAMISU, 3);
+
+        /**
          * Helper object for main version of Android 14.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,

@@ -555,7 +555,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @Nullable
@@ -581,7 +581,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @NonNull
@@ -604,7 +604,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @NonNull
