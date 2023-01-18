@@ -139,6 +139,7 @@ android.car.hardware.power.CarPowerPolicyFilter$Builder
 android.car.hardware.power.PowerComponentUtil
 android.car.hardware.property.AreaIdConfig
 android.car.hardware.property.AreaIdConfig$Builder
+android.car.hardware.property.AutomaticEmergencyBrakingState
 android.car.hardware.property.CarInternalErrorException
 android.car.hardware.property.CarPropertyEvent
 android.car.hardware.property.CarPropertyManager
@@ -147,6 +148,7 @@ android.car.hardware.property.CarPropertyManager$GetPropertyCallback
 android.car.hardware.property.CarPropertyManager$GetPropertyRequest
 android.car.hardware.property.CarPropertyManager$GetPropertyResult
 android.car.hardware.property.CarPropertyManager$GetPropertyError
+android.car.hardware.property.ErrorState
 android.car.hardware.property.EvChargeState
 android.car.hardware.property.EvChargingConnectorType
 android.car.hardware.property.EvRegenerativeBrakingState

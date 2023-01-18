@@ -317,6 +317,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REPORT = 289475073; // 0x11410a01
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920; // 0x11201000
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_STATES")) public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073; // 0x11401001
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int BLIND_SPOT_WARNING_ENABLED = 287313924; // 0x11201004
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_STATE = 289410817; // 0x11400f01
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_SWITCH = 289410818; // 0x11400f02
