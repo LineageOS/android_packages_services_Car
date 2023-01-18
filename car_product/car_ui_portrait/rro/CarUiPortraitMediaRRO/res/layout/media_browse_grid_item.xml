@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            style="@style/MediaIconContainerStyle"
+            style="@style/MediaGridIconContainerStyle"
             app:aspect_ratio="1"/>
     </FrameLayout>
 
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:includeFontPadding="false"
-                android:layout_margin="@dimen/grid_item_spacing"
+                android:layout_marginHorizontal="@dimen/grid_item_spacing"
                 android:padding="@dimen/media_browse_grid_item_padding"
                 android:layout_marginBottom="@dimen/media_browse_grid_item_margin_bottom"
                 android:layout_marginTop="@dimen/media_browse_subtitle_margin_top" />

@@ -59,6 +59,20 @@
     <item target="layout/media_browse_grid_item" value="@layout/media_browse_grid_item"/>
     <item target="layout/media_browse_list_icons_item" value="@layout/media_browse_list_icons_item"/>
     <item target="layout/media_browse_list_item" value="@layout/media_browse_list_item"/>
+    <item target="layout/media_browse_header_item" value="@layout/media_browse_header_item"/>
 
     <item target="style/MediaIconContainerStyle" value="@style/MediaIconContainerStyle" />
+    <item target="style/BrowseGridTitleStyle" value="@style/BrowseGridTitleStyle" />
+    <item target="style/BrowseGridSubtitleStyle" value="@style/BrowseGridSubtitleStyle" />
+    <item target="style/BrowseListTitleStyle" value="@style/BrowseListTitleStyle" />
+    <item target="style/BrowseListSubtitleStyle" value="@style/BrowseListSubtitleStyle" />
+    <item target="style/BrowseListItemRightArrowStyle" value="@style/BrowseListItemRightArrowStyle" />
+    <item target="style/BrowseSubheaderStyle" value="@style/BrowseSubheaderStyle" />
+    <item target="style/ErrorButtonStyle" value="@style/ErrorButtonStyle" />
+    <item target="style/TextAppearance.NoContent" value="@style/TextAppearance.NoContent" />
+    <item target="style/ErrorTextStyle" value="@style/ErrorTextStyle" />
+    <item target="style/QueueListItemTitlesContainerStyle" value="@style/QueueListItemTitlesContainerStyle" />
+    <item target="style/QueueListItemTitleStyle" value="@style/QueueListItemTitleStyle" />
+    <item target="style/QueueListItemSubtitleStyle" value="@style/QueueListItemSubtitleStyle" />
+    <item target="style/QueueListItemTimeStyle" value="@style/QueueListItemTimeStyle" />
 </overlay>
