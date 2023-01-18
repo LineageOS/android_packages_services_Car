@@ -16,9 +16,9 @@
 
 package com.android.car.user;
 
-import static android.car.Car.getPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLocking;
@@ -2537,7 +2537,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible_platformVersionAtLeastUDC() throws Exception {
-        when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
         mockIsUserVisible(true);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
@@ -2547,7 +2547,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible_platformVersionNotAtLeastUDC() throws Exception {
-        when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockIsUserVisible(true);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
