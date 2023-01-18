@@ -108,6 +108,8 @@ public class FastPairGattServer {
     private BluetoothGattServer mBluetoothGattServer;
     private final BluetoothManager mBluetoothManager;
     private final BluetoothAdapter mBluetoothAdapter;
+    private final Object mPasskeyLock = new Object();
+    private int mSeekerPasskey = INVALID;
     private int mPairingPasskey = INVALID;
     private final DecryptionFailureCounter mFailureCounter = new DecryptionFailureCounter();
     private BluetoothGattService mFastPairService = new BluetoothGattService(
@@ -205,7 +207,7 @@ public class FastPairGattServer {
                 Slogf.d(TAG, "onConnectionStateChange %d Device: %s", newState, device);
             }
             if (newState == BluetoothProfile.STATE_DISCONNECTED) {
-                mPairingPasskey = INVALID;
+                invalidatePairingPasskeys();
                 clearSharedSecretKey();
                 mRemoteGattDevice = null;
                 mRemotePairingDevice = null;
@@ -309,13 +311,39 @@ public class FastPairGattServer {
             switch (action) {
                 case BluetoothDevice.ACTION_PAIRING_REQUEST:
                     mRemotePairingDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    mPairingPasskey =
-                            intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, INVALID);
-                    if (DBG) {
-                        Slogf.d(TAG, "Pairing Request - device=%s,  pin_code=%s",
-                                mRemotePairingDevice, mPairingPasskey);
+                    synchronized (mPasskeyLock) {
+                        mPairingPasskey =
+                                intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, INVALID);
+                        if (DBG) {
+                            Slogf.d(TAG,
+                                    "Pairing Request - device=%s, pin_code=%s, seeker_passkey=%s",
+                                    mRemotePairingDevice, mPairingPasskey, mSeekerPasskey);
+                        }
+
+                        if (!isConnected()) {
+                            Slogf.d(TAG, "Received pairing request outside of a Fast Pair Session");
+                            break;
+                        }
+
+                        if (mPairingPasskey == INVALID) {
+                            Slogf.w(TAG, "Received an invalid pin_code from the BT stack");
+                            break;
+                        }
+
+                        // The Seeker registers for passkey characteristic notifications after
+                        // pairing begins on incoming pairings, so we hold our passkey write until
+                        // we receive their passkey so we can be sure they have registered for
+                        // notifications and will receive our passkey.
+                        if (mSeekerPasskey != INVALID) {
+                            sendPairingResponse(mPairingPasskey);
+                        } else {
+                            Slogf.w(TAG, "Got code from BT stack before getting Seeker's passkey");
+                        }
+
+                        if (mSeekerPasskey != INVALID && mPairingPasskey != INVALID) {
+                            comparePasskeys();
+                        }
                     }
-                    sendPairingResponse(mPairingPasskey);
                     // TODO (243578517): Abort the broadcast when everything is valid and we support
                     // automatic acceptance.
                     break;
@@ -342,6 +370,7 @@ public class FastPairGattServer {
                             }
                             setSharedSecretKeyLifespan(KEY_LIFESPAN_AWAIT_ACCOUNT_KEY);
                             mRemotePairingDevice = null;
+                            invalidatePairingPasskeys();
                             mFailureCounter.reset();
                         } else if (state == BluetoothDevice.BOND_NONE) {
                             if (DBG) {
@@ -349,6 +378,7 @@ public class FastPairGattServer {
                                         mRemotePairingDevice);
                             }
                             mRemotePairingDevice = null;
+                            invalidatePairingPasskeys();
                         }
                     }
                     break;
@@ -510,7 +540,7 @@ public class FastPairGattServer {
             mCallbacks.onPairingCompleted(false);
         }
 
-        mPairingPasskey = -1;
+        invalidatePairingPasskeys();
         clearSharedSecretKey();
 
         mBluetoothGattServer.removeService(mFastPairService);
@@ -565,6 +595,13 @@ public class FastPairGattServer {
         Slogf.i(TAG, "Shared secret key has been cleared");
         mHandler.removeCallbacks(mClearSharedSecretKey);
         mSharedSecretKey = null;
+    }
+
+    private void invalidatePairingPasskeys() {
+        synchronized (mPasskeyLock) {
+            mPairingPasskey = INVALID;
+            mSeekerPasskey = INVALID;
+        }
     }
 
     public boolean isFastPairSessionActive() {
@@ -825,28 +862,58 @@ public class FastPairGattServer {
             clearSharedSecretKey();
             return false;
         }
-        int passkey = Byte.toUnsignedInt(decryptedRequest[1]) * 65536
-                + Byte.toUnsignedInt(decryptedRequest[2]) * 256
-                + Byte.toUnsignedInt(decryptedRequest[3]);
+        synchronized (mPasskeyLock) {
+            mSeekerPasskey = Byte.toUnsignedInt(decryptedRequest[1]) * 65536
+                    + Byte.toUnsignedInt(decryptedRequest[2]) * 256
+                    + Byte.toUnsignedInt(decryptedRequest[3]);
 
-        if (DBG) {
-            Slogf.d(TAG, "Received passkey request, type=%s, passkey=%d, our_passkey=%d",
-                    decryptedRequest[0], passkey, mPairingPasskey);
-        }
-        // compare the Bluetooth received passkey with the Fast Pair received passkey
-        if (mPairingPasskey == passkey) {
             if (DBG) {
-                Slogf.d(TAG, "Passkeys match, auto_accept=%s", mAutomaticPasskeyConfirmation);
+                Slogf.d(TAG, "Received passkey request, type=%s, passkey=%d, our_passkey=%d",
+                        decryptedRequest[0], mSeekerPasskey, mPairingPasskey);
             }
-            if (mAutomaticPasskeyConfirmation) {
-                mRemotePairingDevice.setPairingConfirmation(true);
+
+            // The Seeker registers for passkey characteristic notifications after pairing begins
+            // on incoming pairings, so we hold our passkey write until we receive their passkey so
+            // we can be sure they have registered for notifications and will receive our passkey.
+            if (mPairingPasskey != INVALID) {
+                sendPairingResponse(mPairingPasskey);
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG, "Got Seeker's passkey before receiving pin code from BT stack");
+                }
             }
-        } else if (mPairingPasskey != INVALID) {
-            Slogf.w(TAG, "Passkeys don't match, rejecting");
-            mRemotePairingDevice.setPairingConfirmation(false);
-            clearSharedSecretKey();
+
+            if (mSeekerPasskey != INVALID && mPairingPasskey != INVALID) {
+                comparePasskeys();
+            }
         }
+
         return true;
+    }
+
+    /**
+     * Compares the BT Stack reported passkey to the Fast Pair Seeker reported passkey.
+     */
+    private void comparePasskeys() {
+        synchronized (mPasskeyLock) {
+            if (mPairingPasskey == INVALID || mSeekerPasskey == INVALID) {
+                Slogf.w(TAG, "Mising passkey to compare, bt=%s, seeker=%s", mPairingPasskey,
+                        mSeekerPasskey);
+                return;
+            }
+            if (mPairingPasskey == mSeekerPasskey) {
+                if (DBG) {
+                    Slogf.d(TAG, "Passkeys match, auto_accept=%s", mAutomaticPasskeyConfirmation);
+                }
+                if (mAutomaticPasskeyConfirmation) {
+                    mRemotePairingDevice.setPairingConfirmation(true);
+                }
+            } else {
+                Slogf.w(TAG, "Passkeys don't match, rejecting");
+                mRemotePairingDevice.setPairingConfirmation(false);
+                clearSharedSecretKey();
+            }
+        }
     }
 
     /**
@@ -922,7 +989,7 @@ public class FastPairGattServer {
         writer.println("Started                       : " + isStarted());
         writer.println("Active                        : " + isFastPairSessionActive());
         writer.println("Currently connected to        : " + mRemoteGattDevice);
-        writer.println("Failsure counter              : " + mFailureCounter);
+        writer.println("Failure counter              : " + mFailureCounter);
         writer.decreaseIndent();
     }
 }
