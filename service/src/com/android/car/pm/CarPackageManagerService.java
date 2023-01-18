@@ -39,6 +39,7 @@ import android.app.TaskInfo;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarVersion;
+import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
@@ -102,6 +103,7 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.am.CarActivityService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
@@ -214,6 +216,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
 
     // K: (logical) display id of a physical display, V: UXR change listener of this display.
     // For multi-display, monitor UXR change on each display.
+    @GuardedBy("mLock")
     private final SparseArray<UxRestrictionsListener> mUxRestrictionsListeners =
             new SparseArray<>();
     private final VendorServiceController mVendorServiceController;
@@ -672,9 +675,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
         mContext.unregisterReceiver(mPackageParsingEventReceiver);
         mActivityService.registerActivityLaunchListener(null);
-        for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
-            UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
-            mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(listener);
+        synchronized (mLock) {
+            for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
+                UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
+                mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(listener);
+            }
         }
     }
 
@@ -715,22 +720,85 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         // Listen to UxR changes on all displays.
         List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
                 mCarOccupantZoneService.getAllOccupantZones();
-        for (int i = 0; i < occupantZoneInfos.size(); i++) {
-            CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(i);
-            int zoneId = occupantZoneInfo.zoneId;
-            int[] displayIds = mCarOccupantZoneService.getAllDisplaysForOccupantZone(zoneId);
-            for (int j = 0; j < displayIds.length; j++) {
-                int displayId = displayIds[j];
-                UxRestrictionsListener listener = new UxRestrictionsListener(
-                        mCarUxRestrictionsService, displayId);
-                mUxRestrictionsListeners.put(displayId, listener);
-                mCarUxRestrictionsService.registerUxRestrictionsChangeListener(listener, displayId);
+        synchronized (mLock) {
+            for (int i = 0; i < occupantZoneInfos.size(); i++) {
+                CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo =
+                        occupantZoneInfos.get(i);
+                int zoneId = occupantZoneInfo.zoneId;
+                int[] displayIds = mCarOccupantZoneService.getAllDisplaysForOccupantZone(zoneId);
+                for (int j = 0; j < displayIds.length; j++) {
+                    int displayId = displayIds[j];
+                    UxRestrictionsListener listener = new UxRestrictionsListener(
+                            mCarUxRestrictionsService, displayId);
+                    mUxRestrictionsListeners.put(displayId, listener);
+                    mCarUxRestrictionsService.registerUxRestrictionsChangeListener(
+                            listener, displayId);
+                }
             }
         }
+
+        // Update UxR listeners upon display changes.
+        mCarOccupantZoneService.registerCallback(mOccupantZoneCallback);
 
         mVendorServiceController.init();
         mActivityService.registerActivityLaunchListener(mActivityLaunchListener);
     }
+
+    private final ICarOccupantZoneCallback mOccupantZoneCallback =
+            new ICarOccupantZoneCallback.Stub() {
+                @Override
+                public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
+                    // Respond to display changes.
+                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) == 0) {
+                        return;
+                    }
+                    if (DBG) {
+                        String flagString = DebugUtils.flagsToString(
+                                CarOccupantZoneManager.class, "ZONE_CONFIG_CHANGE_FLAG_",
+                                flags);
+                        Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
+                                    flagString);
+                    }
+                    ArraySet<Integer> updatedDisplayIds = new ArraySet<>();
+                    List<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneInfos =
+                            mCarOccupantZoneService.getAllOccupantZones();
+
+                    synchronized (mLock) {
+                        for (int i = 0; i < occupantZoneInfos.size(); i++) {
+                            CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo =
+                                    occupantZoneInfos.get(i);
+                            int zoneId = occupantZoneInfo.zoneId;
+                            int[] displayIds =
+                                    mCarOccupantZoneService.getAllDisplaysForOccupantZone(zoneId);
+                            for (int j = 0; j < displayIds.length; j++) {
+                                int displayId = displayIds[j];
+                                updatedDisplayIds.add(displayId);
+                                // Register UxR listener for newly added displays.
+                                if (mUxRestrictionsListeners.get(displayId) == null) {
+                                    Slogf.d(TAG, "adding UxR listener for display %d", displayId);
+                                    UxRestrictionsListener listener = new UxRestrictionsListener(
+                                            mCarUxRestrictionsService, displayId);
+                                    mUxRestrictionsListeners.put(displayId, listener);
+                                    mCarUxRestrictionsService.registerUxRestrictionsChangeListener(
+                                            listener, displayId);
+                                }
+                            }
+                        }
+
+                        // Remove UxR listener for removed displays.
+                        for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
+                            int displayId = mUxRestrictionsListeners.keyAt(i);
+                            if (!updatedDisplayIds.contains(displayId)) {
+                                mUxRestrictionsListeners.removeAt(displayId);
+                                UxRestrictionsListener listener =
+                                        mUxRestrictionsListeners.valueAt(i);
+                                mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(
+                                        listener);
+                            }
+                        }
+                    }
+                }
+            };
 
     private void doParseInstalledPackage(String packageName) {
         // Delete the package from allowlist and denylist mapping
@@ -1281,18 +1349,20 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      */
     private boolean isUxRestrictedOnDisplay(int displayId) {
         UxRestrictionsListener listenerForTopTaskDisplay;
-        if (mUxRestrictionsListeners.indexOfKey(displayId) < 0) {
-            // TODO(b/241589812): Correctly handle virtual displays.
-            Slogf.w(TAG, "Cannot find UxR listener for display %d, using UxR on default display",
-                    displayId);
-            listenerForTopTaskDisplay = mUxRestrictionsListeners.get(Display.DEFAULT_DISPLAY);
-            if (listenerForTopTaskDisplay == null) {
-                // This should never happen.
-                Slogf.e(TAG, "Missing listener for default display.");
-                return true;
+        synchronized (mLock) {
+            if (mUxRestrictionsListeners.indexOfKey(displayId) < 0) {
+                Slogf.w(TAG,
+                        "Cannot find UxR listener for display %d, using UxR on default display",
+                        displayId);
+                listenerForTopTaskDisplay = mUxRestrictionsListeners.get(Display.DEFAULT_DISPLAY);
+                if (listenerForTopTaskDisplay == null) {
+                    // This should never happen.
+                    Slogf.e(TAG, "Missing listener for default display.");
+                    return true;
+                }
+            } else {
+                listenerForTopTaskDisplay = mUxRestrictionsListeners.get(displayId);
             }
-        } else {
-            listenerForTopTaskDisplay = mUxRestrictionsListeners.get(displayId);
         }
 
         return listenerForTopTaskDisplay.isRestricted();
@@ -1303,23 +1373,33 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
      */
     private void blockTopActivitiesOnAllDisplaysIfNecessary() {
         List<? extends TaskInfo> visibleTasks = mActivityService.getVisibleTasks();
-        // TODO(b/241589812): Handle displays that come up later than init time.
-        for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
-            int displayId = mUxRestrictionsListeners.keyAt(i);
-            UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
-            // Block activities on a display if it is in a Ux restricted state.
-            if (listener.isRestricted()) {
-                if (DBG) {
-                    Slogf.d(TAG, "Display %d is in a UxRestricted state, initiating blocking.",
-                            displayId);
-                }
-                blockTopActivitiesOnDisplayIfNecessary(visibleTasks, displayId);
-            } else {
-                if (DBG) {
-                    Slogf.d(TAG, "Display %d is not in a UxRestricted state, not blocking.",
-                            displayId);
+        ArrayList<Integer> restrictedDisplayIds = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
+                int displayId = mUxRestrictionsListeners.keyAt(i);
+                UxRestrictionsListener listener = mUxRestrictionsListeners.valueAt(i);
+                if (listener.isRestricted()) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Display %d is in a UxRestricted state.",
+                                displayId);
+                    }
+                    restrictedDisplayIds.add(displayId);
+                } else {
+                    if (DBG) {
+                        Slogf.d(TAG, "Display %d is not in a UxRestricted state, not blocking.",
+                                displayId);
+                    }
                 }
             }
+        }
+
+        // Block activities on a display if it is in a Ux restricted state.
+        for (int i = 0; i < restrictedDisplayIds.size(); i++) {
+            int displayId = restrictedDisplayIds.get(i);
+            if (DBG) {
+                Slogf.d(TAG, "Initiating activity blocking on display %d.", displayId);
+            }
+            blockTopActivitiesOnDisplayIfNecessary(visibleTasks, displayId);
         }
     }
 
