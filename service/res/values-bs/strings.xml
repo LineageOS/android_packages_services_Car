@@ -70,12 +70,12 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Omogućava očitavanje statusa i otkrivanje podataka za Sistem informiranosti o broju prisutnih"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kontroliranje grafikona Sistema informiranosti o broju prisutnih"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Omogućava kontroliranje početka i zaustavljanja grafikona otkrivanja Sistema informiranosti o broju prisutnih"</string>
-    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Čitanje podataka o postavkama nadzora vozača automobila"</string>
-    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Čitanje podataka o postavkama nadzora vozača automobila."</string>
-    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Upravljanje podacima o postavkama nadzora vozača automobila"</string>
-    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"Upravljanje podacima o postavkama nadzora vozača automobila."</string>
-    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"Čitanje podataka o stanjima nadzora vozača automobila"</string>
-    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"Čitanje podataka o stanjima nadzora vozača automobila."</string>
+    <string name="car_permission_label_read_driver_monitoring_settings" msgid="5208935577581001710">"Čitaj informacije o postavkama praćenja vozača automobila"</string>
+    <string name="car_permission_desc_read_driver_monitoring_settings" msgid="3721117607024237175">"Čitaj informacije o postavkama praćenja vozača automobila."</string>
+    <string name="car_permission_label_control_driver_monitoring_settings" msgid="239453247872865455">"Kontroliraj informacije o postavkama praćenja vozača automobila"</string>
+    <string name="car_permission_desc_control_driver_monitoring_settings" msgid="7244804817277236221">"Kontroliraj informacije o postavkama praćenja vozača automobila."</string>
+    <string name="car_permission_label_read_driver_monitoring_states" msgid="1555412806741155523">"Čitaj informacije o stanjima praćenja vozača automobila"</string>
+    <string name="car_permission_desc_read_driver_monitoring_states" msgid="3124328827934661489">"Čitaj informacije o stanjima praćenja vozača automobila."</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"očitati dijagnostičke podatke"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Očitati dijagnostičke podatke automobila."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"brisati dijagnostičke podatke"</string>
@@ -190,6 +190,14 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Čitajte informacije o stanjima ADAS-a automobila"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kontrolirajte informacije o stanjima ADAS-a automobila"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kontrolirajte informacije o stanjima ADAS-a automobila"</string>
+    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <skip />
+    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Greška CAN busa"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ne reagira. Isključite i ponovo uključite glavnu jedinicu i ponovo pokrenite automobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moj uređaj"</string>

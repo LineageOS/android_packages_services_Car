@@ -59,6 +59,7 @@ public @interface ApiRequirements {
         TIRAMISU_0(android.car.CarVersion.VERSION_CODES.TIRAMISU_0),
         TIRAMISU_1(android.car.CarVersion.VERSION_CODES.TIRAMISU_1),
         TIRAMISU_2(android.car.CarVersion.VERSION_CODES.TIRAMISU_2),
+        TIRAMISU_3(android.car.CarVersion.VERSION_CODES.TIRAMISU_3),
         UPSIDE_DOWN_CAKE_0(android.car.CarVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
 
         private final android.car.CarVersion mVersion;
@@ -81,6 +82,7 @@ public @interface ApiRequirements {
         TIRAMISU_0(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_0),
         TIRAMISU_1(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_1),
         TIRAMISU_2(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_2),
+        TIRAMISU_3(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3),
         UPSIDE_DOWN_CAKE_0(android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
 
         private final android.car.PlatformVersion mVersion;

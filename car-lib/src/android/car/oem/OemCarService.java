@@ -252,7 +252,7 @@ public abstract class OemCarService extends Service {
      */
     @Nullable
     @SuppressWarnings("[OnNameExpected]")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DBG) {
@@ -268,7 +268,7 @@ public abstract class OemCarService extends Service {
      */
     //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("OnNameExpected")
     public OemCarAudioVolumeService getOemAudioVolumeService() {
@@ -285,7 +285,7 @@ public abstract class OemCarService extends Service {
      */
     //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("OnNameExpected")
     public OemCarAudioDuckingService getOemAudioDuckingService() {
