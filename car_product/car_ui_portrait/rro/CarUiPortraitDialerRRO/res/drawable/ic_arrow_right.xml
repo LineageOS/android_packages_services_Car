@@ -24,7 +24,7 @@
                     <corners
                         android:radius="44dp"/>
                     <solid
-                        android:color="@color/keypad_background_color"/>
+                        android:color="@color/car_secondary_container"/>
                 </shape>
             </item>
             <item android:drawable="@drawable/car_ui_portrait_ic_profile"

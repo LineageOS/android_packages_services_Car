@@ -17,9 +17,8 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/car_green_color" />
+            <solid android:color="@color/car_confirm_green" />
             <corners android:radius="@dimen/dialer_keypad_button_corner_radius" />
         </shape>
     </item>
-    <item android:drawable="@drawable/ic_phone" android:gravity="center" />
 </layer-list>

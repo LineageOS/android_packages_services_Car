@@ -15,12 +15,12 @@
   ~ limitations under the License.
   -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="44dp"
-        android:height="44dp"
-        android:viewportWidth="24"
-        android:viewportHeight="24"
-        android:tint="?attr/colorControlNormal">
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="48"
+        android:viewportHeight="48">
     <path
-        android:fillColor="?android:attr/textColorPrimary"
-        android:pathData="M12,6c1.1,0 2,0.9 2,2s-0.9,2 -2,2 -2,-0.9 -2,-2 0.9,-2 2,-2m0,10c2.7,0 5.8,1.29 6,2L6,18c0.23,-0.72 3.31,-2 6,-2m0,-12C9.79,4 8,5.79 8,8s1.79,4 4,4 4,-1.79 4,-4 -1.79,-4 -4,-4zM12,14c-2.67,0 -8,1.34 -8,4v2h16v-2c0,-2.66 -5.33,-4 -8,-4z"/>
+        android:pathData="M24,8.001C19.58,8.001 16,11.581 16,16.001C16,20.421 19.58,24.001 24,24.001C28.42,24.001 32,20.421 32,16.001C32,11.581 28.42,8.001 24,8.001ZM28,16.001C28,13.801 26.2,12.001 24,12.001C21.8,12.001 20,13.801 20,16.001C20,18.201 21.8,20.001 24,20.001C26.2,20.001 28,18.201 28,16.001ZM36,34.001C35.6,32.581 29.4,30.001 24,30.001C18.6,30.001 12.4,32.581 12,34.021V36.001H36V34.001ZM8,34.001C8,28.681 18.66,26.001 24,26.001C29.34,26.001 40,28.681 40,34.001V40.001H8V34.001Z"
+        android:fillColor="@color/car_on_secondary_container"
+        android:fillType="evenOdd"/>
 </vector>

@@ -16,7 +16,6 @@
   -->
 <overlay>
     <item target="drawable/ic_phone" value="@drawable/ic_phone"/>
-    <item target="drawable/icon_call_button" value="@drawable/icon_call_button"/>
     <item target="drawable/ic_backspace" value="@drawable/ic_backspace"/>
     <item target="drawable/dialer_ripple_background" value="@drawable/dialer_ripple_background"/>
     <item target="drawable/restricted_dialing_mode_label_background" value="@drawable/restricted_dialing_mode_label_background"/>
@@ -24,6 +23,8 @@
     <item target="drawable/ic_bluetooth" value="@drawable/ic_bluetooth"/>
     <item target="drawable/ic_answer_icon" value="@drawable/ic_answer_icon"/>
     <item target="drawable/ic_decline_icon" value="@drawable/ic_decline_icon"/>
+    <item target="drawable/ic_direction" value="@drawable/ic_direction"/>
+    <item target="drawable/ic_place" value="@drawable/ic_place"/>
 
     <item target="id/dialpad_fragment" value="@id/dialpad_fragment" />
     <item target="id/call_button" value="@id/call_button" />
@@ -99,9 +100,12 @@
     <item target="style/TextAppearance.CallLogTimestampMissedCall" value="@style/TextAppearance.CallLogTimestampMissedCall"/>
     <item target="style/TextAppearance.CallLogTitleDefault" value="@style/TextAppearance.CallLogTitleDefault"/>
     <item target="style/TextAppearance.CallLogTitleMissedCall" value="@style/TextAppearance.CallLogTitleMissedCall"/>
+    <item target="style/TextAppearance.ContactDetailsTitle" value="@style/TextAppearance.ContactDetailsTitle"/>
+    <item target="style/TextAppearance.ContactDetailsListTitle" value="@style/TextAppearance.ContactDetailsListTitle"/>
+    <item target="style/TextAppearance.ContactDetailsListSubtitle" value="@style/TextAppearance.ContactDetailsListSubtitle"/>
+    <item target="style/TextAppearance.ContactResultTitle" value="@style/TextAppearance.ContactResultTitle"/>
     <item target="style/TextAppearance.DialpadDisplayName" value="@style/TextAppearance.DialpadDisplayName"/>
     <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
     <item target="style/TextAppearance.TypeDownListSpan" value="@style/TextAppearance.TypeDownListSpan"/>
     <item target="style/SubheaderText" value="@style/SubheaderText"/>
-
 </overlay>
