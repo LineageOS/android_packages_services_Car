@@ -32,7 +32,6 @@ import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.hardware.automotive.vehicle.EvRegenerativeBrakingState;
 import android.hardware.automotive.vehicle.EvStoppingMode;
-import android.hardware.automotive.vehicle.ForwardCollisionWarningState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
 import android.hardware.automotive.vehicle.PortLocationType;
@@ -123,9 +122,6 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 AutomaticEmergencyBrakingState.class, ErrorState.class));
-    private static final Set<Integer> FORWARD_COLLISION_WARNING_STATE =
-            new HashSet<>(getIntegersFromDataEnums(
-                ForwardCollisionWarningState.class, ErrorState.class));
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -662,9 +658,6 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.FORWARD_COLLISION_WARNING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
-        mHalPropIdToPermissions.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE, new Pair<>(
-                Car.PERMISSION_READ_ADAS_STATES,
-                null));
         mHalPropIdToPermissions.put(VehicleProperty.BLIND_SPOT_WARNING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
@@ -770,8 +763,6 @@ public class PropertyHalServiceIds {
                 GSR_COMP_TYPE);
         mHalPropIdToValidValues.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
                 AUTOMATIC_EMERGENCY_BRAKING_STATE);
-        mHalPropIdToValidValues.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
-                FORWARD_COLLISION_WARNING_STATE);
 
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
