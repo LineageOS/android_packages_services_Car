@@ -19,6 +19,8 @@ package android.car.settings;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 
 /**
  * System-level, car-related settings.
@@ -306,6 +308,47 @@ public class CarSettings {
         @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE =
                 "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
+
+        /**
+        * Key for an int value to indicate whether the user has accepted the Terms of
+        * Service.
+        *
+        * <p>The value is an int value where:
+        * <ul>
+        * <li>0 - the acceptance value is unknown. In this case, functionality
+        * should not be restricted.
+        * <li>1 - the acceptance value is {@code false}. In this case, some system
+        * functionality is restricted.
+        * <li>2 - the acceptance value is {@code true}. In this case, system functionality is
+        * not restricted.
+        * </ul>
+        *
+        * <p>Recommended 0 as default value.
+        *
+        * @hide
+        */
+       @SystemApi
+       @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+        minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
+       public static final String KEY_USER_TOS_ACCEPTED = "android.car.KEY_USER_TOS_ACCEPTED";
+
+
+       /**
+        * Key for a string value to indicate which apps are disabled because the
+        * user has not accepted the Terms of Service.
+        *
+        * <p>The value is a string value of comma-separated package names. For example,
+        * {@code "com.company.maps,com.company.voiceassistant,com.company.appstore"}
+        *
+        * <p>Recommended "" as default value.
+        *
+        * @hide
+        */
+       @SystemApi
+       @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+        minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
+       public static final String KEY_UNACCEPTED_TOS_DISABLED_APPS =
+               "android.car.KEY_UNACCEPTED_TOS_DISABLED_APPS";
 
         /**
          * Defines non-current visible users to assign per each occupant zone.
