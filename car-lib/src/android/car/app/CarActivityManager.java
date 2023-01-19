@@ -18,6 +18,7 @@ package android.car.app;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
@@ -29,13 +30,16 @@ import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.graphics.Rect;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
+import android.view.SurfaceControl;
 
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -43,6 +47,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * API to manage {@link android.app.Activity} in Car.
@@ -163,6 +168,8 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @AddedInOrBefore(majorVersion = 33)
     public boolean registerTaskMonitor() {
+        Preconditions.checkState(
+                mTaskMonitorToken == null, "Can't register the multiple TaskMonitors");
         IBinder token = new Binder();
         try {
             mService.registerTaskMonitor(token);
@@ -176,14 +183,34 @@ public final class CarActivityManager extends CarManagerBase {
 
     /**
      * Reports that a Task is created.
+     * @deprecated Use {@link #onTaskAppeared(ActivityManager.RunningTaskInfo, SurfaceControl)}
      * @hide
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @AddedInOrBefore(majorVersion = 33)
     public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
+        onTaskAppearedInternal(taskInfo, null);
+    }
+
+    /**
+     * Reports that a Task is created.
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo,
+                @NonNull SurfaceControl leash) {
+        Objects.requireNonNull(leash);
+        onTaskAppearedInternal(taskInfo, leash);
+    }
+
+    private void onTaskAppearedInternal(
+            ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
         if (!hasValidToken()) return;
         try {
-            mService.onTaskAppeared(mTaskMonitorToken, taskInfo);
+            mService.onTaskAppeared(mTaskMonitorToken, taskInfo, leash);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -237,7 +264,7 @@ public final class CarActivityManager extends CarManagerBase {
 
     /**
      * Returns all the visible tasks. The order is not guaranteed.
-     * @hide
+     * @hide  STOPSHIP(b/254333504): Enable this after API review.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -265,6 +292,46 @@ public final class CarActivityManager extends CarManagerBase {
             mService.startUserPickerOnDisplay(displayId);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Creates the mirroring token of the given Task.
+     *
+     * @param taskId The Task to mirror.
+     * @return A token to access the Task Surface.
+     * @hide  STOPSHIP(b/254333504): Enable this after API review.
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public IBinder createMirroringToken(int taskId) {
+        try {
+            return mService.createMirroringToken(taskId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Gets a mirrored {@link SurfaceControl} of the Task identified by the given Token.
+     *
+     * @param token  The token to access the Surface.
+     * @param outBounds The bounds of the mirrored Task.
+     * @return A {@link SurfaceControl} of the mirrored Task.
+     * @hide  STOPSHIP(b/254333504): Enable this after API review.
+     */
+    // STOPSHIP(b/254333504): Enable the permission after API review.
+    // @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @Nullable
+    public SurfaceControl getMirroredSurface(@NonNull IBinder token, @NonNull Rect outBounds) {
+        try {
+            return mService.getMirroredSurface(token, outBounds);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
         }
     }
 

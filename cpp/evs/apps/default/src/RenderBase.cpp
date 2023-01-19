@@ -160,10 +160,16 @@ bool RenderBase::attachRenderTarget(const BufferDesc& tgtBuffer) {
     // create a GraphicBuffer from the existing handle
     android::sp<GraphicBuffer> pGfxBuffer =
             new GraphicBuffer(nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
-                              pDesc->height, pDesc->format, pDesc->layers, GRALLOC_USAGE_HW_RENDER,
-                              pDesc->stride);
-    if (pGfxBuffer.get() == nullptr) {
+                              pDesc->height, pDesc->format, pDesc->layers,
+                              GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_COMPOSER, pDesc->stride);
+    if (!pGfxBuffer) {
         LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
+        return false;
+    }
+
+    if (auto status = pGfxBuffer->initCheck(); status != android::OK) {
+        LOG(ERROR) << "Failed to initialize the graphic buffer, error = "
+                   << android::statusToString(status);
         return false;
     }
 

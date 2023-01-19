@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Android Open Source Project
+// Copyright (C) 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,22 +11,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
-android_app {
-    name: "CarUiPortraitMediaRRO",
-    resource_dirs: ["res"],
-    sdk_version: "current",
-    aaptflags: [
-        "--no-resource-deduping",
-        "--no-resource-removal"
+
+python_binary_host {
+    name: "perf_stats_parser",
+    main: "parser/perf_stats_parser.py",
+    srcs: ["parser/perf_stats_parser.py"],
+    libs: [
+        "perf_stats_proto",
     ],
-    static_libs: [
-        "androidx-constraintlayout_constraintlayout",
-        "androidx-constraintlayout_constraintlayout-solver",
-        "car-apps-common",
-        "car-ui-lib",
-        "car-portrait-ui-common"
-    ],
+    version: {
+        py3: { embedded_launcher: true },
+    },
+}
+
+python_library_host {
+    name: "perf_stats_proto",
+    srcs: ["parser/*.proto"],
+    proto: {
+        canonical_path_from_root: false,
+    },
 }
