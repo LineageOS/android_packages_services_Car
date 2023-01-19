@@ -971,8 +971,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void onImmersiveModeRequested(boolean requested) {
         logIfDebuggable("onImmersiveModeRequested = " + requested);
+        int fallbackState = (mTaskViewManager.getRootTaskCount() > 0) ? STATE_OPEN : STATE_CLOSE;
         updateUIState(/* newRootAppAreaState= */
-                requested ? STATE_FULL_WITH_SYS_BAR : STATE_OPEN, /* animated= */false);
+                requested ? STATE_FULL_WITH_SYS_BAR : fallbackState, /* animated= */false);
     }
 
     /**
