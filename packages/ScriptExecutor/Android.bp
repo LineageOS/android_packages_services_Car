@@ -73,7 +73,6 @@ android_app {
 
     privileged: false,
 
-    // TODO(b/196053524): Enable optimization.
     optimize: {
         enabled: false,
     },
