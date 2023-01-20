@@ -110,8 +110,7 @@ public class ICarImpl extends ICar.Stub {
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
-    // Disable OEM service for TM-QPR2 release.
-    private static final boolean ENABLE_OEM_SERVICE = false;
+    private static final boolean ENABLE_OEM_SERVICE = true;
 
     private final Context mContext;
     private final Context mCarServiceBuiltinPackageContext;
