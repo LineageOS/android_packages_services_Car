@@ -18,6 +18,7 @@ package com.android.car.user;
 
 import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
@@ -31,6 +32,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1321,8 +1323,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(int userId) {
-        return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId)
-                != Display.INVALID_DISPLAY;
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId)
+                    != Display.INVALID_DISPLAY;
+        }
+        return false;
     }
 
     // TODO(b/244370727): Remove once the lifecycle event callbacks provide the display id.
