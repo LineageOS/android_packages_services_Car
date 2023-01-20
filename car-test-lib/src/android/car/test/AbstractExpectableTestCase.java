@@ -41,6 +41,7 @@ public abstract class AbstractExpectableTestCase {
     }
 
     // NOTE: Expect has dozens of that() methods; the'll be added "on demand".
+    // NOTE: Do not add the generic Subject expectThat until the other methods have been used.
 
     protected final BooleanSubject expectThat(Boolean actual) {
         return mExpect.that(actual);
