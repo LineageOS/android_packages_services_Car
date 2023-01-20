@@ -392,7 +392,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_SIDE_MIRROR_HEAT = 339739916; // 0x1440050c
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_STEERING_WHEEL_HEAT = 289408269; // 0x1140050d
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_CURRENT = 358614274; // 0x15600502
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(anyOf={android.car.Car.PERMISSION_READ_DISPLAY_UNITS, "android.car.permission.CONTROL_CAR_CLIMATE"})) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE")) public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_SET = 358614275; // 0x15600503
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_VALUE_SUGGESTION = 291570965; // 0x11610515
     field public static final int HW_KEY_INPUT = 289475088; // 0x11410a10

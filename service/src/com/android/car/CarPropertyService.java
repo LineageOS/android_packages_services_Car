@@ -466,10 +466,14 @@ public class CarPropertyService extends ICarProperty.Stub
             if (readPermission == null && writePermission == null) {
                 continue;
             }
+            boolean isHvacTemperatureDisplayUnitsAvailable =
+                    (propId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS
+                            && checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
+                            Car.PERMISSION_READ_DISPLAY_UNITS));
             // Check if context already granted permission first
             if (checkAndUpdateGrantedPermissionSet(mContext, grantedPermission, readPermission)
                     || checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
-                    writePermission)) {
+                    writePermission) || isHvacTemperatureDisplayUnitsAvailable) {
                 synchronized (mLock) {
                     availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
                 }
@@ -751,6 +755,11 @@ public class CarPropertyService extends ICarProperty.Stub
             throw new SecurityException(
                     "Platform does not have permission to read value for property ID: "
                             + VehiclePropertyIds.toString(propertyId));
+        }
+        if (propertyId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS) {
+            CarServiceUtils.assertAnyPermission(mContext, readPermission,
+                    Car.PERMISSION_READ_DISPLAY_UNITS);
+            return;
         }
         CarServiceUtils.assertPermission(mContext, readPermission);
     }
