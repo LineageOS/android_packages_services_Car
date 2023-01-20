@@ -1322,10 +1322,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     /**
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
-    public boolean isUserVisible(int userId) {
+    public boolean isUserVisible(@UserIdInt int userId) {
         if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
-            return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId)
-                    != Display.INVALID_DISPLAY;
+            UserManager currentUserManager = mContext.createContextAsUser(
+                    UserHandle.of(userId), /* flags= */ 0).getSystemService(UserManager.class);
+            return currentUserManager.isUserVisible();
         }
         return false;
     }

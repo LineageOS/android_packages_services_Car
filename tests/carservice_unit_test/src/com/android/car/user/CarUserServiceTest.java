@@ -19,6 +19,7 @@ package com.android.car.user;
 import static android.car.Car.getPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLocking;
 import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLockingThrows;
@@ -86,7 +87,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
-import android.view.Display;
 
 import com.android.car.hal.HalCallback;
 import com.android.car.internal.util.DebugUtils;
@@ -117,6 +117,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     private ICarResultReceiver mLifecycleEventReceiver;
     @Mock
     private ICarResultReceiver mAnotherLifecycleEventReceiver;
+    @Mock
+    private Context mMockUserContext;
+
+    private final int mContextUserId = 42;
 
     public CarUserServiceTest() {
         super(CarUserService.TAG);
@@ -2534,49 +2538,39 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testIsUserVisible_platformVersionAtLeastUDC() throws Exception {
         when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
-        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+        mockIsUserVisible(true);
 
-        boolean visible = mCarUserService.isUserVisible(42);
+        boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
-        assertWithMessage("isUserVisible(42)").that(visible).isTrue();
+        assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isTrue();
     }
 
     @Test
     public void testIsUserVisible_platformVersionNotAtLeastUDC() throws Exception {
         when(getPlatformVersion()).thenReturn(PlatformVersion.VERSION_CODES.TIRAMISU_0);
-        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+        mockIsUserVisible(true);
 
-        boolean visible = mCarUserService.isUserVisible(42);
+        boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
-        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
-    }
-
-    @Test
-    public void testIsUserVisible_helperNotSet_remoteException() throws Exception {
-        when(mICarServiceHelper.getDisplayAssignedToUser(42))
-                .thenThrow(new RemoteException("D'OH!"));
-
-        boolean visible = mCarUserService.isUserVisible(42);
-
-        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
+        assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isFalse();
     }
 
     @Test
     public void testIsUserVisible() throws Exception {
-        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+        mockIsUserVisible(true);
 
-        boolean visible = mCarUserService.isUserVisible(42);
+        boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
-        assertWithMessage("isUserVisible(42)").that(visible).isTrue();
+        assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isTrue();
     }
 
     @Test
     public void testIsUserVisible_nope() throws Exception {
-        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(Display.INVALID_DISPLAY);
+        mockIsUserVisible(false);
 
-        boolean visible = mCarUserService.isUserVisible(42);
+        boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
-        assertWithMessage("isUserVisible(42)").that(visible).isFalse();
+        assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isFalse();
     }
 
 
@@ -2656,5 +2650,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     private UserStopResult getUserStopResult(AndroidFuture<UserStopResult> future, int userId) {
         return getResult(future, "stopping user %d", userId);
+    }
+
+    private void mockIsUserVisible(boolean isVisible) {
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, mContextUserId);
+        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        when(mMockedUserManager.isUserVisible()).thenReturn(isVisible);
     }
 }
