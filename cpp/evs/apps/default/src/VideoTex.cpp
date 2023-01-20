@@ -100,13 +100,10 @@ bool VideoTex::refresh() {
 
     const AHardwareBuffer_Desc* pDesc =
             reinterpret_cast<const AHardwareBuffer_Desc*>(&mImageBuffer.buffer.description);
-    constexpr uint64_t usage = GRALLOC_USAGE_SW_READ_RARELY | GRALLOC_USAGE_SW_WRITE_RARELY |
-            GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_HW_CAMERA_WRITE;
     android::sp<GraphicBuffer> pGfxBuffer =  // AHardwareBuffer_to_GraphicBuffer?
             new GraphicBuffer(nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
-                              pDesc->height, pDesc->format,
-                              1,  // pDesc->layers,
-                              usage, pDesc->stride);
+                              pDesc->height, pDesc->format, pDesc->layers, pDesc->usage,
+                              pDesc->stride);
     if (!pGfxBuffer) {
         LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
         // Returning "true" in this error condition because we already released the
