@@ -25,8 +25,7 @@
 #include <aidl/android/hardware/automotive/evs/DisplayDesc.h>
 #include <aidl/android/hardware/automotive/evs/DisplayState.h>
 
-#include <semaphore.h>
-
+#include <condition_variable>
 #include <thread>
 
 namespace aidl::android::hardware::automotive::evs::implementation {
@@ -81,14 +80,14 @@ private:
 
     // Variables to synchronize a rendering thread w/ main and binder threads
     std::thread mRenderThread;
-    std::atomic<int> mState = STOPPED;
+    RenderThreadStates mState GUARDED_BY(mLock) = STOPPED;
     bool mBufferReady = false;
     void renderFrames();
     bool initializeGlContextLocked() REQUIRES(mLock);
 
-    sem_t mBufferReadyToUse;
-    sem_t mBufferReadyToRender;
-    sem_t mBufferDone;
+    std::condition_variable mBufferReadyToUse;
+    std::condition_variable mBufferReadyToRender;
+    std::condition_variable mBufferDone;
 };
 
 }  // namespace aidl::android::hardware::automotive::evs::implementation
