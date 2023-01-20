@@ -18,12 +18,15 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehiclePropertyIds;
-import android.car.test.ApiCheckerRule.Builder;
+import android.car.annotation.ApiRequirements;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.SparseArray;
 
 import androidx.test.runner.AndroidJUnit4;
+
+import com.android.compatibility.common.util.ApiTest;
+import com.android.compatibility.common.util.NonApiTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,13 +57,10 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
                     "STORAGE_ENCRYPTION_BINDING_SEED",
                     "SHUTDOWN_REQUEST");
 
-    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
-    @Override
-    protected void configApiCheckerRule(Builder builder) {
-        builder.disableAnnotationsCheck();
-    }
-
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Large number of constant fields")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMatchingVehiclePropertyNamesInVehicleHal() {
         List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
         List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
@@ -92,6 +92,9 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
     }
 
     @Test
+    @NonApiTest(exemptionReasons = {}, justification = "Large number of constant fields")
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void testMatchingVehiclePropertyValuesInVehicleHal() {
         List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
         List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
@@ -131,6 +134,7 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.VehiclePropertyIds#toString"})
     public void testToString() {
         SparseArray<String> propsToString = new SparseArray<>();
 
