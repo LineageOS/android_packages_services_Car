@@ -1008,6 +1008,13 @@ package android.car.hardware.property {
     field public static final int STATE_ROLL = 2; // 0x2
   }
 
+  public final class ForwardCollisionWarningState {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING = 2; // 0x2
+  }
+
   public final class VehicleLightState {
     method @NonNull public static String toString(int);
     field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
@@ -1694,6 +1701,13 @@ package android.car.user {
     method public int describeContents();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserLifecycleEventFilter> CREATOR;
+  }
+
+  public static final class UserLifecycleEventFilter.Builder {
+    ctor public UserLifecycleEventFilter.Builder();
+    method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addEventType(int);
+    method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addUser(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserLifecycleEventFilter build();
   }
 
 }

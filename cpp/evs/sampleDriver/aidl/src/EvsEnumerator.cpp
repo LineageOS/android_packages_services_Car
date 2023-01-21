@@ -65,12 +65,16 @@ namespace aidl::android::hardware::automotive::evs::implementation {
 //        That is to say, this is effectively a singleton despite the fact that HIDL
 //        constructs a new instance for each client.
 std::unordered_map<std::string, EvsEnumerator::CameraRecord> EvsEnumerator::sCameraList;
-std::weak_ptr<EvsGlDisplay> EvsEnumerator::sActiveDisplay;
 std::mutex EvsEnumerator::sLock;
 std::condition_variable EvsEnumerator::sCameraSignal;
 std::unique_ptr<ConfigManager> EvsEnumerator::sConfigManager;
 std::shared_ptr<ICarDisplayProxy> EvsEnumerator::sDisplayProxy;
 std::unordered_map<uint8_t, uint64_t> EvsEnumerator::sDisplayPortList;
+
+EvsEnumerator::ActiveDisplays& EvsEnumerator::mutableActiveDisplays() {
+    static ActiveDisplays active_displays;
+    return active_displays;
+}
 
 void EvsEnumerator::EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
                                      std::atomic<bool>& running) {
@@ -418,12 +422,16 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
                 static_cast<int>(EvsResult::PERMISSION_DENIED));
     }
 
-    // If we already have a display active, then we need to shut it down so we can
-    // give exclusive access to the new caller.
-    std::shared_ptr<EvsGlDisplay> pActiveDisplay = sActiveDisplay.lock();
-    if (pActiveDisplay) {
-        LOG(WARNING) << "Killing previous display because of new caller";
-        closeDisplay(pActiveDisplay);
+    auto& displays = mutableActiveDisplays();
+
+    if (auto existing_display_search = displays.popDisplay(id)) {
+        // If we already have a display active, then we need to shut it down so we can
+        // give exclusive access to the new caller.
+        std::shared_ptr<EvsGlDisplay> pActiveDisplay = existing_display_search->displayWeak.lock();
+        if (pActiveDisplay) {
+            LOG(WARNING) << "Killing previous display because of new caller";
+            closeDisplay(pActiveDisplay);
+        }
     }
 
     // Create a new display interface and return it
@@ -437,8 +445,14 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
     }
 
     // Create a new display interface and return it.
-    pActiveDisplay = ::ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, targetDisplayId);
-    sActiveDisplay = pActiveDisplay;
+    std::shared_ptr<EvsGlDisplay> pActiveDisplay =
+            ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, targetDisplayId);
+
+    if (auto insert_result = displays.tryInsert(id, pActiveDisplay); !insert_result) {
+        LOG(ERROR) << "Display ID " << id << " has been used by another caller.";
+        pActiveDisplay->forceShutdown();
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::RESOURCE_BUSY));
+    }
 
     LOG(DEBUG) << "Returning new EvsGlDisplay object " << pActiveDisplay.get();
     *displayObj = pActiveDisplay;
@@ -448,19 +462,23 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
 ScopedAStatus EvsEnumerator::closeDisplay(const std::shared_ptr<IEvsDisplay>& obj) {
     LOG(DEBUG) << __FUNCTION__;
 
-    // Do we still have a display object we think should be active?
-    std::shared_ptr<EvsGlDisplay> pActiveDisplay = sActiveDisplay.lock();
+    auto& displays = mutableActiveDisplays();
+    const auto display_search = displays.popDisplay(obj);
+
+    if (!display_search) {
+        LOG(WARNING) << "Ignoring close of previously orphaned display - why did a client steal?";
+        return ScopedAStatus::ok();
+    }
+
+    auto pActiveDisplay = display_search->displayWeak.lock();
+
     if (!pActiveDisplay) {
         LOG(ERROR) << "Somehow a display is being destroyed "
                    << "when the enumerator didn't know one existed";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::OWNERSHIP_LOST));
-    } else if (pActiveDisplay != obj) {
-        LOG(WARNING) << "Ignoring close of previously orphaned display - why did a client steal?";
-    } else {
-        // Drop the active display
-        pActiveDisplay->forceShutdown();
     }
 
+    pActiveDisplay->forceShutdown();
     return ScopedAStatus::ok();
 }
 
@@ -472,8 +490,18 @@ ScopedAStatus EvsEnumerator::getDisplayState(DisplayState* state) {
                 static_cast<int>(EvsResult::PERMISSION_DENIED));
     }
 
+    // TODO(b/262779341): For now we can just return the state of the 1st display. Need to update
+    // the API later.
+
+    const auto& all_displays = mutableActiveDisplays().getAllDisplays();
+
     // Do we still have a display object we think should be active?
-    std::shared_ptr<IEvsDisplay> pActiveDisplay = sActiveDisplay.lock();
+    if (all_displays.empty()) {
+        *state = DisplayState::NOT_OPEN;
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::OWNERSHIP_LOST));
+    }
+
+    std::shared_ptr<IEvsDisplay> pActiveDisplay = all_displays.begin()->second.displayWeak.lock();
     if (pActiveDisplay) {
         return pActiveDisplay->getDisplayState(state);
     } else {
@@ -640,6 +668,69 @@ EvsEnumerator::CameraRecord* EvsEnumerator::findCameraById(const std::string& ca
 
     // We didn't find a match
     return nullptr;
+}
+
+std::optional<EvsEnumerator::ActiveDisplays::DisplayInfo> EvsEnumerator::ActiveDisplays::popDisplay(
+        int32_t id) {
+    std::lock_guard lck(mMutex);
+    const auto search = mIdToDisplay.find(id);
+    if (search == mIdToDisplay.end()) {
+        return std::nullopt;
+    }
+    const auto display_info = search->second;
+    mIdToDisplay.erase(search);
+    mDisplayToId.erase(display_info.internalDisplayRawAddr);
+    return display_info;
+}
+
+std::optional<EvsEnumerator::ActiveDisplays::DisplayInfo> EvsEnumerator::ActiveDisplays::popDisplay(
+        std::shared_ptr<IEvsDisplay> display) {
+    const auto display_ptr_val = reinterpret_cast<uintptr_t>(display.get());
+    std::lock_guard lck(mMutex);
+    const auto display_to_id_search = mDisplayToId.find(display_ptr_val);
+    if (display_to_id_search == mDisplayToId.end()) {
+        LOG(ERROR) << "Unknown display.";
+        return std::nullopt;
+    }
+    const auto id = display_to_id_search->second;
+    const auto id_to_display_search = mIdToDisplay.find(id);
+    mDisplayToId.erase(display_to_id_search);
+    if (id_to_display_search == mIdToDisplay.end()) {
+        LOG(ERROR) << "No correspsonding ID for the display, probably orphaned.";
+        return std::nullopt;
+    }
+    const auto display_info = id_to_display_search->second;
+    mIdToDisplay.erase(id);
+    return display_info;
+}
+
+std::unordered_map<int32_t, EvsEnumerator::ActiveDisplays::DisplayInfo>
+EvsEnumerator::ActiveDisplays::getAllDisplays() {
+    std::lock_guard lck(mMutex);
+    const auto id_to_display_map_copy = mIdToDisplay;
+    return id_to_display_map_copy;
+}
+
+bool EvsEnumerator::ActiveDisplays::tryInsert(int32_t id, std::shared_ptr<EvsGlDisplay> display) {
+    std::lock_guard lck(mMutex);
+    const auto display_ptr_val = reinterpret_cast<uintptr_t>(display.get());
+
+    auto id_to_display_insert_result =
+            mIdToDisplay.emplace(id,
+                                 DisplayInfo{
+                                         .id = id,
+                                         .displayWeak = display,
+                                         .internalDisplayRawAddr = display_ptr_val,
+                                 });
+    if (!id_to_display_insert_result.second) {
+        return false;
+    }
+    auto display_to_id_insert_result = mDisplayToId.emplace(display_ptr_val, id);
+    if (!display_to_id_insert_result.second) {
+        mIdToDisplay.erase(id);
+        return false;
+    }
+    return true;
 }
 
 ScopedAStatus EvsEnumerator::getUltrasonicsArrayList(

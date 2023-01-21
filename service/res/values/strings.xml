@@ -607,29 +607,29 @@
          apps (apps that have the same package name as the caller) installed in those zones,
          and manage the power of those zones.
         [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_monitor_occupant_zone">monitor the states of other occupant
+    <string name="car_permission_label_manage_remote_device">monitor the states of other occupant
         zones in the car and peer apps (apps that have the same package name as the caller)
         installed in those zones, and manage the power of those zones.</string>
     <!-- Permission text: monitor the states of other occupant zones in the car and peer apps (apps
          that have the same package name as the caller) installed in those zones, and manage the
          power of those zones.
         [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_monitor_occupant_zone">Monitor the states of other occupant
+    <string name="car_permission_desc_manage_remote_device">Monitor the states of other occupant
         zones in the car and peer apps (apps that have the same package name as the caller)
         installed in those zones, and manage the power of those zones.</string>
 
     <!-- Permission text: apps can establish connection and communicate to peer apps (apps that
          have the same package name as the caller)installed in other occupant zones in the car.
         [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_connect_occupant_zone">establish connection and communicate
-        to peer apps (apps that have the same package name as the caller) installed in other
-        occupant zones in the car</string>
+    <string name="car_permission_label_manage_occupant_connection">establish connection and
+        communicate to peer apps (apps that have the same package name as the caller) installed in
+        other occupant zones in the car</string>
     <!-- Permission text: apps can establish connection and communicate to peer apps (apps that
          have the same package name as the caller)installed in other occupant zones in the car.
         [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_connect_occupant_zone">Establish connection and communicate
-        to peer apps (apps that have the same package name as the caller) installed in other
-        occupant zones in the car.</string>
+    <string name="car_permission_desc_manage_occupant_connection">Establish connection and
+        communicate to peer apps (apps that have the same package name as the caller) installed in
+        other occupant zones in the car.</string>
 
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
