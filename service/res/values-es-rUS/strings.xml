@@ -190,13 +190,13 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Leer la información del estado del ADAS del vehículo."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"controlar la información de estado del ADAS del vehículo"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Controlar la información de estado del ADAS del vehículo."</string>
-    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
     <skip />
-    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
     <skip />
-    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
     <skip />
-    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Error de bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus no responde. Desconecta y vuelve a conectar la caja de la unidad central y enciende nuevamente el auto"</string>
