@@ -97,6 +97,8 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     private static final boolean TRACE = false;
 
+    private static final long SYNC_RUNNABLE_MAX_WAIT_TIME = 5_000L;
+
     @SuppressWarnings("IsLoggableTagLength")
     private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
@@ -370,7 +372,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }
         beginTrace("waitForComplete");
         for (int i = 0; i < syncs.size(); i++) {
-            syncs.get(i).waitForComplete();
+            syncs.get(i).waitForComplete(SYNC_RUNNABLE_MAX_WAIT_TIME);
         }
         endTrace(); // waitForComplete
         endTrace(); // completeAllHandlerThreadTasks
@@ -826,12 +828,15 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             }
         }
 
-        private void waitForComplete() {
+        private void waitForComplete(long maxWaitTime) {
+            long t0 = System.currentTimeMillis();
             synchronized (this) {
-                while (!mComplete) {
+                while (!mComplete && System.currentTimeMillis() - t0 < maxWaitTime) {
                     try {
                         wait();
                     } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new IllegalStateException("Interrupted SyncRunnable thread", e);
                     }
                 }
             }
