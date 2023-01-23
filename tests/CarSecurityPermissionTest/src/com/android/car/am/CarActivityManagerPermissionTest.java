@@ -23,6 +23,8 @@ import static org.junit.Assert.assertThrows;
 import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
+import android.os.Binder;
+import android.os.IBinder;
 import android.view.Display;
 import android.window.DisplayAreaOrganizer;
 
@@ -57,18 +59,53 @@ public class CarActivityManagerPermissionTest {
     @Test
     public void testSetPersistentActivity_requiresPermission() {
         ComponentName activity = new ComponentName("testPkg", "testActivity");
-        SecurityException thrown = assertThrows(SecurityException.class,
+        SecurityException e = assertThrows(SecurityException.class,
                 () -> mCarActivityManager.setPersistentActivity(activity, Display.DEFAULT_DISPLAY,
                         DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER));
 
-        assertThat(thrown.getMessage()).contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
     }
 
     @Test
     public void testRegisterTaskMonitor_requiresPermission() {
-        SecurityException thrown = assertThrows(SecurityException.class,
+        SecurityException e = assertThrows(SecurityException.class,
                 () -> mCarActivityManager.registerTaskMonitor());
 
-        assertThat(thrown.getMessage()).contains(android.Manifest.permission.MANAGE_ACTIVITY_TASKS);
+        assertThat(e).hasMessageThat().contains(android.Manifest.permission.MANAGE_ACTIVITY_TASKS);
+    }
+
+    @Test
+    public void testGetVisibleTasks_requiresPermission() {
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.getVisibleTasks());
+
+        assertThat(e).hasMessageThat().contains(android.Manifest.permission.MANAGE_ACTIVITY_TASKS);
+    }
+
+    @Test
+    public void testCreateTaskMirroringToken_requiresPermission() {
+        int taskId = 9999;
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.createTaskMirroringToken(taskId));
+
+        assertThat(e).hasMessageThat().contains(android.Manifest.permission.MANAGE_ACTIVITY_TASKS);
+    }
+
+    @Test
+    public void testCreateDisplayMirroringToken_requiresPermission() {
+        int taskId = 9999;
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.createDisplayMirroringToken(taskId));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_MIRROR_DISPLAY);
+    }
+
+    @Test
+    public void testGetMirroredSurface_requiresPermission() {
+        IBinder token = new Binder();
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.getMirroredSurface(token));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
     }
 }

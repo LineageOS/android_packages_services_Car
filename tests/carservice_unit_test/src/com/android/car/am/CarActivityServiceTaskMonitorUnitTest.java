@@ -320,7 +320,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     @Test
-    public void testGetMirroredSurface_throwsExceptionForInvisibleToken() throws Exception {
+    public void testGetMirroredSurface_returnsNullForInvisibleToken() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
         IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
@@ -330,8 +330,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
         // Now the Surface of the token will be invisible.
 
         Rect outBounds = new Rect();
-        assertThrows(IllegalStateException.class,
-                () -> mService.getMirroredSurface(token, outBounds));
+        assertThat(mService.getMirroredSurface(token, outBounds)).isNull();
     }
 
     @Test
@@ -369,7 +368,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     private boolean topTasksHasComponent(ComponentName component) {
-        for (TaskInfo topTaskInfoContainer : mService.getVisibleTasks()) {
+        for (TaskInfo topTaskInfoContainer : mService.getVisibleTasksInternal()) {
             if (topTaskInfoContainer.topActivity.equals(component)) {
                 return true;
             }

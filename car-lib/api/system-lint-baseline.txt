@@ -649,6 +649,8 @@ MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.o
 
 NotCloseable: android.car.oem.OemCarServiceComponent:
     Classes that release resources (release()) should implement AutoClosable and CloseGuard: class android.car.oem.OemCarServiceComponent
+NotCloseable: android.car.view.MirroredSurfaceView:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.view.MirroredSurfaceView
 
 
 NullableCollection: android.car.cluster.ClusterActivityState#getExtras():
@@ -731,6 +733,10 @@ ProtectedMember: android.car.cluster.renderer.InstrumentClusterRenderingService#
     Protected methods not allowed; must be public: method android.car.cluster.renderer.InstrumentClusterRenderingService.startNavigationActivity(android.content.ComponentName)}
 ProtectedMember: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockingPolicy():
     Protected methods not allowed; must be public: method android.car.content.pm.CarAppBlockingPolicyService.getAppBlockingPolicy()}
+ProtectedMember: android.car.view.MirroredSurfaceView#onAttachedToWindow():
+    Protected methods not allowed; must be public: method android.car.view.MirroredSurfaceView.onAttachedToWindow()}
+ProtectedMember: android.car.view.MirroredSurfaceView#onDetachedFromWindow():
+    Protected methods not allowed; must be public: method android.car.view.MirroredSurfaceView.onDetachedFromWindow()}
 ProtectedMember: android.car.vms.VmsPublisherClientService#onVmsPublisherServiceReady():
     Protected methods not allowed; must be public: method android.car.vms.VmsPublisherClientService.onVmsPublisherServiceReady()}
 

@@ -631,6 +631,16 @@
         communicate to peer apps (apps that have the same package name as the caller) installed in
         other occupant zones in the car.</string>
 
+    <!-- Permission text: apps can mirror the Surface of the other tasks. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_access_mirrored_surface">mirror the screen of other Apps</string>
+    <!-- Permission text: apps can mirror the Surface of the other tasks. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_access_mirrored_surface">Mirror the screen of other Apps.</string>
+
+    <!-- Permission text: apps can create an mirroring token for Display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_mirror_display">mirror the display of other users</string>
+    <!-- Permission text: apps can create an mirroring token for Display. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_mirror_display">Mirror the display of other users.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

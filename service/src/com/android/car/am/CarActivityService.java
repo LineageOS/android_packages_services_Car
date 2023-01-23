@@ -185,11 +185,15 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
-    private void ensureManageActivityTasksPermission() {
-        if (mContext.checkCallingOrSelfPermission(MANAGE_ACTIVITY_TASKS)
+    private void ensurePermission(String permission) {
+        if (mContext.checkCallingOrSelfPermission(permission)
                 != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("requires permission " + MANAGE_ACTIVITY_TASKS);
+            throw new SecurityException("requires permission " + permission);
         }
+    }
+
+    private void ensureManageActivityTasksPermission() {
+        ensurePermission(MANAGE_ACTIVITY_TASKS);
     }
 
     private void cleanUpToken(IBinder token) {
@@ -297,6 +301,12 @@ public final class CarActivityService extends ICarActivityService.Stub
      */
     @Override
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+        ensureManageActivityTasksPermission();
+        return getVisibleTasksInternal();
+    }
+
+    /** Car service internal version without the permission enforcement. */
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal() {
         ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
         synchronized (mLock) {
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
@@ -373,7 +383,8 @@ public final class CarActivityService extends ICarActivityService.Stub
                 taskSurface = mTaskToSurfaceMap.get(mTaskId);
             }
             if (taskInfo == null || taskSurface == null || !taskInfo.isVisible()) {
-                throw new IllegalStateException("Given Task is invisible: taskInfo=" + taskInfo);
+                Slogf.e(TAG, "TaskMirroringToken#getMirroredSurface: no task=%s", taskInfo);
+                return null;
             }
             outBounds.set(TaskInfoHelper.getBounds(taskInfo));
             return SurfaceControlHelper.mirrorSurface(taskSurface);
@@ -422,7 +433,7 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public IBinder createDisplayMirroringToken(int displayId) {
-        // TODO(b/254333504): Check permission.
+        ensurePermission(Car.PERMISSION_MIRROR_DISPLAY);
         return new DisplayMirroringToken(displayId);
     }
 
@@ -434,7 +445,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     @VisibleForTesting
     SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect outBounds, long tokenTimeoutMs) {
         assertPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0);
-        // TODO(b/254333504): Check permission.
+        ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
         MirroringToken mirroringToken;
         try {
             mirroringToken = (MirroringToken) token;
