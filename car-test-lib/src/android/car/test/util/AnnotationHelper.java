@@ -20,17 +20,23 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.annotation.AddedInOrBefore;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
 // TODO(b/237565347): Refactor this class so that 'field' and 'method' code is not repeated.
+/**
+ * Helper for evaluating annotations in tests.
+ */
 public class AnnotationHelper {
 
-    public static void checkForAnnotation(String[] classes, Class... annotationClasses)
+    public static void checkForAnnotation(String[] classes, HashSet<String> addedInOrBeforeApis,
+            Class<?>... annotationClasses)
             throws Exception {
         List<String> errorsNoAnnotation = new ArrayList<>();
         List<String> errorsExtraAnnotation = new ArrayList<>();
@@ -40,7 +46,8 @@ public class AnnotationHelper {
             Field[] fields = Class.forName(className).getDeclaredFields();
             for (int j = 0; j < fields.length; j++) {
                 Field field = fields[j];
-                boolean isAnnotated = containsAddedInAnnotation(field, annotationClasses);
+                boolean isAnnotated = containsAddedInAnnotation(field, addedInOrBeforeApis,
+                        annotationClasses);
                 boolean shouldBeAnnotated = Modifier.isPublic(field.getModifiers())
                         || Modifier.isProtected(field.getModifiers());
 
@@ -60,7 +67,8 @@ public class AnnotationHelper {
                 // These are some internal methods
                 if (method.isBridge() || method.isSynthetic()) continue;
 
-                boolean isAnnotated = containsAddedInAnnotation(method, annotationClasses);
+                boolean isAnnotated = containsAddedInAnnotation(method, addedInOrBeforeApis,
+                        annotationClasses);
                 boolean shouldBeAnnotated = Modifier.isPublic(method.getModifiers())
                         || Modifier.isProtected(method.getModifiers());
 
@@ -91,11 +99,17 @@ public class AnnotationHelper {
                 .that(errorsExtraAnnotation.size() + errorsNoAnnotation.size()).isEqualTo(0);
     }
 
+    public static void checkForAnnotation(String[] classes, Class<?>... annotationClasses)
+            throws Exception {
+        checkForAnnotation(classes, null, annotationClasses);
+    }
+
     @SuppressWarnings("unchecked")
-    private static boolean containsAddedInAnnotation(Field field, Class... annotationClasses) {
+    private static boolean containsAddedInAnnotation(Field field,
+            HashSet<String> addedInOrBeforeApis, Class<?>... annotationClasses) {
         for (int i = 0; i < annotationClasses.length; i++) {
-            if (field.getAnnotation(annotationClasses[i]) != null) {
-                validatedAddInOrBeforeAnnotation(field);
+            if (field.getAnnotation((Class<Annotation>) annotationClasses[i]) != null) {
+                validatedAddInOrBeforeAnnotation(field, addedInOrBeforeApis);
                 return true;
             }
         }
@@ -103,41 +117,70 @@ public class AnnotationHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static boolean containsAddedInAnnotation(Method method, Class... annotationClasses) {
+    private static boolean containsAddedInAnnotation(Method method,
+            HashSet<String> addedInOrBeforeApis, Class<?>... annotationClasses) {
         for (int i = 0; i < annotationClasses.length; i++) {
-            if (method.getAnnotation(annotationClasses[i]) != null) {
-                validatedAddInOrBeforeAnnotation(method);
+            if (method.getAnnotation((Class<Annotation>) annotationClasses[i]) != null) {
+                validatedAddInOrBeforeAnnotation(method, addedInOrBeforeApis);
                 return true;
             }
         }
         return false;
     }
 
-    private static void validatedAddInOrBeforeAnnotation(Field field) {
+    private static void validatedAddInOrBeforeAnnotation(Field field,
+            HashSet<String> addedInOrBeforeApis) {
         AddedInOrBefore annotation = field.getAnnotation(AddedInOrBefore.class);
+        String fullFieldName =
+                (field.getDeclaringClass().getName() + "." + field.getName()).replace('$', '.');
         if (annotation != null) {
-            assertWithMessage(field.getDeclaringClass() + ", field:" + field.getName()
-                    + " should not use AddedInOrBefore annotation. The annotation was reserved only"
-                    + " for APIs added in or before majorVersion:33, minorVersion:0")
-                            .that(annotation.majorVersion()).isEqualTo(33);
-            assertWithMessage(field.getDeclaringClass() + ", field:" + field.getName()
-                    + " should not use AddedInOrBefore annotation. The annotation was reserved only"
-                    + " for APIs added in or before majorVersion:33, minorVersion:0")
+            assertWithMessage(
+                    "%s, field: %s should not use AddedInOrBefore annotation. The annotation was "
+                            + "reserved only for APIs added in or before majorVersion:33, "
+                            + "minorVersion:0",
+                    field.getDeclaringClass(), field.getName())
+                    .that(annotation.majorVersion()).isEqualTo(33);
+            assertWithMessage(
+                    "%s, field: %s should not use AddedInOrBefore annotation. The annotation was "
+                            + "reserved only for APIs added in or before majorVersion:33, "
+                            + "minorVersion:0",
+                    field.getDeclaringClass(), field.getName())
                     .that(annotation.minorVersion()).isEqualTo(0);
+            if (addedInOrBeforeApis != null) {
+                assertWithMessage(
+                        "%s, field: %s was newly added and should not use the AddedInOrBefore "
+                                + "annotation.",
+                        field.getDeclaringClass(), field.getName())
+                        .that(addedInOrBeforeApis.contains(fullFieldName)).isTrue();
+            }
         }
     }
 
-    private static void validatedAddInOrBeforeAnnotation(Method method) {
+    private static void validatedAddInOrBeforeAnnotation(Method method,
+            HashSet<String> addedInOrBeforeApis) {
         AddedInOrBefore annotation = method.getAnnotation(AddedInOrBefore.class);
+        String fullMethodName =
+                (method.getDeclaringClass().getName() + "." + method.getName()).replace('$', '.');
         if (annotation != null) {
-            assertWithMessage(method.getDeclaringClass() + ", method:" + method.getName()
-                    + " should not use AddedInOrBefore annotation. The annotation was reserved only"
-                    + " for APIs added in or before majorVersion:33, minorVersion:0")
-                            .that(annotation.majorVersion()).isEqualTo(33);
-            assertWithMessage(method.getDeclaringClass() + ", method:" + method.getName()
-                    + " should not use AddedInOrBefore annotation. The annotation was reserved only"
-                    + " for APIs added in or before majorVersion:33, minorVersion:0")
-                            .that(annotation.minorVersion()).isEqualTo(0);
+            assertWithMessage(
+                    "%s, method: %s should not use AddedInOrBefore annotation. The annotation was "
+                            + "reserved only for APIs added in or before majorVersion:33, "
+                            + "minorVersion:0",
+                    method.getDeclaringClass(), method.getName())
+                    .that(annotation.majorVersion()).isEqualTo(33);
+            assertWithMessage(
+                    "%s, method: %s should not use AddedInOrBefore annotation. The annotation was "
+                            + "reserved only for APIs added in or before majorVersion:33, "
+                            + "minorVersion:0",
+                    method.getDeclaringClass(), method.getName())
+                    .that(annotation.minorVersion()).isEqualTo(0);
+            if (addedInOrBeforeApis != null) {
+                assertWithMessage(
+                        "%s, method: %s was newly added and should not use the AddedInOrBefore "
+                                + "annotation.",
+                        method.getDeclaringClass(), method.getName())
+                        .that(addedInOrBeforeApis.contains(fullMethodName)).isTrue();
+            }
         }
     }
 }
