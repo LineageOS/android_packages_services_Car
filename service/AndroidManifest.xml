@@ -1060,9 +1060,26 @@
         android:label="@string/car_permission_label_mirror_display"
         android:description="@string/car_permission_desc_mirror_display"/>
 
-     <!-- Allows an application to read the vehicle's windshield wipers.
-         <p>Protection level: signature|privileged
-      -->
+    <!-- Allows an application to register itself as the system ui proxy. It is intended to be used
+     only by the car system ui.
+     <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_register_car_system_ui_proxy"
+        android:description="@string/car_permission_desc_register_car_system_ui_proxy"/>
+
+    <!-- Allows an application to manage the car system ui and create task views.
+     <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.MANAGE_CAR_SYSTEM_UI"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_manage_car_system_ui"
+        android:description="@string/car_permission_desc_manage_car_system_ui"/>
+
+    <!-- Allows an application to read the vehicle's windshield wipers.
+        <p>Protection level: signature|privileged
+     -->
      <permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS"
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_read_windshield_wipers"
