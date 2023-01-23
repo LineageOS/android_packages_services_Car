@@ -34,7 +34,7 @@ interface ICarOccupantConnection {
     void registerOccupantZoneStateCallback(in IOccupantZoneStateCallback callback);
     void unregisterOccupantZoneStateCallback();
 
-    PackageInfo getEndpointPackageInfo(in CarOccupantZoneManager.OccupantZoneInfo occupantZone);
+    PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName);
 
     void controlOccupantZonePower(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
         boolean powerOn);
