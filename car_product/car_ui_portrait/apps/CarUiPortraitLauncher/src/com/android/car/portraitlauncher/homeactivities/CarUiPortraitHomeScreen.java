@@ -698,8 +698,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // Animate the root app area first and then change the background app area size to avoid
             // black patch on screen.
             onAnimationEnd = () -> {
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(true));
+                // TODO(b/265959717): notify the systemUI with new message, currently this is only
+                // triggered by SUW, and it's already handled by systemUI before systemUI notify
+                // the client. will need another api for auto hide.
                 mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITHOUT_SYS_BAR));
                 mIsAnimating = false;
                 setHomeScreenBottomMargin(/* bottomMargin= */ 0);
@@ -713,8 +714,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // Animate the root app area first and then change the background app area size to avoid
             // black patch on screen.
             onAnimationEnd = () -> {
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(true));
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
+                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(true));
                 mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITH_SYS_BAR));
                 mIsAnimating = false;
                 mRootTaskView.onLocationChanged();
