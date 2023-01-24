@@ -45,6 +45,8 @@ import java.util.stream.Collectors;
  *   {@link Builder#setTimeout(long)}).
  *   <li>{@link #forSpecificEvents()}: it blocks (through the {@link #waitForEvents()} call) until
  *   all events specified by the {@link Builder} are received.
+ *   <li>{@link #forNoExpectedEvent()} ()}: it blocks (through the {@link #waitForEvents()} call)
+ *   only for the specified timeout, but does not anticipate that the expected events are received.
  * </ul>
  */
 public final class BlockingUserLifecycleListener implements UserLifecycleListener {
@@ -80,6 +82,9 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
 
     private final long mTimeoutMs;
 
+    // This indicates if the listener does not expect any events.
+    private final boolean mForNoEvents;
+
     private final int mId = ++sNextId;
 
     private BlockingUserLifecycleListener(Builder builder) {
@@ -87,6 +92,7 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
                 .unmodifiableList(new ArrayList<>(builder.mExpectedEventTypes));
         mExpectedEventTypesLeft = builder.mExpectedEventTypes;
         mTimeoutMs = builder.mTimeoutMs;
+        mForNoEvents = builder.mForNoEvents;
         mForUserId = builder.mForUserId;
         mForPreviousUserId = builder.mForPreviousUserId;
         Log.d(TAG, "constructor: " + this);
@@ -95,17 +101,22 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
     /**
      * Creates a builder for tests that need to wait for an arbitrary event.
      */
-    @NonNull
     public static Builder forAnyEvent() {
-        return new Builder(/* forAnyEvent= */ true);
+        return new Builder(/* forAnyEvent= */ true, /* forNoEvents= */ false);
     }
 
     /**
      * Creates a builder for tests that need to wait for specific events.
      */
-    @NonNull
     public static Builder forSpecificEvents() {
-        return new Builder(/* forAnyEvent= */ false);
+        return new Builder(/* forAnyEvent= */ false, /* forNoEvents= */ false);
+    }
+
+    /**
+     * Creates a builder for tests that don't expect any specific event to occur.
+     */
+    public static Builder forNoExpectedEvent() {
+        return new Builder(/* forAnyEvent= */ false, /* forNoEvents= */ true);
     }
 
     /**
@@ -114,9 +125,11 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
     public static final class Builder {
         private long mTimeoutMs = DEFAULT_TIMEOUT_MS;
         private final boolean mForAnyEvent;
+        private final boolean mForNoEvents;
 
-        private Builder(boolean forAnyEvent) {
+        private Builder(boolean forAnyEvent, boolean forNoEvents) {
             mForAnyEvent = forAnyEvent;
+            mForNoEvents = forNoEvents;
         }
 
         @UserLifecycleEventType
@@ -290,7 +303,18 @@ public final class BlockingUserLifecycleListener implements UserLifecycleListene
     }
 
     private void waitForExpectedEvents() throws InterruptedException {
-        if (!mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS)) {
+        boolean mLatchResult = mLatch.await(mTimeoutMs, TimeUnit.MILLISECONDS);
+
+        if (mForNoEvents) {
+            // Do not throw an exception if no events are expected.
+            synchronized (mLock) {
+                Log.v(TAG, "No specified events are expected but waitForExpectedEvents() received: "
+                        + mExpectedEventsReceived);
+            }
+            return;
+        }
+
+        if (!mLatchResult) {
             String errorMessage = "did not receive all expected events (" + stateToString() + ")";
             Log.e(TAG, errorMessage);
             throw new IllegalStateException(errorMessage);

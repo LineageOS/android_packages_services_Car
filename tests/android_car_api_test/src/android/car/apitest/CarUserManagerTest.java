@@ -32,11 +32,9 @@ import android.car.Car;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
-import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.pm.UserInfo;
 import android.os.Process;
-import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -49,7 +47,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
@@ -348,50 +345,5 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
     private static boolean isDeviceEmulator() {
         return SystemProperties.get("ro.product.system.device").equals("generic");
-    }
-
-    // TODO(b/244594590): Clean this listener up once BlockingUserLifecycleListener supports
-    // no events received.
-    private final class LifecycleListener implements UserLifecycleListener {
-        private static final int TIMEOUT_MS = 60_000;
-        private static final int WAIT_TIME_MS = 1_000;
-
-        private final List<UserLifecycleEvent> mEvents =
-                new ArrayList<CarUserManager.UserLifecycleEvent>();
-
-        private final Object mLock = new Object();
-
-        @Override
-        public void onEvent(UserLifecycleEvent event) {
-            Log.d(TAG, "Event received: " + event);
-            synchronized (mLock) {
-                mEvents.add(event);
-            }
-        }
-
-        public void assertEventNotReceived(int userId, int eventType)
-                throws InterruptedException {
-            long startTime = SystemClock.elapsedRealtime();
-            while (SystemClock.elapsedRealtime() - startTime < TIMEOUT_MS) {
-                boolean result = checkEvent(userId, eventType);
-                if (result) {
-                    fail("Event" + eventType
-                            + " was not expected but was received within timeoutMs: " + TIMEOUT_MS);
-                }
-                Thread.sleep(WAIT_TIME_MS);
-            }
-        }
-
-        private boolean checkEvent(int userId, int eventType) {
-            synchronized (mLock) {
-                for (int i = 0; i < mEvents.size(); i++) {
-                    if (mEvents.get(i).getUserHandle().getIdentifier() == userId
-                            && mEvents.get(i).getEventType() == eventType) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
     }
 }
