@@ -90,7 +90,7 @@ public final class CarAudioManager extends CarManagerBase {
      * {@link #isAudioFeatureEnabled()}
      */
     @AddedInOrBefore(majorVersion = 33)
-    public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 0x1;
+    public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1;
 
     /**
      * This is used to determine if volume group muting is enabled via
@@ -102,12 +102,24 @@ public final class CarAudioManager extends CarManagerBase {
      * disabled, car volume will toggle master mute instead.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 0x2;
+    public static final int AUDIO_FEATURE_VOLUME_GROUP_MUTING = 2;
+
+    /**
+     * This is used to determine if the OEM audio service is enabled via
+     * {@link #isAudioFeatureEnabled()}
+     *
+     * <p>If enabled, car audio focus, car audio volume, and ducking control behaviour can change
+     * as it can be OEM dependent.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3;
 
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
-            AUDIO_FEATURE_VOLUME_GROUP_MUTING
+            AUDIO_FEATURE_VOLUME_GROUP_MUTING,
+            AUDIO_FEATURE_OEM_AUDIO_SERVICE
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}

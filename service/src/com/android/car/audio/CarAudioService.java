@@ -18,6 +18,7 @@ package com.android.car.audio;
 import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE;
 import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
@@ -95,6 +96,7 @@ import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.oem.CarOemProxyService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -491,10 +493,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 return mUseDynamicRouting;
             case AUDIO_FEATURE_VOLUME_GROUP_MUTING:
                 return mUseCarVolumeGroupMuting;
+            case AUDIO_FEATURE_OEM_AUDIO_SERVICE:
+                return isAnyOemFeatureEnabled();
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);
         }
+    }
+
+    private boolean isAnyOemFeatureEnabled() {
+        CarOemProxyService proxy = CarLocalServices.getService(CarOemProxyService.class);
+
+        return proxy != null && proxy.isOemServiceEnabled()
+                && (proxy.getCarOemAudioFocusService() != null
+                || proxy.getCarOemAudioVolumeService() != null
+                || proxy.getCarOemAudioDuckingService() != null);
     }
 
     /**
