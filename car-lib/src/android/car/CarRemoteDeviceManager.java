@@ -249,14 +249,15 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
         synchronized (mLock) {
             Preconditions.checkState(!mCallbackToExecutorMap.containsKey(callback),
                     "The OccupantZoneStateCallback was registered already");
-            mCallbackToExecutorMap.put(callback, executor);
-            if (mCallbackToExecutorMap.size() == 1) {
+            if (mCallbackToExecutorMap.isEmpty()) {
                 // This is the first client callback, so register the mBinderCallback.
                 // The client callback will be invoked when mBinderCallback is invoked.
                 try {
                     mService.registerOccupantZoneStateCallback(mBinderCallback);
+                    // Put the callback into the map only when the remote call succeeded, otherwise
+                    // it may get stuck in a bad state permanently.
+                    mCallbackToExecutorMap.put(callback, executor);
                 } catch (RemoteException e) {
-                    mCallbackToExecutorMap.clear();
                     Log.e(TAG, "Failed to register OccupantZoneStateCallback");
                     handleRemoteExceptionFromCarService(e);
                 }
