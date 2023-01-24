@@ -37,7 +37,7 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi
-@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+@ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class CarVolumeGroupInfo implements Parcelable {
 
@@ -93,7 +93,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Creator<CarVolumeGroupInfo> CREATOR = new Creator<>() {
@@ -112,7 +112,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
@@ -121,7 +121,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume group name
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public @NonNull String getName() {
         return mName;
@@ -130,7 +130,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the zone id where the volume group belongs
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getZoneId() {
         return mZoneId;
@@ -139,7 +139,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume group id
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getId() {
         return mId;
@@ -148,7 +148,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume group volume gain index
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getVolumeGainIndex() {
         return mVolumeGainIndex;
@@ -157,7 +157,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume group max volume gain index
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getMaxVolumeGainIndex() {
         return mMaxVolumeGainIndex;
@@ -166,7 +166,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume group min volume gain index
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int getMinVolumeGainIndex() {
         return mMinVolumeGainIndex;
@@ -175,7 +175,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume mute state, {@code true} for muted
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isMuted() {
         return mIsMuted;
@@ -184,7 +184,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume blocked state, {@code true} for blocked
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isBlocked() {
         return mIsBlocked;
@@ -193,14 +193,14 @@ public final class CarVolumeGroupInfo implements Parcelable {
     /**
      * Returns the volume attenuated state, {@code true} for attenuated
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isAttenuated() {
         return mIsAttenuated;
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
@@ -215,7 +215,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(mZoneId);
@@ -235,7 +235,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
      *
      * @return {@code true} if the group info is the same, {@code false} otherwise
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean isSameVolumeGroup(@Nullable CarVolumeGroupInfo group) {
         return  group != null && mZoneId == group.mZoneId && mId == group.mId
@@ -243,7 +243,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
@@ -264,7 +264,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
@@ -275,7 +275,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
      * A builder for {@link CarVolumeGroupInfo}
      */
     @SuppressWarnings("WeakerAccess")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class Builder {
 
@@ -313,7 +313,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group volume gain index
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setVolumeGainIndex(int gainIndex) {
             checkNotUsed();
@@ -324,7 +324,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group max volume gain index
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setMaxVolumeGainIndex(int gainIndex) {
             checkNotUsed();
@@ -335,7 +335,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group min volume gain index
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setMinVolumeGainIndex(int gainIndex) {
             checkNotUsed();
@@ -346,7 +346,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group muted state,  {@code true} for muted
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setMuted(boolean muted) {
             checkNotUsed();
@@ -357,7 +357,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group blocked state, {@code true} for blocked
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setBlocked(boolean blocked) {
             checkNotUsed();
@@ -368,7 +368,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         /**
          * Sets the volume group attenuated state, {@code true} for attenuated
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public @NonNull Builder setAttenuated(boolean attenuated) {
             checkNotUsed();
@@ -385,7 +385,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
          *
          * @throws IllegalStateException if the constructor is re-used
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public CarVolumeGroupInfo build() {

@@ -16,6 +16,7 @@
 package android.car.oem;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.media.AudioFocusInfo;
 
@@ -31,13 +32,13 @@ import java.util.List;
  *
  * @hide
  */
+@SystemApi
 public interface OemCarAudioFocusService extends OemCarServiceComponent {
     /**
      * Notifies of audio focus changes in car focus stack. It is one way call for OEM Service.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId);
 
@@ -62,7 +63,7 @@ public interface OemCarAudioFocusService extends OemCarServiceComponent {
      * Everytime there is focus change the blocked entries will be re-evaluated to determine
      * which can regain, lose, or continue with block focus.
      **/
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     OemCarAudioFocusResult evaluateAudioFocusRequest(
