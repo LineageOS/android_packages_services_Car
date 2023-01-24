@@ -53,7 +53,7 @@ public interface OemCarAudioVolumeService extends OemCarServiceComponent {
      *
      * @return the selected volume group which should change.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     OemCarVolumeChangeInfo getSuggestedGroupForVolumeChange(

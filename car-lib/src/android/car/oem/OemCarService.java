@@ -19,6 +19,7 @@ package android.car.oem;
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarVersion;
 import android.car.annotation.ApiRequirements;
@@ -47,6 +48,7 @@ import java.util.Map;
  *
  * @hide
  */
+@SystemApi
 public abstract class OemCarService extends Service {
 
     private static final String TAG = OemCarService.class.getSimpleName();
@@ -250,7 +252,7 @@ public abstract class OemCarService extends Service {
      */
     @Nullable
     @SuppressWarnings("[OnNameExpected]")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public OemCarAudioFocusService getOemAudioFocusService() {
         if (DBG) {
@@ -266,7 +268,7 @@ public abstract class OemCarService extends Service {
      */
     //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("OnNameExpected")
     public OemCarAudioVolumeService getOemAudioVolumeService() {
@@ -283,7 +285,7 @@ public abstract class OemCarService extends Service {
      */
     //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("OnNameExpected")
     public OemCarAudioDuckingService getOemAudioDuckingService() {
