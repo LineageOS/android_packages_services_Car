@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,6 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.os.UserHandle;
 import android.os.UserManager;
-
-import com.google.common.truth.Subject;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -179,15 +177,5 @@ public final class UserHandleHelperUnitTest extends AbstractExtendedMockitoTestC
         doReturn(userHandles).when(
                 () -> UserManagerHelper.getUserHandles(mUserManager, excludePartial, excludeDying,
                         excludePreCreated));
-    }
-
-
-    // TODO(b/266146969): Remove this when the inherited expectThat is updated.
-    protected Subject expectThat(UserHandle actual) {
-        return mExpect.that(actual);
-    }
-
-    protected Subject expectThat(List<UserHandle>  actual) {
-        return mExpect.that(actual);
     }
 }

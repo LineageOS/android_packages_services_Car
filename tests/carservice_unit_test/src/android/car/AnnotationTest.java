@@ -18,6 +18,8 @@ package android.car;
 
 import static android.car.test.util.AnnotationHelper.checkForAnnotation;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 
@@ -29,13 +31,19 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashSet;
 
 public final class AnnotationTest {
     private static final String TAG = AnnotationTest.class.getSimpleName();
 
     @Test
     public void testCarAPIApiRequirementsAnnotation() throws Exception {
-        checkForAnnotation(readFile(R.raw.car_api_classes), ApiRequirements.class,
+        HashSet<String> addedInOrBeforeApis = readAddedInOrBeforeFile(
+                R.raw.car_addedinorbefore_apis);
+        assertThat(addedInOrBeforeApis).isNotEmpty();
+        checkForAnnotation(readFile(R.raw.car_api_classes), addedInOrBeforeApis,
+                ApiRequirements.class,
                 AddedInOrBefore.class);
     }
 
@@ -50,5 +58,9 @@ public final class AnnotationTest {
                 .getResources().openRawResource(resourceId)) {
             return new String(configurationStream.readAllBytes()).split("\n");
         }
+    }
+
+    private HashSet<String> readAddedInOrBeforeFile(int resourceId) throws IOException {
+        return new HashSet<>(Arrays.asList(readFile(resourceId)));
     }
 }

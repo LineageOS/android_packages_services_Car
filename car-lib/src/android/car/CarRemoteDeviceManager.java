@@ -208,11 +208,13 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             };
 
     private final ICarOccupantConnection mService;
+    private final String mPackageName;
 
     /** @hide */
     public CarRemoteDeviceManager(Car car, IBinder service) {
         super(car);
         mService = ICarOccupantConnection.Stub.asInterface(service);
+        mPackageName = mCar.getContext().getPackageName();
     }
 
     /** @hide */
@@ -314,7 +316,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     public PackageInfo getEndpointPackageInfo(@NonNull OccupantZoneInfo occupantZone) {
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {
-            return mService.getEndpointPackageInfo(occupantZone);
+            return mService.getEndpointPackageInfo(occupantZone.zoneId, mPackageName);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to get peer endpoint PackageInfo in " + occupantZone);
             return handleRemoteExceptionFromCarService(e, null);

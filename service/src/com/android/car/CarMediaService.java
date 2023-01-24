@@ -17,15 +17,17 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
+import static android.car.builtin.os.UserManagerHelper.getMaxSupportedUsers;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getHandlerThread;
-import static com.android.car.CarServiceUtils.isEventAnyOfTypes;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -34,6 +36,7 @@ import android.annotation.TestApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimeUtils;
 import android.car.hardware.power.CarPowerPolicy;
@@ -141,7 +144,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      */
     // TODO(b/262734537) Specify the initial capacity.
     @GuardedBy("mLock")
-    private SparseArray<UserMediaPlayContext> mUserMediaPlayContexts = new SparseArray<>();
+    private final SparseArray<UserMediaPlayContext> mUserMediaPlayContexts;
 
     // NOTE: must use getSharedPrefsForWriting() to write to it
     private SharedPreferences mSharedPrefs;
@@ -250,20 +253,32 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     };
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
-        if (!isEventAnyOfTypes(TAG, event,
-                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
-            return;
-        }
         if (DEBUG) {
             Slogf.d(TAG, "CarMediaService.onEvent(%s)", event);
         }
 
+        // Note that we receive different event types based on the platform version, beacause of
+        // the way we build the filter when registering the listener.
+        //
+        // Before U:
+        //   Receives USER_SWITCHING and USER UNLOCKED
+        // U and after:
+        //   Receives USER_VISIBLE, USER_INVISIBLE, and USER_UNLOCKED
+        //
+        // See the constructor of this class to see how the UserLifecycleEventFilter is built
+        // differently based on the platform version.
         switch (event.getEventType()) {
             case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
-                maybeInitUser(event.getUserId());
+                onUserSwitch(event.getPreviousUserId(), event.getUserId());
+                break;
+            case USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
+                onUserVisible(event.getUserId());
                 break;
             case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                 onUserUnlocked(event.getUserId());
+                break;
+            case USER_LIFECYCLE_EVENT_TYPE_INVISIBLE:
+                onUserInvisible(event.getUserId());
                 break;
             default:
                 break;
@@ -353,6 +368,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mDefaultIndependentPlaybackConfig = mContext.getResources().getBoolean(
                 R.bool.config_mediaSourceIndependentPlayback);
+        mUserMediaPlayContexts =
+                new SparseArray<UserMediaPlayContext>(getMaxSupportedUsers(context));
 
         mPackageUpdateFilter = new IntentFilter();
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
@@ -362,12 +379,19 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         mOccupantZoneService = occupantZoneService;
         mUserService = userService;
-        UserLifecycleEventFilter userSwitchingOrUnlockedEventFilter =
+
+        // Before U, only listen to USER_SWITCHING and USER_UNLOCKED.
+        // U and after, only listen to USER_VISIBLE, USER_INVISIBLE, and USER_UNLOCKED.
+        UserLifecycleEventFilter.Builder userLifecycleEventFilterBuilder =
                 new UserLifecycleEventFilter.Builder()
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
-                                .build();
-        mUserService.addUserLifecycleListener(userSwitchingOrUnlockedEventFilter,
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
+        if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
+                    .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
+        } else {
+            userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        }
+        mUserService.addUserLifecycleListener(userLifecycleEventFilterBuilder.build(),
                 mUserLifecycleListener);
 
         mPlayOnMediaSourceChangedConfig =
@@ -389,7 +413,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         setPowerPolicyListener();
     }
 
-    void maybeInitUser(@UserIdInt int userId) {
+    private void maybeInitUser(@UserIdInt int userId) {
         if (userId == UserHandle.SYSTEM.getIdentifier() && UserManager.isHeadlessSystemUserMode()) {
             if (DEBUG) {
                 Slogf.d(TAG, "maybeInitUser(%d): No need to initialize for the"
@@ -407,8 +431,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     /** Initializes car media service data for the specified user. */
-    @VisibleForTesting
-    public void initUser(@UserIdInt int userId) {
+    private void initUser(@UserIdInt int userId) {
         if (DEBUG) {
             Slogf.d(TAG, "initUser(): userId=%d, mSharedPrefs=%s", userId, mSharedPrefs);
         }
@@ -554,13 +577,31 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         synchronized (mLock) {
             int userArraySize = mUserMediaPlayContexts.size();
             for (int i = 0; i < userArraySize; i++) {
-                UserMediaPlayContext userMediaContext = mUserMediaPlayContexts.valueAt(i);
-                userMediaContext.mMediaSessionUpdater.unregisterCallbacks();
+                clearUserDataLocked(mUserMediaPlayContexts.keyAt(i));
             }
         }
         mUserService.removeUserLifecycleListener(mUserLifecycleListener);
         CarLocalServices.getService(CarPowerManagementService.class)
                 .removePowerPolicyListener(mPowerPolicyListener);
+    }
+
+    /** Clears the user data for {@code userId}. */
+    @GuardedBy("mLock")
+    private void clearUserDataLocked(@UserIdInt int userId) {
+        if (DEBUG) {
+            Slogf.d(TAG, "clearUserDataLocked() for user %d", userId);
+        }
+        UserMediaPlayContext userMediaContext = mUserMediaPlayContexts.get(userId);
+        if (userMediaContext == null) {
+            return;
+        }
+
+        if (userMediaContext.mContext != null) {
+            userMediaContext.mContext.unregisterReceiver(mPackageUpdateReceiver);
+        }
+        userMediaContext.mMediaSessionUpdater.unregisterCallbacks();
+        mMediaSessionManager.removeOnActiveSessionsChangedListener(
+                userMediaContext.mSessionsListener);
     }
 
     @Override
@@ -796,6 +837,37 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         }
     }
 
+    /** Clears data for {@code fromUserId}, and initializes data for {@code toUserId}. */
+    private void onUserSwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        if (DEBUG) {
+            Slogf.d(TAG, "onUserSwitch() fromUserId=%d, toUserId=%d", fromUserId, toUserId);
+        }
+        // Clean up the data of the fromUser.
+        if (fromUserId != UserHandle.SYSTEM.getIdentifier()) {
+            onUserInvisible(fromUserId);
+        }
+        // Initialize the data of the toUser.
+        onUserVisible(toUserId);
+    }
+
+    private void onUserVisible(@UserIdInt int userId) {
+        if (DEBUG) {
+            Slogf.d(TAG, "onUserVisible() for user=%d", userId);
+        }
+        maybeInitUser(userId);
+    }
+
+    /** Clears the user data when the user becomes invisible. */
+    private void onUserInvisible(@UserIdInt int userId) {
+        if (DEBUG) {
+            Slogf.d(TAG, "onUserInvisible(): userId=%d. Clearing data for the user.", userId);
+        }
+        synchronized (mLock) {
+            clearUserDataLocked(userId);
+            mUserMediaPlayContexts.delete(userId);
+        }
+    }
+
     // TODO(b/153115826): this method was used to be called from the ICar binder thread, but it's
     // now called by UserCarService. Currently UserCarService is calling every listener in one
     // non-main thread, but it's not clear how the final behavior will be. So, for now it's ok
@@ -886,8 +958,6 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private UserMediaPlayContext getOrCreateUserMediaPlayContextLocked(@UserIdInt int userId) {
         UserMediaPlayContext userMediaContext = mUserMediaPlayContexts.get(userId);
         if (userMediaContext == null) {
-            // TODO(b/262734537): Currently we do not delete the user-specific data.
-            // Consider listening to USER_INVISIBLE lifecycle event and clean up the user data.
             userMediaContext = new UserMediaPlayContext(userId, mDefaultIndependentPlaybackConfig);
             mUserMediaPlayContexts.set(userId, userMediaContext);
             if (DEBUG) {

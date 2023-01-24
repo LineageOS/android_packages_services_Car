@@ -74,7 +74,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
                             .setId(CAR_DATA_ID_1))
                     .build();
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_1 =
-            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "", 0);
     private static final String[] SESSION_ANNOTATION_KEYS =
             {Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID,
                     Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON,

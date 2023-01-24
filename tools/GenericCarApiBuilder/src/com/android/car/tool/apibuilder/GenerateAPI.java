@@ -39,6 +39,7 @@ import java.util.List;
 
 /**
  * Class to generate API txt file.
+ * Build with `m -j GenericCarApiBuilder`
  */
 public final class GenerateAPI {
 
@@ -56,6 +57,9 @@ public final class GenerateAPI {
     private static final String CAR_HIDDEN_API_FILE =
             "/packages/services/Car/tests/carservice_unit_test/res/raw/"
             + "car_hidden_apis.txt";
+    private static final String CAR_ADDEDINORBEFORE_API_FILE =
+            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+                    + "car_addedinorbefore_apis.txt";
     private static final String API_TXT_SAVE_PATH =
             "/packages/services/Car/tools/GenericCarApiBuilder/";
     private static final String COMPLETE_CAR_API_LIST = "complete_car_api_list.txt";
@@ -71,6 +75,8 @@ public final class GenerateAPI {
     private static final String PRINT_HIDDEN_API_FOR_TEST = "--print-hidden-api-for-test";
     private static final String PRINT_SHORTFORM_FULL_API_FOR_TEST =
             "--print-shortform-full-api-for-test";
+    private static final String GENERATE_ADDEDINORBEFORE_API_FOR_TEST =
+            "--generate-addedinorbefore-api-for-test";
 
     // Print Level: Describes desired print level for the tool
     // PRINT_SHORT prints only a condensed version of the APIs.
@@ -78,6 +84,7 @@ public final class GenerateAPI {
     private static final int PRINT_DEFAULT = 0;
     private static final int PRINT_SHORT = 1;
     private static final int PRINT_HIDDEN_ONLY = 2;
+    private static final int PRINT_ADDEDINORBEFORE_ONLY = 3;
 
     /**
      * Main method for generate API txt file.
@@ -160,6 +167,17 @@ public final class GenerateAPI {
                 return;
             }
 
+            if (args.length > 0 && args[0].equalsIgnoreCase(
+                    GENERATE_ADDEDINORBEFORE_API_FOR_TEST)) {
+                List<String> allCarAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    allCarAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_ADDEDINORBEFORE_ONLY));
+                }
+                writeListToFile(rootDir + CAR_ADDEDINORBEFORE_API_FILE, allCarAPIs);
+                return;
+            }
+
             if (args.length > 0 && args[0].equalsIgnoreCase(GENERATE_FULL_API_LIST)) {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
@@ -209,6 +227,9 @@ public final class GenerateAPI {
                 + " testing. Results would be printed.");
         System.out.println(UPDATE_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
                 + " testing. Results would be updated in " + CAR_HIDDEN_API_FILE);
+        System.out.println(GENERATE_ADDEDINORBEFORE_API_FOR_TEST
+                + " : Would generate the api list that contains the @AddedInOrBefore annotation. "
+                + "Results would be updated in " + CAR_ADDEDINORBEFORE_API_FILE);
         System.out.println("Second optional argument is value of Git Root Directory. By default, "
                 + "it is environment variable ANDROID_BUILD_TOP. If environment variable is not set"
                 + "then provide using --android-build-top <directory>");
@@ -315,7 +336,10 @@ public final class GenerateAPI {
                 List<FieldDeclaration> fields = n.getFields();
                 for (int i = 0; i < fields.size(); i++) {
                     FieldDeclaration field = fields.get(i);
-                    if (!field.isPublic() && !field.isProtected()) {
+                    if (n.isInterface() && field.isPrivate()) {
+                        continue;
+                    }
+                    if (!n.isInterface() && !field.isPublic() && !field.isProtected()) {
                         continue;
                     }
 
@@ -336,6 +360,7 @@ public final class GenerateAPI {
 
                     boolean isSystem = false;
                     boolean isHidden = false;
+                    boolean hasAddedInOrBefore = false;
                     String version = "";
 
                     if (!field.getJavadoc().isEmpty()) {
@@ -349,15 +374,7 @@ public final class GenerateAPI {
                             isSystem = true;
                         }
                         if (annotationString.contains("AddedInOrBefore")) {
-                            String major = getVersion(annotations.get(j), "majorVersion");
-                            String minor = getVersion(annotations.get(j), "minorVersion");
-                            if (!minor.equals("0")) {
-                                System.out.println("ERROR:  minor should be zero for " + field);
-                            }
-                            if (!major.equals("33")) {
-                                System.out.println("ERROR:  major should be 33 for " + field);
-                            }
-                            version = "TIRAMISU_0";
+                            hasAddedInOrBefore = true;
                         }
                         if (annotationString.equals("AddedIn")) {
                             String major = getVersion(annotations.get(j), "majorVersion");
@@ -410,6 +427,10 @@ public final class GenerateAPI {
                                 parsedList.add(parsedName);
                             }
                             break;
+                        case PRINT_ADDEDINORBEFORE_ONLY:
+                            if (hasAddedInOrBefore) {
+                                parsedList.add(packageName + "." + className + "." + fieldName);
+                            }
                         default:
                             System.err.println("Unknown print level specified");
                             break;
@@ -420,7 +441,10 @@ public final class GenerateAPI {
                 List<MethodDeclaration> methods = n.getMethods();
                 for (int i = 0; i < methods.size(); i++) {
                     MethodDeclaration method = methods.get(i);
-                    if (!method.isPublic() && !method.isProtected()) {
+                    if (n.isInterface() && method.isPrivate()) {
+                        continue;
+                    }
+                    if (!n.isInterface() && !method.isPublic() && !method.isProtected()) {
                         continue;
                     }
                     String returnType = method.getTypeAsString();
@@ -428,6 +452,7 @@ public final class GenerateAPI {
 
                     boolean isSystem = false;
                     boolean isHidden = false;
+                    boolean hasAddedInOrBefore = true;
                     String version = "";
                     if (!method.getJavadoc().isEmpty()) {
                         isHidden = method.getJavadoc().get().toText().contains("@hide");
@@ -439,17 +464,8 @@ public final class GenerateAPI {
                         if (annotationString.contains("SystemApi")) {
                             isSystem = true;
                         }
-
                         if (annotationString.contains("AddedInOrBefore")) {
-                            String major = getVersion(annotations.get(j), "majorVersion");
-                            String minor = getVersion(annotations.get(j), "minorVersion");
-                            if (!minor.equals("0")) {
-                                System.out.println("ERROR:  minor should be zero for " + method);
-                            }
-                            if (!major.equals("33")) {
-                                System.out.println("ERROR:  major should be 33 for " + method);
-                            }
-                            version = "TIRAMISU_0";
+                            hasAddedInOrBefore = true;
                         }
                         if (annotationString.equals("AddedIn")) {
                             String major = getVersion(annotations.get(j), "majorVersion");
@@ -514,6 +530,10 @@ public final class GenerateAPI {
                                 parsedList.add(parsedName);
                             }
                             break;
+                        case PRINT_ADDEDINORBEFORE_ONLY:
+                            if (hasAddedInOrBefore) {
+                                parsedList.add(packageName + "." + className + "." + methodName);
+                            }
                         default:
                             System.err.println("Unknown print level specified");
                             break;
