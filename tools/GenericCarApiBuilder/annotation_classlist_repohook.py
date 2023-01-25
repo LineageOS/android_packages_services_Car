@@ -15,17 +15,53 @@
 import sys
 import os
 import subprocess
+import re
+
+from tempfile import NamedTemporaryFile
+
+# Helper method that strips out the parameter names of methods. This will allow users to change
+# parameter names for hidden apis without mistaking them as having been removed.
+# [^ ]* --> Negation set on SPACE character. This wll match everything until a SPACE.
+# [^ ]*\) --> This will handle the last parameter at the end of a method signature.
+# [^ ]*,[^ ]* --> This will handle multiple parameters delimited by commas.
+def strip_param_names(api):
+    return re.sub('[^ ]*\)|[^ ]*,[^ ]*', " ", api)
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if (rootDir is None):
     # env variable is not set. Then use the arg passed as Git root
     rootDir = sys.argv[1]
 
-# Generate class list using tool
+# This generates a list of all classes.
 java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                                     "/GenericCarApiBuilder.jar --print-classes-only " \
                                     "--ANDROID-BUILD-TOP " + rootDir
-new_class_list = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
+
+# This produces a list of current hidden apis to determine if they have been modified or removed.
+java_cmd_2= "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
+                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
+                                    "--ANDROID-BUILD-TOP " + rootDir
+
+# This determines all remaining hidden, system or public APIs.
+java_cmd_3 = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
+                            "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
+                            "--ANDROID-BUILD-TOP " + rootDir
+
+processes = []
+cmds = [java_cmd, java_cmd_2, java_cmd_3]
+for cmd in cmds:
+    f = NamedTemporaryFile()
+    p = subprocess.Popen(cmd, shell=True, stdout=f)
+    processes.append((p, f))
+
+results = []
+for p, f in processes:
+    p.wait()
+    f.seek(0)
+    results.append(f.read().decode('utf-8').strip().split("\n"))
+    f.close()
+
+new_class_list, new_hidden_apis, all_apis = results[0], results[1], results[2]
 
 # Read current class list
 car_api = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw/car_api_classes.txt"
@@ -58,17 +94,8 @@ if error != "":
     print("atest CarServiceUnitTest:android.car.AnnotationTest")
     sys.exit(1)
 
-# Class list is okay. Check if any hidden API is modified or removed.
-java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + rootDir
-new_hidden_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
-
-# Determine all remaining hidden, system or public APIs:
-java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + rootDir
-all_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
+for index, value in enumerate(all_apis):
+    all_apis[index] = strip_param_names(value)
 
 # read existing hidden APIs
 previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
@@ -120,7 +147,7 @@ if len(modified_or_added_hidden_api) > 0:
 # This is different from hidden APIs that were upgraded to system or public APIs.
 removed_hidden_api = []
 for api in hidden_apis_previous_releases:
-    if api not in all_apis:
+    if strip_param_names(api) not in all_apis:
         removed_hidden_api.append(api)
 
 if len(removed_hidden_api) > 0:
