@@ -66,6 +66,8 @@ public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
+    private static final int SYSTEM_ERROR_CODE_MASK = 0Xffff;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
     /**
      * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
      */
@@ -1530,24 +1532,27 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = e.errorCode;
+        int errorCode = e.errorCode & SYSTEM_ERROR_CODE_MASK;
+        int vendorErrorCode = e.errorCode >>> VENDOR_ERROR_CODE_SHIFT;
 
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-                throw new PropertyNotAvailableException(propId, areaId);
+                throw new PropertyNotAvailableException(propId, areaId, vendorErrorCode);
             case VehicleHalStatusCode.STATUS_TRY_AGAIN:
+                // Vendor error code is ignored for STATUS_TRY_AGAIN error
                 throw new PropertyNotAvailableAndRetryException(propId, areaId);
             case VehicleHalStatusCode.STATUS_ACCESS_DENIED:
+                // Vendor error code is ignored for STATUS_ACCESS_DENIED error
                 throw new PropertyAccessDeniedSecurityException(propId, areaId);
             case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
-                throw new CarInternalErrorException(propId, areaId);
+                throw new CarInternalErrorException(propId, areaId, vendorErrorCode);
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                throw new PropertyNotAvailableException(
-                        propId, areaId, getPropertyNotAvailableErrorCodeFromStatusCode(errorCode));
+                throw new PropertyNotAvailableException(propId, areaId,
+                        getPropertyNotAvailableErrorCodeFromStatusCode(errorCode), vendorErrorCode);
             default:
                 Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
                 throw new CarInternalErrorException(propId, areaId);
