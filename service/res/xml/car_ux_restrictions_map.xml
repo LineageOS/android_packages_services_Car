@@ -17,8 +17,23 @@ Note:
              - physicalPort (Attribute. Physical port that connects
              to a display. Restrictions defined will apply to the display that connects to this
              port. Only the lowest byte in the integer value is used. The value should be
-             represented as an signed int, namely the supported range is [-128, 127].
-             Optional field. Defaults to primary display. )
+             interpreted as an signed int, namely the supported range is [-128, 127].
+             Optional field. 'physicalPort' is one way of specifying a display in the context of
+             UX restrictions. The combination of 'occupantZoneId' and 'displayType' is another way
+             of identifying a display. When 'physicalPort' is specified, 'occupantZoneId and
+             'displayType' should not be specified. If neither 'physicalPort' nor the combination
+             of 'occupantZoneId' and 'displayType' is specified, it defaults to the driver main
+             display. )
+             - occupantZoneId (Attribute. The id of the car occupant zone this display is in.
+             Optional field. The combination of 'occupantZoneId and 'displayType' is another way of
+             identifying a display. When 'occupantZoneId' is specified, 'displayType' should also
+             be specified while 'physicalPort' should not be specified. )
+             - displayType (Attribute. The type of the display in the occupant zone specified by
+             'occupantZoneId'. The integer values are defined in
+             packages/services/Car/car-lib/src/android/car/CarOccupantZoneManager.java.
+             Optional field. The combination of 'occupantZoneId and 'displayType' is another way of
+             identifying a display. When 'displayType' is specified, 'occupantZoneId' should also
+             be specified while 'physicalPort' should not be specified. )
        - DrivingState (Tag 1.a. Driving states supported)
              - state (Attribute. The driving states defined there should align with driving states
              (@CarDrivingState) defined in
