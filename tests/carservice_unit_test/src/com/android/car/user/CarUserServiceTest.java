@@ -27,6 +27,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
@@ -2655,6 +2656,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     private void mockIsUserVisible(boolean isVisible) {
         mockContextCreateContextAsUser(mMockContext, mMockUserContext, mContextUserId);
         when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
-        when(mMockedUserManager.isUserVisible()).thenReturn(isVisible);
+        mockUmIsUserVisible(mMockedUserManager, isVisible);
     }
 }
