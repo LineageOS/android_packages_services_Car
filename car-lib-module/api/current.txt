@@ -335,7 +335,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_COOLANT_TEMP = 291504897; // 0x11600301
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624; // 0x11200320
-    field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED")) public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_RPM = 291504901; // 0x11600305
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703

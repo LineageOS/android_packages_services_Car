@@ -325,11 +325,28 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_COOLANT_TEMP = 291504897;
     /**
-     * Engine oil level
-     * The property is protected by the signature permission:
-     * android.car.permission.CAR_ENGINE_DETAILED.
+     * Engine oil level.
+     *
+     * <p>Returns the status of the oil level for the vehicle. See {@link
+     * android.car.hardware.property.VehicleOilLevel} for possible values for
+     * {@code ENGINE_OIL_LEVEL}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CAR_ENGINE_DETAILED} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
      */
-    @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED))
     @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_OIL_LEVEL = 289407747;
     /**
