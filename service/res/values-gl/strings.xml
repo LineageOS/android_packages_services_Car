@@ -172,8 +172,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Xerar modelos."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"controlar o inicio de aplicacións"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"Controlar o inicio de aplicacións."</string>
-    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"xestionar prioridade das conversas"</string>
-    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"Xestionar prioridade das conversas."</string>
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"xestionar prioridade dos fíos de mensaxes"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"Xestionar prioridade dos fíos de mensaxes."</string>
     <string name="car_permission_label_manage_occupant_zone" msgid="1390420387640478679">"xestionar zona dos pasaxeiros"</string>
     <string name="car_permission_desc_manage_occupant_zone" msgid="1641484205694436465">"Xestiona a zona dos pasaxeiros."</string>
     <string name="car_permission_label_use_remote_access" msgid="4192095854784769805">"usar acceso remoto"</string>
@@ -190,13 +190,13 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Ler a información dos estados dos sistemas avanzados de asistencia para a condución."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"controlar a información dos estados dos sistemas avanzados de asistencia para a condución"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Controlar a información dos estados dos sistemas avanzados de asistencia para a condución."</string>
-    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
     <skip />
-    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
     <skip />
-    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
     <skip />
-    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Produciuse un erro no bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O bus CAN non responde. Desconecta a caixa da unidade principal, conéctaa de novo e reinicia o coche"</string>

@@ -26,8 +26,8 @@
     <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Controle as configurações de carregamento de VE do seu carro."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"ajustar a autonomia restante do carro"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Ajustar o valor restante de autonomia do carro."</string>
-    <string name="car_permission_label_hvac" msgid="1499454192558727843">"acessar o HVAC (Aquecimento, ventilação e ar-condicionado) do carro"</string>
-    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acessar o HVAC (Aquecimento, ventilação e ar-condicionado) do carro."</string>
+    <string name="car_permission_label_hvac" msgid="1499454192558727843">"acessar o AVAC (Aquecimento, ventilação e ar-condicionado) do carro"</string>
+    <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Acessar o AVAC (Aquecimento, ventilação e ar-condicionado) do carro."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"acessar informações de quilometragem do carro"</string>
     <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Acessar informações sobre a quilometragem do carro."</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"ler a velocidade do carro"</string>
@@ -190,13 +190,13 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Ler as informações de estados do ADAS do carro."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"controlar as informações de estados do ADAS do carro"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Controlar as informações de estados do ADAS do carro."</string>
-    <!-- no translation found for car_permission_label_monitor_occupant_zone (8033382754353161311) -->
+    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
     <skip />
-    <!-- no translation found for car_permission_desc_monitor_occupant_zone (1056117956771630969) -->
+    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
     <skip />
-    <!-- no translation found for car_permission_label_connect_occupant_zone (9100215609130033958) -->
+    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
     <skip />
-    <!-- no translation found for car_permission_desc_connect_occupant_zone (625459236571295102) -->
+    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Falha no barramento CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O barramento CAN parou de responder. Desconecte e conecte novamente a caixa da unidade principal, depois ligue o carro"</string>
