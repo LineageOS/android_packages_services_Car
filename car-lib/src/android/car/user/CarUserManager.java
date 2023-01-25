@@ -887,10 +887,33 @@ public final class CarUserManager extends CarManagerBase {
      * Sets a callback to be notified before user switch. It should only be used by Car System UI.
      *
      * @hide
+     * @deprecated use {@link #setUserSwitchUiCallback(UserHandleSwitchUiCallback)} instead.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @AddedInOrBefore(majorVersion = 33)
     public void setUserSwitchUiCallback(@NonNull UserSwitchUiCallback callback) {
+        Preconditions.checkArgument(callback != null, "Null callback");
+        UserHandleSwitchUiCallback userHandleSwitchUiCallback = (userHandle) -> {
+            callback.showUserSwitchDialog(userHandle.getIdentifier());
+        };
+        setUserSwitchUiCallback(Runnable::run, userHandleSwitchUiCallback);
+    }
+
+    /**
+     * Sets a callback to be notified before user switch.
+     *
+     * <p> It should only be used by Car System UI. Setting this callback will notify the Car
+     * System UI to show the user switching dialog.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void setUserSwitchUiCallback(@NonNull @CallbackExecutor Executor executor,
+            @NonNull UserHandleSwitchUiCallback callback) {
         Preconditions.checkArgument(callback != null, "Null callback");
         UserSwitchUiCallbackReceiver userSwitchUiCallbackReceiver =
                 new UserSwitchUiCallbackReceiver(callback);
@@ -907,15 +930,15 @@ public final class CarUserManager extends CarManagerBase {
     // TODO(b/154958003): use mReceiver instead as now there are two binder objects
     private final class UserSwitchUiCallbackReceiver extends ICarResultReceiver.Stub {
 
-        private final UserSwitchUiCallback mUserSwitchUiCallback;
+        private final UserHandleSwitchUiCallback mUserHandleSwitchUiCallback;
 
-        UserSwitchUiCallbackReceiver(UserSwitchUiCallback callback) {
-            mUserSwitchUiCallback = callback;
+        UserSwitchUiCallbackReceiver(UserHandleSwitchUiCallback callback) {
+            mUserHandleSwitchUiCallback = callback;
         }
 
         @Override
         public void send(int userId, Bundle unused) throws RemoteException {
-            mUserSwitchUiCallback.showUserSwitchDialog(userId);
+            mUserHandleSwitchUiCallback.onUserSwitchStart(UserHandle.of(userId));
         }
     }
 
@@ -1256,11 +1279,13 @@ public final class CarUserManager extends CarManagerBase {
     /**
      * Callback for notifying user switch before switch started.
      *
-     * <p> It should only be user by Car System UI. The purpose of this callback is notify the
+     * <p> It should only be used by Car System UI. The purpose of this callback is to notify the
      * Car System UI to display the user switch UI.
      *
      * @hide
+     * @deprecated use {@link #UserHandleSwitchUiCallback} instead.
      */
+    @Deprecated
     public interface UserSwitchUiCallback {
 
         /**
@@ -1268,5 +1293,26 @@ public final class CarUserManager extends CarManagerBase {
          */
         @AddedInOrBefore(majorVersion = 33)
         void showUserSwitchDialog(@UserIdInt int userId);
+    }
+
+    /**
+     * Callback for notifying user switch before switch started.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public interface UserHandleSwitchUiCallback {
+
+        /**
+         * Called before the user switch starts.
+         *
+         * <p> This is typically used to show the user dialog.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @SuppressWarnings("UserHandleName")
+        void onUserSwitchStart(@NonNull UserHandle userHandle);
     }
 }
