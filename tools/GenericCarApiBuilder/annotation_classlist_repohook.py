@@ -74,21 +74,32 @@ all_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip()
 previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
                              "/car_hidden_apis.txt"
 
-# TODO(b/263402554): Ideally the file `car_hidden_apis_current_release` should be a list of
-# the hidden APIs of the previous release, because we want to compare with hidden APIs
-# already exposed in previous releases. For example, if some hidden API is added in T-QPR
-# and removed in master, then we should be able to figure it out. Also accordingly, we have
-# to update this file for each release. There could be multiple such files for different releases.
-previous_hidden_apis_current_release_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
-                                                      "/car_hidden_apis_current_release.txt"
+# hidden_apis_previous_releases contains all the cumulative hidden apis added in previous releases.
+# If some hidden API was added in T-QPR and removed in master, then one should be able
+# to identify it. Accordingly, a new file will need to be generated for each release.
+hidden_apis_previous_releases_paths = [
+    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_current_release.txt",
+    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.2.txt",
+    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.1.txt"
+]
 
 previous_hidden_apis = []
 with open(previous_hidden_apis_path) as f:
     previous_hidden_apis.extend(f.read().splitlines())
 
-previous_hidden_apis_current_release = []
-with open(previous_hidden_apis_current_release_path) as f:
-    previous_hidden_apis_current_release.extend(f.read().splitlines())
+hidden_apis_previous_releases = set()
+for path in hidden_apis_previous_releases_paths:
+    with open(rootDir + path) as f:
+        hidden_apis = set(f.read().splitlines())
+        hidden_apis_previous_releases = hidden_apis_previous_releases.union(hidden_apis)
+
+excluded_removed_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+                                      "/car_hidden_apis_excluded.txt"
+
+with open(excluded_removed_hidden_apis_path) as f:
+    excluded_removed_hidden_apis = set(f.read().splitlines())
+
+hidden_apis_previous_releases = hidden_apis_previous_releases - excluded_removed_hidden_apis
 
 # All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
@@ -108,7 +119,7 @@ if len(modified_or_added_hidden_api) > 0:
 # Hidden APIs should not be removed. Check that any of the previously hidden apis still exist in the remaining apis.
 # This is different from hidden APIs that were upgraded to system or public APIs.
 removed_hidden_api = []
-for api in previous_hidden_apis_current_release:
+for api in hidden_apis_previous_releases:
     if api not in all_apis:
         removed_hidden_api.append(api)
 
