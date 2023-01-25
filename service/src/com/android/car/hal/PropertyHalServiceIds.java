@@ -588,7 +588,7 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
-        mHalPropIdToPermissions.put(VehicleProperty.ADAPTIVE_CRUISE_CONTROL_ENABLED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
         mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_ENABLED, new Pair<>(

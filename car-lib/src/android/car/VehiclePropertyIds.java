@@ -3762,13 +3762,13 @@ public final class VehiclePropertyIds {
     public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933;
 
     /**
-     * Enable or disable adaptive cruise control (ACC).
+     * Enable or disable cruise control (CC).
      *
-     * <p>Return true if ACC is enabled and false if ACC is disabled. When ACC is enabled, the ADAS
-     * system in the vehicle should be turned on and waiting for an activation signal from the
-     * driver. Once the feature is activated, the ADAS system in the car should be accelerating and
-     * braking in a way that allows the vehicle to maintain a set speed and to maintain a set
-     * distance gap from a leading vehicle.
+     * <p>Return true if CC is enabled and false if CC is disabled. This property is shared by all
+     * forms of {@link android.car.hardware.property.CruiseControlType}).
+     *
+     * <p>When CC is enabled, the ADAS system in the vehicle should be turned on and responding to
+     * commands.
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
@@ -3797,7 +3797,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int ADAPTIVE_CRUISE_CONTROL_ENABLED = 287313935;
+    public static final int CRUISE_CONTROL_ENABLED = 287313935;
     /**
      * Enable or disable hands on detection (HOD).
      *
