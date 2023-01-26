@@ -180,6 +180,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             }
         };
         mApplicationContext.registerReceiverForAllUsers(immersiveModeChangeReceiver,
-                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null);
+                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null, Context.RECEIVER_EXPORTED);
     }
 }
