@@ -34,7 +34,9 @@ import static org.junit.Assert.assertThrows;
 import android.app.Instrumentation;
 import android.car.Car;
 import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserHandleSwitchUiCallback;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.CarUserManager.UserSwitchUiCallback;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Handler;
@@ -168,11 +170,22 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
-    public void testSetUserSwitchUiCallback() {
-        CarUserManager.UserSwitchUiCallback callback = (u)-> { };
+    public void testSetUserIdSwitchUiCallback() {
+        UserSwitchUiCallback callback = (u)-> {};
 
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarUserManager.setUserSwitchUiCallback(callback));
+
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testSetUserSwitchUiCallback() {
+        UserHandleSwitchUiCallback callback = (u)-> {};
+
+        Exception e = assertThrows(SecurityException.class,
+                () -> mCarUserManager.setUserSwitchUiCallback(Runnable::run, callback));
+
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 }

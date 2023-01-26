@@ -37,6 +37,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestricti
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserUnlockingOrUnlocked;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
@@ -236,6 +237,14 @@ public final class AndroidMockitoHelperTest {
         mockUmGetVisibleUsers(mMockedUserManager, 100, 200);
 
         assertThat(mMockedUserManager.getVisibleUsers()).containsExactly(user1, user2);
+    }
+
+    @Test
+    @SuppressWarnings("DirectInvocationOnMock")
+    public void testMockUmIsUserVisible() {
+        mockUmIsUserVisible(mMockedUserManager, true);
+
+        assertThat(mMockedUserManager.isUserVisible()).isTrue();
     }
 
     @Test

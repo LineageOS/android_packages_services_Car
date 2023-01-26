@@ -397,6 +397,13 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a call to {@code UserManager#isUserVisible()} that returns {@code isVisible}.
+     */
+    public static void mockUmIsUserVisible(UserManager um, boolean isVisible) {
+        when(um.isUserVisible()).thenReturn(isVisible);
+    }
+
+    /**
      * Mocks a call to {@link ServiceManager#getService(name)}.
      *
      * <p><b>Note: </b>it must be made inside a
