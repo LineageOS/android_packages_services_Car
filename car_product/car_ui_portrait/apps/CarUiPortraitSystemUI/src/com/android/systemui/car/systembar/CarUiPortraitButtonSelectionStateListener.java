@@ -51,7 +51,7 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
         IntentFilter filter = new IntentFilter();
         filter.addAction(REQUEST_FROM_LAUNCHER);
         context.registerReceiverForAllUsers(displayAreaVisibilityReceiver,
-                filter, null, null);
+                filter, null, null, Context.RECEIVER_EXPORTED);
     }
 
     @Override
