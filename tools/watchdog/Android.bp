@@ -35,3 +35,16 @@ python_library_host {
         canonical_path_from_root: false,
     },
 }
+
+cc_binary {
+    name: "watchdog_cycles",
+    srcs: [ "cpufreq/watchdog_cycles_task.cpp" ],
+    header_libs: [ "libeigen" ],
+    cppflags: [
+        "-O2",
+        "-Wall",
+        "-Werror",
+        "-Wno-missing-field-initializers",
+        "-Wno-sign-compare",
+    ],
+}
