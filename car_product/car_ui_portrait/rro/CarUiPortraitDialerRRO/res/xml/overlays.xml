@@ -90,15 +90,18 @@
     <item target="layout/incall_dialpad_fragment" value="@layout/incall_dialpad_fragment"/>
     <item target="layout/contact_user_profile" value="@layout/contact_user_profile"/>
 
+    <item target="style/AddFavoriteText" value="@style/AddFavoriteText"/>
+    <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
     <item target="style/KeypadLetter" value="@style/KeypadLetter"/>
     <item target="style/KeypadNumber" value="@style/KeypadNumber"/>
-    <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
-    <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
-    <item target="style/SubheaderText" value="@style/SubheaderText"/>
-    <item target="style/AddFavoriteText" value="@style/AddFavoriteText"/>
+    <item target="style/TextAppearance.CallLogCallCountMissedCall" value="@style/TextAppearance.CallLogCallCountMissedCall"/>
+    <item target="style/TextAppearance.CallLogSubtitle" value="@style/TextAppearance.CallLogSubtitle"/>
+    <item target="style/TextAppearance.CallLogTimestampMissedCall" value="@style/TextAppearance.CallLogTimestampMissedCall"/>
     <item target="style/TextAppearance.CallLogTitleDefault" value="@style/TextAppearance.CallLogTitleDefault"/>
+    <item target="style/TextAppearance.CallLogTitleMissedCall" value="@style/TextAppearance.CallLogTitleMissedCall"/>
     <item target="style/TextAppearance.DialpadDisplayName" value="@style/TextAppearance.DialpadDisplayName"/>
-    <item target="style/TextAppearance.ContactResultTitle" value="@style/TextAppearance.ContactResultTitle"/>
+    <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
     <item target="style/TextAppearance.TypeDownListSpan" value="@style/TextAppearance.TypeDownListSpan"/>
+    <item target="style/SubheaderText" value="@style/SubheaderText"/>
 
 </overlay>

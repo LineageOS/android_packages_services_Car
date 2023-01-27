@@ -58,12 +58,23 @@
     </style>
 
     <!-- Call history -->
-    <style name="TextAppearance.CallLogTitleDefault" parent="TextAppearance.Body1">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    <style name="TextAppearance.CallLogTitleDefault" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
+
+    <style name="TextAppearance.CallLogSubtitle" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
+    
     <!-- Customized text color for missed calls can be added here -->
-    <style name="TextAppearance.CallLogTitleMissedCall" parent="TextAppearance.Body1">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    <style name="TextAppearance.CallLogTitleMissedCall" parent="TextAppearance.CallLogTitleDefault" />
+
+    <style name="TextAppearance.CallLogCallCountMissedCall" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_red_color</item>
+    </style>
+
+    <style name="TextAppearance.CallLogTimestampMissedCall" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_red_color</item>
     </style>
 
     <style name="DialpadSecondaryButton">
