@@ -17,7 +17,7 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
-import static android.car.builtin.os.UserManagerHelper.getMaxSupportedUsers;
+import static android.car.builtin.os.UserManagerHelper.getMaxRunningUsers;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
@@ -369,7 +369,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mDefaultIndependentPlaybackConfig = mContext.getResources().getBoolean(
                 R.bool.config_mediaSourceIndependentPlayback);
         mUserMediaPlayContexts =
-                new SparseArray<UserMediaPlayContext>(getMaxSupportedUsers(context));
+                new SparseArray<UserMediaPlayContext>(getMaxRunningUsers(context));
 
         mPackageUpdateFilter = new IntentFilter();
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_REMOVED);
