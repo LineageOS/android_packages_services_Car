@@ -20,9 +20,13 @@ import android.annotation.NonNull;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
 import android.car.oem.OemCarAudioFocusService;
+import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Slog;
+
+import androidx.annotation.Nullable;
 
 import com.android.car.oem.focus.FocusInteraction;
 
@@ -36,8 +40,22 @@ public final class OemCarAudioFocusServiceImpl implements OemCarAudioFocusServic
 
     private final FocusInteraction mFocusInteraction;
 
-    public OemCarAudioFocusServiceImpl() {
-        mFocusInteraction = new FocusInteraction(FocusInteraction.ATTRIBUTES_INTERACTIONS);
+    /**
+     * Constructs a {@link FocusInteraction} with the given interaction mapping if
+     * the interaction mapping is null, it will default to
+     * {@link FocusInteraction.ATTRIBUTES_INTERACTIONS}
+     *
+     * @param attributeInteractions An array map of mappings from an incoming AudioAttributes to
+     *        an array map of other AudioAttributes to focus interactions.
+     */
+    public OemCarAudioFocusServiceImpl(@Nullable ArrayMap<AudioAttributes,
+            ArrayMap<AudioAttributes, Integer>> attributeInteractions) {
+        ArrayMap<AudioAttributes, ArrayMap<AudioAttributes, Integer>>
+                attributePriority = attributeInteractions;
+        if (attributePriority == null) {
+            attributePriority = FocusInteraction.ATTRIBUTES_INTERACTIONS;
+        }
+        mFocusInteraction = new FocusInteraction(attributePriority);
         if (DEBUG) {
             Slog.d(TAG, "constructor");
         }

@@ -16,20 +16,21 @@
 
 package com.android.car.oemcarservice.testapp;
 
-import static com.android.car.oem.volume.VolumeInteractions.VOLUME_PRIORITIES;
-
 import android.car.oem.OemCarAudioVolumeRequest;
 import android.car.oem.OemCarAudioVolumeService;
 import android.car.oem.OemCarVolumeChangeInfo;
 import android.content.Context;
+import android.media.AudioAttributes;
 import android.util.Log;
 import android.util.Slog;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.oem.volume.VolumeInteractions;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 public class OemCarAudioVolumeServiceImp implements OemCarAudioVolumeService {
 
@@ -37,8 +38,21 @@ public class OemCarAudioVolumeServiceImp implements OemCarAudioVolumeService {
 
     private final VolumeInteractions mVolumeInteractions;
 
-    public OemCarAudioVolumeServiceImp(Context context) {
-        mVolumeInteractions = new VolumeInteractions(context, VOLUME_PRIORITIES);
+    /**
+     * Constructs a {@link VolumeInteractions} with the given context and volume priority lit, if
+     * volume the given priority is null, it will default to
+     * {@link VolumeInteractions.VOLUME_PRIORITIES}
+     *
+     * @param context The given context
+     * @param volumePriorities A list of volume priorities from highest priority to lowest priority
+     */
+    public OemCarAudioVolumeServiceImp(Context context, @Nullable List<AudioAttributes>
+            volumePriorities) {
+        List<AudioAttributes> priorityList = volumePriorities;
+        if (volumePriorities == null) {
+            priorityList = VolumeInteractions.VOLUME_PRIORITIES;
+        }
+        mVolumeInteractions = new VolumeInteractions(context, priorityList);
     }
 
     @NonNull
