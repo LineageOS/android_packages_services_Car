@@ -67,7 +67,7 @@ public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
             }
         };
         context.registerReceiverForAllUsers(taskViewReadyReceiver,
-                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null);
+                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null, Context.RECEIVER_EXPORTED);
     }
 
     private static void logIfDebuggable(String message) {
