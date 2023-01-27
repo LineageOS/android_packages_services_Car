@@ -81,6 +81,7 @@ public final class GenerateAPI {
     // Print Level: Describes desired print level for the tool
     // PRINT_SHORT prints only a condensed version of the APIs.
     // PRINT_HIDDEN_ONLY prints only hidden APIs.
+    // PRINT_ADDEDINORBEFORE_ONLY prints only APIs containing the AddedInOrBefore annotation.
     private static final int PRINT_DEFAULT = 0;
     private static final int PRINT_SHORT = 1;
     private static final int PRINT_HIDDEN_ONLY = 2;
@@ -227,6 +228,8 @@ public final class GenerateAPI {
                 + " testing. Results would be printed.");
         System.out.println(UPDATE_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
                 + " testing. Results would be updated in " + CAR_HIDDEN_API_FILE);
+        System.out.println(
+                PRINT_SHORTFORM_FULL_API_FOR_TEST + " : Prints a condensed version of all apis");
         System.out.println(GENERATE_ADDEDINORBEFORE_API_FOR_TEST
                 + " : Would generate the api list that contains the @AddedInOrBefore annotation. "
                 + "Results would be updated in " + CAR_ADDEDINORBEFORE_API_FILE);
