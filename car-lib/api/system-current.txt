@@ -1015,6 +1015,14 @@ package android.car.hardware.property {
     field public static final int WARNING = 2; // 0x2
   }
 
+  public final class TrailerState {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_ERROR = 3; // 0x3
+    field public static final int STATE_NOT_PRESENT = 1; // 0x1
+    field public static final int STATE_PRESENT = 2; // 0x2
+    field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
   public final class VehicleLightState {
     method @NonNull public static String toString(int);
     field public static final int STATE_DAYTIME_RUNNING = 2; // 0x2

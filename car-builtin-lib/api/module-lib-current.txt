@@ -498,6 +498,13 @@ package android.car.builtin.view {
     method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
   }
 
+  @UiThread public final class TouchableInsetsProvider {
+    ctor public TouchableInsetsProvider(@NonNull android.view.View);
+    method public void addToViewTreeObserver();
+    method public void removeFromViewTreeObserver();
+    method public void setObscuredTouchRegion(@Nullable android.graphics.Region);
+  }
+
 }
 
 package android.car.builtin.widget {

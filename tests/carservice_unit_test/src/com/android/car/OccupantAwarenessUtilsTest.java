@@ -17,9 +17,11 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.occupantawareness.DriverMonitoringDetection;
 import android.car.occupantawareness.GazeDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.car.occupantawareness.SystemStatusEvent;
+import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.occupant_awareness.ConfidenceLevel;
 import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
@@ -32,7 +34,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-public final class OccupantAwarenessUtilsTest {
+public final class OccupantAwarenessUtilsTest extends AbstractExpectableTestCase {
     private static final byte INVALID_OCCUPANT_AWARENESS_STATUS = -1;
     private static final int INVALID_IOCCUPANT_AWARENESS = -1;
 
@@ -337,5 +339,26 @@ public final class OccupantAwarenessUtilsTest {
                 OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
 
         assertThat(outputDetection.gazeAngleUnitVector).isNotNull();
+    }
+
+    @Test
+    public void testConvertToDriverMonitoringDetection() {
+        byte anyConfidenceScore = ConfidenceLevel.LOW;
+        boolean anyIsLookingOnRoad = false;
+        long anyGazeDurationMillis = 100;
+        android.hardware.automotive.occupant_awareness.DriverMonitoringDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.DriverMonitoringDetection();
+        inputDetection.confidenceScore = anyConfidenceScore;
+        inputDetection.isLookingOnRoad = anyIsLookingOnRoad;
+        inputDetection.gazeDurationMillis = anyGazeDurationMillis;
+        int expectedConfidenceLevel =
+                OccupantAwarenessUtils.convertToConfidenceScore(anyConfidenceScore);
+
+        DriverMonitoringDetection outputDetection =
+                OccupantAwarenessUtils.convertToDriverMonitoringDetection(inputDetection);
+
+        mExpect.that(outputDetection.confidenceLevel).isEqualTo(expectedConfidenceLevel);
+        mExpect.that(outputDetection.isLookingOnRoad).isEqualTo(anyIsLookingOnRoad);
+        mExpect.that(outputDetection.gazeDurationMillis).isEqualTo(anyGazeDurationMillis);
     }
 }

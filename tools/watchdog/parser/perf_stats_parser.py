@@ -549,7 +549,7 @@ if __name__ == "__main__":
     print("File '%s' does not exist" % args.file)
     sys.exit(1)
 
-  with open(args.file, 'r') as f:
+  with open(args.file, 'r', encoding="UTF-8", errors="ignore") as f:
     performance_stats = parse_dump(f.read())
 
     build_info = None

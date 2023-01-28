@@ -91,7 +91,7 @@ public class FastPairGattServer {
     private static final String TAG = CarLog.tagFor(FastPairGattServer.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int MAX_KEY_COUNT = 10;
-    private static final int KEY_LIFESPAN_AWAIT_PAIRING = 10_000;
+    private static final int KEY_LIFESPAN_AWAIT_PAIRING = 60_000;
     // Spec *does* say indefinitely but not having a timeout is risky. This matches the BT stack's
     // internal pairing timeout
     private static final int KEY_LIFESPAN_PAIRING = 35_000;
@@ -214,6 +214,11 @@ public class FastPairGattServer {
                 mCallbacks.onPairingCompleted(false);
             } else if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mRemoteGattDevice = device;
+
+                // Although we're already connected, it's good practice to call connect again. This
+                // will mark the connection as desirable in the core stack so that it isn't
+                // accidentally torn down.
+                mBluetoothGattServer.connect(device, /* auto-connect= */ false);
             }
         }
 
@@ -357,7 +362,8 @@ public class FastPairGattServer {
 
                     if (DBG) {
                         Slogf.d(TAG, "Bond State Change - device=%s, old_state=%s, new_state=%s",
-                                device, previousState, state);
+                                device, BluetoothUtils.getBondStateName(previousState),
+                                BluetoothUtils.getBondStateName(state));
                     }
 
                     // If the bond state has changed for the device we're current fast pairing with

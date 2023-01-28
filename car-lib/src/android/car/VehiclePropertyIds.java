@@ -3019,12 +3019,22 @@ public final class VehiclePropertyIds {
      /**
      * Indicates if there is a trailer present or not.
      *
-     * <p>Returns the trailer state of the car.
+     * <p>Returns the trailer state of the car. See {@link
+     * android.car.hardware.property.TrailerState} for possible values for {@code TRAILER_PRESENT}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
      *  property.
+     *  <li>Property is not writable.
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))

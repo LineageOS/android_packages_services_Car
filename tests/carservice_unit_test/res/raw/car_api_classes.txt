@@ -146,8 +146,8 @@ android.car.hardware.property.CarPropertyManager
 android.car.hardware.property.CarPropertyManager$CarPropertyEventCallback
 android.car.hardware.property.CarPropertyManager$GetPropertyCallback
 android.car.hardware.property.CarPropertyManager$GetPropertyRequest
-android.car.hardware.property.CarPropertyManager$GetPropertyResult
 android.car.hardware.property.CarPropertyManager$GetPropertyError
+android.car.hardware.property.CarPropertyManager$GetPropertyResult
 android.car.hardware.property.ErrorState
 android.car.hardware.property.EvChargeState
 android.car.hardware.property.EvChargingConnectorType
@@ -159,6 +159,7 @@ android.car.hardware.property.GetValueResult
 android.car.hardware.property.PropertyAccessDeniedSecurityException
 android.car.hardware.property.PropertyNotAvailableAndRetryException
 android.car.hardware.property.PropertyNotAvailableException
+android.car.hardware.property.TrailerState
 android.car.hardware.property.VehicleElectronicTollCollectionCardStatus
 android.car.hardware.property.VehicleElectronicTollCollectionCardType
 android.car.hardware.property.VehicleHalStatusCode

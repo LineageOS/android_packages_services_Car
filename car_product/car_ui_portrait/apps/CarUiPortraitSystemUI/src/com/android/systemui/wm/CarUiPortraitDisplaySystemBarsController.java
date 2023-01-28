@@ -159,7 +159,14 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
     }
 
     class CarUiPortraitPerDisplay extends DisplaySystemBarsController.PerDisplay {
-        private final int[] mImmersiveVisibilities = new int[] {0, WindowInsets.Type.systemBars()};
+        private final int[] mFullImmersiveVisibilities =
+                new int[]{0, WindowInsets.Type.systemBars()};
+        // Only hide statusBars
+        private final int[] mImmersiveWithSystemBarVisibilities = new int[]{
+                WindowInsets.Type.navigationBars() | WindowInsets.Type.captionBar()
+                        | WindowInsets.Type.systemOverlays(),
+                WindowInsets.Type.statusBars()
+        };
         private final List<Callback> mCallbacks = new ArrayList<>();
         private @InsetsType int mWindowRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
         private @InsetsType int mAppRequestedVisibleTypes = WindowInsets.Type.defaultVisible();
@@ -198,9 +205,14 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             if (mPackageName == null && !mImmersiveOverride && !mImmersiveForSUW) {
                 return;
             }
-            int[] barVisibilities = mImmersiveOverride || mImmersiveForSUW
-                    ? mImmersiveVisibilities
-                    : BarControlPolicy.getBarVisibilities(mPackageName);
+
+            int[] barVisibilities = BarControlPolicy.getBarVisibilities(mPackageName);
+            if (mImmersiveForSUW) {
+                barVisibilities = mFullImmersiveVisibilities;
+            } else if (mImmersiveOverride) {
+                barVisibilities = mImmersiveWithSystemBarVisibilities;
+            }
+
             updateRequestedVisibleTypes(barVisibilities[0], /* visible= */ true);
             updateRequestedVisibleTypes(barVisibilities[1], /* visible= */ false);
 

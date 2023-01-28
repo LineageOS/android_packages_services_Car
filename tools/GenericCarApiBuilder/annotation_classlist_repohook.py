@@ -97,12 +97,11 @@ for api in new_hidden_apis:
     if api not in previous_hidden_apis:
         modified_or_added_hidden_api.append(api)
 
+# TODO(b/266849922): Add a pre-submit test to also check for added or modified hidden apis,
+# since one could also bypass the repohook tool using --no-verify.
 if len(modified_or_added_hidden_api) > 0:
     print("\nHidden APIs should not be added or modified. Following Hidden APIs are modified:")
     print("\n".join(modified_or_added_hidden_api))
-    print("\nIf adding hidden API is the only way, please run following command to fix repohook error")
-    print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
     sys.exit(1)
 
 # Hidden APIs should not be removed. Check that any of the previously hidden apis still exist in the remaining apis.
