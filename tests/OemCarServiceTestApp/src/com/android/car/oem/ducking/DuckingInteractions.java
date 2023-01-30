@@ -130,7 +130,7 @@ public final class DuckingInteractions {
 
     public void dump(PrintWriter writer, String indent) {
         writer.printf("%sDucking priorities: \n", indent);
-        for (int index = mAudioAttributeToPriority.size() - 1; index > 0; index--) {
+        for (int index = mAudioAttributeToPriority.size() - 1; index >= 0; index--) {
             writer.printf("%s%sPriority[%d]: %s \n", indent, indent, index,
                     mAudioAttributeToPriority.keyAt(
                             mAudioAttributeToPriority.indexOfValue(index)));
