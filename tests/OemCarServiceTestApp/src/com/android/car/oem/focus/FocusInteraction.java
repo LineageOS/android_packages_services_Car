@@ -53,9 +53,20 @@ public final class FocusInteraction {
 
     // Values for the internal interaction matrix we use to make focus decisions
     private static final int INTERACTION_INVALID = -2; // Focus not granted
-    private static final int INTERACTION_REJECT = -1; // Focus not granted
-    private static final int INTERACTION_EXCLUSIVE = 1; // Focus granted, others loose focus
-    private static final int INTERACTION_CONCURRENT = 2; // Focus granted, others keep focus
+    /**
+     * Value for the interaction matrix for rejecting incoming focus request. Focus not granted.
+     */
+    public static final int INTERACTION_REJECT = -1;
+    /**
+     * Value for the interaction matrix for granting exclusive access to incoming focus request.
+     * Focus granted, others lose focus
+     */
+    public static final int INTERACTION_EXCLUSIVE = 1;
+    /**
+     * Value for the interaction matrix for concurrent focus, incoming focus request and current
+     * focus holders will concurrently hold focus. Focus granted, others keep focus.
+     */
+    public static final int INTERACTION_CONCURRENT = 2;
 
     static final AudioAttributes[] MUSIC_ATTRIBUTES = new AudioAttributes[] {
             getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),

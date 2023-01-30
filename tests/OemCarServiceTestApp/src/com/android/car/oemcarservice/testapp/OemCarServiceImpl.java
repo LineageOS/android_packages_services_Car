@@ -25,10 +25,14 @@ import android.util.Slog;
 
 import com.android.car.oem.ducking.DuckingInteractions;
 import com.android.car.oem.focus.FocusInteraction;
+import com.android.car.oem.utils.OemCarServiceHelper;
 import com.android.car.oem.volume.VolumeInteractions;
 import com.android.internal.annotations.GuardedBy;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.FileDescriptor;
+import java.io.IOException;
 import java.io.PrintWriter;
 
 public final class OemCarServiceImpl extends OemCarService {
@@ -37,21 +41,22 @@ public final class OemCarServiceImpl extends OemCarService {
     private static final boolean DEBUG = true;
     private static final CarVersion SUPPORTED_CAR_VERSION =
             CarVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
-
-
-    private OemCarAudioFocusServiceImpl mOemCarAudioFocusServiceImpl;
-    private OemCarAudioDuckingServiceImpl mOemCarAudioDuckingService;
+    private OemCarServiceHelper mOemCarServiceHelper;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private OemCarAudioVolumeServiceImp mOemCarAudioVolumeService;
+    @GuardedBy("mLock")
+    private OemCarAudioFocusServiceImpl mOemCarAudioFocusServiceImpl;
+    @GuardedBy("mLock")
+    private OemCarAudioDuckingServiceImpl mOemCarAudioDuckingService;
 
     @Override
     public void onCreate() {
         if (DEBUG) {
             Slog.d(TAG, "onCreate");
         }
-
+        parseOemConfigFile();
         super.onCreate();
     }
 
@@ -132,4 +137,14 @@ public final class OemCarServiceImpl extends OemCarService {
         return SUPPORTED_CAR_VERSION;
     }
 
+    private void parseOemConfigFile() {
+        mOemCarServiceHelper = new OemCarServiceHelper();
+        try {
+            mOemCarServiceHelper.parseAudioManagementConfiguration(getAssets().open(
+                    "oem_config.xml"));
+        } catch (XmlPullParserException | IOException e) {
+            Slog.w(TAG, "Oem car service helper was not able to be created", e);
+            return;
+        }
+    }
 }
