@@ -64,8 +64,13 @@ interface ICarActivityService {
     /** See {@link CarActivityManager#startUserPickerOnDisplay(int) */
     void startUserPickerOnDisplay(int displayId) = 7;
 
-    IBinder createMirroringToken(int taskId) = 9;
+    /** See {@link CarActivityManager#createTaskMirroringToken(int) */
+    IBinder createTaskMirroringToken(int taskId) = 9;
 
-    SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 10;
+    /** See {@link CarActivityManager#createDisplayMirroringToken(int) */
+    IBinder createDisplayMirroringToken(int displayId) = 10;
+
+    /** See {@link CarActivityManager#getMirroredSurface(IBinder, Rect) */
+    SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 11;
 }
 

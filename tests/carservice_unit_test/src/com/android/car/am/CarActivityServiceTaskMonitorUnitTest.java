@@ -287,14 +287,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
     public void testCreateMirroredToken_throwsExceptionForNonExistentTask() {
         int nonExistentTaskId = -999;
         assertThrows(IllegalArgumentException.class,
-                () -> mService.createMirroringToken(nonExistentTaskId));
+                () -> mService.createTaskMirroringToken(nonExistentTaskId));
     }
 
     @Test
     public void testCreateMirroredToken_returnsToken() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
-        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
         assertThat(token).isNotNull();
     }
 
@@ -310,7 +310,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     public void testGetMirroredSurface_throwsExceptionForExpiredToken() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
-        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
         Rect outBounds = new Rect();
 
         SystemClock.sleep(2);
@@ -323,7 +323,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     public void testGetMirroredSurface_throwsExceptionForInvisibleToken() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
-        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
 
         // Uses the Activity with the different taskAffinity to make the previous Task hidden.
         startActivityAndAssertLaunched(mBlockingActivity);
@@ -338,7 +338,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     public void testGetMirroredSurface_returnsSurface() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
-        IBinder token = mService.createMirroringToken(listenerA.mTopTask.taskId);
+        IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
         Rect outBounds = new Rect();
 
         SurfaceControl mirror = mService.getMirroredSurface(token, outBounds);
