@@ -239,6 +239,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CRUISE_CONTROL_ENABLED = 287313935; // 0x1120100f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS)) public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313945; // 0x11201019
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086; // 0x1140100e
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int FORWARD_COLLISION_WARNING_ENABLED = 287313922; // 0x11201002
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int FORWARD_COLLISION_WARNING_STATE = 289411075; // 0x11401003
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_GLOVE_BOX) public static final int GLOVE_BOX_DOOR_POS = 356518896; // 0x15400bf0
@@ -1035,6 +1036,17 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getVendorErrorCode();
+  }
+
+  public class EmergencyLaneKeepAssistState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED_STEER_LEFT = 4; // 0x4
+    field public static final int ACTIVATED_STEER_RIGHT = 5; // 0x5
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 6; // 0x6
+    field public static final int WARNING_LEFT = 2; // 0x2
+    field public static final int WARNING_RIGHT = 3; // 0x3
   }
 
   public final class ErrorState {

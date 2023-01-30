@@ -28,6 +28,7 @@ import android.hardware.automotive.vehicle.AutomaticEmergencyBrakingState;
 import android.hardware.automotive.vehicle.BlindSpotWarningState;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
+import android.hardware.automotive.vehicle.EmergencyLaneKeepAssistState;
 import android.hardware.automotive.vehicle.ErrorState;
 import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
@@ -127,6 +128,9 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
     private static final Set<Integer> WINDSHIELD_WIPERS_STATE =
             new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
+    private static final Set<Integer> EMERGENCY_LANE_KEEP_ASSIST_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    EmergencyLaneKeepAssistState.class, ErrorState.class));
     private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 AutomaticEmergencyBrakingState.class, ErrorState.class));
@@ -205,6 +209,8 @@ public class PropertyHalServiceIds {
                 VEHICLE_LIGHT_SWITCH);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
                 VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_STATE,
+                EMERGENCY_LANE_KEEP_ASSIST_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
                 AUTOMATIC_EMERGENCY_BRAKING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
@@ -588,6 +594,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_STATE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));

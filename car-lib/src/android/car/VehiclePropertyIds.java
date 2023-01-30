@@ -3762,6 +3762,43 @@ public final class VehiclePropertyIds {
     public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933;
 
     /**
+     * Emergency Lane Keep Assist (ELKA) state.
+     *
+     * <p>Returns the current state of ELKA. Generally, this property should return a valid state
+     * defined in the {@link android.car.hardware.property.EmergencyLaneKeepAssistState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through ErrorState.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.EmergencyLaneKeepAssistState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086;
+
+    /**
      * Enable or disable cruise control (CC).
      *
      * <p>Return true if CC is enabled and false if CC is disabled. This property is shared by all
