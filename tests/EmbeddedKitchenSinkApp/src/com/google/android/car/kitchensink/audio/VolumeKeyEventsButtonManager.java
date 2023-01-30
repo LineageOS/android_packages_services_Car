@@ -17,35 +17,19 @@
 package com.google.android.car.kitchensink.audio;
 
 import android.car.CarOccupantZoneManager;
-import android.car.input.CarInputManager;
-import android.os.SystemClock;
-import android.util.Log;
-import android.view.KeyEvent;
+
+import com.google.android.car.kitchensink.util.InjectKeyEventUtils;
 
 final class VolumeKeyEventsButtonManager {
-
-    private static final String TAG = VolumeKeyEventsButtonManager.class.getSimpleName();
-
-    private final CarInputManager mCarInputManager;
     private final CarOccupantZoneManager mCarOccupantZoneManager;
 
-    VolumeKeyEventsButtonManager(CarInputManager carInputManager,
-            CarOccupantZoneManager occupantZoneManager) {
-        mCarInputManager = carInputManager;
+    VolumeKeyEventsButtonManager(CarOccupantZoneManager occupantZoneManager) {
         mCarOccupantZoneManager = occupantZoneManager;
     }
 
-    void sendClickEvent(int keyCode, int repeatCount) {
-        // TODO(b/247170915) : Clean code up when MZ volume is handled
-        long downTime = SystemClock.uptimeMillis();
-        int displayId = mCarOccupantZoneManager
-                .getDisplayForOccupant(mCarOccupantZoneManager.getMyOccupantZone(),
-                        CarOccupantZoneManager.DISPLAY_TYPE_MAIN).getDisplayId();
-        KeyEvent keyEvent =
-                new KeyEvent(downTime, downTime, KeyEvent.ACTION_DOWN, keyCode, repeatCount);
-        keyEvent.setDisplayId(displayId);
-
-        Log.i(TAG, "sending key event " + keyEvent);
-        mCarInputManager.injectKeyEvent(keyEvent, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+    void sendClickEvent(int keyCode) {
+        CarOccupantZoneManager.OccupantZoneInfo occupantZoneInfo =
+                mCarOccupantZoneManager.getMyOccupantZone();
+        InjectKeyEventUtils.injectKeyByShell(occupantZoneInfo, keyCode);
     }
 }
