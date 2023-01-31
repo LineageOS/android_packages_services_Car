@@ -102,6 +102,8 @@ for api in new_hidden_apis:
 if len(modified_or_added_hidden_api) > 0:
     print("\nHidden APIs should not be added or modified. Following Hidden APIs are modified:")
     print("\n".join(modified_or_added_hidden_api))
+    print(
+        "\nIf adding a hidden API is the only way, please consult go/car-hidden-api-usage-removal and file a bug in go/car-mainline-bug")
     sys.exit(1)
 
 # Hidden APIs should not be removed. Check that any of the previously hidden apis still exist in the remaining apis.
