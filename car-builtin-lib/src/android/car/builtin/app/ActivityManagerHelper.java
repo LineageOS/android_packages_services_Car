@@ -72,6 +72,20 @@ public final class ActivityManagerHelper {
     }
 
     /**
+     * See {@code android.app.IActivityManager.startUserInBackgroundVisibleOnDisplay}.
+     *
+     * @throws IllegalStateException if ActivityManager binder throws RemoteException
+     */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean startUserInBackgroundVisibleOnDisplay(@UserIdInt int userId,
+            int displayId) {
+        return runRemotely(() -> getActivityManager().startUserInBackgroundVisibleOnDisplay(
+                        userId, displayId),
+                "error while startUserInBackgroundVisibleOnDisplay userId:%d displayId:%d",
+                userId, displayId);
+    }
+
+    /**
      * See {@code android.app.IActivityManager.startUserInForegroundWithListener}.
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
