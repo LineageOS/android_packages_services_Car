@@ -1114,12 +1114,29 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_STEERING_WHEEL_HEAT = 289408269;
     /**
-     * Temperature units for display
-     * The property is protected by the signature permission:
-     * android.car.permission.CONTROL_CAR_CLIMATE.
+     * Temperature units for display.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Read permissions: Normal permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} or
+     *  Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_CLIMATE}.
+     *  <li>Write permission: Signature|Privileged permission {@link
+     *  Car#PERMISSION_CONTROL_CAR_CLIMATE}.
+     * </ul>
      */
-    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
-    @AddedInOrBefore(majorVersion = 33)
+    @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_DISPLAY_UNITS,
+            Car.PERMISSION_CONTROL_CAR_CLIMATE}))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270;
     /**
      * Actual fan speed

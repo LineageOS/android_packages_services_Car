@@ -29,7 +29,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -44,16 +43,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
+import com.google.android.car.kitchensink.util.InjectKeyEventUtils;
 
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public final class InjectKeyTestFragment extends Fragment {
     private static final String TAG = InjectKeyTestFragment.class.getSimpleName();
 
-    private static final String PREFIX_INJECTING_KEY_CMD = "cmd car_service inject-key";
-    private static final String OPTION_SEAT = " -s ";
     private static final int KEY_NUM_COL = 3;
 
     private static final int[] KEY_CODES = {
@@ -68,21 +65,13 @@ public final class InjectKeyTestFragment extends Fragment {
         KeyEvent.KEYCODE_MEDIA_NEXT
     };
 
-    private java.lang.Process mShellProcess;
-    private DataOutputStream mOutStreamForShell;
-
     private DisplayManager mDisplayManager;
     private Display mCurrentDisplay;
     private Display mTargetDisplay;
 
-    private boolean mIsSelected;
-    private long mKeyDownTime;
-
     private Spinner mDisplaySpinner;
     private CarOccupantZoneManager mOccupantZoneManager;
-    private WindowManager mWindowManager;
     private RecyclerView mKeysLayout;
-    private View mHighlightView;
     private EditText mCustomKeyEditText;
 
     @Override
@@ -166,21 +155,7 @@ public final class InjectKeyTestFragment extends Fragment {
 
         OccupantZoneInfo zone = getOccupantZoneForDisplayId(
                 mTargetDisplay.getDisplayId());
-        if (zone != null) {
-            // generate a command message
-            StringBuilder sb = new StringBuilder()
-                    .append(PREFIX_INJECTING_KEY_CMD)
-                    .append(OPTION_SEAT)
-                    .append(zone.seat)
-                    .append(' ')
-                    .append(keyCode)
-                    .append('\n');
-            try {
-                Runtime.getRuntime().exec(sb.toString());
-            } catch (Exception e) {
-                Log.e(TAG, "Cannot flush", e);
-            }
-        }
+        InjectKeyEventUtils.injectKeyByShell(zone, keyCode);
     }
 
     private ArrayList<Integer> getDisplays() {
