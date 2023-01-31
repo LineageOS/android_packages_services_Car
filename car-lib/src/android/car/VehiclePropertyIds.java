@@ -3496,7 +3496,7 @@ public final class VehiclePropertyIds {
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int HANDS_ON_DETECTION_ENABLED = 287313941;
+    public static final int HANDS_ON_DETECTION_ENABLED = 287313942;
 
     /**
      * Enable or disable driver attention monitoring.
@@ -3531,7 +3531,7 @@ public final class VehiclePropertyIds {
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313944;
+    public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313945;
 
     /**
      * @deprecated to prevent others from instantiating this class
