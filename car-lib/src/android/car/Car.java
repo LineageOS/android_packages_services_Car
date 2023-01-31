@@ -1370,6 +1370,26 @@ public final class Car {
             "android.car.permission.MIRROR_DISPLAY";
 
     /**
+     * Permission necessary to read car's windshield wipers.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_WINDSHIELD_WIPERS =
+            "android.car.permission.READ_WINDSHIELD_WIPERS";
+
+    /**
+     * Permission necessary to control car's windshield wipers.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS =
+            "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

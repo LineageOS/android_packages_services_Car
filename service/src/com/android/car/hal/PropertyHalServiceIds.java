@@ -419,6 +419,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.WINDOW_LOCK, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_WINDOWS,
                 Car.PERMISSION_CONTROL_CAR_WINDOWS));
+        mHalPropIdToPermissions.put(VehicleProperty.WINDSHIELD_WIPERS_PERIOD, new Pair<>(
+                Car.PERMISSION_READ_WINDSHIELD_WIPERS,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_DEPTH_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_STEERING_WHEEL,
                 Car.PERMISSION_CONTROL_STEERING_WHEEL));
