@@ -166,6 +166,7 @@ android.car.hardware.property.VehicleElectronicTollCollectionCardType
 android.car.hardware.property.VehicleHalStatusCode
 android.car.hardware.property.VehicleLightState
 android.car.hardware.property.VehicleLightSwitch
+android.car.hardware.property.VehicleOilLevel
 android.car.hardware.property.VehicleTurnSignal
 android.car.hardware.property.VehicleVendorPermission
 android.car.input.CarInputHandlingService
