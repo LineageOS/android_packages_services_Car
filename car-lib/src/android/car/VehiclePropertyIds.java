@@ -2214,6 +2214,49 @@ public final class VehiclePropertyIds {
     public static final int WINDSHIELD_WIPERS_PERIOD = 322964421;
 
     /**
+     * Windshield wipers state.
+     *
+     * <p>Returns the current state of the windshield wipers. The value of {@code
+     * WINDSHIELD_WIPERS_STATE} may not match the value of {@link #WINDSHIELD_WIPERS_SWITCH}. (e.g.
+     * {@code #WINDSHIELD_WIPERS_STATE} = {@link
+     * android.car.hardware.property.WindshieldWipersState#ON} and {@link
+     * #WINDSHIELD_WIPERS_SWITCH} = {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#AUTO}).
+     *
+     * <p>If {@code #WINDSHIELD_WIPERS_STATE} = {@link
+     * android.car.hardware.property.WindshieldWipersState#ON} and {@link #WINDSHIELD_WIPERS_PERIOD}
+     * is implemented, then {@link #WINDSHIELD_WIPERS_PERIOD} will reflect the time period of 1
+     * full cycle of the wipers.
+     *
+     * <p>For each supported area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.WindshieldWipersState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WINDOW}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_WINDSHIELD_WIPERS} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_WINDSHIELD_WIPERS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int WINDSHIELD_WIPERS_STATE = 322964422;
+
+    /**
      * Steering wheel depth position
      *
      * <p>Returns how close the steering wheel is to the driver. This value is not in any
