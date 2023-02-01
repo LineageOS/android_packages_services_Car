@@ -35,6 +35,7 @@
     <dimen name="hun_body_min_height">168dp</dimen>
     <dimen name="hun_body_title_margin_top">12dp</dimen>
     <dimen name="notification_card_footer_height">88dp</dimen>
+    <dimen name="notification_header_text_top_margin">22dp</dimen>
     <!-- notification_list_divider_height is intentionally in px in-order to follow UX mocks -->
     <dimen name="notification_list_divider_height">1px</dimen>
     <dimen name="progress_bar_bottom_margin">24dp</dimen>

@@ -1062,6 +1062,13 @@ package android.car.hardware.property {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_OVERRIDE = 3; // 0x3
   }
 
+  public final class BlindSpotWarningState {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String toString(int);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int NO_WARNING = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int OTHER = 0; // 0x0
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int WARNING = 2; // 0x2
+  }
+
   public final class ErrorState {
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String toString(int);
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int NOT_AVAILABLE_DISABLED = -2; // 0xfffffffe
@@ -1107,6 +1114,15 @@ package android.car.hardware.property {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_DAYTIME_RUNNING = 2; // 0x2
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_OFF = 0; // 0x0
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int STATE_ON = 1; // 0x1
+  }
+
+  public final class VehicleOilLevel {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String toString(int);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int LEVEL_CRITICALLY_LOW = 0; // 0x0
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int LEVEL_ERROR = 4; // 0x4
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int LEVEL_HIGH = 3; // 0x3
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int LEVEL_LOW = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int LEVEL_NORMAL = 2; // 0x2
   }
 
   public final class VehicleTurnSignal {

@@ -302,6 +302,21 @@ public final class EventLogHelper {
                 result);
     }
 
+    /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarUserServiceStartUserVisibeOnDisplayReq(int userId, int displayId) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ,
+                userId, displayId);
+    }
+
+    /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_RESP} event. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void writeCarUserServiceStartUserVisibleOnDisplayResp(
+            int userId, int displayId, int result) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_RESP,
+                userId, displayId, result);
+    }
+
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeCarUserServiceStopUserReq(int userId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_STOP_USER_REQ, userId);

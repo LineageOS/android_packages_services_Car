@@ -140,6 +140,7 @@ android.car.hardware.power.PowerComponentUtil
 android.car.hardware.property.AreaIdConfig
 android.car.hardware.property.AreaIdConfig$Builder
 android.car.hardware.property.AutomaticEmergencyBrakingState
+android.car.hardware.property.BlindSpotWarningState
 android.car.hardware.property.CarInternalErrorException
 android.car.hardware.property.CarPropertyEvent
 android.car.hardware.property.CarPropertyManager
@@ -165,6 +166,7 @@ android.car.hardware.property.VehicleElectronicTollCollectionCardType
 android.car.hardware.property.VehicleHalStatusCode
 android.car.hardware.property.VehicleLightState
 android.car.hardware.property.VehicleLightSwitch
+android.car.hardware.property.VehicleOilLevel
 android.car.hardware.property.VehicleTurnSignal
 android.car.hardware.property.VehicleVendorPermission
 android.car.input.CarInputHandlingService

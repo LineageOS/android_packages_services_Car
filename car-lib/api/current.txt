@@ -319,6 +319,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920; // 0x11201000
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_STATES")) public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073; // 0x11401001
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int BLIND_SPOT_WARNING_ENABLED = 287313924; // 0x11201004
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_STATES")) public static final int BLIND_SPOT_WARNING_STATE = 339742725; // 0x14401005
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_STATE = 289410817; // 0x11400f01
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_SWITCH = 289410818; // 0x11400f02
     field @RequiresPermission("android.car.permission.CAR_TIRES") public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202; // 0x1760030a
@@ -329,13 +330,13 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_LOCK = 371198722; // 0x16200b02
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_MOVE = 373295873; // 0x16400b01
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_POS = 373295872; // 0x16400b00
-    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_DRIVER_MONITORING_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS")) public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313944; // 0x11201018
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_DRIVER_MONITORING_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS")) public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313945; // 0x11201019
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874; // 0x11400f3a
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873; // 0x11400f39
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_ADAS_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_ADAS_SETTINGS")) public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933; // 0x1120100d
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_COOLANT_TEMP = 291504897; // 0x11600301
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624; // 0x11200320
-    field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED")) public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_RPM = 291504901; // 0x11600305
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
@@ -367,7 +368,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513; // 0x11400601
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int GEAR_SELECTION = 289408000; // 0x11400400
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_INFO)) public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887; // 0x11400f47
-    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_DRIVER_MONITORING_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS")) public static final int HANDS_ON_DETECTION_ENABLED = 287313941; // 0x11201015
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.READ_DRIVER_MONITORING_SETTINGS")) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS")) public static final int HANDS_ON_DETECTION_ENABLED = 287313942; // 0x11201016
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_STATE = 289410563; // 0x11400e03
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_SWITCH = 289410579; // 0x11400e13
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HEADLIGHTS_STATE = 289410560; // 0x11400e00
