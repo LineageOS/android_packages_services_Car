@@ -171,6 +171,9 @@
     <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA"/>
     <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"/>
 
+    <!-- use for InjectMotionTestFragment -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <!-- Allows sending of notifications in T+ -->
