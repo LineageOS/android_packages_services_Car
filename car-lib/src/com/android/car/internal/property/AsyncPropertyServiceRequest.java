@@ -26,7 +26,8 @@ import android.os.Parcelable;
 import com.android.car.internal.util.DataClass;
 
 /**
- * A request for {@link CarPropertyService.getPropertiesAsync}
+ * A request for {@link CarPropertyService.getPropertiesAsync} or
+ * {@link CarPropertyService.setPropertiesAsync}
  *
  * @hide
  */
