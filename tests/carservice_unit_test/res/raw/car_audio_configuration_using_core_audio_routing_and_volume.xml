@@ -40,23 +40,27 @@
     </oemContexts>
     <zones>
         <zone isPrimary="true" name="primary zone" audioZoneId="0" occupantZoneId="0">
-            <volumeGroups>
-                <group name="MUSIC_GROUP">
-                    <device address="media_bus_device">
-                        <context context="MUSIC_CONTEXT"/>
-                    </device>
-                </group>
-                <group name="NAV_GROUP">
-                    <device address="navigation_bus_device">
-                        <context context="NAV_CONTEXT"/>
-                    </device>
-                </group>
-                <group name="OEM_GROUP">
-                    <device address="oem_bus_device">
-                        <context context="OEM_CONTEXT"/>
-                    </device>
-                </group>
-            </volumeGroups>
+            <zoneConfigs>
+                <zoneConfig  name="primary zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group name="MUSIC_GROUP">
+                            <device address="media_bus_device">
+                                <context context="MUSIC_CONTEXT"/>
+                            </device>
+                        </group>
+                        <group name="NAV_GROUP">
+                            <device address="navigation_bus_device">
+                                <context context="NAV_CONTEXT"/>
+                            </device>
+                        </group>
+                        <group name="OEM_GROUP">
+                            <device address="oem_bus_device">
+                                <context context="OEM_CONTEXT"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
         </zone>
     </zones>
 </carAudioConfiguration>
