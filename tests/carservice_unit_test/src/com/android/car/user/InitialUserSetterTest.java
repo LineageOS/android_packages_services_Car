@@ -26,6 +26,7 @@ import static com.android.car.user.MockedUserHandleBuilder.expectManagedProfileE
 import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectSystemUserExists;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -52,6 +53,7 @@ import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.MockSettings;
 import android.content.Context;
+import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -78,6 +80,11 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private static final int USER_ID = 100;
     private static final int NEW_USER_ID = 101;
     private static final int CURRENT_USER_ID = 102;
+
+    private static final InitialUserInfo INITIAL_USER_INFO_RESUME = new Builder(
+            InitialUserSetter.TYPE_CREATE)
+                    .setRequestType(InitialUserInfoRequestType.RESUME)
+                    .build();
 
     @Mock
     private Context mContext;
@@ -853,14 +860,14 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void testStartForegroundUser_ok() throws Exception {
         expectAmStartFgUser(10, /* toBeReturned= */ true);
 
-        assertThat(mSetter.startForegroundUser(10)).isTrue();
+        assertThat(mSetter.startForegroundUser(INITIAL_USER_INFO_RESUME, 10)).isTrue();
     }
 
     @Test
     public void testStartForegroundUser_fail() throws Exception {
         expectAmStartFgUser(10, /* toBeReturned= */ false);
 
-        assertThat(mSetter.startForegroundUser(10)).isFalse();
+        assertThat(mSetter.startForegroundUser(INITIAL_USER_INFO_RESUME, 10)).isFalse();
     }
 
     @Test
@@ -868,14 +875,16 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         mockIsHeadlessSystemUserMode(false);
         expectAmStartFgUser(UserHandle.USER_SYSTEM, /* toBeReturned= */ true);
 
-        assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isTrue();
+        assertThat(mSetter.startForegroundUser(INITIAL_USER_INFO_RESUME, UserHandle.USER_SYSTEM))
+                .isTrue();
     }
 
     @Test
     public void testStartForegroundUser_headlessSystemUser() throws Exception {
         mockIsHeadlessSystemUserMode(true);
 
-        assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
+        assertThat(mSetter.startForegroundUser(INITIAL_USER_INFO_RESUME, UserHandle.USER_SYSTEM))
+                .isFalse();
 
         verify(() -> ActivityManagerHelper.startUserInForeground(UserHandle.USER_SYSTEM), never());
     }
@@ -1126,15 +1135,16 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void expectSwitchUser(@UserIdInt int userId) throws Exception {
-        doReturn(true).when(mSetter).startForegroundUser(userId);
+        doReturn(true).when(mSetter).startForegroundUser(any(), eq(userId));
     }
+
     private void expectSwitchUserFails(@UserIdInt int userId) {
-        when(mSetter.startForegroundUser(userId)).thenReturn(false);
+        doReturn(false).when(mSetter).startForegroundUser(any(), eq(userId));
     }
 
     private void expectSwitchUserThrowsException(@UserIdInt int userId) {
-        when(mSetter.startForegroundUser(userId))
-                .thenThrow(new RuntimeException("D'OH! Cannot switch to " + userId));
+        doThrow(new RuntimeException("D'OH! Cannot switch to " + userId)).when(mSetter)
+                .startForegroundUser(any(), eq(userId));
     }
 
     private UserHandle expectCreateFullUser(@Nullable String name, int flags, UserHandle user) {
@@ -1166,12 +1176,12 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
-        verify(mSetter).startForegroundUser(userId);
+        verify(mSetter).startForegroundUser(any(), eq(userId));
         verify(mSetter).setLastActiveUser(userId);
     }
 
     private void verifyUserNeverSwitched() throws Exception {
-        verify(mSetter, never()).startForegroundUser(anyInt());
+        verify(mSetter, never()).startForegroundUser(any(), anyInt());
         verifyLastActiveUserNeverSet();
     }
 
@@ -1222,11 +1232,15 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void verifySystemUserUnlocked() {
-        verify(mSetter).unlockSystemUser();
+        // TODO(b/261913541): Add more unit test to check unlockSystemUser as it is only relevant
+        // for T platform.
+        //verify(mSetter).unlockSystemUser();
     }
 
     private void verifySystemUserNeverUnlocked() {
-        verify(mSetter, never()).unlockSystemUser();
+        // TODO(b/261913541): Add more unit test to check unlockSystemUser as it is only relevant
+        // for T platform.
+        //verify(mSetter, never()).unlockSystemUser();
     }
 
     private void verifyLastActiveUserNeverSet() {
