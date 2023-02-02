@@ -278,6 +278,11 @@
         <install-in user-type="SYSTEM" />
         <install-in user-type="PROFILE" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.permissioncontroller.car.rro">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+        <install-in user-type="PROFILE" />
+    </install-in-user-type>
     <install-in-user-type package="com.android.devicelockcontroller">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
@@ -391,10 +396,6 @@
     </install-in-user-type>
     <install-in-user-type package="com.android.wifi.dialog">
         <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.permissioncontroller.car.rro">
-        <install-in user-type="FULL" />
-        <install-in user-type="PROFILE" />
     </install-in-user-type>
     <!-- Provides ability to configure network preferences. -->
     <install-in-user-type package="com.google.android.car.networking.preferenceupdater">
