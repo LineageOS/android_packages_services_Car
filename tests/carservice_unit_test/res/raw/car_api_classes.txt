@@ -186,6 +186,7 @@ android.car.hardware.property.VehicleOilLevel
 android.car.hardware.property.VehicleTurnSignal
 android.car.hardware.property.VehicleVendorPermission
 android.car.hardware.property.WindshieldWipersState
+android.car.hardware.property.WindshieldWipersSwitch
 android.car.input.CarInputHandlingService
 android.car.input.CarInputHandlingService$InputFilter
 android.car.input.CarInputManager
