@@ -82,6 +82,7 @@ import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.os.CarPerformanceTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
+import com.google.android.car.kitchensink.privacy.PrivacyIndicatorFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
 import com.google.android.car.kitchensink.qc.QCViewerFragment;
@@ -259,6 +260,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("package info", PackageInfoFragment.class),
             new FragmentMenuEntry("performance", CarPerformanceTestFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
+            new FragmentMenuEntry(PrivacyIndicatorFragment.FRAGMENT_NAME,
+                    PrivacyIndicatorFragment.class),
             new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
