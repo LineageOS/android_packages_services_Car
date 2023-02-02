@@ -26,6 +26,7 @@ import android.car.builtin.util.Slogf;
 import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.AutomaticEmergencyBrakingState;
 import android.hardware.automotive.vehicle.BlindSpotWarningState;
+import android.hardware.automotive.vehicle.CruiseControlCommand;
 import android.hardware.automotive.vehicle.CruiseControlState;
 import android.hardware.automotive.vehicle.CruiseControlType;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
@@ -139,6 +140,8 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> CRUISE_CONTROL_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                     CruiseControlState.class, ErrorState.class));
+    private static final Set<Integer> CRUISE_CONTROL_COMMAND =
+            new HashSet<>(getIntegersFromDataEnums(CruiseControlCommand.class));
     private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 AutomaticEmergencyBrakingState.class, ErrorState.class));
@@ -223,6 +226,8 @@ public class PropertyHalServiceIds {
                 CRUISE_CONTROL_TYPE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_STATE,
                 CRUISE_CONTROL_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_COMMAND,
+                CRUISE_CONTROL_COMMAND);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
                 AUTOMATIC_EMERGENCY_BRAKING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
@@ -618,6 +623,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_STATE, new Pair<>(
                 Car.PERMISSION_READ_ADAS_STATES,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_COMMAND, new Pair<>(
+                null,
+                Car.PERMISSION_CONTROL_ADAS_STATES));
         mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));

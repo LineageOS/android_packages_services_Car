@@ -236,6 +236,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073; // 0x11401001
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int BLIND_SPOT_WARNING_ENABLED = 287313924; // 0x11201004
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int BLIND_SPOT_WARNING_STATE = 339742725; // 0x14401005
+    field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_COMMAND = 289411090; // 0x11401012
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int CRUISE_CONTROL_ENABLED = 287313935; // 0x1120100f
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int CRUISE_CONTROL_STATE = 289411089; // 0x11401011
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int CRUISE_CONTROL_TYPE = 289411088; // 0x11401010
@@ -1038,6 +1039,16 @@ package android.car.hardware.property {
 
   public static final class CarPropertyManager.PropertyAsyncError {
     method public int getVendorErrorCode();
+  }
+
+  public class CruiseControlCommand {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATE = 1; // 0x1
+    field public static final int DECREASE_TARGET_SPEED = 4; // 0x4
+    field public static final int DECREASE_TARGET_TIME_GAP = 6; // 0x6
+    field public static final int INCREASE_TARGET_SPEED = 3; // 0x3
+    field public static final int INCREASE_TARGET_TIME_GAP = 5; // 0x5
+    field public static final int SUSPEND = 2; // 0x2
   }
 
   public class CruiseControlState {
