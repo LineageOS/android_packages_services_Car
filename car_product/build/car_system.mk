@@ -236,7 +236,6 @@ PRODUCT_PACKAGES += \
 
 # CAN bus
 PRODUCT_PACKAGES += \
-    canhalconfigurator \
     canhalctrl \
     canhaldump \
     canhalsend
