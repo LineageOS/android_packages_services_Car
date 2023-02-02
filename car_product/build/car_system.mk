@@ -113,7 +113,7 @@ PRODUCT_PACKAGES += \
     screenrecord
 
 # Set default Bluetooth profiles
-TARGET_SYSTEM_PROP += \
+TARGET_SYSTEM_PROP := \
     packages/services/Car/car_product/properties/bluetooth.prop
 
 PRODUCT_SYSTEM_PROPERTIES += \
