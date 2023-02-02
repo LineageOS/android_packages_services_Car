@@ -20,6 +20,7 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -78,6 +79,8 @@ public final class GenerateAPI {
     private static final String GENERATE_ADDEDINORBEFORE_API_FOR_TEST =
             "--generate-addedinorbefore-api-for-test";
 
+    private static final String INCLUDE_CONSTRUCTORS = "--include-constructors";
+
     // Print Level: Describes desired print level for the tool
     // PRINT_SHORT prints only a condensed version of the APIs.
     // PRINT_HIDDEN_ONLY prints only hidden APIs.
@@ -98,14 +101,19 @@ public final class GenerateAPI {
             }
 
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
-            if (rootDir == null || rootDir.isEmpty()) {
-                // check for second optional argument
-                if (args.length > 2 && args[1].equalsIgnoreCase("--android-build-top")) {
-                    rootDir = args[2];
-                } else {
-                    printHelp();
-                    return;
+            boolean includeConstructors = false;
+            for (int i = 0; i < args.length; i++) {
+                if (args[i].equalsIgnoreCase(INCLUDE_CONSTRUCTORS)) {
+                    includeConstructors = true;
+                } else if (args.length > i + 1 && args[i].equalsIgnoreCase("--android-build-top")) {
+                    rootDir = args[i + 1];
                 }
+            }
+
+            // ANDROID_BUILD_TOP must be set.
+            if (rootDir == null || rootDir.isEmpty()) {
+                printHelp();
+                return;
             }
 
             List<File> allJavaFiles_carLib = getAllFiles(new File(rootDir + CAR_API_PATH));
@@ -142,7 +150,8 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
+                                    includeConstructors));
                 }
                 writeListToFile(rootDir + CAR_HIDDEN_API_FILE, allCarAPIs);
                 return;
@@ -151,8 +160,8 @@ public final class GenerateAPI {
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_HIDDEN_API_FOR_TEST)) {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY));
+                    allCarAPIs.addAll(parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
+                            includeConstructors));
                 }
                 print(allCarAPIs);
                 return;
@@ -162,7 +171,8 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_SHORT));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_SHORT,
+                                    includeConstructors));
                 }
                 print(allCarAPIs);
                 return;
@@ -173,7 +183,8 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_ADDEDINORBEFORE_ONLY));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_ADDEDINORBEFORE_ONLY,
+                                    includeConstructors));
                 }
                 writeListToFile(rootDir + CAR_ADDEDINORBEFORE_API_FILE, allCarAPIs);
                 return;
@@ -183,14 +194,16 @@ public final class GenerateAPI {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_DEFAULT));
+                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_DEFAULT,
+                                    includeConstructors));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_API_LIST, allCarAPIs);
 
                 List<String> allCarBuiltInAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
                     allCarBuiltInAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), PRINT_DEFAULT));
+                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), PRINT_DEFAULT,
+                                    includeConstructors));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_BUILT_IN_API_LIST,
                         allCarBuiltInAPIs);
@@ -236,6 +249,8 @@ public final class GenerateAPI {
         System.out.println("Second optional argument is value of Git Root Directory. By default, "
                 + "it is environment variable ANDROID_BUILD_TOP. If environment variable is not set"
                 + "then provide using --android-build-top <directory>");
+        System.out.println("An additional optional argument " + INCLUDE_CONSTRUCTORS
+                + " will include class constructors in the API output");
     }
 
     private static List<File> getAllFiles(File folderName) {
@@ -288,7 +303,8 @@ public final class GenerateAPI {
         }.visit(cu, null);
     }
 
-    private static List<String> parseJavaFile(File file, int printLevel)
+    private static List<String> parseJavaFile(File file, int printLevel,
+            boolean includeConstructors)
             throws Exception {
         List<String> parsedList = new ArrayList<>();
 
@@ -434,10 +450,16 @@ public final class GenerateAPI {
                             if (hasAddedInOrBefore) {
                                 parsedList.add(packageName + "." + className + "." + fieldName);
                             }
+                            break;
                         default:
-                            System.err.println("Unknown print level specified");
+                            System.err.println("Unknown print level specified: " + printLevel);
                             break;
                     }
+                }
+
+                // get all constructors
+                if (includeConstructors) {
+                    parseConstructors(n, wholeClassIsHidden, className);
                 }
 
                 // get all the methods
@@ -537,8 +559,9 @@ public final class GenerateAPI {
                             if (hasAddedInOrBefore) {
                                 parsedList.add(packageName + "." + className + "." + methodName);
                             }
+                            break;
                         default:
-                            System.err.println("Unknown print level specified");
+                            System.err.println("Unknown print level specified: " + printLevel);
                             break;
                     }
                 }
@@ -558,6 +581,107 @@ public final class GenerateAPI {
                     }
                 }
                 return "0";
+            }
+
+            private void parseConstructors(ClassOrInterfaceDeclaration n,
+                    boolean wholeClassIsHidden, String className) {
+                List<ConstructorDeclaration> constructors = n.getConstructors();
+                for (ConstructorDeclaration constructor : constructors) {
+                    if (!n.isInterface() && !constructor.isPublic() && !constructor.isProtected()) {
+                        continue;
+                    }
+
+                    String constructorName = constructor.getName().asString();
+
+                    boolean isSystem = false;
+                    boolean isHidden = false;
+                    boolean hasAddedInOrBefore = true;
+
+                    String version = "";
+                    if (!constructor.getJavadoc().isEmpty()) {
+                        isHidden = constructor.getJavadoc().get().toText().contains("@hide");
+                    }
+
+                    NodeList<AnnotationExpr> annotations = constructor.getAnnotations();
+                    for (int j = 0; j < annotations.size(); j++) {
+                        String annotationString = annotations.get(j).getName().asString();
+                        if (annotationString.contains("SystemApi")) {
+                            isSystem = true;
+                        }
+                        if (annotationString.contains("AddedInOrBefore")) {
+                            hasAddedInOrBefore = true;
+                        }
+                        if (annotationString.equals("AddedIn")) {
+                            String major = getVersion(annotations.get(j), "majorVersion");
+                            String minor = getVersion(annotations.get(j), "minorVersion");
+                            if (!major.equals("33")) {
+                                System.out.println("ERROR:  major should be 33 for " + constructor);
+                            }
+                            version = "TIRAMISU_" + minor;
+                        }
+                        if (annotationString.equals("ApiRequirements")) {
+                            String major = getVersion(annotations.get(j), "minCarVersion");
+                            version = major.split("\\.")[major.split("\\.").length - 1];
+                        }
+
+                    }
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("method ");
+                    sb.append(version + " ");
+                    if (isHidden && !isSystem) {
+                        sb.append("@hiddenOnly ");
+                    }
+
+                    sb.append(constructorName);
+                    sb.append(" ");
+                    sb.append(constructorName);
+
+                    StringBuilder parametersString = new StringBuilder();
+
+                    parametersString.append("(");
+
+                    List<Parameter> parameters = constructor.getParameters();
+                    for (int k = 0; k < parameters.size(); k++) {
+                        Parameter parameter = parameters.get(k);
+                        parametersString.append(parameter.getTypeAsString());
+                        parametersString.append(" ");
+                        parametersString.append(parameter.getNameAsString());
+                        if (k < parameters.size() - 1) {
+                            parametersString.append(", ");
+                        }
+                    }
+                    parametersString.append(")");
+
+                    sb.append(parametersString);
+
+                    if (DBG) {
+                        System.out.printf("%s%s\n", TAB, sb);
+                    }
+
+                    String parsedName = packageName + " " + className + " "
+                            + constructorName + " " + constructorName + parametersString;
+
+                    switch (printLevel) {
+                        case PRINT_SHORT:
+                            parsedList.add(parsedName);
+                            break;
+                        case PRINT_HIDDEN_ONLY:
+                            if (wholeClassIsHidden || (isHidden && !isSystem)) {
+                                parsedList.add(parsedName);
+                            }
+                            break;
+                        case PRINT_ADDEDINORBEFORE_ONLY:
+                            if (hasAddedInOrBefore) {
+                                parsedList.add(
+                                        packageName + "." + className + "." + constructorName);
+                            }
+                            break;
+                        default:
+                            System.err.println("Unknown print level specified: " + printLevel);
+                            break;
+                    }
+                }
             }
         }.visit(cu, null);
         return parsedList;
