@@ -24,6 +24,7 @@ import static com.android.car.oem.utils.AudioUtils.getAudioAttributeFromUsage;
 import android.annotation.Nullable;
 import android.media.AudioAttributes;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Slog;
 import android.util.Xml;
 
@@ -70,11 +71,8 @@ public final class OemCarServiceHelper {
             mCurrentHolderToIncomingFocusInteractions;
     private @Nullable ArrayMap<AudioAttributes, List<AudioAttributes>> mDuckingInteractions;
 
-    public OemCarServiceHelper() {
-    }
-
     /**
-     * parses the given inputStream and puts the priority list/interaction mapping into their
+     * Parses the given inputStream and puts the priority list/interaction mapping into their
      * respective audio management interaction list/mappings.
      *
      * @param inputStream The inputstream to be parsed.
@@ -85,7 +83,7 @@ public final class OemCarServiceHelper {
             throws XmlPullParserException, IOException {
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, NO_NAMESPACE != null);
-        parser.setInput(inputStream, null);
+        parser.setInput(inputStream, /* inputEncoding= */ null);
         // When setInput() is used with a XmlPullParser, the parser is set to the
         // initial value of START_DOCUMENT.
         parser.next();
@@ -108,6 +106,10 @@ public final class OemCarServiceHelper {
                     Slog.w(TAG, "Could not match given tag");
                     skip(parser);
             }
+        }
+
+        if (evaluateLoops(mDuckingInteractions)) {
+            throw new IllegalStateException("Ducking interactions contain loops");
         }
 
         //TODO (b/266977493): Delete these logs when b/266977442 is fixed, strictly for debugging
@@ -323,5 +325,40 @@ public final class OemCarServiceHelper {
                     break;
             }
         }
+    }
+
+    private boolean evaluateLoops(ArrayMap<AudioAttributes, List<AudioAttributes>> mapping) {
+        ArraySet<AudioAttributes> seenAttributes = new ArraySet<>();
+        for (int i = 0; i < mapping.size(); i++) {
+            if (containLoops(mapping.keyAt(i), new ArraySet<>(), seenAttributes, mapping)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containLoops(AudioAttributes currentAttribute,
+            ArraySet<AudioAttributes> currentlyVisited, ArraySet<AudioAttributes> seen,
+            ArrayMap<AudioAttributes, List<AudioAttributes>> mapping) {
+        // contains loop
+        if (currentlyVisited.contains(currentAttribute)) {
+            return true;
+        }
+        if (seen.contains(currentAttribute)) {
+            return false;
+        }
+        List<AudioAttributes> nextAttributes = mapping.getOrDefault(currentAttribute, List.of());
+        currentlyVisited.add(currentAttribute);
+        seen.add(currentAttribute);
+        for (int i = 0; i < nextAttributes.size(); i++) {
+            if (containLoops(nextAttributes.get(i), currentlyVisited, seen, mapping)) {
+                // contains loops
+                return true;
+            }
+        }
+        // make sure to we remove what we're currently visiting to avoid issues such as A->B->C
+        // and A->C. If B and C does not get removed, then loop will be found.
+        currentlyVisited.remove(currentAttribute);
+        return false;
     }
 }
