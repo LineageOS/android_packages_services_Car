@@ -329,6 +329,17 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Execute an empty runnable in the looper of the handler thread
+     * specified by the name.
+     *
+     * @param name Name of the handler thread in which to run the empty
+     *             runnable.
+     */
+    public static void runEmptyRunnableOnLooperSync(String name) {
+        runOnLooperSync(getHandlerThread(name).getLooper(), () -> {});
+    }
+
+    /**
      * Execute a call on the application's main thread, blocking until it is
      * complete.  Useful for doing things that are not thread-safe, such as
      * looking at or modifying the view hierarchy.
