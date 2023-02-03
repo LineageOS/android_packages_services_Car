@@ -28,6 +28,7 @@ import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.ICarProperty;
@@ -817,5 +818,54 @@ public class CarPropertyService extends ICarProperty.Stub
                         + "property ID: %s area ID: %s",
                 VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                 toHexString(areaId));
+
+        AreaIdConfig<?> areaIdConfig = carPropertyConfig.getAreaIdConfig(areaId);
+        if (areaIdConfig.getMinValue() != null) {
+            boolean isGreaterThanOrEqualToMinValue = false;
+            if (carPropertyConfig.getPropertyType().equals(Integer.class)) {
+                isGreaterThanOrEqualToMinValue =
+                        (Integer) valueToSet >= (Integer) areaIdConfig.getMinValue();
+            } else if (carPropertyConfig.getPropertyType().equals(Long.class)) {
+                isGreaterThanOrEqualToMinValue =
+                        (Long) valueToSet >= (Long) areaIdConfig.getMinValue();
+            } else if (carPropertyConfig.getPropertyType().equals(Float.class)) {
+                isGreaterThanOrEqualToMinValue =
+                        (Float) valueToSet >= (Float) areaIdConfig.getMinValue();
+            }
+            Preconditions.checkArgument(isGreaterThanOrEqualToMinValue,
+                    "setProperty: value to set must be greater than or equal to the area ID min "
+                            + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
+                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                    toHexString(areaId), areaIdConfig.getMinValue());
+
+        }
+
+        if (areaIdConfig.getMaxValue() != null) {
+            boolean isLessThanOrEqualToMaxValue = false;
+            if (carPropertyConfig.getPropertyType().equals(Integer.class)) {
+                isLessThanOrEqualToMaxValue =
+                        (Integer) valueToSet <= (Integer) areaIdConfig.getMaxValue();
+            } else if (carPropertyConfig.getPropertyType().equals(Long.class)) {
+                isLessThanOrEqualToMaxValue =
+                        (Long) valueToSet <= (Long) areaIdConfig.getMaxValue();
+            } else if (carPropertyConfig.getPropertyType().equals(Float.class)) {
+                isLessThanOrEqualToMaxValue =
+                        (Float) valueToSet <= (Float) areaIdConfig.getMaxValue();
+            }
+            Preconditions.checkArgument(isLessThanOrEqualToMaxValue,
+                    "setProperty: value to set must be less than or equal to the area ID max "
+                            + "value. - " + "property ID: %s area ID: 0x%s min value: %s",
+                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                    toHexString(areaId), areaIdConfig.getMaxValue());
+
+        }
+
+        if (!areaIdConfig.getSupportedEnumValues().isEmpty()) {
+            Preconditions.checkArgument(areaIdConfig.getSupportedEnumValues().contains(valueToSet),
+                    "setProperty: value to set must exist in set of supported enum values. - "
+                            + "property ID: %s area ID: 0x%s supported enum values: %s",
+                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                    toHexString(areaId), areaIdConfig.getSupportedEnumValues());
+        }
     }
 }

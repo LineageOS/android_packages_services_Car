@@ -38,6 +38,7 @@ import android.car.VehicleGear;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.GetPropertyServiceRequest;
@@ -83,7 +84,10 @@ public final class CarPropertyServiceUnitTest {
     private static final int HVAC_TEMP = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
     private static final int HVAC_CURRENT_TEMP = VehiclePropertyIds.HVAC_TEMPERATURE_CURRENT;
     private static final int CONTINUOUS_READ_ONLY_PROPERTY_ID = 98732;
-    private static final int WRITE_ONLY_PROPERTY_ID = 12345;
+    private static final int WRITE_ONLY_INT_PROPERTY_ID = 12345;
+    private static final int WRITE_ONLY_LONG_PROPERTY_ID = 22345;
+    private static final int WRITE_ONLY_FLOAT_PROPERTY_ID = 32345;
+    private static final int WRITE_ONLY_ENUM_PROPERTY_ID = 112345;
     private static final int ON_CHANGE_READ_WRITE_PROPERTY_ID = 1111;
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
     private static final String GRANTED_PERMISSION = "GRANTED_PERMISSION";
@@ -95,6 +99,14 @@ public final class CarPropertyServiceUnitTest {
     private static final float MIN_SAMPLE_RATE = 2;
     private static final float MAX_SAMPLE_RATE = 10;
     private static final int ASYNC_TIMEOUT_MS = 1000;
+    private static final int MIN_INT_VALUE = 10;
+    private static final int MAX_INT_VALUE = 20;
+    private static final long MIN_LONG_VALUE = 100;
+    private static final long MAX_LONG_VALUE = 200;
+    private static final float MIN_FLOAT_VALUE = 0.5f;
+    private static final float MAX_FLOAT_VALUE = 5.5f;
+    private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(1, 2, 4, 5);
+    private static final Integer UNSUPPORTED_ENUM_VALUE = 3;
 
     @Before
     public void setUp() {
@@ -127,9 +139,8 @@ public final class CarPropertyServiceUnitTest {
         // Property with read or read/write access
         configs.put(HVAC_CURRENT_TEMP, CarPropertyConfig.newBuilder(Float.class, HVAC_CURRENT_TEMP,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1)
-                .addAreaConfig(GLOBAL_AREA_ID, null, null)
-                .setAccess(CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE)
-                .build());
+                .addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
+                        CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
         when(mHalService.getReadPermission(CONTINUOUS_READ_ONLY_PROPERTY_ID)).thenReturn(
                 GRANTED_PERMISSION);
         configs.put(CONTINUOUS_READ_ONLY_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
@@ -138,10 +149,30 @@ public final class CarPropertyServiceUnitTest {
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).setChangeMode(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMinSampleRate(
                 MIN_SAMPLE_RATE).setMaxSampleRate(MAX_SAMPLE_RATE).build());
-        when(mHalService.getWritePermission(WRITE_ONLY_PROPERTY_ID)).thenReturn(GRANTED_PERMISSION);
-        configs.put(WRITE_ONLY_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
-                WRITE_ONLY_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1).addAreaConfig(
-                GLOBAL_AREA_ID, null, null).setAccess(
+        when(mHalService.getWritePermission(WRITE_ONLY_INT_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(WRITE_ONLY_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
+                WRITE_ONLY_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaConfig(GLOBAL_AREA_ID, MIN_INT_VALUE, MAX_INT_VALUE).setAccess(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+        when(mHalService.getWritePermission(WRITE_ONLY_LONG_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(WRITE_ONLY_LONG_PROPERTY_ID, CarPropertyConfig.newBuilder(Long.class,
+                WRITE_ONLY_LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaConfig(GLOBAL_AREA_ID, MIN_LONG_VALUE, MAX_LONG_VALUE).setAccess(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+        when(mHalService.getWritePermission(WRITE_ONLY_FLOAT_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(WRITE_ONLY_FLOAT_PROPERTY_ID, CarPropertyConfig.newBuilder(Float.class,
+                WRITE_ONLY_FLOAT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaConfig(GLOBAL_AREA_ID, MIN_FLOAT_VALUE, MAX_FLOAT_VALUE).setAccess(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+        when(mHalService.getWritePermission(WRITE_ONLY_ENUM_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(WRITE_ONLY_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
+                WRITE_ONLY_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
+                SUPPORTED_ENUM_VALUES).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
         when(mHalService.getReadPermission(ON_CHANGE_READ_WRITE_PROPERTY_ID)).thenReturn(
                 GRANTED_PERMISSION);
@@ -441,7 +472,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void getProperty_throwsExceptionBecausePropertyIsNotReadable() {
         assertThrows(IllegalArgumentException.class,
-                () -> mService.getProperty(WRITE_ONLY_PROPERTY_ID,
+                () -> mService.getProperty(WRITE_ONLY_INT_PROPERTY_ID,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
     }
 
@@ -536,8 +567,57 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void setProperty_throwsExceptionBecauseOfSetValueTypeMismatch() {
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
-                new CarPropertyValue(WRITE_ONLY_PROPERTY_ID, GLOBAL_AREA_ID, Float.MAX_VALUE),
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, Float.MAX_VALUE),
                 mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfIntSetValueIsLessThanMinValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MIN_INT_VALUE - 1),
+                mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfIntSetValueIsGreaterThanMaxValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID, MAX_INT_VALUE + 1),
+                mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfLongSetValueIsLessThanMinValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MIN_LONG_VALUE - 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfLongSetValueIsGreaterThanMaxValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MAX_LONG_VALUE + 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfFloatSetValueIsLessThanMinValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_LONG_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MIN_LONG_VALUE - 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfFloatSetValueIsGreaterThanMaxValue() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_FLOAT_PROPERTY_ID, GLOBAL_AREA_ID,
+                        MAX_FLOAT_VALUE + 1), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfSetValueIsNotInSupportedEnumValues() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        UNSUPPORTED_ENUM_VALUE), mICarPropertyEventListener));
     }
 
     @Test
@@ -557,7 +637,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void registerListener_throwsExceptionBecausePropertyIsNotReadable() {
         assertThrows(IllegalArgumentException.class,
-                () -> mService.registerListener(WRITE_ONLY_PROPERTY_ID,
+                () -> mService.registerListener(WRITE_ONLY_INT_PROPERTY_ID,
                         CarPropertyManager.SENSOR_RATE_NORMAL, mICarPropertyEventListener));
     }
 
@@ -631,7 +711,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void unregisterListener_throwsExceptionBecausePropertyIsNotReadable() {
         assertThrows(IllegalArgumentException.class,
-                () -> mService.unregisterListener(WRITE_ONLY_PROPERTY_ID,
+                () -> mService.unregisterListener(WRITE_ONLY_INT_PROPERTY_ID,
                         mICarPropertyEventListener));
     }
 
