@@ -17,7 +17,6 @@
 package com.android.managedprovisioning.provisioning;
 
 import android.app.Activity;
-import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -162,7 +161,7 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
                         space1, space2);
 
         ProvisioningModeWrapper provisioningModeWrapper =
-                getProvisioningModeWrapperForFullyManaged(activity.getApplicationContext());
+                getProvisioningModeWrapperForFullyManaged();
 
         mTransitionAnimationHelper = new TransitionAnimationHelper(
                 animationComponents,
@@ -175,10 +174,10 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
                 + R.bool.show_edu_animations);
     }
 
-    private ProvisioningModeWrapper getProvisioningModeWrapperForFullyManaged(Context context) {
+    private ProvisioningModeWrapper getProvisioningModeWrapperForFullyManaged() {
         int provisioningSummaryId;
         TransitionScreenWrapper.Builder secondScreenBuilder =
-                new TransitionScreenWrapper.Builder(context)
+                new TransitionScreenWrapper.Builder()
                         .setHeader(R.string.fully_managed_device_provisioning_step_2_header);
 
         if (!getParams().deviceOwnerPermissionGrantOptOut) {
@@ -204,11 +203,10 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
 
         TransitionScreenWrapper firstScreen = new TransitionScreenWrapper(
                 R.string.fully_managed_device_provisioning_step_1_header,
-                context.getString(R.string.fully_managed_device_provisioning_step_1_description),
-                /* drawable= */ 0, /* shouldLoop= */ false, context);
+                R.string.fully_managed_device_provisioning_step_1_description,
+                /* drawable= */ 0, /* shouldLoop= */ false);
         return new ProvisioningModeWrapper(new TransitionScreenWrapper[] {
-                firstScreen, secondScreenBuilder.build()},
-                context.getString(provisioningSummaryId));
+                firstScreen, secondScreenBuilder.build()}, provisioningSummaryId);
     }
 
     @Override
