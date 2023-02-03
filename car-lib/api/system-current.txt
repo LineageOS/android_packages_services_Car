@@ -233,6 +233,7 @@ package android.car {
   }
 
   public final class VehiclePropertyIds {
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE = 289411093; // 0x11401015
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP = 289411092; // 0x11401014
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_SETTINGS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_SETTINGS)) public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920; // 0x11201000
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073; // 0x11401001
