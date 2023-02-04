@@ -21,8 +21,8 @@ import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 import static android.car.VehiclePropertyIds.INFO_EV_CONNECTOR_TYPE;
 import static android.car.VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
 import static android.car.VehiclePropertyIds.INVALID;
-import static android.car.hardware.property.CarPropertyManager.GetPropertyError;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
+import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_ACCESS_DENIED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
@@ -130,6 +130,8 @@ public final class CarPropertyManagerUnitTest {
     private CarPropertyConfig mStaticCarPropertyConfig;
     @Mock
     private CarPropertyManager.GetPropertyCallback mGetPropertyCallback;
+    @Mock
+    private CarPropertyManager.SetPropertyCallback mSetPropertyCallback;
 
     @Captor
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
@@ -537,7 +539,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetPropertiesAsync_propertySupported() throws RemoteException {
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
@@ -551,7 +553,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetPropertiesAsyncWithTimeout() throws RemoteException {
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()),
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()),
                 /* timeoutInMs= */ 1000, null, null, mGetPropertyCallback);
 
         ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
@@ -569,7 +571,7 @@ public final class CarPropertyManagerUnitTest {
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
                 any(IGetAsyncPropertyResultCallback.class), anyLong());
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
     }
 
@@ -579,7 +581,7 @@ public final class CarPropertyManagerUnitTest {
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
                 any(IGetAsyncPropertyResultCallback.class), anyLong());
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
     }
 
@@ -598,7 +600,7 @@ public final class CarPropertyManagerUnitTest {
         doThrow(remoteException).when(mICarProperty).getPropertiesAsync(any(List.class),
                 any(IGetAsyncPropertyResultCallback.class), anyLong());
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         verify(mCar).handleRemoteExceptionFromCarService(any(RemoteException.class));
@@ -606,7 +608,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetPropertiesAsync_clearRequestIdToClientInfo() throws RemoteException {
-        CarPropertyManager.GetPropertyRequest getPropertyRequest = createPropertyRequest();
+        CarPropertyManager.GetPropertyRequest getPropertyRequest = createGetPropertyRequest();
         IllegalArgumentException exception = new IllegalArgumentException();
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
                 any(IGetAsyncPropertyResultCallback.class), anyLong());
@@ -633,7 +635,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetPropertiesAsync_cancellationSignalCancelRequests() throws Exception {
-        CarPropertyManager.GetPropertyRequest getPropertyRequest = createPropertyRequest();
+        CarPropertyManager.GetPropertyRequest getPropertyRequest = createGetPropertyRequest();
         CancellationSignal cancellationSignal = new CancellationSignal();
         List<IGetAsyncPropertyResultCallback> callbackWrapper = new ArrayList<>();
         doAnswer((invocation) -> {
@@ -664,7 +666,7 @@ public final class CarPropertyManagerUnitTest {
         verify(mGetPropertyCallback, never()).onSuccess(any());
     }
 
-    private CarPropertyManager.GetPropertyRequest createPropertyRequest() {
+    private CarPropertyManager.GetPropertyRequest createGetPropertyRequest() {
         return mCarPropertyManager.generateGetPropertyRequest(HVAC_TEMPERATURE_SET, 0);
     }
 
@@ -692,7 +694,7 @@ public final class CarPropertyManagerUnitTest {
         ArgumentCaptor<GetPropertyResult<?>> value = ArgumentCaptor.forClass(
                 GetPropertyResult.class);
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         verify(mGetPropertyCallback, timeout(1000)).onSuccess(value.capture());
@@ -732,8 +734,8 @@ public final class CarPropertyManagerUnitTest {
         ArgumentCaptor<GetPropertyResult<?>> value = ArgumentCaptor.forClass(
                 GetPropertyResult.class);
         List<CarPropertyManager.GetPropertyRequest> getPropertyRequests = new ArrayList<>();
-        getPropertyRequests.add(createPropertyRequest());
-        getPropertyRequests.add(createPropertyRequest());
+        getPropertyRequests.add(createGetPropertyRequest());
+        getPropertyRequests.add(createGetPropertyRequest());
 
         mCarPropertyManager.getPropertiesAsync(getPropertyRequests, null, null,
                 mGetPropertyCallback);
@@ -770,9 +772,10 @@ public final class CarPropertyManagerUnitTest {
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
-        ArgumentCaptor<GetPropertyError> value = ArgumentCaptor.forClass(GetPropertyError.class);
+        ArgumentCaptor<PropertyAsyncError> value = ArgumentCaptor.forClass(
+                PropertyAsyncError.class);
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
+        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
         verify(mGetPropertyCallback, timeout(1000)).onFailure(value.capture());
@@ -798,6 +801,18 @@ public final class CarPropertyManagerUnitTest {
         assertThrows(IllegalArgumentException.class, () -> {
             mCarPropertyManager.setProperty(Float.class, INVALID, 0, 17.0f);
         });
+    }
+
+    private CarPropertyManager.SetPropertyRequest createSetPropertyRequest() {
+        return mCarPropertyManager.generateSetPropertyRequest(HVAC_TEMPERATURE_SET, 0,
+                Float.valueOf(17.0f));
+    }
+
+    @Test
+    public void testSetPropertiesAsync() throws RemoteException {
+        mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()), null, null,
+                mSetPropertyCallback);
+        // TODO(b/264719384): improve this test.
     }
 
     @Test

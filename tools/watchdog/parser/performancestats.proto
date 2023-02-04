@@ -105,4 +105,5 @@ message SystemEventStats {
 message PerformanceStats {
   optional SystemEventStats boot_time_stats = 1;
   repeated SystemEventStats user_switch_stats = 2;
+  optional SystemEventStats custom_collection_stats = 3;
 }

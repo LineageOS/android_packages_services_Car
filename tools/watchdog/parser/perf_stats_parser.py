@@ -28,6 +28,7 @@ from parser import deviceperformancestats_pb2
 from datetime import datetime
 
 BOOT_TIME_REPORT_HEADER = "Boot-time performance report:"
+CUSTOM_COLLECTION_REPORT_HEADER = "Custom performance data report:"
 TOP_N_CPU_TIME_HEADER = "Top N CPU Times:"
 
 DUMP_DATETIME_FORMAT = "%a %b %d %H:%M:%S %Y %Z"
@@ -163,32 +164,40 @@ class SystemEventStats:
   def __repr__(self):
     collections_str = "\n  ".join(list(map(repr, self.collections)))
     return "SystemEventStats (\n" \
-           "  {}".format(collections_str)
+           "  {}\n)".format(collections_str)
 
 
 class PerformanceStats:
   def __init__(self):
     self.boot_time_stats = None
     self.user_switch_stats = []
+    self.custom_collection_stats = None
 
   def has_boot_time(self):
     return self.boot_time_stats and not self.boot_time_stats.is_empty()
 
+  def has_custom_collection(self):
+    return self.custom_collection_stats \
+           and not self.custom_collection_stats.is_empty()
+
   def is_empty(self):
-    return not self.has_boot_time() \
+    return not self.has_boot_time() and not self.has_custom_collection() \
            and not any(map(lambda u: not u.is_empty(), self.user_switch_stats))
 
   def to_dict(self):
     return {
         "boot_time_stats": self.boot_time_stats.to_list() if self.boot_time_stats else None,
-        "user_switch_stats": [u.to_list() for u in self.user_switch_stats]
+        "user_switch_stats": [u.to_list() for u in self.user_switch_stats],
+        "custom_collection_stats": self.custom_collection_stats.to_list() if self.custom_collection_stats else None,
     }
 
   def __repr__(self):
     return "PerformanceStats (\n" \
           "boot-time stats={}\n" \
-          "\nuser-switch stats={}\n)" \
-      .format(self.boot_time_stats, self.user_switch_stats)
+          "\nuser-switch stats={}\n" \
+          "\ncustom-collection stats={}\n)" \
+      .format(self.boot_time_stats, self.user_switch_stats,
+              self.custom_collection_stats)
 
 class DevicePerformanceStats:
   def __init__(self):
@@ -330,6 +339,11 @@ def parse_dump(dump):
       boot_time_stats, idx = parse_stats_collections(lines, idx)
       if not boot_time_stats.is_empty():
         performance_stats.boot_time_stats = boot_time_stats
+    if line == CUSTOM_COLLECTION_REPORT_HEADER:
+      idx += 2  # Skip the dashed-line after the custom collection header
+      custom_collection_stats, idx = parse_stats_collections(lines, idx)
+      if not custom_collection_stats.is_empty():
+        performance_stats.custom_collection_stats = custom_collection_stats
     else:
       idx += 1
 
@@ -415,6 +429,7 @@ def get_system_event(system_event_pb):
 def get_perf_stats(perf_stats_pb):
   perf_stats = PerformanceStats()
   perf_stats.boot_time_stats = get_system_event(perf_stats_pb.boot_time_stats)
+  perf_stats.custom_collection_stats = get_system_event(perf_stats_pb.custom_collection_stats)
   return perf_stats
 
 def get_build_info(build_info_pb):
@@ -447,6 +462,13 @@ def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
     perf_stats_pb.boot_time_stats.CopyFrom(boot_time_stats_pb)
 
   # TODO(b/256654082): Add user switch events to proto
+
+  # Custom collection proto
+  if perf_stats.has_custom_collection():
+    custom_collection_stats_pb = performancestats_pb2.SystemEventStats()
+    add_system_event_pb(perf_stats.custom_collection_stats,
+                        custom_collection_stats_pb)
+    perf_stats_pb.custom_collection_stats.CopyFrom(custom_collection_stats_pb)
 
   # Write pb binary to disk
   if out_file:

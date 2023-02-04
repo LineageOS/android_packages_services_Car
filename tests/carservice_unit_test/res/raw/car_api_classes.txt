@@ -146,9 +146,13 @@ android.car.hardware.property.CarPropertyEvent
 android.car.hardware.property.CarPropertyManager
 android.car.hardware.property.CarPropertyManager$CarPropertyEventCallback
 android.car.hardware.property.CarPropertyManager$GetPropertyCallback
+android.car.hardware.property.CarPropertyManager$SetPropertyCallback
+android.car.hardware.property.CarPropertyManager$AsyncPropertyRequest
 android.car.hardware.property.CarPropertyManager$GetPropertyRequest
-android.car.hardware.property.CarPropertyManager$GetPropertyError
+android.car.hardware.property.CarPropertyManager$SetPropertyRequest
+android.car.hardware.property.CarPropertyManager$PropertyAsyncError
 android.car.hardware.property.CarPropertyManager$GetPropertyResult
+android.car.hardware.property.CarPropertyManager$SetPropertyResult
 android.car.hardware.property.ErrorState
 android.car.hardware.property.EvChargeState
 android.car.hardware.property.EvChargingConnectorType

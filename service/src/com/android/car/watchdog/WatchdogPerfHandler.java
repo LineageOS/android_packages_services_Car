@@ -898,33 +898,35 @@ public final class WatchdogPerfHandler {
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
-        synchronized (mLock) {
-            mIsHeadsUpNotificationSent = false;
-            for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-                PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-                if (!genericPackageNames.contains(usage.genericPackageName)) {
-                    continue;
+        mServiceHandler.post(() -> {
+            synchronized (mLock) {
+                mIsHeadsUpNotificationSent = false;
+                for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
+                    PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
+                    if (!genericPackageNames.contains(usage.genericPackageName)) {
+                        continue;
+                    }
+                    usage.resetStats();
+                    usage.verifyAndSetKillableState(/* isKillable= */ true,
+                            mTimeSource.getCurrentDate());
+                    mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
+                    mActionableUserPackages.remove(usage.getUniqueId());
+                    Slogf.i(TAG,
+                            "Reset resource overuse settings and stats for user '%d' package '%s'",
+                            usage.userId, usage.genericPackageName);
+                    if (usage.isSharedPackage() && usage.getUid() == INVALID_UID) {
+                        // Only enable packages that were disabled by the watchdog service. Ergo, if
+                        // the usage doesn't have a valid UID, the package was not recently disabled
+                        // by the watchdog service (unless the service crashed) and can be safely
+                        // skipped.
+                        Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
+                                usage.genericPackageName);
+                        continue;
+                    }
+                    enablePackageForUser(usage.getUid(), usage.genericPackageName);
                 }
-                usage.resetStats();
-                usage.verifyAndSetKillableState(/* isKillable= */ true,
-                        mTimeSource.getCurrentDate());
-                mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
-                mActionableUserPackages.remove(usage.getUniqueId());
-                Slogf.i(TAG,
-                        "Reset resource overuse settings and stats for user '%d' package '%s'",
-                        usage.userId, usage.genericPackageName);
-                if (usage.isSharedPackage() && usage.getUid() == INVALID_UID) {
-                    // Only enable packages that were disabled by the watchdog service. Ergo, if
-                    // the usage doesn't have a valid UID, the package was not recently disabled
-                    // by the watchdog service (unless the service crashed) and can be safely
-                    // skipped.
-                    Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
-                            usage.genericPackageName);
-                    continue;
-                }
-                enablePackageForUser(usage.getUid(), usage.genericPackageName);
             }
-        }
+        });
     }
 
     /** Returns today's I/O usage stats for all packages collected during the previous boot. */

@@ -23,7 +23,6 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.SuppressLint;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
@@ -146,7 +145,7 @@ public class CarPropertyManager extends CarManagerBase {
          * Called when an error is detected when setting a property.
          *
          * <p>Clients which changed the property value in the areaId most recently will receive
-         * this callback. If multiple clients set a property for the same area id simultaneously,
+         * this callback. If multiple clients set a property for the same area ID simultaneously,
          * which one takes precedence is undefined. Typically, the last set operation
          * (in the order that they are issued to car's ECU) overrides the previous set operations.
          * The delivered error reflects the error happened in the last set operation.
@@ -166,12 +165,10 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * A callback {@link CarPropertyManager#getPropertiesAsync} when successful or failure.
+     * A callback {@link CarPropertyManager#getPropertiesAsync} when succeeded or failed.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    // TODO(b/243057322): Remove this if/once lint is fixed.
-    @SuppressLint("CallbackInterface")
     public interface GetPropertyCallback {
         /**
          * Method called when {@link GetPropertyRequest} successfully gets a result.
@@ -185,7 +182,83 @@ public class CarPropertyManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        void onFailure(@NonNull GetPropertyError getPropertyError);
+        void onFailure(@NonNull PropertyAsyncError propertyAsyncError);
+    }
+
+    /**
+     * A callback {@link CarPropertyManager#setPropertiesAsync} when succeeded or failed.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public interface SetPropertyCallback {
+        /**
+         * Method called when the {@link SetPropertyRequest} successfully set the value.
+         *
+         * <p>This means: the set value request is successfully sent to vehicle
+         *
+         * <p>And
+         *
+         * <p>either the current property value is already the target value, or we have received a
+         * property update event indicating the value is updated to the target value.
+         *
+         * <p>If multiple clients set a property for the same area ID simultaneously with different
+         * values, the order is undefined. One possible case is that both requests are sent to the
+         * vehicle bus, which causes two property update events. As a result, the success callback
+         * would be called for both clients, but in an undefined order. This means that even if
+         * the success callback is called, it doesn't necessarily mean getting the property would
+         * return the same value you just set. Another client might have changed the value after you
+         * set it.
+         *
+         * <p>If only one requests is successfully processed by the vehicle bus, overwriting the
+         * other request, then only one success callback would be called for one client. The other
+         * client would get the failure callback with
+         * {@link CarPropertyManager#STATUS_ERROR_TIMEOUT) error code.
+         *
+         * <p>If multiple clients set a property for the same area ID simultaneously with the same
+         * value. The success callback for both clients would be called in an undefined order.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        void onSuccess(@NonNull SetPropertyResult setPropertyResult);
+
+        /**
+         * Method called when {@link SetPropertyRequest} returns an error.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        void onFailure(@NonNull PropertyAsyncError propertyAsyncError);
+    }
+
+    /**
+     * An async get/set property request.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public interface AsyncPropertyRequest {
+        /**
+         * Returns the unique ID for this request.
+         *
+         * <p>Each request must have a unique request ID so the responses can be differentiated.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        int getRequestId();
+
+        /**
+         * Returns the ID for the property of this request.
+         *
+         * <p>The ID must be one of the {@link VehiclePropertyIds} or vendor property IDs.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        int getPropertyId();
+
+        /**
+         * Returns the area ID for the property of this request.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        int getAreaId();
     }
 
     /**
@@ -193,37 +266,36 @@ public class CarPropertyManager extends CarManagerBase {
      * Executor, GetPropertyCallback)}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final class GetPropertyRequest {
-        /**
-         * The requestId to uniquely identify the request.
-         *
-         * <p>Each request must have a unique request ID so the responses can be differentiated.
-         */
+                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final class GetPropertyRequest implements AsyncPropertyRequest {
         private final int mRequestId;
-        /**
-         * The ID for the property.
-         *
-         * <p>Must be one of the {@link VehiclePropertyIds} or vendor property IDs.
-         */
         private final int mPropertyId;
-        /**
-         * Optional ID for the area, default to 0. Ignored for global property.
-         */
         private final int mAreaId;
 
+        /**
+         * @see AsyncPropertyRequest#getRequestId
+         */
+        @Override
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getRequestId() {
             return mRequestId;
         }
 
+        /**
+         * @see AsyncPropertyRequest#getPropertyId
+         */
+        @Override
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getPropertyId() {
             return mPropertyId;
         }
 
+        /**
+         * @see AsyncPropertyRequest#getAreaId
+         */
+        @Override
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getAreaId() {
@@ -241,11 +313,80 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * An error result for {@link GetPropertyCallback}.
+     * A request for {@link CarPropertyManager#setPropertiesAsync(List, long, CancellationSignal,
+     * Executor, SetPropertyCallback)}.
+     *
+     * @param <T> The type for the property value, must be one of Object, Boolean, Float, Integer,
+     *      Long, Float[], Integer[], Long[], String, byte[], Object[].
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final class GetPropertyError {
+    public static final class SetPropertyRequest<T> implements AsyncPropertyRequest {
+        private final int mRequestId;
+        private final int mPropertyId;
+        private final int mAreaId;
+
+        /**
+         * The value to set.
+         */
+        private final T mValue;
+
+        /**
+         * @see AsyncPropertyRequest#getRequestId
+         */
+        @Override
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        /**
+         * @see AsyncPropertyRequest#getPropertyId
+         */
+        @Override
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getPropertyId() {
+            return mPropertyId;
+        }
+
+        /**
+         * @see AsyncPropertyRequest#getAreaId
+         */
+        @Override
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        /**
+         * Get the property value to set.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public T getValue() {
+            return mValue;
+        }
+
+        /**
+         * Internal use only. Users should use {@link generateSetPropertyRequest} instead.
+         */
+        private SetPropertyRequest(int requestId, int propertyId, int areaId, T value) {
+            mRequestId = requestId;
+            mPropertyId = propertyId;
+            mAreaId = areaId;
+            mValue = value;
+        }
+    }
+
+    /**
+     * An error result for {@link GetPropertyCallback} or {@link SetPropertyCallback}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final class PropertyAsyncError {
         private final int mRequestId;
         private final int mPropertyId;
         private final int mAreaId;
@@ -276,14 +417,14 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Creates a new error result for async GetProperty request.
+         * Creates a new error result for async property request.
          *
          * @param requestId the request ID.
          * @param propertyId the property ID in the request.
          * @param areaId the area ID for the property in the request.
          * @param errorCode the code indicating the error.
          */
-        GetPropertyError(int requestId, int propertyId, int areaId,
+        PropertyAsyncError(int requestId, int propertyId, int areaId,
                 @CarPropertyAsyncErrorCode int errorCode) {
             mRequestId = requestId;
             mPropertyId = propertyId;
@@ -367,6 +508,68 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * A successful result for {@link SetPropertyCallback}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final class SetPropertyResult {
+        private final int mRequestId;
+        private final int mPropertyId;
+        private final int mAreaId;
+        private final long mUpdateTimestampNanos;
+
+        /**
+         * Gets the ID for the request this result is for.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        /**
+         * Gets the property ID this result is for.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getPropertyId() {
+            return mPropertyId;
+        }
+
+        /**
+         * Gets the area ID this result is for.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        /**
+         * Gets the timestamp in nanoseconds at which the property was updated to the desired value.
+         *
+         * <p>The timestamp will use the same time base as
+         * {@link SystemClock#elapsedRealtimeNanos()}.
+         *
+         * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
+         * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
+         * error should be below 1 millisecond.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public long getUpdateTimestampNanos() {
+            return mUpdateTimestampNanos;
+        }
+
+        SetPropertyResult(int requestId, int propertyId, int areaId, int updateTimestampNanos) {
+            mRequestId = requestId;
+            mPropertyId = propertyId;
+            mAreaId = areaId;
+            mUpdateTimestampNanos = updateTimestampNanos;
+        }
+    }
+
+    /**
      * A class for delivering {@link GetPropertyCallback} client callback when
      * {@link IGetAsyncPropertyResultCallback} returns a result.
      */
@@ -414,7 +617,7 @@ public class CarPropertyManager extends CarManagerBase {
                             .getPropertyId();
                     int areaId = getAsyncPropertyClientInfo.getGetPropertyRequest().getAreaId();
                     callbackExecutor.execute(() -> getPropertyCallback.onFailure(
-                            new GetPropertyError(requestId, propertyId, areaId, errorCode)));
+                            new PropertyAsyncError(requestId, propertyId, areaId, errorCode)));
                 }
             }
         }
@@ -1202,7 +1405,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set value of car property by areaId.
      *
-     * <p>If multiple clients set a property for the same area id simultaneously, which one takes
+     * <p>If multiple clients set a property for the same area ID simultaneously, which one takes
      * precedence is undefined. Typically, the last set operation (in the order that they are issued
      * to the car's ECU) overrides the previous set operations.
      *
@@ -1387,7 +1590,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Generate unique request ID and return to the client.
+     * Generate unique get request ID and return to the client.
      *
      * @param propertyId Property ID
      * @param areaId area ID
@@ -1400,6 +1603,27 @@ public class CarPropertyManager extends CarManagerBase {
         int requestIdCounter = mRequestIdCounter.getAndIncrement();
         return new GetPropertyRequest(requestIdCounter, propertyId, areaId);
     }
+
+    /**
+     * Generate unique set request ID and return to the client.
+     *
+     * @param <T> The type for the property value, must be one of Object, Boolean, Float, Integer,
+     *      Long, Float[], Integer[], Long[], String, byte[], Object[].
+     * @param propertyId Property ID
+     * @param areaId area ID
+     * @param value the value to set.
+     * @return SetPropertyRequest object
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    public <T> SetPropertyRequest<T> generateSetPropertyRequest(int propertyId, int areaId,
+            @NonNull T value) {
+        Objects.requireNonNull(value);
+        int requestIdCounter = mRequestIdCounter.getAndIncrement();
+        return new SetPropertyRequest(requestIdCounter, propertyId, areaId, value);
+    }
+
 
     private void checkGetAsyncRequirements(List<GetPropertyRequest> getPropertyRequests,
             GetPropertyCallback getPropertyCallback, long timeoutInMs) {
@@ -1446,8 +1670,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param cancellationSignal A signal that could be used to cancel the on-going operation
      * @param callbackExecutor The executor to execute the callback with
      * @param getPropertyCallback The callback function to deliver the result
-     * @throws SecurityException if missing permission to read the specific property
-     * @throws IllegalArgumentException if one of the get property request is not supported.
+     * @throws SecurityException if missing permission to read one of the specific properties.
+     * @throws IllegalArgumentException if one of the properties to read is not supported.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -1523,6 +1747,61 @@ public class CarPropertyManager extends CarManagerBase {
             @NonNull GetPropertyCallback getPropertyCallback) {
         getPropertiesAsync(getPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
                 callbackExecutor, getPropertyCallback);
+    }
+
+    /**
+     * Sets a list of car property values asynchronously.
+     *
+     * <p>This function would return immediately before the results are ready. For each request,
+     * the corresponding result would either be delivered through one
+     * {@code resultCallback.onSuccess} call if the request succeeded or through one
+     * {@code errorCallback.onFailure} call if failed. It is guaranteed that the total times the
+     * callback functions are called is equal to the number of requests if this function does not
+     * throw an exception. It is guaranteed that none of the callback functions are called if an
+     * exception is thrown. If the {@code callbackExecutor} is {@code null}, the callback will be
+     * executed on the default event handler thread. If the callback is doing heavy work, it is
+     * recommended that the {@code callbackExecutor} is provided.
+     *
+     * <p>If the operation is cancelled, it is guaranteed that no more callbacks will be called.
+     *
+     * <p>If multiple clients set a property for the same area ID simultaneously, which one takes
+     * precedence is undefined. Typically, the last set operation (in the order that they are issued
+     * to the car's ECU) overrides the previous set operations.
+     *
+     * @param setPropertyRequests The property values to set.
+     * @param timeoutInMs The timeout for the operation, in milliseconds.
+     * @param cancellationSignal A signal that could be used to cancel the on-going operation.
+     * @param callbackExecutor The executor to execute the callback with.
+     * @param setPropertyCallback The callback function to deliver the result.
+     * @throws SecurityException if missing permission to write one of the specific properties.
+     * @throws IllegalArgumentException if one of the properties to set is not supported.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void setPropertiesAsync(
+            @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
+            long timeoutInMs,
+            @Nullable CancellationSignal cancellationSignal,
+            @Nullable Executor callbackExecutor,
+            @NonNull SetPropertyCallback setPropertyCallback) {
+        // TODO(b/264719384): implement this.
+    }
+
+    /**
+     * Sets a list of car property values asynchronously.
+     *
+     * Same as {@link CarPropertyManager#setPropertiesAsync(List, long, CancellationSignal,
+     * Executor, SetPropertyCallback)} with default timeout 10s.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void setPropertiesAsync(
+            @NonNull List<SetPropertyRequest<?>> setPropertyRequests,
+            @Nullable CancellationSignal cancellationSignal,
+            @Nullable Executor callbackExecutor,
+            @NonNull SetPropertyCallback setPropertyCallback) {
+        setPropertiesAsync(setPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
+                callbackExecutor, setPropertyCallback);
     }
 
     private void assertPropertyIdIsSupported(int propId) {
