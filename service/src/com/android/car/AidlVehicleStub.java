@@ -643,6 +643,11 @@ final class AidlVehicleStub extends VehicleStub {
     private static int convertHalToCarPropertyManagerError(int errorCode) {
         switch (errorCode) {
             case StatusCode.NOT_AVAILABLE:
+            case StatusCode.NOT_AVAILABLE_DISABLED:
+            case StatusCode.NOT_AVAILABLE_SPEED_LOW:
+            case StatusCode.NOT_AVAILABLE_SPEED_HIGH:
+            case StatusCode.NOT_AVAILABLE_POOR_VISIBILITY:
+            case StatusCode.NOT_AVAILABLE_SAFETY:
                 return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
             case StatusCode.TRY_AGAIN:
                 return STATUS_TRY_AGAIN;

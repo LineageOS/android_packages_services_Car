@@ -395,6 +395,12 @@ android.car.hardware.property VehicleHalStatusCode int STATUS_INVALID_ARG
 android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE
 android.car.hardware.property VehicleHalStatusCode int STATUS_ACCESS_DENIED
 android.car.hardware.property VehicleHalStatusCode int STATUS_INTERNAL_ERROR
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_DISABLED
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_LOW
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SPEED_HIGH
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_POOR_VISIBILITY
+android.car.hardware.property VehicleHalStatusCode int STATUS_NOT_AVAILABLE_SAFETY
+android.car.hardware.property VehicleHalStatusCode String toString(int vehicleHalStatusCode)
 android.car.input CarInputManager void onCarDisconnected()
 android.car.media CarAudioManager int INVALID_VOLUME_GROUP_ID
 android.car.media CarAudioManager String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID

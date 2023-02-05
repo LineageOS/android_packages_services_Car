@@ -163,6 +163,7 @@ android.car.hardware.property.GetPropertyServiceRequest
 android.car.hardware.property.GetValueResult
 android.car.hardware.property.PropertyAccessDeniedSecurityException
 android.car.hardware.property.PropertyNotAvailableAndRetryException
+android.car.hardware.property.PropertyNotAvailableErrorCode
 android.car.hardware.property.PropertyNotAvailableException
 android.car.hardware.property.TrailerState
 android.car.hardware.property.VehicleElectronicTollCollectionCardStatus
