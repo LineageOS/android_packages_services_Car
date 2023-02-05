@@ -450,6 +450,9 @@ android.car.VehicleIgnitionState.ACC
 android.car.VehicleIgnitionState.ON
 android.car.VehicleIgnitionState.START
 android.car.VehicleIgnitionState.toString
+android.car.VehicleLightState.OFF
+android.car.VehicleLightState.ON
+android.car.VehicleLightState.DAYTIME_RUNNING
 android.car.VehicleOilLevel.CRITICALLY_LOW
 android.car.VehicleOilLevel.LOW
 android.car.VehicleOilLevel.NORMAL

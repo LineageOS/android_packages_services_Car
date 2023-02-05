@@ -84,6 +84,9 @@ android.car VehicleAreaSeat int fromRowAndSide(int rowNumber, int side)
 android.car VehicleHvacFanDirection int FACE
 android.car VehicleHvacFanDirection int FLOOR
 android.car VehicleHvacFanDirection int DEFROST
+android.car VehicleLightState int OFF
+android.car VehicleLightState int ON
+android.car VehicleLightState int DAYTIME_RUNNING
 android.car VehicleOilLevel int CRITICALLY_LOW
 android.car VehicleOilLevel int LOW
 android.car VehicleOilLevel int NORMAL
