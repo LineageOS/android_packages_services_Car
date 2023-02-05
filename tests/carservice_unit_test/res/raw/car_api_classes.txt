@@ -98,6 +98,7 @@ android.car.evs.CarEvsManager$CarEvsStreamCallback
 android.car.evs.CarEvsStatus
 android.car.hardware.CarHvacFanDirection
 android.car.hardware.CarPropertyConfig
+android.car.hardware.CarPropertyConfig$AreaConfig
 android.car.hardware.CarPropertyConfig$Builder
 android.car.hardware.CarPropertyValue
 android.car.hardware.CarSensorConfig
