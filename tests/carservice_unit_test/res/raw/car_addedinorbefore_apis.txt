@@ -453,6 +453,10 @@ android.car.VehicleIgnitionState.toString
 android.car.VehicleLightState.OFF
 android.car.VehicleLightState.ON
 android.car.VehicleLightState.DAYTIME_RUNNING
+android.car.VehicleLightSwitch.OFF
+android.car.VehicleLightSwitch.ON
+android.car.VehicleLightSwitch.DAYTIME_RUNNING
+android.car.VehicleLightSwitch.AUTOMATIC
 android.car.VehicleOilLevel.CRITICALLY_LOW
 android.car.VehicleOilLevel.LOW
 android.car.VehicleOilLevel.NORMAL
