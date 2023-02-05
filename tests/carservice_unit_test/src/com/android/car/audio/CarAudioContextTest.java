@@ -726,6 +726,34 @@ public class CarAudioContextTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void audioAttributeMatches_onWrapper_withMatchingAudioAttributes() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioAttributes mediaAudioAttributeMatched =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+
+        assertWithMessage("Wrapper audio attribute's %s and %s matched results",
+                mediaAudioAttribute, mediaAudioAttributeMatched)
+                .that(CarAudioContext.AudioAttributesWrapper
+                        .audioAttributeMatches(mediaAudioAttribute, mediaAudioAttributeMatched))
+                .isTrue();
+    }
+
+    @Test
+    public void audioAttributeMatches_onWrapper_withNonMatchingAudioAttributes() {
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioAttributes gameAudioAttributeMatched =
+                new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
+
+        assertWithMessage("Wrapper audio attribute's %s and %s non-matched results",
+                mediaAudioAttribute, gameAudioAttributeMatched)
+                .that(CarAudioContext.AudioAttributesWrapper
+                        .audioAttributeMatches(mediaAudioAttribute, gameAudioAttributeMatched))
+                .isFalse();
+    }
+
+    @Test
     public void constructor_withNullContextInfos_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarAudioContext(/* carAudioContexts= */ null));
