@@ -4107,6 +4107,46 @@ public final class VehiclePropertyIds {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313945;
+
+    /**
+     * Driver Attention Monitoring state.
+     *
+     * <p>Returns whether the driver is currently attentive or distracted. Generally, this property
+     * should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverAttentionMonitoringState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an ErrorState.
+     *
+     * <p>If the vehicle wants to send a warning to the user because the driver has been distracted
+     * for too long, the warning should be surfaced through {@link
+     * DRIVER_ATTENTION_MONITORING_WARNING}.
+     *
+     * <p>The {@link android.car.hardware.CarPropertyConfig#getConfigArray()} array specifies which
+     * states from {@link android.car.hardware.property.DriverAttentionMonitoringState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li> Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int DRIVER_ATTENTION_MONITORING_STATE = 289411098;
     /**
      * Driver attention monitoring warning.
      *

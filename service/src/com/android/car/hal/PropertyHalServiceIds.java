@@ -29,6 +29,7 @@ import android.hardware.automotive.vehicle.BlindSpotWarningState;
 import android.hardware.automotive.vehicle.CruiseControlCommand;
 import android.hardware.automotive.vehicle.CruiseControlState;
 import android.hardware.automotive.vehicle.CruiseControlType;
+import android.hardware.automotive.vehicle.DriverAttentionMonitoringState;
 import android.hardware.automotive.vehicle.DriverAttentionMonitoringWarning;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
@@ -151,6 +152,9 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> HANDS_ON_DETECTION_WARNING =
             new HashSet<>(getIntegersFromDataEnums(
                     HandsOnDetectionWarning.class, ErrorState.class));
+    private static final Set<Integer> DRIVER_ATTENTION_MONITORING_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    DriverAttentionMonitoringState.class, ErrorState.class));
     private static final Set<Integer> DRIVER_ATTENTION_MONITORING_WARNING =
             new HashSet<>(getIntegersFromDataEnums(
                     DriverAttentionMonitoringWarning.class, ErrorState.class));
@@ -245,6 +249,8 @@ public class PropertyHalServiceIds {
                 HANDS_ON_DETECTION_DRIVER_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HANDS_ON_DETECTION_WARNING,
                 HANDS_ON_DETECTION_WARNING);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE,
+                DRIVER_ATTENTION_MONITORING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING,
                 DRIVER_ATTENTION_MONITORING_WARNING);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
@@ -649,6 +655,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
                 null));
