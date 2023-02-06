@@ -217,9 +217,25 @@ public class PropertyHalService extends HalServiceBase {
             mClientBinder = getAsyncPropertyResultCallback.asBinder();
         }
 
+        // This is a wrapper for death recipient that will unlink itself upon binder death.
+        private final class DeathRecipientWrapper implements DeathRecipient {
+            private DeathRecipient mInnerRecipient;
+
+            DeathRecipientWrapper(DeathRecipient innerRecipient) {
+                mInnerRecipient = innerRecipient;
+            }
+
+            @Override
+            public void binderDied() {
+                mInnerRecipient.binderDied();
+                mClientBinder.unlinkToDeath(this, /* flags= */ 0);
+            }
+        }
+
         @Override
         public void linkToDeath(DeathRecipient recipient) throws RemoteException {
-            mClientBinder.linkToDeath(recipient, /* flags= */ 0);
+            mClientBinder.linkToDeath(new DeathRecipientWrapper(recipient),
+                    /* flags= */ 0);
         }
 
         @Override
