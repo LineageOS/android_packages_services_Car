@@ -28,6 +28,7 @@ import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
+import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
@@ -299,16 +300,38 @@ public final class CarActivityManager extends CarManagerBase {
      * Creates the mirroring token of the given Task.
      *
      * @param taskId The Task to mirror.
-     * @return A token to access the Task Surface.
+     * @return A token to access the Task Surface. The token is used to identify the target
+     *     Task's Surface for {@link MirroredSurfaceView}.
      * @hide  STOPSHIP(b/254333504): Enable this after API review.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
-    public IBinder createMirroringToken(int taskId) {
+    public IBinder createTaskMirroringToken(int taskId) {
         try {
-            return mService.createMirroringToken(taskId);
+            return mService.createTaskMirroringToken(taskId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Creates the mirroring token of the given Display.
+     *
+     * @param displayId The Display to mirror.
+     * @return A token to access the Display Surface. The token is used to identify the target
+     *     Display's Surface for {@link MirroredSurfaceView}.
+     * @hide STOPSHIP(b / 254333504): Enable this after API review.
+     */
+    // STOPSHIP(b/254333504): Enable the permission after API review.
+    // @RequiresPermission(android.Manifest.permission.READ_FRAME_BUFFER)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public IBinder createDisplayMirroringToken(int displayId) {
+        try {
+            return mService.createDisplayMirroringToken(displayId);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
         }
