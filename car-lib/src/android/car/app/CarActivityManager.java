@@ -17,6 +17,7 @@
 package android.car.app;
 
 import android.annotation.IntDef;
+import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -49,6 +50,7 @@ import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * API to manage {@link android.app.Activity} in Car.
@@ -91,6 +93,7 @@ public final class CarActivityManager extends CarManagerBase {
 
     private final ICarActivityService mService;
     private IBinder mTaskMonitorToken;
+    private CarTaskViewControllerSupervisor mCarTaskViewControllerSupervisor;
 
     /**
      * @hide
@@ -361,8 +364,10 @@ public final class CarActivityManager extends CarManagerBase {
 
     /**
      * Registers a system ui proxy which will be used by the client apps to interact with the
-     * system-ui.
-     * For things like creating task views, getting notified about immersive mode request, etc.
+     * system-ui for things like creating task views, getting notified about immersive mode
+     * request, etc.
+     *
+     * <p>This is meant to be called only by the SystemUI.
      *
      * @param carSystemUIProxy the implementation of the {@link CarSystemUIProxy}.
      * @hide
@@ -376,6 +381,37 @@ public final class CarActivityManager extends CarManagerBase {
     public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
         try {
             mService.registerCarSystemUIProxy(new CarSystemUIProxyAidlWrapper(carSystemUIProxy));
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Gets the {@link CarTaskViewController} using the {@code carTaskViewControllerCallback}.
+     *
+     * @param carTaskViewControllerCallback the callback which the client can use to monitor the
+     *                                      lifecycle of the {@link CarTaskViewController}.
+     * @param hostActivity the activity that will host the taskviews.
+     * @hide
+     */
+    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
+    // @SystemApi
+    @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void getCarTaskViewController(
+            @NonNull Activity hostActivity,
+            @NonNull Executor callbackExecutor,
+            @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
+        try {
+            if (mCarTaskViewControllerSupervisor == null) {
+                // Same supervisor is used for multiple activities.
+                mCarTaskViewControllerSupervisor = new CarTaskViewControllerSupervisor(mService,
+                        getContext().getMainExecutor());
+            }
+            mCarTaskViewControllerSupervisor.createCarTaskViewController(callbackExecutor,
+                    carTaskViewControllerCallback, hostActivity);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

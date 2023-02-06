@@ -37,14 +37,13 @@ final class CarSystemUIProxyAidlWrapper extends ICarSystemUIProxy.Stub {
         CarTaskViewHost carTaskViewHost =
                 mCarSystemUIProxy.createCarTaskView(new CarTaskViewClient(client));
 
-        IBinder.DeathRecipient clientDeathRecipient =
-                new IBinder.DeathRecipient() {
-                    @Override
-                    public void binderDied() {
-                        carTaskViewHost.release();
-                        client.asBinder().unlinkToDeath(this, /* flags= */ 0);
-                    }
-                };
+        IBinder.DeathRecipient clientDeathRecipient = new IBinder.DeathRecipient() {
+            @Override
+            public void binderDied() {
+                carTaskViewHost.release();
+                client.asBinder().unlinkToDeath(this, /* flags= */ 0);
+            }
+        };
 
         try {
             client.asBinder().linkToDeath(clientDeathRecipient, /* flags= */ 0);

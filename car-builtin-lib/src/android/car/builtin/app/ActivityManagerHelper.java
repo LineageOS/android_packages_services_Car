@@ -19,6 +19,7 @@ package android.car.builtin.app;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
@@ -29,6 +30,7 @@ import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.RemoteException;
 
 import java.util.List;
@@ -298,5 +300,17 @@ public final class ActivityManagerHelper {
                     reason);
             throw new RuntimeException(e);
         }
+    }
+
+    /** See {@link Activity#getActivityToken()} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static IBinder getActivityToken(Activity activity) {
+        return activity.getActivityToken();
+    }
+
+    /** See {@link Activity#isVisibleForAutofill()} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isVisible(Activity activity) {
+        return activity.isVisibleForAutofill();
     }
 }

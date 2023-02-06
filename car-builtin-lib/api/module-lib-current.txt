@@ -28,7 +28,9 @@ package android.car.builtin.app {
   public final class ActivityManagerHelper {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
+    method public static android.os.IBinder getActivityToken(android.app.Activity);
     method public static java.util.List<android.app.ActivityManager.RunningTaskInfo> getTasks(int, boolean, boolean, int);
+    method public static boolean isVisible(android.app.Activity);
     method public static void killAllBackgroundProcesses();
     method public static void killUid(int, int, String);
     method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
@@ -514,6 +516,7 @@ package android.car.builtin.view {
   }
 
   public final class SurfaceControlHelper {
+    method public static android.view.SurfaceControl copy(android.view.SurfaceControl);
     method @Nullable public static android.view.SurfaceControl mirrorDisplay(int);
     method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
   }
@@ -523,6 +526,11 @@ package android.car.builtin.view {
     method public void addToViewTreeObserver();
     method public void removeFromViewTreeObserver();
     method public void setObscuredTouchRegion(@Nullable android.graphics.Region);
+  }
+
+  public final class ViewHelper {
+    method public static void getBoundsOnScreen(@NonNull android.view.View, @NonNull android.graphics.Rect);
+    method public static void seResizeBackgroundColor(@NonNull android.view.SurfaceView, int);
   }
 
 }
