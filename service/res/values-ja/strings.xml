@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"車の ADAS 状態情報を読み取る。"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"車の ADAS 状態情報の制御"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"車の ADAS 状態情報を制御する。"</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"車内の別の乗員ゾーンとそのゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）の状態を監視して、ゾーンの電力を管理する。"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"車内の別の乗員ゾーンとそのゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）の状態を監視して、ゾーンの電力を管理する。"</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"車内の別の乗員ゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）との接続を確立して通信する"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"車内の別の乗員ゾーンにインストールされた類似アプリ（発信者と同じパッケージ名を持つアプリ）との接続を確立して通信する。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN バスでエラーが発生しました"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN バスが応答しません。ヘッドユニット ボックスのプラグを抜いて接続し直し、車を再始動してください"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"自分のデバイス"</string>

@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"कार के ADAS की स्थितियों की जानकारी पढ़ने की अनुमति दें."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"कार के ADAS की स्थितियों की जानकारी कंट्रोल करने की अनुमति दें"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"कार के ADAS की स्थितियों की जानकारी कंट्रोल करने की अनुमति दें."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) की स्थितियों को मॉनिटर कर सकते हैं. साथ ही, वे इन ज़ोन में पावर को मैनेज कर सकते हैं."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर के ऐप्लिकेशन के पैकेज का नाम एक ही होता है) की स्थितियों को मॉनिटर करने की अनुमति दें. साथ ही, इन ज़ोन में पावर को मैनेज करने की अनुमति दें."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) से कनेक्ट और इंटरैक्ट कर सकते हैं"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"कार के दूसरे ऑक्यूपंट ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर के ऐप्लिकेशन के पैकेज का नाम एक ही होता है) से कनेक्ट और इंटरैक्ट करने की अनुमति दें."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

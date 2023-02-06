@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"कारच्या ADAS स्थितीशी संबंधित माहिती रीड करा."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"कारच्या ADAS स्थितीशी संबंधित माहिती नियंत्रित करा"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"कारच्या ADAS स्थितीशी संबंधित माहिती नियंत्रित करा."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>

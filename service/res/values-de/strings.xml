@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Die Informationen zu den Zuständen des Fahrassistenzsystems lesen."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"Die Informationen zu den Zuständen des Fahrassistenzsystems steuern"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Die Informationen zu den Zuständen des Fahrassistenzsystems steuern."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Den Status von anderen Insassenbereichen im Auto und von ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in diesen Bereichen installiert sind, überwachen und die Energieeinstellungen dieser Bereiche verwalten."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Verbindung mit ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in anderen Insassenbereichen im Auto installiert sind, herstellen und mit diesen kommunizieren"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Verbindung mit ähnlichen Apps – d. h. Apps, die denselben Paketnamen wie der Aufrufer haben –, die in anderen Insassenbereichen im Auto installiert sind, herstellen und mit diesen kommunizieren."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-Bus ausgefallen"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-Bus reagiert nicht. Trenne die Haupteinheit vom Stromnetz, schließe sie wieder an und starte das Auto."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mein Gerät"</string>

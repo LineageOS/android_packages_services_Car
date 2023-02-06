@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Lees motor se inligting oor ADAS-toestande."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"beheer motor se inligting oor ADAS-toestande"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Beheer motor se inligting oor ADAS-toestande."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitor die toestande van ander insittendesones in die motor en eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in daardie sones geïnstalleer is, en bestuur die vermoëns van daardie sones."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitor die toestande van ander insittendesones in die motor en eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in daardie sones geïnstalleer is, en bestuur die vermoëns van daardie sones."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"bewerkstellig ’n verbinding en kommunikeer met eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in ander insittendesones in die motor geïnstalleer is"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Bewerkstellig ’n verbinding en kommunikeer met eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in ander insittendesones in die motor geïnstalleer is."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus het misluk"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageer nie. Ontprop hoofeenheidkas, prop dit weer in, en herbegin die motor"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>

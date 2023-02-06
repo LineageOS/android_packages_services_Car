@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Irakurri autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kontrolatu autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kontrolatu autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"konektatu eta komunikatu autoko beste eserleku batzuetan instalatuta dauden pareko aplikazioekin; hau da, deitzailearen pakete-izen bereko aplikazioekin"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Konektatu eta komunikatu autoko beste eserleku batzuetan instalatuta dauden pareko aplikazioekin; hau da, deitzailearen pakete-izen bereko aplikazioekin."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN autobusak huts egin du"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus-ak ez du erantzuten. Desentxufatu eta entxufatu berriro gailu nagusia eta berrabiarazi autoa."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Nire gailua"</string>

@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Lexo informacionet e gjendjeve ADAS të makinës."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kontrollo informacionet e gjendjeve ADAS të makinës"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kontrollo informacionet e statuseve ADAS të makinës."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"të monitorojnë gjendjet e zonave të tjera të pasagjerëve në makinë dhe aplikacionet homologe (aplikacionet që kanë të njëjtin emër pakete me thirrësin) të instaluara në këto zona dhe të menaxhojë energjinë e këtyre zonave."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Të monitorojnë gjendjet e zonave të tjera të pasagjerëve në makinë dhe aplikacionet homologe (aplikacionet që kanë të njëjtin emër pakete me thirrësin) të instaluara në këto zona dhe të menaxhojë energjinë e këtyre zonave."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"të vendosin lidhje dhe të komunikojnë me aplikacionet homologe (aplikacionet që kanë të njëjtin emër pakete me thirrësin) të instaluara në zona të tjera të pasagjerëve në makinë."</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Të vendosin lidhje dhe të komunikojnë me aplikacionet homologe (aplikacionet që kanë të njëjtin emër pakete me thirrësin) të instaluara në zona të tjera të pasagjerëve në makinë."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Kanali i komunikimit CAN dështoi"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kanali i komunikimit CAN nuk përgjigjet. Shkëput dhe lidh përsëri kutinë e njësisë kryesore dhe rindiz makinës"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Pajisja ime"</string>
