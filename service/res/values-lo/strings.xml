@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"ອ່ານຂໍ້ມູນສະຖານະ ADAS ຂອງລົດ."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ຄວບຄຸມຂໍ້ມູນສະຖານະ ADAS ຂອງລົດ"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ຄວບຄຸມຂໍ້ມູນສະຖານະ ADAS ຂອງລົດ."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ເຝົ້າຕິດຕາມສະຖານະຂອງເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ ແລະ ແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດເຫຼົ່ານັ້ນ ແລະ ຈັດການກຳລັງໄຟຟ້າຂອງເຂດເຫຼົ່ານັ້ນ."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ເຝົ້າຕິດຕາມສະຖານະຂອງເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ ແລະ ແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດເຫຼົ່ານັ້ນ ແລະ ຈັດການກຳລັງໄຟຟ້າຂອງເຂດເຫຼົ່ານັ້ນ."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ສ້າງການເຊື່ອມຕໍ່ ແລະ ສື່ສານກັບແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ສ້າງການເຊື່ອມຕໍ່ ແລະ ສື່ສານກັບແອັບທຽບເທົ່າ (ແອັບທີ່ມີຊື່ແພັກເກດດຽວກັນກັບຜູ້ເອີ້ນໃຊ້) ເຊິ່ງຕິດຕັ້ງໄວ້ໃນເຂດທີ່ມີການເຂົ້າໃຊ້ອື່ນໆໃນລົດ."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus ບໍ່ສຳເລັດ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ບໍ່ຕອບສະໜອງ. ຖອດປລັກກ່ອງເຄື່ອງຫຼິ້ນວິທະຍຸ (Headunit) ແລ້ວສຽບເຂົ້າຄືນໃໝ່ ແລະ ຣິສະຕາດລົດ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ອຸປະກອນຂອງຂ້ອຍ"</string>

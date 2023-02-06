@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"کار کے ADAS کے اعداد و شمار کی معلومات پڑھیں۔"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"کار کے ADAS کے اعداد و شمار کی معلومات کنٹرول کریں"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"کار کے ADAS کے اعداد و شمار کی معلومات کنٹرول کریں۔"</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) سے کنکشن قائم کریں اور کار میں ساکن کے دیگر زونز میں انسٹال کردہ پیئر ایپس کے ساتھ مواصلت کریں"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) سے کنکشن قائم کریں اور کار میں ساکن کے دیگر زونز میں انسٹال کردہ پیئر ایپس کے ساتھ مواصلت کریں۔"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"کین بس ناکام ہو گئی"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"کین بس جواب نہیں دیتی ہے۔ ہیڈیونٹ باکس کو ان پلگ کر کے دوبارہ پلگ کریں اور کار کو دوبارہ شروع کریں"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"میرا آلہ"</string>

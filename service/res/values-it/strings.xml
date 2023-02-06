@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Consente di leggere le informazioni sugli stati ADAS dell\'auto."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"Controllo delle informazioni sugli stati ADAS dell\'auto"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Consente di controllare le informazioni sugli stati ADAS dell\'auto."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Monitoraggio degli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché gestione dell\'alimentazione di quelle zone"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Consente di monitorare gli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché di gestire l\'alimentazione di quelle zone."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Creazione di una connessione e comunicazione con app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in altre zone degli occupanti dell\'auto"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Consente di stabilire una connessione e comunicare con app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in altre zone degli occupanti dell\'auto."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Comunicazione tramite bus CAN non riuscita"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Il bus CAN non risponde. Scollega e ricollega l\'unità principale e riaccendi il motore."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mio dispositivo"</string>

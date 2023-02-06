@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ପଢ଼ନ୍ତୁ।"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"କନେକ୍ସନ ସ୍ଥାପନ କରନ୍ତୁ ଏବଂ କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ) ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"କନେକ୍ସନ ସ୍ଥାପନ କରନ୍ତୁ ଏବଂ କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ) ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

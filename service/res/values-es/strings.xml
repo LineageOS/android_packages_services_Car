@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Leer información de los estados de ADAS del coche."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"controlar información de los estados de ADAS del coche"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Controlar información de los estados de ADAS del coche."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitorizar el estado de las zonas de otros ocupantes del coche y de las aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en esas zonas, así como gestionar el suministro de energía de esas zonas"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitorizar el estado de las zonas de otros ocupantes del coche y de las aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en esas zonas, así como gestionar el suministro de energía de esas zonas."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"establecer conexión y comunicarse con aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en las zonas de otros ocupantes del coche"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Establecer conexión y comunicarse con aplicaciones similares (aplicaciones que tienen el mismo nombre de paquete que el llamador) instaladas en las zonas de otros ocupantes del coche."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Fallo de bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"El bus CAN no responde. Desconecta el cabezal, conéctalo de nuevo y reinicia el coche"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mi dispositivo"</string>

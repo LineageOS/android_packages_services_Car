@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Baca maklumat keadaan ADAS kereta."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kawal maklumat keadaan ADAS kereta"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kawal maklumat keadaan ADAS kereta."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"pantau keadaan zon penumpang lain di dalam kereta dan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon tersebut, serta urus kuasa zon tersebut."</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Pantau keadaan zon penumpang lain di dalam kereta dan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon tersebut, serta urus kuasa zon tersebut."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"wujudkan sambungan dan berkomunikasi dengan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon penumpang lain di dalam kereta"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Wujudkan sambungan dan berkomunikasi dengan apl setara (apl yang mempunyai nama pakej yang sama dengan pemanggil) yang dipasang dalam zon penumpang lain di dalam kereta."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bas CAN gagal"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Bas CAN tidak bertindak balas. Cabut dan palamkan kembali kotak unit stereo dan mulakan semula kereta"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Peranti Saya"</string>

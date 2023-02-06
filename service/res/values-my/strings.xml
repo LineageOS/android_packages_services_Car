@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ကြည့်နိုင်သည်။"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်။"</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ချိတ်ဆက်မှုပြုပြီး ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများတွင် ထည့်သွင်းထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) နှင့် ဆက်သွယ်ပါ"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ချိတ်ဆက်မှုပြုပြီး ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများတွင် ထည့်သွင်းထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) နှင့် ဆက်သွယ်ပါ။"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>
