@@ -527,6 +527,7 @@ public final class FocusInteraction {
                 writer.printf("%s%s%sIncoming: %s interaction %s\n", indent, indent, indent,
                         incomingUsageString, interaction);
             }
+            writer.flush();
         }
     }
 

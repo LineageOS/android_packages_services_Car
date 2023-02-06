@@ -23,6 +23,7 @@ import android.util.Log;
 import android.util.Slog;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.car.oem.ducking.DuckingInteractions;
 
@@ -36,8 +37,20 @@ final class OemCarAudioDuckingServiceImpl implements OemCarAudioDuckingService {
 
     private final DuckingInteractions mDuckingInteractions;
 
-    OemCarAudioDuckingServiceImpl() {
-        mDuckingInteractions = new DuckingInteractions(DuckingInteractions.DUCKED_PRIORITIES);
+    /**
+     * Constructs a {@link DuckingInteractions} with the given ducking priorities, if
+     * the given ducking priorities is null it will default to
+     * {@link DuckingInteractions.DUCKED_PRIORITIES}
+     *
+     * @param duckingPriorities A list of ducking priorities from highest priority to lowest
+     *        priority
+     */
+    OemCarAudioDuckingServiceImpl(@Nullable List<AudioAttributes> duckingPriorities) {
+        List<AudioAttributes> duckingPriorityList = duckingPriorities;
+        if (duckingPriorityList == null) {
+            duckingPriorityList = DuckingInteractions.DUCKED_PRIORITIES;
+        }
+        mDuckingInteractions = new DuckingInteractions(duckingPriorityList);
         if (DEBUG) {
             Slog.d(TAG, "constructor");
         }
