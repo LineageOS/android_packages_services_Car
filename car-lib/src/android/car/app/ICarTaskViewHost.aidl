@@ -25,6 +25,7 @@ import android.car.app.ICarTaskViewClient;
 
 /**
  * Binder API for server side of RemoteCarTaskView i.e. CarTaskViewServerImpl.
+ * See {@link CarTaskViewHost} for details.
  * @hide
  */
 oneway interface ICarTaskViewHost {

@@ -23,6 +23,7 @@ import android.view.SurfaceControl;
 /**
  * Binder API to be implemented by the client side of RemoteCarTaskView. This will be used by the
  * host to call into the client.
+ * See {@link CarTaskViewClient} for details.
  * @hide
  */
 interface ICarTaskViewClient {

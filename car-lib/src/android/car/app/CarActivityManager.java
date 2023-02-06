@@ -27,7 +27,6 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
-import android.car.user.CarUserManager;
 import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -58,7 +57,7 @@ import java.util.Objects;
  */
 @SystemApi
 public final class CarActivityManager extends CarManagerBase {
-    private static final String TAG = CarUserManager.class.getSimpleName();
+    private static final String TAG = CarActivityManager.class.getSimpleName();
 
     /** Indicates that the operation was successful. */
     @AddedInOrBefore(majorVersion = 33)
@@ -106,7 +105,6 @@ public final class CarActivityManager extends CarManagerBase {
     @VisibleForTesting
     public CarActivityManager(@NonNull Car car, @NonNull ICarActivityService service) {
         super(car);
-
         mService = service;
     }
 
@@ -358,6 +356,28 @@ public final class CarActivityManager extends CarManagerBase {
             return Pair.create(sc, outBounds);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Registers a system ui proxy which will be used by the client apps to interact with the
+     * system-ui.
+     * For things like creating task views, getting notified about immersive mode request, etc.
+     *
+     * @param carSystemUIProxy the implementation of the {@link CarSystemUIProxy}.
+     * @hide
+     */
+    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
+    // @SystemApi
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
+        try {
+            mService.registerCarSystemUIProxy(new CarSystemUIProxyAidlWrapper(carSystemUIProxy));
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
         }
     }
 

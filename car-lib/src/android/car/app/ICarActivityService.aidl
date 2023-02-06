@@ -79,18 +79,18 @@ interface ICarActivityService {
      * Registers a System UI proxy which is meant to host all the system ui interaction that is
      * required by other apps.
      */
-    void registerCarSystemUIProxy(ICarSystemUIProxy carSystemUIProxy) = 12;
+    void registerCarSystemUIProxy(in ICarSystemUIProxy carSystemUIProxy) = 12;
 
     /**
      * Adds a callback to monitor the lifecycle of System UI proxy. Calling this for an already
      * registered callback will result in a no-op.
      */
-    void addCarSystemUIProxyCallback(ICarSystemUIProxyCallback callback) = 13;
+    void addCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 13;
 
     /**
      * Removes the callback to monitor the lifecycle of System UI proxy.
      * Calling this for an already unregistered callback will result in a no-op
      */
-    void removeCarSystemUIProxyCallback(ICarSystemUIProxyCallback callback) = 14;
+    void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 14;
 }
 
