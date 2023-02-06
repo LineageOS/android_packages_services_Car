@@ -20,36 +20,34 @@
     android:id="@+id/contact_result"
     android:foreground="?android:attr/selectableItemBackground"
     android:layout_width="match_parent"
-    android:layout_height="112dp">
+    android:layout_height="@dimen/type_down_list_item_height"
+    android:padding="@dimen/type_down_list_item_padding">
 
     <ImageView
         android:id="@+id/contact_picture"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
+        android:layout_width="@dimen/avatar_icon_size"
+        android:layout_height="@dimen/avatar_icon_size"
         android:scaleType="centerCrop"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"/>
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="@dimen/contact_user_icon_margin"/>
 
     <TextView
         android:id="@+id/contact_name"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="14dp"
-        android:layout_marginBottom="8dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/contact_picture"
+        android:layout_alignTop="@id/contact_picture"
         android:singleLine="true"
-        android:textAppearance="@style/TextAppearance.ContactResultTitle"
         android:duplicateParentState="true"
-        android:layout_alignParentTop="true"
-        android:layout_toRightOf="@id/contact_picture"/>
+        style="@style/TextAppearance.ContactResultTitle" />
 
     <TextView
         android:id="@+id/phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:theme="@style/Theme.CarUi.WithToolbar"
+        android:layout_toRightOf="@+id/contact_picture"
+        android:layout_below="@+id/contact_name"
         android:singleLine="true"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@id/contact_name"/>
+        style="@style/TextAppearance.ContactResult.PhoneNumber" />
 </RelativeLayout>

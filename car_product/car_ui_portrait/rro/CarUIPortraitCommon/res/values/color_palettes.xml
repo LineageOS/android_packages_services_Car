@@ -82,6 +82,8 @@
     <color name="car_green_color_container">#7afd95</color>
     <color name="car_green_on_color_container">#002107</color>
     <color name="car_green_tint">#37be5f</color>
+    <color name="car_confirm_green">#418544</color>
+    <color name="car_on_confirm_green">@color/car_primary_100</color>
 
     <!-- yellow colors -->
     <color name="car_yellow_color">#7a5900</color>
