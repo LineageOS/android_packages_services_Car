@@ -21,8 +21,10 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
+import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.ADJUST_RAISE;
 import static android.media.AudioManager.ADJUST_SAME;
@@ -59,6 +61,8 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
+import android.car.media.IMediaAudioRequestStatusCallback;
+import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -69,6 +73,7 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -124,7 +129,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     static final String TAG = CarLog.TAG_AUDIO;
 
     static final AudioAttributes CAR_DEFAULT_AUDIO_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA);
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -155,6 +160,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final boolean mPersistMasterMuteState;
     private final CarAudioSettings mCarAudioSettings;
     private final int mKeyEventTimeoutMs;
+    private final MediaRequestHandler mMediaRequestHandler = new MediaRequestHandler();
+
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
     private CarVolumeGroupMuting mCarVolumeGroupMuting;
@@ -238,6 +245,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final CarVolumeCallbackHandler mCarVolumeCallbackHandler;
     private final SparseIntArray mAudioZoneIdToUserIdMapping;
     private final SystemClockWrapper mClock = new SystemClockWrapper();
+
+    @GuardedBy("mImplLock")
+    private final SparseArray<DeathRecipient>
+            mUserAssignedToPrimaryZoneToCallbackDeathRecipient = new SparseArray<>();
 
     // TODO do not store uid mapping here instead use the uid
     //  device affinity in audio policy when available
@@ -511,7 +522,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#setGroupVolume(int, int, int, int)}
+     * {@link android.car.media.CarAudioManager#setGroupVolume(int, int, int, int)}
      */
     @Override
     public void setGroupVolume(int zoneId, int groupId, int index, int flags) {
@@ -568,7 +579,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupMaxVolume(int, int)}
+     * {@link android.car.media.CarAudioManager#getGroupMaxVolume(int, int)}
      */
     @Override
     public int getGroupMaxVolume(int zoneId, int groupId) {
@@ -586,7 +597,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupMinVolume(int, int)}
+     * {@link android.car.media.CarAudioManager#getGroupMinVolume(int, int)}
      */
     @Override
     public int getGroupMinVolume(int zoneId, int groupId) {
@@ -604,7 +615,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#getGroupVolume(int, int)}
+     * {@link android.car.media.CarAudioManager#getGroupVolume(int, int)}
      */
     @Override
     public int getGroupVolume(int zoneId, int groupId) {
@@ -620,6 +631,155 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             return group.getCurrentGainIndex();
         }
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#setPrimaryZoneMediaAudioRequestCallback()}
+     */
+    @Override
+    public boolean registerPrimaryZoneMediaAudioRequestCallback(
+            IPrimaryZoneMediaAudioRequestCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        return mMediaRequestHandler.registerPrimaryZoneMediaAudioRequestCallback(callback);
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#clearPrimaryZoneMediaAudioRequestCallback()}
+     */
+    @Override
+    public void unregisterPrimaryZoneMediaAudioRequestCallback(
+            IPrimaryZoneMediaAudioRequestCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        List<Long> ownedRequests = mMediaRequestHandler.getRequestsOwnedByApprover(callback);
+        for (int index = 0; index < ownedRequests.size(); index++) {
+            long requestId = ownedRequests.get(index);
+            handleUnassignAudioFromUserIdOnPrimaryAudioZone(requestId);
+        }
+        if (!mMediaRequestHandler.unregisterPrimaryZoneMediaAudioRequestCallback(callback)) {
+            Slogf.e(TAG,
+                    "unregisterPrimaryZoneMediaAudioRequestCallback could not remove callback");
+        }
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#requestMediaAudioOnPrimaryZone(
+     *      MediaAudioRequest)}
+     */
+    @Override
+    public long requestMediaAudioOnPrimaryZone(IMediaAudioRequestStatusCallback callback,
+            CarOccupantZoneManager.OccupantZoneInfo info) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        Objects.requireNonNull(callback, "Media audio request callback can not be null");
+        Objects.requireNonNull(info, "Occupant zone info can not be null");
+
+        synchronized (mImplLock) {
+            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+            if (audioZoneId == PRIMARY_AUDIO_ZONE) {
+                throw new IllegalArgumentException("Occupant " + info
+                        + " already owns the primary audio zone");
+            }
+
+            int index = mAudioZoneIdToUserIdMapping.indexOfKey(audioZoneId);
+            if (index < 0) {
+                Slogf.w(TAG, "Audio zone id %d is not mapped to any user id", audioZoneId);
+                return INVALID_REQUEST_ID;
+            }
+        }
+
+        return mMediaRequestHandler.requestMediaAudioOnPrimaryZone(callback, info);
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#allowMediaAudioOnPrimaryZone(
+     *  android.car.media.CarAudioManager.MediaRequestToken, long, boolean)}
+     */
+    @Override
+    public boolean allowMediaAudioOnPrimaryZone(IBinder token, long requestId, boolean allow) {
+        Objects.requireNonNull(token, "Media request token must not be null");
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+
+        boolean canApprove = mMediaRequestHandler.isAudioMediaCallbackRegistered(token);
+        if (!allow || !canApprove) {
+            if (!canApprove) {
+                Slogf.w(TAG, "allowMediaAudioOnPrimaryZone Request %d can not be approved by "
+                                + "token %s",
+                        requestId, token);
+            }
+            return mMediaRequestHandler.rejectMediaAudioRequest(requestId);
+        }
+
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mMediaRequestHandler.getOccupantForRequest(requestId);
+
+        if (info == null) {
+            Slogf.w(TAG, "allowMediaAudioOnPrimaryZone Request %d is no longer present",
+                    requestId);
+            return false;
+        }
+
+        synchronized (mImplLock) {
+            int userId = mOccupantZoneService.getUserForOccupant(info.zoneId);
+            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+            return handleAssignAudioFromUserIdToPrimaryAudioZoneLocked(token,
+                    userId, audioZoneId, requestId);
+        }
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#isMediaAudioAllowedInPrimaryZone(
+     *      CarOccupantZoneManager.OccupantZoneInfo)}
+     */
+    @Override
+    public boolean isMediaAudioAllowedInPrimaryZone(CarOccupantZoneManager.OccupantZoneInfo info) {
+        Objects.requireNonNull(info, "Occupant zone info can not be null");
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+
+        return mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info);
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#resetMediaAudioOnPrimaryZone(
+     *      CarOccupantZoneManager.OccupantZoneInfo)}
+     */
+    @Override
+    public boolean resetMediaAudioOnPrimaryZone(CarOccupantZoneManager.OccupantZoneInfo info) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+
+        long requestId = mMediaRequestHandler.getRequestIdForOccupant(info);
+        if (requestId == INVALID_REQUEST_ID) {
+            Slogf.w(TAG, "resetMediaAudioOnPrimaryZone no request id for occupant %s", info);
+            return false;
+        }
+        return handleUnassignAudioFromUserIdOnPrimaryAudioZone(requestId);
+    }
+
+    /**
+     * {@link android.car.media.CarAudioManager#cancelMediaAudioOnPrimaryZone(long)}
+     */
+    @Override
+    public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mMediaRequestHandler.getOccupantForRequest(requestId);
+        if (info == null) {
+            Slogf.w(TAG, "cancelMediaAudioOnPrimaryZone no occupant for request %d",
+                    requestId);
+            return false;
+        }
+
+        if (!mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
+            return mMediaRequestHandler.cancelMediaAudioOnPrimaryZone(requestId);
+        }
+
+        return handleUnassignAudioFromUserIdOnPrimaryAudioZone(requestId);
     }
 
     @GuardedBy("mImplLock")
@@ -1178,25 +1338,30 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         synchronized (mImplLock) {
-            if (mUidToZoneMap.containsKey(uid)) {
-                return mUidToZoneMap.get(uid);
-            }
-            int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
-            return getZoneIdForUserIdLocked(userId);
+            return getZoneIdForUidLocked(uid);
         }
     }
 
     @GuardedBy("mImplLock")
-    private int getZoneIdForUserIdLocked(@UserIdInt int userId) {
-        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(
-                mOccupantZoneService.getOccupantZoneIdForUserId(userId));
-        if (audioZoneId != CarAudioManager.INVALID_AUDIO_ZONE) {
-            return audioZoneId;
+    private int getZoneIdForUidLocked(int uid) {
+        if (mUidToZoneMap.containsKey(uid)) {
+            return mUidToZoneMap.get(uid);
         }
-        Slogf.w(TAG,
-                "getZoneIdForUid userId %d does not have a zone. Defaulting to %s: %d",
-                userId, "PRIMARY_AUDIO_ZONE", PRIMARY_AUDIO_ZONE);
-        return PRIMARY_AUDIO_ZONE;
+
+        return getZoneIdForUserLocked(UserHandle.getUserHandleForUid(uid));
+    }
+
+    @GuardedBy("mImplLock")
+    private int getZoneIdForUserLocked(UserHandle handle) {
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mOccupantZoneService.getOccupantZoneForUser(handle);
+
+        int audioZoneId = CarAudioManager.INVALID_AUDIO_ZONE;
+        if (info != null) {
+            audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+        }
+
+        return audioZoneId == CarAudioManager.INVALID_AUDIO_ZONE ? PRIMARY_AUDIO_ZONE : audioZoneId;
     }
 
     /**
@@ -1268,13 +1433,117 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     @GuardedBy("mImplLock")
+    private boolean handleAssignAudioFromUserIdToPrimaryAudioZoneLocked(
+            IBinder token, int userId, int zoneId, long requestId) {
+        AudioFocusStack mediaFocusStack =
+                mFocusHandler.transientlyLoseMediaAudioFocusForUser(userId, zoneId);
+
+        if (!shareAudioRoutingForUserInPrimaryAudioZoneLocked(userId, zoneId)) {
+            Slogf.w(TAG, "Can not route user id %s to primary audio zone", userId);
+            mFocusHandler.regainMediaAudioFocusInZone(mediaFocusStack, zoneId);
+            return false;
+        }
+
+        DeathRecipient deathRecipient = () -> handleAssignedAudioFromUserDeath(requestId);
+        try {
+            token.linkToDeath(deathRecipient, /* flags= */ 0);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, e, "Can not route user id %d to primary audio zone, caller died", userId);
+            mFocusHandler.regainMediaAudioFocusInZone(mediaFocusStack, zoneId);
+            return false;
+        }
+
+        mFocusHandler.regainMediaAudioFocusInZone(mediaFocusStack, PRIMARY_AUDIO_ZONE);
+        mUserAssignedToPrimaryZoneToCallbackDeathRecipient.put(userId, deathRecipient);
+        mMediaRequestHandler.acceptMediaAudioRequest(token, requestId);
+
+        Slogf.d(TAG, "Assigning user id %d from primary audio zone", userId);
+
+        return true;
+    }
+
+    @GuardedBy("mImplLock")
+    private boolean shareAudioRoutingForUserInPrimaryAudioZoneLocked(int userId, int zoneId) {
+        CarAudioZone zone = mCarAudioZones.get(zoneId);
+        return shareUserIdMediaInMainZoneLocked(userId, zone);
+    }
+
+    @GuardedBy("mImplLock")
+    private boolean shareUserIdMediaInMainZoneLocked(int userId, CarAudioZone audioZone) {
+        List<AudioDeviceInfo> devices = audioZone.getAudioDeviceInfos();
+        CarAudioZone primaryAudioZone = getCarAudioZoneLocked(PRIMARY_AUDIO_ZONE);
+        devices.add(primaryAudioZone.getAudioDeviceForContext(CarAudioContext.MUSIC));
+
+        return setUserIdDeviceAffinityLocked(devices, userId, audioZone.getId());
+    }
+
+    @GuardedBy("mImplLock")
+    private boolean setUserIdDeviceAffinityLocked(List<AudioDeviceInfo> devices,
+            int userId, int zoneId) {
+        boolean results = mAudioPolicy.setUserIdDeviceAffinity(userId, devices);
+        if (!results) {
+            Slogf.w(TAG, "setUserIdDeviceAffinityLocked for userId %d in zone %d Failed,"
+                    + " could not set audio routing.", userId, zoneId);
+        }
+        return results;
+    }
+
+    private void handleAssignedAudioFromUserDeath(long requestId) {
+        Slogf.e(TAG, "IBinder for request %d died", requestId);
+        handleUnassignAudioFromUserIdOnPrimaryAudioZone(requestId);
+    }
+
+    private boolean handleUnassignAudioFromUserIdOnPrimaryAudioZone(long requestId) {
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mMediaRequestHandler.getOccupantForRequest(requestId);
+
+        if (info == null) {
+            Slogf.w(TAG, "Occupant %s is not mapped to any audio zone", info);
+            return false;
+        }
+        int userId = mOccupantZoneService.getUserForOccupant(info.zoneId);
+        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+
+        synchronized (mImplLock) {
+            CarAudioZone audioZone = getCarAudioZoneLocked(audioZoneId);
+
+            AudioFocusStack mediaFocusStack =
+                    mFocusHandler.transientlyLoseMediaAudioFocusForUser(userId, PRIMARY_AUDIO_ZONE);
+
+            if (!resetUserIdMediaInMainZoneLocked(userId, audioZone)) {
+                Slogf.w(TAG, "Can not remove route for user id %d to primary audio zone", userId);
+                mFocusHandler.regainMediaAudioFocusInZone(mediaFocusStack, PRIMARY_AUDIO_ZONE);
+                return false;
+            }
+
+            mFocusHandler.regainMediaAudioFocusInZone(mediaFocusStack, audioZoneId);
+            removeAssignedUserInfoLocked(userId);
+        }
+
+        Slogf.d(TAG, "Unassigned user id %d from primary audio zone", userId);
+
+        return mMediaRequestHandler.stopMediaAudioOnPrimaryZone(requestId);
+    }
+
+    @GuardedBy("mImplLock")
+    private void removeAssignedUserInfoLocked(int userId) {
+        mUserAssignedToPrimaryZoneToCallbackDeathRecipient.remove(userId);
+    }
+
+    @GuardedBy("mImplLock")
+    private boolean resetUserIdMediaInMainZoneLocked(int userId, CarAudioZone audioZone) {
+        List<AudioDeviceInfo> devices = audioZone.getAudioDeviceInfos();
+        return setUserIdDeviceAffinityLocked(devices, userId, audioZone.getId());
+    }
+
+    @GuardedBy("mImplLock")
     private AudioDeviceInfo getOutputDeviceForAudioAttributeLocked(int zoneId,
             AudioAttributes audioAttributes) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         int contextForUsage = mCarAudioContext.getContextForAudioAttribute(audioAttributes);
         Preconditions.checkArgument(!CarAudioContext.isInvalidContextId(contextForUsage),
-                "Invalid audio attribute usage %d", audioAttributes);
+                "Invalid audio attribute usage %s", audioAttributes);
         return getCarAudioZoneLocked(zoneId).getAudioDeviceForContext(contextForUsage);
     }
 
@@ -1390,7 +1659,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#isVolumeGroupMuted(int, int)}
+     * {@link android.car.media.CarAudioManager#isVolumeGroupMuted(int, int)}
      */
     @Override
     public boolean isVolumeGroupMuted(int zoneId, int groupId) {
@@ -1406,7 +1675,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     /**
-     * @see {@link android.car.media.CarAudioManager#setVolumeGroupMute(int, int, boolean, int)}
+     * {@link android.car.media.CarAudioManager#setVolumeGroupMute(int, int, boolean, int)}
      */
     @Override
     public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
@@ -1754,6 +2023,27 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @VisibleForTesting
     void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
         mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
+    }
+
+    int getZoneIdForAudioFocusInfo(AudioFocusInfo focusInfo) {
+        if (isAllowedInPrimaryZone(focusInfo)) {
+            return PRIMARY_AUDIO_ZONE;
+        }
+
+        synchronized (mImplLock) {
+            return getZoneIdForUidLocked(focusInfo.getClientUid());
+        }
+    }
+
+    private boolean isAllowedInPrimaryZone(AudioFocusInfo focusInfo) {
+        boolean isMedia = CarAudioContext.AudioAttributesWrapper.audioAttributeMatches(
+                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                focusInfo.getAttributes());
+
+        return isMedia && mMediaRequestHandler
+                .isMediaAudioAllowedInPrimaryZone(mOccupantZoneService
+                        .getOccupantZoneForUser(UserHandle
+                                .getUserHandleForUid(focusInfo.getClientUid())));
     }
 
     private List<AudioAttributes> getAllActiveAttributesForZone(int zoneId) {

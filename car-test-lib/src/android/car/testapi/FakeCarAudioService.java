@@ -16,9 +16,14 @@
 
 package android.car.testapi;
 
+import static android.service.autofill.FillRequest.INVALID_REQUEST_ID;
+
+import android.car.CarOccupantZoneManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
+import android.car.media.IMediaAudioRequestStatusCallback;
+import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.os.IBinder;
@@ -127,6 +132,44 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     @Override
     public boolean clearZoneIdForUid(int uid) {
         return false;
+    }
+
+
+    @Override
+    public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
+        return false;
+    }
+
+    @Override
+    public boolean resetMediaAudioOnPrimaryZone(CarOccupantZoneManager.OccupantZoneInfo info) {
+        return false;
+    }
+
+    @Override
+    public boolean isMediaAudioAllowedInPrimaryZone(CarOccupantZoneManager.OccupantZoneInfo info) {
+        return false;
+    }
+
+    @Override
+    public long requestMediaAudioOnPrimaryZone(IMediaAudioRequestStatusCallback callback,
+            CarOccupantZoneManager.OccupantZoneInfo info) {
+        return INVALID_REQUEST_ID;
+    }
+
+    @Override
+    public boolean allowMediaAudioOnPrimaryZone(IBinder token, long requestId, boolean allow) {
+        return false;
+    }
+
+    @Override
+    public boolean registerPrimaryZoneMediaAudioRequestCallback(
+            IPrimaryZoneMediaAudioRequestCallback backk) {
+        return false;
+    }
+
+    @Override
+    public void unregisterPrimaryZoneMediaAudioRequestCallback(
+            IPrimaryZoneMediaAudioRequestCallback caallback) {
     }
 
     @Override

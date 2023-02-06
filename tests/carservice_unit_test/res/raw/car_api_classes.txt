@@ -188,6 +188,8 @@ android.car.media.CarMediaManager
 android.car.media.CarMediaManager$MediaSourceChangedListener
 android.car.media.CarVolumeGroupInfo
 android.car.media.CarVolumeGroupInfo$Builder
+android.car.media.MediaAudioRequestStatusCallback
+android.car.media.PrimaryZoneMediaAudioRequestCallback
 android.car.navigation.CarNavigationInstrumentCluster
 android.car.navigation.CarNavigationStatusManager
 android.car.occupantawareness.DriverMonitoringDetection

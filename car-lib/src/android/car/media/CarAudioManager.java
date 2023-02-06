@@ -15,6 +15,7 @@
  */
 package android.car.media;
 
+import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -24,12 +25,15 @@ import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
+import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -39,6 +43,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.internal.annotation.AttributeUsage;
+import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -48,7 +53,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 /**
  * APIs for handling audio in a car.
@@ -68,6 +75,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * - Each volume group represents a controllable STREAM_TYPE, same as AudioManager
  */
 public final class CarAudioManager extends CarManagerBase {
+
+    private static final String TAG = CarAudioManager.class.getSimpleName();
 
     /**
      * Zone id of the primary audio zone.
@@ -132,6 +141,16 @@ public final class CarAudioManager extends CarManagerBase {
     public static final int INVALID_VOLUME_GROUP_ID = -1;
 
     /**
+     * Use to identify if the request from {@link #requestMediaAudioOnPrimaryZone} is invalid
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final long INVALID_REQUEST_ID = -1;
+
+    /**
      * Extra for {@link android.media.AudioAttributes.Builder#addBundle(Bundle)}: when used in an
      * {@link android.media.AudioFocusRequest}, the requester should receive all audio focus events,
      * including {@link android.media.AudioManager#AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK}.
@@ -158,11 +177,113 @@ public final class CarAudioManager extends CarManagerBase {
     public static final String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID =
             "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
+    /**
+     * Use to inform media request callbacks about approval of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_APPROVED = 1;
+
+    /**
+     * Use to inform media request callbacks about rejection of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_REJECTED = 2;
+
+    /**
+     * Use to inform media request callbacks about cancellation of a pending request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3;
+
+    /**
+     * Use to inform media request callbacks about the stop of a media request
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_REQUEST_STATUS_STOPPED = 4;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = "AUDIO_REQUEST_STATUS", value = {
+            AUDIO_REQUEST_STATUS_APPROVED,
+            AUDIO_REQUEST_STATUS_REJECTED,
+            AUDIO_REQUEST_STATUS_CANCELLED,
+            AUDIO_REQUEST_STATUS_STOPPED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MediaAudioRequestStatus {}
+
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
     private final AudioManager mAudioManager;
 
     private final EventHandler mEventHandler;
+
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private PrimaryZoneMediaAudioRequestCallback mPrimaryZoneMediaAudioRequestCallback;
+    @GuardedBy("mLock")
+    private Executor mPrimaryZoneMediaAudioRequestCallbackExecutor;
+
+    private final ConcurrentHashMap<Long, MediaAudioRequestStatusCallbackWrapper>
+            mRequestIdToMediaAudioRequestStatusCallbacks = new ConcurrentHashMap<>();
+
+    private final IPrimaryZoneMediaAudioRequestCallback mIPrimaryZoneMediaAudioRequestCallback =
+            new IPrimaryZoneMediaAudioRequestCallback.Stub() {
+                @Override
+                public void onRequestMediaOnPrimaryZone(OccupantZoneInfo info,
+                        long requestId) {
+                    runOnExecutor((callback) ->
+                            callback.onRequestMediaOnPrimaryZone(info, requestId));
+                }
+
+                @Override
+                public void onMediaAudioRequestStatusChanged(
+                        @NonNull CarOccupantZoneManager.OccupantZoneInfo info,
+                        long requestId, int status) throws RemoteException {
+                    runOnExecutor((callback) ->
+                            callback.onMediaAudioRequestStatusChanged(info, requestId, status));
+                }
+
+                private void runOnExecutor(PrimaryZoneMediaAudioRequestCallbackRunner runner) {
+                    PrimaryZoneMediaAudioRequestCallback callback;
+                    Executor executor;
+                    synchronized (mLock) {
+                        if (mPrimaryZoneMediaAudioRequestCallbackExecutor == null
+                                || mPrimaryZoneMediaAudioRequestCallback == null) {
+                            Log.w(TAG, "Media request removed before change dispatched");
+                            return;
+                        }
+                        callback = mPrimaryZoneMediaAudioRequestCallback;
+                        executor = mPrimaryZoneMediaAudioRequestCallbackExecutor;
+                    }
+
+                    long identity = Binder.clearCallingIdentity();
+                    try {
+                        executor.execute(() -> runner.runOnCallback(callback));
+                    } finally {
+                        Binder.restoreCallingIdentity(identity);
+                    }
+                }
+            };
+
+    private interface PrimaryZoneMediaAudioRequestCallbackRunner {
+        void runOnCallback(PrimaryZoneMediaAudioRequestCallback callback);
+    }
 
     private final ICarVolumeCallback mCarVolumeCallbackImpl =
             new android.car.media.ICarVolumeCallback.Stub() {
@@ -731,6 +852,7 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @param uid The uid to clear
      * @return true if the zone was successfully cleared
+     *
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
@@ -740,6 +862,231 @@ public final class CarAudioManager extends CarManagerBase {
             return mService.clearZoneIdForUid(uid);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Sets a {@code PrimaryZoneMediaAudioRequestStatusCallback} to listen for request to play
+     * media audio in primary audio zone
+     *
+     * @param executor Executor on which callback will be invoked
+     * @param callback Media audio request callback to monitor for audio requests
+     * @return {@code true} if the callback is successfully registered, {@code false} otherwise
+     * @throws NullPointerException if either executor or callback are {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if there is a callback already set
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean setPrimaryZoneMediaAudioRequestCallback(
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull PrimaryZoneMediaAudioRequestCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Audio media request callback can not be null");
+        synchronized (mLock) {
+            if (mPrimaryZoneMediaAudioRequestCallback != null) {
+                throw new IllegalStateException("Primary zone media audio request is already set");
+            }
+        }
+
+        try {
+            if (!mService.registerPrimaryZoneMediaAudioRequestCallback(
+                    mIPrimaryZoneMediaAudioRequestCallback)) {
+                return false;
+            }
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+
+        synchronized (mLock) {
+            mPrimaryZoneMediaAudioRequestCallback = callback;
+            mPrimaryZoneMediaAudioRequestCallbackExecutor = executor;
+        }
+
+        return true;
+    }
+
+    /**
+     * Clears the currently set {@code PrimaryZoneMediaAudioRequestCallback}
+     *
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void clearPrimaryZoneMediaAudioRequestCallback() {
+        synchronized (mLock) {
+            if (mPrimaryZoneMediaAudioRequestCallback == null) {
+                return;
+            }
+        }
+
+        try {
+            mService.unregisterPrimaryZoneMediaAudioRequestCallback(
+                    mIPrimaryZoneMediaAudioRequestCallback);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+
+        synchronized (mLock) {
+            mPrimaryZoneMediaAudioRequestCallback = null;
+            mPrimaryZoneMediaAudioRequestCallbackExecutor = null;
+        }
+    }
+
+    /**
+     * Cancels a request set by {@code requestMediaAudioOnPrimaryZone}
+     *
+     * @param requestId Request id to cancel
+     * @return {@code true} if request is successfully cancelled
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
+        try {
+            if (removeMediaRequestCallback(requestId)) {
+                return mService.cancelMediaAudioOnPrimaryZone(requestId);
+            }
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+
+        return true;
+    }
+
+    private boolean removeMediaRequestCallback(long requestId) {
+        return mRequestIdToMediaAudioRequestStatusCallbacks.remove(requestId) != null;
+    }
+
+    /**
+     * Requests to play audio in primary zone with information contained in {@code request}
+     *
+     * @param info Occupant zone info whose media audio should be shared to primary zone
+     * @param executor Executor on which callback will be invoked
+     * @param callback Callback that will report the status changes of the request
+     * @return returns a valid request id if successful or {@code INVALID_REQUEST_ID} otherwise
+     * @throws NullPointerException if any of info, executor, or callback parameters are
+     * {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull MediaAudioRequestStatusCallback callback) {
+        Objects.requireNonNull(executor, "Occupant zone info can not be null");
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Media audio request status callback can not be null");
+
+        MediaAudioRequestStatusCallbackWrapper wrapper =
+                new MediaAudioRequestStatusCallbackWrapper(executor, callback);
+
+        long requestId;
+        try {
+            requestId = mService.requestMediaAudioOnPrimaryZone(wrapper, info);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, INVALID_REQUEST_ID);
+        }
+
+        if (requestId == INVALID_REQUEST_ID) {
+            return requestId;
+        }
+
+        mRequestIdToMediaAudioRequestStatusCallbacks.put(requestId, wrapper);
+        return requestId;
+    }
+
+    /**
+     * Allow/rejects audio to play for a request
+     * {@code requestMediaAudioOnPrimaryZone(MediaRequest, Handler)}
+     *
+     * @param requestId Request id to approve
+     * @param allow Boolean indicating to allow or reject, {@code true} to allow audio
+     * playback on primary zone, {@code false} otherwise
+     * @return {@code false} if media is not successfully allowed/rejected for the request,
+     * including the case when the request id is {@link #INVALID_REQUEST_ID}
+     * @throws IllegalStateException if no {@code PrimaryZoneMediaAudioRequestCallback} is
+     * registered prior to calling this method.
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean allowMediaAudioOnPrimaryZone(long requestId, boolean allow) {
+        synchronized (mLock) {
+            if (mPrimaryZoneMediaAudioRequestCallback == null) {
+                throw new IllegalStateException("Primary zone media audio request callback must be "
+                        + "registered to allow/reject playback");
+            }
+        }
+
+        try {
+            return mService.allowMediaAudioOnPrimaryZone(
+                    mIPrimaryZoneMediaAudioRequestCallback.asBinder(), requestId, allow);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+    }
+
+    /**
+     * Resets the media audio playback in primary zone from occupant
+     *
+     * @param info Occupant's audio to reset in primary zone
+     * @return {@code true} if audio is successfully reset, {@code false} otherwise including case
+     * where audio is not currently assigned
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean resetMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info) {
+        try {
+            return mService.resetMediaAudioOnPrimaryZone(info);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+    }
+
+    /**
+     * Determines if audio from occupant is allowed in primary zone
+     *
+     * @param info Occupant zone info to query
+     * @return {@code true} if audio playback from occupant is allowed in primary zone
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean isMediaAudioAllowedInPrimaryZone(@NonNull OccupantZoneInfo info) {
+        try {
+            return mService.isMediaAudioAllowedInPrimaryZone(info);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
         }
     }
 
@@ -959,7 +1306,7 @@ public final class CarAudioManager extends CarManagerBase {
                     handleOnMasterMuteChanged(msg.arg1, msg.arg2);
                     break;
                 default:
-                    Log.e(CarLibLog.TAG_CAR, "Unknown nessage not handled:" + msg.what);
+                    Log.e(CarLibLog.TAG_CAR, "Unknown message not handled:" + msg.what);
                     break;
             }
         }
@@ -1057,5 +1404,31 @@ public final class CarAudioManager extends CarManagerBase {
          */
         @AddedInOrBefore(majorVersion = 33)
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) {}
+    }
+
+    private static final class MediaAudioRequestStatusCallbackWrapper
+            extends IMediaAudioRequestStatusCallback.Stub {
+
+        private final Executor mExecutor;
+        private final MediaAudioRequestStatusCallback mCallback;
+
+        MediaAudioRequestStatusCallbackWrapper(Executor executor,
+                MediaAudioRequestStatusCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public void onMediaAudioRequestStatusChanged(CarOccupantZoneManager.OccupantZoneInfo info,
+                long requestId,
+                @CarAudioManager.MediaAudioRequestStatus int status) throws RemoteException {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() ->
+                        mCallback.onMediaAudioRequestStatusChanged(info, requestId, status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
     }
 }

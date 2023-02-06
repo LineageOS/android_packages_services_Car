@@ -16,10 +16,14 @@
 
 package android.car.media;
 
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IMediaAudioRequestStatusCallback;
+import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
+
 /**
  * Binder interface for {@link android.car.media.CarAudioManager}.
  * Check {@link android.car.media.CarAudioManager} APIs for expected behavior of each call.
@@ -62,6 +66,20 @@ interface ICarAudio {
     List<AudioDeviceAttributes> getInputDevicesForZoneId(int zoneId);
 
     boolean isPlaybackOnVolumeGroupActive(int volumeGroupId, int audioZoneId);
+
+    boolean registerPrimaryZoneMediaAudioRequestCallback(
+        in IPrimaryZoneMediaAudioRequestCallback callback);
+    void unregisterPrimaryZoneMediaAudioRequestCallback(
+        in IPrimaryZoneMediaAudioRequestCallback callback);
+
+    long requestMediaAudioOnPrimaryZone(in IMediaAudioRequestStatusCallback callback,
+        in OccupantZoneInfo info);
+    boolean cancelMediaAudioOnPrimaryZone(long requestId);
+
+    boolean allowMediaAudioOnPrimaryZone(in IBinder token, long requestId, boolean allow);
+    boolean isMediaAudioAllowedInPrimaryZone(in OccupantZoneInfo info);
+    boolean resetMediaAudioOnPrimaryZone(in OccupantZoneInfo zone);
+
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
      */
