@@ -27,23 +27,22 @@
 
     <style name="KeypadNumber" parent="TextAppearance.Car.Body">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:lineHeight">44dp</item>
+        <item name="android:layout_height">44dp</item>
         <item name="android:textColor">@color/car_on_secondary_container</item>
         <item name="android:textSize">36sp</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="KeypadLetter" parent="TextAppearance.Car.Body">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:lineHeight">26dp</item>
+        <item name="android:layout_height">26dp</item>
         <item name="android:textColor">@color/car_on_surface_variant</item>
         <item name="android:textSize">20sp</item>
+        <item name="android:gravity">center</item>
     </style>
 
-    <style name="TextAppearance.DialNumber" parent="android:style/TextAppearance">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textSize">32sp</item>
+    <style name="TextAppearance.DialNumber" parent="TextAppearance.Car.Headline.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
     <style name="SubheaderText" parent="android:style/TextAppearance">
@@ -77,10 +76,20 @@
         <item name="android:textColor">@color/car_red_color</item>
     </style>
 
+    <style name="DialpadCallButton">
+        <item name="android:background">@drawable/dialer_call_button_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/dialer_keypad_button_height</item>
+        <item name="android:layout_margin">@dimen/dialer_keypad_button_margin</item>
+        <item name="android:minWidth">@dimen/call_button_width</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:tint">@color/car_on_confirm_green</item>
+    </style>
+
     <style name="DialpadSecondaryButton">
         <item name="android:background">@drawable/dialer_ripple_background</item>
         <item name="android:scaleType">centerInside</item>
-        <item name="android:tint">?android:attr/textColorPrimary</item>
+        <item name="android:tint">@color/car_on_secondary_container</item>
         <item name="android:layout_width">@dimen/dialer_keypad_button_width</item>
         <item name="android:layout_height">@dimen/dialer_keypad_button_height</item>
         <item name="android:layout_margin">@dimen/dialer_keypad_button_margin</item>
@@ -88,13 +97,16 @@
 
     <style name="TextAppearance.DialpadDisplayName" parent="TextAppearance.Body1"/>
 
-    <style name="TextAppearance.ContactResultTitle" parent="TextAppearance.Body1">
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    <style name="TextAppearance.ContactResultTitle" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
     </style>
 
-    <style name="TextAppearance.TypeDownListSpan" parent="TextAppearance.Body3">
-        <item name="android:textSize">32sp</item>
-        <item name="android:textColor">#29cb86</item>
+    <style name="TextAppearance.ContactResult.PhoneNumber" parent="TextAppearance.Car.Body.Small" >
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.TypeDownListSpan" parent="TextAppearance.Car.Body.Small">
+        <item name="android:textColor">@color/car_primary</item>
     </style>
 
     <style name="TextAppearance.ContactUserProfile.Title" parent="TextAppearance.Car.Body.Large" >
@@ -102,6 +114,18 @@
     </style>
 
     <style name="TextAppearance.ContactUserProfile.Text" parent="TextAppearance.Car.Body.Small" >
+        <item name="android:textColor">@color/car_on_surface_variant</item>
+    </style>
+
+    <style name="TextAppearance.ContactDetailsTitle" parent="TextAppearance.Car.Body.Medium">
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.ContactDetailsListTitle" parent="TextAppearance.Car.Body.Large">
+        <item name="android:textColor">@color/car_on_surface</item>
+    </style>
+
+    <style name="TextAppearance.ContactDetailsListSubtitle" parent="TextAppearance.Car.Body.Small" >
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
 </resources>
