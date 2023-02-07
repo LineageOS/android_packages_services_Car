@@ -65,4 +65,40 @@ public class BrightnessUtilsTest {
         assertThat(BrightnessUtils.convertGammaToLinear(53572, MIN_BACKLIGHT, MAX_BACKLIGHT))
                 .isEqualTo(102);
     }
+
+    @Test
+    public void brightnessIntToFloat_shouldReturnMin() {
+        assertThat(BrightnessUtils.brightnessIntToFloat(MIN_INT))
+                .isEqualTo(MIN_FLOAT);
+    }
+
+    @Test
+    public void brightnessIntToFloat_shouldReturnMax() {
+        assertThat(BrightnessUtils.brightnessIntToFloat(MAX_INT))
+                .isEqualTo(MAX_FLOAT);
+    }
+
+    @Test
+    public void brightnessFloatToInt_shouldReturnMin() {
+        assertThat(BrightnessUtils.brightnessFloatToInt(MIN_FLOAT))
+                .isEqualTo(MIN_INT);
+    }
+
+    @Test
+    public void brightnessFloatToInt_shouldReturnMax() {
+        assertThat(BrightnessUtils.brightnessFloatToInt(MAX_FLOAT))
+                .isEqualTo(MAX_BACKLIGHT);
+    }
+
+    @Test
+    public void tesetBrightnessIntToFloat() {
+        assertThat(BrightnessUtils.brightnessIntToFloat(128))
+                .isEqualTo(0.5f);
+    }
+
+    @Test
+    public void testBrightnessFloatToInt() {
+        assertThat(BrightnessUtils.brightnessFloatToInt(0.5f))
+                .isEqualTo(128);
+    }
 }
