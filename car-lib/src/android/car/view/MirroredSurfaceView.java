@@ -19,6 +19,8 @@ package android.car.view;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.app.Activity;
 import android.car.Car;
 import android.car.annotation.ApiRequirements;
@@ -32,6 +34,7 @@ import android.os.IBinder;
 import android.util.AttributeSet;
 import android.util.Dumpable;
 import android.util.Log;
+import android.util.Pair;
 import android.util.Slog;
 import android.view.Surface;
 import android.view.SurfaceControl;
@@ -47,16 +50,17 @@ import java.io.PrintWriter;
  *
  * @hide
  */
-//@SystemApi  STOPSHIP(b/254333504): Enable this after API review.
+@SystemApi
+@SuppressWarnings("[NotCloseable]") // View object won't be used in try-with-resources statement.
 public final class MirroredSurfaceView extends SurfaceView {
     private static final String TAG = MirroredSurfaceView.class.getSimpleName();
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
-    private final Rect mSourceBounds = new Rect();
     private final SurfaceControl.Transaction mTransaction;
     private final TouchableInsetsProvider mTouchableInsetsProvider;
 
     private SurfaceControl mMirroredSurface;
+    private Rect mSourceBounds;
     private CarActivityManager mCarAM;
 
     public MirroredSurfaceView(@NonNull Context context) {
@@ -112,6 +116,7 @@ public final class MirroredSurfaceView extends SurfaceView {
      * @param token A token to access the Task Surface to mirror.
      * @return true if the operation is successful.
      */
+    @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
@@ -123,12 +128,13 @@ public final class MirroredSurfaceView extends SurfaceView {
         if (mMirroredSurface != null) {
             removeMirroredSurface();
         }
-        SurfaceControl mirroredSurface = mCarAM.getMirroredSurface(token, mSourceBounds);
-        if (mirroredSurface == null) {
+        Pair<SurfaceControl, Rect> mirroredSurfaceInfo = mCarAM.getMirroredSurface(token);
+        if (mirroredSurfaceInfo == null) {
             Slogf.e(TAG, "Failed to getMirroredSurface: token=%s", token);
             return false;
         }
-        mMirroredSurface = mirroredSurface;
+        mMirroredSurface = mirroredSurfaceInfo.first;
+        mSourceBounds = mirroredSurfaceInfo.second;
         if (getHolder() == null) {
             // reparentMirroredSurface() will happen when the SurfaceHolder is created.
             if (DBG) Slog.d(TAG, "mirrorSurface: Surface is not ready");

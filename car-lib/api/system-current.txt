@@ -37,6 +37,7 @@ package android.car {
     field public static final int FEATURE_REQUEST_SUCCESS = 0; // 0x0
     field @Deprecated public static final String HVAC_SERVICE = "hvac";
     field public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
+    field public static final String PERMISSION_ACCESS_MIRRORRED_SURFACE = "android.car.permission.ACCESS_MIRRORED_SURFACE";
     field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
     field public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
@@ -78,6 +79,7 @@ package android.car {
     field public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
     field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
+    field public static final String PERMISSION_MIRROR_DISPLAY = "android.car.permission.MIRROR_DISPLAY";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
     field public static final String PERMISSION_READ_ADAS_SETTINGS = "android.car.permission.READ_ADAS_SETTINGS";
@@ -281,6 +283,9 @@ package android.car.admin {
 package android.car.app {
 
   public final class CarActivityManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_MIRROR_DISPLAY) public android.os.IBinder createDisplayMirroringToken(int);
+    method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public android.os.IBinder createTaskMirroringToken(int);
+    method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public java.util.List<android.app.ActivityManager.RunningTaskInfo> getVisibleTasks();
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public int setPersistentActivity(@NonNull android.content.ComponentName, int, int);
     method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public void startUserPickerOnDisplay(int);
     field public static final int RESULT_FAILURE = -1; // 0xffffffff
@@ -1766,6 +1771,16 @@ package android.car.view {
 
   public final class DisplayHelper {
     method @Nullable public static String getUniqueId(@NonNull android.view.Display);
+  }
+
+  public final class MirroredSurfaceView extends android.view.SurfaceView {
+    ctor public MirroredSurfaceView(@NonNull android.content.Context);
+    ctor public MirroredSurfaceView(@NonNull android.content.Context, @Nullable android.util.AttributeSet);
+    ctor public MirroredSurfaceView(@NonNull android.content.Context, @Nullable android.util.AttributeSet, int);
+    ctor public MirroredSurfaceView(@NonNull android.content.Context, @Nullable android.util.AttributeSet, int, int);
+    method @MainThread @RequiresPermission(android.car.Car.PERMISSION_ACCESS_MIRRORRED_SURFACE) public boolean mirrorSurface(@NonNull android.os.IBinder);
+    method @MainThread public void release();
+    method @MainThread public void setObscuredTouchRegion(@Nullable android.graphics.Region);
   }
 
 }

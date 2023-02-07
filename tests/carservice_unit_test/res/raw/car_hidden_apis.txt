@@ -152,8 +152,7 @@ android.car.app CarActivityManager void onTaskAppeared(ActivityManager.RunningTa
 android.car.app CarActivityManager void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo)
 android.car.app CarActivityManager void unregisterTaskMonitor()
-android.car.app CarActivityManager List<ActivityManager.RunningTaskInfo> getVisibleTasks()
-android.car.app CarActivityManager IBinder createTaskMirroringToken(int taskId)
+android.car.app CarActivityManager Pair<SurfaceControl,Rect> getMirroredSurface(IBinder token)
 android.car.cluster CarInstrumentClusterManager void onCarDisconnected()
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_NONE
 android.car.cluster ClusterHomeManager int UI_TYPE_CLUSTER_HOME
