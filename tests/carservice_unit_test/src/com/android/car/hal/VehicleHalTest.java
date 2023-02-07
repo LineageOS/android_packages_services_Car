@@ -25,6 +25,7 @@ import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -595,6 +596,21 @@ public class VehicleHalTest {
                 mPowerHalService, SOME_READ_WRITE_STATIC_PROPERTY, ANY_SAMPLING_RATE);
 
         // Assert
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_subscribeSameSampleRate_ignored() throws Exception {
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE);
+
+        verify(mSubscriptionClient).subscribe(any());
+        clearInvocations(mSubscriptionClient);
+
+        // Subscribe the same property with same sample rate must be ignored.
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE);
+
         verify(mSubscriptionClient, never()).subscribe(any());
     }
 
