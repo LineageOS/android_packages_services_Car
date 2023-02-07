@@ -24,6 +24,7 @@
 #include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
 #include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
+#include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <android-base/result.h>
 #include <android/binder_auto_utils.h>
@@ -76,6 +77,9 @@ public:
     virtual ndk::ScopedAStatus getTodayIoUsageStats(
             std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
                     userPackageIoUsageStats) = 0;
+    virtual ndk::ScopedAStatus onLatestResourceStats(
+            const aidl::android::automotive::watchdog::internal::ResourceStats& resourceStats)
+            const = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -124,6 +128,9 @@ public:
     ndk::ScopedAStatus getTodayIoUsageStats(
             std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
                     userPackageIoUsageStats) override;
+    ndk::ScopedAStatus onLatestResourceStats(
+            const aidl::android::automotive::watchdog::internal::ResourceStats& resourceStats)
+            const override;
 
 protected:
     android::base::Result<void> init(

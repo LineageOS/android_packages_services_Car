@@ -37,6 +37,9 @@ using ::aidl::android::automotive::watchdog::internal::ComponentType;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
 using ::aidl::android::automotive::watchdog::internal::PackageInfo;
 using ::aidl::android::automotive::watchdog::internal::PackageIoOveruseStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceOveruseStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceUsageStats;
 using ::aidl::android::automotive::watchdog::internal::UidType;
 using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::RefBase;
@@ -601,6 +604,56 @@ TEST_F(WatchdogServiceHelperTest,
     ASSERT_FALSE(status.isOk()) << "getTodayIoUsageStats should fail when car watchdog "
                                    "service API returns error";
     ASSERT_TRUE(actualStats.empty());
+}
+
+TEST_F(WatchdogServiceHelperTest, TestOnLatestResourceStats) {
+    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
+
+    PackageIoOveruseStats stats;
+    stats.uid = 101000;
+    stats.ioOveruseStats.killableOnOveruse = true;
+    stats.ioOveruseStats.startTime = 99898;
+    stats.ioOveruseStats.durationInSeconds = 12345;
+    stats.ioOveruseStats.totalOveruses = 10;
+    stats.shouldNotify = true;
+    std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
+
+    ResourceStats expectedResourceStats = {
+            .resourceOveruseStats = std::make_optional<ResourceOveruseStats>({
+                    .packageIoOveruseStats = expectedIoOveruseStats,
+            }),
+    };
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(expectedResourceStats))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
+    auto status = mWatchdogServiceHelper->onLatestResourceStats(expectedResourceStats);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnLatestResourceStatsWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(_)).Times(0);
+
+    auto status = mWatchdogServiceHelper->onLatestResourceStats({});
+
+    ASSERT_FALSE(status.isOk()) << "onLatestResourceStats should fail when no "
+                                   "car watchdog service registered with the helper";
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnLatestResourceStatsWithErrorStatusFromCarWatchdogService) {
+    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                                                "Illegal state"))));
+
+    auto status = mWatchdogServiceHelper->onLatestResourceStats({});
+
+    ASSERT_FALSE(status.isOk()) << "onLatestResourceStats should fail when car watchdog "
+                                   "service API returns error";
 }
 
 }  // namespace watchdog

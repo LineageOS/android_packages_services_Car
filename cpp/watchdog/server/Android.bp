@@ -39,7 +39,7 @@ cc_defaults {
         "packagemanager_aidl-cpp",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-V2-ndk",
+        "android.automotive.watchdog.internal-V3-ndk",
         "android.automotive.watchdog-V3-ndk",
         "libvhalclient",
     ],

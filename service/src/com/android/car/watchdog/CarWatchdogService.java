@@ -44,6 +44,7 @@ import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
@@ -869,6 +870,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             return service.mPackageInfoHandler.getPackageInfosForUids(uids, vendorPackagePrefixes);
         }
 
+        // TODO(b/269191275): This method was replaced by onLatestResourceStats in Android U.
+        //  Make method no-op in Android W (N+2 releases).
         @Override
         public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
             if (packageIoOveruseStats.isEmpty()) {
@@ -881,6 +884,23 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
             service.mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
+        }
+
+        @Override
+        public void onLatestResourceStats(ResourceStats resourceStats) {
+            // TODO(b/266008146): Handle the resourceUsageStats.
+            if (resourceStats.resourceOveruseStats == null
+                    || resourceStats.resourceOveruseStats.packageIoOveruseStats.isEmpty()) {
+                Slogf.w(TAG, "Latest I/O overuse stats is empty");
+                return;
+            }
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return;
+            }
+            service.mWatchdogPerfHandler.latestIoOveruseStats(
+                    resourceStats.resourceOveruseStats.packageIoOveruseStats);
         }
 
         @Override
