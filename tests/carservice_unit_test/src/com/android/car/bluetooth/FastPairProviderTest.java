@@ -17,6 +17,8 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -51,16 +53,24 @@ import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.UserManager;
 
-import androidx.test.filters.FlakyTest;
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -71,9 +81,6 @@ import java.util.Map;
  *
  * Run: atest FastPairProviderTest
  */
-// TODO(b/261725690): Remove the {@link FlakyTest} annotation once the test is fixed to safely
-//  remove the looper messages before exiting the test.
-@FlakyTest
 @RunWith(MockitoJUnitRunner.class)
 public class FastPairProviderTest {
     private static final String KEY_NUM_ACCOUNT_KEYS = "AccountKeysCount";
@@ -114,6 +121,8 @@ public class FastPairProviderTest {
     static final String TEST_PUBLIC_KEY_BASE64 = Base64.getEncoder()
             .encodeToString(TEST_PUBLIC_KEY);
 
+    MockitoSession mMockitoSession;
+
     @Mock Context mMockContext;
     @Mock Resources mMockResources;
     @Mock UserManager mMockUserManager;
@@ -140,6 +149,21 @@ public class FastPairProviderTest {
     FastPairGattServer.Callbacks mGattServerCallbacks;
 
     private FastPairProvider mFastPairProvider;
+
+    @Rule
+    public final TestRule mClearInlineMocksRule = new TestRule() {
+        @Override
+        public Statement apply(Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
+                    // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+                    Mockito.framework().clearInlineMocks();
+                }
+            };
+        }
+    };
 
     @Before
     public void setUp() {
@@ -191,10 +215,19 @@ public class FastPairProviderTest {
 
         mBroadcastReceiverCaptor = ArgumentCaptor.forClass(BroadcastReceiver.class);
 
+        mMockitoSession = ExtendedMockito.mockitoSession()
+                .strictness(Strictness.WARN)
+                .startMocking();
+
         Looper looper = Looper.myLooper();
         if (looper == null) {
             Looper.prepare();
         }
+    }
+
+    @After
+    public void tearDown() {
+        mMockitoSession.finishMocking();
     }
 
     private void setupMockKeyStorage() {
