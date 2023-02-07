@@ -18,9 +18,11 @@ package android.car.media;
 
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
+import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 
@@ -79,6 +81,11 @@ interface ICarAudio {
     boolean allowMediaAudioOnPrimaryZone(in IBinder token, long requestId, boolean allow);
     boolean isMediaAudioAllowedInPrimaryZone(in OccupantZoneInfo info);
     boolean resetMediaAudioOnPrimaryZone(in OccupantZoneInfo zone);
+
+    CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId);
+    List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId);
+    void switchZoneToConfig(in CarAudioZoneConfigInfo zoneConfig,
+            in ISwitchAudioZoneConfigCallback callback);
 
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.
