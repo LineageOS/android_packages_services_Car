@@ -3256,11 +3256,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUTOMATIC_EMERGENCY_BRAKING_ENABLED = 287313920;
 
     /**
@@ -3293,10 +3296,13 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUTOMATIC_EMERGENCY_BRAKING_STATE = 289411073;
 
     /**
@@ -3324,11 +3330,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int FORWARD_COLLISION_WARNING_ENABLED = 287313922;
 
     /**
@@ -3358,10 +3367,13 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int FORWARD_COLLISION_WARNING_STATE = 289411075;
 
     /**
@@ -3390,11 +3402,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int BLIND_SPOT_WARNING_ENABLED = 287313924;
 
     /**
@@ -3424,10 +3439,13 @@ public final class VehiclePropertyIds {
      *  property.
      *  <li>Property is not writable.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int BLIND_SPOT_WARNING_STATE = 339742725;
 
     /**
@@ -3456,11 +3474,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LANE_DEPARTURE_WARNING_ENABLED = 287313926;
 
     /**
@@ -3529,11 +3550,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LANE_KEEP_ASSIST_ENABLED = 287313928;
 
     /**
@@ -3606,11 +3630,14 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LANE_CENTERING_ASSIST_ENABLED = 287313930;
 
     /**
@@ -3724,7 +3751,10 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -3759,7 +3789,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -3792,7 +3825,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link
      *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
@@ -3827,7 +3863,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link
      *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS))
     @RequiresPermission.Write(@RequiresPermission(
             Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS))
