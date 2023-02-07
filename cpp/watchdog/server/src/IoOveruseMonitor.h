@@ -130,8 +130,9 @@ public:
     android::base::Result<void> onBoottimeCollection(
             [[maybe_unused]] time_t time,
             [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
-            override {
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            [[maybe_unused]] aidl::android::automotive::watchdog::internal::ResourceStats*
+                    resourceStats) override {
         // No I/O overuse monitoring during boot-time.
         return {};
     }
@@ -158,17 +159,21 @@ public:
     android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onCustomCollection(
             time_t time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
             const std::function<void()>& alertHandler) override;
+
+    android::base::Result<void> onResourceStatsSent(bool successful) override;
 
     android::base::Result<void> onDump(int fd) const override;
 

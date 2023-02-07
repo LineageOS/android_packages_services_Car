@@ -37,6 +37,7 @@ namespace watchdog {
 
 namespace {
 
+using ::aidl::android::automotive::watchdog::internal::ResourceStats;
 using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
 using ::android::String16;
@@ -137,6 +138,11 @@ constexpr const char* toString(SystemState systemState) {
     }
 }
 
+bool isEmpty(const ResourceStats& resourceStats) {
+    return !resourceStats.resourceUsageStats.has_value() &&
+            !resourceStats.resourceOveruseStats.has_value();
+}
+
 }  // namespace
 
 std::string WatchdogPerfService::EventMetadata::toString() const {
@@ -173,6 +179,9 @@ Result<void> WatchdogPerfService::start() {
         Mutex::Autolock lock(mMutex);
         if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
             return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
+        }
+        if (mWatchdogServiceHelper == nullptr) {
+            return Error(INVALID_OPERATION) << "No watchdog service helper is registered";
         }
         std::chrono::nanoseconds systemEventCollectionInterval =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
@@ -809,16 +818,18 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         }
     }
 
+    ResourceStats resourceStats = {};
+
     for (const auto& processor : mDataProcessors) {
         Result<void> result;
         switch (mCurrCollectionEvent) {
             case EventType::BOOT_TIME_COLLECTION:
                 result = processor->onBoottimeCollection(now, mUidStatsCollector,
-                                                         mProcStatCollector);
+                                                         mProcStatCollector, &resourceStats);
                 break;
             case EventType::PERIODIC_COLLECTION:
                 result = processor->onPeriodicCollection(now, mSystemState, mUidStatsCollector,
-                                                         mProcStatCollector);
+                                                         mProcStatCollector, &resourceStats);
                 break;
             case EventType::USER_SWITCH_COLLECTION: {
                 WatchdogPerfService::UserSwitchEventMetadata* userSwitchMetadata =
@@ -833,7 +844,8 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
                 break;
             case EventType::CUSTOM_COLLECTION:
                 result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,
-                                                       mUidStatsCollector, mProcStatCollector);
+                                                       mUidStatsCollector, mProcStatCollector,
+                                                       &resourceStats);
                 break;
             default:
                 result = Error() << "Invalid collection event " << toString(mCurrCollectionEvent);
@@ -841,6 +853,24 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         if (!result.ok()) {
             return Error() << processor->name() << " failed on " << toString(mCurrCollectionEvent)
                            << " collection: " << result.error();
+        }
+    }
+    if (isEmpty(resourceStats) || !mWatchdogServiceHelper->isServiceConnected()) {
+        return {};
+    }
+
+    auto status = mWatchdogServiceHelper->onLatestResourceStats(resourceStats);
+    if (!status.isOk()) {
+        ALOGW("Failed to push the latest resource stats to watchdog service: %s",
+              status.getDescription().c_str());
+    } else if (DEBUG) {
+        ALOGD("Pushed latest resource usage and I/O overuse stats to watchdog service");
+    }
+
+    for (const auto& processor : mDataProcessors) {
+        if (const auto result = processor->onResourceStatsSent(status.isOk()); !result.ok()) {
+            ALOGE("%s failed to process resource stats sent event", processor->name().c_str());
+            return Error() << processor->name() << " failed to process resource stats sent event";
         }
     }
 
