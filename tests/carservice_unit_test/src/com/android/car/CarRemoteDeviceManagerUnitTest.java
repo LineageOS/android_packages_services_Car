@@ -79,23 +79,23 @@ public final class CarRemoteDeviceManagerUnitTest {
     }
 
     @Test
-    public void testControlOccupantZonePowerOn() throws RemoteException {
+    public void testSetOccupantZonePowerOn() throws RemoteException {
         int zoneId = 0;
         OccupantZoneInfo zone =
                 new OccupantZoneInfo(zoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
 
-        mRemoteDeviceManager.controlOccupantZonePower(zone, true);
-        verify(mService).controlOccupantZonePower(zone, true);
+        mRemoteDeviceManager.setOccupantZonePower(zone, true);
+        verify(mService).setOccupantZonePower(zone, true);
     }
 
     @Test
-    public void testControlOccupantZonePowerOff() throws RemoteException {
+    public void testSetOccupantZonePowerOff() throws RemoteException {
         int zoneId = 0;
         OccupantZoneInfo zone =
                 new OccupantZoneInfo(zoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
 
-        mRemoteDeviceManager.controlOccupantZonePower(zone, false);
-        verify(mService).controlOccupantZonePower(zone, false);
+        mRemoteDeviceManager.setOccupantZonePower(zone, false);
+        verify(mService).setOccupantZonePower(zone, false);
     }
 
     @Test

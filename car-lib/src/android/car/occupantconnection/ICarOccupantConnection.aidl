@@ -17,9 +17,9 @@
 package android.car.occupantconnection;
 
 import android.car.CarOccupantZoneManager;
-import android.car.occupantconnection.IOccupantZoneStateCallback;
 import android.car.occupantconnection.IConnectionRequestCallback;
 import android.car.occupantconnection.IPayloadCallback;
+import android.car.occupantconnection.IStateCallback;
 import android.car.occupantconnection.Payload;
 import android.content.pm.PackageInfo;
 import android.os.IBinder;
@@ -30,12 +30,12 @@ import java.util.List;
 interface ICarOccupantConnection {
 
     // The following callbacks are used by CarRemoteDeviceManager.
-    void registerOccupantZoneStateCallback(in IOccupantZoneStateCallback callback);
-    void unregisterOccupantZoneStateCallback();
+    void registerStateCallback(in IStateCallback callback);
+    void unregisterStateCallback();
 
     PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName);
 
-    void controlOccupantZonePower(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
+    void setOccupantZonePower(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
         boolean powerOn);
 
     boolean isOccupantZonePowerOn(in CarOccupantZoneManager.OccupantZoneInfo occupantZone);

@@ -26,8 +26,8 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
-import android.car.occupantconnection.IOccupantZoneStateCallback;
 import android.car.occupantconnection.IPayloadCallback;
+import android.car.occupantconnection.IStateCallback;
 import android.car.occupantconnection.Payload;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -77,13 +77,13 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void registerOccupantZoneStateCallback(IOccupantZoneStateCallback callback) {
+    public void registerStateCallback(IStateCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
         // TODO(b/257117236): implement this method.
     }
 
     @Override
-    public void unregisterOccupantZoneStateCallback() {
+    public void unregisterStateCallback() {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
         // TODO(b/257117236): implement this method.
     }
@@ -116,10 +116,8 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         return packageInfo;
     }
 
-    // TODO(b/257117236): replace OccupantZoneInfo with occupantZoneId for this method and
-    // other methods.
     @Override
-    public void controlOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
+    public void setOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
 
         int[] displayIds = mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZone.zoneId);

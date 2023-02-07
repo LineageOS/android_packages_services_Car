@@ -128,7 +128,7 @@ public class CarOccupantConnectionServiceTest {
         when(mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZoneId))
                 .thenReturn(displays);
 
-        mService.controlOccupantZonePower(occupantZoneInfo, true);
+        mService.setOccupantZonePower(occupantZoneInfo, true);
         verify(mPowerManagementService).setDisplayPowerState(displayId, true);
     }
 
@@ -143,7 +143,7 @@ public class CarOccupantConnectionServiceTest {
         when(mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZoneId))
                 .thenReturn(displays);
 
-        mService.controlOccupantZonePower(occupantZoneInfo, false);
+        mService.setOccupantZonePower(occupantZoneInfo, false);
         verify(mPowerManagementService).setDisplayPowerState(displayId, false);
     }
 
