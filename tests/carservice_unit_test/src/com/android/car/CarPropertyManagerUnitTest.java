@@ -941,7 +941,8 @@ public final class CarPropertyManagerUnitTest {
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetValueResult getValueResult = new GetValueResult(0, null,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
+                            | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
             getAsyncPropertyResultCallback.onGetValueResult(List.of(getValueResult));
             return null;
@@ -959,6 +960,7 @@ public final class CarPropertyManagerUnitTest {
         assertThat(value.getValue().getAreaId()).isEqualTo(0);
         assertThat(value.getValue().getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(value.getValue().getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
