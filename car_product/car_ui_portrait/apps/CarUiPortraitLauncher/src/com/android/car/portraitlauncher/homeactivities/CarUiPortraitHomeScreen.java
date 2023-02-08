@@ -151,7 +151,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     @RootAppAreaState
-    private int mRootAppAreaState = STATE_CLOSE;
+    private int mRootAppAreaState = STATE_OPEN;
     private int mGripBarHeight;
     private int mStatusBarHeight;
     private int mRootAppAreaDefaultTopMargin;
@@ -681,6 +681,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             logIfDebuggable("Root panel hasn't inited");
             return;
         }
+
+        if (mRootAppAreaState == newRootAppAreaState) {
+            logIfDebuggable("Root panel is already in the requested state: " + newRootAppAreaState);
+            return;
+        }
+
         int rootAppAreaContainerTopMargin = 0;
         Runnable onAnimationEnd = null;
         // Change grip bar visibility before animationEnd for better animation
@@ -789,12 +795,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     void updateNonAppAreaComponents(int newRootAppAreaState) {
         runOnUiThread(() -> {
-            boolean isOpen = newRootAppAreaState == STATE_OPEN;
-            mGripBar.setVisibility(isOpen ? VISIBLE : GONE);
-            mGripBarView.setVisibility(isOpen ? VISIBLE : GONE);
+            boolean isFullScreen = isFullScreen(newRootAppAreaState);
+            mGripBar.setVisibility(isFullScreen ? GONE : VISIBLE);
+            mGripBarView.setVisibility(isFullScreen ? GONE : VISIBLE);
             // Don't set visibility to GONE, or grip bar won't show up correctly.
-            mGripBarDividerView.setVisibility(isOpen ? VISIBLE : INVISIBLE);
-            mControlBarView.setVisibility(isFullScreen(newRootAppAreaState) ? GONE : VISIBLE);
+            mGripBarDividerView.setVisibility(isFullScreen ? INVISIBLE : VISIBLE);
+            mControlBarView.setVisibility(isFullScreen ? GONE : VISIBLE);
         });
     }
 
