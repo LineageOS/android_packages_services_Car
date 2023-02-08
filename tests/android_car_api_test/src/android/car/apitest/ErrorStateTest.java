@@ -62,6 +62,12 @@ public class ErrorStateTest {
                                         .NOT_AVAILABLE_SPEED_HIGH
                         },
                         {
+                                android.car.hardware.property.ErrorState
+                                        .NOT_AVAILABLE_POOR_VISIBILITY,
+                                android.hardware.automotive.vehicle.ErrorState
+                                        .NOT_AVAILABLE_POOR_VISIBILITY
+                        },
+                        {
                                 android.car.hardware.property.ErrorState.NOT_AVAILABLE_SAFETY,
                                 android.hardware.automotive.vehicle.ErrorState.NOT_AVAILABLE_SAFETY
                         }

@@ -59,7 +59,11 @@ public final class ErrorState {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int NOT_AVAILABLE_SAFETY = -5;
+    public static final int NOT_AVAILABLE_POOR_VISIBILITY = -5;
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int NOT_AVAILABLE_SAFETY = -6;
 
     private ErrorState() {}
 
@@ -79,6 +83,8 @@ public final class ErrorState {
                 return "NOT_AVAILABLE_SPEED_LOW";
             case NOT_AVAILABLE_SPEED_HIGH:
                 return "NOT_AVAILABLE_SPEED_HIGH";
+            case NOT_AVAILABLE_POOR_VISIBILITY:
+                return "NOT_AVAILABLE_POOR_VISIBILITY";
             case NOT_AVAILABLE_SAFETY:
                 return "NOT_AVAILABLE_SAFETY";
             default:
@@ -88,7 +94,7 @@ public final class ErrorState {
 
     /** @hide */
     @IntDef({OTHER_ERROR_STATE, NOT_AVAILABLE_DISABLED, NOT_AVAILABLE_SPEED_LOW,
-            NOT_AVAILABLE_SPEED_HIGH, NOT_AVAILABLE_SAFETY})
+            NOT_AVAILABLE_SPEED_HIGH, NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ErrorStateInt {}
 }
