@@ -79,6 +79,7 @@
         <permission name="android.car.permission.CAR_TEST_SERVICE"/>
         <permission name="android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION"/>
         <permission name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+        <permission name="android.car.permission.CAR_EPOCH_TIME"/>
         <!-- use for AndroidCarApiTest -->
         <permission name="android.car.permission.READ_DRIVER_MONITORING_SETTINGS"/>
         <permission name="android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS"/>
