@@ -229,6 +229,7 @@ package android.car {
 
   public final class VehiclePropertyIds {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_KEEP_ASSIST_STATE = 289411081; // 0x11401009
   }
 
   public final class VehicleUnit {
@@ -1026,6 +1027,15 @@ package android.car.hardware.property {
     field public static final int NO_WARNING = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int WARNING = 2; // 0x2
+  }
+
+  public final class LaneKeepAssistState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED_STEER_LEFT = 2; // 0x2
+    field public static final int ACTIVATED_STEER_RIGHT = 3; // 0x3
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 4; // 0x4
   }
 
   public final class TrailerState {
