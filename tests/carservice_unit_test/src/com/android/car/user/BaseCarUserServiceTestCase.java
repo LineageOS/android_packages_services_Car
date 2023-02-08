@@ -26,7 +26,6 @@ import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExis
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -260,25 +259,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
-        // TODO (b/246365046) Replace when we get Injector pattern to replace them.
-        spyOn(mCarUserService);
-        doAnswer(
-                inv -> {
-                    return mNumberOfAutoPopulatedUsers;
-                }).when(mCarUserService).getNumberOfAutoPopulatedUsers();
-        doAnswer(
-                inv -> {
-                    return mGlobalVisibleUserAllocationSetting;
-                }).when(mCarUserService).getGlobalVisibleUserAllocationSetting(any());
-        doAnswer(
-                inv -> {
-                    return mPerUserVisibleUserAllocationSetting;
-                }).when(mCarUserService).getPerUserVisibleUserAllocationSetting(any());
-        doAnswer(
-                inv -> {
-                    mPerUserVisibleUserAllocationSetting = inv.getArgument(/* index= */ 1);
-                    return null;
-                }).when(mCarUserService).writePerUserVisibleUserAllocationSetting(any(), any());
 
         CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
         wrapper.setCarServiceHelper(mICarServiceHelper);
