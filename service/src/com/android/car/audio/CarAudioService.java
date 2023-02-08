@@ -108,6 +108,7 @@ import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -813,7 +814,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @GuardedBy("mImplLock")
     private SparseArray<CarAudioZone> loadCarAudioConfigurationLocked(
             List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
-        try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
+        try (InputStream fileStream = new FileInputStream(mCarAudioConfigurationPath);
+             InputStream inputStream = new BufferedInputStream(fileStream)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mCarAudioSettings,
                     inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting);
             mAudioZoneIdToOccupantZoneIdMapping =
