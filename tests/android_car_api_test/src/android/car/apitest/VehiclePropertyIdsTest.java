@@ -55,7 +55,8 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION",
                     "SUPPORTED_PROPERTY_IDS",
                     "STORAGE_ENCRYPTION_BINDING_SEED",
-                    "SHUTDOWN_REQUEST");
+                    "SHUTDOWN_REQUEST",
+                    "VEHICLE_IN_USE");
 
     @Test
     @NonApiTest(exemptionReasons = {}, justification = "Large number of constant fields")
