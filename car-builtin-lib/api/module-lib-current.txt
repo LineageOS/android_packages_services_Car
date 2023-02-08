@@ -498,6 +498,7 @@ package android.car.builtin.view {
   }
 
   public final class SurfaceControlHelper {
+    method @Nullable public static android.view.SurfaceControl mirrorDisplay(int);
     method @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
   }
 

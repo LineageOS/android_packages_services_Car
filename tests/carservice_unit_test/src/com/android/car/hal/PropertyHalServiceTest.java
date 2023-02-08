@@ -28,6 +28,7 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -169,7 +170,7 @@ public class PropertyHalServiceTest {
     }
 
     @Test
-    public void testGetCarProeprtyValuesAsync_binderDiedBeforeLinkToDeath() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_binderDiedBeforeLinkToDeath() throws RemoteException {
         IBinder mockBinder = mock(IBinder.class);
         when(mGetAsyncPropertyResultCallback.asBinder()).thenReturn(mockBinder);
         doThrow(new RemoteException()).when(mockBinder).linkToDeath(any(), anyInt());
@@ -179,6 +180,22 @@ public class PropertyHalServiceTest {
             mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                     mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
         });
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_unlinkToDeath_onBinderDied() throws RemoteException {
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+        List<GetPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        ArgumentCaptor<IBinder.DeathRecipient> recipientCaptor = ArgumentCaptor.forClass(
+                IBinder.DeathRecipient.class);
+        verify(mGetAsyncPropertyResultBinder).linkToDeath(recipientCaptor.capture(), eq(0));
+
+        recipientCaptor.getValue().binderDied();
+
+        verify(mGetAsyncPropertyResultBinder).unlinkToDeath(recipientCaptor.getValue(), 0);
     }
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,

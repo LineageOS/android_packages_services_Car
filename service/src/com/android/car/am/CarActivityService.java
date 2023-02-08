@@ -40,7 +40,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -85,6 +87,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private static final int MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
 
     private final Context mContext;
+    private final DisplayManager mDisplayManager;
 
     private final Object mLock = new Object();
 
@@ -119,6 +122,7 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     public CarActivityService(Context context) {
         mContext = context;
+        mDisplayManager = context.getSystemService(DisplayManager.class);
     }
 
     @Override
@@ -181,11 +185,15 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
     }
 
-    private void ensureManageActivityTasksPermission() {
-        if (mContext.checkCallingOrSelfPermission(MANAGE_ACTIVITY_TASKS)
+    private void ensurePermission(String permission) {
+        if (mContext.checkCallingOrSelfPermission(permission)
                 != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("requires permission " + MANAGE_ACTIVITY_TASKS);
+            throw new SecurityException("requires permission " + permission);
         }
+    }
+
+    private void ensureManageActivityTasksPermission() {
+        ensurePermission(MANAGE_ACTIVITY_TASKS);
     }
 
     private void cleanUpToken(IBinder token) {
@@ -293,6 +301,12 @@ public final class CarActivityService extends ICarActivityService.Stub
      */
     @Override
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+        ensureManageActivityTasksPermission();
+        return getVisibleTasksInternal();
+    }
+
+    /** Car service internal version without the permission enforcement. */
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal() {
         ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
         synchronized (mLock) {
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
@@ -335,58 +349,110 @@ public final class CarActivityService extends ICarActivityService.Stub
         CarServiceUtils.startUserPickerOnDisplay(mContext, displayId, userPickerName);
     }
 
-    private static final class MirroringToken extends Binder {
-        final int mTaskId;
-        final long mCreationTimeMs;
-        MirroringToken(int id) {
-            mTaskId = id;
+    private abstract static class MirroringToken extends Binder {
+        private final long mCreationTimeMs;
+        private MirroringToken() {
             // Uses elapsedRealtime() because the token should be expired during sleep.
             mCreationTimeMs = SystemClock.elapsedRealtime();
+        }
+
+        protected void checkValidity(long tokenTimeoutMs) {
+            if (SystemClock.elapsedRealtime() - mCreationTimeMs > tokenTimeoutMs) {
+                throw new IllegalArgumentException("Expired token: created=" + mCreationTimeMs);
+            }
+        }
+
+        protected abstract SurfaceControl getMirroredSurface(long tokenTimeoutMs, Rect outBounds);
+    };
+
+    private final class TaskMirroringToken extends MirroringToken {
+        private final int mTaskId;
+        private TaskMirroringToken(int taskId) {
+            super();
+            mTaskId = taskId;
+        }
+
+        @Override
+        protected SurfaceControl getMirroredSurface(long tokenTimeousMs, Rect outBounds) {
+            checkValidity(tokenTimeousMs);
+
+            SurfaceControl taskSurface;
+            TaskInfo taskInfo;
+            synchronized (mLock) {
+                taskInfo = mTasks.get(mTaskId);
+                taskSurface = mTaskToSurfaceMap.get(mTaskId);
+            }
+            if (taskInfo == null || taskSurface == null || !taskInfo.isVisible()) {
+                Slogf.e(TAG, "TaskMirroringToken#getMirroredSurface: no task=%s", taskInfo);
+                return null;
+            }
+            outBounds.set(TaskInfoHelper.getBounds(taskInfo));
+            return SurfaceControlHelper.mirrorSurface(taskSurface);
+        }
+
+        @Override
+        public String toString() {
+            return TaskMirroringToken.class.getSimpleName() + "[taskid=" + mTaskId + "]";
+        }
+    };
+
+    private final class DisplayMirroringToken extends MirroringToken {
+        private final int mDisplayId;
+        private DisplayMirroringToken(int displayId) {
+            super();
+            mDisplayId = displayId;
+        }
+
+        @Override
+        protected SurfaceControl getMirroredSurface(long tokenTimeousMs, Rect outBounds) {
+            checkValidity(tokenTimeousMs);
+
+            Display display = mDisplayManager.getDisplay(mDisplayId);
+            Point point = new Point();
+            display.getRealSize(point);
+            outBounds.set(0, 0, point.x, point.y);
+            return SurfaceControlHelper.mirrorDisplay(mDisplayId);
+        }
+
+        @Override
+        public String toString() {
+            return DisplayMirroringToken.class.getSimpleName() + "[displayId=" + mDisplayId + "]";
         }
     };
 
     @Override
-    public IBinder createMirroringToken(int taskId) {
+    public IBinder createTaskMirroringToken(int taskId) {
         ensureManageActivityTasksPermission();
         synchronized (mLock) {
             if (!mTaskToSurfaceMap.contains(taskId)) {
                 throw new IllegalArgumentException("Non-existent Task#" + taskId);
             }
         }
-        return new MirroringToken(taskId);
+        return new TaskMirroringToken(taskId);
     }
 
     @Override
-    public SurfaceControl getMirroredSurface(IBinder token, Rect bounds) {
-        return getMirroredSurfaceInternal(token, bounds, MIRRORING_TOKEN_TIMEOUT_MS);
+    public IBinder createDisplayMirroringToken(int displayId) {
+        ensurePermission(Car.PERMISSION_MIRROR_DISPLAY);
+        return new DisplayMirroringToken(displayId);
+    }
+
+    @Override
+    public SurfaceControl getMirroredSurface(IBinder token, Rect outBounds) {
+        return getMirroredSurfaceInternal(token, outBounds, MIRRORING_TOKEN_TIMEOUT_MS);
     }
 
     @VisibleForTesting
-    SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect bounds, long tokenTimeoutMs) {
+    SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect outBounds, long tokenTimeoutMs) {
         assertPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0);
-        // TODO(b/254333504): Check permission.
+        ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
         MirroringToken mirroringToken;
         try {
             mirroringToken = (MirroringToken) token;
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Bad token");
         }
-        if (SystemClock.elapsedRealtime() - mirroringToken.mCreationTimeMs > tokenTimeoutMs) {
-            throw new IllegalArgumentException(
-                    "Expired token: created=" + mirroringToken.mCreationTimeMs);
-        }
-
-        SurfaceControl taskSurface;
-        TaskInfo taskInfo;
-        synchronized (mLock) {
-            taskInfo = mTasks.get(mirroringToken.mTaskId);
-            taskSurface = mTaskToSurfaceMap.get(mirroringToken.mTaskId);
-        }
-        if (taskInfo == null || taskSurface == null || !taskInfo.isVisible()) {
-            throw new IllegalStateException("Given Task is invisible: taskInfo=" + taskInfo);
-        }
-        bounds.set(TaskInfoHelper.getBounds(taskInfo));
-        return SurfaceControlHelper.mirrorSurface(taskSurface);
+        return mirroringToken.getMirroredSurface(tokenTimeoutMs, outBounds);
     }
 
     /**

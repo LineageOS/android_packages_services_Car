@@ -190,14 +190,10 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Перегляд інформації про стан Удосконаленої системи допомоги водію автомобіля."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"керувати інформацією про стан Удосконаленої системи допомоги водію автомобіля"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Керування інформацією про стан Удосконаленої системи допомоги водію автомобіля."</string>
-    <!-- no translation found for car_permission_label_manage_remote_device (1144368625081074994) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_remote_device (4802785901453919948) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_occupant_connection (6007579379849984187) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_occupant_connection (6525045077082552965) -->
-    <skip />
+    <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"відстежувати стан інших зон пасажирів в автомобілі й аналогічних додатків (що мають таку саму назву пакета, як додаток, що викликає), установлених у цих зонах, а також керувати живленням цих зон"</string>
+    <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Відстеження стану інших зон пасажирів в автомобілі й аналогічних додатків (що мають таку саму назву пакета, як додаток, що викликає), установлених у цих зонах, а також керування живленням цих зон."</string>
+    <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"встановлювати з’єднання й обмінюватися даними з аналогічними додатками (що мають таку саму назву пакета, як додаток, що викликає), установленими в інших зонах пасажирів в автомобілі"</string>
+    <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Встановлення з’єднання й обмін даними з аналогічними додатками (що мають таку саму назву пакета, як додаток, що викликає), установленими в інших зонах пасажирів в автомобілі."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Помилка CAN-шини"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-шина не відповідає. Від’єднайте та знову під’єднайте головний пристрій аудіосистеми й заведіть автомобіль ще раз"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мій пристрій"</string>

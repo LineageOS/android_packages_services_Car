@@ -28,6 +28,7 @@ import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.user.CarUserManager;
+import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
@@ -36,6 +37,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
+import android.util.Pair;
 import android.view.SurfaceControl;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -264,7 +266,6 @@ public final class CarActivityManager extends CarManagerBase {
 
     /**
      * Returns all the visible tasks. The order is not guaranteed.
-     * @hide  STOPSHIP(b/254333504): Enable this after API review.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -299,16 +300,35 @@ public final class CarActivityManager extends CarManagerBase {
      * Creates the mirroring token of the given Task.
      *
      * @param taskId The Task to mirror.
-     * @return A token to access the Task Surface.
-     * @hide  STOPSHIP(b/254333504): Enable this after API review.
+     * @return A token to access the Task Surface. The token is used to identify the target
+     *     Task's Surface for {@link MirroredSurfaceView}.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
-    public IBinder createMirroringToken(int taskId) {
+    public IBinder createTaskMirroringToken(int taskId) {
         try {
-            return mService.createMirroringToken(taskId);
+            return mService.createTaskMirroringToken(taskId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Creates the mirroring token of the given Display.
+     *
+     * @param displayId The Display to mirror.
+     * @return A token to access the Display Surface. The token is used to identify the target
+     *     Display's Surface for {@link MirroredSurfaceView}.
+     */
+    @RequiresPermission(Car.PERMISSION_MIRROR_DISPLAY)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public IBinder createDisplayMirroringToken(int displayId) {
+        try {
+            return mService.createDisplayMirroringToken(displayId);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
         }
@@ -318,18 +338,24 @@ public final class CarActivityManager extends CarManagerBase {
      * Gets a mirrored {@link SurfaceControl} of the Task identified by the given Token.
      *
      * @param token  The token to access the Surface.
-     * @param outBounds The bounds of the mirrored Task.
-     * @return A {@link SurfaceControl} of the mirrored Task.
-     * @hide  STOPSHIP(b/254333504): Enable this after API review.
+     * @return A Pair of {@link SurfaceControl} and the bounds of the mirrored Task,
+     *     or {code null} if it can't find the target Surface to mirror.
+     *
+     * @hide Used by {@link MirroredSurfaceView} only.
      */
-    // STOPSHIP(b/254333504): Enable the permission after API review.
-    // @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
+    @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
-    public SurfaceControl getMirroredSurface(@NonNull IBinder token, @NonNull Rect outBounds) {
+    public Pair<SurfaceControl, Rect> getMirroredSurface(@NonNull IBinder token) {
         try {
-            return mService.getMirroredSurface(token, outBounds);
+            Rect outBounds = new Rect();
+            // SurfaceControl constructor is hidden api, so we can get it by the return value.
+            SurfaceControl sc = mService.getMirroredSurface(token, outBounds);
+            if (sc == null) {
+                return null;
+            }
+            return Pair.create(sc, outBounds);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
         }

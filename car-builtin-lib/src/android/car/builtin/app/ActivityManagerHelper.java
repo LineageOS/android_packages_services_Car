@@ -80,7 +80,7 @@ public final class ActivityManagerHelper {
     public static boolean startUserInBackgroundVisibleOnDisplay(@UserIdInt int userId,
             int displayId) {
         return runRemotely(() -> getActivityManager().startUserInBackgroundVisibleOnDisplay(
-                        userId, displayId),
+                        userId, displayId, /* unlockProgressListener= */ null),
                 "error while startUserInBackgroundVisibleOnDisplay userId:%d displayId:%d",
                 userId, displayId);
     }

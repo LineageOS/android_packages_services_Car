@@ -54,6 +54,7 @@ import com.google.android.car.kitchensink.admin.DevicePolicyFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
+import com.google.android.car.kitchensink.audio.AudioUserAssignmentFragment;
 import com.google.android.car.kitchensink.audio.CarAudioInputTestFragment;
 import com.google.android.car.kitchensink.audiorecorder.AudioRecorderTestFragment;
 import com.google.android.car.kitchensink.backup.BackupAndRestoreFragment;
@@ -231,6 +232,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),
             new FragmentMenuEntry(AudioTestFragment.FRAGMENT_NAME, AudioTestFragment.class),
+            new FragmentMenuEntry(AudioUserAssignmentFragment.FRAGMENT_NAME,
+                    AudioUserAssignmentFragment.class),
             new FragmentMenuEntry(AudioRecorderTestFragment.FRAGMENT_NAME,
                     AudioRecorderTestFragment.class),
             new FragmentMenuEntry(CarAudioInputTestFragment.FRAGMENT_NAME,

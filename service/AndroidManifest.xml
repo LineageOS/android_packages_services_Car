@@ -1035,6 +1035,23 @@
                 android:label="@string/car_permission_label_manage_occupant_connection"
                 android:description="@string/car_permission_desc_manage_occupant_connection"/>
 
+    <!-- Allows an application to access the mirrored Surface of a Task represented by the given
+         Token.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.ACCESS_MIRRORED_SURFACE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_access_mirrored_surface"
+        android:description="@string/car_permission_desc_access_mirrored_surface"/>
+
+    <!-- Allows an application to create an mirroring Token of a Display.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.MIRROR_DISPLAY"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_mirror_display"
+        android:description="@string/car_permission_desc_mirror_display"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.

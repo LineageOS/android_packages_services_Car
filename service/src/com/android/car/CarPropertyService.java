@@ -147,6 +147,9 @@ public class CarPropertyService extends ICarProperty.Stub
         int removeProperty(int propId) {
             synchronized (mLock) {
                 mRateMap.remove(propId);
+                if (mRateMap.size() == 0) {
+                    mListenerBinder.unlinkToDeath(this, 0);
+                }
                 return mRateMap.size();
             }
         }
@@ -572,6 +575,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
                 return;
             }
+            mClientMap.put(listenerBinder, client);
             updateSetOperationRecorderLocked(carPropertyValue.getPropertyId(),
                     carPropertyValue.getAreaId(), client);
         }

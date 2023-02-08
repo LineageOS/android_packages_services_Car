@@ -151,6 +151,22 @@
     <string name="start_service" translatable="false">Start Service</string>
     <string name="stop_service" translatable="false">Stop Service</string>
     <string name="volume_key_events" translatable="false">Key Events</string>
+    <string name="select_user_title" translatable="false">Select User</string>
+    <string name="reset_user" translatable="false">Reset User</string>
+    <string name="assign_user" translatable="false">Assign User</string>
+    <string name="unassign_user" translatable="false">Unassign User</string>
+    <string name="user_focus_unknown" translatable="false">Audio Focus Unknown</string>
+    <string name="user_has_focus" translatable="false">User Has Audio Focus</string>
+    <string name="user_does_not_have_focus" translatable="false">User Does Not Have Audio Focus</string>
+    <string name="allow_passenger_playback_confirmation" translatable="false">Allow Passenger %1$s To Play Audio In Main Cabin?</string>
+    <string name="request_result_message" translatable="false">Passenger %1$s %2$s To Play Audio In Main Cabin.</string>
+    <string name="accept" translatable="false">Accept</string>
+    <string name="reject" translatable="false">Reject</string>
+    <string name="close" translatable="false">Close</string>
+    <string name="cancel_request" translatable="false">Cancel Request</string>
+    <string name="assign_audio_accept_audio" translatable="false">Auto Accept Request</string>
+    <string name="assign_audio_reject_audio" translatable="false">Auto Reject Request</string>
+    <string name="assign_audio_ask_user" translatable="false">Ask User To Accept/Reject</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
