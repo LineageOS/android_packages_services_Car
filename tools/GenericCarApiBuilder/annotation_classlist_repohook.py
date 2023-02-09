@@ -22,10 +22,11 @@ from tempfile import NamedTemporaryFile
 # Helper method that strips out the parameter names of methods. This will allow users to change
 # parameter names for hidden apis without mistaking them as having been removed.
 # [^ ]* --> Negation set on SPACE character. This wll match everything until a SPACE.
-# [^ ]*\) --> This will handle the last parameter at the end of a method signature.
-# [^ ]*,[^ ]* --> This will handle multiple parameters delimited by commas.
+# *?(?=\)) --> This means the character ')' will not be included in the match.
+# [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature. It excludes matching any '(' characters when there are no parameters, i.e. method().
+# [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
-    return re.sub('[^ ]*\)|[^ ]*,[^ ]*', " ", api)
+    return re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', " ", api)
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if (rootDir is None):
