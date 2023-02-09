@@ -46,6 +46,10 @@ public class AnnotationHelper {
             Field[] fields = Class.forName(className).getDeclaredFields();
             for (int j = 0; j < fields.length; j++) {
                 Field field = fields[j];
+
+                // These are some internal fields
+                if (field.isSynthetic()) continue;
+
                 boolean isAnnotated = containsAddedInAnnotation(field, addedInOrBeforeApis,
                         annotationClasses);
                 boolean shouldBeAnnotated = Modifier.isPublic(field.getModifiers())
