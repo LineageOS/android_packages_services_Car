@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static java.lang.Integer.toHexString;
 
@@ -49,6 +50,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * This class implements the binder interface for ICarProperty.aidl to make it easier to create
@@ -59,6 +61,11 @@ public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
     private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarPropertyService.class);
+    // Maximum count of sync get/set property operation allowed at once. The reason we limit this
+    // is because each sync get/set property operation takes up one binder thread. If they take
+    // all the binder thread, we do not have thread left for the result callback from VHAL. This
+    // will cause all the pending sync operation to timeout because result cannot be delivered.
+    private static final int SYNC_GET_SET_PROPERTY_OP_LIMIT = 16;
     private final Context mContext;
     private final PropertyHalService mHal;
     private final Object mLock = new Object();
@@ -76,6 +83,8 @@ public class CarPropertyService extends ICarProperty.Stub
     private SparseArray<CarPropertyConfig<?>> mConfigs = new SparseArray<>();
     @GuardedBy("mLock")
     private SparseArray<Pair<String, String>> mPropToPermission = new SparseArray<>();
+    @GuardedBy("mLock")
+    private int mSyncGetSetPropertyOpCount;
 
     public CarPropertyService(Context context, PropertyHalService hal) {
         if (DBG) {
@@ -470,6 +479,29 @@ public class CarPropertyService extends ICarProperty.Stub
         return false;
     }
 
+    private <V> V runSyncOperationCheckLimit(Callable<V> c) {
+        synchronized (mLock) {
+            if (mSyncGetSetPropertyOpCount >= SYNC_GET_SET_PROPERTY_OP_LIMIT) {
+                throw new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN);
+            }
+            mSyncGetSetPropertyOpCount += 1;
+            Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+        }
+        try {
+            return c.call();
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "catching unexpected exception for getProperty/setProperty");
+            return null;
+        } finally {
+            synchronized (mLock) {
+                mSyncGetSetPropertyOpCount -= 1;
+                Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+            }
+        }
+    }
+
     @Override
     public CarPropertyValue getProperty(int prop, int zone)
             throws IllegalArgumentException, ServiceSpecificException {
@@ -487,7 +519,9 @@ public class CarPropertyService extends ICarProperty.Stub
                     + "property Id: 0x" + Integer.toHexString(prop));
         }
         CarServiceUtils.assertPermission(mContext, permission);
-        return mHal.getProperty(prop, zone);
+        return runSyncOperationCheckLimit(() -> {
+            return mHal.getProperty(prop, zone);
+        });
     }
 
     /**
@@ -550,7 +584,10 @@ public class CarPropertyService extends ICarProperty.Stub
         if (mHal.isDisplayUnitsProperty(propId)) {
             CarServiceUtils.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
         }
-        mHal.setProperty(prop);
+        runSyncOperationCheckLimit(() -> {
+            mHal.setProperty(prop);
+            return null;
+        });
         IBinder listenerBinder = listener.asBinder();
         synchronized (mLock) {
             Client client = mClientMap.get(listenerBinder);
