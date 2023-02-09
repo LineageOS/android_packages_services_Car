@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -189,6 +190,19 @@ public class CarAudioZone {
         return true;
     }
 
+    boolean isCurrentZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {
+        synchronized (mLock) {
+            return configInfoSwitchedTo.equals(mCarAudioZoneConfigs.get(mCurrentConfigId)
+                    .getCarAudioZoneConfigInfo());
+        }
+    }
+
+    void setCurrentCarZoneConfig(CarAudioZoneConfigInfo configInfoSwitchedTo) {
+        synchronized (mLock) {
+            mCurrentConfigId = configInfoSwitchedTo.getConfigId();
+        }
+    }
+
     void init() {
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
             mCarAudioZoneConfigs.valueAt(index).synchronizeCurrentGainIndex();
@@ -321,5 +335,17 @@ public class CarAudioZone {
      */
     List<CarVolumeGroupInfo> getCurrentVolumeGroupInfos() {
         return getCurrentCarAudioZoneConfig().getVolumeGroupInfos();
+    }
+
+    /**
+     * Returns all audio zone config info in the audio zone
+     */
+    List<CarAudioZoneConfigInfo> getCarAudioZoneConfigInfos() {
+        List<CarAudioZoneConfigInfo> zoneConfigInfos = new ArrayList<>(mCarAudioZoneConfigs.size());
+        for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
+            zoneConfigInfos.add(mCarAudioZoneConfigs.valueAt(index).getCarAudioZoneConfigInfo());
+        }
+
+        return zoneConfigInfos;
     }
 }

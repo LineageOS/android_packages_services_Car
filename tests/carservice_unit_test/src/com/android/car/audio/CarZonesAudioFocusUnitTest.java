@@ -16,8 +16,10 @@
 
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -276,6 +278,52 @@ public final class CarZonesAudioFocusUnitTest {
                 .that(captor.getValue().size()).isEqualTo(2);
     }
 
+    @Test
+    public void getAudioFocusHoldersForZone() {
+        AudioFocusInfo mediaFocusInfo = generateAudioFocusRequest();
+        AudioFocusInfo navigationFocusInfo =
+                generateAudioFocusRequestWithUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        List<AudioFocusInfo> expectedFocusInfoList = List.of(mediaFocusInfo, navigationFocusInfo);
+        when(mFocusMocks.get(SECONDARY_ZONE_ID).getAudioFocusHolders())
+                .thenReturn(expectedFocusInfoList);
+
+        List<AudioFocusInfo> audioFocusInfos =
+                mCarZonesAudioFocus.transientlyLoseAllFocusInZone(SECONDARY_ZONE_ID);
+
+        verify(mFocusMocks.get(SECONDARY_ZONE_ID))
+                .removeAudioFocusInfoAndTransientlyLoseFocus(mediaFocusInfo);
+        verify(mFocusMocks.get(SECONDARY_ZONE_ID))
+                .removeAudioFocusInfoAndTransientlyLoseFocus(navigationFocusInfo);
+        assertWithMessage("Focus holders in secondary zone")
+                .that(audioFocusInfos).containsExactlyElementsIn(expectedFocusInfoList);
+    }
+
+    @Test
+    public void reevaluateAndRegainAudioFocusList() {
+        AudioFocusInfo mediaFocusInfo = generateAudioFocusRequest();
+        AudioFocusInfo navigationFocusInfo =
+                generateAudioFocusRequestWithUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+        int mediaFocusRequestResult = AUDIOFOCUS_REQUEST_DELAYED;
+        int navigationFocusRequestResult = AUDIOFOCUS_REQUEST_GRANTED;
+        when(mCarAudioService.getZoneIdForAudioFocusInfo(mediaFocusInfo))
+                .thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForAudioFocusInfo(navigationFocusInfo))
+                .thenReturn(SECONDARY_ZONE_ID);
+        when(mFocusMocks.get(PRIMARY_ZONE_ID).reevaluateAndRegainAudioFocus(any()))
+                .thenReturn(mediaFocusRequestResult);
+        when(mFocusMocks.get(SECONDARY_ZONE_ID).reevaluateAndRegainAudioFocus(any()))
+                .thenReturn(navigationFocusRequestResult);
+
+        List<Integer> resList = mCarZonesAudioFocus.reevaluateAndRegainAudioFocusList(
+                List.of(mediaFocusInfo, navigationFocusInfo));
+
+        assertWithMessage("Result list size").that(resList.size()).isEqualTo(2);
+        assertWithMessage("Results for regaining media focus in primary zone")
+                .that(resList.get(0)).isEqualTo(mediaFocusRequestResult);
+        assertWithMessage("Results for regaining navigation focus in primary zone")
+                .that(resList.get(1)).isEqualTo(navigationFocusRequestResult);
+    }
+
     private static SparseArray<CarAudioZone> generateAudioZones() {
         CarAudioContext testCarAudioContext =
                 new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -309,7 +357,12 @@ public final class CarZonesAudioFocusUnitTest {
     }
 
     private static AudioFocusInfo generateAudioFocusRequest() {
-        AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        return generateAudioFocusRequestWithUsage(USAGE_MEDIA);
+    }
+
+    private static AudioFocusInfo generateAudioFocusRequestWithUsage(
+            @AudioAttributes.AttributeSdkUsage int usage) {
+        AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
         return generateAudioFocusInfoWithAttributes(attributes);
     }
 
