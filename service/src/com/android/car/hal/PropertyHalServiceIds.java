@@ -304,6 +304,12 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.MIRROR_AUTO_TILT_ENABLED, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
+        mHalPropIdToPermissions.put(VehicleProperty.GLOVE_BOX_DOOR_POS, new Pair<>(
+                Car.PERMISSION_CONTROL_GLOVE_BOX,
+                Car.PERMISSION_CONTROL_GLOVE_BOX));
+        mHalPropIdToPermissions.put(VehicleProperty.GLOVE_BOX_LOCKED, new Pair<>(
+                Car.PERMISSION_CONTROL_GLOVE_BOX,
+                Car.PERMISSION_CONTROL_GLOVE_BOX));
         mHalPropIdToPermissions.put(VehicleProperty.SEAT_MEMORY_SELECT, new Pair<>(
                 null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));

@@ -859,6 +859,15 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_WINDOWS";
 
     /**
+     * Permission necessary to control car glove box.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_GLOVE_BOX =
+            "android.car.permission.CONTROL_GLOVE_BOX";
+    /**
      * Permission necessary to control car's seats.
      * @hide
      */
