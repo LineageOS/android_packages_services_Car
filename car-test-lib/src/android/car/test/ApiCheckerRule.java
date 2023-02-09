@@ -134,6 +134,21 @@ import java.util.List;
   }
 
  * </code></pre>
+ *
+ * For nested classes the following annotation should be used for methods:
+ * <pre><code>
+ @Test
+ @ApiTest(apis = {"com.acme.Car$Inner#methodName"})
+ public void testMethodName() {}
+
+ * </code></pre>
+ * For nested classes the following annotation should be used for fields:
+ * <pre><code>
+ @Test
+ @ApiTest(apis = {"com.acme.Car.Inner#fieldName"})
+ public void testFieldName() {}
+
+ * </code></pre>
  */
 public final class ApiCheckerRule implements TestRule {
 
