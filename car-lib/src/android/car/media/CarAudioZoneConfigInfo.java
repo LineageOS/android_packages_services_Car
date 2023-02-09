@@ -128,7 +128,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
-        return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
+        return new StringBuilder().append("CarAudioZoneConfigInfo { .name = ").append(mName)
                 .append(", zone id = ").append(mZoneId).append(" config id = ").append(mConfigId)
                 .append(" }").toString();
     }
