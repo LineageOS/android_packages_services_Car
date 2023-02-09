@@ -16,6 +16,8 @@
 
 package android.car.hardware.property;
 
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
 
@@ -38,6 +40,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -55,6 +58,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -69,6 +73,8 @@ public class CarPropertyManager extends CarManagerBase {
     private static final int MSG_GENERIC_EVENT = 0;
     private static final int SYSTEM_ERROR_CODE_MASK = 0Xffff;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
+    private static final int SYNC_OP_RETRY_SLEEP_IN_MS = 10;
+    private static final int SYNC_OP_RETRY_MAX_COUNT = 10;
     /**
      * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
      */
@@ -1123,7 +1129,9 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         try {
-            CarPropertyValue propValue = mService.getProperty(propId, area);
+            CarPropertyValue propValue = runSyncOperation(() -> {
+                return mService.getProperty(propId, area);
+            });
             return propValue != null;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
@@ -1281,6 +1289,34 @@ public class CarPropertyManager extends CarManagerBase {
         return arr;
     }
 
+    private static <V> V runSyncOperation(Callable<V> c)
+            throws RemoteException, ServiceSpecificException {
+        int retryCount = 0;
+        while (retryCount < SYNC_OP_RETRY_MAX_COUNT) {
+            retryCount++;
+            try {
+                return c.call();
+            } catch (ServiceSpecificException e) {
+                if (e.errorCode != SYNC_OP_LIMIT_TRY_AGAIN) {
+                    throw e;
+                }
+                // If car service don't have enough binder thread to handle this request. Sleep for
+                // 10ms and try again.
+                Log.d(TAG, "too many sync request, sleeping for " + SYNC_OP_RETRY_SLEEP_IN_MS
+                        + " ms before retry");
+                SystemClock.sleep(SYNC_OP_RETRY_SLEEP_IN_MS);
+                continue;
+            } catch (RuntimeException | RemoteException e) {
+                throw e;
+            } catch (Exception e) {
+                Log.e(TAG, "catching unexpected exception for getProperty/setProperty", e);
+                return null;
+            }
+        }
+        throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
+                "failed to call car service sync operations after " + retryCount + " retries");
+    }
+
     /**
      * Return CarPropertyValue
      *
@@ -1403,7 +1439,9 @@ public class CarPropertyManager extends CarManagerBase {
         assertPropertyIdIsSupported(propId);
 
         try {
-            return (CarPropertyValue<E>) mService.getProperty(propId, areaId);
+            return (CarPropertyValue<E>) (runSyncOperation(() -> {
+                return mService.getProperty(propId, areaId);
+            }));
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {
@@ -1411,7 +1449,8 @@ public class CarPropertyManager extends CarManagerBase {
                 if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
                     return null;
                 } else {
-                    throw new IllegalStateException(String.format("Failed to get property: 0x%x, "
+                    throw new IllegalStateException(String.format(
+                            "Failed to get property: 0x%x, "
                             + "areaId: 0x%x", propId, areaId), e);
                 }
             }
@@ -1479,21 +1518,27 @@ public class CarPropertyManager extends CarManagerBase {
         assertPropertyIdIsSupported(propId);
 
         try {
-            mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
-                    mCarPropertyEventToService);
+            runSyncOperation(() -> {
+                mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
+                        mCarPropertyEventToService);
+                return null;
+            });
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+            return;
         } catch (ServiceSpecificException e) {
             if (mAppTargetSdk < Build.VERSION_CODES.R) {
                 if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
                     throw new RuntimeException(String.format("Failed to set property: 0x%x, "
                             + "areaId: 0x%x", propId, areaId), e);
                 } else {
-                    throw new IllegalStateException(String.format("Failed to set property: 0x%x, "
-                            + "areaId: 0x%x", propId, areaId), e);
+                    throw new IllegalStateException(String.format(
+                            "Failed to set property: 0x%x, " + "areaId: 0x%x", propId, areaId),
+                            e);
                 }
             }
             handleCarServiceSpecificException(e, propId, areaId);
+            return;
         }
     }
 

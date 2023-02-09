@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -26,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -48,6 +51,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -62,6 +66,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -750,5 +756,49 @@ public final class CarPropertyServiceUnitTest {
         mService.cancelRequests(requestIds);
 
         verify(mHalService).cancelRequests(requestIds);
+    }
+
+    // Test that limited number of sync operations are allowed at once.
+    @Test
+    public void testSyncOperationLimit() throws Exception {
+        CountDownLatch startCd = new CountDownLatch(16);
+        CountDownLatch finishCd = new CountDownLatch(16);
+        CountDownLatch returnCd = new CountDownLatch(1);
+        when(mHalService.getProperty(CONTINUOUS_READ_ONLY_PROPERTY_ID, 0))
+                .thenAnswer((invocation) -> {
+                    return new CarPropertyValue(CONTINUOUS_READ_ONLY_PROPERTY_ID, GLOBAL_AREA_ID,
+                            Integer.valueOf(11));
+                });
+        doAnswer((invocation) -> {
+            // Notify the operation has started.
+            startCd.countDown();
+
+            // Wait for the signal before finishing the operation.
+            returnCd.await(10, TimeUnit.SECONDS);
+            return null;
+        }).when(mHalService).setProperty(any());
+
+        Executor executor = Executors.newFixedThreadPool(16);
+        for (int i = 0; i < 16; i++) {
+            executor.execute(() -> {
+                mService.setProperty(
+                        new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID, GLOBAL_AREA_ID,
+                                Integer.valueOf(11)),
+                        mICarPropertyEventListener);
+                finishCd.countDown();
+            });
+        }
+
+        // Wait until 16 requests are ongoing.
+        startCd.await(10, TimeUnit.SECONDS);
+
+        // The 17th request must throw exception.
+        Exception e = assertThrows(ServiceSpecificException.class, () -> mService.getProperty(
+                CONTINUOUS_READ_ONLY_PROPERTY_ID, /* areaId= */ 0));
+        assertThat(((ServiceSpecificException) e).errorCode).isEqualTo(SYNC_OP_LIMIT_TRY_AGAIN);
+
+        // Unblock the operations.
+        returnCd.countDown();
+        finishCd.await(10, TimeUnit.SECONDS);
     }
 }
