@@ -518,6 +518,10 @@ public final class ApiCheckerRule implements TestRule {
                 }
                 continue;
             }
+
+            if (apiRequirements == null) {
+                continue;
+            }
             allApiRequirements.add(apiRequirements);
             if (firstApiRequirements == null) {
                 firstApiRequirements = apiRequirements;

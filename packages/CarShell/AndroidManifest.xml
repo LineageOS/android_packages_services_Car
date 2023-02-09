@@ -104,6 +104,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS" />
     <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
+    <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
     <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->

@@ -81,5 +81,6 @@
         <permission name="android.car.permission.CONTROL_ADAS_SETTINGS"/>
         <permission name="android.car.permission.READ_ADAS_STATES"/>
         <permission name="android.car.permission.CONTROL_ADAS_STATES"/>
+        <permission name="android.car.permission.CAR_EPOCH_TIME"/>
     </privapp-permissions>
 </permissions>
