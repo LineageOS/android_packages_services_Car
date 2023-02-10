@@ -16,11 +16,13 @@
 
 package android.car.apitest;
 
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -406,7 +408,8 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     protected static void requireMumd() {
         assumeTrue(
                 "The device does not support multiple users on multiple displays",
-                getTargetContext().getSystemService(UserManager.class)
+                isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
+                        && getTargetContext().getSystemService(UserManager.class)
                         .isVisibleBackgroundUsersSupported());
     }
 
