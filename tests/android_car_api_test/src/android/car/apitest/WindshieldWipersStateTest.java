@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public class ErrorStateTest {
+public class WindshieldWipersStateTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public ErrorStateTest(int javaConstantValue, int halConstantValue) {
+    public WindshieldWipersStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,33 +43,20 @@ public class ErrorStateTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.ErrorState.OTHER_ERROR_STATE,
-                                android.hardware.automotive.vehicle.ErrorState.OTHER_ERROR_STATE
+                                android.car.hardware.property.WindshieldWipersState.OTHER,
+                                android.hardware.automotive.vehicle.WindshieldWipersState.OTHER
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_DISABLED,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_DISABLED
+                                android.car.hardware.property.WindshieldWipersState.OFF,
+                                android.hardware.automotive.vehicle.WindshieldWipersState.OFF
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SPEED_LOW,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_SPEED_LOW
+                                android.car.hardware.property.WindshieldWipersState.ON,
+                                android.hardware.automotive.vehicle.WindshieldWipersState.ON
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SPEED_HIGH,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_SPEED_HIGH
-                        },
-                        {
-                                android.car.hardware.property.ErrorState
-                                        .NOT_AVAILABLE_POOR_VISIBILITY,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_POOR_VISIBILITY
-                        },
-                        {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SAFETY,
-                                android.hardware.automotive.vehicle.ErrorState.NOT_AVAILABLE_SAFETY
+                                android.car.hardware.property.WindshieldWipersState.SERVICE,
+                                android.hardware.automotive.vehicle.WindshieldWipersState.SERVICE
                         }
                 });
     }

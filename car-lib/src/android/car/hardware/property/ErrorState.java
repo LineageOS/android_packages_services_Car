@@ -45,21 +45,44 @@ public final class ErrorState {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER_ERROR_STATE = -1;
 
+    /**
+     * Vehicle property is not available because the feature is disabled.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_DISABLED = -2;
 
+    /**
+     * Vehicle property is not available because the vehicle speed is too low to use this feature.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_LOW = -3;
 
+    /**
+     * Vehicle property is not available because the vehicle speed is too high to use this feature.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int NOT_AVAILABLE_SPEED_HIGH = -4;
 
+    /**
+     * Vehicle property is not available because sensor or camera visibility is insufficient to use
+     * this feature. For example, this can be caused by bird poop blocking the camera, poor weather
+     * conditions such as snow or fog, or by any object obstructing the required sensors.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int NOT_AVAILABLE_SAFETY = -5;
+    public static final int NOT_AVAILABLE_POOR_VISIBILITY = -5;
+
+    /**
+     * Vehicle property is not available because there is a safety risk that makes this feature
+     * unavailable to use presently. For example, this can be caused by someone blocking the trunk
+     * door while it is closing, or by the system being in a faulty state.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int NOT_AVAILABLE_SAFETY = -6;
 
     private ErrorState() {}
 
@@ -79,6 +102,8 @@ public final class ErrorState {
                 return "NOT_AVAILABLE_SPEED_LOW";
             case NOT_AVAILABLE_SPEED_HIGH:
                 return "NOT_AVAILABLE_SPEED_HIGH";
+            case NOT_AVAILABLE_POOR_VISIBILITY:
+                return "NOT_AVAILABLE_POOR_VISIBILITY";
             case NOT_AVAILABLE_SAFETY:
                 return "NOT_AVAILABLE_SAFETY";
             default:
@@ -88,7 +113,7 @@ public final class ErrorState {
 
     /** @hide */
     @IntDef({OTHER_ERROR_STATE, NOT_AVAILABLE_DISABLED, NOT_AVAILABLE_SPEED_LOW,
-            NOT_AVAILABLE_SPEED_HIGH, NOT_AVAILABLE_SAFETY})
+            NOT_AVAILABLE_SPEED_HIGH, NOT_AVAILABLE_POOR_VISIBILITY, NOT_AVAILABLE_SAFETY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ErrorStateInt {}
 }

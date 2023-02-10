@@ -84,6 +84,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
+    <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CAR_IDENTIFICATION" />
     <uses-permission android:name="android.car.permission.PRIVILEGED_CAR_INFO" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
@@ -104,6 +105,8 @@
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS" />
     <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
+    <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />

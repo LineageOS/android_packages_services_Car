@@ -119,6 +119,14 @@
          android:label="@string/car_permission_label_control_car_windows"
          android:description="@string/car_permission_desc_control_car_windows"/>
 
+    <!-- Allows an application to control the vehicle glove box.
+        <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_GLOVE_BOX"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_glove_box"
+                android:description="@string/car_permission_desc_control_glove_box"/>
+
     <!-- Allows an application to control the vehicle mirrors.
          <p>Protection level: signature|privileged
     -->
@@ -1051,6 +1059,22 @@
         android:protectionLevel="signature|privileged"
         android:label="@string/car_permission_label_mirror_display"
         android:description="@string/car_permission_desc_mirror_display"/>
+
+     <!-- Allows an application to read the vehicle's windshield wipers.
+         <p>Protection level: signature|privileged
+      -->
+     <permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_read_windshield_wipers"
+        android:description="@string/car_permission_desc_read_windshield_wipers"/>
+
+     <!-- Allows an application to control the vehicle's windshield wipers.
+         <p>Protection level: signature|privileged
+      -->
+     <permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_windshield_wipers"
+        android:description="@string/car_permission_desc_control_windshield_wipers"/>
 
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run

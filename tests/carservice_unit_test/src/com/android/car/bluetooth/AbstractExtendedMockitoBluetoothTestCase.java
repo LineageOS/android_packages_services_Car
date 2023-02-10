@@ -43,8 +43,11 @@ import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoSession;
@@ -90,6 +93,21 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
     private MockitoSession mSession;
 
+    @Rule
+    public final TestRule mClearInlineMocksRule = new TestRule() {
+        @Override
+        public Statement apply(Statement base, Description description) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
+                    // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+                    Mockito.framework().clearInlineMocks();
+                }
+            };
+        }
+    };
+
     @Before
     public final void startSession() {
         mSession = newSessionBuilder().startMocking();
@@ -97,20 +115,20 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
 
     @After
     public final void finishSession() {
-        if (mSession != null) {
-            mSession.finishMocking();
-        } else {
+        // mSession.finishMocking() must ALWAYS be called (hence the over-protective try/finally
+        // statements), otherwise it would cause failures on future tests as mockito
+        // cannot start a session when a previous one is not finished
+        if (mSession == null) {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
+            return;
         }
-    }
-
-    @AfterClass
-    public static void finishOnce() {
-        // TODO(b/261644033): Move the below line to {@link tearDown} method once the test flakiness
-        //  is fixed. The inline mocks must be cleared between tests in the @After annotated method.
-        // When using inline mock maker, clean up inline mocks to prevent OutOfMemory errors.
-        // See https://github.com/mockito/mockito/issues/1614 and b/259280359.
-        Mockito.framework().clearInlineMocks();
+        try {
+            mSession.finishMocking();
+        } finally {
+            // Shouldn't need to set mSession to null as JUnit always instantiate a new object,
+            // but it doesn't hurt....
+            mSession = null;
+        }
     }
 
     /**

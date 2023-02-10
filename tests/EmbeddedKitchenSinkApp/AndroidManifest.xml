@@ -70,6 +70,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_GLOVE_BOX" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
@@ -82,6 +83,8 @@
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_SETTINGS" />
     <uses-permission android:name="android.car.permission.READ_ADAS_STATES" />
     <uses-permission android:name="android.car.permission.CONTROL_ADAS_STATES" />
+    <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
+    <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.VMS_PUBLISHER"/>

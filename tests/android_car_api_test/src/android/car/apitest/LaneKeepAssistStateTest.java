@@ -29,11 +29,11 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public class ErrorStateTest {
+public class LaneKeepAssistStateTest {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
-    public ErrorStateTest(int javaConstantValue, int halConstantValue) {
+    public LaneKeepAssistStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
     }
@@ -43,33 +43,29 @@ public class ErrorStateTest {
         return Arrays.asList(
                 new Object[][] {
                         {
-                                android.car.hardware.property.ErrorState.OTHER_ERROR_STATE,
-                                android.hardware.automotive.vehicle.ErrorState.OTHER_ERROR_STATE
+                                android.car.hardware.property.LaneKeepAssistState.OTHER,
+                                android.hardware.automotive.vehicle.LaneKeepAssistState.OTHER
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_DISABLED,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_DISABLED
+                                android.car.hardware.property.LaneKeepAssistState.ENABLED,
+                                android.hardware.automotive.vehicle.LaneKeepAssistState.ENABLED
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SPEED_LOW,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_SPEED_LOW
+                                android.car.hardware.property.LaneKeepAssistState
+                                        .ACTIVATED_STEER_LEFT,
+                                android.hardware.automotive.vehicle.LaneKeepAssistState
+                                        .ACTIVATED_STEER_LEFT
                         },
                         {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SPEED_HIGH,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_SPEED_HIGH
+                                android.car.hardware.property.LaneKeepAssistState
+                                        .ACTIVATED_STEER_RIGHT,
+                                android.hardware.automotive.vehicle.LaneKeepAssistState
+                                        .ACTIVATED_STEER_RIGHT
                         },
                         {
-                                android.car.hardware.property.ErrorState
-                                        .NOT_AVAILABLE_POOR_VISIBILITY,
-                                android.hardware.automotive.vehicle.ErrorState
-                                        .NOT_AVAILABLE_POOR_VISIBILITY
-                        },
-                        {
-                                android.car.hardware.property.ErrorState.NOT_AVAILABLE_SAFETY,
-                                android.hardware.automotive.vehicle.ErrorState.NOT_AVAILABLE_SAFETY
+                                android.car.hardware.property.LaneKeepAssistState.USER_OVERRIDE,
+                                android.hardware.automotive.vehicle.LaneKeepAssistState
+                                        .USER_OVERRIDE
                         }
                 });
     }

@@ -859,6 +859,15 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_WINDOWS";
 
     /**
+     * Permission necessary to control car glove box.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_GLOVE_BOX =
+            "android.car.permission.CONTROL_GLOVE_BOX";
+    /**
      * Permission necessary to control car's seats.
      * @hide
      */
@@ -1368,6 +1377,26 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String PERMISSION_MIRROR_DISPLAY =
             "android.car.permission.MIRROR_DISPLAY";
+
+    /**
+     * Permission necessary to read car's windshield wipers.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_READ_WINDSHIELD_WIPERS =
+            "android.car.permission.READ_WINDSHIELD_WIPERS";
+
+    /**
+     * Permission necessary to control car's windshield wipers.
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS =
+            "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
 
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also

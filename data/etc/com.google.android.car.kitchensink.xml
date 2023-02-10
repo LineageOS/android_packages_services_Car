@@ -90,6 +90,7 @@
         <permission name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CONTROL_CAR_FEATURES"/>
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
+        <permission name="android.car.permission.CONTROL_GLOVE_BOX"/>
         <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
         <permission name="android.car.permission.CONTROL_CAR_AIRBAGS"/>
         <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
@@ -104,6 +105,8 @@
         <permission name="android.car.permission.CONTROL_ADAS_SETTINGS"/>
         <permission name="android.car.permission.READ_ADAS_STATES"/>
         <permission name="android.car.permission.CONTROL_ADAS_STATES"/>
+        <permission name="android.car.permission.READ_WINDSHIELD_WIPERS"/>
+        <permission name="android.car.permission.CONTROL_WINDSHIELD_WIPERS"/>
 
         <!-- use for CarWatchdogReliabilityTest -->
         <permission name="android.car.permission.USE_CAR_WATCHDOG"/>

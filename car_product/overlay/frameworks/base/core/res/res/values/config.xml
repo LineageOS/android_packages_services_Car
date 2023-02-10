@@ -100,6 +100,10 @@
     <!-- True if the device supports system decorations on secondary displays. -->
     <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
 
+    <!-- Whether switch to headless system user is allowed. If allowed,
+         headless system user can run in the foreground even though it is not a full user. -->
+    <bool name="config_canSwitchToHeadlessSystemUser">true</bool>
+
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
 
     <!-- Controls whether system buttons use all caps for text -->

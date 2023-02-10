@@ -260,6 +260,11 @@
     <!-- Permission text: apps access car's exterior lights state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_exterior_lights">Access car\u2019s exterior lights state.</string>
 
+    <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_glove_box">access car\u2019s glove box state</string>
+    <!-- Permission text: apps access car's glove box state [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_glove_box">Access car\u2019s glove box state.</string>
+
     <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_epoch_time">access car\u2019s epoch time</string>
     <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->
@@ -602,6 +607,16 @@
     <string name="car_permission_label_control_adas_states">control car\u2019s ADAS states information</string>
     <!-- Permission text: apps can control car ADAS states information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_adas_states">Control car\u2019s ADAS states information.</string>
+
+    <!-- Permission text: apps can read car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_read_windshield_wipers">read car\u2019s windshield wipers</string>
+    <!-- Permission text: apps can read car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_read_windshield_wipers">Read car\u2019s windshield wipers.</string>
+
+    <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_windshield_wipers">control car\u2019s windshield wipers</string>
+    <!-- Permission text: apps can control car windshield wipers [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_windshield_wipers">Control car\u2019s windshield wipers.</string>
 
     <!-- Permission text: apps can monitor the states of other occupant zones in the car and peer
          apps (apps that have the same package name as the caller) installed in those zones,
