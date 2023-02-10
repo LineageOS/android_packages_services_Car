@@ -47,11 +47,11 @@ import android.view.Display;
 import androidx.car.app.activity.CarAppActivity;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -106,6 +106,7 @@ public class CarPackageManagerServiceTest {
         }
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_doActivity_isNotBlocked() throws Exception {
         startDoActivity(/* extra= */ null);
@@ -116,6 +117,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_doActivity_showingDialog_isNotBlocked() throws Exception {
         startDoActivity(DoActivity.INTENT_EXTRA_SHOW_DIALOG);
@@ -126,6 +128,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_doTemplateActivity_isNotBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), CarAppActivity.class));
@@ -136,6 +139,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_multipleDoTemplateActivity_notBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), CarAppActivity.class));
@@ -150,6 +154,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_doTemplateActivity_showingDialog_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), CarAppActivity.class));
@@ -173,6 +178,7 @@ public class CarPackageManagerServiceTest {
         )).isFalse();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoActivity_isBlocked() throws Exception {
         startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
@@ -186,7 +192,7 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNull();
     }
 
-    @Ignore("b/232019789") // Debug and enable after fixing it.
+    @FlakyTest(detail = "b/232019789") // Debug and enable after fixing it.
     @Test
     public void testBlockingActivity_DoLaunchesNonDoOnCreate_isBlocked() throws Exception {
         startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO);
@@ -200,6 +206,7 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_DoLaunchesNonDo_nonDoIsKilled_noBlockingActivity()
             throws Exception {
@@ -218,6 +225,7 @@ public class CarPackageManagerServiceTest {
         assertActivityLaunched(DoActivity.class.getSimpleName());
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoFinishesOnCreate_noBlockingActivity()
             throws Exception {
@@ -226,6 +234,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnCreate_noBlockingActivity()
             throws Exception {
@@ -234,6 +243,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoFinishesOnResume_noBlockingActivity()
             throws Exception {
@@ -242,6 +252,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoLaunchesDoOnResume_noBlockingActivity()
             throws Exception {
@@ -250,6 +261,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testBlockingActivity_nonDoNoHistory_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), NonDoNoHistoryActivity.class));
@@ -258,6 +270,7 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testIsActivityBackedBySafeActivity_notMoving_nonDoActivity_returnsTrue()
             throws Exception {
@@ -270,6 +283,7 @@ public class CarPackageManagerServiceTest {
         assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testIsActivityBackedBySafeActivity_moving_rootNonDoActivity_returnsFalse()
             throws Exception {
@@ -280,6 +294,7 @@ public class CarPackageManagerServiceTest {
         assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isFalse();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testIsActivityBackedBySafeActivity_moving_nonDoActivityBackedByDo_returnsTrue()
             throws Exception {
@@ -291,6 +306,7 @@ public class CarPackageManagerServiceTest {
         assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
     }
 
+    @FlakyTest(detail = "b/268649406")
     @Test
     public void testIsActivityBackedBySafeActivity_moving_doActivity_returnsFalse()
             throws Exception {
