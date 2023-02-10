@@ -23,6 +23,7 @@ import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
+import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -219,5 +220,15 @@ final class FakeCarAudioService extends ICarAudio.Stub {
 
     @Override
     public void unregisterVolumeCallback(IBinder binder) {
+    }
+
+    @Override
+    public boolean registerCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        return false;
+    }
+
+    @Override
+    public boolean unregisterCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        return false;
     }
 }

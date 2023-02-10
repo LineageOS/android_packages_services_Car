@@ -19,6 +19,7 @@ import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE
 import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
@@ -62,6 +63,7 @@ import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
+import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -159,6 +161,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final boolean mUseDynamicRouting;
     private final boolean mUseCoreAudioVolume;
     private final boolean mUseCoreAudioRouting;
+    private final boolean mUseCarVolumeGroupEvents;
     private final boolean mUseCarVolumeGroupMuting;
     private final boolean mUseHalDuckingSignals;
     private final @CarVolume.CarVolumeListVersion int mAudioVolumeAdjustmentContextsVersion;
@@ -166,6 +169,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final CarAudioSettings mCarAudioSettings;
     private final int mKeyEventTimeoutMs;
     private final MediaRequestHandler mMediaRequestHandler = new MediaRequestHandler();
+    private final CarVolumeEventHandler mCarVolumeEventHandler = new CarVolumeEventHandler();
 
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
@@ -326,6 +330,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     + "this requires audioVolumeAdjustmentContextsVersion 2,"
                     + " instead version " + mAudioVolumeAdjustmentContextsVersion + " was found");
         }
+        // TODO(b/261647905): add new rro flag to enable the feature
+        mUseCarVolumeGroupEvents = false;
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
@@ -519,6 +525,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 return mUseCarVolumeGroupMuting;
             case AUDIO_FEATURE_OEM_AUDIO_SERVICE:
                 return isAnyOemFeatureEnabled();
+            case AUDIO_FEATURE_VOLUME_GROUP_EVENTS:
+                return mUseCarVolumeGroupEvents;
             default:
                 throw new IllegalArgumentException("Unknown Audio Feature type: "
                         + audioFeatureType);
@@ -569,10 +577,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             callbackFlags |= FLAG_PLAY_SOUND;
         }
         mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, callbackFlags);
+        // TODO(b/261647905): implement logic to trigger volume event callbacks
     }
 
     private void callbackGroupMuteChanged(int zoneId, int groupId, int flags) {
         mCarVolumeCallbackHandler.onGroupMuteChange(zoneId, groupId, flags);
+        // TODO(b/261647905): implement logic to trigger volume event callbacks
     }
 
     void setMasterMute(boolean mute, int flags) {
@@ -1671,6 +1681,32 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return true;
     }
 
+    /*
+     *  {@link android.car.media.CarAudioManager#registerCarVolumeGroupEventCallback()}
+     */
+    @Override
+    public boolean registerCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        requireDynamicRouting();
+        requireVolumeGroupEvents();
+
+        mCarVolumeEventHandler.registerCarVolumeEventCallback(callback);
+        return true;
+    }
+
+    /*
+     *  {@link android.car.media.CarAudioManager#unregisterCarVolumeGroupEventCallback()}
+     */
+    @Override
+    public boolean unregisterCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        requireDynamicRouting();
+        requireVolumeGroupEvents();
+
+        mCarVolumeEventHandler.unregisterCarVolumeEventCallback(callback);
+        return true;
+    }
+
     @Override
     public void registerVolumeCallback(@NonNull IBinder binder) {
         synchronized (mImplLock) {
@@ -1768,6 +1804,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void requireVolumeGroupMuting() {
         Preconditions.checkState(mUseCarVolumeGroupMuting,
                 "Car Volume Group Muting is required");
+    }
+
+    private void requireVolumeGroupEvents() {
+        Preconditions.checkState(mUseCarVolumeGroupEvents,
+                "Car Volume Group Events is required");
     }
 
     private void requireValidFadeRange(float value) {
