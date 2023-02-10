@@ -19,6 +19,7 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -54,6 +55,17 @@ public final class UserStartResult implements Parcelable, OperationResult {
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
+     * When user start failed due to an old platform version.
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int STATUS_UNSUPPORTED_PLATFORM_FAILURE =
+            CommonResults.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
+
+    /**
      * When user to start is same as current user.
      *
      * @hide
@@ -72,20 +84,81 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 2;
 
+    // TODO(b/267541402) We should no longer modify hidden API. Either promote this class to
+    // System API or remove the new status codes.
+    /**
+     * When user to start is already visible on the specified display.
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY =
+            CommonResults.LAST_COMMON_STATUS + 3;
+
+    /**
+     * When the specified display is invalid or already assigned to another user.
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int STATUS_DISPLAY_INVALID = CommonResults.LAST_COMMON_STATUS + 4;
+
+    /**
+     * When the specified display is invalid or already assigned to another user.
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int STATUS_DISPLAY_UNAVAILABLE = CommonResults.LAST_COMMON_STATUS + 5;
+
+    /**
+     * When the specified user is invalid (e.g. the system user).
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int STATUS_USER_INVALID = CommonResults.LAST_COMMON_STATUS + 6;
+
+    /**
+     * When the specified user is already assigned to another display.
+     *
+     * @hide
+     */
+    @Status
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int
+            STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY = CommonResults.LAST_COMMON_STATUS + 7;
+
     /**
     * Gets the user start result status.
     *
     * @return either {@link UserStartRsult#STATUS_SUCCESSFUL},
     *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_IS_CURRENT_USER},
+    *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY},
     *         {@link UserStartResult#STATUS_ANDROID_FAILURE},
-    *         {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST}, or
+     *        {@link UserStartResult#STATUS_UNSUPPORTED_PLATFORM_FAILURE},
+    *         {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST},
+    *         {@link UserStartResult#STATUS_DISPLAY_INVALID},
+    *         {@link UserStartResult#STATUS_DISPLAY_UNAVAILABLE},
+    *         {@link UserStartResult#STATUS_USER_INVALID}, or
+    *         {@link UserStartResult#STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY}.
     */
     private final @Status int mStatus;
 
     @Override
     @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
-        return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_SUCCESSFUL_USER_IS_CURRENT_USER;
+        return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_SUCCESSFUL_USER_IS_CURRENT_USER
+                || mStatus == STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
     }
 
 
@@ -107,8 +180,14 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @android.annotation.IntDef(prefix = "STATUS_", value = {
         STATUS_SUCCESSFUL,
         STATUS_ANDROID_FAILURE,
+        STATUS_UNSUPPORTED_PLATFORM_FAILURE,
         STATUS_SUCCESSFUL_USER_IS_CURRENT_USER,
-        STATUS_USER_DOES_NOT_EXIST
+        STATUS_USER_DOES_NOT_EXIST,
+        STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY,
+        STATUS_DISPLAY_INVALID,
+        STATUS_DISPLAY_UNAVAILABLE,
+        STATUS_USER_INVALID,
+        STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY
     })
     @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
@@ -124,10 +203,22 @@ public final class UserStartResult implements Parcelable, OperationResult {
                     return "STATUS_SUCCESSFUL";
             case STATUS_ANDROID_FAILURE:
                     return "STATUS_ANDROID_FAILURE";
+            case STATUS_UNSUPPORTED_PLATFORM_FAILURE:
+                    return "STATUS_UNSUPPORTED_PLATFORM_FAILURE";
             case STATUS_SUCCESSFUL_USER_IS_CURRENT_USER:
                     return "STATUS_SUCCESSFUL_USER_IS_CURRENT_USER";
             case STATUS_USER_DOES_NOT_EXIST:
                     return "STATUS_USER_DOES_NOT_EXIST";
+            case STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY:
+                    return "STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY";
+            case STATUS_DISPLAY_INVALID:
+                    return "STATUS_DISPLAY_INVALID";
+            case STATUS_DISPLAY_UNAVAILABLE:
+                    return "STATUS_DISPLAY_UNAVAILABLE";
+            case STATUS_USER_INVALID:
+                    return "STATUS_USER_INVALID";
+            case STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY:
+                    return "STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY";
             default: return Integer.toHexString(value);
         }
     }
@@ -139,9 +230,15 @@ public final class UserStartResult implements Parcelable, OperationResult {
      *   Gets the user start result status.
      *
      *   @return either {@link UserStartRsult#STATUS_SUCCESSFUL},
-     *           {@link UserStartResult#STATUS_ANDROID_FAILURE},
      *           {@link UserStartResult#STATUS_SUCCESSFUL_USER_IS_CURRENT_USER},
-     *           {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST}, or
+     *           {@link UserStartResult#STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY},
+     *           {@link UserStartResult#STATUS_ANDROID_FAILURE},
+     *          {@link UserStartResult#STATUS_UNSUPPORTED_PLATFORM_FAILURE},
+     *           {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST},
+     *           {@link UserStartResult#STATUS_DISPLAY_INVALID},
+     *           {@link UserStartResult#STATUS_DISPLAY_UNAVAILABLE},
+     *           {@link UserStartResult#STATUS_USER_INVALID}, or
+     *           {@link UserStartResult#STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY}.
      * @hide
      */
     @DataClass.Generated.Member
@@ -151,14 +248,26 @@ public final class UserStartResult implements Parcelable, OperationResult {
 
         if (!(mStatus == STATUS_SUCCESSFUL)
                 && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_UNSUPPORTED_PLATFORM_FAILURE)
                 && !(mStatus == STATUS_SUCCESSFUL_USER_IS_CURRENT_USER)
-                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)) {
+                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
+                && !(mStatus == STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY)
+                && !(mStatus == STATUS_DISPLAY_INVALID)
+                && !(mStatus == STATUS_DISPLAY_UNAVAILABLE)
+                && !(mStatus == STATUS_USER_INVALID)
+                && !(mStatus == STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY)) {
             throw new java.lang.IllegalArgumentException(
                     "status was " + mStatus + " but must be one of: "
                             + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
                             + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_UNSUPPORTED_PLATFORM_FAILURE(" + STATUS_UNSUPPORTED_PLATFORM_FAILURE + "), "
                             + "STATUS_SUCCESSFUL_USER_IS_CURRENT_USER(" + STATUS_SUCCESSFUL_USER_IS_CURRENT_USER + "), "
-                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + ")");
+                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
+                            + "STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY(" + STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY + "), "
+                            + "STATUS_DISPLAY_INVALID(" + STATUS_DISPLAY_INVALID + "), "
+                            + "STATUS_DISPLAY_UNAVAILABLE(" + STATUS_DISPLAY_UNAVAILABLE + "), "
+                            + "STATUS_USER_INVALID(" + STATUS_USER_INVALID + "), "
+                            + "STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY(" + STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY + ")");
         }
 
 
@@ -169,9 +278,15 @@ public final class UserStartResult implements Parcelable, OperationResult {
      * Gets the user start result status.
      *
      * @return either {@link UserStartRsult#STATUS_SUCCESSFUL},
-     *         {@link UserStartResult#STATUS_ANDROID_FAILURE},
      *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_IS_CURRENT_USER},
-     *         {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST}, or
+     *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY},
+     *         {@link UserStartResult#STATUS_ANDROID_FAILURE},
+     *        {@link UserStartResult#STATUS_UNSUPPORTED_PLATFORM_FAILURE},
+     *         {@link UserStartResult#STATUS_USER_DOES_NOT_EXIST},
+     *         {@link UserStartResult#STATUS_DISPLAY_INVALID},
+     *         {@link UserStartResult#STATUS_DISPLAY_UNAVAILABLE},
+     *         {@link UserStartResult#STATUS_USER_INVALID}, or
+     *         {@link UserStartResult#STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY}.
      */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
@@ -221,14 +336,26 @@ public final class UserStartResult implements Parcelable, OperationResult {
 
         if (!(mStatus == STATUS_SUCCESSFUL)
                 && !(mStatus == STATUS_ANDROID_FAILURE)
+                && !(mStatus == STATUS_UNSUPPORTED_PLATFORM_FAILURE)
                 && !(mStatus == STATUS_SUCCESSFUL_USER_IS_CURRENT_USER)
-                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)) {
+                && !(mStatus == STATUS_USER_DOES_NOT_EXIST)
+                && !(mStatus == STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY)
+                && !(mStatus == STATUS_DISPLAY_INVALID)
+                && !(mStatus == STATUS_DISPLAY_UNAVAILABLE)
+                && !(mStatus == STATUS_USER_INVALID)
+                && !(mStatus == STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY)) {
             throw new java.lang.IllegalArgumentException(
                     "status was " + mStatus + " but must be one of: "
                             + "STATUS_SUCCESSFUL(" + STATUS_SUCCESSFUL + "), "
                             + "STATUS_ANDROID_FAILURE(" + STATUS_ANDROID_FAILURE + "), "
+                            + "STATUS_UNSUPPORTED_PLATFORM_FAILURE(" + STATUS_UNSUPPORTED_PLATFORM_FAILURE + "), "
                             + "STATUS_SUCCESSFUL_USER_IS_CURRENT_USER(" + STATUS_SUCCESSFUL_USER_IS_CURRENT_USER + "), "
-                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + ")");
+                            + "STATUS_USER_DOES_NOT_EXIST(" + STATUS_USER_DOES_NOT_EXIST + "), "
+                            + "STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY(" + STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY + "), "
+                            + "STATUS_DISPLAY_INVALID(" + STATUS_DISPLAY_INVALID + "), "
+                            + "STATUS_DISPLAY_UNAVAILABLE(" + STATUS_DISPLAY_UNAVAILABLE + "), "
+                            + "STATUS_USER_INVALID(" + STATUS_USER_INVALID + "), "
+                            + "STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY(" + STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY + ")");
         }
 
 
@@ -251,10 +378,10 @@ public final class UserStartResult implements Parcelable, OperationResult {
     };
 
     @DataClass.Generated(
-            time = 1673056382532L,
+            time = 1676054523422L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserStartResult.java",
-            inputSignatures = "public static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_SUCCESSFUL\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_ANDROID_FAILURE\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_USER_DOES_NOT_EXIST\nprivate final @android.car.user.UserStartResult.Status int mStatus\npublic @java.lang.Override @android.car.annotation.AddedInOrBefore boolean isSuccess()\nclass UserStartResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_SUCCESSFUL\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_ANDROID_FAILURE\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_UNSUPPORTED_PLATFORM_FAILURE\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.AddedInOrBefore int STATUS_USER_DOES_NOT_EXIST\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_DISPLAY_INVALID\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_DISPLAY_UNAVAILABLE\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_USER_INVALID\npublic static final @android.car.user.UserStartResult.Status @android.car.annotation.ApiRequirements int STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY\nprivate final @android.car.user.UserStartResult.Status int mStatus\npublic @java.lang.Override @android.car.annotation.AddedInOrBefore boolean isSuccess()\nclass UserStartResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 

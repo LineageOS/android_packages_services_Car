@@ -18,9 +18,11 @@ package android.car;
 
 import android.os.UserHandle;
 import android.car.user.UserCreationResult;
+import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
-import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserStartResult;
+import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 
 import android.car.ICarResultReceiver;
@@ -34,6 +36,8 @@ interface ICarUserService {
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
     void updatePreCreatedUsers();
+    UserStartResult startUserVisibleOnDisplay(int userId, int displayId);
+    UserStopResult stopUser(int userId, boolean forceStop);
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
     void setLifecycleListenerForApp(String pkgName, in UserLifecycleEventFilter filter,
       in ICarResultReceiver listener);

@@ -18,6 +18,8 @@ package android.car.test.mocks;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
+import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackgroundVisibleOnDisplay;
 import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUserHandle;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
@@ -53,6 +55,7 @@ import android.app.admin.DevicePolicyManager;
 import android.car.Car;
 import android.car.CarVersion;
 import android.car.PlatformVersion;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
@@ -77,6 +80,7 @@ import org.mockito.quality.Strictness;
 public final class AndroidMockitoHelperTest {
 
     private static final int TEST_USER_ID = 100;
+    private static final int TEST_DISPLAY_ID = 100;
 
     private final UserHandle mTestUserHandle = UserHandle.of(TEST_USER_ID);
 
@@ -96,6 +100,7 @@ public final class AndroidMockitoHelperTest {
                 .strictness(Strictness.LENIENT)
                 .spyStatic(UserManager.class)
                 .spyStatic(ActivityManager.class)
+                .spyStatic(ActivityManagerHelper.class)
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Binder.class)
                 .spyStatic(Car.class)
@@ -118,6 +123,38 @@ public final class AndroidMockitoHelperTest {
         mockAmGetCurrentUser(UserHandle.USER_NULL);
 
         assertThat(ActivityManager.getCurrentUser()).isEqualTo(UserHandle.USER_NULL);
+    }
+
+    @Test
+    public void testMockAmStartUserInBackground_true() throws Exception {
+        mockAmStartUserInBackground(TEST_USER_ID, true);
+
+        assertThat(ActivityManagerHelper.startUserInBackground(TEST_USER_ID)).isTrue();
+    }
+
+    @Test
+    public void testMockAmStartUserInBackground_false() throws Exception {
+        mockAmStartUserInBackground(TEST_USER_ID, false);
+
+        assertThat(ActivityManagerHelper.startUserInBackground(TEST_USER_ID)).isFalse();
+    }
+
+    @Test
+    public void testMockAmStartUserInBackgroundVisibleOnDisplay_true() throws Exception {
+        mockAmStartUserInBackgroundVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID, true);
+
+        assertThat(ActivityManagerHelper
+                .startUserInBackgroundVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID))
+                .isTrue();
+    }
+
+    @Test
+    public void testMockAmStartUserInBackgroundVisibleOnDisplay_false() throws Exception {
+        mockAmStartUserInBackgroundVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID, false);
+
+        assertThat(ActivityManagerHelper
+                .startUserInBackgroundVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID))
+                .isFalse();
     }
 
     @Test
