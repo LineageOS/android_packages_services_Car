@@ -39,11 +39,14 @@ import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.truth.Expect;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -76,7 +79,11 @@ public class CarAudioZoneTest extends AbstractExpectableTestCase {
             CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_SONIFICATION);
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
+
+    @Rule
+    public final Expect expect = Expect.create();
 
     @Mock
     private CarVolumeGroup mMockMusicGroup;
@@ -107,6 +114,209 @@ public class CarAudioZoneTest extends AbstractExpectableTestCase {
 
         mMockVoiceGroup = new VolumeGroupBuilder()
                 .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, VOICE_ADDRESS).build();
+    }
+
+    @Test
+    public void forbidUseDynamicRouting_addressSharedAmongGroup() {
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+
+        mTestAudioZone.validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ true);
+
+        verify(musicCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
+    }
+
+    @Test
+    public void validateZoneWhenUsageSharedAmongContext_usingCoreRouting_forbidUseDynamicRouting() {
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
+
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, NAV_ADDRESS)
+                .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+
+        expect.withMessage("Zone valides when using core routing and usage is shared amont context")
+                .that(mTestAudioZone.validateCanUseDynamicMixRouting(
+                        /* useCoreAudioRouting= */ true))
+                .isTrue();
+        verify(musicCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
+        verify(navCarAudioDeviceInfo).resetCanBeRoutedWithDynamicPolicyMix();
+    }
+
+    @Test
+    public void validateZoneWhenUsageSharedAmongContext_notUsingCoreRouting_fails() {
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
+
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS)
+                .addDeviceAddressAndUsages(USAGE_MEDIA, NAV_ADDRESS)
+                .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+
+        expect.withMessage("Zone does not validate when not using core routing and usage is shared "
+                        + "among contexts")
+                .that(mTestAudioZone.validateCanUseDynamicMixRouting(
+                        /* useCoreAudioRouting= */ false))
+                .isFalse();
+        verify(musicCarAudioDeviceInfo, never()).resetCanBeRoutedWithDynamicPolicyMix();
+        verify(navCarAudioDeviceInfo, never()).resetCanBeRoutedWithDynamicPolicyMix();
+    }
+
+    @Test
+    public void validateVolumeGroup_success() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
+                .build();
+        CarVolumeGroup mockAllOtherContextsGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(CarAudioContext.VOICE_COMMAND, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.CALL_RING, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.CALL, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.ALARM, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.NOTIFICATION, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.SYSTEM_SOUND, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.EMERGENCY, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.SAFETY, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.VEHICLE_STATUS, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.ANNOUNCEMENT, VOICE_ADDRESS)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+        mTestAudioZone.addVolumeGroup(mockAllOtherContextsGroup);
+
+        expect.withMessage("Volume group validates when using core audio routing")
+                .that(mTestAudioZone.validateVolumeGroups(/* useCoreAudioRouting= */ true))
+                .isTrue();
+        expect.withMessage("Volume group validates when not using core audio routing")
+                .that(mTestAudioZone.validateVolumeGroups(/* useCoreAudioRouting= */ false))
+                .isTrue();
+    }
+
+    @Test
+    public void validateVolumeGroup_addressSharedAmongGroup() {
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, MUSIC_ADDRESS)
+                .build();
+        CarVolumeGroup mockAllOtherContextsGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(CarAudioContext.VOICE_COMMAND, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.CALL_RING, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.CALL, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.ALARM, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.NOTIFICATION, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.SYSTEM_SOUND, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.EMERGENCY, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.SAFETY, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.VEHICLE_STATUS, VOICE_ADDRESS)
+                .addDeviceAddressAndContexts(CarAudioContext.ANNOUNCEMENT, VOICE_ADDRESS)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+        mTestAudioZone.addVolumeGroup(mockAllOtherContextsGroup);
+
+        expect.withMessage("Volume group validates when using core audio routing")
+                .that(mTestAudioZone.validateVolumeGroups(/* useCoreAudioRouting= */ true))
+                .isTrue();
+        expect.withMessage("Volume group does not validate when not using core audio routing")
+                .that(mTestAudioZone.validateVolumeGroups(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void getAudioDeviceInfos() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        AudioDeviceInfo navAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
+        when(musicCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(musicAudioDeviceInfo);
+        when(navCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(navAudioDeviceInfo);
+        when(navCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(false);
+        when(musicCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(true);
+
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS)
+                .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+
+        expect.withMessage("Zone's groups devices")
+                .that(mTestAudioZone.getAudioDeviceInfos())
+                .containsExactlyElementsIn(List.of(musicAudioDeviceInfo, navAudioDeviceInfo));
+    }
+
+    @Test
+    public void getFilteredAudioDeviceSupportingDynamicMix() {
+        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
+        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
+        when(musicCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(musicAudioDeviceInfo);
+        when(navCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(false);
+        when(musicCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(true);
+
+        CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .addCarAudioDeviceInfoMock(musicCarAudioDeviceInfo)
+                .build();
+        CarVolumeGroup mockNavGroupRoutingOnMusic = new VolumeGroupBuilder()
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, NAV_ADDRESS)
+                .addCarAudioDeviceInfoMock(navCarAudioDeviceInfo)
+                .build();
+
+        mTestAudioZone.addVolumeGroup(mockMusicGroup);
+        mTestAudioZone.addVolumeGroup(mockNavGroupRoutingOnMusic);
+
+        expect.withMessage("Filtered out non dynamic mix ready devices")
+                .that(mTestAudioZone.getAudioDeviceInfosSupportingDynamicMix())
+                .containsExactly(musicAudioDeviceInfo);
     }
 
     @Test
@@ -430,9 +640,24 @@ public class CarAudioZoneTest extends AbstractExpectableTestCase {
 
     private static class VolumeGroupBuilder {
         private SparseArray<String> mDeviceAddresses = new SparseArray<>();
+        private CarAudioDeviceInfo mCarAudioDeviceInfoMock;
+        private ArrayMap<String, List<Integer>> mUsagesDeviceAddresses = new ArrayMap<>();
 
         VolumeGroupBuilder addDeviceAddressAndContexts(@AudioContext int context, String address) {
             mDeviceAddresses.put(context, address);
+            return this;
+        }
+
+        VolumeGroupBuilder addDeviceAddressAndUsages(int usage, String address) {
+            if (!mUsagesDeviceAddresses.containsKey(address)) {
+                mUsagesDeviceAddresses.put(address, new ArrayList<>());
+            }
+            mUsagesDeviceAddresses.get(address).add(usage);
+            return this;
+        }
+
+        VolumeGroupBuilder addCarAudioDeviceInfoMock(CarAudioDeviceInfo infoMock) {
+            mCarAudioDeviceInfoMock = infoMock;
             return this;
         }
 
@@ -452,6 +677,13 @@ public class CarAudioZoneTest extends AbstractExpectableTestCase {
                 contexts[index] = context;
             }
 
+            for (int index = 0; index < mUsagesDeviceAddresses.size(); index++) {
+                String address = mUsagesDeviceAddresses.keyAt(index);
+                List<Integer> usagesForAddress = mUsagesDeviceAddresses.get(address);
+                when(carVolumeGroup.getAllSupportedUsagesForAddress(eq(address)))
+                        .thenReturn(usagesForAddress);
+            }
+
             when(carVolumeGroup.getContexts()).thenReturn(contexts);
 
             for (String address : addressToContexts.keySet()) {
@@ -460,6 +692,10 @@ public class CarAudioZoneTest extends AbstractExpectableTestCase {
             }
             when(carVolumeGroup.getAddresses())
                     .thenReturn(ImmutableList.copyOf(addressToContexts.keySet()));
+
+            when(carVolumeGroup.getCarAudioDeviceInfoForAddress(any()))
+                    .thenReturn(mCarAudioDeviceInfoMock);
+
             return carVolumeGroup;
         }
 

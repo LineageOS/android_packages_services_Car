@@ -70,6 +70,8 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.R.bool.audioPersistMasterMuteState;
 import static com.android.car.R.bool.audioUseCarVolumeGroupMuting;
+import static com.android.car.R.bool.audioUseCoreRouting;
+import static com.android.car.R.bool.audioUseCoreVolume;
 import static com.android.car.R.bool.audioUseDynamicRouting;
 import static com.android.car.R.bool.audioUseHalDuckingSignals;
 import static com.android.car.R.integer.audioVolumeAdjustmentContextsVersion;
@@ -179,6 +181,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE = 1;
     private static final int AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO = 2;
     private static final String MEDIA_TEST_DEVICE = "media_bus_device";
+    private static final String OEM_TEST_DEVICE = "oem_bus_device";
     private static final String NAVIGATION_TEST_DEVICE = "navigation_bus_device";
     private static final String CALL_TEST_DEVICE = "call_bus_device";
     private static final String NOTIFICATION_TEST_DEVICE = "notification_bus_device";
@@ -315,6 +318,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private boolean mUseHalAudioDucking = true;
     private boolean mUseCarVolumeGroupMuting = true;
 
+    private TemporaryFile mTemporaryAudioConfigurationUsingCoreAudioFile;
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
     private Context mContext;
@@ -332,6 +336,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
+                .spyStatic(AudioManager.class)
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapperAidl.class)
                 .spyStatic(AudioControlFactory.class)
@@ -360,6 +365,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                     + mTemporaryAudioConfigurationWithoutZoneMappingFile.getPath());
         }
 
+        try (InputStream configurationStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_audio_routing_and_volume)) {
+            mTemporaryAudioConfigurationUsingCoreAudioFile = new TemporaryFile("xml");
+            mTemporaryAudioConfigurationUsingCoreAudioFile
+                    .write(new String(configurationStream.readAllBytes()));
+            Log.i(TAG, "Temporary Car Audio Configuration using Core Audio File Location: "
+                    + mTemporaryAudioConfigurationUsingCoreAudioFile.getPath());
+        }
+
+        mockCoreAudioRoutingAndVolume();
         mockGrantCarControlAudioSettingsPermission();
 
         setupAudioControlHAL();
@@ -396,6 +411,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void setupService() throws Exception {
         when(mMockContext.getSystemService(Context.TELEPHONY_SERVICE))
                 .thenReturn(mMockTelephonyManager);
+        when(mMockContext.getSystemService(Context.AUDIO_SERVICE))
+                .thenReturn(mAudioManager);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
         doReturn(true)
                 .when(() -> AudioManagerHelper
@@ -2950,6 +2967,25 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .isEqualTo(TelephonyManager.CALL_STATE_IDLE);
     }
 
+    @Test
+    public void getVolumeGroupAndContextCount() {
+        CarAudioService useCoreAudioCarAudioService =
+                getCarAudioServiceUsingCoreAudioRoutingAndVolume();
+
+        verify(mAudioManager).registerVolumeGroupCallback(any(), any());
+        expectWithMessage("Primary zone car volume group count")
+                .that(useCoreAudioCarAudioService.getVolumeGroupCount(PRIMARY_AUDIO_ZONE))
+                .isEqualTo(CoreAudioRoutingUtils.getVolumeGroups().size());
+        expectWithMessage("Number of contexts")
+                .that(useCoreAudioCarAudioService.getCarAudioContext().getAllContextsIds().size())
+                .isEqualTo(CoreAudioRoutingUtils.getProductStrategies().size());
+        expectWithMessage("Car Audio Contexts")
+                .that(useCoreAudioCarAudioService.getCarAudioContext().getAllContextsIds())
+                .containsExactly(CoreAudioRoutingUtils.NAV_STRATEGY_ID,
+                        CoreAudioRoutingUtils.MUSIC_STRATEGY_ID,
+                        CoreAudioRoutingUtils.OEM_STRATEGY_ID);
+    }
+
     private CarAudioGainConfigInfo createCarAudioGainConfigInfo(int zoneId,
             String devicePortAddress, int volumeIndex) {
         AudioGainConfigInfo configInfo = new AudioGainConfigInfo();
@@ -3003,6 +3039,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(config.isActive()).thenReturn(true);
 
         return config;
+    }
+
+    private CarAudioService getCarAudioServiceUsingCoreAudioRoutingAndVolume() {
+        when(mMockResources.getBoolean(audioUseCoreVolume))
+                .thenReturn(/* audioUseCoreVolume= */ true);
+        when(mMockResources.getBoolean(audioUseCoreRouting))
+                .thenReturn(/* audioUseCoreRouting= */ true);
+        CarAudioService useCoreAudioCarAudioService =
+                new CarAudioService(mMockContext,
+                        mTemporaryAudioConfigurationUsingCoreAudioFile.getFile().getAbsolutePath(),
+                        mCarVolumeCallbackHandler);
+        useCoreAudioCarAudioService.init();
+        return useCoreAudioCarAudioService;
     }
 
     private void mockGrantCarControlAudioSettingsPermission() {
@@ -3073,7 +3122,51 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
                         .setAddressName(SECONDARY_TEST_DEVICE)
                         .build(),
+                new AudioDeviceInfoBuilder()
+                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                        .setAddressName(OEM_TEST_DEVICE)
+                        .build(),
         };
+    }
+
+    private void mockCoreAudioRoutingAndVolume() {
+        doReturn(CoreAudioRoutingUtils.getProductStrategies())
+                .when(() -> AudioManager.getAudioProductStrategies());
+        doReturn(CoreAudioRoutingUtils.getVolumeGroups())
+                .when(() -> AudioManager.getAudioVolumeGroups());
+
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID);
+        when(mAudioManager.getMinVolumeIndexForAttributes(
+                eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
+        when(mAudioManager.getMaxVolumeIndexForAttributes(
+                eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_MAX_INDEX);
+        when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
+        when(mAudioManager.getLastAudibleVolumeGroupVolume(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(false);
+
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.NAV_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.NAV_GROUP_ID);
+        when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.NAV_MIN_INDEX);
+        when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.NAV_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.NAV_MAX_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.NAV_GROUP_ID))
+                .thenReturn(false);
+
+        when(mAudioManager.getVolumeGroupIdForAttributes(CoreAudioRoutingUtils.OEM_ATTRIBUTES))
+                .thenReturn(CoreAudioRoutingUtils.OEM_GROUP_ID);
+        when(mAudioManager.getMinVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.OEM_MIN_INDEX);
+        when(mAudioManager.getMaxVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.OEM_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.OEM_MAX_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.OEM_GROUP_ID))
+                .thenReturn(false);
     }
 
     private static AudioFocusInfo createAudioFocusInfoForMedia() {

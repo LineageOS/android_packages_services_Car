@@ -26,6 +26,16 @@
           during initial development where audio hal does not support bus based addressing yet. -->
     <bool name="audioUseDynamicRouting">false</bool>
 
+    <!--  Configuration to enable usage of core audio volume API, aka using AudioManager's
+          AudioAttributes based volume API.
+          Volume application is delegated to AudioPolicyManager. -->
+    <bool name="audioUseCoreVolume">false</bool>
+
+    <!--  Configuration to enable usage of core audio routing API.
+          It may also be enabled with Dynamic Routing enabled, thus, overriding policy routing rules
+          when Dynamic rules can be effectively established. -->
+    <bool name="audioUseCoreRouting">false</bool>
+
     <!--  Configuration to enable muting of individual volume groups. If this is set to
           false, muting of individual volume groups is disabled, instead muting will toggle master
           mute. If this is set to true, car volume group muting is enabled and each individual

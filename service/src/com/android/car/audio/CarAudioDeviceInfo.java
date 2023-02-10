@@ -30,6 +30,8 @@ import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port
  * in terms of millibels.
@@ -49,6 +51,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
     private final int mMinGain;
     private final int mStepValue;
     private final AudioManager mAudioManager;
+    private final AtomicBoolean mCanBeRoutedWithDynamicPolicyMixRule = new AtomicBoolean(true);
 
     /**
      * We need to store the current gain because it is not accessible from the current
@@ -74,6 +77,19 @@ import com.android.car.internal.util.IndentingPrintWriter;
 
     AudioDeviceInfo getAudioDeviceInfo() {
         return mAudioDeviceInfo;
+    }
+
+    /**
+     * By default, considers all AudioDevice can be used to establish dynamic policy mixing rules.
+     * until validation state is performed.
+     * Once called, the device is marked definitively as "connot be routed with dynamic mixes".
+     */
+    void resetCanBeRoutedWithDynamicPolicyMix() {
+        mCanBeRoutedWithDynamicPolicyMixRule.set(false);
+    }
+
+    boolean canBeRoutedWithDynamicPolicyMix() {
+        return mCanBeRoutedWithDynamicPolicyMixRule.get();
     }
 
     String getAddress() {
@@ -175,6 +191,8 @@ import com.android.car.internal.util.IndentingPrintWriter;
     void dump(IndentingPrintWriter writer) {
         writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceInfo.getAddress());
         writer.increaseIndent();
+        writer.printf("Routing with Dynamic Mix enabled (%b)\n",
+                canBeRoutedWithDynamicPolicyMix());
         writer.printf("sample rate / encoding format / channel count: %d %d %d\n",
                 getSampleRate(), getEncodingFormat(), getChannelCount());
         writer.printf("Gain values (min / max / default/ current): %d %d %d %d\n",

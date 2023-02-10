@@ -29,7 +29,8 @@ public final class TestCarAudioZoneBuilder {
     private final List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();
     private final String mAudioZoneName;
     private CarAudioContext mCarAudioContext =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     public TestCarAudioZoneBuilder(String audioZoneName, int audioZoneId) {

@@ -29,6 +29,8 @@
         <policy type="product|system|vendor|odm|oem">
           <!-- Params from config.xml that can be overlaid -->
           <item type="bool" name="audioUseDynamicRouting"/>
+          <item type="bool" name="audioUseCoreVolume"/>
+          <item type="bool" name="audioUseCoreRouting"/>
           <item type="bool" name="audioUseCarVolumeGroupMuting"/>
           <item type="bool" name="audioUseHalDuckingSignals"/>
           <item type="integer" name="audioVolumeAdjustmentContextsVersion"/>
