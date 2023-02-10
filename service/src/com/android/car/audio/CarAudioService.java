@@ -58,11 +58,13 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
+import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -1722,6 +1724,24 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         requireDynamicRouting();
 
         return getCarAudioZone(zoneId).getInputAudioDevices();
+    }
+
+    @Override
+    public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
+        // TODO(b/268383539): implement getting current zone config info in car audio service.
+        return null;
+    }
+
+    @Override
+    public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
+        // TODO(b/268383539): implement getting all zone config infos in car audio service.
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void switchZoneToConfig(CarAudioZoneConfigInfo zoneConfig,
+            ISwitchAudioZoneConfigCallback callback) {
+        // TODO(b/268383539): implement switching zone config infos in car audio service.
     }
 
     void setAudioEnabled(boolean isAudioEnabled) {

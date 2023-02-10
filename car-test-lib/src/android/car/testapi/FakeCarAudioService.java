@@ -20,10 +20,12 @@ import static android.service.autofill.FillRequest.INVALID_REQUEST_ID;
 
 import android.car.CarOccupantZoneManager;
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.media.ICarAudio;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
+import android.car.media.ISwitchAudioZoneConfigCallback;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.os.IBinder;
@@ -194,6 +196,21 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     @Override
     public boolean isPlaybackOnVolumeGroupActive(int volumeGroupId, int audioZoneId) {
         return false;
+    }
+
+    @Override
+    public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int audioZoneId) {
+        return null;
+    }
+
+    @Override
+    public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int audioZoneId) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void switchZoneToConfig(CarAudioZoneConfigInfo zoneConfig,
+            ISwitchAudioZoneConfigCallback callback) {
     }
 
     @Override
