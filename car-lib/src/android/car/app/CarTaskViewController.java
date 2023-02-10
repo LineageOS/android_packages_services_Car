@@ -17,7 +17,9 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.app.Activity;
+import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
@@ -31,11 +33,9 @@ import java.util.concurrent.Executor;
 
 /**
  * This class is used for creating task views & is created on a per activity basis.
- *
  * @hide
  */
-// STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-// @SystemApi
+@SystemApi
 public final class CarTaskViewController {
     private static final String TAG = CarTaskViewController.class.getSimpleName();
     static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
@@ -64,6 +64,8 @@ public final class CarTaskViewController {
      *                                             {@link ControlledRemoteCarTaskView} related
      *                                             events.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void createControlledRemoteCarTaskView(
             @NonNull Intent activityIntent,
             boolean autoRestartOnCrash,
@@ -91,6 +93,8 @@ public final class CarTaskViewController {
     /**
      * Releases all the resources held by the taskviews associated with this controller.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void release() {
         for (RemoteCarTaskView carTaskView : mControlledRemoteCarTaskViews) {
             carTaskView.release();
@@ -101,6 +105,8 @@ public final class CarTaskViewController {
     /**
      * Brings all the embedded tasks to the front.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void showEmbeddedTasks() {
         for (RemoteCarTaskView carTaskView : mControlledRemoteCarTaskViews) {
             // TODO(b/267314188): Add a new method in ICarSystemUI to call

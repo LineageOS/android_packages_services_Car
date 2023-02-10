@@ -370,10 +370,11 @@ public final class CarActivityManager extends CarManagerBase {
      * <p>This is meant to be called only by the SystemUI.
      *
      * @param carSystemUIProxy the implementation of the {@link CarSystemUIProxy}.
+     * @throws UnsupportedOperationException when called more than once for the same SystemUi
+     *         process.
      * @hide
      */
-    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -394,8 +395,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @param hostActivity the activity that will host the taskviews.
      * @hide
      */
-    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)

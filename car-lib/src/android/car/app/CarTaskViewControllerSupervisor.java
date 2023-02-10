@@ -36,7 +36,6 @@ import java.util.concurrent.Executor;
  * lifecycle.
  * - It is also responsible to dispatch {@link CarTaskViewControllerCallback} methods to the
  * clients.
- * @hide
  */
 final class CarTaskViewControllerSupervisor implements Application.ActivityLifecycleCallbacks{
     private static final String TAG = CarTaskViewControllerSupervisor.class.getSimpleName();

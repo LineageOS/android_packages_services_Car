@@ -16,12 +16,12 @@
 
 package android.car.app;
 
+import android.annotation.NonNull;
 import android.app.ActivityManager;
 
 /**
  * A callback interface for the host activity that uses {@link RemoteCarTaskView} and its
  * derivatives.
- * @hide
  */
 interface RemoteCarTaskViewCallback<T extends RemoteCarTaskView> {
     /**
@@ -29,7 +29,7 @@ interface RemoteCarTaskViewCallback<T extends RemoteCarTaskView> {
      *
      * @param taskView the new newly created {@link RemoteCarTaskView} instance.
      */
-    default void onTaskViewCreated(T taskView) {}
+    default void onTaskViewCreated(@NonNull T taskView) {}
 
     /**
      * Called when the underlying {@link RemoteCarTaskView} is ready. A {@link RemoteCarTaskView}
@@ -49,19 +49,19 @@ interface RemoteCarTaskViewCallback<T extends RemoteCarTaskView> {
      *
      * @param taskInfo the taskInfo of the task that has appeared.
      */
-    default void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {}
+    default void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
     /**
      * Called when the task's info has changed.
      *
      * @param taskInfo the taskInfo of the task that has a change in info.
      */
-    default void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {}
+    default void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
     /**
      * Called when the task has vanished.
      *
      * @param taskInfo the taskInfo of the task that has vanished.
      */
-    default void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {}
+    default void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 }

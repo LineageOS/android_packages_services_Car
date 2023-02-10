@@ -24,8 +24,6 @@ import android.view.SurfaceControl;
 
 /**
  * An adapter that adapts {@link ICarTaskViewHost} to {@link CarTaskViewHost}.
- *
- * @hide
  */
 final class CarTaskViewHostAidlToImplAdapter extends ICarTaskViewHost.Stub {
     private final CarTaskViewHost mCarTaskViewHost;

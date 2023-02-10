@@ -22,8 +22,6 @@ import android.os.RemoteException;
 /**
  * This class wraps the client's {@link CarSystemUIProxy} implementation & facilitates the
  * communication with {@link ICarSystemUIProxy}.
- *
- * @hide
  */
 final class CarSystemUIProxyAidlWrapper extends ICarSystemUIProxy.Stub {
     private final CarSystemUIProxy mCarSystemUIProxy;

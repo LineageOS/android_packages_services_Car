@@ -16,10 +16,13 @@
 
 package android.car.app;
 
+import android.annotation.MainThread;
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
+import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
 import android.content.Context;
@@ -44,8 +47,7 @@ import java.util.concurrent.Executor;
  * </ul>
  * @hide
  */
-// STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-// @SystemApi
+@SystemApi
 public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
 
@@ -82,6 +84,9 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
      * {@link CarTaskViewController#createControlledRemoteCarTaskView(Executor, Intent, boolean,
      * ControlledRemoteCarTaskViewCallback)}.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
     public void startActivity() {
         if (!mUserManager.isUserUnlocked()) {
             if (CarTaskViewController.DBG) {
@@ -143,7 +148,10 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
     }
 
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
+    @MainThread
     public void showEmbeddedTask() {
         super.showEmbeddedTask();
         if (getTaskInfo() == null) {

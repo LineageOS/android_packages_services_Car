@@ -16,7 +16,10 @@
 
 package android.car.app;
 
+import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.app.ActivityManager;
+import android.car.annotation.ApiRequirements;
 import android.graphics.Rect;
 import android.os.RemoteException;
 import android.view.SurfaceControl;
@@ -24,10 +27,10 @@ import android.view.SurfaceControl;
 /**
  * Represents the client part of the task view as seen by the server. This wraps the AIDL based
  * communication with the client apps.
+ *
  * @hide
  */
-// STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-// @SystemApi
+@SystemApi
 public final class CarTaskViewClient {
     private final ICarTaskViewClient mICarTaskViewClient;
 
@@ -35,7 +38,10 @@ public final class CarTaskViewClient {
         mICarTaskViewClient = iCarCarTaskViewClient;
     }
 
-    /** Returns the current bounds on screen for the task view's view part. */
+    /** Returns the current bounds (in pixels) on screen for the task view's view part. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
     public Rect getCurrentBoundsOnScreen() {
         try {
             return mICarTaskViewClient.getCurrentBoundsOnScreen();
@@ -51,7 +57,10 @@ public final class CarTaskViewClient {
      * <p>See {@link android.view.SurfaceView#setResizeBackgroundColor(SurfaceControl.Transaction,
      * int)}
      */
-    public void setResizeBackgroundColor(SurfaceControl.Transaction transaction, int color) {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void setResizeBackgroundColor(@NonNull SurfaceControl.Transaction transaction,
+            int color) {
         try {
             mICarTaskViewClient.setResizeBackgroundColor(transaction, color);
         } catch (RemoteException ex) {
@@ -60,7 +69,10 @@ public final class CarTaskViewClient {
     }
 
     /** Called when a task has appeared on the TaskView. */
-    public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo, SurfaceControl leash) {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo,
+            @NonNull SurfaceControl leash) {
         try {
             mICarTaskViewClient.onTaskAppeared(taskInfo, leash);
         } catch (RemoteException ex) {
@@ -69,7 +81,9 @@ public final class CarTaskViewClient {
     }
 
     /** Called when a task has vanished from the TaskView. */
-    public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
         try {
             mICarTaskViewClient.onTaskVanished(taskInfo);
         } catch (RemoteException ex) {
@@ -78,7 +92,9 @@ public final class CarTaskViewClient {
     }
 
     /** Called when the task in the TaskView is changed. */
-    public void onTaskInfoChanged(ActivityManager.RunningTaskInfo taskInfo) {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
         try {
             mICarTaskViewClient.onTaskInfoChanged(taskInfo);
         } catch (RemoteException ex) {

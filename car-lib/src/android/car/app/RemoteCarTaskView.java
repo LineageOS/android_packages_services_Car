@@ -22,6 +22,7 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
+import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.SurfaceControlHelper;
 import android.car.builtin.view.TouchableInsetsProvider;
@@ -40,12 +41,8 @@ import android.view.SurfaceView;
  * A {@link SurfaceView} that can embed a Task inside of it. The task management is done remotely
  * in a process that has registered a TaskOrganizer with the system server.
  * Usually this process is the Car System UI.
- *
- * @hide
  */
-// STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-// @SystemApi
-public abstract class RemoteCarTaskView extends SurfaceView {
+abstract class RemoteCarTaskView extends SurfaceView {
     private static final String TAG = RemoteCarTaskView.class.getSimpleName();
 
     private final TouchableInsetsProvider mTouchableInsetsProvider;
@@ -106,6 +103,8 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     }
 
     /** Brings the embedded task to the front. Does nothing if there is no task. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void showEmbeddedTask() {
         try {
@@ -119,6 +118,8 @@ public abstract class RemoteCarTaskView extends SurfaceView {
      * Updates the WM bounds for the underlying task as per the current view bounds. Does nothing
      * if there is no task.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void updateWindowBounds() {
         ViewHelper.getBoundsOnScreen(RemoteCarTaskView.this, mTmpRect);
@@ -134,6 +135,8 @@ public abstract class RemoteCarTaskView extends SurfaceView {
      *
      * @param obscuredRect the obscured region of the view.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void setObscuredTouchRect(@NonNull Rect obscuredRect) {
         mObscuredTouchRegion = obscuredRect != null ? new Region(obscuredRect) : null;
@@ -145,6 +148,8 @@ public abstract class RemoteCarTaskView extends SurfaceView {
      *
      * @param obscuredRegion the obscured region of the view.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
     public void setObscuredTouchRegion(@NonNull Region obscuredRegion) {
         mObscuredTouchRegion = obscuredRegion;
@@ -155,14 +160,19 @@ public abstract class RemoteCarTaskView extends SurfaceView {
      * @return the {@link android.app.ActivityManager.RunningTaskInfo} of the task currently
      * running in the TaskView.
      */
-    @Nullable
-    public ActivityManager.RunningTaskInfo getTaskInfo() {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    @Nullable public ActivityManager.RunningTaskInfo getTaskInfo() {
         return mTaskInfo;
     }
 
     /**
      * @return true, if the task view is initialized.
      */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
     public boolean isInitialized() {
         return mInitialized;
     }
@@ -250,13 +260,17 @@ public abstract class RemoteCarTaskView extends SurfaceView {
     }
 
     @Override
-    protected void onAttachedToWindow() {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onAttachedToWindow() {
         super.onAttachedToWindow();
         mTouchableInsetsProvider.addToViewTreeObserver();
     }
 
     @Override
-    protected void onDetachedFromWindow() {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mTouchableInsetsProvider.removeFromViewTreeObserver();
     }
