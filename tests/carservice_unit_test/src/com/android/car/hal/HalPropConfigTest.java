@@ -33,6 +33,7 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public final class HalPropConfigTest {
 
@@ -60,6 +61,16 @@ public final class HalPropConfigTest {
     private static final float MIN_FLOAT_VALUE = 31.0f;
     private static final float MAX_FLOAT_VALUE = 40.0f;
     private static final long[] SUPPORTED_ENUM_VALUES = new long[]{99, 100};
+    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
+            Set.of(
+                    VehicleProperty.GEAR_SELECTION,
+                    VehicleProperty.CURRENT_GEAR,
+                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
+                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
+                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
+                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
+                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
+                    VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
 
     private static android.hardware.automotive.vehicle.V2_0.VehiclePropConfig
             getTestHidlPropConfig() {
@@ -387,5 +398,18 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).isEmpty();
+    }
+
+    @Test
+    public void toCarPropertyConfig_configArrayMatchesSupportedEnumValues() {
+        VehiclePropConfig aidlVehiclePropConfig = getTestAidlPropConfig();
+        aidlVehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{getTestAidlAreaConfig()};
+        for (Integer propId: CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES) {
+            aidlVehiclePropConfig.prop = propId;
+            HalPropConfig halPropConfig = new AidlHalPropConfig(aidlVehiclePropConfig);
+            assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
+                        TEST_AREA_ID).getSupportedEnumValues())
+                        .containsExactlyElementsIn(TEST_CONFIG_ARRAY_LIST);
+        }
     }
 }
