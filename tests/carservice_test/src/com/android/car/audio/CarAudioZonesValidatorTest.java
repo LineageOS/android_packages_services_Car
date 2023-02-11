@@ -48,7 +48,8 @@ public class CarAudioZonesValidatorTest {
     @Test
     public void validate_thereIsAtLeastOneZone() {
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> CarAudioZonesValidator.validate(new SparseArray<CarAudioZone>()));
+                () -> CarAudioZonesValidator.validate(new SparseArray<CarAudioZone>(),
+                        /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat().contains("At least one zone should be defined");
 
@@ -61,7 +62,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(zone.getId(), zone);
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> CarAudioZonesValidator.validate(zones));
+                () -> CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone Input Devices");
     }
@@ -73,7 +74,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(zone.getId(), zone);
 
         NullPointerException exception = assertThrows(NullPointerException.class,
-                () -> CarAudioZonesValidator.validate(zones));
+                () -> CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone Input Devices");
     }
@@ -87,7 +88,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(zone.getId(), zone);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> CarAudioZonesValidator.validate(zones));
+                () -> CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone must have");
     }
@@ -102,7 +103,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(zoneOne.getId(), zoneOne);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> CarAudioZonesValidator.validate(zones));
+                () -> CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat()
                 .contains("Invalid volume groups configuration for zone " + 1);
@@ -128,7 +129,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(secondaryZone.getId(), secondaryZone);
 
         RuntimeException exception = assertThrows(RuntimeException.class,
-                () -> CarAudioZonesValidator.validate(zones));
+                () -> CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false));
 
         assertThat(exception).hasMessageThat().contains(
                 "Device with address three appears in multiple volume groups or audio zones");
@@ -138,7 +139,7 @@ public class CarAudioZonesValidatorTest {
     public void validate_passesWithoutExceptionForValidZoneConfiguration() {
         SparseArray<CarAudioZone> zones = generateAudioZonesWithPrimary();
 
-        CarAudioZonesValidator.validate(zones);
+        CarAudioZonesValidator.validate(zones, /* useCoreAudioRouting= */ false);
     }
 
     private SparseArray<CarAudioZone> generateAudioZonesWithPrimary() {
@@ -168,7 +169,11 @@ public class CarAudioZonesValidatorTest {
         CarAudioZone build() {
             CarAudioZone zoneMock = Mockito.mock(CarAudioZone.class);
             when(zoneMock.getId()).thenReturn(mZoneId);
-            when(zoneMock.validateVolumeGroups()).thenReturn(mHasValidVolumeGroups);
+            when(zoneMock.validateVolumeGroups(/* useCoreAudioRouting= */ false))
+                    .thenReturn(mHasValidVolumeGroups);
+            when(zoneMock
+                    .validateCanUseDynamicMixRouting(/* useCoreAudioRouting= */ false))
+                    .thenReturn(mHasValidVolumeGroups);
             when(zoneMock.getVolumeGroups()).thenReturn(mVolumeGroups);
             when(zoneMock.getInputAudioDevices()).thenReturn(mInputDevices);
             return zoneMock;

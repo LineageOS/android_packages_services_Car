@@ -25,7 +25,7 @@ import static com.android.car.audio.CarAudioContext.CALL;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.media.CarVolumeGroupInfo;
@@ -35,8 +35,12 @@ import android.telephony.TelephonyManager;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 
 import java.util.List;
 
@@ -45,6 +49,7 @@ public final class CarVolumeInfoWrapperTest {
 
     private static final int TEST_GROUP_ID = 0;
     private static final int TEST_SECONDARY_GROUP = 1;
+    private static final String TEST_GROUP_NAME = "TEST_GROUP_NAME";
     private static final int TEST_GROUP_VOLUME = 5;
     private static final int TEST_MIN_GROUP_VOLUME = 0;
     private static final int TEST_MAX_GROUP_VOLUME = 9000;
@@ -63,36 +68,41 @@ public final class CarVolumeInfoWrapperTest {
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes TEST_ALARM_AUDIO_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_ALARM).build();
+    private static final int TEST_EXPECTED_FLAGS = 789;
 
     private CarVolumeInfoWrapper mCarVolumeInfoWrapper;
 
+    @Rule
+    public MockitoRule rule = MockitoJUnit.rule();
+    @Mock
+    CarAudioService mMockCarAudioService;
+
     @Before
     public void setUp() {
-        CarAudioService carAudioService = mock(CarAudioService.class);
-
-        when(carAudioService.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE)).thenReturn(CALL);
-        when(carAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
+        when(mMockCarAudioService.getSuggestedAudioContextForZone(PRIMARY_AUDIO_ZONE))
+                .thenReturn(CALL);
+        when(mMockCarAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
                 .thenReturn(TEST_GROUP_ID);
-        when(carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
+        when(mMockCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_GROUP_VOLUME);
-        when(carAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
+        when(mMockCarAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_MIN_GROUP_VOLUME);
-        when(carAudioService.getGroupMaxVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
+        when(mMockCarAudioService.getGroupMaxVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_MAX_GROUP_VOLUME);
-        when(carAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
+        when(mMockCarAudioService.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_VOLUME_GROUP_MUTE);
-        when(carAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
+        when(mMockCarAudioService.getMutedVolumeGroups(PRIMARY_AUDIO_ZONE))
                 .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO));
-        when(carAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
+        when(mMockCarAudioService.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, TEST_SECONDARY_GROUP))
                 .thenReturn(TEST_SECONDARY_VOLUME_INFO);
-        when(carAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
+        when(mMockCarAudioService.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE))
                 .thenReturn(List.of(TEST_PRIMARY_GROUP_INFO, TEST_SECONDARY_VOLUME_INFO));
-        when(carAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
+        when(mMockCarAudioService.getActiveAudioAttributesForZone(PRIMARY_AUDIO_ZONE))
                 .thenReturn(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE, TEST_ALARM_AUDIO_ATTRIBUTE));
-        when(carAudioService.getCallStateForZone(PRIMARY_AUDIO_ZONE))
+        when(mMockCarAudioService.getCallStateForZone(PRIMARY_AUDIO_ZONE))
                 .thenReturn(TelephonyManager.CALL_STATE_OFFHOOK);
 
-        mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(carAudioService);
+        mCarVolumeInfoWrapper = new CarVolumeInfoWrapper(mMockCarAudioService);
     }
 
     @Test
@@ -189,5 +199,14 @@ public final class CarVolumeInfoWrapperTest {
         assertWithMessage("Car volume telephony state")
                 .that(mCarVolumeInfoWrapper.getCallStateForZone(PRIMARY_AUDIO_ZONE))
                 .isEqualTo(TelephonyManager.CALL_STATE_OFFHOOK);
+    }
+
+    @Test
+    public void onAudioVolumeGroupChanged_dispatchedToCarAudioService() {
+        mCarVolumeInfoWrapper.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE, TEST_GROUP_NAME,
+                TEST_EXPECTED_FLAGS);
+
+        verify(mMockCarAudioService).onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE, TEST_GROUP_NAME,
+                TEST_EXPECTED_FLAGS);
     }
 }

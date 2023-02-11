@@ -41,6 +41,8 @@ android.car.VehicleAreaWindow
 android.car.VehicleGear
 android.car.VehicleHvacFanDirection
 android.car.VehicleIgnitionState
+android.car.VehicleLightState
+android.car.VehicleLightSwitch
 android.car.VehicleOilLevel
 android.car.VehiclePropertyAccess
 android.car.VehiclePropertyIds
@@ -98,6 +100,7 @@ android.car.evs.CarEvsManager$CarEvsStreamCallback
 android.car.evs.CarEvsStatus
 android.car.hardware.CarHvacFanDirection
 android.car.hardware.CarPropertyConfig
+android.car.hardware.CarPropertyConfig$AreaConfig
 android.car.hardware.CarPropertyConfig$Builder
 android.car.hardware.CarPropertyValue
 android.car.hardware.CarSensorConfig
@@ -161,6 +164,9 @@ android.car.hardware.property.EvStoppingMode
 android.car.hardware.property.ForwardCollisionWarningState
 android.car.hardware.property.GetPropertyServiceRequest
 android.car.hardware.property.GetValueResult
+android.car.hardware.property.LaneCenteringAssistCommand
+android.car.hardware.property.LaneCenteringAssistState
+android.car.hardware.property.LaneDepartureWarningState
 android.car.hardware.property.LaneKeepAssistState
 android.car.hardware.property.PropertyAccessDeniedSecurityException
 android.car.hardware.property.PropertyNotAvailableAndRetryException

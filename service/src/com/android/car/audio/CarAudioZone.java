@@ -17,6 +17,8 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarVolumeGroupInfo;
@@ -25,6 +27,7 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArraySet;
+import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -54,6 +57,7 @@ public class CarAudioZone {
     private final Set<String> mDeviceAddresses;
     private final CarAudioContext mCarAudioContext;
     private List<AudioDeviceAttributes> mInputAudioDevice;
+    private final List<String> mGroupIdToNames = new ArrayList<>();
 
     CarAudioZone(CarAudioContext carAudioContext, String name, int id) {
         mCarAudioContext = Objects.requireNonNull(carAudioContext,
@@ -80,6 +84,17 @@ public class CarAudioZone {
     void addVolumeGroup(CarVolumeGroup volumeGroup) {
         mVolumeGroups.add(volumeGroup);
         mDeviceAddresses.addAll(volumeGroup.getAddresses());
+        // Assuming index is the id, id to name is a bijective transformation, names are unique
+        mGroupIdToNames.add(volumeGroup.getName());
+    }
+
+    @Nullable
+    CarVolumeGroup getVolumeGroup(String groupName) {
+        int groupId = mGroupIdToNames.indexOf(groupName);
+        if (groupId < 0) {
+            return null;
+        }
+        return getVolumeGroup(groupId);
     }
 
     CarVolumeGroup getVolumeGroup(int groupId) {
@@ -101,6 +116,22 @@ public class CarAudioZone {
         return devices;
     }
 
+    List<AudioDeviceInfo> getAudioDeviceInfosSupportingDynamicMix() {
+        List<AudioDeviceInfo> devices = new ArrayList<>();
+        for (int index = 0; index <  mVolumeGroups.size(); index++) {
+            CarVolumeGroup group = mVolumeGroups.get(index);
+            List<String> addresses = group.getAddresses();
+            for (int addressIndex = 0; addressIndex < addresses.size(); addressIndex++) {
+                String address = addresses.get(addressIndex);
+                CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
+                if (info.canBeRoutedWithDynamicPolicyMix()) {
+                    devices.add(info.getAudioDeviceInfo());
+                }
+            }
+        }
+        return devices;
+    }
+
     int getVolumeGroupCount() {
         return mVolumeGroups.size();
     }
@@ -113,9 +144,73 @@ public class CarAudioZone {
     }
 
     /**
+     * Constraints applied here for checking usage of Dynamic Mixes for routing:
+     *
+     * - One context with same AudioAttributes usage shall not be routed to 2 different devices
+     * (Dynamic Mixes supports only match on usage, not on other AudioAttributes fields.
+     *
+     * - One address shall not appear in 2 groups. CarAudioService cannot establish Dynamic Routing
+     * rules that address multiple groups.
+     */
+    boolean validateCanUseDynamicMixRouting(boolean useCoreAudioRouting) {
+        ArraySet<String> addresses = new ArraySet<>();
+        SparseArray<CarAudioDeviceInfo> usageToDevice = new SparseArray<>();
+        for (int index = 0; index <  mVolumeGroups.size(); index++) {
+            CarVolumeGroup group = mVolumeGroups.get(index);
+
+            List<String> groupAddresses = group.getAddresses();
+            // Due to AudioPolicy Dynamic Mixing limitation,  rules can be made only on usage and
+            // not on audio attributes.
+            // When using product strategies, AudioPolicy may not simply route on usage match.
+            // Ensure that a given usage can reach a single device address to enable dynamic mix.
+            // Otherwise, prevent from establishing rule if supporting Core Routing.
+            // Returns false if Core Routing is not supported
+            for (int addressIndex = 0; addressIndex < groupAddresses.size(); addressIndex++) {
+                String address = groupAddresses.get(addressIndex);
+                boolean canUseDynamicMixRoutingForAddress = true;
+                CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
+                List<Integer> usagesForAddress = group.getAllSupportedUsagesForAddress(address);
+
+                if (!addresses.add(address)) {
+                    if (useCoreAudioRouting) {
+                        Slogf.w(CarLog.TAG_AUDIO, "Address %s appears in two groups, prevents"
+                                + " from using dynamic policy mixes for routing" , address);
+                        canUseDynamicMixRoutingForAddress = false;
+                    }
+                }
+                for (int usageIndex = 0; usageIndex < usagesForAddress.size(); usageIndex++) {
+                    int usage = usagesForAddress.get(usageIndex);
+                    CarAudioDeviceInfo infoForAttr = usageToDevice.get(usage);
+                    if (infoForAttr != null && !infoForAttr.getAddress().equals(address)) {
+                        Slogf.e(CarLog.TAG_AUDIO, "Addresses %s and %s can be reached with same"
+                                + " usage %s, prevent from using dynamic policy mixes.",
+                                infoForAttr.getAddress(), address,
+                                AudioManagerHelper.usageToXsdString(usage));
+                        if (useCoreAudioRouting) {
+                            canUseDynamicMixRoutingForAddress = false;
+                            infoForAttr.resetCanBeRoutedWithDynamicPolicyMix();
+                        } else {
+                            return false;
+                        }
+                    } else {
+                        usageToDevice.put(usage, info);
+                    }
+                }
+                if (!canUseDynamicMixRoutingForAddress) {
+                    info.resetCanBeRoutedWithDynamicPolicyMix();
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Constraints applied here:
      *
-     * - One context should not appear in two groups
+     * - One context should not appear in two groups if not relying on Core Audio for Volume
+     * management. When using core Audio, mutual exclusive contexts may reach same devices,
+     * AudioPolicyManager will apply the corresponding gain when the context is active on the common
+     * device
      * - All contexts are assigned
      * - One device should not appear in two groups
      * - All gain controllers in the same group have same step value
@@ -125,7 +220,7 @@ public class CarAudioZone {
      * Step value validation is done in
      * {@link CarVolumeGroup.Builder#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
      */
-    boolean validateVolumeGroups() {
+    boolean validateVolumeGroups(boolean useCoreAudioRouting) {
         ArraySet<Integer> contexts = new ArraySet<>();
         ArraySet<String> addresses = new ArraySet<>();
         for (int index = 0; index <  mVolumeGroups.size(); index++) {
@@ -135,16 +230,18 @@ public class CarAudioZone {
             for (int groupIndex = 0; groupIndex < groupContexts.length; groupIndex++) {
                 int contextId = groupContexts[groupIndex];
                 if (!contexts.add(contextId)) {
-                    Slogf.e(CarLog.TAG_AUDIO, "Context appears in two groups %d", contextId);
+                    Slogf.e(CarLog.TAG_AUDIO, "Context %d appears in two groups", contextId);
                     return false;
                 }
             }
-
             // One address should not appear in two groups
             List<String> groupAddresses = group.getAddresses();
             for (int addressIndex = 0; addressIndex < groupAddresses.size(); addressIndex++) {
                 String address = groupAddresses.get(addressIndex);
                 if (!addresses.add(address)) {
+                    if (useCoreAudioRouting) {
+                        continue;
+                    }
                     Slogf.e(CarLog.TAG_AUDIO, "Address appears in two groups: " + address);
                     return false;
                 }

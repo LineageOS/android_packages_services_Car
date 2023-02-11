@@ -68,7 +68,8 @@ public class CarVolumeTest {
     private static final int TRIAL_COUNTS = 10;
 
     public static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
 
     public static final AudioAttributes TEST_ASSISTANT_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANT);

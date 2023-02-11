@@ -39,6 +39,7 @@ import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -60,9 +61,10 @@ public class FocusInteractionTest {
     private static final int TEST_USER_ID = 100;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
-            new CarAudioContext(CarAudioContext.getAllContextsInfo());
-    @AudioContext
-    private static final int TEST_MEDIA_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                    /* useCoreAudioRouting= */ false);
+
+    private static final @AudioContext int TEST_MEDIA_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(
                     CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
@@ -100,14 +102,16 @@ public class FocusInteractionTest {
             return mContentObserver;
         }).when(mMockContentObserverFactory).createObserver(any());
         mFocusInteraction =
-                new FocusInteraction(mMockCarAudioSettings, mMockContentObserverFactory);
+                new FocusInteraction(mMockCarAudioSettings, mMockContentObserverFactory,
+                        TEST_CAR_AUDIO_CONTEXT);
     }
 
     @Test
     public void constructor_withNullSettings_fails() {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
-                        () -> new FocusInteraction(null, mMockContentObserverFactory));
+                        () -> new FocusInteraction(null, mMockContentObserverFactory,
+                                TEST_CAR_AUDIO_CONTEXT));
 
         assertWithMessage("Constructor with Null Settings Exception")
                 .that(thrown).hasMessageThat().contains("Settings");
@@ -117,7 +121,8 @@ public class FocusInteractionTest {
     public void constructor_withNullObserverFactory_fails() {
         NullPointerException thrown =
                 assertThrows(NullPointerException.class,
-                        () -> new FocusInteraction(mMockCarAudioSettings, null));
+                        () -> new FocusInteraction(mMockCarAudioSettings, null,
+                                TEST_CAR_AUDIO_CONTEXT));
 
         assertWithMessage("Constructor with Null Observer Factory Exception")
                 .that(thrown).hasMessageThat().contains("Content Observer Factory");
@@ -127,15 +132,17 @@ public class FocusInteractionTest {
     public void getInteractionMatrix_returnsNByNMatrix() {
         // One extra for CarAudioContext.getInvalidContext()
         CarAudioContext carAudioContext =
-                new CarAudioContext(CarAudioContext.getAllContextsInfo());
+                new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                        /* useCoreAudioRouting= */ false);
         int n = carAudioContext.getAllContextsIds().size() + 1;
 
-        int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();
+        SparseArray<SparseArray<Integer>> interactionMatrix =
+                mFocusInteraction.getInteractionMatrix();
 
-        assertThat(interactionMatrix.length).isEqualTo(n);
+        assertThat(interactionMatrix.size()).isEqualTo(n);
         for (int i = 0; i < n; i++) {
-            assertWithMessage("Row %s is not of length %s", i, n)
-                    .that(interactionMatrix[i].length).isEqualTo(n);
+            assertWithMessage("Length of row %s in interaction matrix", i)
+                    .that(interactionMatrix.get(i).size()).isEqualTo(n);
         }
     }
 
@@ -144,13 +151,13 @@ public class FocusInteractionTest {
         List<Integer> supportedInteractions = Arrays.asList(INTERACTION_REJECT,
                 INTERACTION_EXCLUSIVE, INTERACTION_CONCURRENT);
 
-        int[][] interactionMatrix = mFocusInteraction.getInteractionMatrix();
-
-        for (int i = 0; i < interactionMatrix.length; i++) {
-            for (int j = 0; j < interactionMatrix[i].length; j++) {
+        SparseArray<SparseArray<Integer>> interactionMatrix =
+                mFocusInteraction.getInteractionMatrix();
+        for (int i = 0; i < interactionMatrix.size(); i++) {
+            for (int j = 0; j < interactionMatrix.get(i).size(); j++) {
                 assertWithMessage("Row %s column %s has unexpected value %s", i, j,
-                        interactionMatrix[i][j]).that(
-                        interactionMatrix[i][j]).isIn(supportedInteractions);
+                        interactionMatrix.get(i).get(j)).that(
+                        interactionMatrix.get(i).get(j)).isIn(supportedInteractions);
             }
         }
     }
@@ -283,7 +290,7 @@ public class FocusInteractionTest {
     public void evaluateResult_forUndefinedContext_throws() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(CarAudioContext.NAVIGATION);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> mFocusInteraction.evaluateRequest(UNDEFINED_CONTEXT_VALUE, focusEntry,
                         /* allowDucking= */ false, /* allowsDelayedFocus= */ false,
                         mLosers));
@@ -293,7 +300,7 @@ public class FocusInteractionTest {
     public void evaluateResult_forUndefinedFocusHolderContext_throws() {
         FocusEntry focusEntry = newMockFocusEntryWithContext(UNDEFINED_CONTEXT_VALUE);
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(NullPointerException.class,
                 () -> mFocusInteraction.evaluateRequest(TEST_MEDIA_CONTEXT, focusEntry,
                         /* allowDucking= */ false, /* allowsDelayedFocus= */ false,
                         mLosers));

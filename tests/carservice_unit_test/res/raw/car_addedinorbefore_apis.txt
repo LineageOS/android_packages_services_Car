@@ -450,6 +450,13 @@ android.car.VehicleIgnitionState.ACC
 android.car.VehicleIgnitionState.ON
 android.car.VehicleIgnitionState.START
 android.car.VehicleIgnitionState.toString
+android.car.VehicleLightState.OFF
+android.car.VehicleLightState.ON
+android.car.VehicleLightState.DAYTIME_RUNNING
+android.car.VehicleLightSwitch.OFF
+android.car.VehicleLightSwitch.ON
+android.car.VehicleLightSwitch.DAYTIME_RUNNING
+android.car.VehicleLightSwitch.AUTOMATIC
 android.car.VehicleOilLevel.CRITICALLY_LOW
 android.car.VehicleOilLevel.LOW
 android.car.VehicleOilLevel.NORMAL
@@ -1280,6 +1287,12 @@ android.car.hardware.CarPropertyConfig.writeToParcel
 android.car.hardware.CarPropertyConfig.toString
 android.car.hardware.CarPropertyConfig.newBuilder
 android.car.hardware.CarPropertyConfig.newBuilder
+android.car.hardware.CarPropertyConfig.AreaConfig.CREATOR
+android.car.hardware.CarPropertyConfig.AreaConfig.getMinValue
+android.car.hardware.CarPropertyConfig.AreaConfig.getMaxValue
+android.car.hardware.CarPropertyConfig.AreaConfig.describeContents
+android.car.hardware.CarPropertyConfig.AreaConfig.writeToParcel
+android.car.hardware.CarPropertyConfig.AreaConfig.toString
 android.car.hardware.CarPropertyConfig.Builder.addAreas
 android.car.hardware.CarPropertyConfig.Builder.addArea
 android.car.hardware.CarPropertyConfig.Builder.addAreaConfig

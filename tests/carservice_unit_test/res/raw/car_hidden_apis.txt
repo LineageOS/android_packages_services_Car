@@ -84,6 +84,13 @@ android.car VehicleAreaSeat int fromRowAndSide(int rowNumber, int side)
 android.car VehicleHvacFanDirection int FACE
 android.car VehicleHvacFanDirection int FLOOR
 android.car VehicleHvacFanDirection int DEFROST
+android.car VehicleLightState int OFF
+android.car VehicleLightState int ON
+android.car VehicleLightState int DAYTIME_RUNNING
+android.car VehicleLightSwitch int OFF
+android.car VehicleLightSwitch int ON
+android.car VehicleLightSwitch int DAYTIME_RUNNING
+android.car VehicleLightSwitch int AUTOMATIC
 android.car VehicleOilLevel int CRITICALLY_LOW
 android.car VehicleOilLevel int LOW
 android.car VehicleOilLevel int NORMAL
@@ -266,6 +273,12 @@ android.car.hardware CarPropertyConfig int getFirstAndOnlyAreaId()
 android.car.hardware CarPropertyConfig boolean hasArea(int areaId)
 android.car.hardware CarPropertyConfig String toString()
 android.car.hardware CarPropertyConfig Builder<T> newBuilder(Class<T> type, int propertyId, int areaType)
+android.car.hardware CarPropertyConfig.AreaConfig Parcelable.Creator<AreaConfig<Object>> CREATOR
+android.car.hardware CarPropertyConfig.AreaConfig T getMinValue()
+android.car.hardware CarPropertyConfig.AreaConfig T getMaxValue()
+android.car.hardware CarPropertyConfig.AreaConfig int describeContents()
+android.car.hardware CarPropertyConfig.AreaConfig void writeToParcel(Parcel dest, int flags)
+android.car.hardware CarPropertyConfig.AreaConfig String toString()
 android.car.hardware CarPropertyValue String toString()
 android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS
 android.car.hardware CarSensorConfig String WHEEL_TICK_DISTANCE_FRONT_LEFT_UM_PER_TICK

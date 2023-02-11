@@ -240,7 +240,8 @@ abstract class CarZonesAudioFocusTestBase {
 
     protected SparseArray<CarAudioZone> generateAudioZones() {
         CarAudioContext testCarAudioContext =
-                new CarAudioContext(CarAudioContext.getAllContextsInfo());
+                new CarAudioContext(CarAudioContext.getAllContextsInfo(),
+                        /* useCoreAudioRouting= */ false);
         SparseArray<CarAudioZone> zones = new SparseArray<>(2);
         zones.put(PRIMARY_ZONE_ID,
                 new CarAudioZone(testCarAudioContext, "Primary zone", PRIMARY_ZONE_ID));

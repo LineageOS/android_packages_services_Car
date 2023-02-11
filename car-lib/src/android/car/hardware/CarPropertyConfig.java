@@ -36,6 +36,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -484,6 +485,83 @@ public final class CarPropertyConfig<T> implements Parcelable {
                 + '}';
     }
 
+    /**
+     * @deprecated This API is deprecated in favor of {@link
+     * android.car.hardware.property.AreaIdConfig} which allows properties to specify which enum
+     * values are supported. This API will be marked as @removed in the next API release and then
+     * fully removed in two API releases.
+     *
+     * Represents min/max value of car property.
+     * @param <T> The property type
+     * @hide
+     */
+    @Deprecated
+    public static class AreaConfig<T> implements Parcelable {
+        @Nullable private final T mMinValue;
+        @Nullable private final T mMaxValue;
+
+        @SuppressWarnings("unused")
+        private AreaConfig(T minValue, T maxValue) {
+            mMinValue = minValue;
+            mMaxValue = maxValue;
+        }
+
+        @AddedInOrBefore(majorVersion = 33)
+        public static final Parcelable.Creator<AreaConfig<Object>> CREATOR =
+                getCreator(Object.class);
+
+        private static <E> Parcelable.Creator<AreaConfig<E>> getCreator(final Class<E> clazz) {
+            return new Creator<AreaConfig<E>>() {
+                @Override
+                public AreaConfig<E> createFromParcel(Parcel source) {
+                    return new AreaConfig<>(source);
+                }
+
+                @Override @SuppressWarnings("unchecked")
+                public AreaConfig<E>[] newArray(int size) {
+                    return (AreaConfig<E>[]) Array.newInstance(clazz, size);
+                }
+            };
+        }
+
+        @SuppressWarnings("unchecked")
+        private AreaConfig(Parcel in) {
+            mMinValue = (T) in.readValue(getClass().getClassLoader());
+            mMaxValue = (T) in.readValue(getClass().getClassLoader());
+        }
+
+        @AddedInOrBefore(majorVersion = 33)
+        @Nullable public T getMinValue() {
+            return mMinValue;
+        }
+
+        @AddedInOrBefore(majorVersion = 33)
+        @Nullable public T getMaxValue() {
+            return mMaxValue;
+        }
+
+        @Override
+        @AddedInOrBefore(majorVersion = 33)
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        @AddedInOrBefore(majorVersion = 33)
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeValue(mMinValue);
+            dest.writeValue(mMaxValue);
+        }
+
+        @Override
+        @AddedInOrBefore(majorVersion = 33)
+        public String toString() {
+            return "CarAreaConfig{"
+                    + "mMinValue=" + mMinValue
+                    + ", mMaxValue=" + mMaxValue
+                    + '}';
+        }
+    }
 
     /**
      * Prepare an instance of CarPropertyConfig

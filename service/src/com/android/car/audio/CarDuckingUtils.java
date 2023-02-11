@@ -90,4 +90,18 @@ final class CarDuckingUtils {
         }
         return addresses;
     }
+
+    private static Set<Integer> getContextsToDuck(Set<Integer> contexts,
+            CarAudioContext carAudioContext) {
+        Set<Integer> contextsToDuck = new ArraySet<>();
+
+        for (Integer context : contexts) {
+            List<Integer> duckedContexts = carAudioContext.getContextsToDuck(context);
+            contextsToDuck.addAll(duckedContexts);
+        }
+
+        // Reduce contextsToDuck down to subset of contexts currently holding focus
+        contextsToDuck.retainAll(contexts);
+        return contextsToDuck;
+    }
 }

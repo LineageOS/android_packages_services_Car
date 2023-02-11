@@ -234,6 +234,9 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_GLOVE_BOX) public static final int GLOVE_BOX_DOOR_POS = 356518896; // 0x15400bf0
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_GLOVE_BOX) public static final int GLOVE_BOX_LOCKED = 354421745; // 0x15200bf1
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+    field @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_COMMAND = 289411083; // 0x1140100b
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_CENTERING_ASSIST_STATE = 289411084; // 0x1140100c
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_DEPARTURE_WARNING_STATE = 289411079; // 0x11401007
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_ADAS_STATES)) public static final int LANE_KEEP_ASSIST_STATE = 289411081; // 0x11401009
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_PERIOD = 322964421; // 0x13400bc5
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_WINDSHIELD_WIPERS)) public static final int WINDSHIELD_WIPERS_STATE = 322964422; // 0x13400bc6
@@ -245,6 +248,7 @@ package android.car {
     field public static final int MILLIAMPERE = 97; // 0x61
     field public static final int MILLIVOLT = 98; // 0x62
     field public static final int MILLIWATTS = 99; // 0x63
+    field public static final int MILLI_SECS = 81; // 0x51
     field public static final int NANO_SECS = 80; // 0x50
     field public static final int PERCENTILE = 16; // 0x10
     field public static final int RPM = 2; // 0x2
@@ -1034,6 +1038,30 @@ package android.car.hardware.property {
     field public static final int NO_WARNING = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int WARNING = 2; // 0x2
+  }
+
+  public final class LaneCenteringAssistCommand {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATE = 1; // 0x1
+    field public static final int DEACTIVATE = 2; // 0x2
+  }
+
+  public final class LaneCenteringAssistState {
+    method @NonNull public static String toString(int);
+    field public static final int ACTIVATED = 3; // 0x3
+    field public static final int ACTIVATION_REQUESTED = 2; // 0x2
+    field public static final int ENABLED = 1; // 0x1
+    field public static final int FORCED_DEACTIVATION_WARNING = 5; // 0x5
+    field public static final int OTHER = 0; // 0x0
+    field public static final int USER_OVERRIDE = 4; // 0x4
+  }
+
+  public final class LaneDepartureWarningState {
+    method @NonNull public static String toString(int);
+    field public static final int NO_WARNING = 1; // 0x1
+    field public static final int OTHER = 0; // 0x0
+    field public static final int WARNING_LEFT = 2; // 0x2
+    field public static final int WARNING_RIGHT = 3; // 0x3
   }
 
   public final class LaneKeepAssistState {
