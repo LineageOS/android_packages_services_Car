@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarAudioManager;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
 import android.content.Context;
 
@@ -53,8 +54,15 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
     private CarAudioSettings mCarAudioSettings;
 
+    private MockSettings mMockSettings;
+
     public CarAudioSettingsUnitTest() {
         super(NO_LOG_TAGS);
+    }
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        mMockSettings = new MockSettings(session);
     }
 
     @Before
@@ -99,7 +107,7 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("Volume Gain Setting Stored for userId %s, zoneId %s, and groupId %s",
                 TEST_USER_ID_1, TEST_ZONE_ID, TEST_USER_ID_1)
-                .that(getSettingsInt(TEST_GAIN_INDEX_KEY)).isEqualTo(TEST_GAIN_INDEX);
+                .that(mMockSettings.getInt(TEST_GAIN_INDEX_KEY)).isEqualTo(TEST_GAIN_INDEX);
     }
 
     @Test
@@ -109,7 +117,7 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("Volume Group Setting Stored for userId %s, zoneId %s, and groupId %s",
                 TEST_USER_ID_1, TEST_ZONE_ID, TEST_USER_ID_1)
-                .that(getSettingsInt(TEST_MUTE_KEY)).isEqualTo(0);
+                .that(mMockSettings.getInt(TEST_MUTE_KEY)).isEqualTo(0);
     }
 
     @Test
@@ -119,7 +127,7 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("Volume Group Setting Stored for userId %s, zoneId %s, and groupId %s",
                 TEST_USER_ID_1, TEST_ZONE_ID, TEST_USER_ID_1)
-                .that(getSettingsInt(TEST_MUTE_KEY)).isEqualTo(1);
+                .that(mMockSettings.getInt(TEST_MUTE_KEY)).isEqualTo(1);
     }
 
     @Test
@@ -165,20 +173,20 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setStoredVolumeGainIndexForUser(int gainIndexForUser) {
-        putSettingsInt(TEST_GAIN_INDEX_KEY, gainIndexForUser);
+        mMockSettings.putInt(TEST_GAIN_INDEX_KEY, gainIndexForUser);
     }
 
     private void setStoredVolumeMuteForUser(int volumeSetting) {
-        putSettingsInt(TEST_MUTE_KEY, volumeSetting);
+        mMockSettings.putInt(TEST_MUTE_KEY, volumeSetting);
     }
 
     private void setRejectNavigationOnCallSettingsValues(int settingsValue) {
-        putSettingsInt(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
+        mMockSettings.putInt(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
                 settingsValue);
     }
 
     private void setPersistVolumeGroupMuteSettingsValues(int persistMuteSetting) {
-        putSettingsInt(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
+        mMockSettings.putInt(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
                 persistMuteSetting);
     }
 }
