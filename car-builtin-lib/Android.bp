@@ -79,6 +79,10 @@ java_sdk_library {
         "//frameworks/opt/car/services/updatableServices/tests",
     ],
 
+    permitted_packages: [
+        "android.car.builtin",
+    ],
+
     compile_dex: true,
 
     installable: true,
