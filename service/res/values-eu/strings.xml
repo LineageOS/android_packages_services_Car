@@ -41,7 +41,7 @@
     <string name="car_permission_label_projection" msgid="9107156380287576787">"proiektatu telefonoaren interfazea autoaren pantailan"</string>
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Telefonoaren interfazea autoaren pantailan proiektatzeko baimena ematen dio aplikazioari."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"atzitu proiekzio-egoera"</string>
-    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Autoaren pantailan proiektatutako aplikazioen egoera atzitzeko baimena ematen dio aplikazioari."</string>
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Autoaren pantailan proiektatutako aplikazioen egoera erabiltzeko baimena ematen dio aplikazioari."</string>
     <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"lotu proiekzio-zerbitzu batekin"</string>
     <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Proiekzio-zerbitzu baten goi-mailako interfazeari lotzeko baimena ematen die titularrei. Aplikazio normalek ez lukete beharko."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kontrolatu autoaren audioaren bolumena"</string>
