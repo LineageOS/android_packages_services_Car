@@ -46,7 +46,7 @@ java_cmd_2= "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApi
 # This determines all remaining hidden, system or public APIs.
 java_cmd_3 = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                             "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-                            "--ANDROID-BUILD-TOP " + rootDir
+                            "--include-constructors --ANDROID-BUILD-TOP " + rootDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2, java_cmd_3]
@@ -106,7 +106,7 @@ previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_u
 # If some hidden API was added in T-QPR and removed in master, then one should be able
 # to identify it. Accordingly, a new file will need to be generated for each release.
 hidden_apis_previous_releases_paths = [
-    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_current_release.txt",
+    "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.3.txt",
     "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.2.txt",
     "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.1.txt"
 ]
@@ -139,10 +139,17 @@ for api in new_hidden_apis:
 # TODO(b/266849922): Add a pre-submit test to also check for added or modified hidden apis,
 # since one could also bypass the repohook tool using --no-verify.
 if len(modified_or_added_hidden_api) > 0:
-    print("\nHidden APIs should not be added or modified. Following Hidden APIs are modified:")
+    print("\nHidden APIs should not be added or modified. The following Hidden APIs were added or modified in this CL:")
     print("\n".join(modified_or_added_hidden_api))
     print(
-        "\nIf adding a hidden API is the only way, please consult go/car-hidden-api-usage-removal and file a bug in go/car-mainline-bug")
+        "\nIf adding a hidden API is necessary, please create a bug here: go/car-mainline-add-hidden-api."
+        "\nYou are responsible for maintaining the hidden API, which may include future deprecation or"
+        " upgrade of the hidden API. \nTo learn more about hidden API usage and removal in the Car stack please visit go/car-hidden-api-usage-removal."
+        "\nTo add a hidden API, please run the following command after creating the bug:")
+    print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
+          "--update-hidden-api-for-test")
+    print("\nPlease do not use \"no-verify\" to bypass this check. Reach out to gargmayank@ or"
+          " ethanalee@ if there is any confusion or repo upload is not working for you even after running the previous command.")
     sys.exit(1)
 
 # Hidden APIs should not be removed. Check that any of the previously hidden apis still exist in the remaining apis.
@@ -153,6 +160,10 @@ for api in hidden_apis_previous_releases:
         removed_hidden_api.append(api)
 
 if len(removed_hidden_api) > 0:
-    print("\nHidden APIs should not be removed. Following Hidden APIs were removed:")
+    print("\nHidden APIs cannot be removed as the Car stack is now a mainline module. The following Hidden APIs were removed:")
     print("\n".join(removed_hidden_api))
+    print("\nPlease do not use \"no-verify\" to bypass this check. "
+          "To learn more about hidden API deprecation and removal visit go/car-hidden-api-usage-removal. "
+          "\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
+          "removing hidden APIs.")
     sys.exit(1)
