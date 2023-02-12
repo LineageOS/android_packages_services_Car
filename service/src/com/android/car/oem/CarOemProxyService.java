@@ -313,8 +313,9 @@ public final class CarOemProxyService implements CarServiceBase {
                 writer.printf("OEM callstack\n");
                 int timeoutMs = 2000;
                 try {
+                    IOemCarService oemCarService = getOemService();
                     writer.printf(mHelper.doBinderTimedCallWithTimeout(CALL_TAG,
-                            () -> getOemService().getAllStackTraces(), timeoutMs));
+                            () -> oemCarService.getAllStackTraces(), timeoutMs));
                 } catch (TimeoutException e) {
                     writer.printf("Didn't received OEM stack within %d milliseconds.\n", timeoutMs);
                 }
@@ -353,8 +354,9 @@ public final class CarOemProxyService implements CarServiceBase {
         waitForOemService();
 
         // TODO(b/240615622): Domain owner to decide if retry or default or crash.
+        IOemCarService oemCarService = getOemService();
         IOemCarAudioFocusService oemAudioFocusService = mHelper.doBinderTimedCallWithDefaultValue(
-                CALL_TAG, () -> getOemService().getOemAudioFocusService(),
+                CALL_TAG, () -> oemCarService.getOemAudioFocusService(),
                 /* defaultValue= */ null);
 
         if (oemAudioFocusService == null) {
@@ -397,9 +399,9 @@ public final class CarOemProxyService implements CarServiceBase {
         }
 
         waitForOemService();
-
+        IOemCarService oemCarService = getOemService();
         IOemCarAudioVolumeService oemAudioVolumeService = mHelper.doBinderTimedCallWithDefaultValue(
-                CALL_TAG, () -> getOemService().getOemAudioVolumeService(),
+                CALL_TAG, () -> oemCarService.getOemAudioVolumeService(),
                 /* defaultValue= */ null);
 
         if (oemAudioVolumeService == null) {
@@ -443,9 +445,10 @@ public final class CarOemProxyService implements CarServiceBase {
 
         waitForOemService();
 
+        IOemCarService oemCarService = getOemService();
         IOemCarAudioDuckingService oemAudioDuckingService =
                 mHelper.doBinderTimedCallWithDefaultValue(
-                CALL_TAG, () -> getOemService().getOemAudioDuckingService(),
+                CALL_TAG, () -> oemCarService.getOemAudioDuckingService(),
                 /* defaultValue= */ null);
 
         if (oemAudioDuckingService == null) {
@@ -474,9 +477,10 @@ public final class CarOemProxyService implements CarServiceBase {
      */
     public void onCarServiceReady() {
         waitForOemServiceConnected();
+        IOemCarService oemCarService = getOemService();
         mHelper.doBinderOneWayCall(CALL_TAG, () -> {
             try {
-                getOemService().onCarServiceReady(mOemCarServiceCallback);
+                oemCarService.onCarServiceReady(mOemCarServiceCallback);
             } catch (RemoteException ex) {
                 Slogf.e(TAG, "Binder call received RemoteException, calling to crash CarService",
                         ex);
@@ -591,6 +595,9 @@ public final class CarOemProxyService implements CarServiceBase {
         mHandler.post(() -> onCarServiceReady());
     }
 
+    /**
+     * Gets OEM service latest binder. Don't pass the method to helper as it can cause deadlock.
+     */
     private IOemCarService getOemService() {
         synchronized (mLock) {
             return mOemCarService;
@@ -608,7 +615,8 @@ public final class CarOemProxyService implements CarServiceBase {
             Slogf.i(TAG, "OEM Car service is ready and running. Process ID of OEM Car Service is:"
                     + " %d", pid);
             mHelper.updateOemPid(pid);
-            mHelper.updateOemStackCall(() -> getOemService().getAllStackTraces());
+            IOemCarService oemCarService = getOemService();
+            mHelper.updateOemStackCall(() -> oemCarService.getAllStackTraces());
             // Initialize other components on handler thread so that main thread is not
             // blocked
             mHandler.post(() -> initOemServiceComponents());
