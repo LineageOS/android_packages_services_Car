@@ -437,6 +437,66 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
     ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid process status file";
 }
 
+TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoUid) {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
+            {1, {1}},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
+            {1, "Pid:\t1\nTgid:\t1\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
+    };
+
+    TemporaryDir procDir;
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
+
+    UidProcStatsCollector collector(procDir.path);
+    collector.init();
+
+    ASSERT_TRUE(collector.enabled())
+            << "Files under the path `" << procDir.path << "` are inaccessible";
+    ASSERT_FALSE(collector.collect().ok())
+            << "No error returned for process status file without uid";
+}
+
+TEST(UidProcStatsCollectorTest, TestErrorOnProcessStatusFileWithNoTgid) {
+    std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
+            {1, {1}},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perProcessStatus = {
+            {1, "Pid:\t1\nUid:\t1\n"},
+    };
+
+    std::unordered_map<pid_t, std::string> perThreadStat = {
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
+    };
+
+    TemporaryDir procDir;
+    ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
+                                        perThreadStat));
+
+    UidProcStatsCollector collector(procDir.path);
+    collector.init();
+
+    ASSERT_TRUE(collector.enabled())
+            << "Files under the path `" << procDir.path << "` are inaccessible";
+    ASSERT_FALSE(collector.collect().ok())
+            << "No error returned for process status file without tgid";
+}
+
 TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 234}},
