@@ -2570,6 +2570,40 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
+     * Requests VHAL to shutdown the head unit.
+     *
+     * @throws UnsupportedOperationException If the system doesn't not support
+     *         {@code nextPowerState}.
+     */
+    public void requestShutdownAp(int nextPowerState, boolean runGarageMode) {
+        int shutdownParam = PowerState.SHUTDOWN_TYPE_POWER_OFF;
+        switch (nextPowerState) {
+            case CarRemoteAccessManager.NEXT_POWER_STATE_ON:
+                // Do nothing.
+                return;
+            case CarRemoteAccessManager.NEXT_POWER_STATE_OFF:
+                shutdownParam = PowerState.SHUTDOWN_TYPE_POWER_OFF;
+                break;
+            case CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM:
+                if (!isDeepSleepAvailable()) {
+                    throw new UnsupportedOperationException("Suspend-to-RAM is not supported");
+                }
+                shutdownParam = PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
+                break;
+            case CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK:
+                if (!isHibernationAvailable()) {
+                    throw new UnsupportedOperationException("Suspend-to-disk is not supported");
+                }
+                shutdownParam = PowerState.SHUTDOWN_TYPE_HIBERNATION;
+                break;
+            default:
+                Slogf.w(TAG, "Unknown power state(%d)", nextPowerState);
+                return;
+        }
+        mHal.requestShutdownAp(shutdownParam, runGarageMode);
+    }
+
+    /**
      * Returns whether suspend (deep sleep or hibernation) is available on the device.
      */
     public boolean isSuspendAvailable(boolean isHibernation) {

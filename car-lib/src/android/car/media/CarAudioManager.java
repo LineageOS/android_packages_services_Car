@@ -790,6 +790,91 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Returns the current car audio zone configuration info associated with the zone id
+     *
+     * <p>If the car audio configuration does not include zone configurations, a default
+     * configuration consisting current output devices for the zone is returned.
+     *
+     * @param zoneId Zone id for the configuration to query
+     * @return the current car audio zone configuration info
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalArgumentException if the audio zone id is invalid
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @NonNull
+    public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
+        try {
+            return mService.getCurrentAudioZoneConfigInfo(zoneId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Returns a list of car audio zone configuration info associated with the zone id
+     *
+     * <p>If the car audio configuration does not include zone configurations, a default
+     * configuration consisting current output devices for each zone is returned.
+     *
+     * @param zoneId Zone id for the configuration to query
+     * @return all the car audio zone configuration info for the zone id
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalArgumentException if the audio zone id is invalid
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @NonNull
+    public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
+        try {
+            return mService.getAudioZoneConfigInfos(zoneId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * Switches the car audio zone configuration
+     *
+     * @param zoneConfig Audio zone configuration to switch to
+     * @param executor Executor on which callback will be invoked
+     * @param callback Callback that will report the result of switching car audio zone
+     *                 configuration
+     * @throws NullPointerException if either executor or callback are {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalArgumentException if the audio zone configuration is invalid
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void switchAudioZoneToConfig(@NonNull CarAudioZoneConfigInfo zoneConfig,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull SwitchAudioZoneConfigCallback callback) {
+        Objects.requireNonNull(zoneConfig, "Audio zone configuration can not be null");
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback,
+                "Switching audio zone configuration result callback can not be null");
+        SwitchAudioZoneConfigCallbackWrapper wrapper =
+                new SwitchAudioZoneConfigCallbackWrapper(executor, callback);
+        try {
+            mService.switchZoneToConfig(zoneConfig, wrapper);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Gets the audio zones currently available
      *
      * @return audio zone ids
@@ -1426,6 +1511,30 @@ public final class CarAudioManager extends CarManagerBase {
             try {
                 mExecutor.execute(() ->
                         mCallback.onMediaAudioRequestStatusChanged(info, requestId, status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
+        }
+    }
+
+    private static final class SwitchAudioZoneConfigCallbackWrapper
+            extends ISwitchAudioZoneConfigCallback.Stub {
+        private final Executor mExecutor;
+        private final SwitchAudioZoneConfigCallback mCallback;
+
+        SwitchAudioZoneConfigCallbackWrapper(Executor executor,
+                SwitchAudioZoneConfigCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public void onAudioZoneConfigSwitched(CarAudioZoneConfigInfo zoneConfig,
+                boolean isSuccessful) {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() ->
+                        mCallback.onAudioZoneConfigSwitched(zoneConfig, isSuccessful));
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }

@@ -304,7 +304,7 @@ public final class EventLogHelper {
 
     /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ} event. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static void writeCarUserServiceStartUserVisibeOnDisplayReq(int userId, int displayId) {
+    public static void writeCarUserServiceStartUserVisibleOnDisplayReq(int userId, int displayId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ,
                 userId, displayId);
     }

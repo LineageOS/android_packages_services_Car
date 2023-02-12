@@ -427,7 +427,7 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceSetUserAuthResp(int, @Nullable String);
     method public static void writeCarUserServiceStartUserInBackgroundReq(int);
     method public static void writeCarUserServiceStartUserInBackgroundResp(int, int);
-    method public static void writeCarUserServiceStartUserVisibeOnDisplayReq(int, int);
+    method public static void writeCarUserServiceStartUserVisibleOnDisplayReq(int, int);
     method public static void writeCarUserServiceStartUserVisibleOnDisplayResp(int, int, int);
     method public static void writeCarUserServiceStopUserReq(int);
     method public static void writeCarUserServiceStopUserResp(int, int);

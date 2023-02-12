@@ -33,8 +33,6 @@ public class MockedPowerHalService extends PowerHalService {
     private static final String TAG = MockedPowerHalService.class.getSimpleName();
 
     private final boolean mIsPowerStateSupported;
-    private final boolean mIsDeepSleepAllowed;
-    private final boolean mIsHibernationAllowed;
     private final boolean mIsTimedWakeupAllowed;
 
     private final Object mLock = new Object();
@@ -50,6 +48,11 @@ public class MockedPowerHalService extends PowerHalService {
 
     @GuardedBy("mLock")
     private final LinkedList<int[]> mSentStates = new LinkedList<>();
+
+    private boolean mIsDeepSleepAllowed;
+    private boolean mIsHibernationAllowed;
+    @PowerState.ShutdownType
+    private int mRequestedShutdownPowerState = PowerState.SHUTDOWN_TYPE_UNDEFINED;
 
     public interface SignalListener {
         void sendingSignal(int signal);
@@ -158,6 +161,15 @@ public class MockedPowerHalService extends PowerHalService {
         doSendState(SET_HIBERNATION_EXIT, 0);
     }
 
+    @Override
+    public void requestShutdownAp(@PowerState.ShutdownType int powerState, boolean runGarageMode) {
+        mRequestedShutdownPowerState = powerState;
+    }
+
+    public int getRequestedShutdownPowerState() {
+        return mRequestedShutdownPowerState;
+    }
+
     public int[] waitForSend(long timeoutMs) throws Exception {
         long now = System.currentTimeMillis();
         long deadline = now + timeoutMs;
@@ -212,6 +224,14 @@ public class MockedPowerHalService extends PowerHalService {
         synchronized (mLock) {
             return mCurrentPowerState;
         }
+    }
+
+    public void setDeepSleepEnabled(boolean enabled) {
+        mIsDeepSleepAllowed = enabled;
+    }
+
+    public void setHibernationEnabled(boolean enabled) {
+        mIsHibernationAllowed = enabled;
     }
 
     public void setCurrentPowerState(PowerState state) {
