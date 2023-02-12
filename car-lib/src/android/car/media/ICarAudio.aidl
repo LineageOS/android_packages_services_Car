@@ -20,6 +20,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
@@ -87,6 +88,13 @@ interface ICarAudio {
     List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId);
     void switchZoneToConfig(in CarAudioZoneConfigInfo zoneConfig,
             in ISwitchAudioZoneConfigCallback callback);
+
+    boolean registerAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);
+    void unregisterAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);
+    void enableMirrorForAudioZones(in int[] audioZones);
+    void disableAudioMirrorForZone(int zoneId);
+    int[] getMirrorAudioZonesForAudioZone(int zoneId);
+
 
     /**
      * IBinder is ICarVolumeCallback but passed as IBinder due to aidl hidden.

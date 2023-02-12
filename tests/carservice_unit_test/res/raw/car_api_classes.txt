@@ -192,6 +192,7 @@ android.car.input.CarInputManager
 android.car.input.CarInputManager$CarInputCaptureCallback
 android.car.input.CustomInputEvent
 android.car.input.RotaryEvent
+android.car.media.AudioZonesMirrorStatusCallback
 android.car.media.CarAudioManager
 android.car.media.CarAudioManager$CarVolumeCallback
 android.car.media.CarAudioPatchHandle

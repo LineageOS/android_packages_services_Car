@@ -57,10 +57,12 @@ import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
 import android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.media.AudioZonesMirrorStatusCallback;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
 import android.car.media.ICarVolumeEventCallback;
@@ -125,6 +127,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Service responsible for interaction with car's audio system.
@@ -803,6 +806,50 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
 
         return handleUnassignAudioFromUserIdOnPrimaryAudioZone(requestId);
+    }
+
+    /**
+     * {@link CarAudioManager#setAudioZoneMirrorStatusCallback(Executor,
+     *      AudioZonesMirrorStatusCallback)}
+     */
+    @Override
+    public boolean registerAudioZonesMirrorStatusCallback(
+            IAudioZonesMirrorStatusCallback callback) {
+        // TODO (b/263211884): Implement registration and callback logic
+        return false;
+    }
+
+    /**
+     * {@link CarAudioManager#clearAudioZonesMirrorStatusCallback()}
+     */
+    @Override
+    public void unregisterAudioZonesMirrorStatusCallback(IAudioZonesMirrorStatusCallback callback) {
+        // TODO (b/263211884): Implement unregistration
+    }
+
+    /**
+     * {@link CarAudioManager#enableMirrorForAudioZones(List)}
+     */
+    @Override
+    public void enableMirrorForAudioZones(int[] audioZones) {
+        // TODO (b/263211884): Implement focus and audio routing logic
+    }
+
+    /**
+     * {@link CarAudioManager#disableAudioMirrorForZone(int)}
+     */
+    @Override
+    public void disableAudioMirrorForZone(int zoneId) {
+        // TODO (b/263211884): Implement focus and audio routing disable logic
+    }
+
+    /**
+     * {@link CarAudioManager#getMirrorAudioZonesForAudioZone(int)}
+     */
+    @Override
+    public int[] getMirrorAudioZonesForAudioZone(int zoneId) {
+        // TODO (b/263211884): Implement query logic
+        return new int[0];
     }
 
     @GuardedBy("mImplLock")
