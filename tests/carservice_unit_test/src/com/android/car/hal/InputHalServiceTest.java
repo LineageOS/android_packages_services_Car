@@ -49,7 +49,6 @@ import android.hardware.automotive.vehicle.VehicleHwMotionInputSource;
 import android.hardware.automotive.vehicle.VehicleHwMotionToolType;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
-import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -354,7 +353,7 @@ public class InputHalServiceTest {
         assertThat(event.getEventTime()).isEqualTo(42L);
         assertThat(event.getDownTime()).isEqualTo(42L);
         assertThat(event.getRepeatCount()).isEqualTo(0);
-        assertThat(event.getDisplayId()).isEqualTo(Display.DEFAULT_DISPLAY);
+        // event.getDisplayId is not tested since it is assigned by CarInputService
     }
 
     @Test
