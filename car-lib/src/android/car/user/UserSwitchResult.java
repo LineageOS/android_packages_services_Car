@@ -19,8 +19,9 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.TestApi;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserManager;
@@ -40,7 +41,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
-@TestApi
+@SystemApi
 public final class UserSwitchResult implements Parcelable, OperationResult {
 
     /**
@@ -155,8 +156,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *
      * @return {@code USER_OPERATION_ERROR_} constants defined by {@link UserManager}, or
      * {@code null} when the {@link #getStatus() status} is not {@link #STATUS_ANDROID_FAILURE}.
-     *
-     * @hide
      */
     @Nullable
     private final Integer mAndroidFailureStatus;
@@ -220,10 +219,10 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     public @interface Status {}
 
-    /** @hide */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @NonNull
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
@@ -345,7 +344,6 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *
      * @return {@code USER_OPERATION_ERROR_} constants defined by {@link UserManager}, or
      * {@code null} when the {@link #getStatus() status} is not {@link #STATUS_ANDROID_FAILURE}.
-     * @hide
      */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)

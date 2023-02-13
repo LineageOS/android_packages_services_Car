@@ -17,6 +17,7 @@
 package android.car;
 
 import android.os.UserHandle;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
@@ -26,20 +27,24 @@ import android.car.user.UserStartResponse;
 import android.car.user.UserStopRequest;
 import android.car.user.UserStopResponse;
 import android.car.user.UserSwitchResult;
-
 import android.car.ICarResultReceiver;
 import android.car.util.concurrent.AndroidFuture;
 
+import com.android.car.internal.ResultCallbackImpl;
+
 /** @hide */
 interface ICarUserService {
+    // TODO(b/235991826): Use callback instead of AsyncFuture
     void switchUser(int targetUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void logoutUser(int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
+    // TODO(b/235994008): remove this call.
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
     void updatePreCreatedUsers();
     UserStartResponse startUser(in UserStartRequest request);
     UserStopResponse stopUser(in UserStopRequest request);
+    // TODO(b/235994391): Use callback instead of AsyncFuture.
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
     void setLifecycleListenerForApp(String pkgName, in UserLifecycleEventFilter filter,
       in ICarResultReceiver listener);
@@ -48,4 +53,7 @@ interface ICarUserService {
     void setUserIdentificationAssociation(int timeoutMs, in int[] types, in int[] values,
       in AndroidFuture<UserIdentificationAssociationResponse> result);
     boolean isUserHalUserAssociationSupported();
+    // TODO(b/235994008): convert this call to createUser once other createUser call is removed.
+    void createUser2(in UserCreationRequest userCreationRequest, int timeoutMs,
+      in ResultCallbackImpl<UserCreationResult> callback);
 }
