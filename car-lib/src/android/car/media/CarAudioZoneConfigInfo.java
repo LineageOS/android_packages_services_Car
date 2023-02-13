@@ -41,21 +41,21 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
 
     private final String mName;
     private final int mZoneId;
-    private final int mConfigInfoId;
+    private final int mConfigId;
 
     /**
      * Constructor of car audio zone configuration info
      *
      * @param name Name for car audio zone configuration info
      * @param zoneId Id of car audio zone
-     * @param configInfoId Id of car audio zone configuration info
+     * @param configId Id of car audio zone configuration info
      *
      * @hide
      */
-    public CarAudioZoneConfigInfo(String name, int zoneId, int configInfoId) {
+    public CarAudioZoneConfigInfo(String name, int zoneId, int configId) {
         mName = Objects.requireNonNull(name, "Zone configuration name can not be null");
         mZoneId = zoneId;
-        mConfigInfoId = configInfoId;
+        mConfigId = configId;
     }
 
     /**
@@ -67,7 +67,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     public CarAudioZoneConfigInfo(Parcel in) {
         mName = in.readString();
         mZoneId = in.readInt();
-        mConfigInfoId = in.readInt();
+        mConfigId = in.readInt();
     }
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -119,8 +119,8 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public int getId() {
-        return mConfigInfoId;
+    public int getConfigId() {
+        return mConfigId;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
@@ -129,7 +129,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
         return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
-                .append(", zone id = ").append(mZoneId).append(" id = ").append(mConfigInfoId)
+                .append(", zone id = ").append(mZoneId).append(" config id = ").append(mConfigId)
                 .append(" }").toString();
     }
 
@@ -139,7 +139,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(mName);
         dest.writeInt(mZoneId);
-        dest.writeInt(mConfigInfoId);
+        dest.writeInt(mConfigId);
     }
 
     @Override
@@ -157,13 +157,13 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
         CarAudioZoneConfigInfo that = (CarAudioZoneConfigInfo) o;
 
         return mName.equals(that.mName) && mZoneId == that.mZoneId
-                && mConfigInfoId == that.mConfigInfoId;
+                && mConfigId == that.mConfigId;
     }
 
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int hashCode() {
-        return Objects.hash(mName, mZoneId, mConfigInfoId);
+        return Objects.hash(mName, mZoneId, mConfigId);
     }
 }
