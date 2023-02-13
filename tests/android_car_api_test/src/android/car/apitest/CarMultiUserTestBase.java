@@ -41,6 +41,10 @@ import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartRequest;
+import android.car.user.UserStartResult;
+import android.car.user.UserStopRequest;
+import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.BroadcastReceiver;
@@ -345,15 +349,24 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     protected void startUserInBackgroundOnSecondaryDisplay(@UserIdInt int userId, int displayId)
             throws Exception {
         Log.i(TAG, "Starting background user " + userId + " on display " + displayId);
-        // TODO(b/257335554): Call CarUserManager method when ready.
-        getContext().getSystemService(ActivityManager.class)
-                .startUserInBackgroundVisibleOnDisplay(userId, displayId);
+
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(userId))
+                .setDisplayId(displayId).build();
+        UserStartResult result = mCarUserManager.startUser(request);
+
+        assertWithMessage("startUserVisibleOnDisplay success for user %s on display %s",
+                        userId, displayId)
+                .that(result.isSuccess()).isTrue();
     }
 
-    protected static void forceStopUser(@UserIdInt int userId) throws Exception {
+    protected void forceStopUser(@UserIdInt int userId) throws Exception {
         Log.i(TAG, "Force-stopping user " + userId);
-        // TODO(b/257335554): Call CarUserManager method when ready.
-        ActivityManager.getService().stopUser(userId, /* force=*/ true, /* listener= */ null);
+
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(userId)).setForce().build();
+        UserStopResult result = mCarUserManager.stopUser(request);
+
+        assertWithMessage("stopUser success for user %s", userId).that(result.isSuccess()).isTrue();
     }
 
     @Nullable

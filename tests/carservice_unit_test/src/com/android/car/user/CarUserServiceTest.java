@@ -73,7 +73,9 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartRequest;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopRequest;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -702,7 +704,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testStopUserSynchronous_success() throws Exception {
         mockStopUserWithDelayedLocking(TEST_USER_ID, ActivityManager.USER_OP_SUCCESS);
 
-        UserStopResult result = mCarUserService.stopUser(TEST_USER_ID, true);
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
+        UserStopResult result = mCarUserService.stopUser(request);
 
         assertThat(result.getStatus()).isEqualTo(UserStopResult.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
@@ -713,11 +717,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
         mockInteractAcrossUsersPermission(false);
 
-        assertThrows(SecurityException.class, () -> mCarUserService.stopUser(TEST_USER_ID, true));
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
+        assertThrows(SecurityException.class, () -> mCarUserService.stopUser(request));
     }
 
     @Test
-    public void testStopBackgroundUserInGagageMode() throws Exception {
+    public void testStopBackgroundUserInGarageMode() throws Exception {
         mockStopUserWithDelayedLocking(TEST_USER_ID, ActivityManager.USER_OP_SUCCESS);
         expectThat(mCarUserService.stopBackgroundUserInGagageMode(TEST_USER_ID)).isTrue();
 
@@ -2034,24 +2040,26 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_success() throws Exception {
+    public void testStartUser_success() throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
 
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_userAlreadyVisibleOnDisplay_success()
+    public void testStartUser_userAlreadyVisibleOnDisplay_success()
             throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
         mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
 
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserStartResult.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY);
@@ -2059,66 +2067,75 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_permissionDenied() throws Exception {
+    public void testStartUser_permissionDenied() throws Exception {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
         mockInteractAcrossUsersPermission(false);
 
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
         assertThrows(SecurityException.class,
-                () -> mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID));
+                () -> mCarUserService.startUser(request));
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_userInvalid() throws Exception {
-        UserStartResult result = mCarUserService
-                .startUserVisibleOnDisplay(UserHandle.SYSTEM.getIdentifier(), TEST_DISPLAY_ID);
+    public void testStartUser_userInvalid() throws Exception {
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.SYSTEM)
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_USER_INVALID);
         assertThat(result.isSuccess()).isFalse();
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_userDoesNotExist() throws Exception {
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
+    public void testStartUser_userDoesNotExist() throws Exception {
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_USER_DOES_NOT_EXIST);
         assertThat(result.isSuccess()).isFalse();
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_invalidDisplay() throws Exception {
-        initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
-
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, Display.INVALID_DISPLAY);
-
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_DISPLAY_INVALID);
-        assertThat(result.isSuccess()).isFalse();
-    }
-
-    @Test
-    public void testStartUserVisibleOnDisplay_displayUnavailable() throws Exception {
+    public void testStartUser_displayUnavailable() throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
         mockCarOccupantZoneServiceGetUserForDisplay(TEST_DISPLAY_ID, TEST_USER_ID + 1);
 
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_DISPLAY_UNAVAILABLE);
         assertThat(result.isSuccess()).isFalse();
     }
 
     @Test
-    public void testStartUserVisibleOnDisplay_userOnAnotherDisplay() throws Exception {
+    public void testStartUser_userOnAnotherDisplay() throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
         mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID + 1);
 
-        UserStartResult result =
-                mCarUserService.startUserVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
+        UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                .setDisplayId(TEST_DISPLAY_ID).build();
+        UserStartResult result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus())
                 .isEqualTo(UserStartResult.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY);
         assertThat(result.isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStartUser_withInvalidDisplayId_startsUserInBackground() throws Exception {
+        mockCurrentUser(mRegularUser);
+        expectRegularUserExists(mMockedUserHandleHelper, TEST_USER_ID);
+        mockAmStartUserInBackground(TEST_USER_ID, true);
+
+        UserStartRequest request =
+                new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID)).build();
+        UserStartResult result = mCarUserService.startUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
+        assertThat(result.isSuccess()).isTrue();
     }
 
     @Test
