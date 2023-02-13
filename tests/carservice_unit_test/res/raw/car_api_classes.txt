@@ -168,8 +168,6 @@ android.car.hardware.property.EvChargingConnectorType
 android.car.hardware.property.EvRegenerativeBrakingState
 android.car.hardware.property.EvStoppingMode
 android.car.hardware.property.ForwardCollisionWarningState
-android.car.hardware.property.GetPropertyServiceRequest
-android.car.hardware.property.GetValueResult
 android.car.hardware.property.HandsOnDetectionDriverState
 android.car.hardware.property.HandsOnDetectionWarning
 android.car.hardware.property.LaneCenteringAssistCommand

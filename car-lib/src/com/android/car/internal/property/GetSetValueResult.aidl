@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package android.car.hardware.property;
+package com.android.car.internal.property;
 
-parcelable GetValueResult;
+parcelable GetSetValueResult;

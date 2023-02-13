@@ -31,10 +31,8 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
-import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -47,6 +45,8 @@ import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -730,15 +730,13 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     /**
-     * Query CarPropertyValue with list of GetPropertyServiceRequest objects.
-     *
-     * <p>This method gets the CarPropertyValue using async methods. </p>
+     * Gets CarPropertyValues asynchronously.
      */
-    public void getPropertiesAsync(List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+    public void getPropertiesAsync(List<AsyncPropertyServiceRequest> getPropertyServiceRequests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
         requireNonNull(getPropertyServiceRequests);
-        requireNonNull(getAsyncPropertyResultCallback);
+        requireNonNull(asyncPropertyResultCallback);
         if (timeoutInMs <= 0) {
             throw new IllegalArgumentException("timeoutInMs must be a positive number");
         }
@@ -747,7 +745,16 @@ public class CarPropertyService extends ICarProperty.Stub
                     getPropertyServiceRequests.get(i).getAreaId());
         }
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                getAsyncPropertyResultCallback, timeoutInMs);
+                asyncPropertyResultCallback, timeoutInMs);
+    }
+
+    /**
+     * Sets CarPropertyValues asynchronously.
+     */
+    public void setPropertiesAsync(List<AsyncPropertyServiceRequest> setPropertyServiceRequests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
+            long timeoutInMs) {
+       // TODO(b/264719384): Implement this.
     }
 
     /**

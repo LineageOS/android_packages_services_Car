@@ -54,11 +54,8 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableErrorCode;
@@ -73,6 +70,10 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArraySet;
+
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import com.google.common.collect.ImmutableList;
 
@@ -141,6 +142,8 @@ public final class CarPropertyManagerUnitTest {
     private ArgumentCaptor<Integer> mPropertyIdCaptor;
     @Captor
     private ArgumentCaptor<Float> mUpdateRateHzCaptor;
+    @Captor
+    private ArgumentCaptor<List<AsyncPropertyServiceRequest>> mAsyncPropertyServiceRequestCaptor;
     private CarPropertyManager mCarPropertyManager;
 
     private static List<CarPropertyEvent> createErrorCarPropertyEventList() {
@@ -738,12 +741,16 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.getFloatProperty(FLOAT_PROP, 0));
     }
 
+    private CarPropertyManager.GetPropertyRequest createGetPropertyRequest() {
+        return mCarPropertyManager.generateGetPropertyRequest(HVAC_TEMPERATURE_SET, 0);
+    }
+
     @Test
-    public void testGetPropertiesAsync_propertySupported() throws RemoteException {
+    public void testGetPropertiesAsync() throws RemoteException {
         mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
 
-        ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
+        ArgumentCaptor<List<AsyncPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
                 List.class);
         verify(mICarProperty).getPropertiesAsync(argumentCaptor.capture(), any(), anyLong());
         assertThat(argumentCaptor.getValue().get(0).getRequestId()).isEqualTo(0);
@@ -757,7 +764,7 @@ public final class CarPropertyManagerUnitTest {
         mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()),
                 /* timeoutInMs= */ 1000, null, null, mGetPropertyCallback);
 
-        ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
+        ArgumentCaptor<List<AsyncPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
                 List.class);
         verify(mICarProperty).getPropertiesAsync(argumentCaptor.capture(), any(), eq(1000L));
         assertThat(argumentCaptor.getValue().get(0).getRequestId()).isEqualTo(0);
@@ -766,40 +773,41 @@ public final class CarPropertyManagerUnitTest {
         assertThat(argumentCaptor.getValue().get(0).getAreaId()).isEqualTo(0);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testGetPropertiesAsync_illegalArgumentException() throws RemoteException {
         IllegalArgumentException exception = new IllegalArgumentException();
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
-                any(IGetAsyncPropertyResultCallback.class), anyLong());
+                any(IAsyncPropertyResultCallback.class), anyLong());
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
-                mGetPropertyCallback);
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getPropertiesAsync(
+                        List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback));
     }
 
-    @Test(expected = SecurityException.class)
+    @Test
     public void testGetPropertiesAsync_SecurityException() throws RemoteException {
         SecurityException exception = new SecurityException();
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
-                any(IGetAsyncPropertyResultCallback.class), anyLong());
+                any(IAsyncPropertyResultCallback.class), anyLong());
 
-        mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
-                mGetPropertyCallback);
+        assertThrows(SecurityException.class,
+                () -> mCarPropertyManager.getPropertiesAsync(
+                        List.of(createGetPropertyRequest()), null, null, mGetPropertyCallback));
     }
 
     @Test
     public void tsetGetPropertiesAsync_unsupportedProperty() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> {
-            mCarPropertyManager.getPropertiesAsync(List.of(
-                    mCarPropertyManager.generateGetPropertyRequest(INVALID, 0)), null, null,
-                    mGetPropertyCallback);
-        });
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.getPropertiesAsync(
+                        List.of(mCarPropertyManager.generateGetPropertyRequest(INVALID, 0)), null,
+                        null, mGetPropertyCallback));
     }
 
     @Test
     public void testGetPropertiesAsync_remoteException() throws RemoteException {
         RemoteException remoteException = new RemoteException();
         doThrow(remoteException).when(mICarProperty).getPropertiesAsync(any(List.class),
-                any(IGetAsyncPropertyResultCallback.class), anyLong());
+                any(IAsyncPropertyResultCallback.class), anyLong());
 
         mCarPropertyManager.getPropertiesAsync(List.of(createGetPropertyRequest()), null, null,
                 mGetPropertyCallback);
@@ -808,11 +816,11 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
-    public void testGetPropertiesAsync_clearRequestIdToClientInfo() throws RemoteException {
+    public void testGetPropertiesAsync_clearRequestIdAfterFailed() throws RemoteException {
         CarPropertyManager.GetPropertyRequest getPropertyRequest = createGetPropertyRequest();
         IllegalArgumentException exception = new IllegalArgumentException();
         doThrow(exception).when(mICarProperty).getPropertiesAsync(any(List.class),
-                any(IGetAsyncPropertyResultCallback.class), anyLong());
+                any(IAsyncPropertyResultCallback.class), anyLong());
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.getPropertiesAsync(List.of(getPropertyRequest), null,
@@ -820,8 +828,8 @@ public final class CarPropertyManagerUnitTest {
 
         clearInvocations(mICarProperty);
         doNothing().when(mICarProperty).getPropertiesAsync(any(List.class),
-                any(IGetAsyncPropertyResultCallback.class), anyLong());
-        ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
+                any(IAsyncPropertyResultCallback.class), anyLong());
+        ArgumentCaptor<List<AsyncPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
                 List.class);
 
         mCarPropertyManager.getPropertiesAsync(List.of(getPropertyRequest), null, null,
@@ -838,13 +846,10 @@ public final class CarPropertyManagerUnitTest {
     public void testGetPropertiesAsync_cancellationSignalCancelRequests() throws Exception {
         CarPropertyManager.GetPropertyRequest getPropertyRequest = createGetPropertyRequest();
         CancellationSignal cancellationSignal = new CancellationSignal();
-        List<IGetAsyncPropertyResultCallback> callbackWrapper = new ArrayList<>();
+        List<IAsyncPropertyResultCallback> callbackWrapper = new ArrayList<>();
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            List getPropertyServiceList = (List) args[0];
-            GetPropertyServiceRequest getPropertyServiceRequest =
-                    (GetPropertyServiceRequest) getPropertyServiceList.get(0);
-            callbackWrapper.add((IGetAsyncPropertyResultCallback) args[1]);
+            callbackWrapper.add((IAsyncPropertyResultCallback) args[1]);
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -857,18 +862,14 @@ public final class CarPropertyManagerUnitTest {
         verify(mICarProperty).cancelRequests(new int[]{0});
 
         // Call the manager callback after the request is already cancelled.
-        GetValueResult getValueResult = new GetValueResult(0, null,
+        GetSetValueResult getValueResult = GetSetValueResult.newErrorGetValueResult(0,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(callbackWrapper.size()).isEqualTo(1);
-        callbackWrapper.get(0).onGetValueResult(List.of(getValueResult));
+        callbackWrapper.get(0).onGetValueResults(List.of(getValueResult));
 
         // No client callbacks should be called.
         verify(mGetPropertyCallback, never()).onFailure(any());
         verify(mGetPropertyCallback, never()).onSuccess(any());
-    }
-
-    private CarPropertyManager.GetPropertyRequest createGetPropertyRequest() {
-        return mCarPropertyManager.generateGetPropertyRequest(HVAC_TEMPERATURE_SET, 0);
     }
 
     @Test
@@ -876,19 +877,18 @@ public final class CarPropertyManagerUnitTest {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List getPropertyServiceList = (List) args[0];
-            GetPropertyServiceRequest getPropertyServiceRequest =
-                    (GetPropertyServiceRequest) getPropertyServiceList.get(0);
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback =
-                    (IGetAsyncPropertyResultCallback) args[1];
+            AsyncPropertyServiceRequest getPropertyServiceRequest =
+                    (AsyncPropertyServiceRequest) getPropertyServiceList.get(0);
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
 
             assertThat(getPropertyServiceRequest.getRequestId()).isEqualTo(0);
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
-            GetValueResult getValueResult = new GetValueResult(0, value,
-                    CarPropertyManager.STATUS_OK);
+            GetSetValueResult getValueResult = GetSetValueResult.newGetValueResult(0, value);
 
-            getAsyncPropertyResultCallback.onGetValueResult(List.of(getValueResult));
+            getAsyncPropertyResultCallback.onGetValueResults(List.of(getValueResult));
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -910,10 +910,10 @@ public final class CarPropertyManagerUnitTest {
     public void testOnGetValueResult_onSuccessMultipleRequests() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            List<GetPropertyServiceRequest> getPropertyServiceRequests =
-                    (List<GetPropertyServiceRequest>) args[0];
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback =
-                    (IGetAsyncPropertyResultCallback) args[1];
+            List<AsyncPropertyServiceRequest> getPropertyServiceRequests =
+                    (List<AsyncPropertyServiceRequest>) args[0];
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
 
             assertThat(getPropertyServiceRequests.size()).isEqualTo(2);
             assertThat(getPropertyServiceRequests.get(0).getRequestId()).isEqualTo(0);
@@ -924,11 +924,11 @@ public final class CarPropertyManagerUnitTest {
                     HVAC_TEMPERATURE_SET);
 
             CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
-            List<GetValueResult> getValueResults = new ArrayList<>();
-            getValueResults.add(new GetValueResult(0, value, CarPropertyManager.STATUS_OK));
-            getValueResults.add(new GetValueResult(1, value, CarPropertyManager.STATUS_OK));
+            List<GetSetValueResult> getValueResults = List.of(
+                    GetSetValueResult.newGetValueResult(0, value),
+                    GetSetValueResult.newGetValueResult(1, value));
 
-            getAsyncPropertyResultCallback.onGetValueResult(getValueResults);
+            getAsyncPropertyResultCallback.onGetValueResults(getValueResults);
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -958,19 +958,19 @@ public final class CarPropertyManagerUnitTest {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List getPropertyServiceList = (List) args[0];
-            GetPropertyServiceRequest getPropertyServiceRequest =
-                    (GetPropertyServiceRequest) getPropertyServiceList.get(0);
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback =
-                    (IGetAsyncPropertyResultCallback) args[1];
+            AsyncPropertyServiceRequest getPropertyServiceRequest =
+                    (AsyncPropertyServiceRequest) getPropertyServiceList.get(0);
+            IAsyncPropertyResultCallback getAsyncPropertyResultCallback =
+                    (IAsyncPropertyResultCallback) args[1];
 
             assertThat(getPropertyServiceRequest.getRequestId()).isEqualTo(0);
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
-            GetValueResult getValueResult = new GetValueResult(0, null,
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorGetValueResult(0,
                     VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
                             | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
-            getAsyncPropertyResultCallback.onGetValueResult(List.of(getValueResult));
+            getAsyncPropertyResultCallback.onGetValueResults(List.of(getValueResult));
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -1011,9 +1011,8 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testSetProperty_unsupportedProperty() throws RemoteException {
-        assertThrows(IllegalArgumentException.class, () -> {
-            mCarPropertyManager.setProperty(Float.class, INVALID, 0, 17.0f);
-        });
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, INVALID, 0, 17.0f));
     }
 
     private CarPropertyManager.SetPropertyRequest createSetPropertyRequest() {
@@ -1025,7 +1024,129 @@ public final class CarPropertyManagerUnitTest {
     public void testSetPropertiesAsync() throws RemoteException {
         mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()), null, null,
                 mSetPropertyCallback);
-        // TODO(b/264719384): improve this test.
+
+        verify(mICarProperty).setPropertiesAsync(mAsyncPropertyServiceRequestCaptor.capture(),
+                any(), anyLong());
+
+        AsyncPropertyServiceRequest request = mAsyncPropertyServiceRequestCaptor.getValue().get(0);
+
+        assertThat(request.getRequestId()).isEqualTo(0);
+        assertThat(request.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(request.getAreaId()).isEqualTo(0);
+        CarPropertyValue requestValue = request.getCarPropertyValue();
+        assertThat(requestValue).isNotNull();
+        assertThat(requestValue.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(requestValue.getAreaId()).isEqualTo(0);
+        assertThat(requestValue.getValue()).isEqualTo(17.0f);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_nullRequests() throws RemoteException {
+        assertThrows(NullPointerException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(
+                        null, null, null, mSetPropertyCallback));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_nullCallback() throws RemoteException {
+        assertThrows(NullPointerException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(
+                        List.of(createSetPropertyRequest()), null, null, null));
+    }
+
+    @Test
+    public void testSetPropertiesAsyncWithTimeout() throws RemoteException {
+        mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()),
+                /* timeoutInMs= */ 1000, /* cancellationSignal= */ null,
+                /* callbackExecutor= */ null, mSetPropertyCallback);
+
+        verify(mICarProperty).setPropertiesAsync(mAsyncPropertyServiceRequestCaptor.capture(),
+                any(), eq(1000L));
+        AsyncPropertyServiceRequest request = mAsyncPropertyServiceRequestCaptor.getValue().get(0);
+        assertThat(request.getRequestId()).isEqualTo(0);
+        assertThat(request.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(request.getAreaId()).isEqualTo(0);
+        CarPropertyValue requestValue = request.getCarPropertyValue();
+        assertThat(requestValue).isNotNull();
+        assertThat(requestValue.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(requestValue.getAreaId()).isEqualTo(0);
+        assertThat(requestValue.getValue()).isEqualTo(17.0f);
+    }
+
+    @Test
+    public void testSetPropertiesAsync_illegalArgumentException() throws RemoteException {
+        doThrow(new IllegalArgumentException()).when(mICarProperty).setPropertiesAsync(
+                any(List.class), any(IAsyncPropertyResultCallback.class), anyLong());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(
+                        List.of(createSetPropertyRequest()), null, null, mSetPropertyCallback));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_SecurityException() throws RemoteException {
+        doThrow(new SecurityException()).when(mICarProperty).setPropertiesAsync(any(List.class),
+                any(IAsyncPropertyResultCallback.class), anyLong());
+
+        assertThrows(SecurityException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(
+                        List.of(createSetPropertyRequest()), null, null, mSetPropertyCallback));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_unsupportedProperty() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(
+                        List.of(mCarPropertyManager.generateSetPropertyRequest(
+                                INVALID, 0, Integer.valueOf(0))),
+                        null, null, mSetPropertyCallback));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_remoteException() throws RemoteException {
+        doThrow(new RemoteException()).when(mICarProperty).setPropertiesAsync(any(List.class),
+                any(IAsyncPropertyResultCallback.class), anyLong());
+
+        mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()), null, null,
+                mSetPropertyCallback);
+
+        verify(mCar).handleRemoteExceptionFromCarService(any(RemoteException.class));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_duplicateRequestId() throws RemoteException {
+        CarPropertyManager.SetPropertyRequest request = createSetPropertyRequest();
+
+        mCarPropertyManager.setPropertiesAsync(List.of(request), null, null,
+                mSetPropertyCallback);
+
+        // Send the same request again with the same request ID is not allowed.
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(List.of(request), null, null,
+                        mSetPropertyCallback));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_clearRequestIdAfterFailed() throws RemoteException {
+        CarPropertyManager.SetPropertyRequest setPropertyRequest = createSetPropertyRequest();
+        IllegalArgumentException exception = new IllegalArgumentException();
+        doThrow(exception).when(mICarProperty).setPropertiesAsync(any(List.class),
+                any(IAsyncPropertyResultCallback.class), anyLong());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarPropertyManager.setPropertiesAsync(List.of(setPropertyRequest), null,
+                        null, mSetPropertyCallback));
+
+        clearInvocations(mICarProperty);
+        doNothing().when(mICarProperty).setPropertiesAsync(any(List.class),
+                any(IAsyncPropertyResultCallback.class), anyLong());
+
+        // After the first request failed, the request ID map should be cleared so we can use the
+        // same request ID again.
+        mCarPropertyManager.setPropertiesAsync(List.of(setPropertyRequest), null, null,
+                mSetPropertyCallback);
+
+        verify(mICarProperty).setPropertiesAsync(any(), any(), anyLong());
     }
 
     @Test

@@ -18,9 +18,10 @@ package android.car.hardware.property;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.car.hardware.property.ICarPropertyEventListener;
+
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 /**
  * @hide
@@ -44,12 +45,10 @@ interface ICarProperty {
     List<CarPropertyConfig> getPropertyConfigList(in int[] propIds) = 7;
 
     /**
-     * Query CarPropertyValues asynchronously with list of GetPropertyServiceRequest objects.
-     *
-     * <p>This method gets the CarPropertyValue using async methods.
+     * Gets CarPropertyValues asynchronously.
      */
-    void getPropertiesAsync(in List<GetPropertyServiceRequest> getPropertyServiceRequests,
-                in IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+    void getPropertiesAsync(in List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+                in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs) = 8;
 
     /**
@@ -58,4 +57,11 @@ interface ICarProperty {
      * @param serviceRequestIds A list of async get/set property request IDs.
      */
     void cancelRequests(in int[] serviceRequestIds) = 9;
+
+    /**
+     * Sets CarPropertyValues asynchronously.
+     */
+    void setPropertiesAsync(in List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+                in IAsyncPropertyResultCallback asyncPropertyResultCallback,
+                long timeoutInMs) = 10;
 }

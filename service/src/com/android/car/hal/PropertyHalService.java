@@ -30,9 +30,6 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
-import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.GetValueResult;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -56,7 +53,10 @@ import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -79,13 +79,13 @@ public class PropertyHalService extends HalServiceBase {
     private static final int ASYNC_RETRY_SLEEP_IN_MS = 100;
 
     private static final class AsyncGetRequestInfo {
-        private final GetPropertyServiceRequest mPropMgrRequest;
+        private final AsyncPropertyServiceRequest mPropMgrRequest;
         // The uptimeMillis when this request time out.
         private final long mTimeoutUptimeMillis;
         // The remaining timeout in milliseconds for this request.
         private final long mTimeoutInMs;
 
-        AsyncGetRequestInfo(GetPropertyServiceRequest propMgrRequest,
+        AsyncGetRequestInfo(AsyncPropertyServiceRequest propMgrRequest,
                 long timeoutUptimeMillis, long timeoutInMs) {
             mPropMgrRequest = propMgrRequest;
             mTimeoutUptimeMillis = timeoutUptimeMillis;
@@ -100,7 +100,7 @@ public class PropertyHalService extends HalServiceBase {
             return mPropMgrRequest.getPropertyId();
         }
 
-        public GetPropertyServiceRequest getGetPropSvcRequest() {
+        public AsyncPropertyServiceRequest getPropSvcRequest() {
             return mPropMgrRequest;
         }
 
@@ -116,14 +116,12 @@ public class PropertyHalService extends HalServiceBase {
                     serviceRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
         }
 
-        public GetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
-            return new GetValueResult(getManagerRequestId(), /* carPropertyValue= */ null,
-                    errorCode);
+        public GetSetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
+            return GetSetValueResult.newErrorGetValueResult(getManagerRequestId(), errorCode);
         }
 
-        public GetValueResult toOkayGetValueResult(CarPropertyValue value) {
-            return new GetValueResult(getManagerRequestId(), value,
-                    CarPropertyManager.STATUS_OK);
+        public GetSetValueResult toGetValueResult(CarPropertyValue value) {
+            return GetSetValueResult.newGetValueResult(getManagerRequestId(), value);
         }
     };
 
@@ -167,15 +165,15 @@ public class PropertyHalService extends HalServiceBase {
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
     private class VehicleStubCallback extends VehicleStubCallbackInterface {
-        private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+        private final IAsyncPropertyResultCallback mAsyncPropertyResultCallback;
         private final IBinder mClientBinder;
 
-        private void sendGetValueResults(List<GetValueResult> results) {
+        private void sendGetValueResults(List<GetSetValueResult> results) {
             if (results.isEmpty()) {
                 return;
             }
             try {
-                mGetAsyncPropertyResultCallback.onGetValueResult(results);
+                mAsyncPropertyResultCallback.onGetValueResults(results);
             } catch (RemoteException e) {
                 Slogf.w(TAG, "onGetAsyncResults: Client might have died already", e);
             }
@@ -183,7 +181,7 @@ public class PropertyHalService extends HalServiceBase {
 
         private void retryIfNotExpired(List<AsyncGetRequestInfo> retryRequestInfo) {
             List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
-            List<GetValueResult> timeoutResults = new ArrayList<>();
+            List<GetSetValueResult> timeoutResults = new ArrayList<>();
             synchronized (mLock) {
                 // Get the current time after obtaining lock since it might take some time to get
                 // the lock.
@@ -200,7 +198,7 @@ public class PropertyHalService extends HalServiceBase {
                     long timeoutInMs = timeoutUptimeMillis - currentTimeInMillis;
                     // Need to create a new request for the retry.
                     AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
-                            requestInfo.getGetPropSvcRequest(), timeoutUptimeMillis, timeoutInMs);
+                            requestInfo.getPropSvcRequest(), timeoutUptimeMillis, timeoutInMs);
                     getVehicleStubAsyncRequests.add(generateGetVehicleStubAsyncRequestLocked(
                             mPropValueBuilder, asyncGetRequestInfo));
                 }
@@ -212,9 +210,9 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         VehicleStubCallback(
-                IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
-            mGetAsyncPropertyResultCallback = getAsyncPropertyResultCallback;
-            mClientBinder = getAsyncPropertyResultCallback.asBinder();
+                IAsyncPropertyResultCallback asyncPropertyResultCallback) {
+            mAsyncPropertyResultCallback = asyncPropertyResultCallback;
+            mClientBinder = asyncPropertyResultCallback.asBinder();
         }
 
         // This is a wrapper for death recipient that will unlink itself upon binder death.
@@ -241,7 +239,7 @@ public class PropertyHalService extends HalServiceBase {
         @Override
         public void onGetAsyncResults(
                 List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
-            List<GetValueResult> getValueResults = new ArrayList<>();
+            List<GetSetValueResult> getValueResults = new ArrayList<>();
             List<AsyncGetRequestInfo> retryRequestInfo = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
@@ -295,7 +293,7 @@ public class PropertyHalService extends HalServiceBase {
                                 STATUS_INTERNAL_ERROR));
                         continue;
                     }
-                    getValueResults.add(clientRequestInfo.toOkayGetValueResult(carPropertyValue));
+                    getValueResults.add(clientRequestInfo.toGetValueResult(carPropertyValue));
                 }
             }
 
@@ -316,7 +314,7 @@ public class PropertyHalService extends HalServiceBase {
 
         @Override
         public void onRequestsTimeout(List<Integer> serviceRequestIds) {
-            List<GetValueResult> timeoutResults = new ArrayList<>();
+            List<GetSetValueResult> timeoutResults = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < serviceRequestIds.size(); i++) {
                     int serviceRequestId = serviceRequestIds.get(i);
@@ -724,20 +722,20 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     * Query CarPropertyValue with list of GetPropertyServiceRequest objects.
+     * Query CarPropertyValue with list of AsyncPropertyServiceRequest objects.
      *
      * <p>This method gets the CarPropertyValue using async methods. </p>
      */
     public void getCarPropertyValuesAsync(
-            List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+            List<AsyncPropertyServiceRequest> getPropertyServiceRequests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
         List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
-                GetPropertyServiceRequest getPropertyServiceRequest =
+                AsyncPropertyServiceRequest getPropertyServiceRequest =
                         getPropertyServiceRequests.get(i);
                 AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
                         getPropertyServiceRequest, SystemClock.uptimeMillis() + timeoutInMs,
@@ -748,24 +746,24 @@ public class PropertyHalService extends HalServiceBase {
             }
         }
 
-        IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
+        IBinder asyncPropertyResultBinder = asyncPropertyResultCallback.asBinder();
         VehicleStubCallbackInterface callback;
         synchronized (mLock) {
-            if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
-                callback = new VehicleStubCallback(getAsyncPropertyResultCallback);
+            if (mResultBinderToVehicleStubCallback.get(asyncPropertyResultBinder) == null) {
+                callback = new VehicleStubCallback(asyncPropertyResultCallback);
                 try {
                     callback.linkToDeath(() -> {
                         synchronized (mLock) {
-                            mResultBinderToVehicleStubCallback.remove(getAsyncPropertyResultBinder);
+                            mResultBinderToVehicleStubCallback.remove(asyncPropertyResultBinder);
                         }
                     });
                 } catch (RemoteException e) {
                     throw new IllegalStateException("Linking to binder death recipient failed, "
                             + "the client might already died", e);
                 }
-                mResultBinderToVehicleStubCallback.put(getAsyncPropertyResultBinder, callback);
+                mResultBinderToVehicleStubCallback.put(asyncPropertyResultBinder, callback);
             } else {
-                callback = mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder);
+                callback = mResultBinderToVehicleStubCallback.get(asyncPropertyResultBinder);
             }
         }
         mVehicleHal.getAsync(getVehicleStubAsyncRequests, callback);
