@@ -25,6 +25,7 @@ import android.car.annotation.ApiRequirements;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.SparseArray;
 import android.view.SurfaceControl;
 
 /**
@@ -76,4 +77,32 @@ public interface CarTaskViewHost {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     void showEmbeddedTask();
+
+    /**
+     * Adds the given {@code insets} on the Task.
+     *
+     * <p>
+     * The given rectangles for every given insets type are applied to the underlying task right
+     * away.
+     * If a rectangle for an insets type was added previously, it will be replaced with the
+     * new value.
+     * If a rectangle for a insets type was already added, but is not specified currently in
+     * {@code insets}, it will remain applied to the task. Clients should explicitly call
+     * {@link #removeInsets(int[])} to remove the rectangle for that insets type from the
+     * underlying task.
+     *
+     * @param insetsProviderRects A map of {@link android.view.InsetsState.InternalInsetsType} to
+     *                            the frame that provides the insets.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    void addInsets(@NonNull SparseArray<Rect> insetsProviderRects);
+
+    /**
+     * Removes the insets for the given {@code insetsTypesToRemove} that were set via
+     * {@link #addInsets(SparseArray)}
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    void removeInsets(@NonNull int[] insetsTypesToRemove);
 }
