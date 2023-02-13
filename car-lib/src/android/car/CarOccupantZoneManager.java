@@ -448,7 +448,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * if no display matches the requirements.
      *
      * @param displayType This should be a valid display type and passing
-     *                    {@link #DISPLAY_TYPE_UNKNOWN} will always lead into {@link null} return.
+     *                    {@link #DISPLAY_TYPE_UNKNOWN} will always lead into {@code null} return.
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
