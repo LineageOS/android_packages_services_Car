@@ -32,6 +32,8 @@ android.car.PlatformVersion
 android.car.PlatformVersion$VERSION_CODES
 android.car.PlatformVersionMismatchException
 android.car.PortLocationType
+android.car.ResultCallback
+android.car.SyncResultCallback
 android.car.VehicleAreaDoor
 android.car.VehicleAreaMirror
 android.car.VehicleAreaSeat
