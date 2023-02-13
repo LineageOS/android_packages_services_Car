@@ -44,11 +44,18 @@ import java.util.List;
  * <p>New instances are created through {@link #from(CarUserManager)}.
  *
  * @hide
+ * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+ * supported. It will be marked @Removed in VIC and hard removed in X.
  */
 @ExperimentalFeature
+@Deprecated
 public final class ExperimentalCarUserManager extends CarManagerBase {
 
-    /** @hide */
+    /** @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
+     */
+    @Deprecated
     @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = ExperimentalCarUserManager.class.getSimpleName();
 
@@ -61,7 +68,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
 
     /**
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     public ExperimentalCarUserManager(@NonNull Car car, @NonNull IBinder service) {
         this(car, IExperimentalCarUserService.Stub.asInterface(service));
     }
@@ -83,7 +93,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      *         retrieve its result (if any).
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<UserCreationResult> createDriver(@NonNull String name, boolean admin) {
@@ -106,7 +119,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      *         could not be created.
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
@@ -127,7 +143,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      *         retrieve its result (if any).
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<UserSwitchResult> switchDriver(@UserIdInt int driverId) {
@@ -158,7 +177,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      * @return the list of user ids who can be a driver on the device.
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -177,7 +199,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      * @return the list of user ids who are passengers under the given driver.
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -198,7 +223,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      *         Otherwise, {@code false}.
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @AddedInOrBefore(majorVersion = 33)
     public boolean startPassenger(@UserIdInt int passengerId, int zoneId) {
@@ -216,7 +244,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      * @return {@code true} if successfully stopped, or {@code false} if failed.
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
     @AddedInOrBefore(majorVersion = 33)
     public boolean stopPassenger(@UserIdInt int passengerId) {
@@ -227,7 +258,11 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
         }
     }
 
-    /** @hide */
+    /** @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
+     */
+    @Deprecated
     @Override
     @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
