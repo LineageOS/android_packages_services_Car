@@ -255,11 +255,12 @@ public final class CarPropertyValue<T> implements Parcelable {
     /**
      * Returns the timestamp in nanoseconds at which the CarPropertyValue happened. For a given car
      * property, each new CarPropertyValue should be monotonically increasing using the same time
-     * base as {@link SystemClock#elapsedRealtimeNanos()}.
+     * base as {@link android.os.SystemClock#elapsedRealtimeNanos()}.
      *
      * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
-     * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
-     * error should be below 1 millisecond.
+     * {@link android.location.Location Location} and
+     * {@link android.hardware.SensorEvent SensorEvent} instances).
+     * Ideally, timestamp synchronization error should be below 1 millisecond.
      */
     @AddedInOrBefore(majorVersion = 33)
     public long getTimestamp() {

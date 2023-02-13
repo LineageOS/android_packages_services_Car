@@ -161,7 +161,7 @@ public final class IoOveruseStats implements Parcelable {
     /**
      * Package may be killed on disk I/O overuse.
      *
-     * <p>Disk I/O overuse is triggered on exceeding {@link #mRemainingWriteBytes}.
+     * <p>Disk I/O overuse is triggered on exceeding {@link #getRemainingWriteBytes()}.
      */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
@@ -173,7 +173,7 @@ public final class IoOveruseStats implements Parcelable {
      * Number of write bytes remaining in each application or system state.
      *
      * <p>On exceeding these limit in at least one system or application state, the package may be
-     * killed if {@link #mKillableOnOveruse} is {@code true}.
+     * killed if {@link #isKillableOnOveruse()} is {@code true}.
      *
      * <p>The above period does not apply to this field.
      */

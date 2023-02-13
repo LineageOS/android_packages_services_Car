@@ -358,7 +358,7 @@ public class CarPowerManager extends CarManagerBase {
      */
     public interface CarPowerPolicyListener {
         /**
-         * Called with {@link #CarPowerPolicy} when power policy changes.
+         * Called with {@link CarPowerPolicy} when power policy changes.
          *
          * @param policy The current power policy.
          */
