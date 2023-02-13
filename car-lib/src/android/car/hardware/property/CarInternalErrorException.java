@@ -18,14 +18,41 @@ package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
+import android.car.annotation.ApiRequirements;
 
 /**
  * Exception thrown when something unexpected happened in cars.
  */
 public class CarInternalErrorException extends RuntimeException {
+    private static final int VENDOR_ERROR_CODE_SUCCESS = 0;
+
+    private int mVendorErrorCode;
+
     CarInternalErrorException(int propertyId, int areaId) {
+        this(propertyId, areaId, VENDOR_ERROR_CODE_SUCCESS);
+    }
+
+    CarInternalErrorException(int propertyId, int areaId, int vendorErrorCode) {
         super("Property ID: " + VehiclePropertyIds.toString(propertyId) + " area ID: "
-                + toHexString(areaId) + " - raised an internal error in cars.");
+                + toHexString(areaId) + " - raised an internal error in cars with "
+                + "vendor error code: " + vendorErrorCode);
+        mVendorErrorCode = vendorErrorCode;
+    }
+
+    /**
+     * Gets the vendor error codes to allow for more detailed error codes.
+     *
+     * @return Vendor error code if it is set, otherwise 0. A vendor error code will have a range
+     * from 0x0000 to 0xffff.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public int getVendorErrorCode() {
+        return mVendorErrorCode;
     }
 }

@@ -106,6 +106,9 @@ public final class CarPropertyManagerUnitTest {
     private static final float LARGER_UPDATE_RATE_HZ = 50.1f;
     private static final float SMALLER_UPDATE_RATE_HZ = 49.9f;
 
+    private static final int VENDOR_ERROR_CODE = 0x2;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
+
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     @Mock
@@ -280,6 +283,19 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetProperty_internalErrorEqualAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_INTERNAL_ERROR, VENDOR_ERROR_CODE)));
+
+        CarInternalErrorException exception = assertThrows(CarInternalErrorException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testGetProperty_unknownErrorBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
@@ -370,6 +386,19 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetProperty_notAvailableEqualAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE, VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testGetProperty_notAvailableDisabledBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
@@ -389,6 +418,21 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+    }
+
+    @Test
+    public void testGetProperty_notAvailableDisabledAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED, VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
@@ -414,6 +458,21 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetProperty_notAvailableSafetyAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY, VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testGetProperty_notAvailableSpeedHighBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
@@ -436,6 +495,21 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetProperty_notAvailableSpeedHighAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH, VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testGetProperty_notAvailableSpeedLowBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
@@ -455,6 +529,21 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+    }
+
+    @Test
+    public void testGetProperty_notAvailableSpeedLowAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(combineErrors(
+                        VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW, VENDOR_ERROR_CODE)));
+
+        PropertyNotAvailableException exception = assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
@@ -852,7 +941,8 @@ public final class CarPropertyManagerUnitTest {
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetValueResult getValueResult = new GetValueResult(0, null,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
+                            | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
             getAsyncPropertyResultCallback.onGetValueResult(List.of(getValueResult));
             return null;
@@ -870,6 +960,7 @@ public final class CarPropertyManagerUnitTest {
         assertThat(value.getValue().getAreaId()).isEqualTo(0);
         assertThat(value.getValue().getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(value.getValue().getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
@@ -902,6 +993,34 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testSetProperty_notAvailableAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE, VENDOR_ERROR_CODE))).when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
+    public void testSetProperty_internalErrorAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_INTERNAL_ERROR, VENDOR_ERROR_CODE))).when(mICarProperty)
+                .setProperty(eq(carPropertyValue), any());
+
+        CarInternalErrorException exception =  assertThrows(CarInternalErrorException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testSetProperty_notAvailableDisabledBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
@@ -925,6 +1044,22 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+    }
+
+    @Test
+    public void testSetProperty_notAvailableDisabledAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED, VENDOR_ERROR_CODE)))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_DISABLED);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
@@ -954,6 +1089,22 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testSetProperty_notAvailableSafetyAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY, VENDOR_ERROR_CODE)))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SAFETY);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testSetProperty_notAvailableSpeedHighBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
@@ -980,6 +1131,22 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testSetProperty_notAvailableSpeedHighAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH, VENDOR_ERROR_CODE)))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_HIGH);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+    }
+
+    @Test
     public void testSetProperty_notAvailableSpeedLowBeforeU() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
         CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
@@ -1003,6 +1170,22 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
         assertThat(exception.getDetailedErrorCode())
                 .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+    }
+
+    @Test
+    public void testSetProperty_notAvailableSpeedLowAfterU_withVendorErrorCode() throws Exception {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> carPropertyValue = new CarPropertyValue<>(
+                HVAC_TEMPERATURE_SET, 0, 17.0f);
+        doThrow(new ServiceSpecificException(combineErrors(
+                VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW, VENDOR_ERROR_CODE)))
+                .when(mICarProperty).setProperty(eq(carPropertyValue), any());
+
+        PropertyNotAvailableException exception =  assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f));
+        assertThat(exception.getDetailedErrorCode())
+                .isEqualTo(PropertyNotAvailableErrorCode.NOT_AVAILABLE_SPEED_LOW);
+        assertThat(exception.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
     }
 
     @Test
@@ -1400,5 +1583,9 @@ public final class CarPropertyManagerUnitTest {
     public void testIsPropertyAvailable_unsupported() throws Exception {
         assertThat(mCarPropertyManager.isPropertyAvailable(/* propId= */ 0, /* areaId= */ 0))
                 .isFalse();
+    }
+
+    private static int combineErrors(int systemError, int vendorError) {
+        return vendorError << VENDOR_ERROR_CODE_SHIFT | systemError;
     }
 }

@@ -1015,6 +1015,14 @@ package android.car.hardware.property {
     field public static final int WARNING = 2; // 0x2
   }
 
+  public class CarInternalErrorException extends java.lang.RuntimeException {
+    method public int getVendorErrorCode();
+  }
+
+  public static final class CarPropertyManager.PropertyAsyncError {
+    method public int getVendorErrorCode();
+  }
+
   public final class ErrorState {
     method @NonNull public static String toString(int);
     field public static final int NOT_AVAILABLE_DISABLED = -2; // 0xfffffffe
@@ -1071,6 +1079,10 @@ package android.car.hardware.property {
     field public static final int ENABLED = 1; // 0x1
     field public static final int OTHER = 0; // 0x0
     field public static final int USER_OVERRIDE = 4; // 0x4
+  }
+
+  public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+    method public int getVendorErrorCode();
   }
 
   public final class TrailerState {
