@@ -589,7 +589,7 @@ public final class AudioManagerHelper {
      * Gets the last audible volume for a given {@link AudioVolumeGroup} id.
      * <p>The last audible index is the current index if not muted, or index applied before mute if
      * muted. If muted by volume 0, the last audible index is 0. See
-     * {@link AudioManager#getLastAudibleVolumeGroupVolume} for details.
+     * {@link AudioManager#getLastAudibleVolumeForVolumeGroup} for details.
      *
      * @param audioManager {@link AudioManager} instance to be used for the request
      * @param amGroupId id of the {@link AudioVolumeGroup} to consider
@@ -600,7 +600,7 @@ public final class AudioManagerHelper {
     public static int getLastAudibleVolumeGroupVolume(@NonNull AudioManager audioManager,
                                                      int amGroupId) {
         Objects.requireNonNull(audioManager, "Audio manager can not be null");
-        return audioManager.getLastAudibleVolumeGroupVolume(amGroupId);
+        return audioManager.getLastAudibleVolumeForVolumeGroup(amGroupId);
     }
 
     /**
