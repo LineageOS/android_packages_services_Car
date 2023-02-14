@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"එම කලාප තුළ ස්ථාපනය කර ඇති මෝටර් රථ සහ සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නාමය ඇති යෙදුම්) තුළ ඇති අනෙකුත් පදිංචිකරුවන්ගේ කලාපවල තත්ත්වයන් අධීක්ෂණය කරන්න, සහ එම කලාපවල බලය කළමනාකරණය කරන්න."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"මෝටර් රථයේ වෙනත් පදිංචිකරුවන්ගේ කලාපවල ස්ථාපනය කර ඇති සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නම ඇති යෙදුම්) වෙත සම්බන්ධතාවය ස්ථාපිත කර සන්නිවේදනය කරන්න."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"මෝටර් රථයේ වෙනත් පදිංචිකරුවන්ගේ කලාපවල ස්ථාපනය කර ඇති සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නම ඇති යෙදුම්) වෙත සම්බන්ධතාවය ස්ථාපිත කර සන්නිවේදනය කරන්න."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"වෙනත් යෙදුම්වල තිරය පිළිබිඹු කරන්න"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"වෙනත් යෙදුම්වල තිරය පිළිබිඹු කරන්න."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"වෙනත් පරිශීලකයින්ගේ සංදර්ශකය පිළිබිඹු කරන්න"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"වෙනත් පරිශීලකයින්ගේ සංදර්ශකය පිළිබිඹු කරන්න."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN බස් අසාර්ථකයි"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN බස් ප්‍රතිචාර නොදක්වයි. හෙඩ්යුනිට් පෙට්ටිය පේනු ඉවත් කර ආපසු පේනුගත කර, මෝටර් රථය යළි අරඹන්න"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"මගේ උපාංගය"</string>

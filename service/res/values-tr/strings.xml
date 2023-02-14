@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Arabadaki diğer yolcu bölgelerinin durumunu ve bu bölgelere yüklenmiş benzer uygulamaları (arayanla aynı paket adına sahip uygulamalar) izleyip bu bölgelerin güç kullanımını yönetme"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"arabadaki diğer yolcu bölgelerine yüklenmiş benzer uygulamalarla (arayanla aynı paket adına sahip uygulamalar) bağlantı ve iletişim kurma"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Arabadaki diğer yolcu bölgelerine yüklenmiş benzer uygulamalarla (arayanla aynı paket adına sahip uygulamalar) bağlantı ve iletişim kurma"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"diğer uygulamaların ekranını yansıtabilir"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Diğer uygulamaların ekranını yansıtabilir."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"diğer kullanıcıların ekranını yansıtabilir"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Diğer kullanıcıların ekranını yansıtabilir."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN veri yolu başarısız"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN veri yolu yanıt vermiyor. Ana birim kutusunu söküp tekrar takın ve aracı yeniden çalıştırın"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Cihazım"</string>

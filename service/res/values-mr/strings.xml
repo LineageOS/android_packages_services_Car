@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कारमधील इतर ऑक्युपंट झोन आणि त्या झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्सच्या (कॉलरचेच पॅकेज नाव असलेली ॲप्स) स्थितींचे निरीक्षण करा आणि त्या झोनची पॉवर व्यवस्थापित करा."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"कारमधील इतर ऑक्युपंट झोनमध्ये इंस्टॉल केलेल्या पीअर ॲप्ससोबत (कॉलरचेच पॅकेज नाव असलेली ॲप्स) कनेक्ट करा आणि संवाद साधा."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"इतर ॲप्स ची स्क्रीन मिरर करा"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"इतर ॲप्स ची स्क्रीन मिरर करा."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"इतर वापरकर्त्यांचा डिस्प्ले मिरर करा"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"इतर वापरकर्त्यांचा डिस्प्ले मिरर करा."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>

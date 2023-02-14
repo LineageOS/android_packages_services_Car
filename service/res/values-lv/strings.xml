@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Uzraudzīt automašīnas pārējo pasažieru zonu stāvokli un šajās zonās instalētās līdzīgās lietotnes (lietotnes, kam ir tāds pats pakotnes nosaukums kā izsaucējam), kā arī pārvaldīt enerģijas lietojumu šajās zonās."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"veidot savienojumus un uzturēt sakarus ar pārējās automašīnas pasažieru zonās instalētajām līdzīgajām lietotnēm (lietotnēm, kam ir tāds pats pakotnes nosaukums kā izsaucējam)"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Veidot savienojumus un uzturēt sakarus ar pārējās automašīnas pasažieru zonās instalētajām līdzīgajām lietotnēm (lietotnēm, kam ir tāds pats pakotnes nosaukums kā izsaucējam)."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"spoguļot citu lietotņu ekrānu"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Spoguļot citu lietotņu ekrānu."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"spoguļot citu lietotāju displeju"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Spoguļot citu lietotāju displeju."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Radās atteice datu maģistrālē"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Datu maģistrāle nereaģē. Atvienojiet un atkal pievienojiet stereosistēmas paneļa kabeli un atkārtoti iedarbiniet automašīnu"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mana ierīce"</string>

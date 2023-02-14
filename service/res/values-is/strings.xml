@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Fylgjast með stöðu annarra farþegasvæða í bílnum og samskonar forrita (forrit með sama pakkaheiti og hjá hringjanda) sem eru sett upp á viðkomandi svæðum og stjórna rafmagnsnotkun á svæðunum."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"koma á tengingu og eiga samskipti við samskonar forrit (forrit með sama pakkaheiti og hjá hringjanda) sem eru sett upp á öðrum farþegasvæðum í bílnum"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Koma á tengingu og eiga samskipti við samskonar forrit (forrit með sama pakkaheiti og hjá hringjanda) sem eru sett upp á öðrum farþegasvæðum í bílnum."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"spegla skjá annarra forrita"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Spegla skjá annarra forrita."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"spegla skjá annarra notenda"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Spegla skjá annarra notenda."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Bilun í CAN-gagnabraut"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-gagnabraut svarar ekki. Taktu stjórneiningarboxið úr sambandi, settu það aftur í samband og gangsettu bílinn aftur."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Tækið mitt"</string>
