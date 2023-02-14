@@ -221,7 +221,7 @@ public final class Car {
      * not usable in a specific car. This meta-data is not necessary for mandatory features.
      *
      * <p>For this meta-data, android:value should contain the feature name string defined by
-     * (@link android.car.annotation.OptionalFeature} or
+     * {@link android.car.annotation.OptionalFeature} or
      * {@link android.car.annotation.ExperimentalFeature} annotations.
      *
      * <p>Example usage:

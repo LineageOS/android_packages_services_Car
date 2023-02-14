@@ -23,6 +23,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
@@ -66,6 +67,8 @@ public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
+    private static final int SYSTEM_ERROR_CODE_MASK = 0Xffff;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
     /**
      * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
      */
@@ -391,6 +394,7 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mPropertyId;
         private final int mAreaId;
         private final @CarPropertyAsyncErrorCode int mErrorCode;
+        private final int mVendorErrorCode;
 
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -417,6 +421,21 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
+         * Gets the vendor error codes to allow for more detailed error codes.
+         *
+         * @return Vendor error code if it is set, otherwise 0. A vendor error code will have a
+         * range from 0x0000 to 0xffff.
+         *
+         * @hide
+         */
+        @SystemApi
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public int getVendorErrorCode() {
+            return mVendorErrorCode;
+        }
+
+        /**
          * Creates a new error result for async property request.
          *
          * @param requestId the request ID.
@@ -424,12 +443,12 @@ public class CarPropertyManager extends CarManagerBase {
          * @param areaId the area ID for the property in the request.
          * @param errorCode the code indicating the error.
          */
-        PropertyAsyncError(int requestId, int propertyId, int areaId,
-                @CarPropertyAsyncErrorCode int errorCode) {
+        PropertyAsyncError(int requestId, int propertyId, int areaId, int errorCode) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
-            mErrorCode = errorCode;
+            mErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
+            mVendorErrorCode = errorCode >>> VENDOR_ERROR_CODE_SHIFT;
         }
     }
 
@@ -599,9 +618,10 @@ public class CarPropertyManager extends CarManagerBase {
                 Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
                 GetPropertyCallback getPropertyCallback =
                         getAsyncPropertyClientInfo.getGetPropertyCallback();
-                @CarPropertyAsyncErrorCode
                 int errorCode = getValueResult.getErrorCode();
-                if (errorCode == STATUS_OK) {
+                @CarPropertyAsyncErrorCode
+                int asyncErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
+                if (asyncErrorCode == STATUS_OK) {
                     CarPropertyValue<?> carPropertyValue = getValueResult.getCarPropertyValue();
                     int propertyId = carPropertyValue.getPropertyId();
                     int areaId = carPropertyValue.getAreaId();
@@ -1530,24 +1550,27 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = e.errorCode;
+        int errorCode = e.errorCode & SYSTEM_ERROR_CODE_MASK;
+        int vendorErrorCode = e.errorCode >>> VENDOR_ERROR_CODE_SHIFT;
 
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
-                throw new PropertyNotAvailableException(propId, areaId);
+                throw new PropertyNotAvailableException(propId, areaId, vendorErrorCode);
             case VehicleHalStatusCode.STATUS_TRY_AGAIN:
+                // Vendor error code is ignored for STATUS_TRY_AGAIN error
                 throw new PropertyNotAvailableAndRetryException(propId, areaId);
             case VehicleHalStatusCode.STATUS_ACCESS_DENIED:
+                // Vendor error code is ignored for STATUS_ACCESS_DENIED error
                 throw new PropertyAccessDeniedSecurityException(propId, areaId);
             case VehicleHalStatusCode.STATUS_INTERNAL_ERROR:
-                throw new CarInternalErrorException(propId, areaId);
+                throw new CarInternalErrorException(propId, areaId, vendorErrorCode);
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY:
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY:
-                throw new PropertyNotAvailableException(
-                        propId, areaId, getPropertyNotAvailableErrorCodeFromStatusCode(errorCode));
+                throw new PropertyNotAvailableException(propId, areaId,
+                        getPropertyNotAvailableErrorCodeFromStatusCode(errorCode), vendorErrorCode);
             default:
                 Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
                 throw new CarInternalErrorException(propId, areaId);

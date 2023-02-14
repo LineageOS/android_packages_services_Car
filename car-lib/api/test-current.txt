@@ -1086,6 +1086,14 @@ package android.car.hardware.property {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int WARNING = 2; // 0x2
   }
 
+  public class CarInternalErrorException extends java.lang.RuntimeException {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public int getVendorErrorCode();
+  }
+
+  @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final class CarPropertyManager.PropertyAsyncError {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public int getVendorErrorCode();
+  }
+
   public final class ErrorState {
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String toString(int);
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int NOT_AVAILABLE_DISABLED = -2; // 0xfffffffe
@@ -1142,6 +1150,10 @@ package android.car.hardware.property {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int ENABLED = 1; // 0x1
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int OTHER = 0; // 0x0
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_OVERRIDE = 4; // 0x4
+  }
+
+  public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public int getVendorErrorCode();
   }
 
   public final class TrailerState {

@@ -96,14 +96,14 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * This is used to determine if dynamic routing is enabled via
-     * {@link #isAudioFeatureEnabled()}
+     * {@link #isAudioFeatureEnabled(int)}
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int AUDIO_FEATURE_DYNAMIC_ROUTING = 1;
 
     /**
      * This is used to determine if volume group muting is enabled via
-     * {@link #isAudioFeatureEnabled()}
+     * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>
      * If enabled, car volume group muting APIs can be used to mute each volume group,
@@ -115,7 +115,7 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * This is used to determine if the OEM audio service is enabled via
-     * {@link #isAudioFeatureEnabled()}
+     * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, car audio focus, car audio volume, and ducking control behaviour can change
      * as it can be OEM dependent.
@@ -306,7 +306,7 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * @return Whether dynamic routing is enabled or not.
      *
-     * @deprecated use {@link #isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING)} instead.
+     * @deprecated use {@link #isAudioFeatureEnabled(int AUDIO_FEATURE_DYNAMIC_ROUTING)} instead.
      *
      * @hide
      */

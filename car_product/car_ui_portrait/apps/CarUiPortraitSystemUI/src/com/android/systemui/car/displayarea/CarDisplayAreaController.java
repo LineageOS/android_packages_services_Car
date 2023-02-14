@@ -21,8 +21,6 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_SYSTEM_UI;
-import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCREEN;
-import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW;
 
 import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
@@ -43,7 +41,6 @@ import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
-import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.ShellExecutor;
 
 import javax.inject.Inject;
@@ -155,18 +152,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     /** Registers the DA organizer. */
     public void register() {
-        logIfDebuggable("register organizer and set default bounds");
-
-        ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor);
-        taskOrganizer.addListenerForType(mCarFullscreenTaskListener, TASK_LISTENER_TYPE_FULLSCREEN);
-        // Use the same TaskListener for MULTI_WINDOW windowing mode as there is nothing that has
-        // to be done differently. This is because the tasks are still running in 'fullscreen'
-        // within a DisplayArea.
-        taskOrganizer.addListenerForType(mCarFullscreenTaskListener,
-                TASK_LISTENER_TYPE_MULTI_WINDOW);
-
-        taskOrganizer.registerOrganizer();
-
         mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
         BroadcastReceiver immersiveModeChangeReceiver = new BroadcastReceiver() {
             @Override
