@@ -16,19 +16,8 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Format for temperature in the temperature control view (No decimal) -->
-    <string name="hvac_temperature_format_fahrenheit" translatable="false">%.0f</string>
-
-    <!-- HVAC panel header [CHAR LIMIT=40]-->
-    <string name="hvac_panel_header">Comfort controls</string>
-
     <!-- Default sensor string [CHAR LIMIT=10]-->
     <string name="default_sensor_string">N/A</string>
-    <!-- Format for temperature in the temperature control view (No decimal) in fahrenheit -->
-    <string name="statusbar_temperature_format_fahrenheit" translatable="false">%.0f\u00B0 F
-    </string>
-    <!-- Format for temperature in the temperature control view (No decimal) in celsius -->
-    <string name="statusbar_temperature_format_celsius" translatable="false">%.0f\u00B0 C</string>
 
     <!-- Message shown when task view is not ready which asks user to wait until system has finished loading [CHAR LIMIT=75]-->
     <string name="task_view_not_ready_message">Please wait for system to load</string>

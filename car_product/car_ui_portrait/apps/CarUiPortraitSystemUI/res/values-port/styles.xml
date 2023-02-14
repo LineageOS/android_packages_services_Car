@@ -26,6 +26,8 @@
     <style name="SystemBarButton">
         <item name="android:layout_width">@dimen/system_bar_button_size</item>
         <item name="android:layout_height">@dimen/system_bar_button_size</item>
+        <item name="android:layout_marginEnd">@dimen/system_bar_button_margin</item>
+        <item name="android:layout_marginStart">@dimen/system_bar_button_margin</item>
         <item name="android:background">@drawable/nav_bar_button_background</item>
         <item name="android:gravity">center</item>
         <item name="unselectedAlpha">1.0</item>
