@@ -400,6 +400,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780; // 0x1141010c
     field @RequiresPermission(android.car.Car.PERMISSION_IDENTIFICATION) public static final int INFO_VIN = 286261504; // 0x11100100
     field public static final int INVALID = 0; // 0x0
+    field @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static final int LOCATION_CHARACTERIZATION = 289410064; // 0x11400c10
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_FOLD = 287312709; // 0x11200b45
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_LOCK = 287312708; // 0x11200b44
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Y_MOVE = 339741507; // 0x14400b43
@@ -889,6 +890,19 @@ package android.car.hardware.property {
     field public static final int STATE_FULLY_ENABLED = 3; // 0x3
     field public static final int STATE_PARTIALLY_ENABLED = 2; // 0x2
     field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
+  public class LocationCharacterization {
+    method @NonNull public static String toString(int);
+    field public static final int ACCELEROMETER_FUSION = 4; // 0x4
+    field public static final int CAR_SPEED_FUSION = 64; // 0x40
+    field public static final int COMPASS_FUSION = 8; // 0x8
+    field public static final int DEAD_RECKONED = 128; // 0x80
+    field public static final int GYROSCOPE_FUSION = 2; // 0x2
+    field public static final int PRIOR_LOCATIONS = 1; // 0x1
+    field public static final int RAW_GNSS_ONLY = 256; // 0x100
+    field public static final int STEERING_ANGLE_FUSION = 32; // 0x20
+    field public static final int WHEEL_SPEED_FUSION = 16; // 0x10
   }
 
   public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {

@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
@@ -48,6 +50,7 @@ import android.hardware.automotive.vehicle.LaneCenteringAssistCommand;
 import android.hardware.automotive.vehicle.LaneCenteringAssistState;
 import android.hardware.automotive.vehicle.LaneDepartureWarningState;
 import android.hardware.automotive.vehicle.LaneKeepAssistState;
+import android.hardware.automotive.vehicle.LocationCharacterization;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.TrailerState;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
@@ -134,6 +137,8 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
     private static final Set<Integer> GSR_COMP_TYPE =
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
+    private static final int LOCATION_CHARACTERIZATION =
+            generateAllCombination(LocationCharacterization.class);
     private static final Set<Integer> WINDSHIELD_WIPERS_STATE =
             new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
     private static final Set<Integer> WINDSHIELD_WIPERS_SWITCH =
@@ -919,12 +924,17 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(
                 VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
                 new Pair<>(Car.PERMISSION_CAR_INFO, null));
+        mHalPropIdToPermissions.put(VehicleProperty.LOCATION_CHARACTERIZATION, new Pair<>(
+                ACCESS_FINE_LOCATION,
+                null));
 
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
+        mHalPropIdToValidBitFlag.put(VehicleProperty.LOCATION_CHARACTERIZATION,
+                LOCATION_CHARACTERIZATION);
     }
 
     /**

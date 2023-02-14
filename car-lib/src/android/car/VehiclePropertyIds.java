@@ -16,6 +16,8 @@
 
 package android.car;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
@@ -2636,6 +2638,34 @@ public final class VehiclePropertyIds {
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
     @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_MAP_SERVICE = 299895808;
+    /**
+     * Characterization of inputs used for computing location.
+     *
+     * <p>This property indicates what (if any) data and sensor inputs are considered by the system
+     * when computing the vehicle's location that is shared with Android through {@link
+     * android.location.LocationManager#GPS_PROVIDER}.
+     *
+     * <p>The value returned is a collection of bit flags. The bit flags are defined in {@link
+     * android.car.hardware.property.LocationCharacterization}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li> Dangerous permission {@link ACCESS_FINE_LOCATION} to read property.
+     *  <li> Property is not writable.
+     * </ul>
+     */
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int LOCATION_CHARACTERIZATION = 289410064;
     /**
      * OBD2 Live Sensor Data
      *
