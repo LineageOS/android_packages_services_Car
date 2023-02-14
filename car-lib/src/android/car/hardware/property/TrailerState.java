@@ -25,25 +25,41 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current value of {@link
- * android.car.VehiclePropertyIds#TRAILER_PRESENT}.
+ * Used to enumerate the current state of {@link android.car.VehiclePropertyIds#TRAILER_PRESENT}.
+ *
  * @hide
  */
 @SystemApi
 public final class TrailerState {
 
+    /**
+     * This state is used as an alternative for any {@code TrailerState} value that is not defined
+     * in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#TRAILER_PRESENT} should not use this state. The framework can
+     * use this field to remain backwards compatible if {@code TrailerState} is extended to include
+     * additional states.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_UNKNOWN = 0;
 
+    /**
+     * A trailer is not attached to the vehicle.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_NOT_PRESENT = 1;
 
+    /**
+     * A trailer is attached to the vehicle.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_PRESENT = 2;
 
+    /**
+     * The state of the trailer is not available due to an error.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_ERROR = 3;

@@ -45,6 +45,13 @@ public final class WindshieldWipersState {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OTHER = 0;
 
+    /**
+     * This state indicates windshield wipers are currently off. If {@link
+     * android.car.VehiclePropertyIds#WINDSHIELD_WIPERS_SWITCH} is implemented, then it may be set
+     * to any of the following modes: {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#OFF} or {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#AUTO}.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int OFF = 1;
@@ -52,7 +59,10 @@ public final class WindshieldWipersState {
     /**
      * This state indicates windshield wipers are currently on. If {@link
      * android.car.VehiclePropertyIds#WINDSHIELD_WIPERS_SWITCH} is implemented, then it may be set
-     * to any of the following modes: MIST, INTERMITTENT_LEVEL_*, CONTINUOUS_LEVEL_*, or AUTO.
+     * to any of the following modes: {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#MIST}, {@code INTERMITTENT_LEVEL_*},
+     * {@code CONTINUOUS_LEVEL_*}, or {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#AUTO}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
