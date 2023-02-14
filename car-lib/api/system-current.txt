@@ -1289,7 +1289,7 @@ package android.car.media {
 
   public final class CarAudioZoneConfigInfo implements android.os.Parcelable {
     method public int describeContents();
-    method public int getId();
+    method public int getConfigId();
     method @NonNull public String getName();
     method public int getZoneId();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
