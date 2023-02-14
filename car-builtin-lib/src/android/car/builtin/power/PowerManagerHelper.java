@@ -21,6 +21,7 @@ import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 
 /**
  * Helper for PowerManager related operations.
@@ -105,5 +106,31 @@ public final class PowerManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void shutdown(Context context, boolean confirm, String reason, boolean wait) {
         context.getSystemService(PowerManager.class).shutdown(confirm, reason, wait);
+    }
+
+    /**
+     * Acquires a wake lock for the givien display.
+     *
+     * <p>This wraps {@link PowerManager#newWakeLock(int, String, int)}.
+     *
+     * @param context Context to use.
+     * @param levelAndFlags Combination of wake lock level and flag values defining the requested
+     *                      behavior of the WakeLock.
+     * @param tag Your class name (or other tag) for debugging purposes.
+     * @param displayId The display id to which this wake lock is tied.
+     *
+     * @see PowerManager#PARTIAL_WAKE_LOCK
+     * @see PowerManager#FULL_WAKE_LOCK
+     * @see PowerManager#SCREEN_DIM_WAKE_LOCK
+     * @see PowerManager#SCREEN_BRIGHT_WAKE_LOCK
+     * @see PowerManager#PROXIMITY_SCREEN_OFF_WAKE_LOCK
+     * @see PowerManager#ACQUIRE_CAUSES_WAKEUP
+     * @see PowerManager#ON_AFTER_RELEASE
+     */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static WakeLock newWakeLock(Context context, int levelAndFlags, String tag,
+            int displayId) {
+        PowerManager powerManager = context.getSystemService(PowerManager.class);
+        return powerManager.newWakeLock(levelAndFlags, tag, displayId);
     }
 }
