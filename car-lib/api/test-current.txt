@@ -28,6 +28,7 @@ package android.car {
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
     field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
