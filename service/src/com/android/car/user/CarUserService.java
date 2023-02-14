@@ -1870,6 +1870,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
 
     private void onUserVisible(@UserIdInt int userId) {
+        assignVisibleUserToZone(userId);
         startSystemUiForVisibleUser(userId);
     }
 
@@ -2197,9 +2198,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 break;
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED:
                 onUserRemoved(UserHandle.of(userId));
-                break;
-            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING:
-                assignVisibleUserToZone(userId);
                 break;
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
                 onUserVisible(userId);
