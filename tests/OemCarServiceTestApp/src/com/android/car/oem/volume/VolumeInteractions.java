@@ -80,7 +80,7 @@ public final class VolumeInteractions {
         mContext = Objects.requireNonNull(context, "Context must not be null");
         mAudioAttributeToPriority = new ArrayMap<>(audioAttributes.size());
         for (int index = 0; index < audioAttributes.size(); index++) {
-            mAudioAttributeToPriority.append(
+            mAudioAttributeToPriority.put(
                     new AudioAttributesWrapper(audioAttributes.get(index)),
                     audioAttributes.size() - index - 1);
         }
@@ -180,10 +180,12 @@ public final class VolumeInteractions {
             }
             return defaultVolumeGroup;
         }
+        Slog.d(TAG, "test: ");
 
         if (activeAudioAttributes.size() < 2) {
             AudioAttributesWrapper audioAttributesWrapper =
                     new AudioAttributesWrapper(activeAudioAttributes.get(0));
+            Slog.d(TAG, "Only one audio attribute available: " + audioAttributesWrapper);
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Slog.d(TAG, "Only one audio attribute available: " + audioAttributesWrapper);
             }
