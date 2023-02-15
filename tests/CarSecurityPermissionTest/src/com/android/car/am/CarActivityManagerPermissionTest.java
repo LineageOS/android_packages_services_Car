@@ -108,4 +108,14 @@ public class CarActivityManagerPermissionTest {
 
         assertThat(e).hasMessageThat().contains(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
     }
+
+    @Test
+    public void testMoveRootTaskToDisplay_requiresPermission() {
+        int taskId = 9999;
+        int displayId = 999;
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.moveRootTaskToDisplay(taskId, displayId));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+    }
 }

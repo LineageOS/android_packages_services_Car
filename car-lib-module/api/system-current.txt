@@ -323,6 +323,7 @@ package android.car.app {
     method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public android.os.IBinder createTaskMirroringToken(int);
     method @MainThread @RequiresPermission("android.car.permission.MANAGE_CAR_SYSTEM_UI") public void getCarTaskViewController(@NonNull android.app.Activity, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.CarTaskViewControllerCallback);
     method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public java.util.List<android.app.ActivityManager.RunningTaskInfo> getVisibleTasks();
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public void moveRootTaskToDisplay(int, int);
     method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void registerCarSystemUIProxy(@NonNull android.car.app.CarSystemUIProxy);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public int setPersistentActivity(@NonNull android.content.ComponentName, int, int);
     method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public void startUserPickerOnDisplay(int);

@@ -417,6 +417,28 @@ public final class CarActivityManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Moves the given {@code RootTask} with its child {@code Activties} to the specified
+     * {@code Display}.
+     * @param taskId the id of the target {@code RootTask} to move
+     * @param displayId the displayId to move the {@code RootTask} to
+     * @throws IllegalArgumentException if the given {@code taskId} or {@code displayId} is invalid
+     * @throws IllegalArgumentException if the given {@code RootTask} is already in the given
+     *     {@code Display}
+     * Note: the operation can be failed if the given {@code Display} doesn't allow for the type of
+     * the given {@code RootTask} to be launched.
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void moveRootTaskToDisplay(int taskId, int displayId) {
+        try {
+            mService.moveRootTaskToDisplay(taskId, displayId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
     private boolean hasValidToken() {
         boolean valid = mTaskMonitorToken != null;
         if (!valid) {

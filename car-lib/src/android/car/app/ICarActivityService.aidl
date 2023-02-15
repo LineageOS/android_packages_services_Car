@@ -92,5 +92,8 @@ interface ICarActivityService {
      * Calling this for an already unregistered callback will result in a no-op
      */
     void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 14;
+
+    /** See {@link CarActivityManager#moveRootTaskToDisplay(int, int) */
+    void moveRootTaskToDisplay(int taskId, int displayId) = 15;
 }
 

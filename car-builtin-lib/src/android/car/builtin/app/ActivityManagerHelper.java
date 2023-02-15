@@ -16,7 +16,9 @@
 
 package android.car.builtin.app;
 
+import android.Manifest;
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.Activity;
@@ -312,5 +314,22 @@ public final class ActivityManagerHelper {
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVisible(Activity activity) {
         return activity.isVisibleForAutofill();
+    }
+
+    /**
+     * Moves the given {@code RootTask} to the specified {@code Display}.
+     *
+     * @param taskId    the id of the target {@code RootTask} to move
+     * @param displayId the displayId to move the {@code RootTask} to
+     */
+    @RequiresPermission(Manifest.permission.INTERNAL_SYSTEM_WINDOW)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void moveRootTaskToDisplay(int taskId, int displayId) {
+        try {
+            ActivityTaskManager.getService().moveRootTaskToDisplay(taskId, displayId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Error moving task %d to display %d", e, taskId, displayId);
+            throw new RuntimeException(e);
+        }
     }
 }
