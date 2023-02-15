@@ -20,6 +20,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -92,4 +93,7 @@ interface ICarAudio {
      */
     void registerVolumeCallback(in IBinder binder);
     void unregisterVolumeCallback(in IBinder binder);
+
+    boolean registerCarVolumeEventCallback(in ICarVolumeEventCallback callback);
+    boolean unregisterCarVolumeEventCallback(in ICarVolumeEventCallback callback);
 }

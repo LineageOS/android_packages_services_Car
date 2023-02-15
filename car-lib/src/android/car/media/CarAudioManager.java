@@ -124,11 +124,24 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3;
 
+    /**
+     * This is used to determine if volume group events is supported via
+     * {@link #isAudioFeatureEnabled()}
+     *
+     * <p>If enabled, the car volume group event callback can be used to receive event changes
+     * to volume, mute, attenuation.
+     * If disabled, the register/unregister APIs will return {@code false}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4;
+
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
             AUDIO_FEATURE_VOLUME_GROUP_MUTING,
-            AUDIO_FEATURE_OEM_AUDIO_SERVICE
+            AUDIO_FEATURE_OEM_AUDIO_SERVICE,
+            AUDIO_FEATURE_VOLUME_GROUP_EVENTS
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}
@@ -229,6 +242,8 @@ public final class CarAudioManager extends CarManagerBase {
 
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
+    private final CopyOnWriteArrayList<CarVolumeGroupEventCallbackWrapper>
+            mCarVolumeEventCallbacks = new CopyOnWriteArrayList<>();
     private final AudioManager mAudioManager;
 
     private final EventHandler mEventHandler;
@@ -303,6 +318,19 @@ public final class CarAudioManager extends CarManagerBase {
         }
     };
 
+    private final ICarVolumeEventCallback mCarVolumeEventCallbackImpl =
+            new android.car.media.ICarVolumeEventCallback.Stub() {
+        @Override
+        public void onVolumeGroupEvent(@NonNull List<CarVolumeGroupEvent> events) {
+            mEventHandler.dispatchOnVolumeGroupEvent(events);
+        }
+
+        @Override
+        public void onMasterMuteChanged(int zoneId, int flags) {
+            mEventHandler.dispatchOnMasterMuteChanged(zoneId, flags);
+        }
+    };
+
     /**
      * @return Whether dynamic routing is enabled or not.
      *
@@ -320,8 +348,9 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Determines if an audio feature is enabled.
      *
-     * @param audioFeature audio feature to query, can be {@link #AUDIO_FEATURE_DYNAMIC_ROUTING} or
-     * {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING}
+     * @param audioFeature audio feature to query, can be {@link #AUDIO_FEATURE_DYNAMIC_ROUTING},
+     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} or
+     *                     {@link #AUDIO_FEATURE_VOLUME_GROUP_EVENTS}
      * @return Returns {@code true} if the feature is enabled, {@code false} otherwise.
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -1299,6 +1328,80 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
+     * Registers a {@link CarVolumeGroupEventCallback} to receive volume group event callbacks
+     *
+     * @param executor Executor on which callback will be invoked
+     * @param callback Callback that will report volume group events
+     * @return {@code true} if the callback is successfully registered, {@code false} otherwise
+     * @throws NullPointerException if executor or callback parameters is {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if volume group events are not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public boolean registerCarVolumeGroupEventCallback(
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull CarVolumeGroupEventCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Car volume event callback can not be null");
+
+        if (mCarVolumeEventCallbacks.isEmpty()) {
+            try {
+                if (!mService.registerCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
+                    return false;
+                }
+            } catch (RemoteException e) {
+                Log.e(CarLibLog.TAG_CAR, "registerCarVolumeEventCallback failed", e);
+                return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+            }
+        }
+
+        return mCarVolumeEventCallbacks.addIfAbsent(
+                new CarVolumeGroupEventCallbackWrapper(executor, callback));
+    }
+
+
+    /**
+     * Unregisters a {@link CarVolumeGroupEventCallback} registered via
+     * {@link #registerCarVolumeGroupEventCallback}
+     *
+     * @param callback The callback to be removed
+     * @throws NullPointerException if callback is {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if volume group events are not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void unregisterCarVolumeGroupEventCallback(
+            @NonNull CarVolumeGroupEventCallback callback) {
+        Objects.requireNonNull(callback, "Car volume event callback can not be null");
+
+        if (mCarVolumeEventCallbacks.remove(
+                new CarVolumeGroupEventCallbackWrapper(/* executor= */ null, callback))
+                && mCarVolumeEventCallbacks.isEmpty()) {
+            try {
+                if (!mService.unregisterCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
+                    Log.e(CarLibLog.TAG_CAR,
+                            "unregisterCarVolumeEventCallback failed with service");
+                }
+            } catch (RemoteException e) {
+                Log.e(CarLibLog.TAG_CAR,
+                        "unregisterCarVolumeEventCallback failed with exception", e);
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
+    }
+
+
+    /**
      * Returns the whether a volume group is muted
      *
      * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will always
@@ -1370,6 +1473,7 @@ public final class CarAudioManager extends CarManagerBase {
         private static final int MSG_GROUP_VOLUME_CHANGE = 1;
         private static final int MSG_GROUP_MUTE_CHANGE = 2;
         private static final int MSG_MASTER_MUTE_CHANGE = 3;
+        private static final int MSG_VOLUME_GROUP_EVENT = 4;
 
         private EventHandler(Looper looper) {
             super(looper);
@@ -1390,6 +1494,9 @@ public final class CarAudioManager extends CarManagerBase {
                 case MSG_MASTER_MUTE_CHANGE:
                     handleOnMasterMuteChanged(msg.arg1, msg.arg2);
                     break;
+                case MSG_VOLUME_GROUP_EVENT:
+                    List<CarVolumeGroupEvent> events = (List<CarVolumeGroupEvent>) msg.obj;
+                    handleOnVolumeGroupEvent(events);
                 default:
                     Log.e(CarLibLog.TAG_CAR, "Unknown message not handled:" + msg.what);
                     break;
@@ -1408,6 +1515,10 @@ public final class CarAudioManager extends CarManagerBase {
         private void dispatchOnGroupMuteChanged(int zoneId, int groupId, int flags) {
             VolumeGroupChangeInfo volumeInfo = new VolumeGroupChangeInfo(zoneId, groupId, flags);
             sendMessage(obtainMessage(MSG_GROUP_MUTE_CHANGE, volumeInfo));
+        }
+
+        private void dispatchOnVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
+            sendMessage(obtainMessage(MSG_VOLUME_GROUP_EVENT, events));
         }
 
         private class VolumeGroupChangeInfo {
@@ -1441,6 +1552,12 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
+    private void handleOnVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
+        for (CarVolumeGroupEventCallbackWrapper wr : mCarVolumeEventCallbacks) {
+            wr.mExecutor.execute(() -> wr.mCallback.onVolumeGroupEvent(events));
+        }
+    }
+
     /**
      * Callback interface to receive volume change events in a car.
      * Extend this class and register it with {@link #registerCarVolumeCallback(CarVolumeCallback)}
@@ -1449,8 +1566,18 @@ public final class CarAudioManager extends CarManagerBase {
     public abstract static class CarVolumeCallback {
         /**
          * This is called whenever a group volume is changed.
+         *
          * The changed-to volume index is not included, the caller is encouraged to
          * get the current group volume index via CarAudioManager.
+         *
+         * <p><b>Notes:</b>
+         * <ul>
+         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     are registered by the same app, then volume group index changes are <b>only</b>
+         *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
+         *     <li>Apps are encouraged to migrate to the new callback
+         *     {@link CarVolumeGroupInfoCallback}</li>
+         * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens
          * @param groupId Id of the volume group that volume is changed
@@ -1476,12 +1603,21 @@ public final class CarAudioManager extends CarManagerBase {
 
         /**
          * This is called whenever a group mute state is changed.
+         *
          * The changed-to mute state is not included, the caller is encouraged to
          * get the current group mute state via CarAudioManager.
          *
-         * <p><b>Note:<b/> If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
-         * this will be triggered on mute changes. Otherwise, car audio mute changes will trigger
-         * {@link #onMasterMuteChanged(int, int)}
+         * <p><b>Notes:</b>
+         * <ul>
+         *     <li>If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
+         *     this will be triggered on mute changes. Otherwise, car audio mute changes will
+         *     trigger {@link #onMasterMuteChanged(int, int)}</li>
+         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     are registered by the same app, then volume group mute changes are <b>only</b>
+         *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
+         *     <li>Apps are encouraged to migrate to the new callback
+         *     {@link CarVolumeGroupInfoCallback}</li>
+         * </ul>
          *
          * @param zoneId Id of the audio zone that volume change happens
          * @param groupId Id of the volume group that volume is changed
@@ -1538,6 +1674,36 @@ public final class CarAudioManager extends CarManagerBase {
             } finally {
                 Binder.restoreCallingIdentity(identity);
             }
+        }
+    }
+
+    private static final class CarVolumeGroupEventCallbackWrapper {
+        private final Executor mExecutor;
+        private final CarVolumeGroupEventCallback mCallback;
+
+        CarVolumeGroupEventCallbackWrapper(Executor executor,
+                                           CarVolumeGroupEventCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (!(o instanceof CarVolumeGroupEventCallbackWrapper)) {
+                return false;
+            }
+
+            CarVolumeGroupEventCallbackWrapper rhs = (CarVolumeGroupEventCallbackWrapper) o;
+            return mCallback == rhs.mCallback;
+        }
+
+        @Override
+        public int hashCode() {
+            return mCallback.hashCode();
         }
     }
 }
