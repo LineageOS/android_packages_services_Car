@@ -3145,7 +3145,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_MAX_INDEX);
         when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
-        when(mAudioManager.getLastAudibleVolumeGroupVolume(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+        when(mAudioManager.getLastAudibleVolumeForVolumeGroup(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
                 .thenReturn(false);
