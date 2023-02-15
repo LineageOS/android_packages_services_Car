@@ -168,6 +168,7 @@ public class PropertyHalServiceIds {
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
@@ -220,14 +221,6 @@ public class PropertyHalServiceIds {
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE,
                 LANE_CENTERING_ASSIST_STATE);
     }
-
-    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
-            Set.of(VehicleProperty.GEAR_SELECTION, VehicleProperty.CURRENT_GEAR,
-                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
-                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
-                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
-                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
-                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS);
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -917,7 +910,6 @@ public class PropertyHalServiceIds {
     @Nullable
     public static Set<Integer> getAllPossibleSupportedEnumValues(int halPropId) {
         return HAL_PROP_ID_TO_ENUM_SET.contains(halPropId)
-                && !CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES.contains(halPropId)
                 ? Collections.unmodifiableSet(HAL_PROP_ID_TO_ENUM_SET.get(halPropId)) : null;
     }
 
