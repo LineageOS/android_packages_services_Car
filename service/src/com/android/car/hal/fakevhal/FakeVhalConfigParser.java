@@ -136,6 +136,8 @@ public final class FakeVhalConfigParser {
     // hardware/interfaces/automotive/vehicle/aidl/impl/utils/test/include/TestPropertyUtils.h).
     private static final int ECHO_REVERSE_BYTES = 0x2a12 | VehiclePropertyGroup.VENDOR
                                 | VehicleArea.GLOBAL | VehiclePropertyType.BYTES;
+    private static final int VENDOR_PROPERTY_ID = 0x2a13 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
     private static final int K_MIXED_TYPE_PROPERTY_FOR_TEST = 0x1111 | VehiclePropertyGroup.VENDOR
                                 | VehicleArea.GLOBAL | VehiclePropertyType.MIXED;
     private static final int VENDOR_CLUSTER_NAVIGATION_STATE = toVendorProperty(
@@ -207,6 +209,7 @@ public final class FakeVhalConfigParser {
             Map.entry("EV_STOPPING_MODE_HOLD", EV_STOPPING_MODE_HOLD),
             Map.entry("MIRROR_DRIVER_LEFT_RIGHT", MIRROR_DRIVER_LEFT_RIGHT),
             Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
+            Map.entry("VENDOR_PROPERTY_ID", VENDOR_PROPERTY_ID),
             Map.entry("kMixedTypePropertyForTest", K_MIXED_TYPE_PROPERTY_FOR_TEST),
             Map.entry("VENDOR_CLUSTER_NAVIGATION_STATE", VENDOR_CLUSTER_NAVIGATION_STATE),
             Map.entry("VENDOR_CLUSTER_REQUEST_DISPLAY", VENDOR_CLUSTER_REQUEST_DISPLAY),
