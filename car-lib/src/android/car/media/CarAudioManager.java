@@ -254,6 +254,9 @@ public final class CarAudioManager extends CarManagerBase {
     @GuardedBy("mLock")
     private Executor mPrimaryZoneMediaAudioRequestCallbackExecutor;
 
+    @GuardedBy("mLock")
+    private AudioZonesMirrorStatusCallbackWrapper mAudioZonesMirrorStatusCallbackWrapper;
+
     private final ConcurrentHashMap<Long, MediaAudioRequestStatusCallbackWrapper>
             mRequestIdToMediaAudioRequestStatusCallbacks = new ConcurrentHashMap<>();
 
@@ -914,12 +917,7 @@ public final class CarAudioManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<Integer> getAudioZoneIds() {
         try {
-            int[] zoneIdArray = mService.getAudioZoneIds();
-            List<Integer> zoneIdList = new ArrayList<Integer>(zoneIdArray.length);
-            for (int zoneIdValue : zoneIdArray) {
-                zoneIdList.add(zoneIdValue);
-            }
-            return zoneIdList;
+            return asList(mService.getAudioZoneIds());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
@@ -1201,6 +1199,176 @@ public final class CarAudioManager extends CarManagerBase {
             return mService.isMediaAudioAllowedInPrimaryZone(info);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+    }
+
+    /**
+     * Registers audio mirror status callback
+     *
+     * @param executor Executor on which the callback will be invoked
+     * @param callback Callback to inform about audio mirror status changes
+     * @return {@code true} if audio zones mirror status is set successfully, or {@code false}
+     *      in the case that audio mirror is not enabled for the device
+     * @throws NullPointerException if {@link AudioZonesMirrorStatusCallback} or {@link Executor}
+     *      passed in are {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled, also if
+     *      there is a callback already set
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public boolean setAudioZoneMirrorStatusCallback(@NonNull @CallbackExecutor Executor executor,
+            @NonNull AudioZonesMirrorStatusCallback callback) {
+        Objects.requireNonNull(executor, "Executor can not be null");
+        Objects.requireNonNull(callback, "Audio zones mirror status callback can not be null");
+
+        synchronized (mLock) {
+            if (mAudioZonesMirrorStatusCallbackWrapper != null) {
+                throw new IllegalStateException("Audio zones mirror status "
+                        + "callback is already set");
+            }
+        }
+        AudioZonesMirrorStatusCallbackWrapper wrapper =
+                new AudioZonesMirrorStatusCallbackWrapper(executor, callback);
+
+        boolean succeeded;
+        try {
+            succeeded = mService.registerAudioZonesMirrorStatusCallback(wrapper);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+
+        if (!succeeded) {
+            return false;
+        }
+        boolean error;
+        synchronized (mLock) {
+            //Unless there is a race condition mAudioZonesMirrorStatusCallbackWrapper
+            // should not be set
+            error = mAudioZonesMirrorStatusCallbackWrapper != null;
+            if (!error) {
+                mAudioZonesMirrorStatusCallbackWrapper = wrapper;
+            }
+        }
+
+        // In case there was an error, unregister the listener and throw an exception
+        if (error) {
+            try {
+                mService.unregisterAudioZonesMirrorStatusCallback(wrapper);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+
+            throw new IllegalStateException("Audio zones mirror status callback is already set");
+        }
+        return true;
+    }
+
+    /**
+     * Clears the currently set {@code AudioZonesMirrorStatusCallback}
+     *
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void clearAudioZonesMirrorStatusCallback() {
+        AudioZonesMirrorStatusCallbackWrapper wrapper;
+
+        synchronized (mLock) {
+            if (mAudioZonesMirrorStatusCallbackWrapper == null) {
+                return;
+            }
+            wrapper = mAudioZonesMirrorStatusCallbackWrapper;
+            mAudioZonesMirrorStatusCallbackWrapper = null;
+        }
+
+        try {
+            mService.unregisterAudioZonesMirrorStatusCallback(wrapper);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Enables audio mirror for a set of audio zones
+     *
+     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
+     *
+     * @param audioZonesToMirror List of audio zones that should have audio mirror enabled
+     * @throws NullPointerException if the audio mirror list is {@code null}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
+        Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
+
+        try {
+            mService.enableMirrorForAudioZones(toIntArray(audioZonesToMirror));
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Disables audio mirror for a particular audio zone
+     *
+     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
+     *
+     * @param zoneId Zone id where audio mirror should be disabled
+     * @throws IllegalArgumentException if the zoneId is invalid
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void disableAudioMirrorForZone(int zoneId) {
+        try {
+            mService.disableAudioMirrorForZone(zoneId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Determines the current mirror configuration for an audio zone as set by
+     * {@link #enableMirrorForAudioZones(List)}
+     *
+     * @param zoneId The audio zone id where mirror audio should be queried
+     * @return A list of audio zones where the queried audio zone is mirroring or empty if the
+     * audio zone is not mirroring with any other audio zone. The list of zones will contain the
+     * queried zone if audio mirroring is enabled for that zone.
+     * @throws IllegalArgumentException if the audio zone id is invalid
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     *
+     * @hide
+     */
+    @SystemApi
+    @NonNull
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public List<Integer> getMirrorAudioZonesForAudioZone(int zoneId) {
+        try {
+            return asList(mService.getMirrorAudioZonesForAudioZone(zoneId));
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
     }
 
@@ -1552,10 +1720,28 @@ public final class CarAudioManager extends CarManagerBase {
         }
     }
 
+
     private void handleOnVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
         for (CarVolumeGroupEventCallbackWrapper wr : mCarVolumeEventCallbacks) {
             wr.mExecutor.execute(() -> wr.mCallback.onVolumeGroupEvent(events));
         }
+    }
+
+    private static int[] toIntArray(List<Integer> list) {
+        int size = list.size();
+        int[] array = new int[size];
+        for (int i = 0; i < size; ++i) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    private static List<Integer> asList(int[] intArray) {
+        List<Integer> zoneIdList = new ArrayList<Integer>(intArray.length);
+        for (int index = 0; index < intArray.length; index++) {
+            zoneIdList.add(intArray[index]);
+        }
+        return zoneIdList;
     }
 
     /**
@@ -1682,7 +1868,7 @@ public final class CarAudioManager extends CarManagerBase {
         private final CarVolumeGroupEventCallback mCallback;
 
         CarVolumeGroupEventCallbackWrapper(Executor executor,
-                                           CarVolumeGroupEventCallback callback) {
+                CarVolumeGroupEventCallback callback) {
             mExecutor = executor;
             mCallback = callback;
         }
@@ -1704,6 +1890,30 @@ public final class CarAudioManager extends CarManagerBase {
         @Override
         public int hashCode() {
             return mCallback.hashCode();
+        }
+    }
+
+    private static final class AudioZonesMirrorStatusCallbackWrapper
+            extends IAudioZonesMirrorStatusCallback.Stub {
+
+        private final Executor mExecutor;
+        private final AudioZonesMirrorStatusCallback mCallback;
+
+        AudioZonesMirrorStatusCallbackWrapper(Executor executor,
+                AudioZonesMirrorStatusCallback callback) {
+            mExecutor = executor;
+            mCallback = callback;
+        }
+
+        public void onAudioZonesMirrorStatusChanged(int[] mirroredAudioZones,
+                int status) {
+            long identity = Binder.clearCallingIdentity();
+            try {
+                mExecutor.execute(() -> mCallback.onAudioZonesMirrorStatusChanged(
+                        asList(mirroredAudioZones), status));
+            } finally {
+                Binder.restoreCallingIdentity(identity);
+            }
         }
     }
 }
