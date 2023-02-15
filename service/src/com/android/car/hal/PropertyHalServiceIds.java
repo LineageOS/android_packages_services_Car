@@ -29,6 +29,8 @@ import android.hardware.automotive.vehicle.BlindSpotWarningState;
 import android.hardware.automotive.vehicle.CruiseControlCommand;
 import android.hardware.automotive.vehicle.CruiseControlState;
 import android.hardware.automotive.vehicle.CruiseControlType;
+import android.hardware.automotive.vehicle.DriverAttentionMonitoringState;
+import android.hardware.automotive.vehicle.DriverAttentionMonitoringWarning;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
 import android.hardware.automotive.vehicle.EmergencyLaneKeepAssistState;
@@ -40,6 +42,8 @@ import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.ForwardCollisionWarningState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
+import android.hardware.automotive.vehicle.HandsOnDetectionDriverState;
+import android.hardware.automotive.vehicle.HandsOnDetectionWarning;
 import android.hardware.automotive.vehicle.LaneCenteringAssistCommand;
 import android.hardware.automotive.vehicle.LaneCenteringAssistState;
 import android.hardware.automotive.vehicle.LaneDepartureWarningState;
@@ -142,6 +146,18 @@ public class PropertyHalServiceIds {
                     CruiseControlState.class, ErrorState.class));
     private static final Set<Integer> CRUISE_CONTROL_COMMAND =
             new HashSet<>(getIntegersFromDataEnums(CruiseControlCommand.class));
+    private static final Set<Integer> HANDS_ON_DETECTION_DRIVER_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    HandsOnDetectionDriverState.class, ErrorState.class));
+    private static final Set<Integer> HANDS_ON_DETECTION_WARNING =
+            new HashSet<>(getIntegersFromDataEnums(
+                    HandsOnDetectionWarning.class, ErrorState.class));
+    private static final Set<Integer> DRIVER_ATTENTION_MONITORING_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    DriverAttentionMonitoringState.class, ErrorState.class));
+    private static final Set<Integer> DRIVER_ATTENTION_MONITORING_WARNING =
+            new HashSet<>(getIntegersFromDataEnums(
+                    DriverAttentionMonitoringWarning.class, ErrorState.class));
     private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 AutomaticEmergencyBrakingState.class, ErrorState.class));
@@ -229,6 +245,14 @@ public class PropertyHalServiceIds {
                 CRUISE_CONTROL_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_COMMAND,
                 CRUISE_CONTROL_COMMAND);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HANDS_ON_DETECTION_DRIVER_STATE,
+                HANDS_ON_DETECTION_DRIVER_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HANDS_ON_DETECTION_WARNING,
+                HANDS_ON_DETECTION_WARNING);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE,
+                DRIVER_ATTENTION_MONITORING_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING,
+                DRIVER_ATTENTION_MONITORING_WARNING);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
                 AUTOMATIC_EMERGENCY_BRAKING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
@@ -622,9 +646,21 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_DRIVER_STATE, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_WARNING, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
                 Car.PERMISSION_MILEAGE,
                 null));

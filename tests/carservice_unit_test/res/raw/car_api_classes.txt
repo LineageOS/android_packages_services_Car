@@ -159,6 +159,8 @@ android.car.hardware.property.CarPropertyManager$SetPropertyResult
 android.car.hardware.property.CruiseControlCommand
 android.car.hardware.property.CruiseControlState
 android.car.hardware.property.CruiseControlType
+android.car.hardware.property.DriverAttentionMonitoringState
+android.car.hardware.property.DriverAttentionMonitoringWarning
 android.car.hardware.property.EmergencyLaneKeepAssistState
 android.car.hardware.property.ErrorState
 android.car.hardware.property.EvChargeState
@@ -168,6 +170,8 @@ android.car.hardware.property.EvStoppingMode
 android.car.hardware.property.ForwardCollisionWarningState
 android.car.hardware.property.GetPropertyServiceRequest
 android.car.hardware.property.GetValueResult
+android.car.hardware.property.HandsOnDetectionDriverState
+android.car.hardware.property.HandsOnDetectionWarning
 android.car.hardware.property.LaneCenteringAssistCommand
 android.car.hardware.property.LaneCenteringAssistState
 android.car.hardware.property.LaneDepartureWarningState
