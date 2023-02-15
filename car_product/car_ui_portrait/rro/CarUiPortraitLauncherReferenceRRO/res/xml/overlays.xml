@@ -25,7 +25,6 @@
     <item target="color/seek_bar_color" value="@color/seek_bar_color" />
     <item target="color/position_indicator_bar_color" value="@color/position_indicator_bar_color"/>
 
-    <item target="id/bottom_card" value="@id/bottom_card" />
     <item target="id/card_background" value="@id/card_background" />
     <item target="id/card_background_image" value="@id/card_background_image" />
     <item target="id/card_icon" value="@id/card_icon" />
@@ -47,7 +46,6 @@
 
     <item target="id/recent_apps_row" value="@id/recent_apps_row" />
     <item target="id/divider" value="@id/divider" />
-    <item target="id/top_card" value="@id/top_card" />
 
     <item target="id/app_item" value="@id/app_item" />
     <item target="id/app_icon" value="@id/app_icon" />
@@ -71,7 +69,6 @@
     <item target="layout/app_grid_activity" value="@layout/app_grid_activity" />
     <item target="layout/card_content_media" value="@layout/card_content_media" />
     <item target="layout/card_fragment" value="@layout/card_fragment" />
-    <item target="layout/car_launcher" value="@layout/car_launcher" />
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
     <item target="layout/optional_seek_bar_with_times" value="@layout/optional_seek_bar_with_times" />
 
