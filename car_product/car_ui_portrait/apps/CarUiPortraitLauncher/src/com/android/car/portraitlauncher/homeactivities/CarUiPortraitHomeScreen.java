@@ -195,6 +195,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
      */
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
 
+    private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
+
     /**
      * Class for interacting with the main interface of the {@link CarUiPortraitService}.
      */
@@ -435,6 +437,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mIsRootPanelInitialized = true;
             updateUIState(STATE_CLOSE, /* animate = */ false);
         });
+
+        mCarUiPortraitDriveStateController = new CarUiPortraitDriveStateController(
+                getApplicationContext());
 
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
 
@@ -684,6 +689,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         if (mRootAppAreaState == newRootAppAreaState) {
             logIfDebuggable("Root panel is already in the requested state: " + newRootAppAreaState);
+        }
+
+        if (!mCarUiPortraitDriveStateController.isDrivingStateMoving() && isFullScreen(
+                newRootAppAreaState)) {
+            logIfDebuggable("Immersive mode is not allowed");
             return;
         }
 
