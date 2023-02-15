@@ -195,6 +195,8 @@ android.car.media.CarAudioZoneConfigInfo
 android.car.media.CarMediaIntents
 android.car.media.CarMediaManager
 android.car.media.CarMediaManager$MediaSourceChangedListener
+android.car.media.CarVolumeGroupEvent
+android.car.media.CarVolumeGroupEvent$Builder
 android.car.media.CarVolumeGroupInfo
 android.car.media.CarVolumeGroupInfo$Builder
 android.car.media.MediaAudioRequestStatusCallback

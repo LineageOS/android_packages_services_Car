@@ -16,9 +16,12 @@
 
 package com.android.car.remoteaccess;
 
+import static android.content.Context.BIND_AUTO_CREATE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
@@ -26,14 +29,20 @@ import android.car.hardware.CarPropertyValue;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -49,10 +58,14 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -70,6 +83,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private static final int MIN_SYSTEM_UPTIME_FOR_REMOTE_ACCESS_IN_SEC = 30;
     // Client ID remains valid for 30 days since issued.
     private static final long CLIENT_ID_EXPIRATION_IN_MILLIS = 30L * 24L * 60L * 60L * 1000L;
+    private static final Duration PACKAGE_SEARCH_DELAY = Duration.ofSeconds(3);
+    // Remote task client can use up to 30 seconds to initialize and upload necessary info to the
+    // server.
+    private static final long ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS = 30_000;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -83,6 +100,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final ArrayMap<String, String> mPackageByClientId = new ArrayMap<>();
     @GuardedBy("mLock")
     private final ArrayMap<String, ArraySet<String>> mActiveTasksByPackage = new ArrayMap<>();
+    @GuardedBy("mLock")
+    private final ArrayList<String> mRemoteTaskClientServices = new ArrayList<>();
 
     private final RemoteAccessHalCallback mHalCallback = new RemoteAccessHalCallback() {
         @Override
@@ -155,12 +174,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private boolean mRunGarageMode;
 
-    public CarRemoteAccessService(Context context) {
-        this(context, /* remoteAccessHal= */ null);
+    public CarRemoteAccessService(Context context, SystemInterface systemInterface) {
+        this(context, systemInterface, /* remoteAccessHal= */ null);
     }
 
     @VisibleForTesting
-    public CarRemoteAccessService(Context context,
+    public CarRemoteAccessService(Context context, SystemInterface systemInterface,
             @Nullable RemoteAccessHalWrapper remoteAccessHal) {
         mContext = context;
         mPackageManager = mContext.getPackageManager();
@@ -168,6 +187,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 : new RemoteAccessHalWrapper(mHalCallback);
         mBootUpForRemoteAccess = isBootUpForRemoteAccess();
         mShutdownTimeInMs = SystemClock.uptimeMillis() + getAllowedSystemUpTimeForRemoteTaskInMs();
+        // TODO(b/263807920): CarService restart should be handled.
+        systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
+                PACKAGE_SEARCH_DELAY);
     }
 
     @Override
@@ -212,6 +234,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             for (int i = 0; i < mActiveTasksByPackage.size(); i++) {
                 writer.printf("%s ==> %s\n", mActiveTasksByPackage.keyAt(i),
                         mActiveTasksByPackage.valueAt(i));
+            }
+            writer.decreaseIndent();
+            writer.println("mRemoteTaskClientServices:");
+            writer.increaseIndent();
+            for (int i = 0; i < mRemoteTaskClientServices.size(); i++) {
+                writer.printf("%d: %s\n", i, mRemoteTaskClientServices.get(i));
             }
             writer.decreaseIndent();
         }
@@ -423,6 +451,46 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return timeout * MILLI_TO_SECOND;
     }
 
+    private void searchForRemoteTaskClientPackages() {
+        List<String> servicesToStart = new ArrayList<>();
+        List<ResolveInfo> services = mPackageManager.queryIntentServices(
+                new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE),
+                PackageManager.ResolveInfoFlags.of(/* value= */ 0));
+        synchronized (mLock) {
+            for (int i = 0; i < services.size(); i++) {
+                ServiceInfo info = services.get(i).serviceInfo;
+                String component = String.join("/", info.packageName, info.name);
+                if (mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS,
+                        info.packageName) != PackageManager.PERMISSION_GRANTED) {
+                    Slogf.w(TAG, "Package(%s) has %s intent but doesn't have %s permission",
+                            component, Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE,
+                            Car.PERMISSION_USE_REMOTE_ACCESS);
+                    continue;
+                }
+                // TODO(b/263798644): mRemoteTaskClientServices should be updated when packages are
+                // added, removed, updated.
+                mRemoteTaskClientServices.add(component);
+                servicesToStart.add(component);
+            }
+        }
+        startRemoteTaskClientServices(servicesToStart);
+    }
+
+    private void startRemoteTaskClientServices(List<String> services) {
+        for (int i = 0; i < services.size(); i++) {
+            String serviceName = services.get(i);
+            RemoteTaskClientServiceConnection serviceConnection =
+                    new RemoteTaskClientServiceConnection(mContext, serviceName);
+            serviceConnection.bindService();
+            Slogf.i(TAG, "Service(%s) is bound to give a time to register as a remote task client",
+                    serviceName);
+            mHandler.postDelayed(() -> {
+                serviceConnection.unbindService();
+                Slogf.i(TAG, "Service(%s) is unbound from CarRemoteAccessService", serviceName);
+            }, ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS);
+        }
+    }
+
     private String generateNewTaskId() {
         return TASK_PREFIX + "_" + mTaskCount.incrementAndGet() + "_"
                 + CarServiceUtils.generateRandomAlphaNumericString(RANDOM_STRING_LENGTH);
@@ -524,6 +592,76 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 sb.append(']');
             }
             return sb.toString();
+        }
+    }
+
+    private static final class RemoteTaskClientServiceConnection implements ServiceConnection {
+
+        private static final String TAG = RemoteTaskClientServiceConnection.class.getSimpleName();
+
+        private final Object mServiceLock = new Object();
+        private final Context mContext;
+        private final Intent mIntent;
+
+        @GuardedBy("mServiceLock")
+        private boolean mBound;
+
+        private RemoteTaskClientServiceConnection(Context context, String serviceName) {
+            mContext = context;
+            mIntent = new Intent();
+            mIntent.setComponent(ComponentName.unflattenFromString(serviceName));
+        }
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            synchronized (mServiceLock) {
+                mBound = true;
+            }
+            Slogf.i(TAG, "Service(%s) is bound", name.flattenToShortString());
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            synchronized (mServiceLock) {
+                mBound = false;
+            }
+            Slogf.i(TAG, "Service(%s) is unbound", name.flattenToShortString());
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name) {
+            synchronized (mServiceLock) {
+                mBound = false;
+            }
+            Slogf.w(TAG, "Service(%s) died", name.flattenToShortString());
+        }
+
+        public void bindService() {
+            synchronized (mServiceLock) {
+                if (mBound) {
+                    Slogf.w(TAG, "%s is already bound", mIntent);
+                    return;
+                }
+            }
+            // TODO(b/266129982): Start a service for the user under which the task needs to be
+            // executed.
+            UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
+            boolean status = mContext.bindServiceAsUser(mIntent, /* conn= */ this, BIND_AUTO_CREATE,
+                    currentUser);
+            if (!status) {
+                Slogf.w(TAG, "Failed to bind service %s as user %s", mIntent, currentUser);
+                mContext.unbindService(/* conn= */ this);
+            }
+        }
+
+        public void unbindService() {
+            synchronized (mServiceLock) {
+                if (!mBound) {
+                    Slogf.w(TAG, "%s is not bound", mIntent);
+                    return;
+                }
+            }
+            mContext.unbindService(/* conn= */ this);
         }
     }
 }

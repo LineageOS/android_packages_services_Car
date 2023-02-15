@@ -60,6 +60,7 @@ import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.occupantconnection.CarOccupantConnectionManager;
 import android.car.os.CarPerformanceManager;
+import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
@@ -549,6 +550,18 @@ public final class Car {
     @SystemApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
+
+    /**
+     * Service name for {@link android.car.remoteaccess.CarRemoteAccessManager}
+     *
+     * @hide
+     */
+    @OptionalFeature
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
+
     /**
      * Permission necessary to read driver monitoring systems settings information.
      *
@@ -561,6 +574,7 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PERMISSION_READ_DRIVER_MONITORING_SETTINGS =
             "android.car.permission.READ_DRIVER_MONITORING_SETTINGS";
+
     /**
      * Permission necessary to control driver monitoring systems settings information.
      *
@@ -573,6 +587,7 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS =
             "android.car.permission.CONTROL_DRIVER_MONITORING_SETTINGS";
+
     /**
      * Permission necessary to read driver monitoring systems states information.
      *
@@ -1452,6 +1467,19 @@ public final class Car {
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
 
+    /**
+     * Intent for being recognized as a remote task client service.
+     *
+     * <p>Services that use this intent must have a {@code PERMISSION_CONTROL_REMOTE_ACCESS}.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE =
+            "android.car.remoteaccess.RemoteTaskClientService";
+
     /** @hide */
     @VisibleForHiddenApiCheck
     @AddedInOrBefore(majorVersion = 33)
@@ -1720,6 +1748,7 @@ public final class Car {
         CAR_SERVICE_NAMES.put(CarEvsManager.class, CAR_EVS_SERVICE);
         CAR_SERVICE_NAMES.put(CarTelemetryManager.class, CAR_TELEMETRY_SERVICE);
         CAR_SERVICE_NAMES.put(CarActivityManager.class, CAR_ACTIVITY_SERVICE);
+        CAR_SERVICE_NAMES.put(CarRemoteAccessManager.class, CAR_REMOTE_ACCESS_SERVICE);
         CAR_SERVICE_NAMES.put(CarOccupantConnectionManager.class, CAR_OCCUPANT_CONNECTION_SERVICE);
         CAR_SERVICE_NAMES.put(CarRemoteDeviceManager.class, CAR_REMOTE_DEVICE_SERVICE);
         // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
@@ -2662,6 +2691,9 @@ public final class Car {
                 break;
             case CAR_PERFORMANCE_SERVICE:
                 manager = new CarPerformanceManager(this, binder);
+                break;
+            case CAR_REMOTE_ACCESS_SERVICE:
+                manager = new CarRemoteAccessManager(this, binder);
                 break;
             case CAR_OCCUPANT_CONNECTION_SERVICE:
                 manager = new CarOccupantConnectionManager(this, binder);

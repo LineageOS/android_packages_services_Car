@@ -190,6 +190,10 @@
     <!-- To allow turning on RROs in DriveModeSwitchFragment -->
     <uses-permission android:name="android.permission.CHANGE_OVERLAY_PACKAGES"/>
 
+    <!-- To be a remote task client -->
+    <uses-permission android:name="android.car.permission.USE_REMOTE_ACCESS"/>
+    <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application android:label="@string/app_title"
                  android:allowBackup="false"
@@ -376,6 +380,14 @@
                  android:exported="false">
             <intent-filter>
                 <action android:name="android.backup.TRANSPORT_HOST" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".remoteaccess.RemoteTaskClientService"
+                 android:directBootAware="true"
+                 android:exported="true">
+            <intent-filter>
+                <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
             </intent-filter>
         </service>
     </application>
