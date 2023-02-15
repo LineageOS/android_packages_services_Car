@@ -26,14 +26,14 @@ import java.util.Objects;
  */
 final class AudioFocusStack {
 
-    List<AudioFocusInfo> mActiveFocusList;
-    List<AudioFocusInfo> mInactiveFocusList;
+    private final List<AudioFocusInfo> mActiveFocusList;
+    private final List<AudioFocusInfo> mInactiveFocusList;
 
     AudioFocusStack(List<AudioFocusInfo> activeFocusList, List<AudioFocusInfo> inactiveFocusList) {
-        mActiveFocusList = Objects.requireNonNull(activeFocusList,
-                "Active foci info must not be null");
-        mInactiveFocusList = Objects.requireNonNull(inactiveFocusList,
-                "Inactive foci info must not be null");
+        Objects.requireNonNull(activeFocusList, "Active foci info must not be null");
+        Objects.requireNonNull(inactiveFocusList, "Inactive foci info must not be null");
+        mActiveFocusList = List.copyOf(activeFocusList);
+        mInactiveFocusList = List.copyOf(inactiveFocusList);
     }
 
     List<AudioFocusInfo> getActiveFocusList() {
