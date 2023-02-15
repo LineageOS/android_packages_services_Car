@@ -24,4 +24,9 @@
 
     <!-- If the control bar's seekbar uses the color from media source -->
     <bool name="use_media_source_color_for_seek_bar">false</bool>
+
+    <!-- Whether the app grid should use @dimen/app_grid_width and @dimen/app_grid_height.
+    If this is set to true, app grid will fill the available space, If this is set to false, exact
+    defined dimensions will be used instead.-->
+    <bool name="use_defined_app_grid_dimensions">true</bool>
 </resources>

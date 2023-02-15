@@ -29,4 +29,8 @@
     <color name="end_call_button_background_color">@color/car_decline_red</color>
     <color name="recent_apps_line_divider_color">#2E3134</color>
     <color name="seek_bar_color">@color/car_primary</color>
+
+    <color name="app_item_on_hover_border_color">@color/car_primary</color>
+    <color name="app_item_on_hover_background_color">#3d66b5ff</color>
+    <color name="position_indicator_bar_color">@color/car_primary</color>
 </resources>
