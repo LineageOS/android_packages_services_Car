@@ -33,6 +33,7 @@ package android.car.builtin.app {
     method public static boolean isVisible(android.app.Activity);
     method public static void killAllBackgroundProcesses();
     method public static void killUid(int, int, String);
+    method @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void moveRootTaskToDisplay(int, int);
     method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method public static boolean removeTask(int);
     method public static void setFocusedRootTask(int);
