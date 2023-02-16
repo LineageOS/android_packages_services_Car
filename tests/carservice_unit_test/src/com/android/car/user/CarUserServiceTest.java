@@ -74,8 +74,10 @@ import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartRequest;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopRequest;
+import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -706,9 +708,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
-        UserStopResult result = mCarUserService.stopUser(request);
+        UserStopResponse result = mCarUserService.stopUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStopResult.STATUS_SUCCESSFUL);
+        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
     }
 
@@ -2045,9 +2047,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
     }
 
@@ -2059,10 +2061,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus())
-                .isEqualTo(UserStartResult.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY);
+                .isEqualTo(UserStartResponse.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY);
         assertThat(result.isSuccess()).isTrue();
     }
 
@@ -2081,9 +2083,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testStartUser_userInvalid() throws Exception {
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.SYSTEM)
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_USER_INVALID);
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_USER_INVALID);
         assertThat(result.isSuccess()).isFalse();
     }
 
@@ -2091,9 +2093,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testStartUser_userDoesNotExist() throws Exception {
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_USER_DOES_NOT_EXIST);
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_USER_DOES_NOT_EXIST);
         assertThat(result.isSuccess()).isFalse();
     }
 
@@ -2104,9 +2106,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_DISPLAY_UNAVAILABLE);
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_DISPLAY_UNAVAILABLE);
         assertThat(result.isSuccess()).isFalse();
     }
 
@@ -2117,10 +2119,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
         assertThat(result.getStatus())
-                .isEqualTo(UserStartResult.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY);
+                .isEqualTo(UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY);
         assertThat(result.isSuccess()).isFalse();
     }
 
@@ -2132,9 +2134,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request =
                 new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID)).build();
-        UserStartResult result = mCarUserService.startUser(request);
+        UserStartResponse result = mCarUserService.startUser(request);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
     }
 

@@ -69,8 +69,10 @@ import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartRequest;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopRequest;
+import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -1901,7 +1903,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * <p>If a valid display ID is specified in the {@code request}, then start the user visible on
      *    the display.
      */
-    public UserStartResult startUser(UserStartRequest request) {
+    public UserStartResponse startUser(UserStartRequest request) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
             throw new SecurityException("startUser: You need one of " + MANAGE_USERS
                     + ", or " + INTERACT_ACROSS_USERS);
@@ -1921,60 +1923,59 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     result);
         }
 
-        return new UserStartResult(result);
+        return new UserStartResponse(result);
     }
 
-    private @UserStartResult.Status int startUserVisibleOnDisplayInternal(
+    private @UserStartResponse.Status int startUserVisibleOnDisplayInternal(
             @UserIdInt int userId, int displayId) {
         if (displayId == Display.INVALID_DISPLAY) {
             Slogf.wtf(TAG, "startUserVisibleOnDisplay: Display ID must be valid.");
-            return UserStartResult.STATUS_DISPLAY_INVALID;
+            return UserStartResponse.STATUS_DISPLAY_INVALID;
         }
 
         PlatformVersion platformVersion = Car.getPlatformVersion();
         if (!platformVersion.isAtLeast(UPSIDE_DOWN_CAKE_0)) {
             Slogf.w(TAG, "The platform does not support startUser."
                     + " Platform version: %s", platformVersion);
-            return UserStartResult.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
+            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         // If the requested user is the system user.
         if (userId == UserHandle.SYSTEM.getIdentifier()) {
-            return UserStartResult.STATUS_USER_INVALID;
+            return UserStartResponse.STATUS_USER_INVALID;
         }
         // If the requested user does not exist.
         if (mUserHandleHelper.getExistingUserHandle(userId) == null) {
-            return UserStartResult.STATUS_USER_DOES_NOT_EXIST;
+            return UserStartResponse.STATUS_USER_DOES_NOT_EXIST;
         }
 
         // If the specified display is invalid.
         // TODO(b/261606752) In MUPAND (multiple passenger no driver), a background user can be
         // visible on the default display, so we should add the check for: !isPassengerOnlyMode().
         if (displayId == Display.DEFAULT_DISPLAY) {
-            return UserStartResult.STATUS_DISPLAY_INVALID;
+            return UserStartResponse.STATUS_DISPLAY_INVALID;
         }
         CarOccupantZoneService occupantZoneService =
                 CarLocalServices.getService(CarOccupantZoneService.class);
         // If the specified display is not available to start a user on.
         if (occupantZoneService.getUserForDisplayId(displayId)
                 != CarOccupantZoneManager.INVALID_USER_ID) {
-            return UserStartResult.STATUS_DISPLAY_UNAVAILABLE;
+            return UserStartResponse.STATUS_DISPLAY_UNAVAILABLE;
         }
 
         int curDisplayIdAssignedToUser = getDisplayAssignedToUser(userId);
         if (curDisplayIdAssignedToUser == displayId) {
             // If the user is already visible on the display, do nothing and return success.
-            return UserStartResult
-                    .STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
+            return UserStartResponse.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
         }
         if (curDisplayIdAssignedToUser != Display.INVALID_DISPLAY) {
             // If the specified user is assigned to another display, the user has to be stopped
             // before it can start on another display.
-            return UserStartResult.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
+            return UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
         }
 
         return ActivityManagerHelper.startUserInBackgroundVisibleOnDisplay(userId, displayId)
-                ? UserStartResult.STATUS_SUCCESSFUL : UserStartResult.STATUS_ANDROID_FAILURE;
+                ? UserStartResponse.STATUS_SUCCESSFUL : UserStartResponse.STATUS_ANDROID_FAILURE;
     }
 
     /**
@@ -2095,7 +2096,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     /**
      * Stops the specified background user.
      */
-    public UserStopResult stopUser(UserStopRequest request) {
+    public UserStopResponse stopUser(UserStopRequest request) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
             throw new SecurityException("stopUser: You need one of " + MANAGE_USERS + ", or "
                     + INTERACT_ACROSS_USERS);
@@ -2106,7 +2107,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int result = stopBackgroundUserInternal(userId, forceStop);
         EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
 
-        return new UserStopResult(result);
+        return new UserStopResponse(result);
     }
 
     private void handleStopUser(

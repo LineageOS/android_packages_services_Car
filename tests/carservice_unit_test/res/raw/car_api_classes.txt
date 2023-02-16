@@ -280,9 +280,11 @@ android.car.user.UserLifecycleEventFilter$Builder
 android.car.user.UserRemovalResult
 android.car.user.UserStartRequest
 android.car.user.UserStartRequest$Builder
+android.car.user.UserStartResponse
 android.car.user.UserStartResult
 android.car.user.UserStopRequest
 android.car.user.UserStopRequest$Builder
+android.car.user.UserStopResponse
 android.car.user.UserStopResult
 android.car.user.UserSwitchResult
 android.car.util.concurrent.AndroidAsyncFuture

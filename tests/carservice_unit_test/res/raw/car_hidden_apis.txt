@@ -666,6 +666,30 @@ android.car.user UserRemovalResult int getStatus()
 android.car.user UserRemovalResult String toString()
 android.car.user UserRemovalResult void writeToParcel(android.os.Parcel dest, int flags)
 android.car.user UserRemovalResult int describeContents()
+android.car.user UserStartResult int STATUS_SUCCESSFUL
+android.car.user UserStartResult int STATUS_ANDROID_FAILURE
+android.car.user UserStartResult int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER
+android.car.user UserStartResult int STATUS_USER_DOES_NOT_EXIST
+android.car.user UserStartResult Parcelable.Creator<UserStartResult> CREATOR
+android.car.user UserStartResult boolean isSuccess()
+android.car.user UserStartResult String statusToString(int value)
+android.car.user UserStartResult int getStatus()
+android.car.user UserStartResult String toString()
+android.car.user UserStartResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserStartResult int describeContents()
+android.car.user UserStopResult int STATUS_SUCCESSFUL
+android.car.user UserStopResult int STATUS_ANDROID_FAILURE
+android.car.user UserStopResult int STATUS_USER_DOES_NOT_EXIST
+android.car.user UserStopResult int STATUS_FAILURE_SYSTEM_USER
+android.car.user UserStopResult int STATUS_FAILURE_CURRENT_USER
+android.car.user UserStopResult Parcelable.Creator<UserStopResult> CREATOR
+android.car.user UserStopResult boolean isSuccess(int status)
+android.car.user UserStopResult boolean isSuccess()
+android.car.user UserStopResult String statusToString(int value)
+android.car.user UserStopResult int getStatus()
+android.car.user UserStopResult String toString()
+android.car.user UserStopResult void writeToParcel(android.os.Parcel dest, int flags)
+android.car.user UserStopResult int describeContents()
 android.car.user UserSwitchResult int STATUS_SUCCESSFUL
 android.car.user UserSwitchResult int STATUS_ANDROID_FAILURE
 android.car.user UserSwitchResult int STATUS_HAL_FAILURE
