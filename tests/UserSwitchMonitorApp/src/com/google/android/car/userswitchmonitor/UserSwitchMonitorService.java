@@ -136,7 +136,7 @@ public final class UserSwitchMonitorService extends Service {
         filter.addAction(Intent.ACTION_USER_STOPPED);
         filter.addAction(Intent.ACTION_USER_SWITCHED);
 
-        context.registerReceiver(receiver, filter);
+        context.registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     private Context getContextForUser(@UserIdInt int userId) {
