@@ -274,6 +274,21 @@ TEST_F(LuaEngineTest, ExecuteScriptRuntimeError) {
             std::string::npos);
 }
 
+TEST_F(LuaEngineTest, ExecuteScriptRuntimeErrorWithStackTrace) {
+  const char* script = "function func_2(data, state)\n"
+                       "    func_3(data, state)\n"
+                       "end\n"
+                       "function func_1(data, state)\n"
+                       "    func_2(data, state)\n"
+                       "end";
+  std::vector<std::string> output = lua_engine_.ExecuteScript(script, "func_1", "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_NE(actual.find("Error encountered while running the script."), std::string::npos);
+  EXPECT_NE(actual.find("func_3"), std::string::npos);
+  EXPECT_NE(actual.find("func_2"), std::string::npos);
+  EXPECT_NE(actual.find("func_1"), std::string::npos);
+}
+
 TEST_F(LuaEngineTest, ExecuteScriptInvalidPublishedData) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
       "function test(data, state) end", "test", "invalid", "{}");
