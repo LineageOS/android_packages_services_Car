@@ -63,6 +63,7 @@ import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
 import android.hardware.automotive.vehicle.VehicleTurnSignal;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.hardware.automotive.vehicle.WindshieldWipersState;
+import android.hardware.automotive.vehicle.WindshieldWipersSwitch;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -135,6 +136,8 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
     private static final Set<Integer> WINDSHIELD_WIPERS_STATE =
             new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
+    private static final Set<Integer> WINDSHIELD_WIPERS_SWITCH =
+            new HashSet<>(getIntegersFromDataEnums(WindshieldWipersSwitch.class));
     private static final Set<Integer> EMERGENCY_LANE_KEEP_ASSIST_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                     EmergencyLaneKeepAssistState.class, ErrorState.class));
@@ -233,6 +236,8 @@ public class PropertyHalServiceIds {
                 EV_STOPPING_MODE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.WINDSHIELD_WIPERS_STATE,
                 WINDSHIELD_WIPERS_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.WINDSHIELD_WIPERS_SWITCH,
+                WINDSHIELD_WIPERS_SWITCH);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_SWITCH,
                 VEHICLE_LIGHT_SWITCH);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
@@ -493,6 +498,9 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.WINDSHIELD_WIPERS_STATE, new Pair<>(
                 Car.PERMISSION_READ_WINDSHIELD_WIPERS,
                 null));
+        mHalPropIdToPermissions.put(VehicleProperty.WINDSHIELD_WIPERS_SWITCH, new Pair<>(
+                Car.PERMISSION_READ_WINDSHIELD_WIPERS,
+                Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS));
         mHalPropIdToPermissions.put(VehicleProperty.STEERING_WHEEL_DEPTH_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_STEERING_WHEEL,
                 Car.PERMISSION_CONTROL_STEERING_WHEEL));
