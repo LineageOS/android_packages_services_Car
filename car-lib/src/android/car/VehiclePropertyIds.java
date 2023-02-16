@@ -3762,13 +3762,50 @@ public final class VehiclePropertyIds {
     public static final int EMERGENCY_LANE_KEEP_ASSIST_ENABLED = 287313933;
 
     /**
-     * Enable or disable adaptive cruise control (ACC).
+     * Emergency Lane Keep Assist (ELKA) state.
      *
-     * <p>Return true if ACC is enabled and false if ACC is disabled. When ACC is enabled, the ADAS
-     * system in the vehicle should be turned on and waiting for an activation signal from the
-     * driver. Once the feature is activated, the ADAS system in the car should be accelerating and
-     * braking in a way that allows the vehicle to maintain a set speed and to maintain a set
-     * distance gap from a leading vehicle.
+     * <p>Returns the current state of ELKA. Generally, this property should return a valid state
+     * defined in the {@link android.car.hardware.property.EmergencyLaneKeepAssistState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through ErrorState.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.EmergencyLaneKeepAssistState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int EMERGENCY_LANE_KEEP_ASSIST_STATE = 289411086;
+
+    /**
+     * Enable or disable cruise control (CC).
+     *
+     * <p>Return true if CC is enabled and false if CC is disabled. This property is shared by all
+     * forms of {@link android.car.hardware.property.CruiseControlType}).
+     *
+     * <p>When CC is enabled, the ADAS system in the vehicle should be turned on and responding to
+     * commands.
      *
      * <p>This property is defined as read_write, but OEMs have the option to implement it as read
      * only.
@@ -3797,7 +3834,124 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_SETTINGS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int ADAPTIVE_CRUISE_CONTROL_ENABLED = 287313935;
+    public static final int CRUISE_CONTROL_ENABLED = 287313935;
+
+    /**
+     * Current type of Cruise Control (CC).
+     *
+     * <p>When {@link CRUISE_CONTROL_ENABLED} is true, this property returns the type of CC that is
+     * currently enabled (for example, standard CC, adaptive CC, etc.). Generally, this property
+     * should return a valid state defined in the {@link
+     * android.car.hardware.property.CruiseControlType} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.CruiseControlType} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * Trying to write {@link android.car.hardware.property.CruiseControlType#OTHER} or an
+     * ErrorState to this property will throw an {@code IllegalArgumentException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int CRUISE_CONTROL_TYPE = 289411088;
+
+    /**
+     * Current state of Cruise Control (CC).
+     *
+     * <p>This property returns the state of CC. Generally, this property should return a valid
+     * state defined in the {@link android.car.hardware.property.CruiseControlState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.CruiseControlState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int CRUISE_CONTROL_STATE = 289411089;
+
+    /**
+     * Write Cruise Control (CC) commands.
+     *
+     * <p>See {@link android.car.hardware.property.CruiseControlCommand} for the details about
+     * each supported command.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.CruiseControlCommand} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Property is not readable.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int CRUISE_CONTROL_COMMAND = 289411090;
     /**
      * Enable or disable hands on detection (HOD).
      *
@@ -3837,6 +3991,86 @@ public final class VehiclePropertyIds {
     public static final int HANDS_ON_DETECTION_ENABLED = 287313942;
 
     /**
+     * Hands on detection (HOD) driver state.
+     *
+     * <p>Returns whether the driver's hands are on the steering wheel. Generally, this property
+     * should return a valid state defined in the {@link
+     * android.car.hardware.property.HandsOnDetectionDriverState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through ErrorState.
+     *
+     * <p>If the vehicle is sending a warning to the user because the driver's hands have been off
+     * the steering wheel for too long, the warning should be surfaced through
+     * {@link HANDS_ON_DETECTION_WARNING}.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.HandsOnDetectionDriverState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li> Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int HANDS_ON_DETECTION_DRIVER_STATE = 289411095;
+    /**
+     * Hands on detection (HOD) warning.
+     *
+     * <p>Returns whether a warning is being sent to the driver for having their hands off the wheel
+     * for too long a duration.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.HandsOnDetectionWarning} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an ErrorState.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.HandsOnDetectionWarning} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li> Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int HANDS_ON_DETECTION_WARNING = 289411096;
+    /**
      * Enable or disable driver attention monitoring.
      *
      * <p>Return true if driver attention monitoring is enabled and false if driver attention
@@ -3873,6 +4107,85 @@ public final class VehiclePropertyIds {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DRIVER_ATTENTION_MONITORING_ENABLED = 287313945;
+
+    /**
+     * Driver Attention Monitoring state.
+     *
+     * <p>Returns whether the driver is currently attentive or distracted. Generally, this property
+     * should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverAttentionMonitoringState} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an ErrorState.
+     *
+     * <p>If the vehicle wants to send a warning to the user because the driver has been distracted
+     * for too long, the warning should be surfaced through {@link
+     * DRIVER_ATTENTION_MONITORING_WARNING}.
+     *
+     * <p>The {@link android.car.hardware.CarPropertyConfig#getConfigArray()} array specifies which
+     * states from {@link android.car.hardware.property.DriverAttentionMonitoringState} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li> Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int DRIVER_ATTENTION_MONITORING_STATE = 289411098;
+    /**
+     * Driver attention monitoring warning.
+     *
+     * <p>Returns whether a warning is being sent to the driver for being distracted for too long a
+     * duration.
+     *
+     * <p>Generally, this property should return a valid state defined in the {@link
+     * android.car.hardware.property.DriverAttentionMonitoringWarning} or {@link
+     * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
+     * to some temporary state, that information should be conveyed through an ErrorState.
+     *
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
+     * from {@link android.car.hardware.property.DriverAttentionMonitoringWarning} and {@link
+     * android.car.hardware.property.ErrorState} are supported.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  read property.
+     *  <li> Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DRIVER_MONITORING_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int DRIVER_ATTENTION_MONITORING_WARNING = 289411099;
 
     /**
      * @deprecated to prevent others from instantiating this class

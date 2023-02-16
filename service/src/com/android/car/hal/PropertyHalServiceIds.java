@@ -26,8 +26,14 @@ import android.car.builtin.util.Slogf;
 import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.AutomaticEmergencyBrakingState;
 import android.hardware.automotive.vehicle.BlindSpotWarningState;
+import android.hardware.automotive.vehicle.CruiseControlCommand;
+import android.hardware.automotive.vehicle.CruiseControlState;
+import android.hardware.automotive.vehicle.CruiseControlType;
+import android.hardware.automotive.vehicle.DriverAttentionMonitoringState;
+import android.hardware.automotive.vehicle.DriverAttentionMonitoringWarning;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.ElectronicTollCollectionCardType;
+import android.hardware.automotive.vehicle.EmergencyLaneKeepAssistState;
 import android.hardware.automotive.vehicle.ErrorState;
 import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
@@ -36,6 +42,8 @@ import android.hardware.automotive.vehicle.EvStoppingMode;
 import android.hardware.automotive.vehicle.ForwardCollisionWarningState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
+import android.hardware.automotive.vehicle.HandsOnDetectionDriverState;
+import android.hardware.automotive.vehicle.HandsOnDetectionWarning;
 import android.hardware.automotive.vehicle.LaneCenteringAssistCommand;
 import android.hardware.automotive.vehicle.LaneCenteringAssistState;
 import android.hardware.automotive.vehicle.LaneDepartureWarningState;
@@ -127,6 +135,29 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
     private static final Set<Integer> WINDSHIELD_WIPERS_STATE =
             new HashSet<>(getIntegersFromDataEnums(WindshieldWipersState.class));
+    private static final Set<Integer> EMERGENCY_LANE_KEEP_ASSIST_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    EmergencyLaneKeepAssistState.class, ErrorState.class));
+    private static final Set<Integer> CRUISE_CONTROL_TYPE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    CruiseControlType.class, ErrorState.class));
+    private static final Set<Integer> CRUISE_CONTROL_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    CruiseControlState.class, ErrorState.class));
+    private static final Set<Integer> CRUISE_CONTROL_COMMAND =
+            new HashSet<>(getIntegersFromDataEnums(CruiseControlCommand.class));
+    private static final Set<Integer> HANDS_ON_DETECTION_DRIVER_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    HandsOnDetectionDriverState.class, ErrorState.class));
+    private static final Set<Integer> HANDS_ON_DETECTION_WARNING =
+            new HashSet<>(getIntegersFromDataEnums(
+                    HandsOnDetectionWarning.class, ErrorState.class));
+    private static final Set<Integer> DRIVER_ATTENTION_MONITORING_STATE =
+            new HashSet<>(getIntegersFromDataEnums(
+                    DriverAttentionMonitoringState.class, ErrorState.class));
+    private static final Set<Integer> DRIVER_ATTENTION_MONITORING_WARNING =
+            new HashSet<>(getIntegersFromDataEnums(
+                    DriverAttentionMonitoringWarning.class, ErrorState.class));
     private static final Set<Integer> AUTOMATIC_EMERGENCY_BRAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(
                 AutomaticEmergencyBrakingState.class, ErrorState.class));
@@ -168,6 +199,7 @@ public class PropertyHalServiceIds {
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, VEHICLE_UNITS);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
@@ -205,6 +237,22 @@ public class PropertyHalServiceIds {
                 VEHICLE_LIGHT_SWITCH);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.STEERING_WHEEL_LIGHTS_STATE,
                 VEHICLE_LIGHT_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_STATE,
+                EMERGENCY_LANE_KEEP_ASSIST_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_TYPE,
+                CRUISE_CONTROL_TYPE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_STATE,
+                CRUISE_CONTROL_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.CRUISE_CONTROL_COMMAND,
+                CRUISE_CONTROL_COMMAND);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HANDS_ON_DETECTION_DRIVER_STATE,
+                HANDS_ON_DETECTION_DRIVER_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.HANDS_ON_DETECTION_WARNING,
+                HANDS_ON_DETECTION_WARNING);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE,
+                DRIVER_ATTENTION_MONITORING_STATE);
+        HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING,
+                DRIVER_ATTENTION_MONITORING_WARNING);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.AUTOMATIC_EMERGENCY_BRAKING_STATE,
                 AUTOMATIC_EMERGENCY_BRAKING_STATE);
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.FORWARD_COLLISION_WARNING_STATE,
@@ -220,14 +268,6 @@ public class PropertyHalServiceIds {
         HAL_PROP_ID_TO_ENUM_SET.put(VehicleProperty.LANE_CENTERING_ASSIST_STATE,
                 LANE_CENTERING_ASSIST_STATE);
     }
-
-    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
-            Set.of(VehicleProperty.GEAR_SELECTION, VehicleProperty.CURRENT_GEAR,
-                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
-                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
-                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
-                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
-                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS);
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -588,15 +628,39 @@ public class PropertyHalServiceIds {
         mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
-        mHalPropIdToPermissions.put(VehicleProperty.ADAPTIVE_CRUISE_CONTROL_ENABLED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EMERGENCY_LANE_KEEP_ASSIST_STATE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_ADAS_SETTINGS,
                 Car.PERMISSION_CONTROL_ADAS_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_TYPE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                Car.PERMISSION_CONTROL_ADAS_STATES));
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_STATE, new Pair<>(
+                Car.PERMISSION_READ_ADAS_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.CRUISE_CONTROL_COMMAND, new Pair<>(
+                null,
+                Car.PERMISSION_CONTROL_ADAS_STATES));
         mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_DRIVER_STATE, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_WARNING, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
+        mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_STATE, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
+        mHalPropIdToPermissions.put(VehicleProperty.DRIVER_ATTENTION_MONITORING_WARNING, new Pair<>(
+                Car.PERMISSION_READ_DRIVER_MONITORING_STATES,
+                null));
         mHalPropIdToPermissions.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
                 Car.PERMISSION_MILEAGE,
                 null));
@@ -917,7 +981,6 @@ public class PropertyHalServiceIds {
     @Nullable
     public static Set<Integer> getAllPossibleSupportedEnumValues(int halPropId) {
         return HAL_PROP_ID_TO_ENUM_SET.contains(halPropId)
-                && !CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES.contains(halPropId)
                 ? Collections.unmodifiableSet(HAL_PROP_ID_TO_ENUM_SET.get(halPropId)) : null;
     }
 

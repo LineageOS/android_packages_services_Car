@@ -156,6 +156,12 @@ android.car.hardware.property.CarPropertyManager$SetPropertyRequest
 android.car.hardware.property.CarPropertyManager$PropertyAsyncError
 android.car.hardware.property.CarPropertyManager$GetPropertyResult
 android.car.hardware.property.CarPropertyManager$SetPropertyResult
+android.car.hardware.property.CruiseControlCommand
+android.car.hardware.property.CruiseControlState
+android.car.hardware.property.CruiseControlType
+android.car.hardware.property.DriverAttentionMonitoringState
+android.car.hardware.property.DriverAttentionMonitoringWarning
+android.car.hardware.property.EmergencyLaneKeepAssistState
 android.car.hardware.property.ErrorState
 android.car.hardware.property.EvChargeState
 android.car.hardware.property.EvChargingConnectorType
@@ -164,6 +170,8 @@ android.car.hardware.property.EvStoppingMode
 android.car.hardware.property.ForwardCollisionWarningState
 android.car.hardware.property.GetPropertyServiceRequest
 android.car.hardware.property.GetValueResult
+android.car.hardware.property.HandsOnDetectionDriverState
+android.car.hardware.property.HandsOnDetectionWarning
 android.car.hardware.property.LaneCenteringAssistCommand
 android.car.hardware.property.LaneCenteringAssistState
 android.car.hardware.property.LaneDepartureWarningState
@@ -188,6 +196,7 @@ android.car.input.CarInputManager
 android.car.input.CarInputManager$CarInputCaptureCallback
 android.car.input.CustomInputEvent
 android.car.input.RotaryEvent
+android.car.media.AudioZonesMirrorStatusCallback
 android.car.media.CarAudioManager
 android.car.media.CarAudioManager$CarVolumeCallback
 android.car.media.CarAudioPatchHandle
@@ -197,6 +206,7 @@ android.car.media.CarMediaManager
 android.car.media.CarMediaManager$MediaSourceChangedListener
 android.car.media.CarVolumeGroupEvent
 android.car.media.CarVolumeGroupEvent$Builder
+android.car.media.CarVolumeGroupEventCallback
 android.car.media.CarVolumeGroupInfo
 android.car.media.CarVolumeGroupInfo$Builder
 android.car.media.MediaAudioRequestStatusCallback

@@ -19,6 +19,9 @@
     package="com.android.car.portraitlauncher"
     coreApp="true">
 
+    <!-- Permission to get car driving state -->
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+
     <application
         android:label="@string/app_title"
         android:theme="@style/Theme.CarUi.NoToolbar"
@@ -27,7 +30,6 @@
 
         <activity
             android:name="com.android.car.carlauncher.CarLauncher"
-            android:enabled="false"
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">

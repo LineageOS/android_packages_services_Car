@@ -19,10 +19,14 @@ package android.car.testapi;
 import static android.service.autofill.FillRequest.INVALID_REQUEST_ID;
 
 import android.car.CarOccupantZoneManager;
+import android.car.media.AudioZonesMirrorStatusCallback;
+import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
+import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.media.ICarAudio;
+import android.car.media.ICarVolumeEventCallback;
 import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.media.ISwitchAudioZoneConfigCallback;
@@ -32,6 +36,7 @@ import android.os.IBinder;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Fake service that is used by {@link FakeCar} to provide an implementation of {@link ICarAudio}.
@@ -171,7 +176,46 @@ final class FakeCarAudioService extends ICarAudio.Stub {
 
     @Override
     public void unregisterPrimaryZoneMediaAudioRequestCallback(
-            IPrimaryZoneMediaAudioRequestCallback caallback) {
+            IPrimaryZoneMediaAudioRequestCallback callback) {
+    }
+
+    /**
+     * {@link CarAudioManager#setAudioZoneMirrorStatusCallback(Executor,
+     *      AudioZonesMirrorStatusCallback)}
+     */
+    @Override
+    public boolean registerAudioZonesMirrorStatusCallback(
+            IAudioZonesMirrorStatusCallback callback) {
+        return false;
+    }
+
+    /**
+     * {@link CarAudioManager#clearAudioZonesMirrorStatusCallback()}
+     */
+    @Override
+    public void unregisterAudioZonesMirrorStatusCallback(IAudioZonesMirrorStatusCallback callback) {
+    }
+
+    /**
+     * {@link CarAudioManager#enableMirrorForAudioZones(List)}
+     */
+    @Override
+    public void enableMirrorForAudioZones(int[] audioZones) {
+    }
+
+    /**
+     * {@link CarAudioManager#disableAudioMirrorForZone(int)}
+     */
+    @Override
+    public void disableAudioMirrorForZone(int zoneId) {
+    }
+
+    /**
+     * {@link CarAudioManager#getMirrorAudioZonesForAudioZone(int)}
+     */
+    @Override
+    public int[] getMirrorAudioZonesForAudioZone(int zoneId) {
+        return new int[0];
     }
 
     @Override
@@ -219,5 +263,15 @@ final class FakeCarAudioService extends ICarAudio.Stub {
 
     @Override
     public void unregisterVolumeCallback(IBinder binder) {
+    }
+
+    @Override
+    public boolean registerCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        return false;
+    }
+
+    @Override
+    public boolean unregisterCarVolumeEventCallback(ICarVolumeEventCallback callback) {
+        return false;
     }
 }

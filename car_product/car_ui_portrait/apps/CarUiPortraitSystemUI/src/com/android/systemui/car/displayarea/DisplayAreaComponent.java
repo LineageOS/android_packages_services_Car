@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
@@ -120,6 +121,12 @@ public class DisplayAreaComponent implements CoreStartable {
 
     @Override
     public void start() {
+        if (mContext.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            logIfDebuggable("early exit due to landscape orientation");
+            return;
+        }
+
         logIfDebuggable("start:");
         if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
             mCarDisplayAreaController.register();

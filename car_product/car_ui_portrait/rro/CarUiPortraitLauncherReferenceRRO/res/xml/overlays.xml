@@ -23,8 +23,8 @@
     <item target="color/recent_apps_line_divider_color"
         value="@color/recent_apps_line_divider_color" />
     <item target="color/seek_bar_color" value="@color/seek_bar_color" />
+    <item target="color/position_indicator_bar_color" value="@color/position_indicator_bar_color"/>
 
-    <item target="id/bottom_card" value="@id/bottom_card" />
     <item target="id/card_background" value="@id/card_background" />
     <item target="id/card_background_image" value="@id/card_background_image" />
     <item target="id/card_icon" value="@id/card_icon" />
@@ -46,7 +46,6 @@
 
     <item target="id/recent_apps_row" value="@id/recent_apps_row" />
     <item target="id/divider" value="@id/divider" />
-    <item target="id/top_card" value="@id/top_card" />
 
     <item target="id/app_item" value="@id/app_item" />
     <item target="id/app_icon" value="@id/app_icon" />
@@ -58,6 +57,9 @@
     <item target="id/button_right" value="@id/button_right" />
     <item target="id/focus_area" value="@id/focus_area" />
     <item target="id/apps_grid" value="@id/apps_grid" />
+    <item target="id/apps_grid_background" value="@id/apps_grid_background" />
+    <item target="id/position_indicator" value="@id/position_indicator" />
+    <item target="id/position_indicator_container" value="@id/position_indicator_container" />
 
     <item target="id/optional_seek_bar" value="@id/optional_seek_bar" />
     <item target="id/optional_times" value="@id/optional_times" />
@@ -67,7 +69,6 @@
     <item target="layout/app_grid_activity" value="@layout/app_grid_activity" />
     <item target="layout/card_content_media" value="@layout/card_content_media" />
     <item target="layout/card_fragment" value="@layout/card_fragment" />
-    <item target="layout/car_launcher" value="@layout/car_launcher" />
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
     <item target="layout/optional_seek_bar_with_times" value="@layout/optional_seek_bar_with_times" />
 
@@ -75,11 +76,27 @@
         value="@dimen/card_background_image_blur_radius" />
     <item target="dimen/button_tap_target_size" value="@dimen/button_tap_target_size" />
     <item target="dimen/recent_apps_row_height" value="@dimen/recent_apps_row_height" />
+    <item target="dimen/app_icon_size" value="@dimen/app_icon_size" />
+    <item target="dimen/app_icon_scaled_size" value="@dimen/app_icon_scaled_size" />
+    <item target="dimen/app_name_margin_horizontal" value="@dimen/app_name_margin_horizontal" />
+    <item target="dimen/app_item_highlight_corner_radius"
+        value="@dimen/app_item_highlight_corner_radius" />
+    <item target="dimen/app_item_highlight_edge_width"
+        value="@dimen/app_item_highlight_edge_width" />
+    <item target="dimen/app_grid_width" value="@dimen/app_grid_width" />
+    <item target="dimen/app_grid_height" value="@dimen/app_grid_height" />
+    <item target="dimen/app_grid_margin_horizontal" value="@dimen/app_grid_margin_horizontal" />
     <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin_vertical" />
     <item target="dimen/app_grid_touch_target_size" value="@dimen/app_grid_touch_target_size" />
     <item target="dimen/app_touch_target_padding" value="@dimen/app_touch_target_padding" />
     <item target="dimen/app_touch_target_margin" value="@dimen/app_touch_target_margin" />
     <item target="dimen/app_icon_description_margin" value="@dimen/app_icon_description_margin" />
+    <item target="dimen/position_indicator_edge_corner_radius"
+          value="@dimen/position_indicator_edge_corner_radius" />
+    <item target="dimen/position_indicator_height"
+          value="@dimen/position_indicator_height" />
+
+    <item target="style/AppDisplayNameStyle" value="@style/AppDisplayNameStyle" />
 
     <item target="drawable/control_bar_contact_image_background"
         value="@drawable/control_bar_contact_image_background" />
@@ -96,7 +113,14 @@
 
     <item target="bool/car_app_show_recent_apps" value="@bool/car_app_show_recent_apps" />
     <item target="bool/car_app_show_toolbar" value="@bool/car_app_show_toolbar" />
-    <item target="bool/use_media_source_color_for_seek_bar" value="@bool/use_media_source_color_for_seek_bar" />
+    <item target="bool/use_media_source_color_for_seek_bar"
+          value="@bool/use_media_source_color_for_seek_bar" />
+    <item target="bool/use_defined_app_grid_dimensions"
+          value="@bool/use_defined_app_grid_dimensions" />
 
     <item target="integer/optional_seekbar_max" value="@integer/optional_seekbar_max" />
+    <item target="integer/car_app_selector_column_number"
+          value="@integer/car_app_selector_column_number" />
+    <item target="integer/car_app_selector_row_number"
+          value="@integer/car_app_selector_row_number" />
 </overlay>

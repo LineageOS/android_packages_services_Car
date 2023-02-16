@@ -73,6 +73,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.car.carlauncher.CarLauncher;
 import com.android.car.carlauncher.CarLauncherUtils;
 import com.android.car.carlauncher.CarTaskView;
 import com.android.car.carlauncher.ControlledCarTaskViewCallbacks;
@@ -194,6 +195,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
      * All messages from {@link CarUiPortraitService} are received in this handler.
      */
     private final Messenger mMessenger = new Messenger(new IncomingHandler());
+
+    private CarUiPortraitDriveStateController mCarUiPortraitDriveStateController;
 
     /**
      * Class for interacting with the main interface of the {@link CarUiPortraitService}.
@@ -345,6 +348,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (getApplicationContext().getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            Intent launcherIntent = new Intent(this, CarLauncher.class);
+            launcherIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(launcherIntent);
+            finish();
+            return;
+        }
+
         setContentView(R.layout.car_ui_portrait_launcher);
         // Make the window fullscreen as GENERIC_OVERLAYS are supplied to the background task view
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
@@ -435,6 +447,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mIsRootPanelInitialized = true;
             updateUIState(STATE_CLOSE, /* animate = */ false);
         });
+
+        mCarUiPortraitDriveStateController = new CarUiPortraitDriveStateController(
+                getApplicationContext());
 
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
 
@@ -684,6 +699,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         if (mRootAppAreaState == newRootAppAreaState) {
             logIfDebuggable("Root panel is already in the requested state: " + newRootAppAreaState);
+        }
+
+        if (!mCarUiPortraitDriveStateController.isDrivingStateMoving() && isFullScreen(
+                newRootAppAreaState)) {
+            logIfDebuggable("Immersive mode is not allowed");
             return;
         }
 

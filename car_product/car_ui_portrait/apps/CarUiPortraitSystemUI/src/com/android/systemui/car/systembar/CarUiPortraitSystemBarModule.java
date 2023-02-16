@@ -17,6 +17,7 @@
 package com.android.systemui.car.systembar;
 
 import android.content.Context;
+import android.content.res.Configuration;
 
 import com.android.systemui.car.dagger.CarSysUIDynamicOverride;
 import com.android.systemui.car.displayarea.CarDisplayAreaController;
@@ -36,6 +37,11 @@ public abstract class CarUiPortraitSystemBarModule {
     static ButtonSelectionStateListener provideButtonSelectionStateListener(Context context,
             ButtonSelectionStateController buttonSelectionStateController,
             CarDisplayAreaController displayAreaController) {
+        if (context.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            return new ButtonSelectionStateListener(buttonSelectionStateController);
+        }
+
         return new CarUiPortraitButtonSelectionStateListener(context,
                 buttonSelectionStateController, displayAreaController);
     }
@@ -44,6 +50,11 @@ public abstract class CarUiPortraitSystemBarModule {
     @Provides
     @CarSysUIDynamicOverride
     static ButtonSelectionStateController provideButtonSelectionStateController(Context context) {
+        if (context.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_LANDSCAPE) {
+            return new ButtonSelectionStateController(context);
+        }
+
         return new CarUiPortraitButtonSelectionStateController(context);
     }
 }

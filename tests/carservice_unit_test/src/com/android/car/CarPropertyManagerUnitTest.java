@@ -25,6 +25,8 @@ import static android.car.hardware.property.CarPropertyManager.GetPropertyResult
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
+import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -108,6 +110,7 @@ public final class CarPropertyManagerUnitTest {
 
     private static final int VENDOR_ERROR_CODE = 0x2;
     private static final int VENDOR_ERROR_CODE_SHIFT = 16;
+    private static final int UNKNOWN_ERROR = -101;
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
@@ -196,6 +199,29 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_unsupportedProperty() throws Exception {
         assertThrows(IllegalArgumentException.class,
                 () -> mCarPropertyManager.getProperty(INVALID, 0));
+    }
+
+    @Test
+    public void testGetProperty_syncOpTryAgain() throws RemoteException {
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0)).isEqualTo(value);
+        verify(mICarProperty, times(2)).getProperty(HVAC_TEMPERATURE_SET, 0);
+    }
+
+    @Test
+    public void testGetProperty_syncOpTryAgain_exceedRetryCountLimit() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.R);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN));
+
+        assertThrows(CarInternalErrorException.class, () ->
+                mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+        verify(mICarProperty, times(10)).getProperty(HVAC_TEMPERATURE_SET, 0);
     }
 
     private void setAppTargetSdk(int appTargetSdk) {
@@ -299,7 +325,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_unknownErrorBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(-1));
+                new ServiceSpecificException(UNKNOWN_ERROR));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -309,7 +335,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetProperty_unknownErrorEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
-                new ServiceSpecificException(-1));
+                new ServiceSpecificException(UNKNOWN_ERROR));
 
         assertThrows(CarInternalErrorException.class,
                 () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
@@ -609,7 +635,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_unknownErrorBeforeR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.Q);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(-1));
+                new ServiceSpecificException(UNKNOWN_ERROR));
 
         assertThrows(IllegalStateException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -619,7 +645,7 @@ public final class CarPropertyManagerUnitTest {
     public void testGetBooleanProperty_unknownErrorEqualAfterR() throws Exception {
         setAppTargetSdk(Build.VERSION_CODES.R);
         when(mICarProperty.getProperty(BOOLEAN_PROP, 0)).thenThrow(
-                new ServiceSpecificException(-1));
+                new ServiceSpecificException(UNKNOWN_ERROR));
 
         assertThrows(CarInternalErrorException.class,
                 () -> mCarPropertyManager.getBooleanProperty(BOOLEAN_PROP, 0));
@@ -971,6 +997,16 @@ public final class CarPropertyManagerUnitTest {
 
         verify(mICarProperty).setProperty(value.capture(), any());
         assertThat(value.getValue().getValue()).isEqualTo(17.0f);
+    }
+
+    @Test
+    public void testSetProperty_syncOpTryAgain() throws RemoteException {
+        doThrow(new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).doNothing()
+                .when(mICarProperty).setProperty(any(), any());
+
+        mCarPropertyManager.setProperty(Float.class, HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        verify(mICarProperty, times(2)).setProperty(any(), any());
     }
 
     @Test
@@ -1549,6 +1585,19 @@ public final class CarPropertyManagerUnitTest {
 
         assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
                 .isTrue();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_syncOpTryAgain() throws Exception {
+        CarPropertyValue<Integer> expectedValue = new CarPropertyValue<>(HVAC_TEMPERATURE_SET,
+                /* areaId= */ 0, CarPropertyValue.STATUS_AVAILABLE, /* timestamp= */ 0,
+                /* value= */ 1);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
+                new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN)).thenReturn(expectedValue);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isTrue();
+        verify(mICarProperty, times(2)).getProperty(HVAC_TEMPERATURE_SET, 0);
     }
 
     @Test

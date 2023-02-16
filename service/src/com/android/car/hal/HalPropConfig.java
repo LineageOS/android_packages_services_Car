@@ -20,16 +20,28 @@ import android.car.VehicleAreaType;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
 import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * HalPropConfig represents a vehicle property config.
  */
 public abstract class HalPropConfig {
+    private static final Set<Integer> CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES =
+            Set.of(
+                    VehicleProperty.GEAR_SELECTION,
+                    VehicleProperty.CURRENT_GEAR,
+                    VehicleProperty.DISTANCE_DISPLAY_UNITS,
+                    VehicleProperty.EV_BATTERY_DISPLAY_UNITS,
+                    VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS,
+                    VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS,
+                    VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS,
+                    VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
     /**
      * Get the property ID.
      */
@@ -99,8 +111,17 @@ public abstract class HalPropConfig {
 
         int[] configIntArray = getConfigArray();
         ArrayList<Integer> configArray = new ArrayList<>(configIntArray.length);
+        long[] supportedEnumValues = null;
+        boolean shouldConfigArrayDefineSupportedEnumValues =
+                CONFIG_ARRAY_DEFINES_SUPPORTED_ENUM_VALUES.contains(propId);
+        if (shouldConfigArrayDefineSupportedEnumValues) {
+            supportedEnumValues = new long[configIntArray.length];
+        }
         for (int i = 0; i < configIntArray.length; i++) {
             configArray.add(configIntArray[i]);
+            if (shouldConfigArrayDefineSupportedEnumValues) {
+                supportedEnumValues[i] = (long) configIntArray[i];
+            }
         }
         carPropertyConfigBuilder.setConfigArray(configArray);
 
@@ -110,15 +131,18 @@ public abstract class HalPropConfig {
                     /*minInt32Value=*/0, /*maxInt32Value=*/0,
                     /*minFloatValue=*/0, /*maxFloatValue=*/0,
                     /*minInt64Value=*/0, /*maxInt64Value=*/0,
-                    /*supportedEnumValues=*/null));
+                    supportedEnumValues));
         } else {
             for (HalAreaConfig halAreaConfig : halAreaConfigs) {
+                if (!shouldConfigArrayDefineSupportedEnumValues) {
+                    supportedEnumValues = halAreaConfig.getSupportedEnumValues();
+                }
                 carPropertyConfigBuilder.addAreaIdConfig(
                         generateAreaIdConfig(clazz, halAreaConfig.getAreaId(),
                                 halAreaConfig.getMinInt32Value(), halAreaConfig.getMaxInt32Value(),
                                 halAreaConfig.getMinFloatValue(), halAreaConfig.getMaxFloatValue(),
                                 halAreaConfig.getMinInt64Value(), halAreaConfig.getMaxInt64Value(),
-                                halAreaConfig.getSupportedEnumValues()));
+                                supportedEnumValues));
             }
         }
         return carPropertyConfigBuilder.build();
@@ -176,5 +200,4 @@ public abstract class HalPropConfig {
     private static boolean classMatched(Class<?> class1, Class<?> class2) {
         return class1 == class2 || class1.getComponentType() == class2;
     }
-
 }
