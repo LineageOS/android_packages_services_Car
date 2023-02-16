@@ -37,16 +37,13 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
-import android.car.VehicleGear;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -56,6 +53,8 @@ import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +81,7 @@ public final class CarPropertyServiceUnitTest {
     @Mock
     private IBinder mIBinder;
     @Mock
-    private IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+    private IAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
 
     private CarPropertyService mService;
 
@@ -98,8 +97,6 @@ public final class CarPropertyServiceUnitTest {
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
     private static final String GRANTED_PERMISSION = "GRANTED_PERMISSION";
     private static final String DENIED_PERMISSION = "DENIED_PERMISSION";
-    private static final CarPropertyValue<Integer> GEAR_CAR_PROPERTY_VALUE = new CarPropertyValue<>(
-            VehiclePropertyIds.GEAR_SELECTION, 0, VehicleGear.GEAR_DRIVE);
     private static final int GLOBAL_AREA_ID = 0;
     private static final int NOT_SUPPORTED_AREA_ID = -1;
     private static final float MIN_SAMPLE_RATE = 2;
@@ -215,13 +212,13 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void testGetPropertiesAsync() {
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 SPEED_ID, 0);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
                 mGetAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        ArgumentCaptor<List<GetPropertyServiceRequest>> captor = ArgumentCaptor.forClass(
+        ArgumentCaptor<List<AsyncPropertyServiceRequest>> captor = ArgumentCaptor.forClass(
                 List.class);
         verify(mHalService).getCarPropertyValuesAsync(captor.capture(), any(), eq(1000L));
         assertThat(captor.getValue().get(0).getRequestId()).isEqualTo(0);
@@ -231,7 +228,7 @@ public final class CarPropertyServiceUnitTest {
     @Test(expected = IllegalArgumentException.class)
     public void testGetPropertiesAsync_propertyIdNotSupported() {
         int invalidPropertyID = -1;
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 invalidPropertyID, 0);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
@@ -240,7 +237,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test(expected = SecurityException.class)
     public void testGetPropertiesAsync_noReadPermission() {
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 SPEED_ID, 0);
         when(mHalService.getReadPermission(SPEED_ID)).thenReturn(DENIED_PERMISSION);
 
@@ -250,7 +247,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetPropertiesAsync_propertyNotReadable() {
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 HVAC_CURRENT_TEMP, 0);
 
 
@@ -260,7 +257,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetPropertiesAsync_areaIdNotSupported() {
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 HVAC_TEMP, NOT_SUPPORTED_AREA_ID);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),
@@ -269,7 +266,7 @@ public final class CarPropertyServiceUnitTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testGetPropertiesAsync_timeoutNotPositiveNumber() {
-        GetPropertyServiceRequest getPropertyServiceRequest = new GetPropertyServiceRequest(0,
+        AsyncPropertyServiceRequest getPropertyServiceRequest = new AsyncPropertyServiceRequest(0,
                 SPEED_ID, 0);
 
         mService.getPropertiesAsync(List.of(getPropertyServiceRequest),

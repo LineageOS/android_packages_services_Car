@@ -14,31 +14,57 @@
  * limitations under the License.
  */
 
-package android.car.hardware.property;
+package com.android.car.internal.property;
 
+import android.annotation.Nullable;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
 import android.car.annotation.ApiRequirements.PlatformVersion;
+import android.car.hardware.CarPropertyValue;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
 
 /**
  * A request for {@link CarPropertyService.getPropertiesAsync}
+ *
+ * @hide
  */
 @DataClass(genConstructor = false)
-public final class GetPropertyServiceRequest implements Parcelable {
+public final class AsyncPropertyServiceRequest implements Parcelable {
     private final int mRequestId;
     private final int mPropertyId;
     private final int mAreaId;
+    // The property value to set. Ignored for get request.
+    @Nullable
+    private final CarPropertyValue mCarPropertyValue;
+    // The update rate in HZ for listening to new property update event for async set. Ignored for
+    // get request.
+    private float mUpdateRateHz;
 
     /**
-     * Get an instance for GetPropertyServiceRequest.
+     * Creates an async get request.
      */
-    public GetPropertyServiceRequest(int requestId, int propertyId, int areaId) {
+    public AsyncPropertyServiceRequest(int requestId, int propertyId, int areaId) {
+        this(requestId, propertyId, areaId, /* carPropertyValue= */ null);
+    }
+
+    /**
+     * Creates an async set request.
+     */
+    public AsyncPropertyServiceRequest(int requestId, int propertyId, int areaId,
+            @Nullable CarPropertyValue carPropertyValue) {
         mRequestId = requestId;
         mPropertyId = propertyId;
         mAreaId = areaId;
+        mCarPropertyValue = carPropertyValue;
+    }
+
+    /**
+     * Sets the update rate in HZ for listening to new property update event.
+     */
+    public void setUpdateRateHz(float updateRateHz) {
+        mUpdateRateHz = updateRateHz;
     }
 
 
@@ -49,7 +75,7 @@ public final class GetPropertyServiceRequest implements Parcelable {
     // CHECKSTYLE:OFF Generated code
     //
     // To regenerate run:
-    // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/hardware/property/GetPropertyServiceRequest.java
+    // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/com/android/car/internal/property/AsyncPropertyServiceRequest.java
     // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
@@ -80,15 +106,34 @@ public final class GetPropertyServiceRequest implements Parcelable {
 
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @DataClass.Generated.Member
+    public @Nullable CarPropertyValue getCarPropertyValue() {
+        return mCarPropertyValue;
+    }
+
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @DataClass.Generated.Member
+    public float getUpdateRateHz() {
+        return mUpdateRateHz;
+    }
+
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
+        byte flg = 0;
+        if (mCarPropertyValue != null) flg |= 0x8;
+        dest.writeByte(flg);
         dest.writeInt(mRequestId);
         dest.writeInt(mPropertyId);
         dest.writeInt(mAreaId);
+        if (mCarPropertyValue != null) dest.writeTypedObject(mCarPropertyValue, flags);
+        dest.writeFloat(mUpdateRateHz);
     }
 
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -100,41 +145,47 @@ public final class GetPropertyServiceRequest implements Parcelable {
     /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
-    /* package-private */ GetPropertyServiceRequest(@android.annotation.NonNull android.os.Parcel in) {
+    /* package-private */ AsyncPropertyServiceRequest(@android.annotation.NonNull android.os.Parcel in) {
         // You can override field unparcelling by defining methods like:
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
+        byte flg = in.readByte();
         int requestId = in.readInt();
         int propertyId = in.readInt();
         int areaId = in.readInt();
+        CarPropertyValue carPropertyValue = (flg & 0x8) == 0 ? null : (CarPropertyValue) in.readTypedObject(CarPropertyValue.CREATOR);
+        float updateRateHz = in.readFloat();
 
         this.mRequestId = requestId;
         this.mPropertyId = propertyId;
         this.mAreaId = areaId;
+        this.mCarPropertyValue = carPropertyValue;
+        this.mUpdateRateHz = updateRateHz;
 
         // onConstructed(); // You can define this method to get a callback
     }
+
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
-    public static final @android.annotation.NonNull Parcelable.Creator<GetPropertyServiceRequest> CREATOR
-            = new Parcelable.Creator<GetPropertyServiceRequest>() {
+    public static final @android.annotation.NonNull Parcelable.Creator<AsyncPropertyServiceRequest> CREATOR
+            = new Parcelable.Creator<AsyncPropertyServiceRequest>() {
         @Override
-        public GetPropertyServiceRequest[] newArray(int size) {
-            return new GetPropertyServiceRequest[size];
+        public AsyncPropertyServiceRequest[] newArray(int size) {
+            return new AsyncPropertyServiceRequest[size];
         }
 
         @Override
-        public GetPropertyServiceRequest createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
-            return new GetPropertyServiceRequest(in);
+        public AsyncPropertyServiceRequest createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
+            return new AsyncPropertyServiceRequest(in);
         }
     };
 
     @DataClass.Generated(
-            time = 1658770975996L,
+            time = 1676332121004L,
             codegenVersion = "1.0.23",
-            sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/property/GetPropertyServiceRequest.java",
-            inputSignatures = "private final  int mRequestId\nprivate final  int mPropertyId\nprivate final  int mAreaId\nclass GetPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/AsyncPropertyServiceRequest.java",
+            inputSignatures = "private final  int mRequestId\nprivate final  int mPropertyId\nprivate final  int mAreaId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate  float mUpdateRateHz\npublic  void setUpdateRateHz(float)\nclass AsyncPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 
