@@ -42,9 +42,9 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartRequest;
-import android.car.user.UserStartResult;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStopRequest;
-import android.car.user.UserStopResult;
+import android.car.user.UserStopResponse;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.BroadcastReceiver;
@@ -352,7 +352,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(userId))
                 .setDisplayId(displayId).build();
-        UserStartResult result = mCarUserManager.startUser(request);
+        UserStartResponse result = mCarUserManager.startUser(request);
 
         assertWithMessage("startUserVisibleOnDisplay success for user %s on display %s",
                         userId, displayId)
@@ -364,7 +364,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(userId)).setForce().build();
-        UserStopResult result = mCarUserManager.stopUser(request);
+        UserStopResponse result = mCarUserManager.stopUser(request);
 
         assertWithMessage("stopUser success for user %s", userId).that(result.isSuccess()).isTrue();
     }
