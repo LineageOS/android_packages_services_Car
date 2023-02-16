@@ -18,6 +18,8 @@ package android.car.user;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
@@ -34,6 +36,7 @@ import com.android.car.internal.util.DataClass;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
+@SystemApi
 public final class UserStartResult implements Parcelable, OperationResult {
 
     /**
@@ -43,6 +46,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     */
     @Status
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
@@ -52,6 +56,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     */
     @Status
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
@@ -62,6 +67,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int STATUS_UNSUPPORTED_PLATFORM_FAILURE =
             CommonResults.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
 
@@ -72,6 +78,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER =
             CommonResults.LAST_COMMON_STATUS + 1;
 
@@ -82,10 +89,9 @@ public final class UserStartResult implements Parcelable, OperationResult {
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 2;
 
-    // TODO(b/267541402) We should no longer modify hidden API. Either promote this class to
-    // System API or remove the new status codes.
     /**
      * When user to start is already visible on the specified display.
      *
@@ -94,6 +100,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY =
             CommonResults.LAST_COMMON_STATUS + 3;
 
@@ -105,6 +112,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int STATUS_DISPLAY_INVALID = CommonResults.LAST_COMMON_STATUS + 4;
 
     /**
@@ -115,6 +123,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int STATUS_DISPLAY_UNAVAILABLE = CommonResults.LAST_COMMON_STATUS + 5;
 
     /**
@@ -125,6 +134,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int STATUS_USER_INVALID = CommonResults.LAST_COMMON_STATUS + 6;
 
     /**
@@ -135,13 +145,14 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
     public static final int
             STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY = CommonResults.LAST_COMMON_STATUS + 7;
 
     /**
     * Gets the user start result status.
     *
-    * @return either {@link UserStartRsult#STATUS_SUCCESSFUL},
+    * @return either {@link UserStartResult#STATUS_SUCCESSFUL},
     *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_IS_CURRENT_USER},
     *         {@link UserStartResult#STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY},
     *         {@link UserStartResult#STATUS_ANDROID_FAILURE},
@@ -197,7 +208,8 @@ public final class UserStartResult implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedInOrBefore(majorVersion = 33)
-    public static String statusToString(@Status int value) {
+    @SystemApi
+    public static @NonNull String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
                     return "STATUS_SUCCESSFUL";

@@ -29,8 +29,8 @@ package android.car {
 package android.car.admin {
 
   public final class CarDevicePolicyManager {
-    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StartUserInBackgroundResult startUserInBackground(@NonNull android.os.UserHandle);
-    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StopUserResult stopUser(@NonNull android.os.UserHandle);
+    method @Deprecated @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StartUserInBackgroundResult startUserInBackground(@NonNull android.os.UserHandle);
+    method @Deprecated @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StopUserResult stopUser(@NonNull android.os.UserHandle);
   }
 
   public final class StartUserInBackgroundResult {

@@ -2040,6 +2040,8 @@ package android.car.user {
     method @NonNull public static String lifecycleEventTypeToString(int);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public void setUserSwitchUiCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserHandleSwitchUiCallback);
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStartResult startUser(@NonNull android.car.user.UserStartRequest);
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStopResult stopUser(@NonNull android.car.user.UserStopRequest);
     field public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8; // 0x8
     field public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE = 11; // 0xb
     field public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED = 9; // 0x9
@@ -2078,6 +2080,68 @@ package android.car.user {
     method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addEventType(int);
     method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addUser(@NonNull android.os.UserHandle);
     method @NonNull public android.car.user.UserLifecycleEventFilter build();
+  }
+
+  public final class UserStartRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getDisplayId();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStartRequest> CREATOR;
+  }
+
+  public static final class UserStartRequest.Builder {
+    ctor public UserStartRequest.Builder(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserStartRequest build();
+    method @NonNull public android.car.user.UserStartRequest.Builder setDisplayId(int);
+  }
+
+  public final class UserStartResult implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getStatus();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStartResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_DISPLAY_INVALID = 104; // 0x68
+    field public static final int STATUS_DISPLAY_UNAVAILABLE = 105; // 0x69
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+    field public static final int STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY = 103; // 0x67
+    field public static final int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER = 101; // 0x65
+    field public static final int STATUS_UNSUPPORTED_PLATFORM_FAILURE = 7; // 0x7
+    field public static final int STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY = 107; // 0x6b
+    field public static final int STATUS_USER_DOES_NOT_EXIST = 102; // 0x66
+    field public static final int STATUS_USER_INVALID = 106; // 0x6a
+  }
+
+  public final class UserStopRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public boolean isForce();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStopRequest> CREATOR;
+  }
+
+  public static final class UserStopRequest.Builder {
+    ctor public UserStopRequest.Builder(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserStopRequest build();
+    method @NonNull public android.car.user.UserStopRequest.Builder setForce();
+  }
+
+  public final class UserStopResult implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getStatus();
+    method public static boolean isSuccess(int);
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStopResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_FAILURE_CURRENT_USER = 103; // 0x67
+    field public static final int STATUS_FAILURE_SYSTEM_USER = 102; // 0x66
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+    field public static final int STATUS_USER_DOES_NOT_EXIST = 101; // 0x65
   }
 
 }

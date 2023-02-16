@@ -222,6 +222,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      *
      * @return whether the user was successfully started.
      *
+     * @deprecated Use {@link android.car.user.CarUserManager#startUser(UserStartRequest)} instead.
      * @hide
      */
     @TestApi
@@ -229,6 +230,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
     public StartUserInBackgroundResult startUserInBackground(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
 
@@ -263,12 +265,14 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      * @return whether the user was successfully stopped.
      *
      * @hide
+     * @deprecated Use {@link android.car.user.CarUserManager#stopUser(UserStopRequest)} instead.
      */
     @TestApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
     public StopUserResult stopUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
 
