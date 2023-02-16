@@ -77,8 +77,7 @@
 
     <!-- The color of the divider in the list. -->
     <color name="car_list_divider_light">@color/car_outline</color>
-    <color name="car_list_divider_dark">@color/car_outline</color>
-    <color name="car_list_divider">@color/car_outline</color>
+    <color name="car_list_divider_dark">@color/car_neutral_variant_60</color>
 
     <!-- A light and dark colored card. -->
     <color name="car_card_light">@color/car_surface</color>
