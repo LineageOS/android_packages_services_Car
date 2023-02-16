@@ -49,6 +49,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -56,6 +57,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -63,6 +65,8 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 
 public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceTestCase {
+
+    private static final String TAG = CarUserNoticeServiceTest.class.getSimpleName();
 
     private static final long TIMEOUT_MS = 15_000;
     private static final int USER_ID = 101;
@@ -136,6 +140,8 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         mockContextGetService(mMockContext, AppOpsManager.class, mMockAppOpsManager);
         mockContextGetService(mMockContext, PackageManager.class, mMockPackageManager);
         when(mMockPackageManager.getPackageUidAsUser(any(), anyInt())).thenReturn(1);
+        Log.d(TAG, "setUpMocks(): handler=" + mHandler + ", looper=" + mHandler.getLooper()
+                + ", thread=" + mHandler.getLooper().getThread());
         mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
         verify(mMockCarUserService).addUserLifecycleListener(any(),
@@ -146,6 +152,11 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         doAnswer(invocation -> mIsKeyguardLocked)
                 .when(() -> KeyguardManagerHelper.isKeyguardLocked());
+    }
+
+    @After
+    public void clearHandler() {
+        mCarUserNoticeService.removeCallbacks();
     }
 
     @Test
