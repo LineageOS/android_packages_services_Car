@@ -2260,8 +2260,14 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("GenericException")
     protected void finalize() throws Throwable {
+        if (mLock == null) {
+            // There's no point of trying anything - even logging - when the object state is already
+            // cleared
+            super.finalize();
+            return;
+        }
         try {
-            Log.i(TAG_CAR, "Calling finalize on Car Object.");
+            Log.v(TAG_CAR, "Calling disconnect() on finalize()");
             disconnect();
         } finally {
             super.finalize();
