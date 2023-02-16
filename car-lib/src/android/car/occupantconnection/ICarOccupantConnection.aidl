@@ -19,7 +19,6 @@ package android.car.occupantconnection;
 import android.car.CarOccupantZoneManager;
 import android.car.occupantconnection.IOccupantZoneStateCallback;
 import android.car.occupantconnection.IConnectionRequestCallback;
-import android.car.occupantconnection.IConnectionStateCallback;
 import android.car.occupantconnection.IPayloadCallback;
 import android.car.occupantconnection.Payload;
 import android.content.pm.PackageInfo;
@@ -56,8 +55,4 @@ interface ICarOccupantConnection {
     void disconnect(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
     boolean isConnected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
-
-    void registerConnectionStateCallback(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
-        in IConnectionStateCallback callback);
-    void unregisterConnectionStateCallback(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 }

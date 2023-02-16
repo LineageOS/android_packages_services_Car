@@ -26,7 +26,6 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
-import android.car.occupantconnection.IConnectionStateCallback;
 import android.car.occupantconnection.IOccupantZoneStateCallback;
 import android.car.occupantconnection.IPayloadCallback;
 import android.car.occupantconnection.Payload;
@@ -173,18 +172,5 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
         // TODO(b/257117236): implement this method.
         return false;
-    }
-
-    @Override
-    public void registerConnectionStateCallback(OccupantZoneInfo receiverZone,
-            IConnectionStateCallback callback) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
-    }
-
-    @Override
-    public void unregisterConnectionStateCallback(OccupantZoneInfo receiverZone) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
     }
 }
