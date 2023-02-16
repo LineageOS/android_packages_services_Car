@@ -272,4 +272,31 @@ public final class ActivityManagerHelper {
         return ActivityTaskManager.getInstance().getTasks(maxNum, filterOnlyVisibleRecents,
                 keepIntentExtra, displayId);
     }
+
+    /**
+     * Same as {@link ActivityManager#killAllBackgroundProcesses()}
+     */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void killAllBackgroundProcesses() {
+        try {
+            getActivityManager().killAllBackgroundProcesses();
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to kill background apps", e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Same as {@link ActivityManager#killUid()}
+     */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void killUid(int appId, int userId, String reason) {
+        try {
+            getActivityManager().killUid(appId, userId, reason);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to call app : %d , userId: %d, kill reason: %s", appId, userId,
+                    reason);
+            throw new RuntimeException(e);
+        }
+    }
 }
