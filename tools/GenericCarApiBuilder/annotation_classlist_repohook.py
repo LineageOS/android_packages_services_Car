@@ -18,6 +18,7 @@ import subprocess
 import re
 
 from tempfile import NamedTemporaryFile
+from pathlib import Path
 
 # Helper method that strips out the parameter names of methods. This will allow users to change
 # parameter names for hidden apis without mistaking them as having been removed.
@@ -29,24 +30,35 @@ def strip_param_names(api):
     return re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', " ", api)
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
-if (rootDir is None):
+if rootDir is None or rootDir == "":
     # env variable is not set. Then use the arg passed as Git root
     rootDir = sys.argv[1]
 
+javaHomeDir = os.getenv("JAVA_HOME")
+if javaHomeDir is None or javaHomeDir == "":
+    if Path(rootDir + '/prebuilts/jdk/jdk17/linux-x86').is_dir():
+        javaHomeDir = rootDir + "/prebuilts/jdk/jdk17/linux-x86"
+    else:
+        print("$JAVA_HOME is not set. Please use source build/envsetup.sh` in $ANDROID_BUILD_TOP")
+        sys.exit(1)
+
 # This generates a list of all classes.
-java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-classes-only " \
-                                    "--ANDROID-BUILD-TOP " + rootDir
+java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
+           "/packages/services/Car/tools/GenericCarApiBuilder" \
+           "/GenericCarApiBuilder.jar --print-classes-only " \
+           "--ANDROID-BUILD-TOP " + rootDir
 
 # This produces a list of current hidden apis to determine if they have been modified or removed.
-java_cmd_2= "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + rootDir
+java_cmd_2 = javaHomeDir + "/bin/java -jar " + rootDir + \
+             "/packages/services/Car/tools/GenericCarApiBuilder" \
+             "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
+             "--ANDROID-BUILD-TOP " + rootDir
 
 # This determines all remaining hidden, system or public APIs.
-java_cmd_3 = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                            "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-                            "--include-constructors --ANDROID-BUILD-TOP " + rootDir
+java_cmd_3 = javaHomeDir + "/bin/java -jar " + rootDir + \
+             "/packages/services/Car/tools/GenericCarApiBuilder" \
+             "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
+             "--include-constructors --ANDROID-BUILD-TOP " + rootDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2, java_cmd_3]
