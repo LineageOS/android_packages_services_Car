@@ -210,4 +210,10 @@ public final class UserManagerHelper {
                 context.getResources().getSystem().getInteger(
                         com.android.internal.R.integer.config_multiuserMaximumUsers)));
     }
+
+    /** Check {@link UserManager#getDisplayIdAssignedToUser()}. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int getDisplayIdAssignedToUser(@NonNull UserManager userManager) {
+        return userManager.getDisplayIdAssignedToUser();
+    }
 }
