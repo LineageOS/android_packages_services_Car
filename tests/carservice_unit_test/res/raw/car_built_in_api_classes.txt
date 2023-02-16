@@ -44,5 +44,6 @@ android.car.builtin.view.InputEventHelper
 android.car.builtin.view.KeyEventHelper
 android.car.builtin.view.SurfaceControlHelper
 android.car.builtin.view.TouchableInsetsProvider
+android.car.builtin.view.ViewHelper
 android.car.builtin.widget.LockPatternHelper
 android.car.builtin.window.DisplayAreaOrganizerHelper

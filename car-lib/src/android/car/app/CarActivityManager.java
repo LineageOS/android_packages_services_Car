@@ -17,6 +17,7 @@
 package android.car.app;
 
 import android.annotation.IntDef;
+import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
@@ -27,7 +28,6 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
-import android.car.user.CarUserManager;
 import android.car.view.MirroredSurfaceView;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -50,6 +50,7 @@ import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * API to manage {@link android.app.Activity} in Car.
@@ -58,7 +59,7 @@ import java.util.Objects;
  */
 @SystemApi
 public final class CarActivityManager extends CarManagerBase {
-    private static final String TAG = CarUserManager.class.getSimpleName();
+    private static final String TAG = CarActivityManager.class.getSimpleName();
 
     /** Indicates that the operation was successful. */
     @AddedInOrBefore(majorVersion = 33)
@@ -92,6 +93,7 @@ public final class CarActivityManager extends CarManagerBase {
 
     private final ICarActivityService mService;
     private IBinder mTaskMonitorToken;
+    private CarTaskViewControllerSupervisor mCarTaskViewControllerSupervisor;
 
     /**
      * @hide
@@ -106,7 +108,6 @@ public final class CarActivityManager extends CarManagerBase {
     @VisibleForTesting
     public CarActivityManager(@NonNull Car car, @NonNull ICarActivityService service) {
         super(car);
-
         mService = service;
     }
 
@@ -358,6 +359,61 @@ public final class CarActivityManager extends CarManagerBase {
             return Pair.create(sc, outBounds);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Registers a system ui proxy which will be used by the client apps to interact with the
+     * system-ui for things like creating task views, getting notified about immersive mode
+     * request, etc.
+     *
+     * <p>This is meant to be called only by the SystemUI.
+     *
+     * @param carSystemUIProxy the implementation of the {@link CarSystemUIProxy}.
+     * @throws UnsupportedOperationException when called more than once for the same SystemUi
+     *         process.
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
+        try {
+            mService.registerCarSystemUIProxy(new CarSystemUIProxyAidlWrapper(carSystemUIProxy));
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Gets the {@link CarTaskViewController} using the {@code carTaskViewControllerCallback}.
+     *
+     * @param carTaskViewControllerCallback the callback which the client can use to monitor the
+     *                                      lifecycle of the {@link CarTaskViewController}.
+     * @param hostActivity the activity that will host the taskviews.
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @MainThread
+    public void getCarTaskViewController(
+            @NonNull Activity hostActivity,
+            @NonNull Executor callbackExecutor,
+            @NonNull CarTaskViewControllerCallback carTaskViewControllerCallback) {
+        try {
+            if (mCarTaskViewControllerSupervisor == null) {
+                // Same supervisor is used for multiple activities.
+                mCarTaskViewControllerSupervisor = new CarTaskViewControllerSupervisor(mService,
+                        getContext().getMainExecutor());
+            }
+            mCarTaskViewControllerSupervisor.createCarTaskViewController(callbackExecutor,
+                    carTaskViewControllerCallback, hostActivity);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
         }
     }
 

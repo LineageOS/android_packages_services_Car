@@ -55,6 +55,13 @@ android.car.admin.RemoveUserResult
 android.car.admin.StartUserInBackgroundResult
 android.car.admin.StopUserResult
 android.car.app.CarActivityManager
+android.car.app.CarSystemUIProxy
+android.car.app.CarTaskViewClient
+android.car.app.CarTaskViewController
+android.car.app.CarTaskViewControllerCallback
+android.car.app.CarTaskViewHost
+android.car.app.ControlledRemoteCarTaskView
+android.car.app.ControlledRemoteCarTaskViewCallback
 android.car.cluster.CarInstrumentClusterManager
 android.car.cluster.CarInstrumentClusterManager$Callback
 android.car.cluster.ClusterActivityState
