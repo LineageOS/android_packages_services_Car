@@ -22,9 +22,9 @@ import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartRequest;
-import android.car.user.UserStartResult;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStopRequest;
-import android.car.user.UserStopResult;
+import android.car.user.UserStopResponse;
 import android.car.user.UserSwitchResult;
 
 import android.car.ICarResultReceiver;
@@ -38,8 +38,8 @@ interface ICarUserService {
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
     void updatePreCreatedUsers();
-    UserStartResult startUser(in UserStartRequest request);
-    UserStopResult stopUser(in UserStopRequest request);
+    UserStartResponse startUser(in UserStartRequest request);
+    UserStopResponse stopUser(in UserStopRequest request);
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
     void setLifecycleListenerForApp(String pkgName, in UserLifecycleEventFilter filter,
       in ICarResultReceiver listener);
