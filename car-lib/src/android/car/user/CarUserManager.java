@@ -450,8 +450,8 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    // TODO(b/257335554) Change the return type to UserStartResponse and make it asynchronous.
-    public @NonNull UserStartResult startUser(@NonNull UserStartRequest request) {
+    // TODO(b/257335554) Change to an asynchronous method.
+    public @NonNull UserStartResponse startUser(@NonNull UserStartRequest request) {
         try {
             return mService.startUser(request);
         } catch (SecurityException e) {
@@ -471,8 +471,8 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    // TODO(b/257335554) Change the return type to UserStopResponse and make it asynchronous.
-    public @NonNull UserStopResult stopUser(@NonNull UserStopRequest request) {
+    // TODO(b/257335554) Change to an asynchronous method.
+    public @NonNull UserStopResponse stopUser(@NonNull UserStopRequest request) {
         try {
             return mService.stopUser(request);
         } catch (SecurityException e) {
