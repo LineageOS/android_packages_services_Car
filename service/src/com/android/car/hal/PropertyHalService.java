@@ -19,6 +19,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -259,7 +260,7 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
 
-                    if (vehicleStubErrorCode != CarPropertyManager.STATUS_OK) {
+                    if (vehicleStubErrorCode != STATUS_OK) {
                         // All other error results will be delivered back through callback.
                         getValueResults.add(clientRequestInfo.toErrorGetValueResult(
                                 vehicleStubErrorCode));

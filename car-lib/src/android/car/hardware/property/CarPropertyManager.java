@@ -16,6 +16,7 @@
 
 package android.car.hardware.property;
 
+import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static java.lang.Integer.toHexString;
@@ -770,17 +771,6 @@ public class CarPropertyManager extends CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarSetPropertyErrorCode {}
 
-    /**
-     * Status indicating no error.
-     *
-     * <p>This is not exposed to the client as this will be used only for deciding
-     * {@link GetPropertyCallback#onSuccess} or {@link GetPropertyCallback#onFailure} is called.
-     *
-     * @hide
-     */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int STATUS_OK = 0;
     /**
      * Error indicating that there is an error detected in cars.
      */

@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.car.builtin.os.BuildHelper;
@@ -70,7 +72,7 @@ public abstract class VehicleStub {
     // {@link CarPropertyAsyncErrorCode} except that it contains
     // {@code STATUS_TRY_AGAIN}.
     @IntDef(prefix = {"STATUS_"}, value = {
-            CarPropertyManager.STATUS_OK,
+            STATUS_OK,
             CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
             CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
             CarPropertyManager.STATUS_ERROR_TIMEOUT,
@@ -139,7 +141,7 @@ public abstract class VehicleStub {
         public GetVehicleStubAsyncResult(int serviceRequestId, HalPropValue halPropValue) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = halPropValue;
-            mErrorCode = CarPropertyManager.STATUS_OK;
+            mErrorCode = STATUS_OK;
         }
 
         /**
@@ -175,7 +177,7 @@ public abstract class VehicleStub {
          */
         public SetVehicleStubAsyncResult(int serviceRequestId) {
             mServiceRequestId = serviceRequestId;
-            mErrorCode = CarPropertyManager.STATUS_OK;
+            mErrorCode = STATUS_OK;
         }
 
         /**

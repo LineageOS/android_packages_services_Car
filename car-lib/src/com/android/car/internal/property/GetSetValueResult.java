@@ -16,10 +16,11 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+
 import android.annotation.Nullable;
 import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.os.Parcelable;
 
@@ -59,7 +60,7 @@ public final class GetSetValueResult implements Parcelable {
     public static GetSetValueResult newGetValueResult(int requestId,
             CarPropertyValue carPropertyValue) {
         return new GetSetValueResult(requestId, carPropertyValue,
-                CarPropertyManager.STATUS_OK, /* updateTimestampNanos= */ 0);
+                STATUS_OK, /* updateTimestampNanos= */ 0);
     }
 
     /**
@@ -81,7 +82,7 @@ public final class GetSetValueResult implements Parcelable {
     public static GetSetValueResult newSetValueResult(int requestId,
             long updateTimestampNanos) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
-                CarPropertyManager.STATUS_OK, updateTimestampNanos);
+                STATUS_OK, updateTimestampNanos);
     }
 
     /**
