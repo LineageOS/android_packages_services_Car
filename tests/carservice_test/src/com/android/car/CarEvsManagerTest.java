@@ -29,6 +29,7 @@ import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@FlakyTest(bugId = 268384554)
 public final class CarEvsManagerTest extends MockedCarTestBase {
     private static final String TAG = CarEvsManagerTest.class.getSimpleName();
 
