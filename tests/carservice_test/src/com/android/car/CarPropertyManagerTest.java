@@ -168,6 +168,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             0x1205 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
     private static final int PROP_CAUSE_STATUS_CODE_UNKNOWN =
             0x1206 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+    private static final int PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE =
+            0x1207 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+    private static final int PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE =
+            0x1208 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
 
     // Vendor properties for testing permissions
     private static final int PROP_WITH_READ_ONLY_PERMISSION =
@@ -203,6 +207,12 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final int CALLBACK_SHORT_TIMEOUT_MS = 350; // ms
     // Wait for CarPropertyManager register/unregister listener
     private static final long WAIT_FOR_NO_EVENTS = 50;
+    private static final int VENDOR_CODE_FOR_NOT_AVAILABLE = 0x00ab;
+    private static final int VENDOR_CODE_FOR_INTERNAL_ERROR = 0x0abc;
+    private static final int NOT_AVAILABLE_WITH_VENDOR_CODE = VENDOR_CODE_FOR_NOT_AVAILABLE << 16
+            | VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
+    private static final int INTERNAL_ERROR_WITH_VENDOR_CODE = VENDOR_CODE_FOR_INTERNAL_ERROR << 16
+            | VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
 
     private static final List<Integer> USER_HAL_PROPERTIES = Arrays.asList(
             VehiclePropertyIds.INITIAL_USER_INFO,
@@ -237,10 +247,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     private void setUpTargetSdk() {
+        // Default will use R
+        getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
         if (mTestName.getMethodName().endsWith("BeforeR")) {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.Q;
-        } else if (mTestName.getMethodName().endsWith("EqualAfterR")) {
-            getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
         }
     }
 
@@ -264,8 +274,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case VehiclePropertyIds.HVAC_TEMPERATURE_SET:
                 case PROP_CAUSE_STATUS_CODE_ACCESS_DENIED:
                 case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR:
+                case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE:
                 case PROP_CAUSE_STATUS_CODE_TRY_AGAIN:
                 case PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE:
+                case PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE:
                 case PROP_CAUSE_STATUS_CODE_INVALID_ARG:
                 case PROP_CAUSE_STATUS_CODE_UNKNOWN:
                 case CUSTOM_SEAT_INT_PROP_1:
@@ -1065,6 +1077,52 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
+    @Test
+    public void testGetVendorErrorCode_forGetProperty_throwsNotAvailable_EqualAfterR() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.R);
+        PropertyNotAvailableException thrown = assertThrows(PropertyNotAvailableException.class,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE,
+                        /* areaId= */ 0));
+
+        assertThat(thrown.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_NOT_AVAILABLE);
+    }
+
+    @Test
+    public void testGetVendorErrorCode_forGetProperty_throwsInternalError_EqualAfterR() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.R);
+        CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE,
+                        /* areaId= */ 0));
+
+        assertThat(thrown.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testGetVendorErrorCode_forSetProperty_throwsNotAvailable_EqualAfterR() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.R);
+        PropertyNotAvailableException thrown = assertThrows(PropertyNotAvailableException.class,
+                () -> mManager.setProperty(Integer.class,
+                        PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE, /* areaId= */ 0,
+                        /* val= */ 0));
+
+        assertThat(thrown.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_NOT_AVAILABLE);
+    }
+
+    @Test
+    public void testGetVendorErrorCode_forSetProperty_throwsInternalError_EqualAfterR() {
+        Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
+                .isAtLeast(Build.VERSION_CODES.R);
+        CarInternalErrorException thrown = assertThrows(CarInternalErrorException.class,
+                () -> mManager.setProperty(Integer.class,
+                        PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE, /* areaId= */0,
+                        /* val= */ 0));
+
+        assertThat(thrown.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_INTERNAL_ERROR);
+    }
+
     @Override
     protected void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
@@ -1109,6 +1167,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR, handler);
         addAidlProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, handler);
         addAidlProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE, handler);
+
         addAidlProperty(PROP_CAUSE_STATUS_CODE_UNKNOWN, handler);
 
         addAidlProperty(CUSTOM_SEAT_INT_PROP_1, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
@@ -1209,6 +1270,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 return VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
             case PROP_CAUSE_STATUS_CODE_UNKNOWN:
                 return -1;
+            case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE:
+                return INTERNAL_ERROR_WITH_VENDOR_CODE;
+            case PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE:
+                return NOT_AVAILABLE_WITH_VENDOR_CODE;
             default:
                 return VehicleHalStatusCode.STATUS_OK;
         }
