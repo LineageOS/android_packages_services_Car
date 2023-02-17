@@ -38,9 +38,6 @@ import static org.mockito.Mockito.when;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.GetValueResult;
-import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.IBinder;
@@ -54,6 +51,9 @@ import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import com.google.common.collect.ImmutableList;
 
@@ -84,7 +84,7 @@ public class PropertyHalServiceTest {
     private VehicleHal mVehicleHal;
 
     @Mock
-    private IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+    private IAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
     @Mock
     private IBinder mGetAsyncPropertyResultBinder;
 
@@ -95,10 +95,10 @@ public class PropertyHalServiceTest {
     private static final int RECEIVED_REQUEST_ID_2 = 1;
     private static final int RECEIVED_REQUEST_ID_3 = 2;
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
-    private static final GetPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_1 =
-            new GetPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /*areaId=*/0);
-    private static final GetPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
-            new GetPropertyServiceRequest(REQUEST_ID_2, HVAC_TEMPERATURE_SET, /*areaId=*/0);
+    private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_1 =
+            new AsyncPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /*areaId=*/0);
+    private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
+            new AsyncPropertyServiceRequest(REQUEST_ID_2, HVAC_TEMPERATURE_SET, /*areaId=*/0);
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
     private final HalPropValue mPropValue = mPropValueBuilder.build(
             HVAC_TEMPERATURE_SET, /*areaId=*/0, 17.0f);
@@ -134,7 +134,7 @@ public class PropertyHalServiceTest {
 
     @Test
     public void testGetCarPropertyValuesAsync_multipleRequests() {
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_2);
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
@@ -162,7 +162,7 @@ public class PropertyHalServiceTest {
     @Test
     public void testGetCarPropertyValuesAsync_linkToDeath() throws RemoteException {
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
         verify(mGetAsyncPropertyResultBinder).linkToDeath(any(IBinder.DeathRecipient.class),
@@ -174,7 +174,7 @@ public class PropertyHalServiceTest {
         IBinder mockBinder = mock(IBinder.class);
         when(mGetAsyncPropertyResultCallback.asBinder()).thenReturn(mockBinder);
         doThrow(new RemoteException()).when(mockBinder).linkToDeath(any(), anyInt());
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
 
         assertThrows(IllegalStateException.class, () -> {
             mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
@@ -185,7 +185,7 @@ public class PropertyHalServiceTest {
     @Test
     public void testGetCarPropertyValuesAsync_unlinkToDeath_onBinderDied() throws RemoteException {
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
@@ -255,9 +255,9 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(value.getValue().get(0).getCarPropertyValue().getAreaId()).isEqualTo(0);
@@ -287,9 +287,9 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(value.getValue().get(0).getCarPropertyValue().getAreaId()).isEqualTo(0);
@@ -307,9 +307,9 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
@@ -335,9 +335,9 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
@@ -369,9 +369,9 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -406,8 +406,8 @@ public class PropertyHalServiceTest {
             return null;
         }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_2);
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
@@ -415,7 +415,7 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(value.getValue().get(0).getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(value.getValue().get(1).getRequestId()).isEqualTo(REQUEST_ID_2);
@@ -449,8 +449,8 @@ public class PropertyHalServiceTest {
             return null;
         }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
 
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
         getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_2);
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
@@ -459,8 +459,8 @@ public class PropertyHalServiceTest {
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         verify(mGetAsyncPropertyResultCallback, timeout(1000).times(2))
-                .onGetValueResult(value.capture());
-        List<List<GetValueResult>> getValuesResults = value.getAllValues();
+                .onGetValueResults(value.capture());
+        List<List<GetSetValueResult>> getValuesResults = value.getAllValues();
         assertThat(getValuesResults.get(0).get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(getValuesResults.get(0).get(0).getCarPropertyValue().getValue()).isEqualTo(
                 17.0f);
@@ -523,8 +523,8 @@ public class PropertyHalServiceTest {
         }
 
         // We should only get the result for request 2.
-        ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
-        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResult(value.capture());
+        ArgumentCaptor<List<GetSetValueResult>> value = ArgumentCaptor.forClass(List.class);
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(value.capture());
         assertThat(value.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_2);
     }
 

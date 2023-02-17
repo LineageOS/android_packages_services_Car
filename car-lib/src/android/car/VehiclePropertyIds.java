@@ -2323,6 +2323,48 @@ public final class VehiclePropertyIds {
     public static final int WINDSHIELD_WIPERS_STATE = 322964422;
 
     /**
+     * Windshield wipers switch.
+     *
+     * <p>Represents the position of the switch controlling the windshield wipers. The value of
+     * {@code WINDSHIELD_WIPERS_SWITCH} may not match the value of {@link #WINDSHIELD_WIPERS_STATE}
+     * (e.g. {@code WINDSHIELD_WIPERS_SWITCH} = {@link
+     * android.car.hardware.property.WindshieldWipersSwitch#AUTO} and {@link
+     * #WINDSHIELD_WIPERS_STATE} = WindshieldWipersState#ON).
+     *
+     * <p>For each supported area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
+     * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which values
+     * from {@link android.car.hardware.property.WindshieldWipersSwitch} are supported.
+     *
+     * <p>This property is defined as read_write, but OEMs have the option to implement it as read
+     * only.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WINDOW}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_WINDSHIELD_WIPERS} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_WINDSHIELD_WIPERS} to
+     *  write property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_WINDSHIELD_WIPERS))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_WINDSHIELD_WIPERS))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int WINDSHIELD_WIPERS_SWITCH = 322964423;
+
+    /**
      * Steering wheel depth position
      *
      * <p>Returns how close the steering wheel is to the driver. This value is not in any

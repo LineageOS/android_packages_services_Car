@@ -505,11 +505,17 @@ def read_pb(pb_file, is_device_run=False):
     is_device_run else performancestats_pb2.PerformanceStats()
 
   with open(pb_file, "rb") as f:
-    perf_stats_pb.ParseFromString(f.read())
-    perf_stats_pb.DiscardUnknownFields()
+    try:
+      perf_stats_pb.ParseFromString(f.read())
+      perf_stats_pb.DiscardUnknownFields()
+    except UnicodeDecodeError:
+      proto_type = "DevicePerformanceStats" if is_device_run else "PerformanceStats"
+      print(f"Error: Proto in {pb_file} probably is not '{proto_type}'")
+      return None
 
   if not perf_stats_pb:
-    raise IOError("Proto stored in", pb_file, "has incorrect format.")
+    print(f"Error: Proto stored in {pb_file} has incorrect format.")
+    return None
 
   if not is_device_run:
     return get_perf_stats(perf_stats_pb)
@@ -556,9 +562,12 @@ if __name__ == "__main__":
 
   if args.read_proto:
     if not os.path.isfile(args.read_proto):
-      print("Proto binary '%s' does not exist" % args.read_proto)
+      print("Error: Proto binary '%s' does not exist" % args.read_proto)
       sys.exit(1)
     performance_stats = read_pb(args.read_proto, args.device_run)
+    if performance_stats is None:
+      print(f"Error: Could not read '{args.read_proto}'")
+      sys.exit(1)
     if args.json:
       print(json.dumps(performance_stats.to_dict()))
     else:
@@ -568,7 +577,7 @@ if __name__ == "__main__":
 
   print("Parsing CarWatchdog performance stats")
   if not os.path.isfile(args.file):
-    print("File '%s' does not exist" % args.file)
+    print("Error: File '%s' does not exist" % args.file)
     sys.exit(1)
 
   with open(args.file, 'r', encoding="UTF-8", errors="ignore") as f:
@@ -580,8 +589,8 @@ if __name__ == "__main__":
       print(build_info)
 
     if performance_stats.is_empty():
-      print("No performance stats were parsed. Make sure dump file contains carwatchdog's dump "
-            "text.")
+      print("Error: No performance stats were parsed. Make sure dump file contains carwatchdog's "
+            "dump text.")
       sys.exit(1)
 
     if (args.out or args.build) and write_pb(performance_stats, args.out,

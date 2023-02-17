@@ -862,7 +862,9 @@ package android.car.hardware.property {
     method public int getAreaId();
     method public int getPropertyId();
     method public int getRequestId();
+    method public float getUpdateRateHz();
     method public T getValue();
+    method public void setUpdateRateHz(float);
   }
 
   public static final class CarPropertyManager.SetPropertyResult {
@@ -904,26 +906,6 @@ package android.car.hardware.property {
     field public static final int STATE_FULLY_ENABLED = 3; // 0x3
     field public static final int STATE_PARTIALLY_ENABLED = 2; // 0x2
     field public static final int STATE_UNKNOWN = 0; // 0x0
-  }
-
-  public final class GetPropertyServiceRequest implements android.os.Parcelable {
-    ctor public GetPropertyServiceRequest(int, int, int);
-    method public int describeContents();
-    method public int getAreaId();
-    method public int getPropertyId();
-    method public int getRequestId();
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetPropertyServiceRequest> CREATOR;
-  }
-
-  public final class GetValueResult implements android.os.Parcelable {
-    ctor public GetValueResult(int, @Nullable android.car.hardware.CarPropertyValue, int);
-    method public int describeContents();
-    method @Nullable public android.car.hardware.CarPropertyValue getCarPropertyValue();
-    method public int getErrorCode();
-    method public int getRequestId();
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetValueResult> CREATOR;
   }
 
   public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {

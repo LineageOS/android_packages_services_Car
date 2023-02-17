@@ -90,7 +90,7 @@ final class ZoneAudioPlaybackCallback {
         List<AudioAttributes> activeAttributes = mCarAudioZone
                 .findActiveAudioAttributesFromPlaybackConfigurations(inactiveConfigs);
 
-        for (int index = 0; index < inactiveConfigs.size(); index++) {
+        for (int index = 0; index < activeAttributes.size(); index++) {
             mAudioAttributesStartTime.put(activeAttributes.get(index), mClock.uptimeMillis());
         }
     }

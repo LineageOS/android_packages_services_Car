@@ -90,6 +90,8 @@
     <!--  Used by NotificationHelper to change the notifications app name -->
     <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
     <uses-permission android:name="android.permission.SUGGEST_EXTERNAL_TIME" />
+    <!--  Used by CPMS to kill cached processes to free memory -->
+    <uses-permission android:name="android.permission.KILL_ALL_BACKGROUND_PROCESSES" />
 
     <application android:label="@string/app_title"
          android:directBootAware="true"

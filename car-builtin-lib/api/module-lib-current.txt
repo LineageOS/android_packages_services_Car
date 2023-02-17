@@ -29,6 +29,8 @@ package android.car.builtin.app {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method public static java.util.List<android.app.ActivityManager.RunningTaskInfo> getTasks(int, boolean, boolean, int);
+    method public static void killAllBackgroundProcesses();
+    method public static void killUid(int, int, String);
     method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method public static boolean removeTask(int);
     method public static void setFocusedRootTask(int);

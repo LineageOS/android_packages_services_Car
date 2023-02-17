@@ -48,7 +48,10 @@ import android.util.SparseArray;
 import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarPropertyHelper;
+import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.internal.annotations.GuardedBy;
 
@@ -57,7 +60,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,10 +89,10 @@ public class CarPropertyManager extends CarManagerBase {
     private final int mAppTargetSdk;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
     @GuardedBy("mLock")
-    private final SparseArray<GetAsyncPropertyClientInfo> mRequestIdToClientInfo =
+    private final SparseArray<AsyncPropertyRequestInfo<?, ?>> mRequestIdToAsyncRequestInfo =
             new SparseArray<>();
-    private final GetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback =
-            new GetAsyncPropertyResultCallback();
+    private final AsyncPropertyResultCallback mAsyncPropertyResultCallback =
+            new AsyncPropertyResultCallback();
 
     private final CarPropertyEventListenerToService mCarPropertyEventToService =
             new CarPropertyEventListenerToService(this);
@@ -205,7 +207,7 @@ public class CarPropertyManager extends CarManagerBase {
          *
          * <p>This means: the set value request is successfully sent to vehicle
          *
-         * <p>And
+         * <p>and
          *
          * <p>either the current property value is already the target value, or we have received a
          * property update event indicating the value is updated to the target value.
@@ -334,6 +336,7 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mRequestId;
         private final int mPropertyId;
         private final int mAreaId;
+        private float mUpdateRateHz = 0.f;
 
         /**
          * The value to set.
@@ -377,6 +380,31 @@ public class CarPropertyManager extends CarManagerBase {
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public T getValue() {
             return mValue;
+        }
+
+        /**
+         * Sets the update rate for listening for property updates for continuous property.
+         *
+         * <p>For continuous property, if the property is set to a different value, the success
+         * callback will be called when a property update event for the new value arrived. This
+         * option controls how frequent the property update event should be reported. This is
+         * similar to {@code updateRateHz} in {@link CarPropertyManager#registerCallback}.
+         *
+         * <p>This is ignored for non-continuous properties.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public void setUpdateRateHz(float updateRateHz) {
+            mUpdateRateHz = updateRateHz;
+        }
+
+        /**
+         * Gets the update rate for listening for property updates.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public float getUpdateRateHz() {
+            return mUpdateRateHz;
         }
 
         /**
@@ -596,9 +624,9 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * A class for delivering {@link GetPropertyCallback} client callback when
-     * {@link IGetAsyncPropertyResultCallback} returns a result.
+     * {@link IAsyncPropertyResultCallback} returns a result.
      */
-    private class GetAsyncPropertyResultCallback extends IGetAsyncPropertyResultCallback.Stub {
+    private class AsyncPropertyResultCallback extends IAsyncPropertyResultCallback.Stub {
 
         @Override
         public IBinder asBinder() {
@@ -606,24 +634,25 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         @Override
-        public void onGetValueResult(List<GetValueResult> getValueResults) {
+        public void onGetValueResults(List<GetSetValueResult> getValueResults) {
             for (int i = 0; i < getValueResults.size(); i++) {
-                GetValueResult getValueResult = getValueResults.get(i);
+                GetSetValueResult getValueResult = getValueResults.get(i);
                 int requestId = getValueResult.getRequestId();
-                GetAsyncPropertyClientInfo getAsyncPropertyClientInfo;
+                AsyncPropertyRequestInfo<GetPropertyRequest, GetPropertyCallback> requestInfo;
                 synchronized (mLock) {
-                    getAsyncPropertyClientInfo = mRequestIdToClientInfo.get(requestId);
-                    mRequestIdToClientInfo.remove(requestId);
+                    requestInfo =
+                            (AsyncPropertyRequestInfo<GetPropertyRequest, GetPropertyCallback>)
+                            mRequestIdToAsyncRequestInfo.get(requestId);
+                    mRequestIdToAsyncRequestInfo.remove(requestId);
                 }
-                if (getAsyncPropertyClientInfo == null) {
+                if (requestInfo == null) {
                     Log.w(TAG, "onGetValueResult: Request ID: " + requestId
                             + " might have been completed, cancelled or an exception might have "
                             + "been thrown");
                     continue;
                 }
-                Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
-                GetPropertyCallback getPropertyCallback =
-                        getAsyncPropertyClientInfo.getGetPropertyCallback();
+                Executor callbackExecutor = requestInfo.getCallbackExecutor();
+                GetPropertyCallback getPropertyCallback = requestInfo.getCallback();
                 int errorCode = getValueResult.getErrorCode();
                 @CarPropertyAsyncErrorCode
                 int asyncErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
@@ -639,44 +668,46 @@ public class CarPropertyManager extends CarManagerBase {
                 } else {
                     // We are not receiving property Id and areaId from the result, so we use
                     // the ones from the request.
-                    int propertyId = getAsyncPropertyClientInfo.getGetPropertyRequest()
+                    int propertyId = requestInfo.getRequest()
                             .getPropertyId();
-                    int areaId = getAsyncPropertyClientInfo.getGetPropertyRequest().getAreaId();
+                    int areaId = requestInfo.getRequest().getAreaId();
                     callbackExecutor.execute(() -> getPropertyCallback.onFailure(
                             new PropertyAsyncError(requestId, propertyId, areaId, errorCode)));
                 }
             }
         }
+
+        @Override
+        public void onSetValueResults(List<GetSetValueResult> getValueResults) {
+            // TODO(b/264719384): Implement this.
+        }
     }
 
     /**
-     * A class to store client info when {@link CarPropertyManager#getPropertiesAsync} is called.
+     * A class to store async get/set property request info.
      */
-    private static final class GetAsyncPropertyClientInfo {
-        private final GetPropertyRequest mGetPropertyRequest;
+    private static final class AsyncPropertyRequestInfo<RequestType, CallbackType> {
+        private final RequestType mRequest;
         private final Executor mCallbackExecutor;
-        private final GetPropertyCallback mGetPropertyCallback;
+        private final CallbackType mCallback;
 
-        public GetPropertyRequest getGetPropertyRequest() {
-            return mGetPropertyRequest;
+        public RequestType getRequest() {
+            return mRequest;
         }
 
         public Executor getCallbackExecutor() {
             return mCallbackExecutor;
         }
 
-        public GetPropertyCallback getGetPropertyCallback() {
-            return mGetPropertyCallback;
+        public CallbackType getCallback() {
+            return mCallback;
         }
 
-        /**
-         * Get an instance of GetAsyncPropertyClientInfo.
-         */
-        private GetAsyncPropertyClientInfo(GetPropertyRequest getPropertyRequest,
-                Executor callbackExecutor, GetPropertyCallback getPropertyCallback) {
-            mGetPropertyRequest = getPropertyRequest;
+        private AsyncPropertyRequestInfo(RequestType request, Executor callbackExecutor,
+                CallbackType callback) {
+            mRequest = request;
             mCallbackExecutor = callbackExecutor;
-            mGetPropertyCallback = getPropertyCallback;
+            mCallback = callback;
         }
     }
 
@@ -1648,11 +1679,11 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
-    private void clearRequestIdToClientInfo(
-            List<GetPropertyRequest> getPropertyRequests) {
+    private void clearRequestIdToAsyncRequestInfo(
+            List<? extends AsyncPropertyRequest> asyncPropertyRequests) {
         synchronized (mLock) {
-            for (int i = 0; i < getPropertyRequests.size(); i++) {
-                mRequestIdToClientInfo.remove(getPropertyRequests.get(i).getRequestId());
+            for (int i = 0; i < asyncPropertyRequests.size(); i++) {
+                mRequestIdToAsyncRequestInfo.remove(asyncPropertyRequests.get(i).getRequestId());
             }
         }
     }
@@ -1671,7 +1702,7 @@ public class CarPropertyManager extends CarManagerBase {
                 for (int i = 0; i < requestIds.size(); i++) {
                     int requestId = requestIds.get(i);
                     requestIdsArray[i] = requestId;
-                    mRequestIdToClientInfo.remove(requestId);
+                    mRequestIdToAsyncRequestInfo.remove(requestId);
                 }
             }
             try {
@@ -1721,28 +1752,17 @@ public class CarPropertyManager extends CarManagerBase {
     @NonNull
     public <T> SetPropertyRequest<T> generateSetPropertyRequest(int propertyId, int areaId,
             @NonNull T value) {
-        Objects.requireNonNull(value);
+        requireNonNull(value);
         int requestIdCounter = mRequestIdCounter.getAndIncrement();
         return new SetPropertyRequest(requestIdCounter, propertyId, areaId, value);
     }
 
 
-    private void checkGetAsyncRequirements(List<GetPropertyRequest> getPropertyRequests,
-            GetPropertyCallback getPropertyCallback, long timeoutInMs) {
-        Objects.requireNonNull(getPropertyRequests);
-        Objects.requireNonNull(getPropertyCallback);
+    private void checkAsyncArguments(Object requests, Object callback, long timeoutInMs) {
+        requireNonNull(requests);
+        requireNonNull(callback);
         if (timeoutInMs <= 0) {
             throw new IllegalArgumentException("timeoutInMs must be a positive number");
-        }
-    }
-
-    private void updateRequestIdToClientInfo(
-            SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo) {
-        synchronized (mLock) {
-            for (int i = 0; i < currentRequestIdToClientInfo.size(); i++) {
-                mRequestIdToClientInfo.put(currentRequestIdToClientInfo.keyAt(i),
-                        currentRequestIdToClientInfo.valueAt(i));
-            }
         }
     }
 
@@ -1783,15 +1803,13 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
-        checkGetAsyncRequirements(getPropertyRequests, getPropertyCallback, timeoutInMs);
-        List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
-                getPropertyRequests.size());
-        SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo =
-                new SparseArray<>();
+        checkAsyncArguments(getPropertyRequests, getPropertyCallback, timeoutInMs);
         if (callbackExecutor == null) {
             callbackExecutor = new HandlerExecutor(getEventHandler());
         }
-        List<Integer> requestIds = new ArrayList<>();
+
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
+                getPropertyRequests.size());
         for (int i = 0; i < getPropertyRequests.size(); i++) {
             GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);
             int propertyId = getPropertyRequest.getPropertyId();
@@ -1800,33 +1818,23 @@ public class CarPropertyManager extends CarManagerBase {
                 Log.d(TAG, "getPropertiesAsync, propId: " + VehiclePropertyIds.toString(propertyId)
                         + ", areaId: 0x" + toHexString(areaId));
             }
-
             assertPropertyIdIsSupported(propertyId);
 
-            GetAsyncPropertyClientInfo getAsyncPropertyClientInfo = new GetAsyncPropertyClientInfo(
-                    getPropertyRequest, callbackExecutor, getPropertyCallback);
-            int requestId = getPropertyRequest.getRequestId();
-            requestIds.add(requestId);
-            synchronized (mLock) {
-                if (mRequestIdToClientInfo.contains(requestId)
-                        || currentRequestIdToClientInfo.contains(requestId)) {
-                    throw new IllegalArgumentException(
-                            "Request ID: " + requestId + " already exists");
-                }
-                currentRequestIdToClientInfo.put(requestId, getAsyncPropertyClientInfo);
-            }
-            getPropertyServiceRequests.add(
-                    new GetPropertyServiceRequest(requestId, propertyId, areaId));
+            getPropertyServiceRequests.add(new AsyncPropertyServiceRequest(
+                    getPropertyRequest.getRequestId(), propertyId, areaId));
         }
-        updateRequestIdToClientInfo(currentRequestIdToClientInfo);
+
+        List<Integer> requestIds = storePendingRequestInfo(getPropertyRequests, callbackExecutor,
+                getPropertyCallback);
+
         try {
-            mService.getPropertiesAsync(getPropertyServiceRequests, mGetAsyncPropertyResultCallback,
+            mService.getPropertiesAsync(getPropertyServiceRequests, mAsyncPropertyResultCallback,
                     timeoutInMs);
         } catch (RemoteException e) {
-            clearRequestIdToClientInfo(getPropertyRequests);
+            clearRequestIdToAsyncRequestInfo(getPropertyRequests);
             handleRemoteExceptionFromCarService(e);
         } catch (IllegalArgumentException | SecurityException e) {
-            clearRequestIdToClientInfo(getPropertyRequests);
+            clearRequestIdToAsyncRequestInfo(getPropertyRequests);
             throw e;
         }
         if (cancellationSignal != null) {
@@ -1886,7 +1894,45 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull SetPropertyCallback setPropertyCallback) {
-        // TODO(b/264719384): implement this.
+        checkAsyncArguments(setPropertyRequests, setPropertyCallback, timeoutInMs);
+        if (callbackExecutor == null) {
+            callbackExecutor = new HandlerExecutor(getEventHandler());
+        }
+
+        List<AsyncPropertyServiceRequest> setPropertyServiceRequests = new ArrayList<>(
+                setPropertyRequests.size());
+        for (int i = 0; i < setPropertyRequests.size(); i++) {
+            SetPropertyRequest setPropertyRequest = setPropertyRequests.get(i);
+            int propertyId = setPropertyRequest.getPropertyId();
+            int areaId = setPropertyRequest.getAreaId();
+            requireNonNull(setPropertyRequest.getValue());
+            if (DBG) {
+                Log.d(TAG, "setPropertiesAsync, propId: " + VehiclePropertyIds.toString(propertyId)
+                        + ", areaId: 0x" + toHexString(areaId));
+            }
+            assertPropertyIdIsSupported(propertyId);
+
+            setPropertyServiceRequests.add(new AsyncPropertyServiceRequest(
+                    setPropertyRequest.getRequestId(), propertyId, areaId,
+                    new CarPropertyValue(propertyId, areaId, setPropertyRequest.getValue())));
+        }
+
+        List<Integer> requestIds = storePendingRequestInfo(setPropertyRequests, callbackExecutor,
+                setPropertyCallback);
+
+        try {
+            mService.setPropertiesAsync(setPropertyServiceRequests, mAsyncPropertyResultCallback,
+                    timeoutInMs);
+        } catch (RemoteException e) {
+            clearRequestIdToAsyncRequestInfo(setPropertyRequests);
+            handleRemoteExceptionFromCarService(e);
+        } catch (IllegalArgumentException | SecurityException e) {
+            clearRequestIdToAsyncRequestInfo(setPropertyRequests);
+            throw e;
+        }
+        if (cancellationSignal != null) {
+            setOnCancelListener(cancellationSignal, requestIds);
+        }
     }
 
     /**
@@ -1911,5 +1957,32 @@ public class CarPropertyManager extends CarManagerBase {
             throw new IllegalArgumentException("The property: "
                     + VehiclePropertyIds.toString(propId) + " is unsupported");
         }
+    }
+
+    private <RequestType extends AsyncPropertyRequest, CallbackType> List<Integer>
+            storePendingRequestInfo(
+                    List<RequestType> requests, Executor callbackExecutor, CallbackType callback) {
+        List<Integer> requestIds = new ArrayList<>();
+        SparseArray<AsyncPropertyRequestInfo<?, ?>> requestInfoToAdd = new SparseArray<>();
+        synchronized (mLock) {
+            for (int i = 0; i < requests.size(); i++) {
+                RequestType request = requests.get(i);
+                AsyncPropertyRequestInfo<RequestType, CallbackType> requestInfo =
+                        new AsyncPropertyRequestInfo(request, callbackExecutor, callback);
+                int requestId = request.getRequestId();
+                requestIds.add(requestId);
+                if (mRequestIdToAsyncRequestInfo.contains(requestId)
+                        || requestInfoToAdd.contains(requestId)) {
+                    throw new IllegalArgumentException(
+                            "Request ID: " + requestId + " already exists");
+                }
+                requestInfoToAdd.put(requestId, requestInfo);
+            }
+            for (int i = 0; i < requestInfoToAdd.size(); i++) {
+                mRequestIdToAsyncRequestInfo.put(requestInfoToAdd.keyAt(i),
+                        requestInfoToAdd.valueAt(i));
+            }
+        }
+        return requestIds;
     }
 }

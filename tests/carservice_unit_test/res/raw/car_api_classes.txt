@@ -168,8 +168,6 @@ android.car.hardware.property.EvChargingConnectorType
 android.car.hardware.property.EvRegenerativeBrakingState
 android.car.hardware.property.EvStoppingMode
 android.car.hardware.property.ForwardCollisionWarningState
-android.car.hardware.property.GetPropertyServiceRequest
-android.car.hardware.property.GetValueResult
 android.car.hardware.property.HandsOnDetectionDriverState
 android.car.hardware.property.HandsOnDetectionWarning
 android.car.hardware.property.LaneCenteringAssistCommand
@@ -190,6 +188,7 @@ android.car.hardware.property.VehicleOilLevel
 android.car.hardware.property.VehicleTurnSignal
 android.car.hardware.property.VehicleVendorPermission
 android.car.hardware.property.WindshieldWipersState
+android.car.hardware.property.WindshieldWipersSwitch
 android.car.input.CarInputHandlingService
 android.car.input.CarInputHandlingService$InputFilter
 android.car.input.CarInputManager

@@ -27,6 +27,8 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.ICarResultReceiver;
+import android.car.PlatformVersion;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.EventLogHelper;
@@ -2053,18 +2055,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // If we decide to go to a different power state, abort this retry mechanism.
     // Returns true if we successfully suspended.
     private boolean suspendWithRetries() {
-        boolean isDeepSleep;
+        boolean isSuspendToDisk;
         synchronized (mLock) {
-            isDeepSleep = (mActionOnFinish == ACTION_ON_FINISH_DEEP_SLEEP);
+            isSuspendToDisk = mActionOnFinish == ACTION_ON_FINISH_HIBERNATION;
         }
 
-        String suspendTarget = isDeepSleep ? "Suspend-to-RAM" : "Suspend-to-Disk";
+        String suspendTarget = isSuspendToDisk ? "Suspend-to-Disk" : "Suspend-to-RAM";
         long retryIntervalMs = INITIAL_SUSPEND_RETRY_INTERVAL_MS;
         long totalWaitDurationMs = 0;
         while (true) {
             Slogf.i(TAG, "Entering %s", suspendTarget);
-            boolean suspendSucceeded = isDeepSleep ? mSystemInterface.enterDeepSleep()
-                    : mSystemInterface.enterHibernation();
+            if (isSuspendToDisk) {
+                freeMemory();
+            }
+            boolean suspendSucceeded = isSuspendToDisk ? mSystemInterface.enterHibernation()
+                    : mSystemInterface.enterDeepSleep();
 
             if (suspendSucceeded) {
                 return true;
@@ -2694,5 +2699,22 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 powerStateToString(carPowerStateListenerState));
 
         waitForCompletion(taskAtCompletion, taskAtInterval, timeoutMs, intervalMs);
+    }
+
+    /**
+     * Utility method to help with memory freeing before entering Suspend-To-Disk
+     */
+    static void freeMemory() {
+        PlatformVersion platformVersion = Car.getPlatformVersion();
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            Slogf.w(TAG,
+                    "MemoryCleanup is not available on this version of platform : current  %d.%d "
+                            + "required %d.%d",
+                    platformVersion.getMajorVersion(), platformVersion.getMinorVersion(),
+                    PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0.getMajorVersion(),
+                    PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0.getMinorVersion());
+        } else {
+            ActivityManagerHelper.killAllBackgroundProcesses();
+        }
     }
 }
