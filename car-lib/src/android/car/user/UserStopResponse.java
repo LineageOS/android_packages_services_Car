@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,9 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
-import android.car.annotation.AddedInOrBefore;
+import android.annotation.NonNull;
+import android.annotation.SystemApi;
+import android.car.annotation.ApiRequirements;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -29,59 +31,66 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * User stop result.
+ * User stop response.
  *
  * @hide
  */
 @DataClass(
+        genAidl = true,
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
-public final class UserStopResult implements Parcelable, OperationResult {
+@SystemApi
+public final class UserStopResponse implements Parcelable, OperationResult {
 
     /**
      * When user stop is successful.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user stop fails.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When user to stop doesn't exits.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
      * When user to stop is the system user.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int STATUS_FAILURE_SYSTEM_USER = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
      * When user to stop is the current user.
      */
     @Status
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int STATUS_FAILURE_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 3;
 
-     /**
+    /**
      * Gets the user switch result status.
      *
-     * @return either {@link UserStopResult#STATUS_SUCCESSFUL},
-     * {@link UserStopResult#STATUS_ANDROID_FAILURE},
-     * {@link UserStopResult#STATUS_USER_DOES_NOT_EXIST},
-     * {@link UserStopResult#STATUS_FAILURE_SYSTEM_USER}, or
-     * {@link UserStopResult#STATUS_FAILURE_CURRENT_USER}.
+     * @return either {@link UserStopResponse#STATUS_SUCCESSFUL},
+     * {@link UserStopResponse#STATUS_ANDROID_FAILURE},
+     * {@link UserStopResponse#STATUS_USER_DOES_NOT_EXIST},
+     * {@link UserStopResponse#STATUS_FAILURE_SYSTEM_USER}, or
+     * {@link UserStopResponse#STATUS_FAILURE_CURRENT_USER}.
      */
     private final @Status int mStatus;
 
@@ -91,13 +100,15 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * @param status to check
      * @return true for a success status
      */
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isSuccess(@Status int status) {
         return status == STATUS_SUCCESSFUL;
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isSuccess() {
         return isSuccess(mStatus);
     }
@@ -110,8 +121,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
     // CHECKSTYLE:OFF Generated code
     //
     // To regenerate run:
-    // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/user/UserStopResult.java
-    // Added AddedInOrBefore or ApiRequirement Annotation manually
+    // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/user/UserStopResponse.java
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
@@ -132,9 +142,11 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    public static String statusToString(@Status int value) {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static @NonNull String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
                     return "STATUS_SUCCESSFUL";
@@ -151,20 +163,20 @@ public final class UserStopResult implements Parcelable, OperationResult {
     }
 
     /**
-     * Creates a new UserStopResult.
+     * Creates a new UserStopResponse.
      *
      * @param status
      *   Gets the user switch result status.
      *
-     *   @return either {@link UserStopResult#STATUS_SUCCESSFUL},
-     *   {@link UserStopResult#STATUS_ANDROID_FAILURE},
-     *   {@link UserStopResult#STATUS_USER_DOES_NOT_EXIST},
-     *   {@link UserStopResult#STATUS_FAILURE_SYSTEM_USER}, or
-     *   {@link UserStopResult#STATUS_FAILURE_CURRENT_USER}.
+     *   @return either {@link UserStopResponse#STATUS_SUCCESSFUL},
+     *   {@link UserStopResponse#STATUS_ANDROID_FAILURE},
+     *   {@link UserStopResponse#STATUS_USER_DOES_NOT_EXIST},
+     *   {@link UserStopResponse#STATUS_FAILURE_SYSTEM_USER}, or
+     *   {@link UserStopResponse#STATUS_FAILURE_CURRENT_USER}.
      * @hide
      */
     @DataClass.Generated.Member
-    public UserStopResult(
+    public UserStopResponse(
             @Status int status) {
         this.mStatus = status;
 
@@ -189,33 +201,37 @@ public final class UserStopResult implements Parcelable, OperationResult {
     /**
      * Gets the user switch result status.
      *
-     * @return either {@link UserStopResult#STATUS_SUCCESSFUL},
-     * {@link UserStopResult#STATUS_ANDROID_FAILURE},
-     * {@link UserStopResult#STATUS_USER_DOES_NOT_EXIST},
-     * {@link UserStopResult#STATUS_FAILURE_SYSTEM_USER}, or
-     * {@link UserStopResult#STATUS_FAILURE_CURRENT_USER}.
+     * @return either {@link UserStopResponse#STATUS_SUCCESSFUL},
+     * {@link UserStopResponse#STATUS_ANDROID_FAILURE},
+     * {@link UserStopResponse#STATUS_USER_DOES_NOT_EXIST},
+     * {@link UserStopResponse#STATUS_FAILURE_SYSTEM_USER}, or
+     * {@link UserStopResponse#STATUS_FAILURE_CURRENT_USER}.
      */
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @Status int getStatus() {
         return mStatus;
     }
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
 
-        return "UserStopResult { " +
+        return "UserStopResponse { " +
                 "status = " + statusToString(mStatus) +
         " }";
     }
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -226,13 +242,14 @@ public final class UserStopResult implements Parcelable, OperationResult {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
-    @AddedInOrBefore(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int describeContents() { return 0; }
 
     /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
-    /* package-private */ UserStopResult(@android.annotation.NonNull android.os.Parcel in) {
+    /* package-private */ UserStopResponse(@android.annotation.NonNull android.os.Parcel in) {
         // You can override field unparcelling by defining methods like:
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
@@ -259,25 +276,26 @@ public final class UserStopResult implements Parcelable, OperationResult {
     }
 
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
-    public static final @android.annotation.NonNull Parcelable.Creator<UserStopResult> CREATOR
-            = new Parcelable.Creator<UserStopResult>() {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final @android.annotation.NonNull Parcelable.Creator<UserStopResponse> CREATOR
+            = new Parcelable.Creator<UserStopResponse>() {
         @Override
-        public UserStopResult[] newArray(int size) {
-            return new UserStopResult[size];
+        public UserStopResponse[] newArray(int size) {
+            return new UserStopResponse[size];
         }
 
         @Override
-        public UserStopResult createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
-            return new UserStopResult(in);
+        public UserStopResponse createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
+            return new UserStopResponse(in);
         }
     };
 
     @DataClass.Generated(
-            time = 1673057466203L,
+            time = 1676571819851L,
             codegenVersion = "1.0.23",
-            sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserStopResult.java",
-            inputSignatures = "public static final @android.car.user.UserStopResult.Status @android.car.annotation.AddedInOrBefore int STATUS_SUCCESSFUL\npublic static final @android.car.user.UserStopResult.Status @android.car.annotation.AddedInOrBefore int STATUS_ANDROID_FAILURE\npublic static final @android.car.user.UserStopResult.Status @android.car.annotation.AddedInOrBefore int STATUS_USER_DOES_NOT_EXIST\npublic static final @android.car.user.UserStopResult.Status @android.car.annotation.AddedInOrBefore int STATUS_FAILURE_SYSTEM_USER\npublic static final @android.car.user.UserStopResult.Status @android.car.annotation.AddedInOrBefore int STATUS_FAILURE_CURRENT_USER\nprivate final @android.car.user.UserStopResult.Status int mStatus\npublic static @android.car.annotation.AddedInOrBefore boolean isSuccess(int)\npublic @java.lang.Override @android.car.annotation.AddedInOrBefore boolean isSuccess()\nclass UserStopResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserStopResponse.java",
+            inputSignatures = "public static final @android.car.user.UserStopResponse.Status @android.car.annotation.ApiRequirements int STATUS_SUCCESSFUL\npublic static final @android.car.user.UserStopResponse.Status @android.car.annotation.ApiRequirements int STATUS_ANDROID_FAILURE\npublic static final @android.car.user.UserStopResponse.Status @android.car.annotation.ApiRequirements int STATUS_USER_DOES_NOT_EXIST\npublic static final @android.car.user.UserStopResponse.Status @android.car.annotation.ApiRequirements int STATUS_FAILURE_SYSTEM_USER\npublic static final @android.car.user.UserStopResponse.Status @android.car.annotation.ApiRequirements int STATUS_FAILURE_CURRENT_USER\nprivate final @android.car.user.UserStopResponse.Status int mStatus\npublic static @android.car.annotation.ApiRequirements boolean isSuccess(int)\npublic @java.lang.Override @android.car.annotation.ApiRequirements boolean isSuccess()\nclass UserStopResponse extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genAidl=true, genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 
