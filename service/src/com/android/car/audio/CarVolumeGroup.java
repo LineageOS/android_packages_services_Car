@@ -420,7 +420,7 @@ import java.util.Objects;
             mCurrentGainIndex = currentgainIndex;
 
             if (mIsMuted) {
-                setMuteLocked(/* mute= */ currentgainIndex == 0);
+                setMuteLocked(false);
             }
             setCurrentGainIndexLocked(mCurrentGainIndex);
         }
