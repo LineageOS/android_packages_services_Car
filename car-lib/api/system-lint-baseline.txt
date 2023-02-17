@@ -151,6 +151,10 @@ IntentName: android.car.media.CarAudioManager#AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_E
     Intent extra constant name must be EXTRA_FOO: AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS
 
 
+KotlinOperator: android.car.SyncResultCallback#get(long, java.util.concurrent.TimeUnit):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
 ListenerLast: android.car.watchdog.CarWatchdogManager#registerClient(java.util.concurrent.Executor, android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int) parameter #2:
     Listeners should always be at end of argument list (method `registerClient`)
 ListenerLast: android.car.watchdog.CarWatchdogManager#tellClientAlive(android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int) parameter #1:
@@ -191,6 +195,10 @@ MissingGetterMatchingBuilder: android.car.projection.ProjectionStatus.Builder#se
     android.car.projection.ProjectionStatus does not declare a `getProjectionTransport()` method matching method android.car.projection.ProjectionStatus.Builder.setProjectionTransport(int)
 MissingGetterMatchingBuilder: android.car.projection.ProjectionStatus.MobileDevice.Builder#addTransport(int):
     android.car.projection.ProjectionStatus.MobileDevice does not declare a `getTransports()` method matching method android.car.projection.ProjectionStatus.MobileDevice.Builder.addTransport(int)
+MissingGetterMatchingBuilder: android.car.user.UserLifecycleEventFilter.Builder#addEventType(int):
+    android.car.user.UserLifecycleEventFilter does not declare a `getEventTypes()` method matching method android.car.user.UserLifecycleEventFilter.Builder.addEventType(int)
+MissingGetterMatchingBuilder: android.car.user.UserLifecycleEventFilter.Builder#addUser(android.os.UserHandle):
+    android.car.user.UserLifecycleEventFilter does not declare a `getUsers()` method matching method android.car.user.UserLifecycleEventFilter.Builder.addUser(android.os.UserHandle)
 
 
 MissingNullability: android.car.AoapService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
@@ -207,6 +215,8 @@ MissingNullability: android.car.AoapService#onUnbind(android.content.Intent) par
     Missing nullability on parameter `intent` in method `onUnbind`
 MissingNullability: android.car.CarProjectionManager.ProjectionAccessPointCallback#onStarted(android.net.wifi.WifiConfiguration) parameter #0:
     Missing nullability on parameter `wifiConfiguration` in method `onStarted`
+MissingNullability: android.car.SyncResultCallback#get(long, java.util.concurrent.TimeUnit) parameter #1:
+    Missing nullability on parameter `unit` in method `get`
 MissingNullability: android.car.cluster.CarInstrumentClusterManager#registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback) parameter #0:
     Missing nullability on parameter `category` in method `registerCallback`
 MissingNullability: android.car.cluster.CarInstrumentClusterManager#registerCallback(String, android.car.cluster.CarInstrumentClusterManager.Callback) parameter #1:
@@ -835,6 +845,8 @@ UserHandle: android.car.watchdog.CarWatchdogManager#setKillablePackageAsUser(Str
 
 UserHandleName: android.car.projection.ProjectionOptions:
     Classes holding a set of parameters should be called `FooParams`, was `ProjectionOptions`
+UserHandleName: android.car.user.UserLifecycleEventFilter.Builder#addUser(android.os.UserHandle):
+    Method taking UserHandle should be named `doFooAsUser` or `queryFooForUser`, was `addUser`
 
 
 VisiblySynchronized: android.car.drivingstate.CarDrivingStateManager#registerListener(android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener):
