@@ -319,7 +319,7 @@ public class MemoryPublisherTest {
     @Test
     public void testAddDataSubscriber_annotatesWithDrivingSessionData() {
         SessionAnnotation sessionAnnotation = new SessionAnnotation(
-                2, SessionController.STATE_ENTER_DRIVING_SESSION, 123, 1234, "reboot");
+                2, SessionController.STATE_ENTER_DRIVING_SESSION, 123, 1234, "reboot", 0);
 
         mSessionCallbackCaptor.getValue().onSessionStateChanged(sessionAnnotation);
         mPublisher.addDataSubscriber(mMockDataSubscriber);
