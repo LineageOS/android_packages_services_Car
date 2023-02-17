@@ -167,6 +167,8 @@
     <string name="assign_audio_accept_audio" translatable="false">Auto Accept Request</string>
     <string name="assign_audio_reject_audio" translatable="false">Auto Reject Request</string>
     <string name="assign_audio_ask_user" translatable="false">Ask User To Accept/Reject</string>
+    <string name="zone_configuration" translatable="false">Zone Configuration</string>
+    <string name="switch_zone_configuration" translatable="false">Switch Configuration</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
