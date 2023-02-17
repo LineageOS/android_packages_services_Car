@@ -60,6 +60,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private final CarTaskViewController mCarTaskViewController;
     private final Context mContext;
     private final ControlledRemoteCarTaskViewConfig mConfig;
+    private final Rect mTmpRect = new Rect();
 
     ControlledRemoteCarTaskView(
             @NonNull Context context,
@@ -181,5 +182,22 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
 
     ControlledRemoteCarTaskViewConfig getConfig() {
         return mConfig;
+    }
+
+    @Override
+    public String toString() {
+        return toString(/* withBounds= */ false);
+    }
+
+    String toString(boolean withBounds) {
+        if (withBounds) {
+            ViewHelper.getBoundsOnScreen(this, mTmpRect);
+        }
+        return TAG + " {\n"
+                + "  config=" + mConfig + "\n"
+                + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
+                + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
+                + "}\n";
+
     }
 }

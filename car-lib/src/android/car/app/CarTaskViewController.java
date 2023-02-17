@@ -17,6 +17,7 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
@@ -26,8 +27,10 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.os.RemoteException;
 import android.os.UserManager;
+import android.util.Dumpable;
 import android.util.Log;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -56,6 +59,7 @@ public final class CarTaskViewController {
         mService = service;
         mHostActivity = hostActivity;
 
+        mHostActivity.addDumpable(mDumper);
         mTaskViewInputInterceptor = new CarTaskViewInputInterceptor(hostActivity, this);
     }
 
@@ -133,4 +137,22 @@ public final class CarTaskViewController {
     List<ControlledRemoteCarTaskView> getControlledRemoteCarTaskViews() {
         return mControlledRemoteCarTaskViews;
     }
+
+    private final Dumpable mDumper = new Dumpable() {
+        private static final String INDENTATION = "  ";
+
+        @NonNull
+        @Override
+        public String getDumpableName() {
+            return TAG;
+        }
+
+        @Override
+        public void dump(@NonNull PrintWriter writer, @Nullable String[] args) {
+            writer.println("ControlledRemoteCarTaskViews: ");
+            for (ControlledRemoteCarTaskView taskView : mControlledRemoteCarTaskViews) {
+                writer.println(INDENTATION + taskView.toString(/* withBounds= */ true));
+            }
+        }
+    };
 }
