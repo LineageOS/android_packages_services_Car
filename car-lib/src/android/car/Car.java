@@ -1414,6 +1414,33 @@ public final class Car {
             "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
 
     /**
+     * Permission necessary to register a {@link SystemUIProxy} that can be used by other apps to
+     * manage the system ui and create task views.
+     *
+     * @hide
+     */
+    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY =
+            "android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY";
+
+    /**
+     * Permission necessary to communicate with the car system ui for creating task views or
+     * getting notified about system ui changes.
+     * @hide
+     */
+    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
+    // @SystemApi
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI =
+            "android.car.permission.MANAGE_CAR_SYSTEM_UI";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

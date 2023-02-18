@@ -25,29 +25,44 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current value of {@link
- * android.car.VehiclePropertyIds#ENGINE_OIL_LEVEL}.
+ * Used to enumerate the current level of {@link android.car.VehiclePropertyIds#ENGINE_OIL_LEVEL}.
+ *
  * @hide
  */
 @SystemApi
 public final class VehicleOilLevel {
 
+    /**
+     * The oil level of the engine is critically low, so the vehicle may be unsafe to drive.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_CRITICALLY_LOW = 0;
 
+    /**
+     * The oil level of the engine is low and needs to be replaced.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_LOW = 1;
 
+    /**
+     * The oil level of the engine is normal for the vehicle.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_NORMAL = 2;
 
+    /**
+     * The oil level of the engine is high, so the vehicle may be unsafe to drive.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_HIGH = 3;
 
+    /**
+     * This value represents an error when retrieving the oil level of the engine.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int LEVEL_ERROR = 4;

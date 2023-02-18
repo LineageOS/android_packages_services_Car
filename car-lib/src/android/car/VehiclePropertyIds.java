@@ -384,7 +384,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CAR_ENGINE_DETAILED} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -1451,14 +1454,40 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int AP_POWER_BOOTUP_REASON = 289409538;
     /**
-     * Property to represent brightness of the display. Some cars have single
-     * control for the brightness of all displays and this property is to share
-     * change in that control.
+     * Property to represent brightness of the display.
+     *
+     * Some cars have single control for the brightness of all displays and this
+     * property is to share change in that control. In cars which have displays
+     * whose brightness is controlled separately, they must use
+     * PER_DISPLAY_BRIGHTNESS.
+     *
+     * Only one of DISPLAY_BRIGHTNESS and PER_DISPLAY_BRIGHTNESS should be
+     * implemented. If both are available, PER_DISPLAY_BRIGHTNESS is used by
+     * AAOS.
+     *
      * The property is protected by the signature permission: android.car.permission.CAR_POWER.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_BRIGHTNESS = 289409539;
+    /**
+     * Property to represent brightness of the displays which are controlled separately.
+     *
+     * Some cars have one or more displays whose brightness is controlled
+     * separately and this property is to inform the brightness of each
+     * passenger display. In cars where all displays' brightness is controlled
+     * together, they must use DISPLAY_BRIGHTNESS.
+     *
+     * Only one of DISPLAY_BRIGHTNESS and PER_DISPLAY_BRIGHTNESS should be
+     * implemented. If both are available, PER_DISPLAY_BRIGHTNESS is used by
+     * AAOS.
+     *
+     * The property is protected by the signature permission: android.car.permission.CAR_POWER.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
     /**
      * Property to feed H/W input events to android
      */
@@ -1507,13 +1536,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_DOORS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_DOORS} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_DOORS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int DOOR_CHILD_LOCK_ENABLED = 371198723;
     /**
      * Mirror Z Position
@@ -1582,8 +1614,10 @@ public final class VehiclePropertyIds {
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_MIRRORS} to read and
      *  write property.
-     * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -1608,7 +1642,10 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_MIRRORS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2044,7 +2081,10 @@ public final class VehiclePropertyIds {
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2068,9 +2108,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>{@link Car#PERMISSION_CONTROL_CAR_AIRBAGS} to read and write property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_AIRBAGS} to read and
+     *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_AIRBAGS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2097,7 +2141,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2125,7 +2172,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2151,7 +2201,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2179,7 +2232,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2208,7 +2264,10 @@ public final class VehiclePropertyIds {
      *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2382,13 +2441,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_DEPTH_POS = 289410016;
     /**
      * Steering wheel depth movement
@@ -2411,13 +2473,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_DEPTH_MOVE = 289410017;
     /**
      * Steering wheel height position
@@ -2437,13 +2502,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_HEIGHT_POS = 289410018;
     /**
      * Steering wheel height movement
@@ -2466,13 +2534,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_HEIGHT_MOVE = 289410019;
     /**
      * Steering wheel theft lock feature enabled
@@ -2491,13 +2562,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868;
     /**
      * Steering wheel locked
@@ -2515,13 +2589,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_LOCKED = 287312869;
     /**
      * Steering wheel easy access feature enabled
@@ -2540,13 +2617,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_STEERING_WHEEL} to read
      *  and write property.
      * </ul>
+     *
+     * @hide
      */
+    @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_STEERING_WHEEL)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_EASY_ACCESS_ENABLED = 287312870;
     /**
      * Vehicle Maps Service (VMS) message
@@ -2755,7 +2835,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_LIGHTS_STATE = 289410828;
 
     /**
@@ -2790,7 +2870,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STEERING_WHEEL_LIGHTS_SWITCH = 289410829;
 
     /**

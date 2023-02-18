@@ -441,6 +441,48 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
+     * Starts the specified user.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.INTERACT_ACROSS_USERS})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    // TODO(b/257335554) Change to an asynchronous method.
+    public @NonNull UserStartResponse startUser(@NonNull UserStartRequest request) {
+        try {
+            return mService.startUser(request);
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
+     * Stops the specified user.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.INTERACT_ACROSS_USERS})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    // TODO(b/257335554) Change to an asynchronous method.
+    public @NonNull UserStopResponse stopUser(@NonNull UserStopRequest request) {
+        try {
+            return mService.stopUser(request);
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e, /* returnValue= */ null);
+        }
+    }
+
+    /**
      * Switches the foreground user to the given target user.
      *
      * @hide

@@ -55,6 +55,13 @@ android.car.admin.RemoveUserResult
 android.car.admin.StartUserInBackgroundResult
 android.car.admin.StopUserResult
 android.car.app.CarActivityManager
+android.car.app.CarSystemUIProxy
+android.car.app.CarTaskViewClient
+android.car.app.CarTaskViewController
+android.car.app.CarTaskViewControllerCallback
+android.car.app.CarTaskViewHost
+android.car.app.ControlledRemoteCarTaskView
+android.car.app.ControlledRemoteCarTaskViewCallback
 android.car.cluster.CarInstrumentClusterManager
 android.car.cluster.CarInstrumentClusterManager$Callback
 android.car.cluster.ClusterActivityState
@@ -289,7 +296,13 @@ android.car.user.UserIdentificationAssociationResponse
 android.car.user.UserLifecycleEventFilter
 android.car.user.UserLifecycleEventFilter$Builder
 android.car.user.UserRemovalResult
+android.car.user.UserStartRequest
+android.car.user.UserStartRequest$Builder
+android.car.user.UserStartResponse
 android.car.user.UserStartResult
+android.car.user.UserStopRequest
+android.car.user.UserStopRequest$Builder
+android.car.user.UserStopResponse
 android.car.user.UserStopResult
 android.car.user.UserSwitchResult
 android.car.util.concurrent.AndroidAsyncFuture

@@ -251,13 +251,18 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private boolean checkKeyguardLockedWithPolling() {
-        mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
+        removeCallbacks();
         boolean locked = KeyguardManagerHelper.isKeyguardLocked();
         if (locked) {
             mCommonThreadHandler.postDelayed(mKeyguardPollingRunnable,
                     KEYGUARD_POLLING_INTERVAL_MS);
         }
         return locked;
+    }
+
+    @VisibleForTesting
+    void removeCallbacks() {
+        mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
     }
 
     private boolean isNoticeScreenEnabledInSetting(@UserIdInt int userId) {
@@ -372,7 +377,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private void stopUi(boolean clearUiShown) {
-        mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
+        removeCallbacks();
         boolean serviceBound;
         synchronized (mLock) {
             mUiService = null;

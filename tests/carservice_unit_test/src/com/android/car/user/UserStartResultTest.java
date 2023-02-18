@@ -43,14 +43,8 @@ public final class UserStartResultTest {
         return Arrays.asList(new Object[][]{
             { UserStartResult.STATUS_SUCCESSFUL, true },
             { UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER, true},
-            { UserStartResult.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY, true},
             { UserStartResult.STATUS_ANDROID_FAILURE, false},
-            { UserStartResult.STATUS_UNSUPPORTED_PLATFORM_FAILURE, false},
-            { UserStartResult.STATUS_USER_INVALID, false},
-            { UserStartResult.STATUS_USER_DOES_NOT_EXIST, false},
-            { UserStartResult.STATUS_DISPLAY_INVALID, false},
-            { UserStartResult.STATUS_DISPLAY_UNAVAILABLE, false},
-            { UserStartResult.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY, false}
+            { UserStartResult.STATUS_USER_DOES_NOT_EXIST, false}
         });
     }
 

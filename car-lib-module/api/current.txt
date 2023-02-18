@@ -321,14 +321,12 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int CURRENT_GEAR = 289408001; // 0x11400401
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int DISPLAY_BRIGHTNESS = 289409539; // 0x11400a03
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int DISTANCE_DISPLAY_UNITS = 289408512; // 0x11400600
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_CHILD_LOCK_ENABLED = 371198723; // 0x16200b03
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_LOCK = 371198722; // 0x16200b02
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_MOVE = 373295873; // 0x16400b01
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_POS = 373295872; // 0x16400b00
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874; // 0x11400f3a
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873; // 0x11400f39
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_COOLANT_TEMP = 291504897; // 0x11600301
-    field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_IDLE_AUTO_STOP_ENABLED = 287310624; // 0x11200320
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED")) public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_RPM = 291504901; // 0x11600305
@@ -402,8 +400,6 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780; // 0x1141010c
     field @RequiresPermission(android.car.Car.PERMISSION_IDENTIFICATION) public static final int INFO_VIN = 286261504; // 0x11100100
     field public static final int INVALID = 0; // 0x0
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_AUTO_FOLD_ENABLED = 337644358; // 0x14200b46
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_AUTO_TILT_ENABLED = 337644359; // 0x14200b47
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_FOLD = 287312709; // 0x11200b45
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_LOCK = 287312708; // 0x11200b44
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Y_MOVE = 339741507; // 0x14400b43
@@ -422,12 +418,12 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_READ_STEERING_STATE) public static final int PERF_STEERING_ANGLE = 291504649; // 0x11600209
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED = 291504647; // 0x11600207
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648; // 0x11600208
+    field @RequiresPermission("android.car.permission.CAR_POWER") public static final int PER_DISPLAY_BRIGHTNESS = 289475076; // 0x11410a04
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.ADJUST_RANGE_REMAINING")) public static final int RANGE_REMAINING = 291504904; // 0x11600308
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int READING_LIGHTS_STATE = 356519683; // 0x15400f03
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int READING_LIGHTS_SWITCH = 356519684; // 0x15400f04
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int REAR_FOG_LIGHTS_STATE = 289410877; // 0x11400f3d
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int REAR_FOG_LIGHTS_SWITCH = 289410878; // 0x11400f3e
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_AIRBAGS") public static final int SEAT_AIRBAG_ENABLED = 354421662; // 0x15200b9e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792; // 0x15400b88
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_1_POS = 356518791; // 0x15400b87
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BACKREST_ANGLE_2_MOVE = 356518794; // 0x15400b8a
@@ -435,11 +431,8 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_BUCKLED = 354421634; // 0x15200b82
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_HEIGHT_MOVE = 356518788; // 0x15400b84
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_BELT_HEIGHT_POS = 356518787; // 0x15400b83
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_CUSHION_SIDE_SUPPORT_MOVE = 356518816; // 0x15400ba0
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_CUSHION_SIDE_SUPPORT_POS = 356518815; // 0x15400b9f
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_DEPTH_MOVE = 356518798; // 0x15400b8e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_DEPTH_POS = 356518797; // 0x15400b8d
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_EASY_ACCESS_ENABLED = 354421661; // 0x15200b9d
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int SEAT_FOOTWELL_LIGHTS_STATE = 356518811; // 0x15400b9b
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int SEAT_FOOTWELL_LIGHTS_SWITCH = 356518812; // 0x15400b9c
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_FORE_AFT_MOVE = 356518790; // 0x15400b86
@@ -457,23 +450,13 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_FORE_AFT_POS = 356518801; // 0x15400b91
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804; // 0x15400b94
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803; // 0x15400b93
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_VERTICAL_MOVE = 356518818; // 0x15400ba2
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_LUMBAR_VERTICAL_POS = 356518817; // 0x15400ba1
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SELECT = 356518784; // 0x15400b80
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_MEMORY_SET = 356518785; // 0x15400b81
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_OCCUPANCY = 356518832; // 0x15400bb0
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_TILT_MOVE = 356518800; // 0x15400b90
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_TILT_POS = 356518799; // 0x15400b8f
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_WALK_IN_POS = 356518819; // 0x15400ba3
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_DEPTH_MOVE = 289410017; // 0x11400be1
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_DEPTH_POS = 289410016; // 0x11400be0
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_EASY_ACCESS_ENABLED = 287312870; // 0x11200be6
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_HEIGHT_MOVE = 289410019; // 0x11400be3
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_HEIGHT_POS = 289410018; // 0x11400be2
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS)) public static final int STEERING_WHEEL_LIGHTS_STATE = 289410828; // 0x11400f0c
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int STEERING_WHEEL_LIGHTS_SWITCH = 289410829; // 0x11400f0d
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_LOCKED = 287312869; // 0x11200be5
-    field @RequiresPermission("android.car.permission.CONTROL_STEERING_WHEEL") public static final int STEERING_WHEEL_THEFT_LOCK_ENABLED = 287312868; // 0x11200be4
     field @RequiresPermission("android.car.permission.CAR_TIRES") public static final int TIRE_PRESSURE = 392168201; // 0x17600309
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514; // 0x11400602
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int TRACTION_CONTROL_ACTIVE = 287310859; // 0x1120040b

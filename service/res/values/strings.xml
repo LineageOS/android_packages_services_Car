@@ -656,6 +656,28 @@
     <!-- Permission text: apps can create an mirroring token for Display. [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_mirror_display">Mirror the display of other users.</string>
 
+    <!-- Permission text: system ui can register to provide a proxy that can be used by other apps
+         to manage the system ui and create task views.
+        [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_register_car_system_ui_proxy">Provide a system ui proxy
+         that can be used by other apps to manage the system ui and create task views.</string>
+    <!-- Permission text: system ui can register to provide a proxy that can be used by other apps
+         to manage the system ui and create task views.
+        [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_register_car_system_ui_proxy">Provide a system ui proxy
+         that can be used by other apps to manage the system ui and create task views.</string>
+
+    <!-- Permission text: Communicate with the car system ui for creating task views or getting
+         notified about system ui changes.
+        [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_manage_car_system_ui">Communicate with the car system ui
+        for creating taskviews or getting notified about system ui changes.</string>
+    <!-- Permission text: Communicate with the car system ui for creating task views or getting
+         notified about system ui changes.
+        [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_manage_car_system_ui">Communicate with the car system ui
+        for creating taskviews or getting notified about system ui changes.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

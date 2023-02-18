@@ -74,6 +74,22 @@ class TestWebApp(unittest.TestCase):
     span = rendered_html.find(id='script-output').find('span')
     self.assertIn('Error encountered while running the script.', str(span))
 
+  def test_execute_script_running_error_with_stacktrace(self):
+    response = self.client.post(
+        '/execute_script',
+        data={
+            'script': 'function func_1(data, state) func_2() end function func_2() func_3() end',
+            'function-name': 'func_1',
+            'published-data': "{}",
+            'saved-state': "{}"
+        })
+    rendered_html = BeautifulSoup(response.data.decode('UTF-8'), 'html.parser')
+    span = rendered_html.find(id='script-output').find('span')
+    self.assertIn('Error encountered while running the script.', str(span))
+    self.assertIn('func_3', str(span))
+    self.assertIn('func_2', str(span))
+    self.assertIn('func_1', str(span))
+
   def test_execute_script_saved_state_unchanged(self):
     response = self.client.post(
         '/execute_script',

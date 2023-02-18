@@ -64,4 +64,12 @@ public final class SurfaceControlHelper {
         }
         return null;
     }
+
+    /**
+     * See {@link SurfaceControl(SurfaceControl)}}.
+     */
+    @AddedIn(PlatformVersion.TIRAMISU_0)
+    public static SurfaceControl copy(SurfaceControl source) {
+        return new SurfaceControl(source, SurfaceControlHelper.class.getSimpleName());
+    }
 }

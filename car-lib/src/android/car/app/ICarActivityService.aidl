@@ -17,6 +17,8 @@
 package android.car.app;
 
 import android.app.ActivityManager.RunningTaskInfo;
+import android.car.app.ICarSystemUIProxy;
+import android.car.app.ICarSystemUIProxyCallback;
 import android.content.ComponentName;
 import java.util.List;
 
@@ -72,5 +74,23 @@ interface ICarActivityService {
 
     /** See {@link CarActivityManager#getMirroredSurface(IBinder, Rect) */
     SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 11;
+
+    /**
+     * Registers a System UI proxy which is meant to host all the system ui interaction that is
+     * required by other apps.
+     */
+    void registerCarSystemUIProxy(in ICarSystemUIProxy carSystemUIProxy) = 12;
+
+    /**
+     * Adds a callback to monitor the lifecycle of System UI proxy. Calling this for an already
+     * registered callback will result in a no-op.
+     */
+    void addCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 13;
+
+    /**
+     * Removes the callback to monitor the lifecycle of System UI proxy.
+     * Calling this for an already unregistered callback will result in a no-op
+     */
+    void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 14;
 }
 

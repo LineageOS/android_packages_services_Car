@@ -68,7 +68,11 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartRequest;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopRequest;
+import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -1895,71 +1899,84 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Starts the specified user to be visible on the given display.
+     * Starts the specified user.
      *
-     * @param userId user to start to be visible on the display
-     * @param displayId display to start the user on
+     * <p>If a valid display ID is specified in the {@code request}, then start the user visible on
+     *    the display.
      */
-    public UserStartResult startUserVisibleOnDisplay(@UserIdInt int userId, int displayId) {
+    public UserStartResponse startUser(UserStartRequest request) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
-            throw new SecurityException("startUserVisibleOnDisplay: You need one of " + MANAGE_USERS
+            throw new SecurityException("startUser: You need one of " + MANAGE_USERS
                     + ", or " + INTERACT_ACROSS_USERS);
         }
 
-        EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
-        int result = startUserVisibleOnDisplayInternal(userId, displayId);
-        EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId, result);
+        int userId = request.getUserHandle().getIdentifier();
+        int displayId = request.getDisplayId();
+        int result;
+        if (displayId == Display.INVALID_DISPLAY) {
+            EventLogHelper.writeCarUserServiceStartUserInBackgroundReq(userId);
+            result = startUserInBackgroundInternal(userId);
+            EventLogHelper.writeCarUserServiceStartUserInBackgroundResp(userId, result);
+        } else {
+            EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
+            result = startUserVisibleOnDisplayInternal(userId, displayId);
+            EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId,
+                    result);
+        }
 
-        return new UserStartResult(result);
+        return new UserStartResponse(result);
     }
 
-    private @UserStartResult.Status int startUserVisibleOnDisplayInternal(
+    private @UserStartResponse.Status int startUserVisibleOnDisplayInternal(
             @UserIdInt int userId, int displayId) {
+        if (displayId == Display.INVALID_DISPLAY) {
+            Slogf.wtf(TAG, "startUserVisibleOnDisplay: Display ID must be valid.");
+            return UserStartResponse.STATUS_DISPLAY_INVALID;
+        }
 
         PlatformVersion platformVersion = Car.getPlatformVersion();
         if (!platformVersion.isAtLeast(UPSIDE_DOWN_CAKE_0)) {
-            Slogf.w(TAG, "The platform does not support startUserVisibleOnDisplay."
+            Slogf.w(TAG, "The platform does not support startUser."
                     + " Platform version: %s", platformVersion);
-            return UserStartResult.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
+            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         // If the requested user is the system user.
         if (userId == UserHandle.SYSTEM.getIdentifier()) {
-            return UserStartResult.STATUS_USER_INVALID;
+            return UserStartResponse.STATUS_USER_INVALID;
         }
         // If the requested user does not exist.
         if (mUserHandleHelper.getExistingUserHandle(userId) == null) {
-            return UserStartResult.STATUS_USER_DOES_NOT_EXIST;
+            return UserStartResponse.STATUS_USER_DOES_NOT_EXIST;
         }
 
         // If the specified display is invalid.
         // TODO(b/261606752) In MUPAND (multiple passenger no driver), a background user can be
         // visible on the default display, so we should add the check for: !isPassengerOnlyMode().
-        if (displayId == Display.INVALID_DISPLAY || displayId == Display.DEFAULT_DISPLAY) {
-            return UserStartResult.STATUS_DISPLAY_INVALID;
+        if (displayId == Display.DEFAULT_DISPLAY) {
+            return UserStartResponse.STATUS_DISPLAY_INVALID;
         }
         CarOccupantZoneService occupantZoneService =
                 CarLocalServices.getService(CarOccupantZoneService.class);
         // If the specified display is not available to start a user on.
         if (occupantZoneService.getUserForDisplayId(displayId)
                 != CarOccupantZoneManager.INVALID_USER_ID) {
-            return UserStartResult.STATUS_DISPLAY_UNAVAILABLE;
+            return UserStartResponse.STATUS_DISPLAY_UNAVAILABLE;
         }
 
         int curDisplayIdAssignedToUser = getDisplayAssignedToUser(userId);
         if (curDisplayIdAssignedToUser == displayId) {
             // If the user is already visible on the display, do nothing and return success.
-            return UserStartResult
-                    .STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
+            return UserStartResponse.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
         }
         if (curDisplayIdAssignedToUser != Display.INVALID_DISPLAY) {
             // If the specified user is assigned to another display, the user has to be stopped
             // before it can start on another display.
-            return UserStartResult.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
+            return UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
         }
 
         return ActivityManagerHelper.startUserInBackgroundVisibleOnDisplay(userId, displayId)
-                ? UserStartResult.STATUS_SUCCESSFUL : UserStartResult.STATUS_ANDROID_FAILURE;
+                ? UserStartResponse.STATUS_SUCCESSFUL : UserStartResponse.STATUS_ANDROID_FAILURE;
     }
 
     /**
@@ -1978,29 +1995,30 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void handleStartUserInBackground(@UserIdInt int userId,
             @NonNull AndroidFuture<UserStartResult> receiver) {
+        int result = startUserInBackgroundInternal(userId);
+        sendUserStartResult(userId, result, receiver);
+    }
+
+    private @UserStartResult.Status int startUserInBackgroundInternal(@UserIdInt int userId) {
         // If the requested user is the current user, do nothing and return success.
         if (ActivityManager.getCurrentUser() == userId) {
-            sendUserStartResult(
-                    userId, UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER, receiver);
-            return;
+            return UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER;
         }
         // If requested user does not exist, return error.
         if (mUserHandleHelper.getExistingUserHandle(userId) == null) {
             Slogf.w(TAG, "User %d does not exist", userId);
-            sendUserStartResult(userId, UserStartResult.STATUS_USER_DOES_NOT_EXIST, receiver);
-            return;
+            return UserStartResult.STATUS_USER_DOES_NOT_EXIST;
         }
 
         if (!ActivityManagerHelper.startUserInBackground(userId)) {
             Slogf.w(TAG, "Failed to start user %d in background", userId);
-            sendUserStartResult(userId, UserStartResult.STATUS_ANDROID_FAILURE, receiver);
-            return;
+            return UserStartResult.STATUS_ANDROID_FAILURE;
         }
 
         // TODO(b/181331178): We are not updating mBackgroundUsersToRestart or
         // mBackgroundUsersRestartedHere, which were only used for the garage mode. Consider
         // renaming them to make it more clear.
-        sendUserStartResult(userId, UserStartResult.STATUS_SUCCESSFUL, receiver);
+        return UserStartResult.STATUS_SUCCESSFUL;
     }
 
     private void sendUserStartResult(@UserIdInt int userId, @UserStartResult.Status int result,
@@ -2078,20 +2096,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /**
      * Stops the specified background user.
-     *
-     * @param userId user to stop
-     * @param forceStop force stop the user if true.
      */
-    public UserStopResult stopUser(@UserIdInt int userId, boolean forceStop) {
+    public UserStopResponse stopUser(UserStopRequest request) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
             throw new SecurityException("stopUser: You need one of " + MANAGE_USERS + ", or "
                     + INTERACT_ACROSS_USERS);
         }
+        int userId = request.getUserHandle().getIdentifier();
+        boolean forceStop = request.isForce();
         EventLogHelper.writeCarUserServiceStopUserReq(userId);
         int result = stopBackgroundUserInternal(userId, forceStop);
         EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
 
-        return new UserStopResult(result);
+        return new UserStopResponse(result);
     }
 
     private void handleStopUser(

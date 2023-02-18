@@ -29,5 +29,8 @@
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
         <!-- used by ActivityBlockingActivity -->
         <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
+        <!-- used to register the system ui proxy with the car service to provide the necessary
+             system ui interaction needed by other apps. -->
+        <permission name="android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY"/>
     </privapp-permissions>
 </permissions>

@@ -668,14 +668,8 @@ android.car.user UserRemovalResult void writeToParcel(android.os.Parcel dest, in
 android.car.user UserRemovalResult int describeContents()
 android.car.user UserStartResult int STATUS_SUCCESSFUL
 android.car.user UserStartResult int STATUS_ANDROID_FAILURE
-android.car.user UserStartResult int STATUS_UNSUPPORTED_PLATFORM_FAILURE
 android.car.user UserStartResult int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER
 android.car.user UserStartResult int STATUS_USER_DOES_NOT_EXIST
-android.car.user UserStartResult int STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY
-android.car.user UserStartResult int STATUS_DISPLAY_INVALID
-android.car.user UserStartResult int STATUS_DISPLAY_UNAVAILABLE
-android.car.user UserStartResult int STATUS_USER_INVALID
-android.car.user UserStartResult int STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY
 android.car.user UserStartResult Parcelable.Creator<UserStartResult> CREATOR
 android.car.user UserStartResult boolean isSuccess()
 android.car.user UserStartResult String statusToString(int value)

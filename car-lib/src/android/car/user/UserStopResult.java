@@ -29,7 +29,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * User remove result.
+ * User stop result.
  *
  * @hide
  */

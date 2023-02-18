@@ -54,6 +54,22 @@ LuaEngine::LuaEngine() {
 
 LuaEngine::~LuaEngine() { lua_close(lua_state_); }
 
+// We need to insert error_handler (debug.traceback) before all arguments and function.
+// Current indices (starting from top of stack):
+// For example:
+// debug.traceback (-1), arg2 (-2), arg1 (-3 == -n_args-1), function (-4 == -n_args-2)
+// After insert (starting from top of stack): arg2 (-1), arg1 (-2 == -n_args),
+// function (-3 == -n_args-1), debug.traceback (-4 == -n_args-2)
+// so, we will insert error_handler at index : (-n_args - 2)
+int PushLuaErrorHandler(lua_State* mLuaState, int n_args) {
+  lua_getglobal(mLuaState, "debug");
+  lua_getfield(mLuaState, -1, "traceback");
+  lua_remove(mLuaState, -2);
+  int error_handler_index = -n_args - 2;
+  lua_insert(mLuaState, error_handler_index);
+  return error_handler_index;
+}
+
 // Converts the published_data and saved_state JSON strings to Lua tables
 // and pushes them onto the stack. If successful, the published_data table is at
 // -2, and the saved_state table at -1. If unsuccessful, nothing is added to the
@@ -218,15 +234,27 @@ std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body,
 
   if (ConvertJsonToLuaTable(lua_state_, published_data, saved_state,
                             &output_)) {
-    // After preparing the arguments, the stack indices and its contents are:
+    // Push an error_handler to the stack (to get the stack_trace in case of any error).
+    // After this error_handler push, the stack indices and its contents are:
     // -1: converted saved_state table
     // -2: converted published_data table
     // -3: the function corresponding to the function_name in the script
+    // -4: the error_handler
+    // the rest of the stack contents
+    int error_handler_index = PushLuaErrorHandler(lua_state_, 2);
+
+    // After lua_pcall, the function and all arguments are removed from the stack i.e. (n_args+1)
+    // If there is no error then lua_pcall pushes "n_results" elements to the stack.
+    // But in case of error, lua_pcall pushes exactly one element (error message).
+    // So, "error message" will be at top of the stack i.e. "-1".
+    // Therefore, we need to pop error_handler explicitly.
+    // error_handler will be at "-2" index from top of stack after lua_pcall,
+    // but once we pop error_message from top of stack, error_handler's new index will be "-1".
     const int run_status =
-        lua_pcall(lua_state_, /*nargs=*/2, /*nresults=*/0, /*msgh=*/0);
+            lua_pcall(lua_state_, /*nargs=*/2, /*nresults=*/0, /*msgh=*/error_handler_index);
     if (run_status != LUA_OK) {
       const char* error = lua_tostring(lua_state_, lua_gettop(lua_state_));
-      lua_pop(lua_state_, lua_gettop(lua_state_));
+      lua_pop(lua_state_, lua_gettop(lua_state_));  // pop all the elements in stack.
       output_.push_back(
           std::string("Error encountered while running the script. "
                       "The returned error code = ") +
@@ -236,6 +264,7 @@ std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body,
           std::string(error));
     }
   }
+  lua_pop(lua_state_, lua_gettop(lua_state_));  // pop all the elements in stack.
 
   return output_;
 }

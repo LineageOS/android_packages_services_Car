@@ -260,6 +260,22 @@ public final class BlockingUserLifecycleListenerTest {
                 .inOrder();
     }
 
+    @Test
+    public void testForNoExpectedEvent_noEventsReceived() throws Exception {
+        BlockingUserLifecycleListener listener =  BlockingUserLifecycleListener.forNoExpectedEvent()
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .build();
+
+        List<UserLifecycleEvent> events = listener.waitForEvents();
+
+        sendAsyncEvents(listener, /* userId= */ 10,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                USER_LIFECYCLE_EVENT_TYPE_UNLOCKING);
+
+        assertThat(events).isEmpty();
+    }
+
     @NonNull
     private static CountDownLatch sendAsyncEvents(@NonNull BlockingUserLifecycleListener listener,
             @UserIdInt int userId, @UserLifecycleEventType int... eventTypes) {
