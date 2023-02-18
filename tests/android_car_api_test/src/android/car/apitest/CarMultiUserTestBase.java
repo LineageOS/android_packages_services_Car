@@ -16,18 +16,14 @@
 
 package android.car.apitest;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static com.google.common.truth.Truth.assertWithMessage;
-
-import static org.junit.Assume.assumeTrue;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -37,6 +33,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
+import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
@@ -63,7 +60,6 @@ import org.junit.AssumptionViolatedException;
 import org.junit.Before;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -415,15 +411,8 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
      * Checks if the target device supports MUMD (multi-user multi-display).
      * @throws AssumptionViolatedException if the device does not support MUMD.
      */
-    // TODO(b/250108245): Currently doing this because using DeviceState rule is very heavy. We
-    //  may want to use PermissionsCheckerRule as a light-weight feature check
-    //  (and probably rename it to something like DeviceStateLite).
     protected static void requireMumd() {
-        assumeTrue(
-                "The device does not support multiple users on multiple displays",
-                isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
-                        && getTargetContext().getSystemService(UserManager.class)
-                        .isVisibleBackgroundUsersSupported());
+        UserTestingHelper.requireMumd(getTargetContext());
     }
 
     /**
@@ -433,25 +422,8 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
      * @throws IllegalStateException when there is no secondary display available.
      */
     protected int getDisplayForStartingBackgroundUser() {
-        int[] displayIds = getTargetContext().getSystemService(ActivityManager.class)
-                .getDisplayIdsForStartingVisibleBackgroundUsers();
-        Log.d(TAG, "getSecondaryDisplayIdsForStartingBackgroundUsers() display IDs"
-                + " returned by AM: " + Arrays.toString(displayIds));
-        if (displayIds == null || displayIds.length == 0) {
-            throw new IllegalStateException("No secondary display is available to start a user.");
-        }
-
-        for (int displayId : displayIds) {
-            int userId = mCarOccupantZoneManager.getUserForDisplayId(displayId);
-            if (userId == CarOccupantZoneManager.INVALID_USER_ID) {
-                Log.d(TAG, "Returning first available display: " + displayId);
-                return displayId;
-            }
-            Log.d(TAG, "Display " + displayId + "is curretnly assigned to user " + userId);
-        }
-
-        throw new IllegalStateException(
-                "All secondary displays are assigned. No secondary display is available.");
+        return UserTestingHelper.getDisplayForStartingBackgroundUser(
+                getTargetContext(), mCarOccupantZoneManager);
     }
 
     private static Context getTargetContext() {
