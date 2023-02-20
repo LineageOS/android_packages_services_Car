@@ -92,6 +92,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     @Mock
     private FileDescriptor mMockFileDescriptor;
 
+
     @Rule
     public final ServiceTestRule mServiceRule = new ServiceTestRule();
 

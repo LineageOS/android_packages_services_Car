@@ -40,11 +40,8 @@ import android.car.cluster.renderer.IInstrumentCluster;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
-import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Process;
@@ -84,8 +81,6 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
     @Mock
     private CarUserService mCarUserService;
 
-    private MockSettings mMockSettings;
-
     private final IInstrumentClusterNavigationImpl mInstrumentClusterNavigation =
             new IInstrumentClusterNavigationImpl();
     private final TestClusterRenderer mInstrumentClusterRenderer = new TestClusterRenderer();
@@ -124,12 +119,6 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
         super(InstrumentClusterService.TAG, ClusterNavigationService.TAG);
     }
 
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        mMockSettings = new MockSettings(builder);
-        builder.spyStatic(BitmapFactory.class);
-    }
-
     @Before
     public void setUp() {
         doReturn(DEFAULT_RENDERER_SERVICE).when(mContext).getString(
@@ -138,7 +127,7 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
         doNothing().when(mContext).unbindService(any());
         ContentResolver cr = InstrumentationRegistry.getTargetContext().getContentResolver();
         doReturn(cr).when(mContext).getContentResolver();
-        mMockSettings.putString(DISABLE_INSTRUMENTATION_SERVICE, "false");
+        putSettingsString(DISABLE_INSTRUMENTATION_SERVICE, "false");
         doAnswer((Answer<Void>) invocationOnMock -> {
                     Runnable r = invocationOnMock.getArgument(0);
                     r.run();
