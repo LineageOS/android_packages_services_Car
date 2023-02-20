@@ -42,6 +42,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -50,7 +51,6 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.MockSettings;
 import android.content.Context;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
@@ -91,8 +91,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     @Mock
     private UserHandleHelper mMockedUserHandleHelper;
 
-    private MockSettings mMockSettings;
-
     // Spy used in tests that need to verify the default behavior as fallback
     private InitialUserSetter mSetter;
 
@@ -104,7 +102,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        mMockSettings = new MockSettings(session);
         session
             .spyStatic(ActivityManager.class)
             .spyStatic(ActivityManagerHelper.class)
@@ -898,7 +895,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(110);
         // should have reset last active user
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
                 .isEqualTo(UserHandle.USER_NULL);
     }
 
@@ -911,9 +908,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         assertThat(mSetter.getInitialUser(/* usesOverrideUserIdProperty= */ true))
                 .isEqualTo(100);
         // should have reset both settions
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
                 .isEqualTo(UserHandle.USER_NULL);
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
                 .isEqualTo(UserHandle.USER_NULL);
     }
 
@@ -1022,8 +1019,8 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.setLastActiveUser(UserHandle.USER_SYSTEM);
 
-        mMockSettings.assertDoesNotContainsKey(CarSettings.Global.LAST_ACTIVE_USER_ID);
-        mMockSettings.assertDoesNotContainsKey(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_USER_ID);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
     }
 
     @Test
@@ -1033,9 +1030,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.setLastActiveUser(UserHandle.USER_SYSTEM);
 
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
                 .isEqualTo(UserHandle.USER_SYSTEM);
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
                 .isEqualTo(UserHandle.USER_SYSTEM);
     }
 
@@ -1044,8 +1041,8 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         // Don't need to mock um.getUser(), it will return null by default
         mSetter.setLastActiveUser(42);
 
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
-        mMockSettings.assertDoesNotContainsKey(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertSettingsNotSet(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
     }
 
     @Test
@@ -1058,9 +1055,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         mSetter.setLastActiveUser(persistentUserId);
         mSetter.setLastActiveUser(ephemeralUserid);
 
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID))
                 .isEqualTo(ephemeralUserid);
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
                 .isEqualTo(persistentUserId);
     }
 
@@ -1069,25 +1066,24 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         expectRegularUserExists(mMockedUserHandleHelper, 42);
         mSetter.setLastActiveUser(42);
 
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
-        assertThat(mMockSettings.getInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID))
-                .isEqualTo(42);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID)).isEqualTo(42);
+        assertThat(getSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID)).isEqualTo(42);
     }
 
-    private void mockGetAliveUsers(@UserIdInt int... userIds) {
+    private void mockGetAliveUsers(@NonNull @UserIdInt int... userIds) {
         mockUmGetUserHandles(mUm, /* excludeDying= */ false, userIds);
     }
 
-    private void mockGetAliveUsers(UserHandle... users) {
+    private void mockGetAliveUsers(@NonNull UserHandle... users) {
         mockUmGetUserHandles(mUm, /* excludeDying= */ false, users);
     }
 
     private void setLastActiveUser(@UserIdInt int userId) {
-        mMockSettings.putInt(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
     }
 
     private void setLastPersistentActiveUser(@UserIdInt int userId) {
-        mMockSettings.putInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
+        putSettingsInt(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
     }
 
     private void setDefaultBootUserOverride(@UserIdInt int userId) {
@@ -1144,13 +1140,13 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private UserHandle expectCreateGuestUser(@Nullable String name,
-            int flags, UserHandle user) {
+            int flags, @NonNull UserHandle user) {
         when(mCarUserService.createUserEvenWhenDisallowed(name,
                 UserManager.USER_TYPE_FULL_GUEST, flags)).thenReturn(user);
         return user;
     }
 
-    private void expectCreateUserThrowsException(String name, @UserIdInt int flags) {
+    private void expectCreateUserThrowsException(@NonNull String name, @UserIdInt int flags) {
         when(mCarUserService.createUserEvenWhenDisallowed(eq(name), anyString(), eq(flags)))
                 .thenThrow(new RuntimeException("Cannot create user. D'OH!"));
     }
@@ -1233,19 +1229,19 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         verify(mSetter, never()).setLastActiveUser(anyInt());
     }
 
-    private void assertInitialUserSet(UserHandle expectedUser) {
+    private void assertInitialUserSet(@NonNull UserHandle expectedUser) {
         assertWithMessage("number of listener ").that(mListener.numberCalls).isEqualTo(1);
         assertWithMessage("initial user on listener").that(mListener.initialUser)
             .isSameInstanceAs(expectedUser);
     }
 
-    private void assertSystemLocales(String expected) {
+    private void assertSystemLocales(@NonNull String expected) {
         // TODO(b/156033195): should test specific userId
-        assertThat(mMockSettings.getString(Settings.System.SYSTEM_LOCALES)).isEqualTo(expected);
+        assertThat(getSettingsString(Settings.System.SYSTEM_LOCALES)).isEqualTo(expected);
     }
 
     private void assertSystemLocalesToBeNull() {
-        assertThat(mMockSettings.getString(Settings.System.SYSTEM_LOCALES)).isNull();
+        assertThat(getSettingsString(Settings.System.SYSTEM_LOCALES)).isNull();
     }
 
     private final class MyListener implements Consumer<UserHandle> {
