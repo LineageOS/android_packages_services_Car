@@ -204,6 +204,14 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"অন্য এপৰ স্ক্ৰীনখন প্ৰদৰ্শন কৰক।"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"অন্য ব্যৱহাৰকাৰীৰ ডিছপ্লে’খন প্ৰদর্শন কৰক"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"অন্য ব্যৱহাৰকাৰীৰ ডিছপ্লে’খন প্ৰদর্শন কৰক।"</string>
+    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
+    <skip />
+    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাছ বিফল হৈছে"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাছে সঁহাৰি দিয়া নাই। হে’ড ইউনিট বাকচটো আঁতৰাই পুনৰ লগাওক"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"মোৰ ডিভাইচ"</string>

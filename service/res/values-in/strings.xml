@@ -204,6 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Mencerminkan layar Aplikasi lain."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"mencerminkan tampilan pengguna lain"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Mencerminkan tampilan pengguna lain."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Berikan proxy UI sistem yang dapat digunakan aplikasi lain untuk mengelola UI sistem dan membuat tampilan tugas."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Berikan proxy UI sistem yang dapat digunakan aplikasi lain untuk mengelola UI sistem dan membuat tampilan tugas."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Berkomunikasi dengan UI sistem mobil untuk membuat tampilan tugas atau mendapatkan notifikasi tentang perubahan UI sistem."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Berkomunikasi dengan UI sistem mobil untuk membuat tampilan tugas atau mendapatkan notifikasi tentang perubahan UI sistem."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus gagal"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus tidak merespons. Cabut dan colokkan kembali boks headunit, lalu nyalakan ulang mobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Perangkat Saya"</string>
