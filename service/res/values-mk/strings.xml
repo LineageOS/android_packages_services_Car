@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"да ја следи состојбата на другите зони на присуство во автомобилот и на споредбените апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во тие зони и да управува со напојувањето на тие зони"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"да утврди врска и да комуницира со споредбени апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во други зони на присуство во автомобилот"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"да утврди врска и да комуницира со споредбени апликации (апликации што ги имаат истото име на пакет како повикувачот) инсталирани во други зони на присуство во автомобилот"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"пресликувајте ги екраните на другите апликации"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Пресликувајте ги екраните на другите апликации."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"пресликувајте ги екраните на другите корисници"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Пресликувајте ги екраните на другите корисници."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-магистралата не успеа"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-магистралата не реагира. Откачете ја и повторно прикачете ја кутијата на главната единица и рестартирајте го автомобилот"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мојот уред"</string>

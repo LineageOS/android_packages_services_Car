@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"監控安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 和這些區域本身的狀態，以及管理這些區域的電源供應。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"建立連線並與安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 進行通訊"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"建立連線並與安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 進行通訊。"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"透過鏡像方式投放其他應用程式的畫面"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"透過鏡像方式投放其他應用程式的畫面。"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"透過鏡像方式投放其他使用者的裝置畫面"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"透過鏡像方式投放其他使用者的裝置畫面。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路發生問題"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路無回應。請將主機盒插頭拔下並插回，然後重新啟動車輛"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>

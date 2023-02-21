@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Seuraa auton muiden paikallaoloalueiden sekä niille asennettujen vertaissovellusten (sovellusten, joilla on sama pakettinimi kuin kutsujalla) tiloja ja hallitsee virran käyttöä kyseisillä alueilla."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"muodostaa yhteyden ja on yhteydessä vertaissovelluksiin (sovelluksiin, joilla on sama pakettinimi kuin kutsujalla), jotka on asennettu muille auton paikallaoloalueille."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Muodostaa yhteyden ja on yhteydessä vertaissovelluksiin (sovelluksiin, joilla on sama pakettinimi kuin kutsujalla), jotka on asennettu muille auton paikallaoloalueille."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"peilata näyttöä muista sovelluksista"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Peilaa näyttöä muista sovelluksista."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"peilata muiden käyttäjien näyttöjä"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Peilaa muiden käyttäjien näyttöjä."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-väylä hylättiin"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-väylä ei vastaa. Irrota pääyksikkö ja liitä se takaisin. Käynnistä auto sitten uudelleen."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Oma laite"</string>

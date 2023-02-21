@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"காரிலுள்ள பிற பயணிப் பகுதிகளின் நிலைகளையும் அப்பகுதிகளில் நிறுவப்பட்டிருக்கும் பியர் ஆப்ஸையும் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) கண்காணிக்கும், அப்பகுதிகளின் பவரை நிர்வகிக்கும்."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"காரின் பிற பயணிப் பகுதிகளில் நிறுவப்பட்டுள்ள பியர் ஆப்ஸுடன் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) இணைப்பை ஏற்படுத்தி அவற்றுடன் தரவுப் பரிமாற்றம் செய்தல்"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"காரிலுள்ள பிற பயணிப் பகுதிகளில் நிறுவப்பட்டுள்ள பியர் ஆப்ஸுடன் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) இணைப்பை ஏற்படுத்தி அவற்றுடன் தரவுப் பரிமாற்றம் செய்யும்."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"பிற ஆப்ஸின் திரையை மிரர் செய்தல்"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"பிற ஆப்ஸின் திரையை மிரர் செய்யலாம்."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"பிற பயனர்களின் டிஸ்ப்ளேவை மிரர் செய்தல்"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"பிற பயனர்களின் டிஸ்ப்ளேவை மிரர் செய்யலாம்."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"எனது சாதனம்"</string>

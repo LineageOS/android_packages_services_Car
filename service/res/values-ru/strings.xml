@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Отслеживать состояние других зон пассажиров и приложений с таким же названием пакета, установленных в этих зонах, и управлять электропитанием таких зон."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"подключаться к приложениям с таким же названием пакета, установленным в других зонах пассажиров, и обмениваться данными с ними"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Подключаться к приложениям с таким же названием пакета, установленным в других зонах пассажиров, и обмениваться данными с ними."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"дублирование содержимого других приложений"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Дублирование содержимого других приложений."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"дублирование экрана устройств других пользователей"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Дублирование экрана устройств других пользователей."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Произошла ошибка шины CAN."</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Шина CAN не отвечает. Переподключите коннектор, а затем выключите зажигание и заведите машину снова."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мое устройство"</string>

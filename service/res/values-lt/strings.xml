@@ -206,14 +206,10 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Stebėti kitų buvimo namuose zonų būseną automobilyje ir lygiavertes programas (programas, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtas šiose zonose, bei valdyti šių zonų galią."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"užmegzti ryšį ir susisiekti su lygiavertėmis programomis (programomis, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtomis kitose buvimo namuose zonose, automobilyje"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Užmegzti ryšį ir susisiekti su lygiavertėmis programomis (programomis, kurių paketo pavadinimas toks pat kaip skambintojo), įdiegtomis kitose buvimo namuose zonose, automobilyje."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"bendrinti kitų programų ekranus"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Bendrinti kitų programų ekranus."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"bendrinti kitų naudotojų ekranus"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Bendrinti kitų naudotojų ekranus."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN BUS klaida"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN BUS nereaguoja. Atjunkite ir vėl prijunkite pagrindinio įtaiso dėžutę."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mano įrenginys"</string>
