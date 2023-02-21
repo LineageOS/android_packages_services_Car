@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
+import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -1085,8 +1087,7 @@ public final class AidlVehicleStubUnitTest {
         verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue()).hasSize(1);
         assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
-                CarPropertyManager.STATUS_OK);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(STATUS_OK);
     }
 
     @Test
