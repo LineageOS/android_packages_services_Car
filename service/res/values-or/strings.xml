@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"କାର୍\'ର ଭେଣ୍ଡର୍ ଅନୁମତି ସୂୂଚନା ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକର ଷ୍ଟେଟ୍‌କୁ ପଢ଼ିବ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକର ଷ୍ଟେଟ୍‌କୁ ଆକ୍‍‍ସେସ୍ କରନ୍ତୁ।"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"କାରର ଗ୍ଲୋଭ ବକ୍ସ ସ୍ଥିତିକୁ ଆକ୍ସେସ କରେ"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"କାରର ଗ୍ଲୋଭ ବକ୍ସ ସ୍ଥିତିକୁ ଆକ୍ସେସ କରେ।"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"କାରର epoch ସମୟକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"କାରର epoch ସମୟକୁ ଆକ୍ସେସ୍ କରନ୍ତୁ।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"କାର୍\'ର ବାହାର ଲାଇଟ୍‌ଗୁଡ଼ିକର ସ୍ଥିତିକୁ ପଢ଼ିବ"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ପଢ଼ନ୍ତୁ।"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"କାରର ADAS ସ୍ଥିତି ସୂଚନାକୁ ନିୟନ୍ତ୍ରଣ କରନ୍ତୁ।"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"କାରର ୱିଣ୍ଡସିଲ୍ଡ ୱାଇପରଗୁଡ଼ିକୁ ପଢ଼ିପାରିବ"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"କାରର ୱିଣ୍ଡସିଲ୍ଡ ୱାଇପରଗୁଡ଼ିକୁ ପଢ଼ିପାରିବ।"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"କାରର ୱିଣ୍ଡସିଲ୍ଡ ୱାଇପରଗୁଡ଼ିକୁ ନିୟନ୍ତ୍ରଣ କରିପାରିବ"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"କାରର ୱିଣ୍ଡସିଲ୍ଡ ୱାଇପରଗୁଡ଼ିକୁ ନିୟନ୍ତ୍ରଣ କରିପାରିବ।"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକର ସ୍ଥିତି ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ)କୁ ମନିଟର କରନ୍ତୁ ଏବଂ ସେହି ଜୋନଗୁଡ଼ିକର ପାୱାରକୁ ପରିଚାଳନା କରନ୍ତୁ।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"କନେକ୍ସନ ସ୍ଥାପନ କରନ୍ତୁ ଏବଂ କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ) ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"କନେକ୍ସନ ସ୍ଥାପନ କରନ୍ତୁ ଏବଂ କାରରେ ଥିବା ଅନ୍ୟ ଅକ୍ୟୁପେଣ୍ଟ ଜୋନଗୁଡ଼ିକରେ ଇନଷ୍ଟଲ କରାଯାଇଥିବା ପିଅର ଆପ୍ସ (କଲରଙ୍କ ପରି ସମାନ ପେକେଜ ନାମ ଥିବା ଆପ୍ସ) ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ।"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"ଅନ୍ୟ ଆପ୍ସର ସ୍କ୍ରିନକୁ ମିରର କରନ୍ତୁ"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"ଅନ୍ୟ ଆପ୍ସର ସ୍କ୍ରିନକୁ ମିରର କରନ୍ତୁ।"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"ଅନ୍ୟ ୟୁଜରମାନଙ୍କର ଡିସପ୍ଲେକୁ ମିରର କରନ୍ତୁ"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"ଅନ୍ୟ ୟୁଜରମାନଙ୍କର ଡିସପ୍ଲେକୁ ମିରର କରନ୍ତୁ।"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"ସିଷ୍ଟମ UI ପରିଚାଳନା କରିବାକୁ ଏବଂ ଟାସ୍କ ଭ୍ୟୁ ତିଆରି କରିବା ପାଇଁ ଅନ୍ୟ ଆପ୍ସ ଦ୍ୱାରା ବ୍ୟବହାର କରାଯାଇପାରୁଥିବା ଏକ ସିଷ୍ଟମ UI ପ୍ରକ୍ସି ପ୍ରଦାନ କରନ୍ତୁ।"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"ସିଷ୍ଟମ UI ପରିଚାଳନା କରିବାକୁ ଏବଂ ଟାସ୍କ ଭ୍ୟୁ ତିଆରି କରିବା ପାଇଁ ଅନ୍ୟ ଆପ୍ସ ଦ୍ୱାରା ବ୍ୟବହାର କରାଯାଇପାରୁଥିବା ଏକ ସିଷ୍ଟମ UI ପ୍ରକ୍ସି ପ୍ରଦାନ କରନ୍ତୁ।"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ଟାସ୍କ ଭ୍ୟୁ ତିଆରି କରିବା କିମ୍ବା ସିଷ୍ଟମ UI ପରିବର୍ତ୍ତନଗୁଡ଼ିକ ବିଷୟରେ ସୂଚନା ପାଇବା ପାଇଁ କାର ସିଷ୍ଟମ UI ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ।"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ଟାସ୍କ ଭ୍ୟୁ ତିଆରି କରିବା କିମ୍ବା ସିଷ୍ଟମ UI ପରିବର୍ତ୍ତନଗୁଡ଼ିକ ବିଷୟରେ ସୂଚନା ପାଇବା ପାଇଁ କାର ସିଷ୍ଟମ UI ସହ କମ୍ୟୁନିକେଟ କରନ୍ତୁ।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ବସ୍ ବିଫଳ ହେଲା"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ବସ୍ ପ୍ରତିକ୍ରିୟା ଦେଉନାହିଁ। ହେଡୟୁନିଟ୍ ବାକ୍ସର ପ୍ଲଗ୍ କାଢ଼ି ପୁଣି ଲଗାନ୍ତୁ ଏବଂ କାର୍‍କୁ ରିଷ୍ଟାର୍ଟ କରନ୍ତୁ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ମୋ ଡିଭାଇସ୍"</string>

@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति देख सकता है"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति ऐक्सेस कर सकता है."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"कार के ग्लव बॉक्स की स्थिति देखने की अनुमति दें"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"कार के ग्लव बॉक्स की स्थिति देखने की अनुमति दें."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कार के epoch टाइम को ऐक्सेस करें"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कार के epoch टाइम को ऐक्सेस करें."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"कार के ADAS की स्थितियों की जानकारी पढ़ने की अनुमति दें."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"कार के ADAS की स्थितियों की जानकारी कंट्रोल करने की अनुमति दें"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"कार के ADAS की स्थितियों की जानकारी कंट्रोल करने की अनुमति दें."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"कार के विंडशील्ड वाइपर को चालू या बंद करने की अनुमति दें"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"कार के विंडशील्ड वाइपर को चालू या बंद करने की अनुमति दें."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"कार के विंडशील्ड वाइपर कंट्रोल करने की अनुमति दें"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"कार के विंडशील्ड वाइपर कंट्रोल करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) की स्थितियों को मॉनिटर कर सकते हैं. साथ ही, वे इन ज़ोन में पावर को मैनेज कर सकते हैं."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"कार के दूसरे ऑक्यूपंट ज़ोन की स्थितियों और उन ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर के ऐप्लिकेशन के पैकेज का नाम एक ही होता है) की स्थितियों को मॉनिटर करने की अनुमति दें. साथ ही, इन ज़ोन में पावर को मैनेज करने की अनुमति दें."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"यह अनुमति मिलने पर ऐप्लिकेशन, कार के दूसरे ऑक्यूपंट ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर ऐप्लिकेशन का पैकेज एक ही होता है) से कनेक्ट और इंटरैक्ट कर सकते हैं"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"कार के दूसरे ऑक्यूपंट ज़ोन में इंस्टॉल किए गए मिलते-जुलते ऐप्लिकेशन (इन ऐप्लिकेशन और कॉलर के ऐप्लिकेशन के पैकेज का नाम एक ही होता है) से कनेक्ट और इंटरैक्ट करने की अनुमति दें."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"अन्य ऐप्लिकेशन की स्क्रीन का डुप्लीकेट वर्शन बनाएं"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"अन्य ऐप्लिकेशन की स्क्रीन का डुप्लीकेट वर्शन बनाएं."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"अन्य लोगों के सेट किए गए डिसप्ले का डुप्लीकेट वर्शन बनाएं"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"अन्य लोगों के सेट किए गए डिसप्ले का डुप्लीकेट वर्शन बनाएं."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"सिस्टम यूज़र इंटरफ़ेस (यूआई) के लिए प्रॉक्सी उपलब्ध कराएं, ताकि इसका इस्तेमाल करके दूसरे ऐप्लिकेशन सिस्टम यूज़र इंटरफ़ेस (यूआई) को मैनेज कर सकें और टास्क व्यू बना सकें."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"सिस्टम यूज़र इंटरफ़ेस (यूआई) के लिए प्रॉक्सी उपलब्ध कराएं, ताकि इसका इस्तेमाल करके दूसरे ऐप्लिकेशन सिस्टम यूज़र इंटरफ़ेस (यूआई) को मैनेज कर सकें और टास्क व्यू बना सकें."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"टास्क व्यू बनाने या सिस्टम यूज़र इंटरफ़ेस (यूआई) में हुए बदलावों की सूचना पाने के लिए, कार के सिस्टम यूज़र इंटरफ़ेस (यूआई) से कनेक्ट करें."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्क व्यू बनाने या सिस्टम यूज़र इंटरफ़ेस (यूआई) में हुए बदलावों की सूचना पाने के लिए, कार के सिस्टम यूज़र इंटरफ़ेस (यूआई) से कनेक्ट करें."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

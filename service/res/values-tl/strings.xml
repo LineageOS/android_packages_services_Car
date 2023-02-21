@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"I-access ang impormasyon ng pahintulot ng vendor ng sasakyan."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"basahin ang status ng mga ilaw sa labas ng sasakyan"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"I-access ang status ng mga ilaw sa labas ng sasakyan."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"i-access ang status ng glove box ng kotse"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"I-access ang status ng glove box ng kotse."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"i-access ang epoch time ng sasakyan"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"I-access ang epoch time ng sasakyan."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"basahin ang mga ilaw sa labas ng sasakyan"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Basahin ang impormasyon ng mga katayuan ng ADAS ng kotse."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kontrolin ang impormasyon ng mga katayuan ng ADAS ng kotse"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kontrolin ang impormasyon ng mga katayuan ng ADAS ng kotse."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"tingnan ang mga windshield wiper ng kotse"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Tingnan ang mga windshield wiper ng kotse."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrolin ang mga windshield wiper ng kotse"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolin ang mga windshield wiper ng kotse."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Subaybayan ang mga status ng iba pang occupant zone sa kotse at mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa mga zone na iyon, at pamahalaan ang power ng mga zone na iyon."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"bumuo ng koneksyon at makipag-ugnayan sa mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa iba pang occupant zone sa kotse"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Bumuo ng koneksyon at makipag-ugnayan sa mga peer app (mga app na may kaparehong pangalan ng package ng caller) na naka-install sa iba pang occupant zone sa kotse."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"i-mirror ang screen ng iba pang App"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"I-mirror ang screen ng iba pang App."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"i-mirror ang display ng iba pang user"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"I-mirror ang display ng iba pang user."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Magbigay ng proxy ng UI ng system na magagamit ng iba pang app para pamahalaan ang UI ng system at gumawa ng mga view ng gawain."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Magbigay ng proxy ng UI ng system na magagamit ng iba pang app para pamahalaan ang UI ng system at gumawa ng mga view ng gawain."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Makipag-ugnayan sa UI ng system ng kotse para sa paggawa ng mga taskview o pagtanggap ng mga notification tungkol sa mga pagbabago sa UI ng system."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Makipag-ugnayan sa UI ng system ng kotse para sa paggawa ng mga taskview o pagtanggap ng mga notification tungkol sa mga pagbabago sa UI ng system."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Hindi gumana ang CAN bus"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Hindi tumugon ang CAN bus. Hugutin at muling isaksak ang headunit box at i-restart ang sasakyan"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Aking Device"</string>
