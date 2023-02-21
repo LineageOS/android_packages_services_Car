@@ -42,6 +42,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.SparseBooleanArray;
+import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -332,12 +334,12 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         cpms.addPowerPolicyListener(filter, powerPolicyListener);
 
         assertWaitForVhal();
-        mMockDisplayInterface.waitForDisplayState(false);
+        mMockDisplayInterface.waitForAllDisplayState(false);
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
                 /* param= */ 0,
                 VehicleApPowerStateReport.ON);
-        mMockDisplayInterface.waitForDisplayState(true);
+        mMockDisplayInterface.waitForAllDisplayState(true);
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
@@ -346,13 +348,13 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         // if we got to SHUTDOWN_PREPARE, even if we're not there now.
         assertResponseTransient(VehicleApPowerStateReport.SHUTDOWN_PREPARE, 0, true);
 
-        mMockDisplayInterface.waitForDisplayState(false);
+        mMockDisplayInterface.waitForAllDisplayState(false);
         assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, 0, false);
-        mMockDisplayInterface.waitForDisplayState(false);
+        mMockDisplayInterface.waitForAllDisplayState(false);
         mPowerStateHandler.sendPowerState(VehicleApPowerStateReq.FINISHED, 0);
         powerPolicyListener.waitForPowerPolicy();
         assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_EXIT, 0, true);
-        mMockDisplayInterface.waitForDisplayState(false);
+        mMockDisplayInterface.waitForAllDisplayState(false);
 
         cpms.removePowerPolicyListener(powerPolicyListener);
     }
@@ -360,12 +362,12 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     @Test
     public void testSleepImmediateEntry() throws Exception {
         assertWaitForVhal();
-        mMockDisplayInterface.waitForDisplayState(false);
+        mMockDisplayInterface.waitForAllDisplayState(false);
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
                 /* param= */ 0,
                 VehicleApPowerStateReport.ON);
-        mMockDisplayInterface.waitForDisplayState(true);
+        mMockDisplayInterface.waitForAllDisplayState(true);
         mPowerStateHandler.sendPowerState(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
@@ -401,7 +403,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.ON,
                 /* param= */ 0,
                 VehicleApPowerStateReport.ON);
-        mMockDisplayInterface.waitForDisplayState(true);
+        mMockDisplayInterface.waitForAllDisplayState(true);
         // Makes the suspend unsuccessful.
         mMockSystemStateInterface.setExpectedSuspendStatus(/* expectedStatus= */ false);
         mPowerStateHandler.sendPowerState(
@@ -701,7 +703,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
-        private boolean mDisplayOn = true;
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
         private final Semaphore mDisplayStateWait = new Semaphore(0);
         private CarPowerManagementService mCarPowerManagementService;
 
@@ -709,24 +713,54 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         public void init(CarPowerManagementService carPowerManagementService,
                 CarUserService carUserService) {
             mCarPowerManagementService = carPowerManagementService;
+            synchronized (mLock) {
+                mDisplayOn.put(Display.DEFAULT_DISPLAY, true);
+            }
         }
 
         @Override
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public synchronized void setDisplayState(boolean on) {
-            mDisplayOn = on;
+        public void setDisplayState(int displayId, boolean on) {
+            synchronized (mLock) {
+                mDisplayOn.put(displayId, on);
+            }
             mDisplayStateWait.release();
         }
 
-        boolean waitForDisplayState(boolean expectedState) throws Exception {
-            if (expectedState == mDisplayOn) {
+        @Override
+        public void setAllDisplayState(boolean on) {
+            synchronized (mLock) {
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    setDisplayState(displayId, on);
+                }
+            }
+        }
+
+        boolean waitForDisplayState(int displayId, boolean expectedState) throws Exception {
+            boolean enabled = false;
+            synchronized (mLock) {
+                enabled = mDisplayOn.get(displayId);
+            }
+            if (expectedState == enabled) {
                 return true;
             }
             mDisplayStateWait.tryAcquire(MockedCarTestBase.SHORT_WAIT_TIMEOUT_MS,
                     TimeUnit.MILLISECONDS);
-            return expectedState == mDisplayOn;
+            return expectedState == enabled;
+        }
+
+        void waitForAllDisplayState(boolean expectedState) throws Exception {
+            SparseBooleanArray displayOn;
+            synchronized (mLock) {
+                displayOn = mDisplayOn.clone();
+            }
+            for (int i = 0; i < displayOn.size(); i++) {
+                int displayId = displayOn.keyAt(i);
+                waitForDisplayState(displayId, expectedState);
+            }
         }
 
         @Override
@@ -744,8 +778,23 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         public void refreshDisplayBrightness() {}
 
         @Override
-        public boolean isDisplayEnabled() {
-            return mDisplayOn;
+        public boolean isAnyDisplayEnabled() {
+            synchronized (mLock) {
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    if (isDisplayEnabled(displayId)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isDisplayEnabled(int displayId) {
+            synchronized (mLock) {
+                return mDisplayOn.get(displayId);
+            }
         }
     }
 

@@ -1967,6 +1967,7 @@ package android.car.settings {
 
   public static final class CarSettings.Global {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String DISPLAY_INPUT_LOCK = "android.car.DISPLAY_INPUT_LOCK";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
   }
 
