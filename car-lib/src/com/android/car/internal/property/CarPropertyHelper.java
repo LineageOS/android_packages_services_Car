@@ -30,12 +30,21 @@ import java.util.concurrent.atomic.AtomicReference;
  * @hide
  */
 public final class CarPropertyHelper {
-
-    // Error indicating that too many sync operation is ongoing, caller should try again after
-    // some time.
-    public static final int SYNC_OP_LIMIT_TRY_AGAIN = -1;
-
     private static final String TAG = CarPropertyHelper.class.getSimpleName();
+
+    /**
+     * Status indicating no error.
+     *
+     * <p>This is not exposed to the client as this will be used only for deciding
+     * {@link GetPropertyCallback#onSuccess} or {@link GetPropertyCallback#onFailure} is called.
+     */
+    public static final int STATUS_OK = 0;
+
+    /**
+     * Error indicating that too many sync operation is ongoing, caller should try again after
+     * some time.
+     */
+    public static final int SYNC_OP_LIMIT_TRY_AGAIN = -1;
 
     // These are the same values as defined in VHAL interface.
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
