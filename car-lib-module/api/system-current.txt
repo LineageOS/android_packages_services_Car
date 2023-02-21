@@ -195,6 +195,17 @@ package android.car {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
+  public interface ResultCallback<V> {
+    method public void onResult(V);
+  }
+
+  public final class SyncResultCallback<V> implements android.car.ResultCallback<V> {
+    ctor public SyncResultCallback();
+    method @Nullable public V get() throws java.lang.InterruptedException;
+    method @Nullable public V get(long, @Nullable java.util.concurrent.TimeUnit) throws java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method public void onResult(V);
+  }
+
   public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
