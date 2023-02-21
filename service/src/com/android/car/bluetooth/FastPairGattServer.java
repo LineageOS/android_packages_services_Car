@@ -214,11 +214,6 @@ public class FastPairGattServer {
                 mCallbacks.onPairingCompleted(false);
             } else if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mRemoteGattDevice = device;
-
-                // Although we're already connected, it's good practice to call connect again. This
-                // will mark the connection as desirable in the core stack so that it isn't
-                // accidentally torn down.
-                mBluetoothGattServer.connect(device, /* auto-connect= */ false);
             }
         }
 
