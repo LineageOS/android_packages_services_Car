@@ -40,6 +40,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystem
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserUnlockingOrUnlocked;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersSupported;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
@@ -220,6 +221,20 @@ public final class AndroidMockitoHelperTest {
 
         assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(TEST_USER_ID)).isFalse();
         assertThat(mMockedUserManager.isUserUnlockingOrUnlocked(mTestUserHandle)).isFalse();
+    }
+
+    @Test
+    public void testMockUmIsVisibleBackgroundUsersSupported_true() {
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        assertThat(mMockedUserManager.isVisibleBackgroundUsersSupported()).isTrue();
+    }
+
+    @Test
+    public void testMockUmIsVisibleBackgroundUsersSupported_false() {
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, false);
+
+        assertThat(mMockedUserManager.isVisibleBackgroundUsersSupported()).isFalse();
     }
 
     @Test
