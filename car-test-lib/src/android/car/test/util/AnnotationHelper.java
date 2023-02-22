@@ -25,7 +25,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -36,25 +35,11 @@ import java.util.List;
  */
 public class AnnotationHelper {
 
-    public static final HashSet<String> sJavaLangObjectNames;
-
-    static {
-        Method[] objectMethods = Object.class.getMethods();
-        sJavaLangObjectNames = new HashSet<>(objectMethods.length);
-
-        for (Method method : objectMethods) {
-            sJavaLangObjectNames.add(
-                    method.getReturnType().toString() + method.getName() + Arrays.toString(
-                            method.getParameterTypes()));
-        }
-    }
-
     public static void checkForAnnotation(String[] classes, HashSet<String> addedInOrBeforeApis,
             Class<?>... annotationClasses)
             throws Exception {
         List<String> errorsNoAnnotation = new ArrayList<>();
         List<String> errorsExtraAnnotation = new ArrayList<>();
-        List<String> errorsExemptAnnotation = new ArrayList<>();
 
         for (int i = 0; i < classes.length; i++) {
             String className = classes[i];
@@ -91,13 +76,6 @@ public class AnnotationHelper {
                 boolean shouldBeAnnotated = Modifier.isPublic(method.getModifiers())
                         || Modifier.isProtected(method.getModifiers());
 
-                if (isExempt(method)) {
-                    if (isAnnotated) {
-                        errorsExemptAnnotation.add(className + " METHOD: " + method.getName());
-                    }
-                    continue;
-                }
-
                 if (!shouldBeAnnotated && isAnnotated) {
                     errorsExtraAnnotation.add(className + " METHOD: " + method.getName());
                 }
@@ -109,16 +87,8 @@ public class AnnotationHelper {
         }
 
         StringBuilder errorFlatten = new StringBuilder();
-
-        if (!errorsExemptAnnotation.isEmpty()) {
-            errorFlatten.append(
-                    "Errors:\nApiRequirements or AddedInOrBefore annotation used for overridden "
-                            + "JDK methods-\n");
-            errorFlatten.append(String.join("\n", errorsExemptAnnotation));
-        }
-
         if (!errorsNoAnnotation.isEmpty()) {
-            errorFlatten.append("\nErrors:\nMissing ApiRequirements annotation for-\n");
+            errorFlatten.append("Errors:\nMissing ApiRequirements annotation for-\n");
             errorFlatten.append(String.join("\n", errorsNoAnnotation));
         }
 
@@ -129,9 +99,8 @@ public class AnnotationHelper {
             errorFlatten.append(String.join("\n", errorsExtraAnnotation));
         }
 
-        assertWithMessage(errorFlatten.toString()).that(
-                errorsExtraAnnotation.size() + errorsNoAnnotation.size()
-                        + errorsExemptAnnotation.size()).isEqualTo(0);
+        assertWithMessage(errorFlatten.toString())
+                .that(errorsExtraAnnotation.size() + errorsNoAnnotation.size()).isEqualTo(0);
     }
 
     public static void checkForAnnotation(String[] classes, Class<?>... annotationClasses)
@@ -217,16 +186,5 @@ public class AnnotationHelper {
                         .that(addedInOrBeforeApis.contains(fullMethodName)).isTrue();
             }
         }
-    }
-
-    // Overridden JDK methods do not need @ApiRequirements annotations. Since @Override
-    // annotations are discarded by the compiler, one needs to manually add any classes where
-    // methods are overridden and @ApiRequirements are not needed.
-    // Currently, overridden methods from java.lang.Object should be skipped.
-    private static boolean isExempt(Method method) {
-        String methodSignature =
-                method.getReturnType().toString() + method.getName() + Arrays.toString(
-                        method.getParameterTypes());
-        return sJavaLangObjectNames.contains(methodSignature);
     }
 }
