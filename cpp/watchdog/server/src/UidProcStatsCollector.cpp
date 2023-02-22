@@ -29,6 +29,7 @@
 #include <dirent.h>
 
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <vector>
 
@@ -128,14 +129,41 @@ Result<PidStat> readPidStatFile(const std::string& path, int32_t millisPerClockT
     return pidStat;
 }
 
+std::vector<std::string> getLinesWithTags(std::string_view buffer,
+                                          const std::vector<std::string>& tags) {
+    std::vector<std::string> result;
+    std::vector<std::string> notFoundTags(tags);
+    size_t base = 0;
+    std::string_view sub;
+    for (size_t found = 0; !notFoundTags.empty() && found != buffer.npos;) {
+        found = buffer.find_first_of('\n', base);
+        sub = buffer.substr(base, found - base);
+        bool hasTag = false;
+        for (auto it = notFoundTags.begin(); it != notFoundTags.end();) {
+            if (sub.find(*it) != sub.npos) {
+                notFoundTags.erase(it);
+                hasTag = true;
+            } else {
+                ++it;
+            }
+        }
+        if (hasTag) {
+            result.push_back(std::string{sub});
+        }
+        base = found + 1;
+    }
+    return result;
+}
+
 Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
-        const std::string& path, const std::string& delimiter) {
+        const std::string& path, const std::string& delimiter,
+        const std::vector<std::string>& tags) {
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
         return Error(ERR_FILE_OPEN_READ) << "ReadFileToString failed for " << path;
     }
+    std::vector<std::string> lines = getLinesWithTags(buffer, tags);
     std::unordered_map<std::string, std::string> contents;
-    std::vector<std::string> lines = Split(std::move(buffer), "\n");
     for (size_t i = 0; i < lines.size(); ++i) {
         if (lines[i].empty()) {
             continue;
@@ -167,7 +195,7 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
  * Note: Included only the fields that are parsed from the file.
  */
 Result<std::tuple<uid_t, pid_t>> readPidStatusFile(const std::string& path) {
-    auto result = readKeyValueFile(path, ":\t");
+    auto result = readKeyValueFile(path, ":\t", {"Uid", "Tgid"});
     if (!result.ok()) {
         return Error(result.error().code()) << result.error();
     }
