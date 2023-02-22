@@ -310,7 +310,10 @@ public final class Car {
      * Service name for {@link ExperimentalCarUserManager}
      *
      * @hide
+     * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
+     * supported. It will be marked @Removed in VIC and hard removed in X.
      */
+    @Deprecated
     @OptionalFeature
     @AddedInOrBefore(majorVersion = 33)
     public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
