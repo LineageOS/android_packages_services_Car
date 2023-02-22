@@ -19,9 +19,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
@@ -37,7 +35,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Trace;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.Slog;
@@ -56,8 +53,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.quality.Strictness;
-import org.mockito.session.MockitoSessionBuilder;
-import org.mockito.stubbing.Answer;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -65,7 +60,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -93,7 +87,7 @@ import java.util.Set;
  */
 public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectableTestCase {
 
-    private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
+    static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
     private static final boolean TRACE = false;
 
@@ -129,12 +123,12 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     private static Exception sSessionCreationLocation;
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
+    private final List<Class<?>> mStaticMockedClasses = new ArrayList<>();
 
     // Tracks (S)Log.wtf() calls made during code execution, then used on verifyWtfNeverLogged()
     private final List<RuntimeException> mWtfs = new ArrayList<>();
 
     private MockitoSession mSession;
-    private MockSettings mSettings;
 
     @Nullable
     private final TimingsTraceLog mTracer;
@@ -189,14 +183,35 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
         beginTrace("startSession()");
 
-        beginTrace("startMocking()");
         createSessionLocation();
-        sHighlanderSession = mSession = newSessionBuilder().startMocking();
+
+        StaticMockitoSessionBuilder builder = mockitoSession()
+                .strictness(getSessionStrictness());
+
+        CustomMockitoSessionBuilder customBuilder =
+                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses, mStaticMockedClasses)
+                    .spyStatic(Log.class)
+                    .spyStatic(Slog.class);
+
+        beginTrace("onSessionBuilder()");
+        onSessionBuilder(customBuilder);
         endTrace();
 
-        beginTrace("new MockSettings()");
-        mSettings = new MockSettings();
+        if (VERBOSE) {
+            Log.v(TAG, "spied classes: " + customBuilder.mStaticSpiedClasses
+                    + " mocked classes:" + customBuilder.mStaticMockedClasses);
+        }
+
+        beginTrace("startMocking()");
+        sHighlanderSession = mSession = builder.initMocks(this).startMocking();
         endTrace();
+
+        if (customBuilder.mCallback != null) {
+            if (VERBOSE) {
+                Log.v(TAG, "Calling " + customBuilder.mCallback);
+            }
+            customBuilder.mCallback.afterSessionStarted();
+        }
 
         beginTrace("interceptWtfCalls()");
         interceptWtfCalls();
@@ -348,7 +363,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         Thread currentThread = Thread.currentThread();
         for (Thread t : threadSet) {
             if (t != currentThread && t instanceof HandlerThread) {
-                Log.d(TAG, "Will wait for " + t);
+                if (VERBOSE) {
+                    Log.v(TAG, "Will wait for " + t);
+                }
                 handlerThreads.add((HandlerThread) t);
             } else if (VERBOSE) {
                 Log.v(TAG, "Skipping " + t);
@@ -364,7 +381,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                 Log.w(TAG, "Ignoring thread " + thread + ". It doesn't have a looper.");
                 continue;
             }
-            Log.v(TAG, "Will wait for thread " + thread);
+            if (VERBOSE) {
+                Log.v(TAG, "Waiting for thread " + thread);
+            }
             Handler handler = new Handler(looper);
             SyncRunnable sr = new SyncRunnable(() -> { });
             handler.post(sr);
@@ -376,41 +395,6 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }
         endTrace(); // waitForComplete
         endTrace(); // completeAllHandlerThreadTasks
-    }
-
-    /**
-     * Adds key-value(int) pair in mocked Settings.Global and Settings.Secure
-     */
-    protected final void putSettingsInt(@NonNull String key, int value) {
-        mSettings.insertObject(key, value);
-    }
-
-    /**
-     * Gets value(int) from mocked Settings.Global and Settings.Secure
-     */
-    protected final int getSettingsInt(@NonNull String key) {
-        return mSettings.getInt(key);
-    }
-
-    /**
-     * Adds key-value(String) pair in mocked Settings.Global and Settings.Secure
-     */
-    protected final void putSettingsString(@NonNull String key, @NonNull String value) {
-        mSettings.insertObject(key, value);
-    }
-
-    /**
-     * Gets value(String) from mocked Settings.Global and Settings.Secure
-     */
-    protected final String getSettingsString(@NonNull String key) {
-        return mSettings.getString(key);
-    }
-
-    /**
-     * Asserts that the giving settings was not set.
-     */
-    protected final void assertSettingsNotSet(String key) {
-        mSettings.assertDoesNotContainsKey(key);
     }
 
     /**
@@ -443,8 +427,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
      *
      * @param userId result of such call
      *
-     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
-     * called {@code spyStatic(ActivityManager.class)} on the session passed to it.
+     * @throws IllegalStateException if class didn't override
+     * {@link #onSessionBuilder(CustomMockitoSessionBuilder)} and called
+     * {@code spyStatic(Binder.class)} on the session passed to it.
      */
     protected final void mockGetCurrentUser(@UserIdInt int userId) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockGetCurrentUser(" + userId + ")");
@@ -460,8 +445,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
      *
      * @param mode result of such call
      *
-     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
-     * called {@code spyStatic(UserManager.class)} on the session passed to it.
+     * @throws IllegalStateException if class didn't override
+     * {@link #onSessionBuilder(CustomMockitoSessionBuilder)} and called
+     * {@code spyStatic(Binder.class)} on the session passed to it.
      */
     protected final void mockIsHeadlessSystemUserMode(boolean mode) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockIsHeadlessSystemUserMode(" + mode + ")");
@@ -475,8 +461,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     /**
      * Mocks a call to {@link Binder.getCallingUserHandle()}.
      *
-     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
-     * called {@code spyStatic(Binder.class)} on the session passed to it.
+     * @throws IllegalStateException if class didn't override
+     * {@link #onSessionBuilder(CustomMockitoSessionBuilder)} and called
+     * {@code spyStatic(Binder.class)} on the session passed to it.
      */
     protected final void mockGetCallingUserHandle(@UserIdInt int userId) {
         if (VERBOSE) Log.v(TAG, getLogPrefix() + "mockBinderCallingUser(" + userId + ")");
@@ -575,27 +562,6 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }
     }
 
-    @NonNull
-    private MockitoSessionBuilder newSessionBuilder() {
-        // TODO (b/155523104): change from mock to spy
-        StaticMockitoSessionBuilder builder = mockitoSession()
-                .strictness(getSessionStrictness())
-                .mockStatic(Settings.Global.class)
-                .mockStatic(Settings.System.class)
-                .mockStatic(Settings.Secure.class);
-
-        CustomMockitoSessionBuilder customBuilder =
-                new CustomMockitoSessionBuilder(builder, mStaticSpiedClasses)
-                    .spyStatic(Log.class)
-                    .spyStatic(Slog.class);
-
-        onSessionBuilder(customBuilder);
-
-        if (VERBOSE) Log.v(TAG, "spied classes" + customBuilder.mStaticSpiedClasses);
-
-        return builder.initMocks(this);
-    }
-
     /**
      * Gets a prefix for {@link Log} calls
      */
@@ -612,7 +578,15 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     }
 
     /**
-     * Custom {@code MockitoSessionBuilder} used to make sure some pre-defined mock stations
+     * Asserts the given class is being mocked in the Mockito session.
+     */
+    protected final void assertMocked(Class<?> clazz) {
+        Preconditions.checkArgument(mStaticMockedClasses.contains(clazz),
+                "did not call mockStatic() on %s", clazz.getName());
+    }
+
+    /**
+     * Custom {@code MockitoSessionBuilder} used to make sure some pre-defined mock expectations
      * (like {@link AbstractExtendedMockitoTestCase#mockGetCurrentUser(int)} fail if the test case
      * didn't explicitly set it to spy / mock the required classes.
      *
@@ -622,11 +596,15 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
     public static final class CustomMockitoSessionBuilder {
         private final StaticMockitoSessionBuilder mBuilder;
         private final List<Class<?>> mStaticSpiedClasses;
+        private final List<Class<?>> mStaticMockedClasses;
+
+        private @Nullable SessionCallback mCallback;
 
         private CustomMockitoSessionBuilder(StaticMockitoSessionBuilder builder,
-                List<Class<?>> staticSpiedClasses) {
+                List<Class<?>> staticSpiedClasses, List<Class<?>> staticMockedClasses) {
             mBuilder = builder;
             mStaticSpiedClasses = staticSpiedClasses;
+            mStaticMockedClasses = staticMockedClasses;
         }
 
         /**
@@ -639,6 +617,27 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
             mBuilder.spyStatic(clazz);
             return this;
         }
+
+        /**
+         * Same as {@link StaticMockitoSessionBuilder#mockStatic(Class)}.
+         */
+        public <T> CustomMockitoSessionBuilder mockStatic(Class<T> clazz) {
+            Preconditions.checkState(!mStaticMockedClasses.contains(clazz),
+                    "already called mockStatic() on " + clazz);
+            mStaticMockedClasses.add(clazz);
+            mBuilder.mockStatic(clazz);
+            return this;
+        }
+
+        void setSessionCallback(SessionCallback callback) {
+            mCallback = callback;
+        }
+    }
+
+    // TODO(b/156033195): only used by MockSettings, should go away if that class is refactored to
+    // not mock stuff
+    interface SessionCallback {
+        void afterSessionStarted();
     }
 
     private final class WtfCheckerRule implements TestRule {
@@ -680,125 +679,6 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                     }
                 }
             };
-        }
-    }
-
-    // TODO (b/155523104): Add log
-    // TODO (b/156033195): Clean settings API. For example, don't mock xyzForUser() methods (as
-    // they should not be used due to mainline) and explicitly use a MockSettings per user or
-    // something like that (to make sure the code being test is passing the writer userId to
-    // Context.createContextAsUser())
-    private static final class MockSettings {
-        private static final int INVALID_DEFAULT_INDEX = -1;
-        private HashMap<String, Object> mSettingsMapping = new HashMap<>();
-
-        MockSettings() {
-
-            Answer<Object> insertObjectAnswer =
-                    invocation -> insertObjectFromInvocation(invocation, 1, 2);
-            Answer<Integer> getIntAnswer = invocation ->
-                    getAnswer(invocation, Integer.class, 1, 2);
-            Answer<String> getStringAnswer = invocation ->
-                    getAnswer(invocation, String.class, 1, INVALID_DEFAULT_INDEX);
-
-            when(Settings.Global.putInt(any(), any(), anyInt())).thenAnswer(insertObjectAnswer);
-
-            when(Settings.Global.getInt(any(), any(), anyInt())).thenAnswer(getIntAnswer);
-
-            when(Settings.System.putInt(any(), any(), anyInt())).thenAnswer(insertObjectAnswer);
-
-            when(Settings.System.getInt(any(), any(), anyInt())).thenAnswer(getIntAnswer);
-
-            when(Settings.Secure.putIntForUser(any(), any(), anyInt(), anyInt()))
-                    .thenAnswer(insertObjectAnswer);
-
-            when(Settings.Secure.getIntForUser(any(), any(), anyInt(), anyInt()))
-                    .thenAnswer(getIntAnswer);
-
-            when(Settings.Secure.getInt(any(), any(), anyInt())).thenAnswer(getIntAnswer);
-
-            when(Settings.Secure.putStringForUser(any(), anyString(), anyString(), anyInt()))
-                    .thenAnswer(insertObjectAnswer);
-
-            when(Settings.Global.putString(any(), any(), any()))
-                    .thenAnswer(insertObjectAnswer);
-
-            when(Settings.Global.getString(any(), any())).thenAnswer(getStringAnswer);
-
-            when(Settings.System.putIntForUser(any(), any(), anyInt(), anyInt()))
-                    .thenAnswer(insertObjectAnswer);
-
-            when(Settings.System.getIntForUser(any(), any(), anyInt(), anyInt()))
-                    .thenAnswer(getIntAnswer);
-
-            when(Settings.System.putStringForUser(any(), any(), anyString(), anyInt()))
-                    .thenAnswer(insertObjectAnswer);
-
-            when(Settings.System.putString(any(), any(), any()))
-                    .thenAnswer(insertObjectAnswer);
-        }
-
-        private Object insertObjectFromInvocation(InvocationOnMock invocation,
-                int keyIndex, int valueIndex) {
-            String key = (String) invocation.getArguments()[keyIndex];
-            Object value = invocation.getArguments()[valueIndex];
-            insertObject(key, value);
-            return null;
-        }
-
-        private void insertObject(String key, Object value) {
-            if (VERBOSE) Log.v(TAG, "Inserting Setting " + key + ": " + value);
-            mSettingsMapping.put(key, value);
-        }
-
-        private <T> T getAnswer(InvocationOnMock invocation, Class<T> clazz,
-                int keyIndex, int defaultValueIndex) {
-            String key = (String) invocation.getArguments()[keyIndex];
-            T defaultValue = null;
-            if (defaultValueIndex > INVALID_DEFAULT_INDEX) {
-                defaultValue = safeCast(invocation.getArguments()[defaultValueIndex], clazz);
-            }
-            return get(key, defaultValue, clazz);
-        }
-
-        @Nullable
-        private <T> T get(String key, T defaultValue, Class<T> clazz) {
-            if (VERBOSE) {
-                Log.v(TAG, "get(): key=" + key + ", default=" + defaultValue + ", class=" + clazz);
-            }
-            Object value = mSettingsMapping.get(key);
-            if (value == null) {
-                if (VERBOSE) Log.v(TAG, "not found");
-                return defaultValue;
-            }
-
-            if (VERBOSE) Log.v(TAG, "returning " + value);
-            return safeCast(value, clazz);
-        }
-
-        private static <T> T safeCast(Object value, Class<T> clazz) {
-            if (value == null) {
-                return null;
-            }
-            Preconditions.checkArgument(value.getClass() == clazz,
-                    "Setting value has class %s but requires class %s",
-                    value.getClass(), clazz);
-            return clazz.cast(value);
-        }
-
-        private String getString(String key) {
-            return get(key, null, String.class);
-        }
-
-        public int getInt(String key) {
-            return get(key, null, Integer.class);
-        }
-
-        public void assertDoesNotContainsKey(String key) {
-            if (mSettingsMapping.containsKey(key)) {
-                throw new AssertionError("Should not have key " + key + ", but has: "
-                        + mSettingsMapping.get(key));
-            }
         }
     }
 

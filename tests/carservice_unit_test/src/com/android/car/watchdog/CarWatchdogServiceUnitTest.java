@@ -118,6 +118,7 @@ import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
 import android.car.user.CarUserManager;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
@@ -269,6 +270,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
     private StatsPullAtomCallback mStatsPullAtomCallback;
     private File mTempSystemCarDir;
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
 
     private final TestTimeSource mTimeSource = new TestTimeSource();
     private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
@@ -292,6 +296,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        mMockSettings = new MockSettings(builder);
         builder
             .spyStatic(ServiceManager.class)
             .spyStatic(Binder.class)

@@ -34,6 +34,8 @@ import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
+import android.car.test.mocks.MockSettings;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
@@ -77,6 +79,15 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
     private Runnable mRunnableAtBootComplete;
 
     private ScreenOffHandler mScreenOffHandler;
+
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        mMockSettings = new MockSettings(session);
+    }
 
     @Before
     public void setUp() throws Exception {
