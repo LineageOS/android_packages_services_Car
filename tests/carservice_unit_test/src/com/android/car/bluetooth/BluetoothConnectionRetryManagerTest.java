@@ -42,9 +42,7 @@ import androidx.test.filters.RequiresDevice;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,7 +54,6 @@ import java.util.List;
  * atest BluetoothConnectionRetryManagerTest
  */
 @RequiresDevice
-@RunWith(MockitoJUnitRunner.class)
 public class BluetoothConnectionRetryManagerTest
         extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = BluetoothConnectionRetryManagerTest.class.getSimpleName();
