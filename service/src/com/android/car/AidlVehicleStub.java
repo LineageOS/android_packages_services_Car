@@ -763,10 +763,8 @@ final class AidlVehicleStub extends VehicleStub {
         }
 
         Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#complete pending request");
-        mHandler.post(() -> {
-            // This might fail if the request already timed out.
-            pendingRequest.complete(result);
-        });
+        // This might fail if the request already timed out.
+        pendingRequest.complete(result);
         Trace.traceEnd(TRACE_TAG);
         Trace.traceEnd(TRACE_TAG);
     }
