@@ -18,9 +18,6 @@ package com.android.car.portraitlauncher.homeactivities;
 
 import static android.view.InsetsState.ITYPE_BOTTOM_GENERIC_OVERLAY;
 import static android.view.InsetsState.ITYPE_TOP_GENERIC_OVERLAY;
-import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
@@ -32,7 +29,6 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_UNREGISTER_CLIENT;
 
-import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.TaskInfo;
@@ -42,9 +38,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,15 +51,12 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -81,7 +74,9 @@ import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
 import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
+import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Set;
 
 /**
@@ -96,7 +91,8 @@ import java.util.Set;
  * |                                                                    |
  * |                                                                    |
  * |                                                                    |
- * |                             MAPS(Task View)                        |
+ * |                            Navigation app                          |
+ * |                        (BackgroundTask View)                       |
  * |                                                                    |
  * |                                                                    |
  * |                                                                    |
@@ -105,7 +101,7 @@ import java.util.Set;
  * |                                                                    |
  * |                                                                    |
  * |                                                                    |
- * |                      App Space (Root Task View)                    |
+ * |                      App Space (Root Task View Panel)              |
  * |                      (This layer is above maps)                    |
  * |                                                                    |
  * |                                                                    |
@@ -118,72 +114,41 @@ import java.util.Set;
  * |                             Nav Bar                                |
  * —--------------------------------------------------------------------
  *
- * In total this Activity has 2 TaskViews.
+ * In total this Activity has 3 TaskViews.
  * Background Task view:
  * - It only contains maps app.
  * - Maps app is manually started in this taskview.
  *
- * RootTaskView:
+ * Root Task View (Part of Root Task View Panel):
  * - It acts as the default container. Which means all the apps will run inside it by default.
  *
- * Note: RootTaskView always overlap over the Background TaskView.
+ * Note: Root Task View Panel always overlap over the Background TaskView.
+ *
+ * Fullscreen Task View
+ * - Used for voice assist applications
  */
 public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public static final String TAG = CarUiPortraitHomeScreen.class.getSimpleName();
     private static final boolean DBG = Build.IS_DEBUGGABLE;
 
-    private static final int ANIMATION_DURATION_MS = 300;
-
-    private static final int STATE_OPEN = 1;
-    private static final int STATE_CLOSE = 2;
-    private static final int STATE_FULL_WITH_SYS_BAR = 3;
-    private static final int STATE_FULL_WITHOUT_SYS_BAR = 4;
-
-    @IntDef({STATE_OPEN,
-            STATE_CLOSE,
-            STATE_FULL_WITH_SYS_BAR,
-            STATE_FULL_WITHOUT_SYS_BAR})
-    private @interface RootAppAreaState {
-    }
-
-    @RootAppAreaState
-    private int mRootAppAreaState = STATE_OPEN;
-    private int mGripBarHeight;
     private int mStatusBarHeight;
-    private int mRootAppAreaDefaultTopMargin;
-    private int mTitleBarDragThreshold;
     private FrameLayout mContainer;
-    private View mGripBar;
-    private View mGripBarView;
-    private View mGripBarDividerView;
-    private ViewGroup mBackgroundAppArea;
-    private View mRootAppAreaContainer;
-    private ViewGroup mRootAppArea;
-    private CarTaskView mRootTaskView;
-    private boolean mShouldSetInsetsOnBackgroundTaskView;
     private View mControlBarView;
     private TaskViewManager mTaskViewManager;
     // All the TaskViews & corresponding helper instance variables.
     private CarTaskView mBackgroundTaskView;
     private CarTaskView mFullScreenTaskView;
-    private boolean mIsAnimating;
-    private Set<HomeCardModule> mHomeCardModules;
-    private boolean mIsRootPanelInitialized;
     private boolean mIsRootTaskViewReady;
     private int mNavBarHeight;
-    private int mControlBarHeightMinusCornerRadius;
-    private int mCornerRadius;
     private boolean mIsSUWInProgress;
-    private boolean mRootAppAreaAnimationEnded;
-
     private TaskCategoryManager mTaskCategoryManager;
     private TaskInfoCache mTaskInfoCache;
+    private TaskViewPanel mRootTaskViewPanel;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     private Messenger mService = null;
     /** Flag indicating whether or not {@link CarUiPortraitService} is bounded. */
     private boolean mIsBound;
-    private boolean mWasRootAppAreaFullScreenForLastActivity;
 
     /**
      * All messages from {@link CarUiPortraitService} are received in this handler.
@@ -225,11 +190,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
+            logIfDebuggable("On task moved to front, task = " + taskInfo);
             if (!mIsRootTaskViewReady) {
+                logIfDebuggable("Root Task View is not ready yet. Caching the task");
                 cacheTask(taskInfo);
                 return;
             }
-            CarUiPortraitHomeScreen.this.updateRootTaskViewVisibility(taskInfo);
+            if (shouldTaskShowOnRootTaskView(taskInfo)) {
+                // Switch to state open if it's not.
+                mRootTaskViewPanel.openPanel(/* animate = */ true);
+            } else {
+                logIfDebuggable("Not showing task in rootTaskView");
+            }
         }
 
         /**
@@ -247,8 +219,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 boolean homeTaskVisible, boolean clearedTask, boolean wasVisible)
                 throws RemoteException {
             super.onActivityRestartAttempt(task, homeTaskVisible, clearedTask, wasVisible);
+
+            logIfDebuggable("On Activity restart attempt, task = " + task);
             if (task.baseIntent == null || task.baseIntent.getComponent() == null
-                    || mIsAnimating) {
+                    || mRootTaskViewPanel.isAnimating()) {
                 return;
             }
 
@@ -261,13 +235,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             logIfDebuggable("Update UI state on app restart attempt, task = " + task);
-            // Toggle between STATE_OPEN and STATE_CLOSE when any task is in foreground and a new
+            // Toggle between open and close states when any task is in foreground and a new
             // Intent is sent to start the same task. In this case it's needed to toggle the root
             // task view when notification or AppGrid is in foreground and onClick on nav bar
             // buttons should close/open it.
-            updateUIState(
-                    mRootAppAreaState == STATE_OPEN ? STATE_CLOSE : STATE_OPEN,
-                    /* animate = */ true);
+            if (mRootTaskViewPanel.isOpen()) {
+                mRootTaskViewPanel.closePanel(/* animate = */ true);
+            } else {
+                mRootTaskViewPanel.openPanel(/* animate = */ true);
+            }
         }
     };
 
@@ -284,7 +260,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
                 logIfDebuggable("container height change from " + oldHeight + " to " + newHeight);
                 if (mIsSUWInProgress) {
-                    makeRootAppAreaContainerSameHeightAsHomeScreen();
+                    mRootTaskViewPanel.openFullScreenPanel(/* animate = */ false);
                 }
             };
 
@@ -299,31 +275,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (bottom == oldBottom && top == oldTop) {
                     return;
                 }
-                mControlBarHeightMinusCornerRadius =
-                        mControlBarView.getHeight() - mCornerRadius;
-                updateBottomOverlap(mRootAppAreaState);
 
-                if (mRootAppAreaContainer != null) {
-                    int bottomPadding = isFullScreen(mRootAppAreaState) ? 0
-                            : mControlBarHeightMinusCornerRadius;
-                    mRootAppAreaContainer.setPadding(/* start= */ 0, /* top= */ 0, /* end= */ 0,
-                            bottomPadding);
-                    if (mRootTaskView != null) {
-                        mRootTaskView.onLocationChanged();
-                    }
-                }
-
-                if (mShouldSetInsetsOnBackgroundTaskView) {
-                    return;
-                }
-                if (mBackgroundAppArea != null) {
-                    ViewGroup.MarginLayoutParams backgroundAppAreaLayoutParams =
-                            (ViewGroup.MarginLayoutParams) mBackgroundAppArea.getLayoutParams();
-                    if (backgroundAppAreaLayoutParams != null) {
-                        backgroundAppAreaLayoutParams.setMargins(/* left= */ 0, /* top= */
-                                0, /* right= */ 0, mControlBarHeightMinusCornerRadius);
-                    }
-                }
+                updateRootTaskViewInsets();
+                updateBackgroundTaskViewInsets();
+                updateObscuredTouchRegion();
             };
 
     @Override
@@ -348,34 +303,19 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
 
         // Activity is running fullscreen to allow background task to bleed behind status bar
-        int identifier = getResources().getIdentifier("navigation_bar_height", "dimen", "android");
-        mNavBarHeight = identifier > 0 ? getResources().getDimensionPixelSize(identifier) : 0;
-        mGripBarHeight = (int) getResources().getDimension(R.dimen.grip_bar_height);
-        mCornerRadius = (int) getResources().getDimension(R.dimen.corner_radius);
-
+        mNavBarHeight = getResources().getDimensionPixelSize(
+                com.android.internal.R.dimen.navigation_bar_height);
+        logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
         setHomeScreenBottomMargin(mNavBarHeight);
 
-        mRootAppAreaDefaultTopMargin =
-                (int) getResources().getDimension(R.dimen.root_app_area_default_top_margin);
-        mTitleBarDragThreshold =
-                (int) getResources().getDimension(
-                        R.dimen.title_bar_display_area_touch_drag_threshold);
-        mRootAppAreaContainer = findViewById(R.id.root_app_area_container);
-        mRootAppArea = findViewById(R.id.root_app_area);
-        mBackgroundAppArea = findViewById(R.id.background_app_area);
-        mShouldSetInsetsOnBackgroundTaskView = getResources().getBoolean(
-                R.bool.config_setInsetsOnUpperTaskView);
-        mGripBar = findViewById(R.id.grip_bar);
-        mGripBarView = findViewById(R.id.grip_bar_view);
-        mGripBarDividerView = findViewById(R.id.grip_bar_divider);
+        mRootTaskViewPanel = findViewById(R.id.application_panel);
 
         mStatusBarHeight = getResources().getDimensionPixelSize(
                 com.android.internal.R.dimen.status_bar_height);
 
         mControlBarView = findViewById(R.id.control_bar_area);
-        mControlBarHeightMinusCornerRadius = mControlBarView.getHeight() - mCornerRadius;
         mControlBarView.addOnLayoutChangeListener(mControlBarOnLayoutChangeListener);
 
         // Setting as trusted overlay to let touches pass through.
@@ -403,12 +343,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mTaskViewManager = new TaskViewManager(this, getMainThreadHandler());
         }
 
-        if (mRootAppArea != null) {
-            setUpRootTaskView(mRootAppArea);
+        ViewGroup backgroundAppArea = findViewById(R.id.background_app_area);
+        if (backgroundAppArea != null) {
+            setUpBackgroundTaskView(backgroundAppArea);
         }
 
-        if (mBackgroundAppArea != null) {
-            setUpBackgroundTaskView(mBackgroundAppArea);
+        if (mRootTaskViewPanel != null) {
+            setUpRootTaskView();
         }
 
         ViewGroup fullscreenContainer = findViewById(R.id.fullscreen_container);
@@ -416,76 +357,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             setUpFullScreenTaskView(fullscreenContainer);
         }
 
-        requireViewById(android.R.id.content).post(() -> {
-            mIsRootPanelInitialized = true;
-            updateUIState(STATE_CLOSE, /* animate = */ false);
-        });
-
         mCarUiPortraitDriveStateController = new CarUiPortraitDriveStateController(
                 getApplicationContext());
 
         TaskStackChangeListeners.getInstance().registerTaskStackListener(mTaskStackListener);
-
-        final float[] yValueWhenDownPressed = new float[1];
-        final float[] rootAppAreaContainerInitialYVal = new float[1];
-        findViewById(R.id.grip_bar).setOnTouchListener(new View.OnTouchListener() {
-            final FrameLayout.LayoutParams mRootAppAreaParams =
-                    (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
-            int mTopMargin = mRootAppAreaParams.topMargin;
-
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                switch (event.getAction()) {
-
-                    case MotionEvent.ACTION_DOWN:
-                        yValueWhenDownPressed[0] = (int) event.getRawY();
-                        rootAppAreaContainerInitialYVal[0] = (int) mRootAppAreaContainer.getY();
-
-                        onContainerDimensionsChanged();
-                        mTopMargin = mRootAppAreaParams.topMargin;
-
-                        mGripBar.post(() -> updateBottomOverlap(STATE_OPEN));
-                        break;
-                    case MotionEvent.ACTION_MOVE:
-                        int currY = (int) event.getRawY();
-                        mIsAnimating = true;
-                        int diff = currY - (int) yValueWhenDownPressed[0];
-                        if (diff < 0) {
-                            diff = 0;
-                        }
-
-                        mRootAppAreaParams.topMargin =
-                                (int) rootAppAreaContainerInitialYVal[0] + diff;
-
-                        mRootAppAreaContainer.setLayoutParams(mRootAppAreaParams);
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        float yEndVal = event.getRawY();
-                        if (yEndVal > mContainer.getMeasuredHeight()) {
-                            yEndVal = mContainer.getMeasuredHeight();
-                        }
-
-                        if (yEndVal > mTitleBarDragThreshold) {
-                            mRootAppAreaParams.topMargin = mContainer.getMeasuredHeight();
-                            mRootAppAreaState = STATE_CLOSE;
-                            notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(false));
-                            mRootAppAreaContainer.setLayoutParams(mRootAppAreaParams);
-                        } else {
-                            mRootAppAreaParams.topMargin = mTopMargin;
-                            mRootAppAreaState = STATE_OPEN;
-                            mRootAppAreaContainer.setLayoutParams(mRootAppAreaParams);
-                        }
-                        mRootTaskView.setZOrderOnTop(false);
-                        mIsAnimating = false;
-                        // Do this on animation end
-                        mGripBar.post(() -> updateBottomOverlap(mRootAppAreaState));
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
-        });
 
         initializeCards();
         doBindService();
@@ -513,15 +388,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
 
     private void initializeCards() {
-        mHomeCardModules = new androidx.collection.ArraySet<>();
+        Set<HomeCardModule> homeCardModules = new androidx.collection.ArraySet<>();
         for (String providerClassName : getResources().getStringArray(
                 R.array.config_homeCardModuleClasses)) {
             try {
                 long reflectionStartTime = System.currentTimeMillis();
                 HomeCardModule cardModule = (HomeCardModule) Class.forName(
-                        providerClassName).newInstance();
+                        providerClassName).getDeclaredConstructor().newInstance();
                 cardModule.setViewModelProvider(new ViewModelProvider(/* owner= */this));
-                mHomeCardModules.add(cardModule);
+                homeCardModules.add(cardModule);
                 if (DBG) {
                     long reflectionTime = System.currentTimeMillis() - reflectionStartTime;
                     logIfDebuggable(
@@ -529,42 +404,29 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                     + " took " + reflectionTime + " ms");
                 }
             } catch (IllegalAccessException | InstantiationException
-                    | ClassNotFoundException e) {
+                    | ClassNotFoundException | InvocationTargetException
+                    | NoSuchMethodException e) {
                 Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
             }
         }
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        for (HomeCardModule cardModule : mHomeCardModules) {
+        for (HomeCardModule cardModule : homeCardModules) {
             transaction.replace(cardModule.getCardResId(), cardModule.getCardView());
         }
         transaction.commitNow();
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         initializeCards();
-        refreshGrabBar();
-        refreshRootTaskViewBackground();
-    }
-
-    private void refreshGrabBar() {
-        Drawable gripBarBackground = getResources().getDrawable(R.drawable.title_bar_background);
-        Drawable gripBarDividerBackground = getResources().getDrawable(
-                R.drawable.grip_bar_divider_background);
-        mGripBar.setBackground(gripBarBackground);
-        mGripBarDividerView.setBackground(gripBarDividerBackground);
-    }
-
-    private void refreshRootTaskViewBackground() {
-        int backgroundColor = getResources().getColor(R.color.car_background, getTheme());
-        mRootAppArea.setBackgroundColor(backgroundColor);
+        mRootTaskViewPanel.refresh(getTheme());
     }
 
     @Override
     protected void onDestroy() {
         mTaskViewManager = null;
-        mRootTaskView = null;
+        mRootTaskViewPanel.onDestroy();
         mBackgroundTaskView = null;
         mFullScreenTaskView = null;
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
@@ -572,30 +434,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         super.onDestroy();
     }
 
-    private void updateRootTaskViewVisibility(TaskInfo taskInfo) {
-        logIfDebuggable("Task moved to front: " + taskInfo);
-
-        if (!shouldTaskShowOnRootTaskView(taskInfo)) {
-            logIfDebuggable("Not showing task in rootTaskView");
-            return;
-        }
-        logIfDebuggable("Showing task in task view");
-        // Switch to state open if it's not. Should only come here from STATE_CLOSE and
-        // STATE_FULL_WITH_SYS_BAR
-        if (mRootAppAreaState != STATE_OPEN) {
-            updateUIState(STATE_OPEN, /* animate = */ true);
-        }
-        // just let the task launch and don't change the state of the foreground DA.
-    }
-
     private boolean shouldTaskShowOnRootTaskView(TaskInfo taskInfo) {
         if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null
-                || mIsAnimating) {
+                || mRootTaskViewPanel.isAnimating()) {
             logIfDebuggable("Should not show on root task view since task is null");
             return false;
         }
-
-        ComponentName componentName = taskInfo.baseIntent.getComponent();
 
         // fullscreen activities will open in a separate task view which will show on top most
         // z-layer, that should not change the state of the root task view.
@@ -605,7 +449,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         if (mTaskCategoryManager.isDrawerActivity(taskInfo)
-                && mWasRootAppAreaFullScreenForLastActivity) {
+                && mRootTaskViewPanel.isFullScreen()) {
             logIfDebuggable("Don't open drawer activity after full screen task");
             return false;
         }
@@ -640,328 +484,77 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    /** Gets the new app area bounds as per the {@code newTop} & {@code newHeight}. */
-    private Rect getRootTaskViewBounds(int newTop, int newHeight) {
-        Rect bounds = new Rect();
-        mRootTaskView.getBoundsOnScreen(bounds);
-        bounds.top = newTop;
-        bounds.bottom = newTop + newHeight;
-        return bounds;
-    }
-
-    /**
-     * This method assumes that
-     * {@link CarUiPortraitHomeScreen#resetRootTaskViewToDefaultHeight(int)} has
-     * already been called.
-     */
-    private int getRootAppAreaHeightInOpenState(int top) {
-        return mContainer.getMeasuredHeight() - top - mRootAppAreaContainer.getPaddingBottom();
-    }
-
-    // TODO(b/257353761): refactor this method for better readbility
-    private void updateUIState(int newRootAppAreaState, boolean animate) {
-        logIfDebuggable(
-                "updating UI state to: " + newRootAppAreaState + ", with animate = " + animate);
-
-        if (!mIsRootPanelInitialized) {
-            logIfDebuggable("Root panel hasn't inited");
-            return;
-        }
-
-        if (mRootAppAreaState == newRootAppAreaState) {
-            logIfDebuggable("Root panel is already in the requested state: " + newRootAppAreaState);
-        }
-
-        if (!mCarUiPortraitDriveStateController.isDrivingStateMoving() && isFullScreen(
-                newRootAppAreaState)) {
-            logIfDebuggable("Immersive mode is not allowed");
-            return;
-        }
-
-        int rootAppAreaContainerTopMargin = 0;
-        Runnable onAnimationEnd = null;
-        // Change grip bar visibility before animationEnd for better animation
-        logIfDebuggable("Current thread" + Thread.currentThread());
-
-        if (newRootAppAreaState == STATE_OPEN) {
-            rootAppAreaContainerTopMargin = mRootAppAreaDefaultTopMargin;
-            // Update components first for better animation
-            updateNonAppAreaComponents(newRootAppAreaState);
-            final Rect rootTaskViewNewBounds =
-                    getRootTaskViewBounds(rootAppAreaContainerTopMargin
-                                    + mGripBarHeight,
-                            getRootAppAreaHeightInOpenState(rootAppAreaContainerTopMargin
-                                    + mGripBarHeight));
-            mRootTaskView.post(() -> mRootTaskView.setWindowBounds(rootTaskViewNewBounds));
-            logIfDebuggable("launch-root-task expected new bounds =" + rootTaskViewNewBounds);
-            // Animate the root app area first and then change the background app area size to avoid
-            // black patch on screen.
-            onAnimationEnd = () -> {
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(true));
-                mGripBar.post(() -> updateBottomOverlap(STATE_OPEN));
-                mRootTaskView.setZOrderOnTop(false);
-                mIsAnimating = false;
-            };
-        } else if (newRootAppAreaState == STATE_CLOSE) {
-            rootAppAreaContainerTopMargin = mContainer.getMeasuredHeight();
-            // Change the background app area's size to full-screen first and then animate the
-            // root app
-            // area to avoid black patch on screen.
-
-            mGripBar.post(() -> updateBottomOverlap(STATE_CLOSE));
-
-            final Rect rootTaskViewBounds = getRootTaskViewBounds(rootAppAreaContainerTopMargin
-                    + mGripBarHeight, mRootAppAreaContainer.getMeasuredHeight());
-            logIfDebuggable("launch-root-task expected new bounds =" + rootTaskViewBounds);
-
-            onAnimationEnd = () -> {
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(false));
-                mRootTaskView.setZOrderOnTop(false);
-                mIsAnimating = false;
-
-                mRootTaskView.post(() -> mRootTaskView.setWindowBounds(rootTaskViewBounds));
-
-                updateNonAppAreaComponents(newRootAppAreaState);
-            };
-        } else if (newRootAppAreaState == STATE_FULL_WITHOUT_SYS_BAR) {
-            // Animate the root app area first and then change the background app area size to avoid
-            // black patch on screen.
-
-            final Rect rootTaskViewNewBounds = getRootTaskViewBounds(rootAppAreaContainerTopMargin
-                    + mGripBarHeight, mRootAppAreaContainer.getMeasuredHeight());
-            mRootTaskView.post(() -> mRootTaskView.setWindowBounds(rootTaskViewNewBounds));
-            logIfDebuggable("launch-root-task expected new bounds =" + rootTaskViewNewBounds);
-
-            onAnimationEnd = () -> {
-                // TODO(b/265959717): notify the systemUI with new message, currently this is only
-                // triggered by SUW, and it's already handled by systemUI before systemUI notify
-                // the client. will need another api for auto hide.
-                mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITHOUT_SYS_BAR));
-                mIsAnimating = false;
-                setHomeScreenBottomMargin(/* bottomMargin= */ 0);
-                updateNonAppAreaComponents(newRootAppAreaState);
-            };
-        } else {
-            // newRootAppAreaState == STATE_FULL_WITH_SYS_BAR
-            // rootAppAreaTopMargin = 0;
-            final Rect rootTaskViewNewBounds = getRootTaskViewBounds(rootAppAreaContainerTopMargin
-                    + mGripBarHeight, mRootAppAreaContainer.getMeasuredHeight());
-
-            mRootTaskView.post(() -> mRootTaskView.setWindowBounds(rootTaskViewNewBounds));
-            logIfDebuggable("launch-root-task expected new bounds =" + rootTaskViewNewBounds);
-
-            // Animate the root app area first and then change the background app area size to avoid
-            // black patch on screen.
-            onAnimationEnd = () -> {
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(true));
-                mGripBar.post(() -> updateBottomOverlap(STATE_FULL_WITH_SYS_BAR));
-                mIsAnimating = false;
-                updateNonAppAreaComponents(newRootAppAreaState);
-            };
-        }
-        logIfDebuggable("Root App Area top margin = " + rootAppAreaContainerTopMargin);
-        if (animate) {
-            mIsAnimating = true;
-            Animation animation = createAnimationForRootAppArea(rootAppAreaContainerTopMargin,
-                    onAnimationEnd);
-            mRootAppAreaContainer.startAnimation(animation);
-        } else {
-            if (isFullScreen(newRootAppAreaState)) {
-                logIfDebuggable("Make rootTaskView as big as Home Screen");
-                makeRootAppAreaContainerSameHeightAsHomeScreen();
-            } else {
-                logIfDebuggable("Set the rootTaskView height with rootAppAreaTopMargin = "
-                        + rootAppAreaContainerTopMargin);
-                resetRootTaskViewToDefaultHeight(rootAppAreaContainerTopMargin);
-            }
-            onAnimationEnd.run();
-        }
-
-        mWasRootAppAreaFullScreenForLastActivity = isFullScreen(mRootAppAreaState)
-                && !isFullScreen(newRootAppAreaState);
-        mRootAppAreaState = newRootAppAreaState;
-    }
-
-    void updateNonAppAreaComponents(int newRootAppAreaState) {
-        runOnUiThread(() -> {
-            boolean isFullScreen = isFullScreen(newRootAppAreaState);
-            mGripBar.setVisibility(isFullScreen ? GONE : VISIBLE);
-            mGripBarView.setVisibility(isFullScreen ? GONE : VISIBLE);
-            // Don't set visibility to GONE, or grip bar won't show up correctly.
-            mGripBarDividerView.setVisibility(isFullScreen ? INVISIBLE : VISIBLE);
-            mControlBarView.setVisibility(isFullScreen ? GONE : VISIBLE);
-        });
-    }
-
-    private static boolean isFullScreen(int state) {
-        return (state == STATE_FULL_WITHOUT_SYS_BAR || state == STATE_FULL_WITH_SYS_BAR);
-    }
-
-    private void makeRootAppAreaContainerSameHeightAsHomeScreen() {
-        FrameLayout.LayoutParams lp =
-                (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
-        // Set margin and padding to 0 so the SUW shows full screen
-        logIfDebuggable("The height of mContainer is " + mContainer.getMeasuredHeight());
-        lp.height = mContainer.getMeasuredHeight();
-        lp.topMargin = 0;
-        lp.bottomMargin = 0;
-        mRootAppAreaContainer.setLayoutParams(lp);
-        mRootAppAreaContainer
-                .setPadding(/* left= */ 0, /* top= */ 0, /* right= */ 0, /* bottom= */ 0);
-
-        mRootAppArea.setPadding(/* left= */ 0, /* top= */ 0, /* right= */ 0, /* bottom= */ 0);
-    }
-
-    private void resetRootTaskViewToDefaultHeight(int rootAppAreaTopMargin) {
-        logIfDebuggable(
-                "resetRootTaskViewToDefaultHeight with top margin = " + rootAppAreaTopMargin);
-
-        FrameLayout.LayoutParams rootAppAreaContainerParams =
-                (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
-        rootAppAreaContainerParams.height = mContainer.getMeasuredHeight()
-                - mRootAppAreaDefaultTopMargin;
-        rootAppAreaContainerParams.topMargin = rootAppAreaTopMargin;
-        mRootAppAreaContainer.setLayoutParams(rootAppAreaContainerParams);
-        mRootAppAreaContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */ 0,
-                mControlBarHeightMinusCornerRadius);
-
-        setHomeScreenBottomMargin(mNavBarHeight);
-    }
-
     private void setHomeScreenBottomMargin(int bottomMargin) {
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mContainer.getLayoutParams();
         lp.bottomMargin = bottomMargin;
         mContainer.setLayoutParams(lp);
     }
 
-    private Animation createAnimationForRootAppArea(int newTop, Runnable onAnimationEnd) {
-        mRootAppAreaAnimationEnded = false;
-        logIfDebuggable("createAnimationForRootAppArea, new top = " + newTop);
-        FrameLayout.LayoutParams rootAppAreaContainerParams =
-                (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
-        Animation animation = new Animation() {
-            @Override
-            protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if (mRootAppAreaAnimationEnded) {
-                    logIfDebuggable("Root app area animation already ended.");
-                    return;
-                }
-                setTopMarginForView(
-                        rootAppAreaContainerParams.topMargin - (int) (
-                                (rootAppAreaContainerParams.topMargin
-                                        - newTop) * interpolatedTime), mRootAppAreaContainer,
-                        rootAppAreaContainerParams);
-            }
-        };
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-            }
+    private void updateObscuredTouchRegion() {
+        if (mBackgroundTaskView == null) {
+            return;
+        }
+        Rect controlBarRect = new Rect();
+        mControlBarView.getBoundsOnScreen(controlBarRect);
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                mRootAppAreaAnimationEnded = true;
-                setTopMarginForView(newTop, mRootAppAreaContainer, rootAppAreaContainerParams);
-                onAnimationEnd.run();
-            }
+        Rect appPanelGripBarRect = new Rect();
+        mRootTaskViewPanel.getGripBarBounds(appPanelGripBarRect);
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-            }
-        });
+        Rect navigationBarRect = new Rect(controlBarRect.right, controlBarRect.bottom,
+                controlBarRect.left, mContainer.getMeasuredHeight());
 
-        animation.setInterpolator(new DecelerateInterpolator());
-        animation.setDuration(ANIMATION_DURATION_MS);
-        return animation;
+        Region obscuredTouchRegion = new Region();
+        obscuredTouchRegion.union(controlBarRect);
+        obscuredTouchRegion.union(navigationBarRect);
+
+        mRootTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
+        obscuredTouchRegion.union(appPanelGripBarRect);
+        mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
+        mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
     }
 
-    private static void setTopMarginForView(int newTop, View view, FrameLayout.LayoutParams lp) {
-        lp.topMargin = newTop;
-        view.setLayoutParams(lp);
-    }
-
-    private Rect getGripBarBoundsOnScreen() {
-        Rect gripBarBounds = new Rect();
-        mGripBar.getBoundsOnScreen(gripBarBounds);
-        // getBoundsOnScreen doesn't return the correct top and bottom when the container view
-        // has just animated.
-        // And hence, the top and bottom need be calculated here.
-        int currentTopRelativeToRootContainer = ((FrameLayout.LayoutParams) mRootAppAreaContainer
-                .getLayoutParams()).topMargin;
-        // Since gripBar is aligned to top of the mRootAppAreaContainer, the top coordinate is same
-        // as mRootAppAreaContainer's topMargin in the root container.
-        gripBarBounds.top = currentTopRelativeToRootContainer;
-        gripBarBounds.bottom = currentTopRelativeToRootContainer + mGripBarHeight;
-        return gripBarBounds;
-    }
-
-    private void updateBottomOverlap(int newRootAppAreaState) {
-        logIfDebuggable(
-                "updateBottomOverlap with new root app area state = " + newRootAppAreaState);
+    private void updateBackgroundTaskViewInsets() {
         if (mBackgroundTaskView == null) {
             return;
         }
 
-        Rect backgroundAppAreaBounds = new Rect();
-        mBackgroundTaskView.getBoundsOnScreen(backgroundAppAreaBounds);
+        int bottomOverlap = Math.min(mControlBarView.getTop(),
+                mRootTaskViewPanel.getTop());
 
-        Rect gripBarBounds = getGripBarBoundsOnScreen();
-        Region obscuredRegion = new Region(gripBarBounds.left, gripBarBounds.top,
-                gripBarBounds.right, gripBarBounds.bottom);
-        Rect controlBarBounds = new Rect();
-        if (!isFullScreen(newRootAppAreaState)) {
-            mControlBarView.getBoundsOnScreen(controlBarBounds);
-            obscuredRegion.union(controlBarBounds);
-        }
-        // Use setObscuredTouchRect on all the taskviews that overlap with the grip bar.
-        mBackgroundTaskView.setObscuredTouchRegion(obscuredRegion);
-        mFullScreenTaskView.setObscuredTouchRegion(obscuredRegion);
-        if (newRootAppAreaState == STATE_OPEN) {
-            // Set control bar bounds as obscured region on RootTaskview when AppGrid launcher is
-            // open.
-            mRootTaskView.setObscuredTouchRect(controlBarBounds);
-            applyBottomInsetsToBackgroundTaskView(
-                    mRootAppAreaContainer.getHeight(),
-                    backgroundAppAreaBounds);
-        } else if (isFullScreen(newRootAppAreaState)) {
-            mRootTaskView.setObscuredTouchRect(null);
-            applyBottomInsetsToBackgroundTaskView(mNavBarHeight, backgroundAppAreaBounds);
-        } else {
-            // rootAppAreaState == STATE_CLOSE
-            mRootTaskView.setObscuredTouchRect(null);
-            applyBottomInsetsToBackgroundTaskView(mControlBarView.getHeight(),
-                    backgroundAppAreaBounds);
-        }
+        Rect appAreaBounds = new Rect();
+        mBackgroundTaskView.getBoundsOnScreen(appAreaBounds);
+
+        Rect bottomInsets = new Rect(appAreaBounds.left, bottomOverlap,
+                appAreaBounds.right, appAreaBounds.bottom);
+        Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
+                mStatusBarHeight);
+
+        logIfDebuggable(
+                "Applying bottom insets: " + bottomInsets + " top insets: " + topInsets);
+        mBackgroundTaskView.setInsets(new SparseArray<>() {
+            {
+                append(ITYPE_BOTTOM_GENERIC_OVERLAY, bottomInsets);
+                append(ITYPE_TOP_GENERIC_OVERLAY, topInsets);
+            }
+        });
     }
 
-    private void applyBottomInsetsToBackgroundTaskView(int bottomOverlap, Rect appAreaBounds) {
-        if (mShouldSetInsetsOnBackgroundTaskView) {
-            Rect bottomInsets = new Rect(appAreaBounds.left, appAreaBounds.bottom - bottomOverlap,
-                    appAreaBounds.right, appAreaBounds.bottom);
-            Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
-                    mStatusBarHeight);
-
-            logIfDebuggable(
-                    "Applying bottom insets: " + bottomInsets + " top insets: " + topInsets);
-            mBackgroundTaskView.setInsets(new SparseArray<Rect>() {
-                {
-                    append(ITYPE_BOTTOM_GENERIC_OVERLAY, bottomInsets);
-                    append(ITYPE_TOP_GENERIC_OVERLAY, topInsets);
-                }
-            });
+    private void updateRootTaskViewInsets() {
+        if (mRootTaskViewPanel == null) {
+            return;
         }
+        Insets insets = Insets.of(0, 0, 0, mControlBarView.getHeight());
+        mRootTaskViewPanel.setInsets(insets);
     }
 
     private void onContainerDimensionsChanged() {
-        // Call updateUIState for the current state to recalculate the UI
-        updateUIState(mRootAppAreaState, /* animate = */ false);
+        if (mRootTaskViewPanel != null) {
+            mRootTaskViewPanel.onParentDimensionChanged();
+            updateRootTaskViewInsets();
+        }
+
         if (mBackgroundTaskView != null) {
             mBackgroundTaskView.post(() -> mBackgroundTaskView.onLocationChanged());
-        }
-        if (mRootTaskView != null) {
-            mRootTaskView.post(() -> mRootTaskView.onLocationChanged());
         }
     }
 
@@ -980,18 +573,65 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
                     @Override
                     public void onTaskViewReady() {
+                        updateBackgroundTaskViewInsets();
                     }
                 }
         );
     }
 
-    private void setUpRootTaskView(ViewGroup parent) {
+    private void setControlBarVisibility(boolean isVisible, boolean animate) {
+        float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();
+        if (animate) {
+            mControlBarView.animate().translationY(translationY);
+        } else {
+            mControlBarView.setTranslationY(translationY);
+        }
+
+    }
+
+    private void setUpRootTaskView() {
+        mRootTaskViewPanel.setOnStateChangeListener(new TaskViewPanel.OnStateChangeListener() {
+            @Override
+            public void onStateChangeStart(TaskViewPanel.State oldState,
+                    TaskViewPanel.State newState, boolean animated) {
+                if (newState.isFullScreen()) {
+                    if (mIsSUWInProgress) {
+                        setHomeScreenBottomMargin(0);
+                    } else {
+                        setHomeScreenBottomMargin(mNavBarHeight);
+                    }
+                } else {
+                    setHomeScreenBottomMargin(mNavBarHeight);
+                    setControlBarVisibility(/* isVisible= */ true, animated);
+                }
+
+                boolean isStatusBarHidden = newState.isFullScreen();
+                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isStatusBarHidden));
+            }
+
+            @Override
+            public void onStateChangeEnd(TaskViewPanel.State oldState,
+                    TaskViewPanel.State newState, boolean animated) {
+
+                updateObscuredTouchRegion();
+
+                updateBackgroundTaskViewInsets();
+
+                // Hide the control bar after the animation if in full screen.
+                if (newState.isFullScreen()) {
+                    setControlBarVisibility(/* isVisible= */ false, animated);
+                }
+
+                boolean isVisible = newState.isVisible();
+                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(isVisible));
+            }
+        });
+
         mTaskViewManager.createLaunchRootTaskView(getMainExecutor(),
                 new LaunchRootCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
-                        mRootTaskView = taskView;
-                        parent.addView(mRootTaskView);
+                        mRootTaskViewPanel.setTaskView(taskView);
                     }
 
                     @Override
@@ -1028,11 +668,19 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 });
     }
 
-    private void onImmersiveModeRequested(boolean requested) {
+    private void onImmersiveModeRequested(boolean requested, boolean animate) {
         logIfDebuggable("onImmersiveModeRequested = " + requested);
-        int fallbackState = (mTaskViewManager.getRootTaskCount() > 0) ? STATE_OPEN : STATE_CLOSE;
-        updateUIState(/* newRootAppAreaState= */
-                requested ? STATE_FULL_WITH_SYS_BAR : fallbackState, /* animated= */false);
+        if (requested && (!mCarUiPortraitDriveStateController.isDrivingStateMoving()
+                || mIsSUWInProgress)) {
+            mRootTaskViewPanel.openFullScreenPanel(animate);
+        } else {
+            if (mTaskViewManager.getRootTaskCount() > 0) {
+                mRootTaskViewPanel.openPanel(animate);
+            } else {
+                // Don't animate if there is no task in the panel.
+                mRootTaskViewPanel.closePanel(/* animate = */ false);
+            }
+        }
     }
 
     /**
@@ -1043,18 +691,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_IMMERSIVE_MODE_REQUESTED:
-                    // TODO(b/257353761): replace this with updateUIState once the use case is
-                    //  sorted out.
-                    onImmersiveModeRequested(intToBool(msg.arg1));
+                    onImmersiveModeRequested(intToBool(msg.arg1), /* animate = */ true);
                     break;
                 case MSG_SUW_IN_PROGRESS:
                     mIsSUWInProgress = intToBool(msg.arg1);
                     logIfDebuggable("Get intent about the SUW is " + mIsSUWInProgress);
-                    if (mIsSUWInProgress) {
-                        updateUIState(STATE_FULL_WITHOUT_SYS_BAR, false);
-                    } else {
-                        updateUIState(STATE_CLOSE, false);
-                    }
+                    onImmersiveModeRequested(mIsSUWInProgress, /* animate = */ false);
                     break;
                 default:
                     super.handleMessage(msg);
