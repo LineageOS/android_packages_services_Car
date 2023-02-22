@@ -233,6 +233,9 @@
     <string name="power_request_shutdown" translatable="false">Request Shutdown</string>
     <string name="power_shutdown" translatable="false">Shutdown</string>
     <string name="power_sleep" translatable="false">Sleep</string>
+    <string name="power_display_on" translatable="false">Display On</string>
+    <string name="power_display_off" translatable="false">Display Off</string>
+    <string name="power_display_mode" translatable="false">Mode</string>
 
     <!-- property test -->
     <string name="property_clear" translatable="false">Clear Log</string>

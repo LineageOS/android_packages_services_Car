@@ -72,6 +72,7 @@ android_test {
         "frameworks-base-testutils",
         "mockito-target-extended",
         "SettingsLib",
+        "servicestests-utils",
         "truth-prebuilt",
         "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
         "vehicle-hal-support-lib",

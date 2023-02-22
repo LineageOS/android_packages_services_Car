@@ -695,7 +695,11 @@ public class CarPowerManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setDisplayPowerState(int displayId, boolean enable) {
-        // TODO(b/260103061): Implement this method.
+        try {
+            mService.setDisplayPowerState(displayId, enable);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
