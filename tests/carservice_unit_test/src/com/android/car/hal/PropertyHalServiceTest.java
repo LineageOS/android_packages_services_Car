@@ -31,6 +31,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -50,6 +51,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
 
@@ -83,6 +85,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
 public class PropertyHalServiceTest {
@@ -102,6 +105,8 @@ public class PropertyHalServiceTest {
     private IBinder mSetAsyncPropertyResultBinder;
     @Captor
     private ArgumentCaptor<List<GetSetValueResult>> mAsyncResultCaptor;
+    @Captor
+    private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
 
     private PropertyHalService mPropertyHalService;
     private static final int REQUEST_ID_1 = 1;
@@ -166,88 +171,11 @@ public class PropertyHalServiceTest {
         mPropertyHalService = null;
     }
 
-    @Test
-    public void testGetCarPropertyValuesAsync() {
-        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-
-        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
-                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
-
-        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
-                ArgumentCaptor.forClass(List.class);
-        verify(mVehicleHal).getAsync(captor.capture(),
-                any(VehicleStubCallbackInterface.class));
-        AsyncGetSetRequest gotRequest = captor.getValue().get(0);
-        assertThat(gotRequest.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-        assertThat(gotRequest.getHalPropValue().getPropId()).isEqualTo(HVAC_TEMPERATURE_SET);
-        assertThat(gotRequest.getTimeoutInMs()).isEqualTo(1000);
-    }
-
-    @Test
-    public void testGetCarPropertyValuesAsync_multipleRequests() {
-        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
-        getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
-        getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_2);
-        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-
-        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
-
-        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
-                ArgumentCaptor.forClass(List.class);
-        verify(mVehicleHal).getAsync(captor.capture(),
-                any(VehicleStubCallbackInterface.class));
-        AsyncGetSetRequest gotRequest0 = captor.getValue().get(0);
-        assertThat(gotRequest0.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-        assertThat(gotRequest0.getHalPropValue().getPropId()).isEqualTo(
-                HVAC_TEMPERATURE_SET);
-        assertThat(gotRequest0.getHalPropValue().getAreaId()).isEqualTo(0);
-        assertThat(gotRequest0.getTimeoutInMs()).isEqualTo(1000);
-        AsyncGetSetRequest gotRequest1 = captor.getValue().get(1);
-        assertThat(gotRequest1.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_2);
-        assertThat(gotRequest1.getHalPropValue().getPropId()).isEqualTo(
-                HVAC_TEMPERATURE_SET);
-        assertThat(gotRequest1.getHalPropValue().getAreaId()).isEqualTo(0);
-        assertThat(gotRequest1.getTimeoutInMs()).isEqualTo(1000);
-    }
-
-    @Test
-    public void testGetCarPropertyValuesAsync_linkToDeath() throws RemoteException {
-        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
-        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
-        verify(mGetAsyncPropertyResultBinder).linkToDeath(any(IBinder.DeathRecipient.class),
-                anyInt());
-    }
-
-    @Test
-    public void testGetCarPropertyValuesAsync_binderDiedBeforeLinkToDeath() throws RemoteException {
-        IBinder mockBinder = mock(IBinder.class);
-        when(mGetAsyncPropertyResultCallback.asBinder()).thenReturn(mockBinder);
-        doThrow(new RemoteException()).when(mockBinder).linkToDeath(any(), anyInt());
-        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
-
-        assertThrows(IllegalStateException.class, () -> {
-            mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                    mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
-        });
-    }
-
-    @Test
-    public void testGetCarPropertyValuesAsync_unlinkToDeath_onBinderDied() throws RemoteException {
-        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
-        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
-        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
-
-        ArgumentCaptor<IBinder.DeathRecipient> recipientCaptor = ArgumentCaptor.forClass(
-                IBinder.DeathRecipient.class);
-        verify(mGetAsyncPropertyResultBinder).linkToDeath(recipientCaptor.capture(), eq(0));
-
-        recipientCaptor.getValue().binderDied();
-
-        verify(mGetAsyncPropertyResultBinder).unlinkToDeath(recipientCaptor.getValue(), 0);
+    private void verifyNoPendingRequest() {
+        assertWithMessage("No pending async requests after test finish")
+                .that(mPropertyHalService.countPendingAsyncRequests()).isEqualTo(0);
+        assertWithMessage("No pending async set request waiting for update after test finish")
+                .that(mPropertyHalService.countHalPropIdToWaitForUpdateRequests()).isEqualTo(0);
     }
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
@@ -362,7 +290,108 @@ public class PropertyHalServiceTest {
     }
 
     @Test
-    public void testOnGetAsyncResults() throws RemoteException {
+    public void testGetCarPropertyValuesAsync() {
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mVehicleHal).getAsync(captor.capture(),
+                any(VehicleStubCallbackInterface.class));
+        AsyncGetSetRequest gotRequest = captor.getValue().get(0);
+        assertThat(gotRequest.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
+        assertThat(gotRequest.getHalPropValue().getPropId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(gotRequest.getTimeoutUptimeMs()).isGreaterThan(1000);
+
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
+        verify(mVehicleHal, timeout(1000)).cancelRequests(List.of(0));
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_multipleRequests() {
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
+        getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_1);
+        getPropertyServiceRequests.add(GET_PROPERTY_SERVICE_REQUEST_2);
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        ArgumentCaptor<List<AsyncGetSetRequest>> captor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mVehicleHal).getAsync(captor.capture(),
+                any(VehicleStubCallbackInterface.class));
+        AsyncGetSetRequest gotRequest0 = captor.getValue().get(0);
+        assertThat(gotRequest0.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
+        assertThat(gotRequest0.getHalPropValue().getPropId()).isEqualTo(
+                HVAC_TEMPERATURE_SET);
+        assertThat(gotRequest0.getHalPropValue().getAreaId()).isEqualTo(0);
+        assertThat(gotRequest0.getTimeoutUptimeMs()).isGreaterThan(1000);
+        AsyncGetSetRequest gotRequest1 = captor.getValue().get(1);
+        assertThat(gotRequest1.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_2);
+        assertThat(gotRequest1.getHalPropValue().getPropId()).isEqualTo(
+                HVAC_TEMPERATURE_SET);
+        assertThat(gotRequest1.getHalPropValue().getAreaId()).isEqualTo(0);
+        assertThat(gotRequest1.getTimeoutUptimeMs()).isGreaterThan(1000);
+
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1, REQUEST_ID_2});
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_linkToDeath() throws RemoteException {
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+        verify(mGetAsyncPropertyResultBinder).linkToDeath(any(IBinder.DeathRecipient.class),
+                anyInt());
+
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_binderDiedBeforeLinkToDeath() throws RemoteException {
+        IBinder mockBinder = mock(IBinder.class);
+        when(mGetAsyncPropertyResultCallback.asBinder()).thenReturn(mockBinder);
+        doThrow(new RemoteException()).when(mockBinder).linkToDeath(any(), anyInt());
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+
+        assertThrows(IllegalStateException.class, () -> {
+            mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                    mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+        });
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_unlinkToDeath_onBinderDied() throws RemoteException {
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+        List<AsyncPropertyServiceRequest> getPropertyServiceRequests = mock(List.class);
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        ArgumentCaptor<IBinder.DeathRecipient> recipientCaptor = ArgumentCaptor.forClass(
+                IBinder.DeathRecipient.class);
+        verify(mGetAsyncPropertyResultBinder).linkToDeath(recipientCaptor.capture(), eq(0));
+
+        recipientCaptor.getValue().binderDied();
+
+        verify(mGetAsyncPropertyResultBinder).unlinkToDeath(recipientCaptor.getValue(), 0);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_normalResult() throws RemoteException {
         doAnswer((invocation) -> {
             return deliverOkayGetResult(invocation, RECEIVED_REQUEST_ID_1);
         }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
@@ -379,25 +408,19 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(result.getCarPropertyValue().getAreaId()).isEqualTo(0);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_RetryTwiceAndSucceed() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_retryTwiceAndSucceed() throws RemoteException {
         doAnswer(new Answer() {
             private int mCount = 0;
-            private long mPrevTimeoutInMs = 0;
 
             public Object answer(InvocationOnMock invocation) {
                 Object[] args = invocation.getArguments();
                 List<AsyncGetSetRequest> getVehicleHalRequests = (List<AsyncGetSetRequest>) args[0];
                 assertThat(getVehicleHalRequests.size()).isEqualTo(1);
-                long timeoutInMs = getVehicleHalRequests.get(0).getTimeoutInMs();
-
-                if (mCount != 0) {
-                    assertWithMessage("timeout must decrease for multiple retries")
-                            .that(timeoutInMs).isLessThan(mPrevTimeoutInMs);
-                }
-                mPrevTimeoutInMs = timeoutInMs;
 
                 switch (mCount++) {
                     case 0:
@@ -423,10 +446,12 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(result.getCarPropertyValue().getAreaId()).isEqualTo(0);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_RetryAndTimeout() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_retryAndTimeout() throws RemoteException {
         doAnswer((invocation) -> {
             // For every request, we return retry result.
             return deliverTryAgainGetResult(invocation);
@@ -443,10 +468,31 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_TimeoutFromVehicleStub() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_noResultTimeout() throws RemoteException {
+        doNothing().when(mVehicleHal).getAsync(any(List.class),
+                any(VehicleStubCallbackInterface.class));
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_timeoutFromVehicleStub() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List getVehicleHalRequests = (List) args[0];
@@ -471,10 +517,12 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_errorResult() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_errorResult() throws RemoteException {
         doAnswer((invocation) -> {
             return deliverErrorGetResult(invocation, RECEIVED_REQUEST_ID_1,
                     CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -492,10 +540,12 @@ public class PropertyHalServiceTest {
         assertThat(result.getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_multipleResultsSameCall() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_multipleResultsSameCall() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List<AsyncGetSetRequest> getVehicleHalRequests = (List) args[0];
@@ -538,10 +588,13 @@ public class PropertyHalServiceTest {
         assertThat(result1.getCarPropertyValue().getValue()).isEqualTo(17.0f);
         assertThat(result2.getRequestId()).isEqualTo(REQUEST_ID_2);
         assertThat(result2.getCarPropertyValue().getValue()).isEqualTo(17.0f);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testOnGetAsyncResults_multipleResultsDifferentCalls() throws RemoteException {
+    public void testGetCarPropertyValuesAsync_multipleResultsDifferentCalls()
+            throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List<AsyncGetSetRequest> getVehicleHalRequests = (List) args[0];
@@ -584,10 +637,20 @@ public class PropertyHalServiceTest {
         assertThat(getValuesResults.get(1).get(0).getRequestId()).isEqualTo(REQUEST_ID_2);
         assertThat(getValuesResults.get(1).get(0).getCarPropertyValue().getValue()).isEqualTo(
                 17.0f);
+
+        verifyNoPendingRequest();
     }
 
     @Test
     public void testSetCarPropertyValuesAsync() {
+        Set<Integer> vhalCancelledRequestIds = new ArraySet<>();
+        doAnswer((invocation) -> {
+            List<Integer> ids = (List<Integer>) invocation.getArgument(0);
+            for (int i = 0; i < ids.size(); i++) {
+                vhalCancelledRequestIds.add(ids.get(i));
+            }
+            return null;
+        }).when(mVehicleHal).cancelRequests(any());
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
@@ -600,7 +663,16 @@ public class PropertyHalServiceTest {
         assertThat(gotRequest.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
         assertThat(gotRequest.getHalPropValue().getPropId()).isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(gotRequest.getHalPropValue().getFloatValue(0)).isEqualTo(17.0f);
-        assertThat(gotRequest.getTimeoutInMs()).isEqualTo(1000);
+        assertThat(gotRequest.getTimeoutUptimeMs()).isGreaterThan(1000);
+
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
+
+        // Because we cancel the onging async set property request, the ongoing get initial value
+        // request should be cancelled as well.
+        verify(mVehicleHal, timeout(1000).times(2)).cancelRequests(any());
+        assertThat(vhalCancelledRequestIds).containsExactlyElementsIn(new Integer[]{0, 1});
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -614,6 +686,8 @@ public class PropertyHalServiceTest {
             mPropertyHalService.setCarPropertyValuesAsync(List.of(request),
                     mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
         });
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -626,6 +700,8 @@ public class PropertyHalServiceTest {
 
         verify(mSetAsyncPropertyResultBinder).linkToDeath(any(IBinder.DeathRecipient.class),
                 anyInt());
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where we get the result for the init value before we get the result for
@@ -647,7 +723,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         assertThat(setInvocationWrap).hasSize(1);
@@ -670,6 +746,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where we get the result for the init value after we get the result for
@@ -691,7 +769,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         assertThat(setInvocationWrap).hasSize(1);
@@ -714,6 +792,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where the get initial value and set value request retried once.
@@ -763,11 +843,13 @@ public class PropertyHalServiceTest {
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where the get initial value returns a different value than target value.
     @Test
-    public void testSetCarPropertyValuesAsync_initValueDiffTargetValue()
+    public void testSetCarPropertyValuesAsync_initValueDiffTargetValue_timeout()
             throws Exception {
         List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
         List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
@@ -783,7 +865,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 100);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         assertThat(setInvocationWrap).hasSize(1);
@@ -797,8 +879,15 @@ public class PropertyHalServiceTest {
 
         // Get init value result must not be passed to the client.
         verify(mSetAsyncPropertyResultCallback, never()).onGetValueResults(any());
-        // Callback won't be called until property update happens or timeout.
-        verify(mSetAsyncPropertyResultCallback, never()).onSetValueResults(any());
+        // Eventually the request should time out.
+        verify(mSetAsyncPropertyResultCallback, timeout(1000)).onSetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where we get set value error result after we get the initial value result.
@@ -819,7 +908,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         assertThat(setInvocationWrap).hasSize(1);
@@ -839,6 +928,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getErrorCode()).isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     // Test the callback is only invoked once even though the same result is returned multiple
@@ -858,7 +949,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         deliverErrorSetResult(setInvocationWrap.get(0),
@@ -872,11 +963,13 @@ public class PropertyHalServiceTest {
         verify(mSetAsyncPropertyResultCallback, times(1)).onSetValueResults(any());
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     // Test the case where the get init value request has error result. The result must be ignored.
     @Test
-    public void testSetCarPropertyValuesAsync_errorInitValueResult()
+    public void testSetCarPropertyValuesAsync_errorInitValueResult_timeout()
             throws Exception {
         List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
         List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
@@ -892,7 +985,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 100);
 
         verify(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
         assertThat(setInvocationWrap).hasSize(1);
@@ -906,8 +999,15 @@ public class PropertyHalServiceTest {
 
         // Get init value result must not be passed to the client.
         verify(mSetAsyncPropertyResultCallback, never()).onGetValueResults(any());
-        // Callback won't be called until property update happens or timeout.
-        verify(mSetAsyncPropertyResultCallback, never()).onSetValueResults(any());
+        // Eventually the request should time out.
+        verify(mSetAsyncPropertyResultCallback, timeout(1000)).onSetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -933,7 +1033,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -956,6 +1056,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -981,7 +1083,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -1009,6 +1111,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getUpdateTimestampNanos()).isEqualTo(TEST_UPDATE_TIMESTAMP_NANOS);
         // After the result comes, we must unsubscribe the property.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1030,7 +1134,7 @@ public class PropertyHalServiceTest {
         AsyncPropertyServiceRequest request = copyRequest(SET_PROPERTY_SERVICE_REQUEST_2);
         request.setUpdateRateHz(20.0f);
         mPropertyHalService.setCarPropertyValuesAsync(List.of(request),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -1071,6 +1175,8 @@ public class PropertyHalServiceTest {
 
         // After both client and internal unsubscription, the property must be unsubscribed.
         verify(mVehicleHal).unsubscribeProperty(any(), eq(PERF_VEHICLE_SPEED));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1129,7 +1235,7 @@ public class PropertyHalServiceTest {
         AsyncPropertyServiceRequest request2 = copyRequest(SET_PROPERTY_SERVICE_REQUEST_3);
         request2.setUpdateRateHz(23.2f);
         mPropertyHalService.setCarPropertyValuesAsync(List.of(request1, request2),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -1149,6 +1255,8 @@ public class PropertyHalServiceTest {
 
         // After internal subscription complete, the client subscription rate must be kept.
         verify(mVehicleHal).subscribeProperty(any(), eq(PERF_VEHICLE_SPEED), eq(22.0f));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1174,7 +1282,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -1192,6 +1300,8 @@ public class PropertyHalServiceTest {
 
         verify(mSetAsyncPropertyResultCallback, never()).onSetValueResults(any());
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1217,7 +1327,7 @@ public class PropertyHalServiceTest {
         doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
 
         mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST),
-                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 10);
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
         assertThat(setInvocationWrap).hasSize(1);
         assertThat(getInvocationWrap).hasSize(1);
@@ -1240,6 +1350,8 @@ public class PropertyHalServiceTest {
         assertThat(mAsyncResultCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
         verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1258,6 +1370,8 @@ public class PropertyHalServiceTest {
         assertThat(mAsyncResultCaptor.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(mAsyncResultCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1282,6 +1396,8 @@ public class PropertyHalServiceTest {
         assertThat(mAsyncResultCaptor.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(mAsyncResultCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_TIMEOUT);
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1301,6 +1417,8 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getErrorCode()).isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1313,6 +1431,8 @@ public class PropertyHalServiceTest {
                 VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS)) {
             Assert.assertTrue(mPropertyHalService.isDisplayUnitsProperty(propId));
         }
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1331,10 +1451,12 @@ public class PropertyHalServiceTest {
         HalPropValue value = mPropValueBuilder.build(
                 VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, /* areaId= */ 0, /* value= */ 1.0f);
         verify(mVehicleHal).set(value);
+
+        verifyNoPendingRequest();
     }
 
     @Test
-    public void testCancelRequests() throws Exception {
+    public void testCancelRequests_getCarPropertyValuesAsync() throws Exception {
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
         List<InvocationOnMock> invocationWrap = new ArrayList<>();
         doAnswer((invocation) -> {
@@ -1346,20 +1468,64 @@ public class PropertyHalServiceTest {
                 GET_PROPERTY_SERVICE_REQUEST_1, GET_PROPERTY_SERVICE_REQUEST_2),
                 mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
 
+        assertThat(invocationWrap).hasSize(1);
+
         // Cancel the first request.
         mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
 
         verify(mVehicleHal).cancelRequests(List.of(0));
 
         // Deliver the results.
-        for (int i = 0; i < invocationWrap.size(); i++) {
-            deliverOkayGetResult(invocationWrap.get(i));
-        }
+        deliverOkayGetResult(invocationWrap.get(0));
 
         // We should only get the result for request 2.
         verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
                 mAsyncResultCaptor.capture());
         assertThat(mAsyncResultCaptor.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_2);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testCancelRequests_setCarPropertyValuesAsync() throws Exception {
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(
+                SET_PROPERTY_SERVICE_REQUEST, SET_PROPERTY_SERVICE_REQUEST_2),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        assertThat(setInvocationWrap).hasSize(1);
+        assertThat(getInvocationWrap).hasSize(1);
+
+        // Cancel the first request.
+        mPropertyHalService.cancelRequests(new int[]{REQUEST_ID_1});
+
+        // Note that because both the async set and the get init value request has the same manager
+        // request ID, so they will all be cancelled.
+        verify(mVehicleHal, timeout(1000).times(2)).cancelRequests(any());
+
+        // Returns the set value result.
+        deliverOkaySetResult(setInvocationWrap.get(0));
+        // Returns the get initial value result.
+        deliverOkayGetResult(getInvocationWrap.get(0));
+
+        // We should only get the result for request 2.
+        verify(mSetAsyncPropertyResultCallback, timeout(1000)).onSetValueResults(
+                mAsyncResultCaptor.capture());
+        assertThat(mAsyncResultCaptor.getValue().get(0).getRequestId()).isEqualTo(REQUEST_ID_2);
+
+        verifyNoPendingRequest();
     }
 
     @Test
@@ -1367,6 +1533,47 @@ public class PropertyHalServiceTest {
         mPropertyHalService.cancelRequests(new int[]{0});
 
         verify(mVehicleHal, never()).cancelRequests(any());
+
+        verifyNoPendingRequest();
+    }
+
+    // Test that when the client binder died, all pending async requests must be cleared.
+    @Test
+    public void testOnBinderDied() throws Exception {
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+        // We return the same binder object for both set and get here.
+        doReturn(mSetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+        List<InvocationOnMock> setInvocationWrap = new ArrayList<>();
+        List<InvocationOnMock> getInvocationWrap = new ArrayList<>();
+
+        doAnswer((invocation) -> {
+            setInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).setAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            getInvocationWrap.add(invocation);
+            return null;
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(SET_PROPERTY_SERVICE_REQUEST_2),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        verify(mSetAsyncPropertyResultBinder).linkToDeath(mDeathRecipientCaptor.capture(),
+                anyInt());
+
+        assertThat(setInvocationWrap).hasSize(1);
+        // One is for async get, one is for initial value.
+        assertThat(getInvocationWrap).hasSize(2);
+
+        // Simulate client binder died.
+        mDeathRecipientCaptor.getValue().binderDied();
+
+        verify(mSetAsyncPropertyResultBinder).unlinkToDeath(any(), anyInt());
+
+        // All async pending requests must be cleared.
+        verifyNoPendingRequest();
     }
 
     @Test
