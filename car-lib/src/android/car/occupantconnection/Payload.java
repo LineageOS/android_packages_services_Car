@@ -48,8 +48,6 @@ public final class Payload extends LargeParcelableBase {
         super(in);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -62,8 +60,6 @@ public final class Payload extends LargeParcelableBase {
         return false;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public int hashCode() {
         return Arrays.hashCode(bytes);

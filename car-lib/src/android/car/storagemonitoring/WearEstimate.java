@@ -150,7 +150,6 @@ public final class WearEstimate implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object other) {
         if (other instanceof WearEstimate) {
             WearEstimate wo = (WearEstimate) other;
@@ -160,7 +159,6 @@ public final class WearEstimate implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         return Objects.hash(typeA, typeB);
     }
@@ -171,7 +169,6 @@ public final class WearEstimate implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "type A: " + wearValueToString(typeA) + ", type B: " + wearValueToString(typeB);
     }

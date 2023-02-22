@@ -19,7 +19,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonWriter;
@@ -113,7 +112,6 @@ public final class LifetimeWriteInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object other) {
         if (other instanceof LifetimeWriteInfo) {
             LifetimeWriteInfo lifetime = (LifetimeWriteInfo) other;
@@ -126,14 +124,11 @@ public final class LifetimeWriteInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(partition, fstype, writtenBytes);
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return String.format("for partition %s of type %s, %d bytes were written",
                 partition, fstype, writtenBytes);

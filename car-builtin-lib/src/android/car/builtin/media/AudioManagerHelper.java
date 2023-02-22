@@ -454,7 +454,6 @@ public final class AudioManagerHelper {
         }
 
         @Override
-        @AddedIn(PlatformVersion.TIRAMISU_0)
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("Source{ ");
