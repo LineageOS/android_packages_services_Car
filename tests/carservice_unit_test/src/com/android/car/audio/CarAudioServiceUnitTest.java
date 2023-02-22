@@ -136,6 +136,7 @@ import android.media.AudioPlaybackConfiguration;
 import android.media.IAudioService;
 import android.media.audiopolicy.AudioPolicy;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -1816,20 +1817,22 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void registerVolumeCallback_verifyCallbackHandler() {
+        int uid = Binder.getCallingUid();
         mCarAudioService.init();
 
         mCarAudioService.registerVolumeCallback(mVolumeCallbackBinder);
 
-        verify(mCarVolumeCallbackHandler).registerCallback(mVolumeCallbackBinder);
+        verify(mCarVolumeCallbackHandler).registerCallback(mVolumeCallbackBinder, uid, true);
     }
 
     @Test
     public void unregisterVolumeCallback_verifyCallbackHandler() {
+        int uid = Binder.getCallingUid();
         mCarAudioService.init();
 
         mCarAudioService.unregisterVolumeCallback(mVolumeCallbackBinder);
 
-        verify(mCarVolumeCallbackHandler).unregisterCallback(mVolumeCallbackBinder);
+        verify(mCarVolumeCallbackHandler).unregisterCallback(mVolumeCallbackBinder, uid);
     }
 
     @Test
