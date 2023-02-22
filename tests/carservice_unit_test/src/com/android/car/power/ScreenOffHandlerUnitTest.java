@@ -51,6 +51,7 @@ import com.android.car.R;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.server.testutils.OffsettableClock;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -87,6 +88,11 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         mClock = new OffsettableClock.Stopped();
         mTestLooper = new TestLooper(mClock::now);
         setService();
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
     }
 
     @Test
