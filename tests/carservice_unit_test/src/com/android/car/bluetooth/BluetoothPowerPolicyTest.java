@@ -43,10 +43,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 /**
@@ -56,7 +54,6 @@ import org.mockito.stubbing.Answer;
  * atest BluetoothPowerPolicyTest
  */
 @RequiresDevice
-@RunWith(MockitoJUnitRunner.class)
 public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTestCase {
     private MockContext mMockContext;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
