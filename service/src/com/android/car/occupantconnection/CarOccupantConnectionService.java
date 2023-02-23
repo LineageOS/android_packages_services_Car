@@ -38,6 +38,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 
 /**
  * Service to implement API defined in
@@ -51,11 +52,14 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
     private final Context mContext;
     private final CarOccupantZoneService mOccupantZoneService;
+    private final CarPowerManagementService mPowerManagementService;
 
     public CarOccupantConnectionService(Context context,
-            CarOccupantZoneService occupantZoneService) {
+            CarOccupantZoneService occupantZoneService,
+            CarPowerManagementService powerManagementService) {
         mContext = context;
         mOccupantZoneService = occupantZoneService;
+        mPowerManagementService = powerManagementService;
     }
 
     @Override
@@ -117,14 +121,18 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public void controlOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        // TODO(b/257117236): implement this method.
+
+        int[] displayIds = mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZone.zoneId);
+        for (int id : displayIds) {
+            mPowerManagementService.setDisplayPowerState(id, powerOn);
+        }
     }
 
     @Override
     public boolean isOccupantZonePowerOn(OccupantZoneInfo occupantZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        // TODO(b/257117236): implement this method.
-        return true;
+
+        return mOccupantZoneService.areDisplaysOnForOccupantZone(occupantZone.zoneId);
     }
 
     @Override
