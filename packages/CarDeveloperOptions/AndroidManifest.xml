@@ -387,6 +387,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$LongBackgroundTasksActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$DateTimeSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -415,6 +424,15 @@
 
         <activity
             android:name="com.android.settings.Settings$LanguageSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$RegionalPreferencesActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -848,6 +866,15 @@
 
         <activity
             android:name="com.android.settings.Settings$SecurityAdvancedSettings"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$MoreSecurityPrivacySettingsActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -2414,6 +2441,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$StylusUsiDetailsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.panel.SettingsPanelActivity"
             android:enabled="false"
             android:exported="false"
@@ -2694,6 +2730,15 @@
 
         <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
+        <activity-alias
+            android:name="com.android.settings.ConfirmRemoteDeviceCredentialActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
