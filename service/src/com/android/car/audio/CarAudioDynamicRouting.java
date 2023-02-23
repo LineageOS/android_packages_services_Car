@@ -54,7 +54,7 @@ final class CarAudioDynamicRouting {
             SparseArray<CarAudioZone> carAudioZones, CarAudioContext carAudioContext) {
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone zone = carAudioZones.valueAt(i);
-            for (CarVolumeGroup group : zone.getVolumeGroups()) {
+            for (CarVolumeGroup group : zone.getCurrentVolumeGroups()) {
                 setupAudioDynamicRoutingForGroup(group, builder, carAudioContext);
             }
         }
