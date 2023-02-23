@@ -4074,6 +4074,44 @@ public final class VehiclePropertyIds {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CRUISE_CONTROL_COMMAND = 289411090;
+
+    /**
+     * Current target speed for Cruise Control (CC) in meters per second.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue(int)} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue(int)} return the min and max target
+     * speed values respectively. These values will be non-negative.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue(int)} represents the lower
+     * bound of the target speed.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue(int)} represents the upper
+     * bound of the target speed.
+     *
+     * <p>Reading when this property is unavailable (for example when {@link CRUISE_CONTROL_ENABLED}
+     * is false) will throw a {@link android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int CRUISE_CONTROL_TARGET_SPEED = 291508243;
     /**
      * Enable or disable hands on detection (HOD).
      *

@@ -66,6 +66,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.BlockingAnswer;
+import android.car.test.mocks.MockSettings;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -131,6 +132,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Mock
     private Context mMockUserContext;
 
+    private MockSettings mMockSettings;
+
     private final int mContextUserId = 42;
 
     public CarUserServiceTest() {
@@ -139,6 +142,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        mMockSettings = new MockSettings(builder);
         super.onSessionBuilder(builder);
 
         builder.spyStatic(Car.class);
@@ -519,7 +523,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitializeGuestRestrictions_IfNotAlreadySet() {
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
-        assertThat(getSettingsInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET)).isEqualTo(1);
+        assertThat(mMockSettings.getInt(CarSettings.Global.DEFAULT_USER_RESTRICTIONS_SET))
+                .isEqualTo(1);
     }
 
     @Test

@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Gaan in by motorverkoper se toestemmingsinligting."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"lees motor se buiteligtestaat"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Toegang tot motor se buiteligtestaat."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"kry motor se paneelkassiestaat"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Kry motor se paneelkassiestaat."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"toegang tot motor se epogtyd"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Toegang tot motor se epogtyd."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"lees motor se buiteligte"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Lees motor se inligting oor ADAS-toestande."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"beheer motor se inligting oor ADAS-toestande"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Beheer motor se inligting oor ADAS-toestande."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"lees motor se ruitveërs"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Lees motor se ruitveërs."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"beheer motor se ruitveërs"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Beheer motor se ruitveërs."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitor die toestande van ander insittendesones in die motor en eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in daardie sones geïnstalleer is, en bestuur die vermoëns van daardie sones."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitor die toestande van ander insittendesones in die motor en eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in daardie sones geïnstalleer is, en bestuur die vermoëns van daardie sones."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"bewerkstellig ’n verbinding en kommunikeer met eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in ander insittendesones in die motor geïnstalleer is"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Bewerkstellig ’n verbinding en kommunikeer met eweknie-apps (apps wat dieselfde pakketnaam as die beller het) wat in ander insittendesones in die motor geïnstalleer is."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"weerspieël die skerm van ander apps"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Weerspieël die skerm van ander apps."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"weerspieël die skerm van ander gebruikers"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Weerspieël die skerm van ander gebruikers."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Verskaf ’n stelsel-UI-instaanbediener wat deur ander apps gebruik kan word om die stelsel-UI te bestuur en taakaansigte te skep."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Verskaf ’n stelsel-UI-instaanbediener wat deur ander apps gebruik kan word om die stelsel-UI te bestuur en taakaansigte te skep."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Kommunikeer met die motorstelsel-UI om taakaansigte te skep of oor stelsel-UI-veranderinge in kennis gestel te word."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Kommunikeer met die motorstelsel-UI om taakaansigte te skep of oor stelsel-UI-veranderinge in kennis gestel te word."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus het misluk"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageer nie. Ontprop hoofeenheidkas, prop dit weer in, en herbegin die motor"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>

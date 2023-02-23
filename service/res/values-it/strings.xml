@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Consente di accedere alle informazioni sulle autorizzazioni del produttore dell\'automobile."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"Lettura dello stato delle luci esterne dell\'automobile"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Consente di accedere allo stato delle luci esterne dell\'automobile."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"Accesso allo stato del vano portaoggetti dell\'auto"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Consente di accedere allo stato del vano portaoggetti dell\'auto."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"Accesso all\'ora del periodo dell\'auto"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Consente di accedere all\'ora del periodo dell\'auto."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"Lettura delle luci esterne dell\'automobile"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Consente di leggere le informazioni sugli stati ADAS dell\'auto."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"Controllo delle informazioni sugli stati ADAS dell\'auto"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Consente di controllare le informazioni sugli stati ADAS dell\'auto."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"Lettura dello stato dei tergicristalli dell\'auto"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Consente di leggere lo stato dei tergicristalli dell\'auto."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"Controllo dei tergicristalli dell\'auto"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Consente di controllare i tergicristalli dell\'auto."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"Monitoraggio degli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché gestione dell\'alimentazione di quelle zone"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Consente di monitorare gli stati delle altre zone degli occupanti dell\'auto e delle app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in quelle zone, nonché di gestire l\'alimentazione di quelle zone."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"Creazione di una connessione e comunicazione con app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in altre zone degli occupanti dell\'auto"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Consente di stabilire una connessione e comunicare con app peer (app che hanno lo stesso nome di pacchetto del chiamante) installate in altre zone degli occupanti dell\'auto."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"mirroring dello schermo di altre app"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Mirroring dello schermo di altre app."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"mirroring del display di altri utenti"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Mirroring del display di altri utenti."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Fornitura di un proxy dell\'UI di sistema che può essere usato da altre app per gestire l\'UI di sistema e creare visualizzazioni delle attività."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Fornitura di un proxy dell\'UI di sistema che può essere usato da altre app per gestire l\'UI di sistema e creare visualizzazioni delle attività."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Comunicazione con l\'UI di sistema dell\'auto per creare visualizzazioni delle attività o ricevere notifiche sulle modifiche dell\'UI di sistema."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Comunicazione con l\'UI di sistema dell\'auto per creare visualizzazioni delle attività o ricevere notifiche sulle modifiche dell\'UI di sistema."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Comunicazione tramite bus CAN non riuscita"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Il bus CAN non risponde. Scollega e ricollega l\'unità principale e riaccendi il motore."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mio dispositivo"</string>

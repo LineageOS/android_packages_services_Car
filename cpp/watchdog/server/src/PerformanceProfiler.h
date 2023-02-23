@@ -51,12 +51,18 @@ class PerformanceProfilerPeer;
 
 }  // namespace internal
 
-// Below structs should be used only by the implementation and unit tests.
-/**
- * Struct to represent user package performance stats.
- */
-struct UserPackageStats {
-    struct IoStats {
+// Below classes, structs and enums should be used only by the implementation and unit tests.
+enum ProcStatType {
+    IO_BLOCKED_TASKS_COUNT = 0,
+    MAJOR_FAULTS,
+    CPU_TIME,
+    PROC_STAT_TYPES,
+};
+
+// UserPackageStats represents the user package performance stats.
+class UserPackageStats {
+public:
+    struct IoStatsView {
         int64_t bytes[UID_STATES] = {0};
         int64_t fsync[UID_STATES] = {0};
 
@@ -67,7 +73,7 @@ struct UserPackageStats {
                     : std::numeric_limits<int64_t>::max();
         }
     };
-    struct ProcStats {
+    struct ProcSingleStatsView {
         uint64_t value = 0;
         struct ProcessValue {
             std::string comm = "";
@@ -75,11 +81,35 @@ struct UserPackageStats {
         };
         std::vector<ProcessValue> topNProcesses = {};
     };
-    uid_t uid = 0;
-    std::string genericPackageName = "";
-    std::variant<std::monostate, IoStats, ProcStats> stats;
+
+    UserPackageStats(MetricType metricType, const UidStats& uidStats);
+    UserPackageStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount);
+
+    // Class must be DefaultInsertable for std::vector<T>::resize to work
+    UserPackageStats() : uid(0), genericPackageName("") {}
+    // For unit test case only
+    UserPackageStats(uid_t uid, std::string genericPackageName,
+                     std::variant<std::monostate, IoStatsView, ProcSingleStatsView> statsView) :
+          uid(uid),
+          genericPackageName(std::move(genericPackageName)),
+          statsView(std::move(statsView)) {}
+
+    // Returns the primary value of the current StatsView. If the variant has value
+    // |std::monostate|, returns 0.
+    //
+    // This value should be used to sort the StatsViews.
+    uint64_t getValue() const;
     std::string toString(MetricType metricsType, const int64_t totalIoStats[][UID_STATES]) const;
     std::string toString(int64_t totalValue) const;
+
+    uid_t uid;
+    std::string genericPackageName;
+    std::variant<std::monostate, IoStatsView, ProcSingleStatsView> statsView;
+
+private:
+    bool cacheTopNProcessStats(
+            ProcStatType procStatType, const ProcessStats& processStats,
+            std::vector<UserPackageStats::ProcSingleStatsView::ProcessValue>* topNProcesses);
 };
 
 /**
