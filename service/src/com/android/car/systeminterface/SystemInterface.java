@@ -84,18 +84,18 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public void releaseAllWakeLocks() {
-        mWakeLockInterface.releaseAllWakeLocks();
+    public void releaseAllWakeLocks(int displayId) {
+        mWakeLockInterface.releaseAllWakeLocks(displayId);
     }
 
     @Override
-    public void switchToPartialWakeLock() {
-        mWakeLockInterface.switchToPartialWakeLock();
+    public void switchToPartialWakeLock(int displayId) {
+        mWakeLockInterface.switchToPartialWakeLock(displayId);
     }
 
     @Override
-    public void switchToFullWakeLock() {
-        mWakeLockInterface.switchToFullWakeLock();
+    public void switchToFullWakeLock(int displayId) {
+        mWakeLockInterface.switchToFullWakeLock(displayId);
     }
 
     @Override
@@ -133,8 +133,13 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public void setDisplayState(boolean on) {
-        mDisplayInterface.setDisplayState(on);
+    public void setDisplayState(int displayId, boolean on) {
+        mDisplayInterface.setDisplayState(displayId, on);
+    }
+
+    @Override
+    public void setAllDisplayState(boolean on) {
+        mDisplayInterface.setAllDisplayState(on);
     }
 
     @Override
@@ -154,8 +159,13 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public boolean isDisplayEnabled() {
-        return mDisplayInterface.isDisplayEnabled();
+    public boolean isAnyDisplayEnabled() {
+        return mDisplayInterface.isAnyDisplayEnabled();
+    }
+
+    @Override
+    public boolean isDisplayEnabled(int displayId) {
+        return mDisplayInterface.isDisplayEnabled(displayId);
     }
 
     @Override

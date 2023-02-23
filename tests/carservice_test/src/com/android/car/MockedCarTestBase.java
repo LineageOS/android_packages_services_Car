@@ -559,7 +559,10 @@ public class MockedCarTestBase {
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public void setDisplayState(boolean on) {}
+        public void setDisplayState(int displayId, boolean on) {}
+
+        @Override
+        public void setAllDisplayState(boolean on) {}
 
         @Override
         public void startDisplayStateMonitoring() {}
@@ -571,7 +574,12 @@ public class MockedCarTestBase {
         public void refreshDisplayBrightness() {}
 
         @Override
-        public boolean isDisplayEnabled() {
+        public boolean isAnyDisplayEnabled() {
+            return true;
+        }
+
+        @Override
+        public boolean isDisplayEnabled(int displayId) {
             return true;
         }
     }
@@ -715,13 +723,13 @@ public class MockedCarTestBase {
     static final class MockWakeLockInterface implements WakeLockInterface {
 
         @Override
-        public void releaseAllWakeLocks() {}
+        public void releaseAllWakeLocks(int displayId) {}
 
         @Override
-        public void switchToPartialWakeLock() {}
+        public void switchToPartialWakeLock(int displayId) {}
 
         @Override
-        public void switchToFullWakeLock() {}
+        public void switchToFullWakeLock(int displayId) {}
     }
 
     static final class FakeCarPowerPolicyDaemon extends ICarPowerPolicySystemNotification.Stub {

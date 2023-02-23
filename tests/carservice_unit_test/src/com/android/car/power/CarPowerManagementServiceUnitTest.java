@@ -64,6 +64,7 @@ import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.view.Display;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -199,6 +200,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .thenReturn(900);
         when(mResources.getInteger(R.integer.config_maxSuspendWaitDuration))
                 .thenReturn(WAKE_UP_DELAY);
+        when(mResources.getBoolean(R.bool.config_enablePassengerDisplayPowerSaving))
+                .thenReturn(false);
         doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
         doAnswer(invocation -> {
             mVoiceInteractionEnabled = (boolean) invocation.getArguments()[0];
@@ -240,7 +243,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                         VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
         assertThat(mService.garageModeShouldExitImmediately()).isFalse();
-        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
         mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
@@ -309,7 +312,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         // To test module behavior, we need to actually implement mock listener module.
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
-        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
         mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
@@ -449,7 +452,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
 
@@ -461,14 +464,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         // Second processing after wakeup
-        assertThat(mDisplayInterface.isDisplayEnabled()).isTrue();
+        assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
         assertThat(mService.getCurrentPowerPolicy().getPolicyId())
                 .isEqualTo(SYSTEM_POWER_POLICY_INITIAL_ON);
 
         mService.setStateForWakeUp();
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOn(WAIT_TIMEOUT_MS);
         // Should wait until Handler has finished ON processing
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
 
@@ -963,7 +966,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mPowerSignalListener.addEventListener(PowerHalService.SET_DEEP_SLEEP_EXIT);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.setWakeupCausedByTimer(true);
@@ -1004,7 +1007,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mVoiceInteractionEnabled = true;
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
-        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOff(WAIT_TIMEOUT_MS);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         assertVoiceInteractionDisabled();
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
@@ -1022,14 +1025,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         // second processing after wakeup
         assertThat(mService.getCurrentPowerPolicy().getPolicyId()).isEqualTo(
                 SYSTEM_POWER_POLICY_INITIAL_ON);
-        assertThat(mDisplayInterface.isDisplayEnabled()).isTrue();
+        assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
 
         mFileHwStateMonitoring.write(NONSILENT_STRING); // Wake non-silently
         mService.setStateForWakeUp();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
         assertVoiceInteractionEnabled();
 
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mDisplayInterface.waitForAllDisplaysOn(WAIT_TIMEOUT_MS);
         // Should wait until Handler has finished ON processing.
         CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
 
@@ -1048,7 +1051,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         // Since we just woke up from shutdown, wake up time will be 0
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        assertThat(mDisplayInterface.isDisplayEnabled()).isTrue();
+        assertThat(mDisplayInterface.isAnyDisplayEnabled()).isTrue();
     }
 
     private void assertStateReceived(int expectedState, int expectedParam) throws Exception {
@@ -1148,37 +1151,77 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
     private static final class MockDisplayInterface implements DisplayInterface {
         @GuardedBy("sLock")
-        private boolean mDisplayOn = true;
+        private final SparseBooleanArray mDisplayOn = new SparseBooleanArray();
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
         @Override
         public void init(CarPowerManagementService carPowerManagementService,
-                CarUserService carUserService) {}
+                CarUserService carUserService) {
+            synchronized (sLock) {
+                mDisplayOn.put(Display.DEFAULT_DISPLAY, true);
+            }
+        }
 
         @Override
         public void setDisplayBrightness(int brightness) {}
 
         @Override
-        public void setDisplayState(boolean on) {
+        public void setDisplayState(int displayId, boolean on) {
             synchronized (sLock) {
-                mDisplayOn = on;
+                mDisplayOn.put(displayId, on);
             }
             mDisplayStateWait.release();
         }
 
-        private void waitForDisplayOn(long timeoutMs) throws Exception {
-            waitForDisplayState(true, timeoutMs);
+        @Override
+        public void setAllDisplayState(boolean on) {
+            synchronized (sLock) {
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    setDisplayState(displayId, on);
+                }
+            }
         }
 
-        private void waitForDisplayOff(long timeoutMs) throws Exception {
-            waitForDisplayState(false, timeoutMs);
+        private void waitForDisplayOn(int displayId, long timeoutMs) throws Exception {
+            waitForDisplayState(displayId, /* expectedState= */ true, timeoutMs);
         }
 
-        private void waitForDisplayState(boolean desiredState, long timeoutMs) throws Exception {
+        private void waitForDisplayOff(int displayId, long timeoutMs) throws Exception {
+            waitForDisplayState(displayId, /* expectedState= */ false, timeoutMs);
+        }
+
+        private void waitForAllDisplaysOn(long timeoutMs) throws Exception {
+            waitForAllDisplaysState(/* expectedState= */ true, timeoutMs);
+        }
+
+        private void waitForAllDisplaysOff(long timeoutMs) throws Exception {
+            waitForAllDisplaysState(/* expectedState= */ false, timeoutMs);
+        }
+
+        private void waitForAllDisplaysState(boolean expectedState, long timeoutMs)
+                throws Exception {
+            SparseBooleanArray displayOn;
+            synchronized (sLock) {
+                displayOn = mDisplayOn.clone();
+            }
+            for (int i = 0; i < displayOn.size(); i++) {
+                int displayId = displayOn.keyAt(i);
+                if (expectedState)  {
+                    waitForDisplayOn(displayId, timeoutMs);
+                } else {
+                    waitForDisplayOff(displayId, timeoutMs);
+                }
+            }
+        }
+
+        private void waitForDisplayState(int displayId, boolean expectedState, long timeoutMs)
+                throws Exception {
             int nTries = 0;
             while (true) {
                 synchronized (sLock) {
-                    if (mDisplayOn == desiredState) {
+                    boolean enabled = mDisplayOn.get(displayId);
+                    if (enabled == expectedState) {
                         break;
                     }
                 }
@@ -1198,9 +1241,22 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         public void refreshDisplayBrightness() {}
 
         @Override
-        public boolean isDisplayEnabled() {
+        public boolean isAnyDisplayEnabled() {
             synchronized (sLock) {
-                return mDisplayOn;
+                for (int i = 0; i < mDisplayOn.size(); i++) {
+                    int displayId = mDisplayOn.keyAt(i);
+                    if (isDisplayEnabled(displayId)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isDisplayEnabled(int displayId) {
+            synchronized (sLock) {
+                return mDisplayOn.get(displayId);
             }
         }
     }
@@ -1297,13 +1353,13 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final class MockWakeLockInterface implements WakeLockInterface {
 
         @Override
-        public void releaseAllWakeLocks() {}
+        public void releaseAllWakeLocks(int displayId) {}
 
         @Override
-        public void switchToPartialWakeLock() {}
+        public void switchToPartialWakeLock(int displayId) {}
 
         @Override
-        public void switchToFullWakeLock() {}
+        public void switchToFullWakeLock(int displayId) {}
     }
 
     private static final class MockIOInterface implements IOInterface {

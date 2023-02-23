@@ -352,12 +352,12 @@ public final class PowerComponentHandler {
 
         @Override
         public boolean isEnabled() {
-            return mSystemInterface.isDisplayEnabled();
+            return mSystemInterface.isAnyDisplayEnabled();
         }
 
         @Override
         public void setEnabled(boolean enabled) {
-            mSystemInterface.setDisplayState(enabled);
+            mSystemInterface.setAllDisplayState(enabled);
             Slogf.d(TAG, "Display power component is %s", enabled ? "on" : "off");
         }
     }
