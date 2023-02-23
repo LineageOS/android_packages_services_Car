@@ -50,7 +50,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.hardware.display.DisplayManager;
 import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Binder;
@@ -76,6 +75,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -211,7 +211,7 @@ public class CarInputService extends ICarInput.Stub
     private final CarBluetoothService mCarBluetoothService;
     private final CarPowerManagementService mCarPowerService;
     private final TelecomManager mTelecomManager;
-    private final DisplayManager mDisplayManager;
+    private final SystemInterface mSystemInterface;
 
     // The default handler for main-display key events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
@@ -298,12 +298,12 @@ public class CarInputService extends ICarInput.Stub
 
     public CarInputService(Context context, InputHalService inputHalService,
             CarUserService userService, CarOccupantZoneService occupantZoneService,
-            CarBluetoothService bluetoothService, CarPowerManagementService carPowerService) {
+            CarBluetoothService bluetoothService, CarPowerManagementService carPowerService,
+            SystemInterface systemInterface) {
         this(context, inputHalService, userService, occupantZoneService, bluetoothService,
-                carPowerService,
+                carPowerService, systemInterface,
                 new Handler(getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class),
-                context.getSystemService(DisplayManager.class),
                 new KeyEventListener() {
                     @Override
                     public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int displayType,
@@ -324,8 +324,8 @@ public class CarInputService extends ICarInput.Stub
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
             CarOccupantZoneService occupantZoneService, CarBluetoothService bluetoothService,
-            CarPowerManagementService carPowerService, Handler handler,
-            TelecomManager telecomManager, DisplayManager displayManager,
+            CarPowerManagementService carPowerService, SystemInterface systemInterface,
+            Handler handler, TelecomManager telecomManager,
             KeyEventListener defaultKeyHandler, MotionEventListener defaultMotionHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
@@ -337,8 +337,8 @@ public class CarInputService extends ICarInput.Stub
         mCarOccupantZoneService = occupantZoneService;
         mCarBluetoothService = bluetoothService;
         mCarPowerService = carPowerService;
+        mSystemInterface = systemInterface;
         mTelecomManager = telecomManager;
-        mDisplayManager = displayManager;
         mDefaultKeyHandler = defaultKeyHandler;
         mDefaultMotionHandler = defaultMotionHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
@@ -833,8 +833,7 @@ public class CarInputService extends ICarInput.Stub
             return;
         }
 
-        Display display = mDisplayManager.getDisplay(displayId);
-        boolean isOn = isOnState(display);
+        boolean isOn = mSystemInterface.isDisplayEnabled(displayId);
 
         if (event.getAction() == KeyEvent.ACTION_DOWN && event.getRepeatCount() == 0) {
             if (!isOn) {
@@ -855,20 +854,6 @@ public class CarInputService extends ICarInput.Stub
 
     private void setPowerKeyHandled(@VehicleAreaSeat.Enum int seat, boolean handled) {
         mPowerKeyHandled.put(seat, handled);
-    }
-
-    // TODO(b/259999340): This function will be replaced by
-    // {@link com.android.car.systeminterface.SystemInterface#isDisplayEnabled(int)}
-    // It is same to {@link Display#isOnState(int)}
-    private static boolean isOnState(Display display) {
-        if (display == null) {
-            return false;
-        }
-
-        int state = display.getState();
-        return state == Display.STATE_ON
-                || state == Display.STATE_VR
-                || state == Display.STATE_ON_SUSPEND;
     }
 
     private void handleHomeKey(KeyEvent event, @DisplayTypeEnum int targetDisplayType,

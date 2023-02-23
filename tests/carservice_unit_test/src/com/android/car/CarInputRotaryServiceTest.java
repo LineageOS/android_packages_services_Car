@@ -52,6 +52,7 @@ import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
@@ -92,6 +93,7 @@ public class CarInputRotaryServiceTest {
     @Mock private CarBluetoothService mCarBluetoothService;
     @Mock private CarPowerManagementService mCarPowerManagementService;
     @Mock private CarPackageManagerService mCarPackageManagerService;
+    @Mock private SystemInterface mSystemInterface;
 
     @Spy private final Context mContext = ApplicationProvider.getApplicationContext();
     @Spy private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -149,6 +151,7 @@ public class CarInputRotaryServiceTest {
     @Before
     public void setUp() {
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
+        when(mSystemInterface.isDisplayEnabled(anyInt())).thenReturn(true);
         // Delay Handler callbacks until flushHandler() is called.
         doReturn(true).when(mHandler).sendMessageAtTime(any(), anyLong());
     }
@@ -297,8 +300,8 @@ public class CarInputRotaryServiceTest {
                 mUxRestrictionService, mCarPackageManagerService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
-                mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService, mHandler,
-                mTelecomManager, mDisplayManager, mDefaultKeyEventMainListener,
+                mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
+                mSystemInterface, mHandler, mTelecomManager, mDefaultKeyEventMainListener,
                 mDefaultMotionEventMainListener, mLastCallSupplier, mLongPressDelaySupplier,
                 mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
         mCarInputService.init();
