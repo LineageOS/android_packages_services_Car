@@ -200,13 +200,17 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Վերահսկել մեքենայի ուղևորային այլ գոտիների և այդ գոտիներում տեղադրված հավասարազոր հավելվածների (հավելվածներ, որոնք ունեն նույն փաթեթի անվանումը, ինչ զանգողը) կարգավիճակը և կառավարել այդ գոտիների էներգասնուցումը։"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"կապ հաստատել և տեղեկություններ փոխանակել մեքենայի ուղևորային այլ գոտիներում տեղադրված հավասարազոր հավելվածների հետ (հավելվածներ, որոնք ունեն նույն փաթեթի անվանումը, ինչ զանգողը)"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Կապ հաստատել և տեղեկություններ փոխանակել մեքենայի ուղևորային այլ գոտիներում տեղադրված հավասարազոր հավելվածների հետ (հավելվածներ, որոնք ունեն նույն փաթեթի անվանումը, ինչ զանգողը)։"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"հայելապատճենել այլ հավելվածների էկրանը"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Հայելապատճենել այլ հավելվածների էկրանը։"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"հայելապատճենել այլ օգտատերերի էկրանը"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Հայելապատճենել այլ օգտատերերի էկրանը։"</string>
+    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
     <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
+    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
     <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
+    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
     <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
+    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
     <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN անվադողի սխալ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN անվադողը չի պատասխանում: Անջատեք և նորից միացրեք միակցիչը, ապա անջատեք վառոցքը և վերագործարկեք մեքենան:"</string>

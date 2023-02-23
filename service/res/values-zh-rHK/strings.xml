@@ -204,6 +204,14 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"鏡像顯示其他應用程式的螢幕。"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"鏡像顯示其他使用者的顯示屏"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"鏡像顯示其他使用者的顯示屏。"</string>
+    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
+    <skip />
+    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路操作失敗"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路未有回覆。請拔除並重新插上汽車音響主機，然後重新啟動汽車"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>
