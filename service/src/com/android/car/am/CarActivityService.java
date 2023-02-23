@@ -145,10 +145,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public int setPersistentActivity(ComponentName activity, int displayId, int featureId) throws
             RemoteException {
-        if (PackageManager.PERMISSION_GRANTED != mContext.checkCallingOrSelfPermission(
-                Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)) {
-            throw new SecurityException("Requires " + Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
-        }
+        ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
         int caller = getCaller();
         if (caller != UserManagerHelper.USER_SYSTEM && caller != ActivityManager.getCurrentUser()) {
             return CarActivityManager.RESULT_INVALID_USER;
@@ -625,6 +622,19 @@ public final class CarActivityService extends ICarActivityService.Stub
             return;
         }
         Slogf.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);
+    }
+
+    @Override
+    public void moveRootTaskToDisplay(int taskId, int displayId) {
+        ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+
+        // Calls moveRootTaskToDisplay() with the system uid.
+        long identity = Binder.clearCallingIdentity();
+        try {
+            ActivityManagerHelper.moveRootTaskToDisplay(taskId, displayId);
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
     }
 
     @Override
