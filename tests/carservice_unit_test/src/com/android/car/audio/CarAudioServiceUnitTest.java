@@ -110,6 +110,7 @@ import android.car.media.IMediaAudioRequestStatusCallback;
 import android.car.media.IPrimaryZoneMediaAudioRequestCallback;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.MockSettings;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -162,18 +163,15 @@ import com.android.car.test.utils.TemporaryFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@RunWith(MockitoJUnitRunner.class)
 public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarAudioServiceUnitTest.class.getSimpleName();
     private static final long TEST_CALLBACK_TIMEOUT_MS = 100;
@@ -313,6 +311,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     @Mock
     private CarInputService mMockCarInputService;
 
+    // Not used directly, but sets proper mockStatic() expectations on Settings
+    @SuppressWarnings("UnusedVariable")
+    private MockSettings mMockSettings;
+
     private boolean mPersistMasterMute = true;
     private boolean mUseDynamicRouting = true;
     private boolean mUseHalAudioDucking = true;
@@ -335,6 +337,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        mMockSettings = new MockSettings(session);
         session
                 .spyStatic(AudioManager.class)
                 .spyStatic(AudioManagerHelper.class)
