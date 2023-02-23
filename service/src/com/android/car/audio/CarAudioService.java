@@ -47,6 +47,7 @@ import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -114,8 +115,10 @@ import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallb
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.audio.hal.HalAudioGainCallback;
+import com.android.car.audio.hal.HalAudioModuleChangeCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.ArrayUtils;
@@ -207,6 +210,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     private @Nullable CoreAudioVolumeGroupCallback mCoreAudioVolumeGroupCallback;
 
     private CarOccupantZoneService mOccupantZoneService;
+    private CarAudioModuleChangeMonitor mCarAudioModuleChangeMonitor;
 
     /**
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
@@ -325,6 +329,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     @GuardedBy("mImplLock")
     private CarAudioPolicyVolumeCallback mCarAudioPolicyVolumeCallback;
 
+    private final HalAudioModuleChangeCallback mHalAudioModuleChangeCallback =
+            new HalAudioModuleChangeCallback() {
+                @Override
+                public void onAudioPortsChanged(List<HalAudioDeviceInfo> deviceInfos) {
+                    synchronized (mImplLock) {
+                        handleAudioPortsChangedLocked(deviceInfos);
+                    }
+                }
+            };
+
     public CarAudioService(Context context) {
         this(context, getAudioConfigurationPath(), new CarVolumeCallbackHandler());
     }
@@ -379,6 +393,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
                 setupHalAudioGainCallbackLocked();
+                setupHalAudioModuleChangeCallbackLocked();
                 setupAudioConfigurationCallbackLocked();
                 setupPowerPolicyListener();
                 mCarInputService.registerKeyEventListener(mCarKeyEventListener,
@@ -1328,6 +1343,18 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
         mCarAudioGainMonitor = new CarAudioGainMonitor(mAudioControlWrapper, mCarAudioZones);
         mCarAudioGainMonitor.registerAudioGainListener(mHalAudioGainCallback);
+    }
+
+    @GuardedBy("mImplLock")
+    private void setupHalAudioModuleChangeCallbackLocked() {
+        AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+        if (!audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)) {
+            Slogf.w(CarLog.TAG_AUDIO, "HalModuleChangeCallback is not supported on this device");
+            return;
+        }
+        mCarAudioModuleChangeMonitor = new CarAudioModuleChangeMonitor(mAudioControlWrapper,
+                new CarVolumeInfoWrapper(this), mCarAudioZones);
+        mCarAudioModuleChangeMonitor.setModuleChangeCallback(mHalAudioModuleChangeCallback);
     }
 
     /**
@@ -2474,14 +2501,25 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
+    private void resetHalAudioModuleChange() {
+        if (mCarAudioModuleChangeMonitor != null) {
+            mCarAudioModuleChangeMonitor.setModuleChangeCallback(mHalAudioModuleChangeCallback);
+        }
+    }
+
     private void handleAudioDeviceGainsChangedLocked(
             List<Integer> halReasons, List<CarAudioGainConfigInfo> gains) {
         mCarAudioGainMonitor.handleAudioDeviceGainsChanged(halReasons, gains);
     }
 
+    private void handleAudioPortsChangedLocked(List<HalAudioDeviceInfo> deviceInfos) {
+        mCarAudioModuleChangeMonitor.handleAudioPortsChanged(deviceInfos);
+    }
+
     private void audioControlDied() {
         resetHalAudioFocus();
         resetHalAudioGain();
+        resetHalAudioModuleChange();
     }
 
     boolean isAudioZoneIdValid(int zoneId) {
