@@ -327,20 +327,30 @@ public class CarAudioPlaybackCallbackTest extends AbstractExtendedMockitoTestCas
     }
 
     private CarAudioZone generatePrimaryZone() {
+        CarAudioZoneConfig primaryCarAudioZoneConfig =
+                new CarAudioZoneConfig.Builder("Primary zone config 0", PRIMARY_ZONE_ID,
+                        /* zoneConfigId= */ 0, /* isDefault= */ true)
+                        .addVolumeGroup(new VolumeGroupBuilder()
+                                .addDeviceAddressAndContexts(TEST_MEDIA_AUDIO_CONTEXT,
+                                        PRIMARY_MEDIA_ADDRESS)
+                                .build())
+                        .build();
         return new TestCarAudioZoneBuilder("Primary zone", PRIMARY_ZONE_ID)
-                .addVolumeGroup(new VolumeGroupBuilder()
-                        .addDeviceAddressAndContexts(TEST_MEDIA_AUDIO_CONTEXT,
-                                PRIMARY_MEDIA_ADDRESS)
-                        .build())
+                .addCarAudioZoneConfig(primaryCarAudioZoneConfig)
                 .build();
     }
 
     private CarAudioZone generateSecondaryZone() {
+        CarAudioZoneConfig secondaryCarAudioZoneConfig =
+                new CarAudioZoneConfig.Builder("Secondary zone config 0", SECONDARY_ZONE_ID,
+                        /* zoneConfigId= */ 0, /* isDefault= */ true)
+                        .addVolumeGroup(new VolumeGroupBuilder()
+                                .addDeviceAddressAndContexts(TEST_MEDIA_AUDIO_CONTEXT,
+                                        SECONDARY_MEDIA_ADDRESS)
+                                .build())
+                        .build();
         return new TestCarAudioZoneBuilder("Secondary zone", SECONDARY_ZONE_ID)
-                .addVolumeGroup(new VolumeGroupBuilder()
-                        .addDeviceAddressAndContexts(TEST_MEDIA_AUDIO_CONTEXT,
-                                SECONDARY_MEDIA_ADDRESS)
-                        .build())
+                .addCarAudioZoneConfig(secondaryCarAudioZoneConfig)
                 .build();
     }
 }
