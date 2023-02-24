@@ -151,14 +151,11 @@ import java.util.concurrent.Executor;
  *        creates a different CarOccupantConnectionManager instance (managerB). Then sender1A uses
  *        managerA to request a connection to occupantZone2. Once connected, sender1B can use
  *        managerB to send Payload to occupantZone2 without requesting a new connection.
- *        To know whether it is connected to occupantZone2, sender1B can call {@link #isConnected},
- *        or register a {@link ConnectionStateCallback} via {@link
- *        #registerConnectionStateCallback}.
+ *        To know whether it is connected to occupantZone2, sender1B can call {@link #isConnected}.
  *   <li> Besides, sender1B can terminate the connection by calling managerB#disconnect(), despite
  *        that the connection was requested by sender1A. Once the connection is terminated, sender1A
  *        will be notified via {@link ConnectionRequestCallback#onDisconnected}, and sender1B will
- *        be notified via {@link ConnectionStateCallback#onConnectionChanged} if it has a {@link
- *        ConnectionStateCallback} registered for occupantZone2.
+ *        not be notified since it didn't register register the {@link ConnectionRequestCallback}.
  * </ul>
  *
  * @hide
@@ -557,49 +554,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             Slog.e(TAG, "Failed to get connection state");
             return handleRemoteExceptionFromCarService(e, false);
         }
-    }
-
-    /**
-     * Registers the {@code callback} to listen to connection state changes of the given occupant
-     * zone. Multiple {@link ConnectionStateCallback}s can be registered.
-     * <p>
-     * This method is useful when there are multiple sender endpoints in the client app. Once a
-     * sender has established a connection to the given occupant zone, other senders can get the
-     * connection state via this method, and reuse the connection to send {@link Payload}.
-     *
-     * @param receiverZone the occupant zone to connect to
-     * @param executor     the Executor to run the callback
-     * @param callback     the callback notified for the connection state
-     * @throws IllegalStateException if the {@code callback} was registered already
-     */
-    // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
-    public void registerConnectionStateCallback(@NonNull OccupantZoneInfo receiverZone,
-            @NonNull @CallbackExecutor Executor executor,
-            @NonNull ConnectionStateCallback callback) {
-        Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
-        Objects.requireNonNull(executor, "executor cannot be null");
-        Objects.requireNonNull(callback, "callback cannot be null");
-        // TODO(b/257117236): implement this method.
-    }
-
-    /**
-     * Unregister the existing {@code callback}.
-     * <p>
-     * This method can be called after calling {@link #registerConnectionStateCallback}, as soon
-     * as this caller no longer needs to reuse the connection to send {@link Payload}, or becomes
-     * inactive.
-     *
-     * @throws IllegalStateException if the {@code callback} was not registered before
-     */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
-    public void unregisterConnectionStateCallback(@NonNull OccupantZoneInfo receiverZone) {
-        Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
-        // TODO(b/257117236): implement this method.
     }
 
     private void onConnectionRequestCallbackInvoked(int callbackId, int requestId,
