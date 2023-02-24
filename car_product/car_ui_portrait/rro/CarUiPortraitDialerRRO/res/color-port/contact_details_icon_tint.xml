@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
@@ -13,14 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="@dimen/primary_icon_size"
-        android:height="@dimen/primary_icon_size"
-        android:viewportWidth="24"
-        android:viewportHeight="24">
-    <path
-        android:pathData="M4.5,20.29L12,2L19.5,20.29L18.79,21L12,18L5.21,21L4.5,20.29ZM16.28,17.7L12,7.27L7.72,17.7L11.19,16.17L12,15.81L12.81,16.17L16.28,17.7Z"
-        android:fillColor="@color/car_on_surface"
-        android:fillType="evenOdd"/>
-</vector>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/car_on_surface"
+          android:state_enabled="true"
+          android:state_activated="false"/>
+    <item android:color="@color/car_on_primary"
+          android:state_enabled="true"
+          android:state_activated="true"/>
+    <item android:color="@color/car_on_surface"/>
+</selector>
