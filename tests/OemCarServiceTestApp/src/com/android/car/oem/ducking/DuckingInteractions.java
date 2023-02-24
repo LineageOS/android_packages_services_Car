@@ -21,15 +21,17 @@ import static com.android.car.oem.utils.AudioUtils.getAudioAttributeFromUsage;
 import android.car.oem.OemCarAudioVolumeRequest;
 import android.media.AudioAttributes;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.Slog;
 
-import com.android.car.oem.utils.AudioAttributesWrapper;
+import com.android.car.oem.utils.AudioUtils;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Class for evaluating the focus interactions
@@ -37,38 +39,45 @@ import java.util.List;
 public final class DuckingInteractions {
 
     private static final String TAG = DuckingInteractions.class.getSimpleName();
+    public static final ArrayMap<AudioAttributes, List<AudioAttributes>> DEFAULT_INTERACTION =
+            new ArrayMap<>();
 
-    /**
-     * List of ducking priorities, with the highest priority at the beginning of the list.
-     */
-    public static final List<AudioAttributes> DUCKED_PRIORITIES = List.of(
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANT),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_VEHICLE_STATUS),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_ALARM),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
-            getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA));
+    static {
+        List<AudioAttributes> duckedPriorities = List.of(
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANT),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_VEHICLE_STATUS),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_ALARM),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
+                getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA));
 
-    private final ArrayMap<AudioAttributesWrapper, Integer> mAudioAttributeToPriority;
-
-    public DuckingInteractions(List<AudioAttributes> audioAttributes) {
-        mAudioAttributeToPriority = new ArrayMap<>(audioAttributes.size());
-        for (int index = 0; index < audioAttributes.size(); index++) {
-            mAudioAttributeToPriority.append(new AudioAttributesWrapper(audioAttributes.get(index)),
-                    audioAttributes.size() - index - 1);
+        for (int i = 0; i < duckedPriorities.size(); i++) {
+            AudioAttributes holder = duckedPriorities.get(i);
+            List<AudioAttributes> attributesToDuck = new ArrayList<>();
+            for (int j = i + 1; j < duckedPriorities.size(); j++) {
+                attributesToDuck.add(duckedPriorities.get(j));
+            }
+            DEFAULT_INTERACTION.put(holder, attributesToDuck);
         }
+    }
+
+    public final ArrayMap<AudioAttributes, List<AudioAttributes>> mDuckingInteractions;
+
+    public DuckingInteractions(ArrayMap<AudioAttributes, List<AudioAttributes>>
+            duckingInteractions) {
+        mDuckingInteractions = duckingInteractions;
     }
 
     /**
@@ -88,52 +97,34 @@ public final class DuckingInteractions {
             }
             return Collections.EMPTY_LIST;
         }
-        int highestPriority = -1;
-        AudioAttributesWrapper highestPriorityAttribute = null;
-        List<AudioAttributesWrapper> activeAudioAttributesWrappers =
-                new ArrayList<>(activeAudioAttributes.size());
-        for (int index = 0; index < activeAudioAttributes.size(); index++) {
-            AudioAttributesWrapper wrapper =
-                    new AudioAttributesWrapper(activeAudioAttributes.get(index));
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "Evaluating " + wrapper);
-            }
-            activeAudioAttributesWrappers.add(wrapper);
-            int priority = mAudioAttributeToPriority.getOrDefault(wrapper, /* defaultValue= */ -1);
-            if (priority > highestPriority) {
-                highestPriority = priority;
-                highestPriorityAttribute = wrapper;
-            }
-        }
-
-        // Duck everything except higher priority
-        List<AudioAttributes> duckedAudioAttributes =
-                new ArrayList<>(activeAudioAttributes.size() - 1);
-
-        for (int index = 0; index < activeAudioAttributesWrappers.size(); index++) {
-            AudioAttributesWrapper wrapper = activeAudioAttributesWrappers.get(index);
-            if (wrapper.equals(highestPriorityAttribute)) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slog.d(TAG, "Not ducking audio attribute[" + index + "]:"
-                            + highestPriorityAttribute);
+        Set<AudioAttributes> activeAudioAttributesSet = new ArraySet<>(duckingRequest
+                .getActivePlaybackAttributes());
+        List<AudioAttributes> duckedAttributes = new ArrayList<>();
+        for (int i = 0; i < activeAudioAttributes.size(); i++) {
+            AudioAttributes currentActiveAttributes = activeAudioAttributes.get(i);
+            List<AudioAttributes> audioAttributesToDuck = mDuckingInteractions.get(
+                    currentActiveAttributes);
+            for (int j = 0; j < audioAttributesToDuck.size(); j++) {
+                if (activeAudioAttributesSet.contains(audioAttributesToDuck.get(j))) {
+                    duckedAttributes.add(audioAttributesToDuck.get(j));
                 }
-                continue;
             }
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "Ducking audio attribute[" + index + "]:" + wrapper);
-            }
-            duckedAudioAttributes.add(wrapper.getAudioAttributes());
         }
-
-        return duckedAudioAttributes;
+        return duckedAttributes;
     }
 
     public void dump(PrintWriter writer, String indent) {
         writer.printf("%sDucking priorities: \n", indent);
-        for (int index = mAudioAttributeToPriority.size() - 1; index >= 0; index--) {
-            writer.printf("%s%sPriority[%d]: %s \n", indent, indent, index,
-                    mAudioAttributeToPriority.keyAt(
-                            mAudioAttributeToPriority.indexOfValue(index)));
+        for (int index = 0; index < mDuckingInteractions.size(); index++) {
+            String holderUsageString = AudioUtils.getUsageString(mDuckingInteractions.keyAt(index));
+            writer.printf("%s%sHolder: %s \n", indent, indent, holderUsageString);
+            List<AudioAttributes> incomingDuckingInteractions =
+                    mDuckingInteractions.valueAt(index);
+            for (int j = 0; j < incomingDuckingInteractions.size(); j++) {
+                String incomingUsageString = AudioUtils.getUsageString(
+                        incomingDuckingInteractions.get(j));
+                writer.printf("%s%s%sIncoming: %s \n", indent, indent, indent, incomingUsageString);
+            }
         }
     }
 }

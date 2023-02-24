@@ -19,6 +19,7 @@ package com.android.car.oemcarservice.testapp;
 import android.car.oem.OemCarAudioDuckingService;
 import android.car.oem.OemCarAudioVolumeRequest;
 import android.media.AudioAttributes;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Slog;
 
@@ -38,19 +39,21 @@ final class OemCarAudioDuckingServiceImpl implements OemCarAudioDuckingService {
     private final DuckingInteractions mDuckingInteractions;
 
     /**
-     * Constructs a {@link DuckingInteractions} with the given ducking priorities, if
-     * the given ducking priorities is null it will default to
-     * {@link DuckingInteractions.DUCKED_PRIORITIES}
+     * Constructs a {@link DuckingInteractions} with the given ducking interactions, if
+     * the given ducking interactions is null it will use the default ducking interactions set in
+     * {@link DuckingInteractions#getDefaultDuckingInteractions()}
      *
-     * @param duckingPriorities A list of ducking priorities from highest priority to lowest
-     *        priority
+     * @param duckingInteractions A mapping from one AudioAttributes to a list of AudioAttributes
+     *        to be ducked.
      */
-    OemCarAudioDuckingServiceImpl(@Nullable List<AudioAttributes> duckingPriorities) {
-        List<AudioAttributes> duckingPriorityList = duckingPriorities;
-        if (duckingPriorityList == null) {
-            duckingPriorityList = DuckingInteractions.DUCKED_PRIORITIES;
+    OemCarAudioDuckingServiceImpl(@Nullable ArrayMap<AudioAttributes, List<AudioAttributes>>
+            duckingInteractions) {
+        ArrayMap<AudioAttributes, List<AudioAttributes>> duckingInteractionsMapping =
+                duckingInteractions;
+        if (duckingInteractionsMapping == null) {
+            duckingInteractionsMapping = DuckingInteractions.DEFAULT_INTERACTION;
         }
-        mDuckingInteractions = new DuckingInteractions(duckingPriorityList);
+        mDuckingInteractions = new DuckingInteractions(duckingInteractionsMapping);
         if (DEBUG) {
             Slog.d(TAG, "constructor");
         }
