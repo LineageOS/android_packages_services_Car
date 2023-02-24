@@ -39,7 +39,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/icon"
+        android:layout_toEndOf="@id/icon"
         android:layout_alignTop="@id/icon"
         android:singleLine="true"
         style="@style/TextAppearance.ContactUserProfile.Title" />
@@ -48,8 +48,8 @@
         android:id="@id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/title"
-        android:layout_toRightOf="@+id/icon"
+        android:layout_below="@id/title"
+        android:layout_toEndOf="@id/icon"
         android:singleLine="true"
         style="@style/TextAppearance.ContactUserProfile.Text" />
 
@@ -58,13 +58,13 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true">
+        android:layout_alignParentEnd="true">
 
         <View
-            android:layout_width="@dimen/divider_width"
-            android:layout_height="@dimen/avatar_icon_size"
+            android:layout_width="@dimen/list_divider_width"
+            android:layout_height="@dimen/list_divider_height"
             android:background="@color/divider_color"
-            android:layout_toLeftOf="@+id/contact_list_button"
+            android:layout_toStartOf="@id/contact_list_button"
             android:layout_marginEnd="@dimen/contact_user_profile_padding"/>
 
         <ImageView
@@ -73,7 +73,7 @@
             android:layout_height="@dimen/avatar_icon_size"
             android:src="@drawable/ic_arrow_right"
             android:duplicateParentState="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:scaleType="center"/>
 
     </RelativeLayout>

@@ -25,18 +25,18 @@
 
     <ImageView
         android:id="@+id/contact_picture"
-        android:layout_width="@dimen/avatar_icon_size"
-        android:layout_height="@dimen/avatar_icon_size"
+        android:layout_width="@dimen/type_down_list_item_avatar_size"
+        android:layout_height="@dimen/type_down_list_item_avatar_size"
         android:scaleType="centerCrop"
         android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:layout_marginRight="@dimen/contact_user_icon_margin"/>
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="@dimen/type_down_list_item_margin"/>
 
     <TextView
         android:id="@+id/contact_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/contact_picture"
+        android:layout_toEndOf="@id/contact_picture"
         android:layout_alignTop="@id/contact_picture"
         android:singleLine="true"
         android:duplicateParentState="true"
@@ -46,7 +46,7 @@
         android:id="@+id/phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/contact_picture"
+        android:layout_toEndOf="@+id/contact_picture"
         android:layout_below="@+id/contact_name"
         android:singleLine="true"
         style="@style/TextAppearance.ContactResult.PhoneNumber" />

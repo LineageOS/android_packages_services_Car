@@ -18,10 +18,12 @@ package android.car.app;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
+import android.car.Car;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.ViewHelper;
@@ -45,6 +47,7 @@ import java.util.concurrent.Executor;
  * <ul>
  *     <li>The underlying task is meant to be started by the host and be there forever.</li>
  * </ul>
+ *
  * @hide
  */
 @SystemApi
@@ -52,25 +55,23 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
 
     private final Executor mCallbackExecutor;
-    private final Intent mActivityIntent;
-    private final boolean mAutoRestartOnCrash;
     private final ControlledRemoteCarTaskViewCallback mCallback;
     private final UserManager mUserManager;
     private final CarTaskViewController mCarTaskViewController;
     private final Context mContext;
+    private final ControlledRemoteCarTaskViewConfig mConfig;
+    private final Rect mTmpRect = new Rect();
 
     ControlledRemoteCarTaskView(
             @NonNull Context context,
-            @NonNull Intent activityIntent,
-            @NonNull boolean autoRestartOnCrash,
+            ControlledRemoteCarTaskViewConfig config,
             @NonNull Executor callbackExecutor,
             @NonNull ControlledRemoteCarTaskViewCallback callback,
             CarTaskViewController carTaskViewController,
             @NonNull UserManager userManager) {
         super(context);
         mContext = context;
-        mActivityIntent = activityIntent;
-        mAutoRestartOnCrash = autoRestartOnCrash;
+        mConfig = config;
         mCallbackExecutor = callbackExecutor;
         mCallback = callback;
         mCarTaskViewController = carTaskViewController;
@@ -84,6 +85,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
      * {@link CarTaskViewController#createControlledRemoteCarTaskView(Executor, Intent, boolean,
      * ControlledRemoteCarTaskViewCallback)}.
      */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
@@ -114,11 +116,12 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         ViewHelper.getBoundsOnScreen(this, launchBounds);
         launchBounds.set(launchBounds);
         if (CarTaskViewController.DBG) {
-            Slogf.d(TAG, "Starting (" + mActivityIntent.getComponent() + ") on " + launchBounds);
+            Slogf.d(TAG, "Starting (" + mConfig.mActivityIntent.getComponent() + ") on "
+                    + launchBounds);
         }
         startActivity(
                 PendingIntent.getActivity(mContext, /* requestCode= */ 0,
-                        mActivityIntent,
+                        mConfig.mActivityIntent,
                         PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
                 /* fillInIntent= */ null, options, launchBounds);
     }
@@ -148,6 +151,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
         mCallbackExecutor.execute(() -> mCallback.onTaskInfoChanged(taskInfo));
     }
 
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
@@ -166,7 +170,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
         super.onTaskVanished(taskInfo);
-        if (mAutoRestartOnCrash && mCarTaskViewController.isHostVisible()) {
+        if (mConfig.mShouldAutoRestartOnCrash && mCarTaskViewController.isHostVisible()) {
             // onTaskVanished can be called when the host is in the background. In this case
             // embedded activity should not be started.
             Slogf.i(TAG, "Restarting task " + taskInfo.baseActivity
@@ -174,5 +178,26 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
             startActivity();
         }
         mCallbackExecutor.execute(() -> mCallback.onTaskVanished(taskInfo));
+    }
+
+    ControlledRemoteCarTaskViewConfig getConfig() {
+        return mConfig;
+    }
+
+    @Override
+    public String toString() {
+        return toString(/* withBounds= */ false);
+    }
+
+    String toString(boolean withBounds) {
+        if (withBounds) {
+            ViewHelper.getBoundsOnScreen(this, mTmpRect);
+        }
+        return TAG + " {\n"
+                + "  config=" + mConfig + "\n"
+                + "  taskId=" + (getTaskInfo() == null ? "null" : getTaskInfo().taskId) + "\n"
+                + (withBounds ? ("  boundsOnScreen=" + mTmpRect) : "")
+                + "}\n";
+
     }
 }

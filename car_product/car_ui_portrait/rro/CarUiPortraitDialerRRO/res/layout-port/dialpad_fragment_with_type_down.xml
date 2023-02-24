@@ -19,74 +19,81 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.android.car.ui.recyclerview.CarUiRecyclerView
-        android:id="@+id/list_view"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dialpad_fragment_list_view_height"
-        android:layout_alignParentTop="true"
-        android:layout_alignLeft="@id/dialpad_fragment"
-        android:layout_alignRight="@id/dialpad_fragment"
-        android:layout_marginBottom="@dimen/dialpad_fragment_list_view_margin_bottom"/>
+        android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/title_container"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/list_view"
-        android:layout_alignLeft="@id/dialpad_fragment"
-        android:layout_alignRight="@id/dialpad_fragment"
-        android:layout_marginBottom="20dp">
-        <TextView
-            android:id="@+id/title"
+        <com.android.car.ui.recyclerview.CarUiRecyclerView
+            android:id="@+id/list_view"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dialpad_fragment_list_view_height"
+            android:layout_alignParentTop="true"
+            android:layout_alignLeft="@id/dialpad_fragment"
+            android:layout_alignRight="@id/dialpad_fragment"
+            android:layout_marginBottom="@dimen/dialpad_fragment_list_view_margin_bottom"/>
+
+        <FrameLayout
+            android:id="@+id/title_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/list_view"
+            android:layout_alignLeft="@id/dialpad_fragment"
+            android:layout_alignRight="@id/dialpad_fragment"
+            android:layout_marginBottom="20dp">
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                style="@style/TextAppearance.DialNumber"/>
+        </FrameLayout>
+
+        <fragment
+            android:id="@+id/dialpad_fragment"
+            android:name="com.android.car.dialer.ui.dialpad.KeypadFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            style="@style/TextAppearance.DialNumber"/>
-    </FrameLayout>
+            android:layout_below="@id/title_container"
+            android:layout_centerHorizontal="true"/>
 
-    <fragment
-        android:id="@+id/dialpad_fragment"
-        android:name="com.android.car.dialer.ui.dialpad.KeypadFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dialpad_keypad_fragment_margin_start"
-        android:layout_below="@id/title_container"/>
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/dialpad_fragment"
+            android:layout_alignStart="@id/dialpad_fragment"
+            android:layout_alignEnd="@id/dialpad_fragment">
+            <ImageView
+                android:id="@+id/call_button"
+                android:src="@drawable/ic_phone"
+                android:layout_toStartOf="@id/delete_button"
+                style="@style/DialpadCallButton" />
 
-    <RelativeLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/dialpad_fragment"
-        android:layout_alignStart="@id/dialpad_fragment"
-        android:layout_alignEnd="@id/dialpad_fragment">
-        <ImageView
-            android:id="@+id/call_button"
-            android:src="@drawable/ic_phone"
-            android:layout_toStartOf="@id/delete_button"
-            style="@style/DialpadCallButton" />
+            <ImageButton
+                android:id="@+id/delete_button"
+                style="@style/DialpadSecondaryButton"
+                android:src="@drawable/ic_backspace"
+                android:visibility="gone"
+                android:layout_alignParentEnd="true" />
+        </RelativeLayout>
 
-        <ImageButton android:id="@+id/delete_button"
-            style="@style/DialpadSecondaryButton"
-            android:src="@drawable/ic_backspace"
-            android:visibility="gone"
-            android:layout_alignParentEnd="true" />
+        <include
+            layout="@layout/dialpad_user_profile"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/dialpad_fragment_user_profile_margin_top"
+            android:layout_below="@id/title_container"
+            android:layout_centerHorizontal="true"/>
+
+        <include
+            layout="@layout/restricted_dialing_mode_label"
+            android:id="@+id/restricted_dialing_mode_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/dialpad_fragment_restricted_dialing_mode_label_margin_top"
+            android:layout_below="@id/title_container"
+            android:visibility="invisible"/>
+
     </RelativeLayout>
-
-    <include
-        layout="@layout/dialpad_user_profile"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="@dimen/dialpad_fragment_user_profile_margin_top"
-        android:layout_below="@id/title_container"
-        android:layout_centerHorizontal="true"/>
-
-    <include
-        layout="@layout/restricted_dialing_mode_label"
-        android:id="@+id/restricted_dialing_mode_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/dialpad_fragment_restricted_dialing_mode_label_margin_top"
-        android:layout_below="@id/title_container"
-        android:visibility="invisible"/>
 </RelativeLayout>

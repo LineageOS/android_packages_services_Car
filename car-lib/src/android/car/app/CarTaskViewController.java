@@ -17,16 +17,20 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
+import android.car.Car;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
-import android.content.Intent;
 import android.os.RemoteException;
 import android.os.UserManager;
+import android.util.Dumpable;
 import android.util.Log;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -44,6 +48,7 @@ public final class CarTaskViewController {
     private final Activity mHostActivity;
     private final List<ControlledRemoteCarTaskView> mControlledRemoteCarTaskViews =
             new ArrayList<>();
+    private final CarTaskViewInputInterceptor mTaskViewInputInterceptor;
 
     /**
      * @param service the binder interface to communicate with the car system UI.
@@ -53,6 +58,9 @@ public final class CarTaskViewController {
     CarTaskViewController(@NonNull ICarSystemUIProxy service, @NonNull Activity hostActivity) {
         mService = service;
         mHostActivity = hostActivity;
+
+        mHostActivity.addDumpable(mDumper);
+        mTaskViewInputInterceptor = new CarTaskViewInputInterceptor(hostActivity, this);
     }
 
     /**
@@ -60,24 +68,23 @@ public final class CarTaskViewController {
      *
      * @param callbackExecutor the executor to get the {@link ControlledRemoteCarTaskViewCallback}
      *                         on.
-     * @param controlledRemoteCarTaskViewCallbacks the callback to monitor the
+     * @param controlledRemoteCarTaskViewCallback the callback to monitor the
      *                                             {@link ControlledRemoteCarTaskView} related
      *                                             events.
      */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void createControlledRemoteCarTaskView(
-            @NonNull Intent activityIntent,
-            boolean autoRestartOnCrash,
+            @NonNull ControlledRemoteCarTaskViewConfig controlledRemoteCarTaskViewConfig,
             @NonNull Executor callbackExecutor,
-            @NonNull ControlledRemoteCarTaskViewCallback controlledRemoteCarTaskViewCallbacks) {
+            @NonNull ControlledRemoteCarTaskViewCallback controlledRemoteCarTaskViewCallback) {
         ControlledRemoteCarTaskView taskViewClient =
                 new ControlledRemoteCarTaskView(
                         mHostActivity,
-                        activityIntent,
-                        autoRestartOnCrash,
+                        controlledRemoteCarTaskViewConfig,
                         callbackExecutor,
-                        controlledRemoteCarTaskViewCallbacks,
+                        controlledRemoteCarTaskViewCallback,
                         /* carTaskViewController= */ this,
                         mHostActivity.getSystemService(UserManager.class));
 
@@ -85,6 +92,11 @@ public final class CarTaskViewController {
             ICarTaskViewHost host = mService.createCarTaskView(taskViewClient.mICarTaskViewClient);
             taskViewClient.setRemoteHost(host);
             mControlledRemoteCarTaskViews.add(taskViewClient);
+
+            if (controlledRemoteCarTaskViewConfig.mShouldCaptureGestures
+                    || controlledRemoteCarTaskViewConfig.mShouldCaptureLongPress) {
+                mTaskViewInputInterceptor.init();
+            }
         } catch (RemoteException e) {
             Slogf.e(TAG, "Unable to create task view.", e);
         }
@@ -93,6 +105,7 @@ public final class CarTaskViewController {
     /**
      * Releases all the resources held by the taskviews associated with this controller.
      */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void release() {
@@ -100,11 +113,13 @@ public final class CarTaskViewController {
             carTaskView.release();
         }
         mControlledRemoteCarTaskViews.clear();
+        mTaskViewInputInterceptor.release();
     }
 
     /**
      * Brings all the embedded tasks to the front.
      */
+    @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void showEmbeddedTasks() {
@@ -122,4 +137,22 @@ public final class CarTaskViewController {
     List<ControlledRemoteCarTaskView> getControlledRemoteCarTaskViews() {
         return mControlledRemoteCarTaskViews;
     }
+
+    private final Dumpable mDumper = new Dumpable() {
+        private static final String INDENTATION = "  ";
+
+        @NonNull
+        @Override
+        public String getDumpableName() {
+            return TAG;
+        }
+
+        @Override
+        public void dump(@NonNull PrintWriter writer, @Nullable String[] args) {
+            writer.println("ControlledRemoteCarTaskViews: ");
+            for (ControlledRemoteCarTaskView taskView : mControlledRemoteCarTaskViews) {
+                writer.println(INDENTATION + taskView.toString(/* withBounds= */ true));
+            }
+        }
+    };
 }

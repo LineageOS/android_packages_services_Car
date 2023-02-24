@@ -271,12 +271,18 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
                 // Shouldn't need to set mSession to null as JUnit always instantiate a new object,
                 // but it doesn't hurt....
                 mSession = null;
-                // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
-                // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
-                Mockito.framework().clearInlineMocks();
+                clearInlineMocks("finishMocking()");
+                endTrace(); // finishMocking
             }
         }
-        endTrace();
+    }
+
+    protected void clearInlineMocks(String when) {
+        // When using inline mock maker, clean up inline mocks to prevent OutOfMemory
+        // errors. See https://github.com/mockito/mockito/issues/1614 and b/259280359.
+        Log.d(TAG, "Calling Mockito.framework().clearInlineMocks() on " + when);
+        Mockito.framework().clearInlineMocks();
+
     }
 
     private void finishHighlanderSessionIfNeeded(String where) {

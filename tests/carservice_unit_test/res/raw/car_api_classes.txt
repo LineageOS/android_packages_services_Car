@@ -64,6 +64,8 @@ android.car.app.CarTaskViewControllerCallback
 android.car.app.CarTaskViewHost
 android.car.app.ControlledRemoteCarTaskView
 android.car.app.ControlledRemoteCarTaskViewCallback
+android.car.app.ControlledRemoteCarTaskViewConfig
+android.car.app.ControlledRemoteCarTaskViewConfig$Builder
 android.car.cluster.CarInstrumentClusterManager
 android.car.cluster.CarInstrumentClusterManager$Callback
 android.car.cluster.ClusterActivityState

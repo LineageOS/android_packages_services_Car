@@ -43,6 +43,7 @@
 
     <style name="TextAppearance.DialNumber" parent="TextAppearance.Car.Headline.Large">
         <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:textDirection">ltr</item>
     </style>
 
     <style name="SubheaderText" parent="android:style/TextAppearance">
@@ -64,7 +65,7 @@
     <style name="TextAppearance.CallLogSubtitle" parent="TextAppearance.Car.Body.Small">
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
-    
+
     <!-- Customized text color for missed calls can be added here -->
     <style name="TextAppearance.CallLogTitleMissedCall" parent="TextAppearance.CallLogTitleDefault" />
 
@@ -81,7 +82,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">@dimen/dialer_keypad_button_height</item>
         <item name="android:layout_margin">@dimen/dialer_keypad_button_margin</item>
-        <item name="android:minWidth">@dimen/call_button_width</item>
+        <item name="android:minWidth">@dimen/dialer_call_button_min_width</item>
         <item name="android:scaleType">centerInside</item>
         <item name="android:tint">@color/car_on_confirm_green</item>
     </style>

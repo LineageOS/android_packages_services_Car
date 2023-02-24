@@ -54,11 +54,9 @@ import com.android.car.R;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -72,7 +70,6 @@ import java.util.stream.Collectors;
  * atest CarBluetoothUserServiceTest
  */
 @RequiresDevice
-@RunWith(MockitoJUnitRunner.class)
 public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = CarBluetoothUserServiceTest.class.getSimpleName();
 

@@ -18,4 +18,14 @@
 <resources>
     <integer name="config_dialed_number_gravity">1</integer>
     <bool name="config_always_show_incall_dialpad">true</bool>
+    <!-- A config determines whether to show search as tab in toolbar.-->
+    <bool name="config_show_search_as_toolbar_tab">true</bool>
+    <!-- A config determines whether to show search in toolbar menu items-->
+    <bool name="config_show_search_in_menu_items">false</bool>
+    <!-- A config determines whether to show settings as tab in toolbar.-->
+    <bool name="config_show_settings_as_toolbar_tab">true</bool>
+    <!-- A config determines whether to show settings in toolbar menu items-->
+    <bool name="config_show_settings_in_menu_items">false</bool>
+    <!-- A config determines whether to show toolbar in the contact details page.-->
+    <bool name="config_show_toolbar_with_contact_details">true</bool>
 </resources>

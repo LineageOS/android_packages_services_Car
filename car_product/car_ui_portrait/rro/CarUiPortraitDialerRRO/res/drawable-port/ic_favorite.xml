@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
@@ -20,7 +21,6 @@
         android:viewportWidth="24"
         android:viewportHeight="24">
     <path
-        android:pathData="M4.5,20.29L12,2L19.5,20.29L18.79,21L12,18L5.21,21L4.5,20.29ZM16.28,17.7L12,7.27L7.72,17.7L11.19,16.17L12,15.81L12.81,16.17L16.28,17.7Z"
-        android:fillColor="@color/car_on_surface"
-        android:fillType="evenOdd"/>
+        android:pathData="M12,17.27L18.18,21L16.54,13.97L22,9.24L14.81,8.63L12,2L9.19,8.63L2,9.24L7.46,13.97L5.82,21L12,17.27Z"
+        android:fillColor="@color/car_on_surface"/>
 </vector>

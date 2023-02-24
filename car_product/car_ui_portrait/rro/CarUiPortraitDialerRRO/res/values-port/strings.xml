@@ -23,4 +23,31 @@
     <string name="no_hfp">
         To complete your call, first connect your phone to your car via Bluetooth.
     </string>
+    <!-- Titles -->
+    <!-- Title for the call history [CHAR LIMIT=30] -->
+    <string name="call_history_title">Recents</string>
+    <!-- Title for the contacts [CHAR LIMIT=30] -->
+    <string name="contacts_title">Contacts</string>
+    <!-- Title for the favorites [CHAR LIMIT=30] -->
+    <string name="favorites_title">Favorites</string>
+    <!-- Title for the dialpad [CHAR LIMIT=30] -->
+    <string name="dialpad_title">Dialpad</string>
+    <!-- Title of the search page [CHAR LIMIT=30]-->
+    <string name="search_title">Search</string>
+    <!-- Title of the settings page [CHAR LIMIT=30]-->
+    <string name="setting_title">Settings</string>
+
+    <!-- String constants for tabs -->
+    <!-- String constant for the call history -->
+    <string name="tab_config_call_history" translatable="false">CALL_HISTORY</string>
+    <!-- String constant for the contacts -->
+    <string name="tab_config_contacts" translatable="false">CONTACTS</string>
+    <!-- String constant for the favorites -->
+    <string name="tab_config_favorites" translatable="false">FAVORITE</string>
+    <!-- String constant for the dialpad -->
+    <string name="tab_config_dial_pad" translatable="false">DIAL_PAD</string>
+    <!-- String constant for the search -->
+    <string name="tab_config_search" translatable="false">SEARCH</string>
+    <!-- String constant for the settings -->
+    <string name="tab_config_settings" translatable="false">SETTINGS</string>
 </resources>
