@@ -48,10 +48,8 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
@@ -66,7 +64,6 @@ import java.util.List;
  * atest BluetoothDeviceManagerTest
  */
 @RequiresDevice
-@RunWith(MockitoJUnitRunner.class)
 public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final int CONNECT_TIMEOUT_MS = 8000;
     private static final int ADAPTER_STATE_ANY = 0;

@@ -51,12 +51,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
@@ -67,7 +65,6 @@ import java.util.Arrays;
  * Run:
  * atest BluetoothDeviceConnectionPolicyTest
  */
-@RunWith(MockitoJUnitRunner.class)
 public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = BluetoothDeviceConnectionPolicyTest.class.getSimpleName();
     private static final boolean VERBOSE = false;
