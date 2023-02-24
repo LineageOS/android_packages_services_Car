@@ -51,6 +51,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -464,6 +465,20 @@ public final class CarServiceUtils {
             array[i] = list.get(i);
         }
         return array;
+    }
+
+    /**
+     * Converts values array to array set
+     */
+    public static ArraySet<Integer> toIntArraySet(int[] values) {
+        Preconditions.checkArgument(values != null,
+                "Values to convert to array set must not be null");
+        ArraySet<Integer> set = new ArraySet<>(values.length);
+        for (int c = 0; c < values.length; c++) {
+            set.add(values[c]);
+        }
+
+        return set;
     }
 
     /**

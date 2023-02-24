@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY;
@@ -55,6 +56,7 @@ import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
+import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.TelemetryProto.TelemetryError;
 import android.car.user.CarUserManager;
@@ -195,6 +197,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
     private static final String COMMAND_SET_GROUP_VOLUME = "set-group-volume";
+    private static final String COMMAND_SET_AUDIO_MIRROR = "set-audio-mirror";
+    private static final String COMMAND_UNSET_AUDIO_MIRROR = "unset-audio-mirror";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
@@ -358,6 +362,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_GROUP_VOLUME,
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_AUDIO_MIRROR,
+                PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_UNSET_AUDIO_MIRROR,
+                PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_KEY,
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_MOTION,
@@ -509,6 +517,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private long mMotionDownTime;
     private ServiceConnection mScriptExecutorConn;
     private IScriptExecutor mScriptExecutor;
+    private AudioZoneMirrorStatusCallbackImpl mMirrorStatusCallback;
 
     CarShellCommand(Context context,
             VehicleHal hal,
@@ -645,6 +654,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [zoneId] [groupId] [volume]\n", COMMAND_SET_GROUP_VOLUME);
         pw.println("\t  sets the group volume for [groupId] in [zoneId] to %volume,");
         pw.println("\t  [volume] must be an integer between 0 to 100");
+        pw.printf("\t%s [zoneId1] [zoneId2]\n", COMMAND_SET_AUDIO_MIRROR);
+        pw.println("\t  sets audio mirror for zones [zoneId1] and [zoneId2],");
+        pw.println("\t  [zoneId#] must be a valid zone id ");
+        pw.printf("\t%s [zoneId1]\n", COMMAND_UNSET_AUDIO_MIRROR);
+        pw.println("\t  unsets audio mirror with zones [zoneId],");
+        pw.println("\t  [zoneId] must be a valid zone id");
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
         pw.println("\tstop-fixed-mode displayId");
@@ -925,6 +940,90 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarAudioService.setGroupVolume(zoneId, groupId, index, FLAG_SHOW_UI);
     }
 
+    private void runSetAudioMirror(String zoneId1String, String zoneId2String,
+            IndentingPrintWriter writer) {
+        int zoneId1 = Integer.parseInt(zoneId1String);
+        int zoneId2 = Integer.parseInt(zoneId2String);
+
+        if (mMirrorStatusCallback == null) {
+            mMirrorStatusCallback = new AudioZoneMirrorStatusCallbackImpl();
+            boolean registered = mCarAudioService.registerAudioZonesMirrorStatusCallback(
+                    mMirrorStatusCallback);
+            if (!registered) {
+                writer.printf("Could not register audio mirror status callback for zones %s %s\n",
+                        zoneId1String, zoneId2String);
+                mMirrorStatusCallback = null;
+                return;
+            }
+        }
+        mMirrorStatusCallback.reset();
+
+        mCarAudioService.enableMirrorForAudioZones(new int[] {zoneId1, zoneId2});
+        boolean called;
+        try {
+            called = mMirrorStatusCallback.waitForCallback();
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "runSetAudioMirror wait for callback failed for zones %s %s",
+                    zoneId1String, zoneId2String);
+            return;
+        }
+
+        if (!called) {
+            writer.printf("Did not receive mirror status callback for zones %s %s\n",
+                    zoneId1String, zoneId2String);
+            return;
+        }
+
+        writer.printf("Received mirror status callback for zones %s %s\n", zoneId1String,
+                zoneId2String);
+        writer.increaseIndent();
+        for (int c = 0; c < mMirrorStatusCallback.mZoneIds.length; c++) {
+            writer.printf("Received zone[%d] %d\n", c , mMirrorStatusCallback.mZoneIds[c]);
+        }
+        writer.printf("Received status %d\n", mMirrorStatusCallback.mStatus);
+        writer.decreaseIndent();
+    }
+
+    private void runUnsetAudioMirror(String zoneIdString, IndentingPrintWriter writer) {
+        int zoneId = Integer.parseInt(zoneIdString);
+        if (mMirrorStatusCallback == null) {
+            mMirrorStatusCallback = new AudioZoneMirrorStatusCallbackImpl();
+            boolean registered = mCarAudioService.registerAudioZonesMirrorStatusCallback(
+                    mMirrorStatusCallback);
+            if (!registered) {
+                mMirrorStatusCallback = null;
+                return;
+            }
+        }
+        mMirrorStatusCallback.reset();
+
+        mCarAudioService.disableAudioMirrorForZone(zoneId);
+
+        boolean called;
+        try {
+            called = mMirrorStatusCallback.waitForCallback();
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "runUnsetAudioMirror wait for callback failed for zones %s",
+                    zoneIdString);
+            return;
+        }
+
+        if (!called) {
+            writer.printf("Did not receive mirror status callback for zones %s\n", zoneIdString);
+            return;
+        }
+
+        writer.printf("Received mirror status callback for zones %s\n", zoneIdString);
+        writer.increaseIndent();
+        for (int c = 0; c < mMirrorStatusCallback.mZoneIds.length; c++) {
+            writer.printf("Received zone[%d] %d\n", c , mMirrorStatusCallback.mZoneIds[c]);
+        }
+        writer.printf("Received status %d\n", mMirrorStatusCallback.mStatus);
+        writer.decreaseIndent();
+
+        mCarAudioService.unregisterAudioZonesMirrorStatusCallback(mMirrorStatusCallback);
+    }
+
     private void runResetSelectedVolumeContext() {
         mCarAudioService.resetSelectedVolumeContext();
     }
@@ -1117,6 +1216,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     return showInvalidArguments(writer);
                 }
                 runSetGroupVolume(args[1], args[2], args[3]);
+                break;
+            case COMMAND_SET_AUDIO_MIRROR:
+                if (args.length != 3) {
+                    return showInvalidArguments(writer);
+                }
+                runSetAudioMirror(args[1], args[2], writer);
+                break;
+            case COMMAND_UNSET_AUDIO_MIRROR:
+                if (args.length != 2) {
+                    return showInvalidArguments(writer);
+                }
+                runUnsetAudioMirror(args[1], writer);
                 break;
             case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
                 if (args.length != 3) {
@@ -3795,5 +3906,32 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static String getSuspendCommandUsage(String command) {
         return command + " [" + PARAM_AUTO + "|" + PARAM_SIMULATE + "|" + PARAM_REAL + "] ["
                 + PARAM_SKIP_GARAGEMODE + "] [" + PARAM_WAKEUP_AFTER + " RESUME_DELAY]";
+    }
+
+    private static final class AudioZoneMirrorStatusCallbackImpl extends
+            IAudioZonesMirrorStatusCallback.Stub {
+
+        private static final long TEST_CALLBACK_TIMEOUT_MS = 5_000;
+
+        private int[] mZoneIds;
+        private int mStatus;
+        private CountDownLatch mStatusLatch = new CountDownLatch(1);
+
+        @Override
+        public void onAudioZonesMirrorStatusChanged(int[] zoneIds, int status) {
+            mZoneIds = zoneIds;
+            mStatus = status;
+            mStatusLatch.countDown();
+        }
+
+        private boolean waitForCallback() throws Exception {
+            return mStatusLatch.await(TEST_CALLBACK_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        }
+
+        public void reset() {
+            mZoneIds = null;
+            mStatus = 0;
+            mStatusLatch = new CountDownLatch(1);
+        }
     }
 }
