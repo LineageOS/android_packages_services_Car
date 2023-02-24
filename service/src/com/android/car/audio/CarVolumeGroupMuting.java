@@ -167,7 +167,8 @@ final class CarVolumeGroupMuting {
 
         List<String> mutedDevices = new ArrayList<>();
         List<String> unMutedDevices = new ArrayList<>();
-        CarVolumeGroup[] groups = audioZone.getVolumeGroups();
+        // TODO(b/268533937): preserving ducking info when zone configuration is switched
+        CarVolumeGroup[] groups = audioZone.getCurrentVolumeGroups();
 
         for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
             CarVolumeGroup group = groups[groupIndex];

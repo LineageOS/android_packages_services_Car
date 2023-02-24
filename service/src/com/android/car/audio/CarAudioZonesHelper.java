@@ -375,7 +375,7 @@ import java.util.stream.Collectors;
     private void verifyOnlyOnePrimaryZone(CarAudioZone newZone, SparseArray<CarAudioZone> zones) {
         if (newZone.getId() == PRIMARY_AUDIO_ZONE && zones.contains(PRIMARY_AUDIO_ZONE)) {
             throw new RuntimeException("More than one zone parsed with primary audio zone ID: "
-                            + PRIMARY_AUDIO_ZONE);
+                    + PRIMARY_AUDIO_ZONE);
         }
     }
 
@@ -393,17 +393,20 @@ import java.util.stream.Collectors;
         final int audioZoneId = getZoneId(isPrimary, parser);
         parseOccupantZoneId(audioZoneId, parser);
         final CarAudioZone zone = new CarAudioZone(mCarAudioContext, zoneName, audioZoneId);
+        final CarAudioZoneConfig.Builder zoneConfigBuilder = new CarAudioZoneConfig.Builder(
+                zoneName, audioZoneId, /* zoneConfigId= */ 0, /* isDefault= */ true);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect one <volumeGroups> in one audio zone
             if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
-                parseVolumeGroups(parser, zone);
+                parseVolumeGroups(parser, zoneConfigBuilder, audioZoneId);
             } else if (TAG_INPUT_DEVICES.equals(parser.getName())) {
                 parseInputAudioDevices(parser, zone);
             } else {
                 skip(parser);
             }
         }
+        zone.addZoneConfig(zoneConfigBuilder.build());
         return zone;
     }
 
@@ -518,7 +521,8 @@ import java.util.stream.Collectors;
         mAudioZoneIds.add(audioZoneId);
     }
 
-    private void parseVolumeGroups(XmlPullParser parser, CarAudioZone zone)
+    private void parseVolumeGroups(XmlPullParser parser,
+            CarAudioZoneConfig.Builder zoneConfigBuilder, int audioZoneId)
             throws XmlPullParserException, IOException {
         int groupId = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -531,7 +535,8 @@ import java.util.stream.Collectors;
                 if (groupName == null) {
                     groupName = String.valueOf(groupId);
                 }
-                zone.addVolumeGroup(parseVolumeGroup(parser, zone.getId(), groupId, groupName));
+                zoneConfigBuilder.addVolumeGroup(parseVolumeGroup(parser, audioZoneId, groupId,
+                        groupName));
                 groupId++;
             } else {
                 skip(parser);

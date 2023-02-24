@@ -81,6 +81,7 @@ public final class CarVolumeGroupMutingTest {
                     .getAudioAttributeFromUsage(USAGE_SAFETY));
 
     private CarAudioZone mPrimaryAudioZone;
+    private CarAudioZoneConfig mPrimaryAudioZoneConfig;
 
     private CarVolumeGroup mMusicCarVolumeGroup;
     private CarVolumeGroup mNavigationCarVolumeGroup;
@@ -111,11 +112,16 @@ public final class CarVolumeGroupMutingTest {
                 TEST_MEDIA_CONTEXT,
                 TERTIARY_ADDRESS);
 
-        mPrimaryAudioZone =
-                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
+        mPrimaryAudioZoneConfig =
+                new CarAudioZoneConfig.Builder("Primary Zone Config 0", PRIMARY_ZONE_ID,
+                        /* zoneConfigId= */ 0, /* isDefault= */ true)
                         .addVolumeGroup(mMusicCarVolumeGroup)
                         .addVolumeGroup(mNavigationCarVolumeGroup)
                         .addVolumeGroup(mVoiceCarVolumeGroup)
+                        .build();
+        mPrimaryAudioZone =
+                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
+                        .addCarAudioZoneConfig(mPrimaryAudioZoneConfig)
                         .build();
 
         mSingleDevicePrimaryZone = createAudioZone(mMusicCarVolumeGroup, "Primary Zone",
@@ -489,8 +495,9 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void generateMutingInfoFromZone_mutingRestricted_setsAllCriticalGroupsToTheirState() {
-        CarAudioZone primaryZone =
-                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
+        CarAudioZoneConfig primaryZoneConfig =
+                new CarAudioZoneConfig.Builder("Primary Zone Config 0", PRIMARY_ZONE_ID,
+                        /* zoneConfigId= */ 0, /* isDefault= */ true)
                         .addVolumeGroup(new VolumeGroupBuilder()
                                 .addDeviceAddressAndContexts(
                                         TEST_EMERGENCY_CONTEXT,
@@ -509,8 +516,13 @@ public final class CarVolumeGroupMutingTest {
                                 .build()
                         )
                         .build();
-        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getVolumeGroups()[0]);
-        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getVolumeGroups()[1]);
+        CarAudioZone primaryZone =
+                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
+                .addCarAudioZoneConfig(primaryZoneConfig)
+                .build();
+
+        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getCurrentVolumeGroups()[0]);
+        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getCurrentVolumeGroups()[1]);
 
         MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone,
                 /* isMutingRestricted= */ true);
@@ -525,9 +537,11 @@ public final class CarVolumeGroupMutingTest {
 
 
     private CarAudioZone createAudioZone(CarVolumeGroup volumeGroup, String name, int zoneId) {
-        return new TestCarAudioZoneBuilder(name, zoneId)
-                .addVolumeGroup(volumeGroup)
-                .build();
+        CarAudioZoneConfig zoneConfig =
+                new CarAudioZoneConfig.Builder("Config", zoneId,
+                        /* zoneConfigId= */ 0, /* isDefault= */ true)
+                        .addVolumeGroup(volumeGroup).build();
+        return new TestCarAudioZoneBuilder(name, zoneId).addCarAudioZoneConfig(zoneConfig).build();
     }
 
     private CarVolumeGroup groupWithContextAndAddress(int context, String address) {
@@ -555,5 +569,4 @@ public final class CarVolumeGroupMutingTest {
         }
         return audioZones;
     }
-
 }

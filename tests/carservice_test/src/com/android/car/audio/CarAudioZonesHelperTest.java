@@ -284,7 +284,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        assertThat(primaryZone.getVolumeGroupCount()).isEqualTo(2);
+        assertThat(primaryZone.getCurrentVolumeGroupCount()).isEqualTo(2);
     }
 
     @Test
@@ -298,7 +298,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
+        CarVolumeGroup volumeGroup = primaryZone.getCurrentVolumeGroups()[0];
         List<String> addresses = volumeGroup.getAddresses();
         assertThat(addresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
     }
@@ -314,13 +314,13 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        CarVolumeGroup volumeGroup = primaryZone.getVolumeGroups()[0];
+        CarVolumeGroup volumeGroup = primaryZone.getCurrentVolumeGroups()[0];
         assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
                 .containsExactly(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(CarAudioContext
                         .getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)));
 
         CarAudioZone rearSeatEntertainmentZone = zones.get(2);
-        CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getVolumeGroups()[0];
+        CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getCurrentVolumeGroups()[0];
         List<Integer> contextForBus100List = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
         List<Integer> contextsList = TEST_CAR_AUDIO_CONTEXT.getAllContextsIds();
         assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);
@@ -340,7 +340,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
             CarAudioZone defaultZone = zones.get(0);
-            CarVolumeGroup volumeGroup = defaultZone.getVolumeGroups()[0];
+            CarVolumeGroup volumeGroup = defaultZone.getCurrentVolumeGroups()[0];
             List<Integer> audioContexts = Arrays.stream(volumeGroup.getContexts()).boxed()
                     .collect(Collectors.toList());
 

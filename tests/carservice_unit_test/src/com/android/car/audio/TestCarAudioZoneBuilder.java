@@ -26,7 +26,7 @@ import java.util.List;
 public final class TestCarAudioZoneBuilder {
 
     private final int mAudioZoneId;
-    private final List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();
+    private final List<CarAudioZoneConfig> mCarAudioZoneConfigs = new ArrayList<>();
     private final String mAudioZoneName;
     private CarAudioContext mCarAudioContext =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -39,23 +39,23 @@ public final class TestCarAudioZoneBuilder {
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
-    TestCarAudioZoneBuilder addVolumeGroup(CarVolumeGroup group) {
-        mCarVolumeGroups.add(group);
-        return this;
-    }
-
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     TestCarAudioZoneBuilder setCarAudioContexts(CarAudioContext carAudioContext) {
         mCarAudioContext = carAudioContext;
         return this;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    TestCarAudioZoneBuilder addCarAudioZoneConfig(CarAudioZoneConfig carAudioZoneConfig) {
+        mCarAudioZoneConfigs.add(carAudioZoneConfig);
+        return this;
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     CarAudioZone build() {
-        CarAudioZone carAudioZone =
-                new CarAudioZone(mCarAudioContext, mAudioZoneName, mAudioZoneId);
-        for (int i = 0; i < mCarVolumeGroups.size(); i++) {
-            carAudioZone.addVolumeGroup(mCarVolumeGroups.get(i));
+        CarAudioZone carAudioZone = new CarAudioZone(mCarAudioContext, mAudioZoneName,
+                mAudioZoneId);
+        for (int i = 0; i < mCarAudioZoneConfigs.size(); i++) {
+            carAudioZone.addZoneConfig(mCarAudioZoneConfigs.get(i));
         }
         return carAudioZone;
     }
