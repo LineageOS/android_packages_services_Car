@@ -43,6 +43,7 @@
 
     <style name="TextAppearance.DialNumber" parent="TextAppearance.Car.Headline.Large">
         <item name="android:textColor">@color/car_on_surface</item>
+        <item name="android:textDirection">ltr</item>
     </style>
 
     <style name="SubheaderText" parent="android:style/TextAppearance">

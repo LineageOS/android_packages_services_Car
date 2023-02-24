@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <overlay>
+    <item target="array/tabs_config" value="@array/tabs_config"/>
+    <item target="array/tabs_title" value="@array/tabs_title"/>
+
     <item target="drawable/dialer_ripple_background" value="@drawable/dialer_ripple_background"/>
     <item target="drawable/ic_answer_icon" value="@drawable/ic_answer_icon"/>
     <item target="drawable/ic_arrow_right" value="@drawable/ic_arrow_right"/>
@@ -76,6 +79,8 @@
     <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
 
     <item target="bool/config_always_show_incall_dialpad" value="@bool/config_always_show_incall_dialpad" />
+    <item target="bool/config_show_settings_as_toolbar_tab" value="@bool/config_show_settings_as_toolbar_tab" />
+    <item target="bool/config_show_settings_in_menu_items" value="@bool/config_show_settings_in_menu_items" />
     <item target="bool/config_show_toolbar_with_contact_details" value="@bool/config_show_toolbar_with_contact_details" />
 
     <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
