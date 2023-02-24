@@ -703,6 +703,23 @@ public class CarPowerManager extends CarManagerBase {
     }
 
     /**
+     * Notifies that user activity has happened in the given display.
+     *
+     * @param displayId ID of the display
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void notifyUserActivity(int displayId) {
+        try {
+            mService.notifyUserActivity(displayId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Returns whether listen completion is allowed for {@code state}.
      *
      * @hide
