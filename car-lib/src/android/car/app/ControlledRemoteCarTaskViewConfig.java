@@ -28,6 +28,8 @@ import android.content.Intent;
  */
 @SystemApi
 public final class ControlledRemoteCarTaskViewConfig {
+    private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
+
     final Intent mActivityIntent;
     final boolean mShouldAutoRestartOnCrash;
     final boolean mShouldCaptureGestures;
@@ -71,6 +73,18 @@ public final class ControlledRemoteCarTaskViewConfig {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean shouldCaptureLongPress() {
         return mShouldCaptureLongPress;
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public String toString() {
+        return TAG + " {"
+                + "activityIntent=" + mActivityIntent
+                + ", shouldAutoRestartOnCrash=" + mShouldAutoRestartOnCrash
+                + ", shouldCaptureGestures=" + mShouldCaptureGestures
+                + ", shouldCaptureLongPress=" + mShouldCaptureLongPress
+                + '}';
     }
 
     /**
