@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
-  ~ Copyright (C) 2022 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,6 +15,11 @@
   ~ limitations under the License.
   -->
 
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/car_background"/>
-</shape>
+<com.android.car.portraitlauncher.panel.GripBarView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grip_bar"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/panel_grip_bar_height"
+    android:background="@drawable/grip_bar_background">
+
+</com.android.car.portraitlauncher.panel.GripBarView>

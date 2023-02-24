@@ -16,7 +16,6 @@
   -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -26,42 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <LinearLayout
-        android:id="@+id/root_app_area_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:animateLayoutChanges="true">
-
-        <RelativeLayout
-            android:id="@+id/grip_bar"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/grip_bar_height"
-            android:background="@drawable/title_bar_background">
-            <View
-                android:id="@+id/grip_bar_view"
-                android:layout_width="@dimen/grip_bar_width"
-                android:layout_height="6dp"
-                android:background="@color/car_surface_variant"
-                android:layout_centerInParent="true"/>
-        </RelativeLayout>
-
-        <!-- This View helps grip bar to show up when grip bar visibility changes from gone to visible, won't work if set height to 0dp-->
-        <View
-            android:id="@+id/grip_bar_divider"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/grip_bar_divider_height"
-            android:background="@drawable/grip_bar_divider_background"/>
-
-        <FrameLayout
-            android:id="@+id/root_app_area"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:paddingBottom="@dimen/corner_radius"
-            android:background="@color/car_background"/>
-
-    </LinearLayout>
+    <include layout="@layout/car_ui_portrait_panel" android:id="@+id/application_panel"/>
 
     <LinearLayout
         android:id="@+id/control_bar_area"
