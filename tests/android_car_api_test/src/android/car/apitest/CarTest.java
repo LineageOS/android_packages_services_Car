@@ -179,23 +179,36 @@ public final class CarTest extends CarLessApiTestBase {
     public void testPlatformVersionMatch() throws Exception {
         PlatformVersion platformVersion = Car.getPlatformVersion();
 
-        assertWithMessage("Platform should be at least T").that(
+        assertWithMessage("platformVersion").that(
                 platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_0)).isTrue();
 
         if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_1)) {
-            assertWithMessage("platformVersion should be T_0").that(platformVersion).isEqualTo(
+            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
                     PlatformVersion.VERSION_CODES.TIRAMISU_0);
             return;
         }
-        // If it has passed all previous version checks but it not the next version, assert
-        // the version before the next one.
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
-            assertWithMessage("platformVersion should be T_1").that(platformVersion).isEqualTo(
+
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_2)) {
+            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
                     PlatformVersion.VERSION_CODES.TIRAMISU_1);
             return;
         }
+
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_3)) {
+            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
+                    PlatformVersion.VERSION_CODES.TIRAMISU_2);
+            return;
+        }
+
+        // If it has passed all previous version checks but it not the next version, assert
+        // the version before the next one.
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
+                    PlatformVersion.VERSION_CODES.TIRAMISU_3);
+            return;
+        }
         // should be U_0. This part should be updated when we have a newer version.
-        assertWithMessage("platformVersion should be U_0").that(platformVersion).isEqualTo(
+        assertWithMessage("platformVersion").that(platformVersion).isEqualTo(
                 PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
     }
 }
