@@ -375,9 +375,9 @@ package android.car.app {
   }
 
   public final class CarTaskViewController {
-    method public void createControlledRemoteCarTaskView(@NonNull android.content.Intent, boolean, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
-    method public void release();
-    method public void showEmbeddedTasks();
+    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
+    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void release();
+    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void showEmbeddedTasks();
   }
 
   public interface CarTaskViewControllerCallback {
@@ -386,24 +386,28 @@ package android.car.app {
   }
 
   public interface CarTaskViewHost {
+    method public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
     method public void notifySurfaceCreated(@NonNull android.view.SurfaceControl);
     method public void notifySurfaceDestroyed();
     method public void release();
+    method public void removeInsets(@NonNull int[]);
     method public void setWindowBounds(@NonNull android.graphics.Rect);
     method public void showEmbeddedTask();
     method public void startActivity(@NonNull android.app.PendingIntent, @Nullable android.content.Intent, @NonNull android.os.Bundle, @Nullable android.graphics.Rect);
   }
 
   public final class ControlledRemoteCarTaskView extends android.view.SurfaceView {
+    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
     method @MainThread @Nullable public android.app.ActivityManager.RunningTaskInfo getTaskInfo();
     method @MainThread public boolean isInitialized();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
+    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void removeInsets(@NonNull int[]);
     method @MainThread public void setObscuredTouchRect(@NonNull android.graphics.Rect);
     method @MainThread public void setObscuredTouchRegion(@NonNull android.graphics.Region);
-    method @MainThread public void showEmbeddedTask();
-    method @MainThread public void startActivity();
-    method @MainThread public void updateWindowBounds();
+    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void showEmbeddedTask();
+    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void startActivity();
+    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void updateWindowBounds();
   }
 
   public interface ControlledRemoteCarTaskViewCallback {
@@ -413,6 +417,22 @@ package android.car.app {
     method public default void onTaskViewCreated(@NonNull android.car.app.ControlledRemoteCarTaskView);
     method public default void onTaskViewInitialized();
     method public default void onTaskViewReleased();
+  }
+
+  public final class ControlledRemoteCarTaskViewConfig {
+    method @NonNull public android.content.Intent getActivityIntent();
+    method public boolean shouldAutoRestartOnCrash();
+    method public boolean shouldCaptureGestures();
+    method public boolean shouldCaptureLongPress();
+  }
+
+  public static final class ControlledRemoteCarTaskViewConfig.Builder {
+    ctor public ControlledRemoteCarTaskViewConfig.Builder();
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig build();
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setActivityIntent(@NonNull android.content.Intent);
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldAutoRestartOnCrash(boolean);
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldCaptureGestures(boolean);
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldCaptureLongPress(boolean);
   }
 
 }

@@ -35,4 +35,6 @@ oneway interface ICarTaskViewHost {
    void setWindowBounds(in Rect bounds);
    void notifySurfaceDestroyed();
    void showEmbeddedTask();
+   void addInsets(in int[] insetTypes, in Rect[] insetProviderRects);
+   void removeInsets(in int[] insetTypesToRemove);
 }
