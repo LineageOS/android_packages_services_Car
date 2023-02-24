@@ -47,3 +47,4 @@ android.car.builtin.view.TouchableInsetsProvider
 android.car.builtin.view.ViewHelper
 android.car.builtin.widget.LockPatternHelper
 android.car.builtin.window.DisplayAreaOrganizerHelper
+android.car.builtin.window.WindowManagerHelper

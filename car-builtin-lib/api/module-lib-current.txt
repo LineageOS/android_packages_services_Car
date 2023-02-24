@@ -151,6 +151,7 @@ package android.car.builtin.input {
 
   public class InputManagerHelper {
     method public static boolean injectInputEvent(@NonNull android.hardware.input.InputManager, @NonNull android.view.InputEvent);
+    method public static void pilferPointers(@NonNull android.hardware.input.InputManager, @NonNull android.view.View);
   }
 
 }
@@ -551,6 +552,11 @@ package android.car.builtin.window {
   public class DisplayAreaOrganizerHelper {
     ctor public DisplayAreaOrganizerHelper();
     field public static final int FEATURE_UNDEFINED = -1; // 0xffffffff
+  }
+
+  public final class WindowManagerHelper {
+    method public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
+    method public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
   }
 
 }
