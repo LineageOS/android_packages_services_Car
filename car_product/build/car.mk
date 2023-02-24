@@ -69,7 +69,8 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.carrier=unknown
+    ro.carrier=unknown \
+    ro.hardware.type=automotive \
 
 # Set default Bluetooth profiles
 TARGET_SYSTEM_PROP += \
