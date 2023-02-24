@@ -24,6 +24,7 @@
         <item>@string/tab_config_contacts</item>
         <item>@string/tab_config_favorites</item>
         <item>@string/tab_config_dial_pad</item>
+        <item>@string/tab_config_search</item>
         <item>@string/tab_config_settings</item>
     </string-array>
 
@@ -34,6 +35,7 @@
         <item>@string/contacts_title</item>
         <item>@string/favorites_title</item>
         <item>@string/dialpad_title</item>
+        <item>@string/search_title</item>
         <item>@string/setting_title</item>
     </string-array>
 </resources>
