@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,6 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.automotive.watchdog.internal;
-/* @hide */
-interface ICarWatchdogServiceForSystem {
-  oneway void checkIfAlive(in int sessionId, in android.automotive.watchdog.internal.TimeoutLength timeout);
-  oneway void prepareProcessTermination();
-  List<android.automotive.watchdog.internal.PackageInfo> getPackageInfosForUids(in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
-  oneway void latestIoOveruseStats(in List<android.automotive.watchdog.internal.PackageIoOveruseStats> packageIoOveruseStats);
-  oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
-  List<android.automotive.watchdog.internal.UserPackageIoUsageStats> getTodayIoUsageStats();
-  oneway void onLatestResourceStats(in android.automotive.watchdog.internal.ResourceStats resourceStats);
+parcelable ResourceOveruseStats {
+  List<android.automotive.watchdog.internal.PackageIoOveruseStats> packageIoOveruseStats;
 }
