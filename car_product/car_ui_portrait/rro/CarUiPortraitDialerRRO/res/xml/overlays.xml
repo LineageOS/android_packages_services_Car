@@ -73,12 +73,15 @@
 
     <item target="string/answer_call" value="@string/answer_call" />
     <item target="string/decline_call" value="@string/decline_call" />
+    <item target="string/search_title" value="@string/search_title" />
 
     <item target="color/contact_details_icon_tint" value="@color/contact_details_icon_tint" />
     <item target="color/divider_color" value="@color/divider_color" />
     <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
 
     <item target="bool/config_always_show_incall_dialpad" value="@bool/config_always_show_incall_dialpad" />
+    <item target="bool/config_show_search_as_toolbar_tab" value="@bool/config_show_search_as_toolbar_tab" />
+    <item target="bool/config_show_search_in_menu_items" value="@bool/config_show_search_in_menu_items" />
     <item target="bool/config_show_settings_as_toolbar_tab" value="@bool/config_show_settings_as_toolbar_tab" />
     <item target="bool/config_show_settings_in_menu_items" value="@bool/config_show_settings_in_menu_items" />
     <item target="bool/config_show_toolbar_with_contact_details" value="@bool/config_show_toolbar_with_contact_details" />
