@@ -1414,6 +1414,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mScreenOffHandler.updateUserActivity(displayId, eventTime);
     }
 
+    @Override
+    public void notifyUserActivity(int displayId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        notifyUserActivity(displayId, SystemClock.uptimeMillis());
+    }
+
     /**
      * Sends display brightness to VHAL.
      * @param brightness value 0-100%
