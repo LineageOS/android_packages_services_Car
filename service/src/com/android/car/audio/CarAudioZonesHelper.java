@@ -645,4 +645,16 @@ import java.util.stream.Collectors;
     public CarAudioContext getCarAudioContext() {
         return mCarAudioContext;
     }
+
+    public CarAudioDeviceInfo getMirrorDeviceInfo() {
+        // TODO(b/261647905): Get mirror from car audio configuration.
+        Set<String> addresses = mAddressToCarAudioDeviceInfo.keySet();
+        for (String address : addresses) {
+            if (address.contains("mirror")) {
+                return mAddressToCarAudioDeviceInfo.get(address);
+            }
+        }
+
+        return null;
+    }
 }
