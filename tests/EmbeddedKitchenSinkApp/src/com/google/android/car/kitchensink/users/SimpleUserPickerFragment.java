@@ -308,15 +308,6 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        // Unassign the user from the occupant zone.
-        // TODO(b/253264316): See if we can move it to CarUserService.
-        int result = mZoneManager.unassignOccupantZone(zoneInfo);
-        if (result != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
-            setMessage(ERROR_MESSAGE, "failed to unassign user " + userId + " from occupant zone "
-                            + zoneInfo.zoneId);
-            return;
-        }
-
         IActivityManager am = ActivityManager.getService();
         Log.i(TAG, "stop user:" + userId);
         UserStopRequest request = new UserStopRequest.Builder(UserHandle.of(userId)).build();

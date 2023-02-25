@@ -417,6 +417,16 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a call to {@code UserManager#isVisibleBackgroundUsersSupported()} that returns
+     * {@code isVisibleBackgroundUsersSupported}.
+     */
+    public static void mockUmIsVisibleBackgroundUsersSupported(UserManager um,
+            boolean isVisibleBackgroundUsersSupported) {
+        when(um.isVisibleBackgroundUsersSupported()).thenReturn(
+                isVisibleBackgroundUsersSupported);
+    }
+
+    /**
      * Mocks a call to {@link ServiceManager#getService(name)}.
      *
      * <p><b>Note: </b>it must be made inside a
