@@ -49,4 +49,6 @@ interface ICarPower {
     void removePowerPolicyListener(in ICarPowerPolicyListener listener);
 
     void setDisplayPowerState(int displayId, boolean enable);
+
+    void notifyUserActivity(int displayId);
 }
