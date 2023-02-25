@@ -29,6 +29,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersSupported;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
@@ -45,6 +46,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -61,6 +63,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.PlatformVersion;
+import android.car.VehicleAreaSeat;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -120,6 +123,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
     private static final int TEST_USER_ID = 101;
     private static final int TEST_DISPLAY_ID = 201;
+    private static final int TEST_OCCUPANT_ZONE_ID = 2;
 
     @Mock
     private Binder mMockBinder;
@@ -364,6 +368,41 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mockListener1, never()).onEvent(any(UserLifecycleEvent.class));
         verify(mockListener2, times(1)).onEvent(any(UserLifecycleEvent.class));
         verify(mockListener3, times(2)).onEvent(any(UserLifecycleEvent.class));
+    }
+
+    @Test
+    public void testOnUserInvisible_systemUser_noop() throws Exception {
+        // Arrange.
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserInvisibleEvent(UserHandle.SYSTEM.getIdentifier());
+
+        // Verify.
+        verify(mCarOccupantZoneService, never()).unassignOccupantZone(anyInt());
+    }
+
+    @Test
+    public void testOnUserInvisible_nonSystemUser_occupantZoneUnassignment() throws Exception {
+        // Arrange.
+        doReturn(mMockedActivityManager).when(mMockContext).getSystemService(ActivityManager.class);
+        doNothing().when(mMockedActivityManager).forceStopPackageAsUser(anyString(), anyInt());
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                        VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+        when(mCarOccupantZoneService.getOccupantZoneForUser(UserHandle.of(TEST_USER_ID)))
+                .thenReturn(zoneInfo);
+        when(mCarOccupantZoneService.unassignOccupantZone(TEST_OCCUPANT_ZONE_ID))
+                .thenReturn(CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserInvisibleEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mCarOccupantZoneService).unassignOccupantZone(TEST_OCCUPANT_ZONE_ID);
     }
 
     @Test
