@@ -24,6 +24,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -40,6 +41,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -75,6 +77,7 @@ import java.util.stream.Collectors;
 public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     private static final boolean DBG = false;
+    private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
 
     /**
      * Used in {@link VehicleHal#dumpPropValue} method when copying
@@ -312,9 +315,20 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     private HalPropValue getValueWithRetry(HalPropValue value, int maxRetries) {
-        HalPropValue result = invokeRetriable((requestValue) -> {
-            return mVehicleStub.get(requestValue);
-        }, "get", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, maxRetries);
+        HalPropValue result;
+        Trace.traceBegin(TRACE_TAG, "VehicleStub#getValueWithRetry");
+        try {
+            result = invokeRetriable((requestValue) -> {
+                Trace.traceBegin(TRACE_TAG, "VehicleStub#get");
+                try {
+                    return mVehicleStub.get(requestValue);
+                } finally {
+                    Trace.traceEnd(TRACE_TAG);
+                }
+            }, "get", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, maxRetries);
+        } finally {
+            Trace.traceEnd(TRACE_TAG);
+        }
 
         if (result == null) {
             // If VHAL returns null result, but the status is OKAY. We treat that as NOT_AVAILABLE.
@@ -326,7 +340,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     private void setValueWithRetry(HalPropValue value)  {
         invokeRetriable((requestValue) -> {
+            Trace.traceBegin(TRACE_TAG, "VehicleStub#set");
             mVehicleStub.set(requestValue);
+            Trace.traceEnd(TRACE_TAG);
             return null;
         }, "set", value, mMaxDurationForRetryMs, mSleepBetweenRetryMs, /* maxRetries= */ 0);
     }
