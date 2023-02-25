@@ -19,7 +19,6 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -308,7 +307,6 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        IActivityManager am = ActivityManager.getService();
         Log.i(TAG, "stop user:" + userId);
         UserStopRequest request = new UserStopRequest.Builder(UserHandle.of(userId)).build();
         UserStopResponse response = mCarUserManager.stopUser(request);
