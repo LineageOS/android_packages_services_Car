@@ -42,6 +42,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.os.Trace;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -1459,6 +1460,7 @@ public class CarPropertyManager extends CarManagerBase {
 
         assertPropertyIdIsSupported(propId);
 
+        Trace.beginSection("CarPropertyManager#getProperty");
         try {
             return (CarPropertyValue<E>) (runSyncOperation(() -> {
                 return mService.getProperty(propId, areaId);
@@ -1479,6 +1481,8 @@ public class CarPropertyManager extends CarManagerBase {
 
             // Never reaches here.
             return null;
+        } finally {
+            Trace.endSection();
         }
     }
 
@@ -1538,6 +1542,7 @@ public class CarPropertyManager extends CarManagerBase {
 
         assertPropertyIdIsSupported(propId);
 
+        Trace.beginSection("CarPropertyManager#setProperty");
         try {
             runSyncOperation(() -> {
                 mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
@@ -1560,6 +1565,8 @@ public class CarPropertyManager extends CarManagerBase {
             }
             handleCarServiceSpecificException(e, propId, areaId);
             return;
+        } finally {
+            Trace.endSection();
         }
     }
 
