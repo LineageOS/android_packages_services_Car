@@ -32,6 +32,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.content.Context;
 import android.frameworks.automotive.powerpolicy.PowerComponent;
 import android.os.Handler;
+import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -125,5 +126,13 @@ public final class CarPowerManagerPermissionTest {
                 () -> mCarPowerManager.addPowerPolicyListener(executor, filter, (p) -> { }));
 
         assertThat(e.getMessage()).contains(PERMISSION_READ_CAR_POWER_POLICY);
+    }
+
+    @Test
+    public void testNotifyUserActivity() throws Exception {
+        Exception e = assertThrows(SecurityException.class,
+                () -> mCarPowerManager.notifyUserActivity(Display.DEFAULT_DISPLAY));
+
+        assertThat(e.getMessage()).contains(PERMISSION_CAR_POWER);
     }
 }
