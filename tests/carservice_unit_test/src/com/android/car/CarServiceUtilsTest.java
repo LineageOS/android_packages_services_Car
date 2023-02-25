@@ -336,4 +336,22 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
         // No need to assert, test would fail if it threw
     }
+
+    @Test
+    public void toIntArraySet() {
+        int[] values = {1, 2, 3};
+
+        expectWithMessage("Converted int array set").that(CarServiceUtils.toIntArraySet(values))
+                .containsExactly(1, 2, 3);
+    }
+
+    @Test
+    public void toIntArraySet_withNullValues_fails() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                CarServiceUtils.toIntArraySet(/* values= */ null)
+        );
+
+        expectWithMessage("Null values exception").that(thrown).hasMessageThat()
+                .contains("Values to convert to array set");
+    }
 }

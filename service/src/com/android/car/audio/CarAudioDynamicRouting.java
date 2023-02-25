@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static android.media.AudioAttributes.USAGE_MEDIA;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 
 import android.car.builtin.util.Slogf;
@@ -45,7 +47,7 @@ final class CarAudioDynamicRouting {
             AudioManager.STREAM_RING
     };
     static final int[] STREAM_TYPE_USAGES = new int[] {
-            AudioAttributes.USAGE_MEDIA,
+            USAGE_MEDIA,
             AudioAttributes.USAGE_ALARM,
             AudioAttributes.USAGE_NOTIFICATION_RINGTONE
     };
@@ -81,11 +83,7 @@ final class CarAudioDynamicRouting {
                 }
                 continue;
             }
-            AudioFormat mixFormat = new AudioFormat.Builder()
-                    .setSampleRate(info.getSampleRate())
-                    .setEncoding(info.getEncodingFormat())
-                    .setChannelMask(info.getChannelCount())
-                    .build();
+            AudioFormat mixFormat = createMixFormatFromDevice(info);
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
             List<Integer> contextIdsForAddress = group.getContextsForAddress(address);
             for (int contextIndex = 0; contextIndex < contextIdsForAddress.size(); contextIndex++) {
@@ -110,12 +108,7 @@ final class CarAudioDynamicRouting {
                 // It's a valid case that an audio output address is defined in
                 // audio_policy_configuration and no context is assigned to it.
                 // In such case, do not build a policy mix with zero rules.
-                AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
-                        .setFormat(mixFormat)
-                        .setDevice(info.getAudioDeviceInfo())
-                        .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
-                        .build();
-                builder.addMix(audioMix);
+                addMix(builder, info, mixFormat, mixingRuleBuilder);
             }
         }
     }
@@ -123,5 +116,36 @@ final class CarAudioDynamicRouting {
     @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarAudioDynamicRouting() {
         throw new UnsupportedOperationException("contains only static methods");
+    }
+
+    public static void setupAudioDynamicRoutingForMirrorDevice(
+            AudioPolicy.Builder mirrorPolicyBuilder, CarAudioDeviceInfo mirrorDevice) {
+        AudioFormat mixFormat = createMixFormatFromDevice(mirrorDevice);
+
+        AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+        mixingRuleBuilder.addRule(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
+
+        addMix(mirrorPolicyBuilder, mirrorDevice, mixFormat, mixingRuleBuilder);
+    }
+
+    private static AudioFormat createMixFormatFromDevice(CarAudioDeviceInfo mirrorDevice) {
+        AudioFormat mixFormat = new AudioFormat.Builder()
+                .setSampleRate(mirrorDevice.getSampleRate())
+                .setEncoding(mirrorDevice.getEncodingFormat())
+                .setChannelMask(mirrorDevice.getChannelCount())
+                .build();
+        return mixFormat;
+    }
+
+    private static void addMix(AudioPolicy.Builder mirrorPolicyBuilder,
+            CarAudioDeviceInfo mirrorDevice, AudioFormat mixFormat,
+            AudioMixingRule.Builder mixingRuleBuilder) {
+        AudioMix audioMix = new AudioMix.Builder(mixingRuleBuilder.build())
+                .setFormat(mixFormat)
+                .setDevice(mirrorDevice.getAudioDeviceInfo())
+                .setRouteFlags(AudioMix.ROUTE_FLAG_RENDER)
+                .build();
+        mirrorPolicyBuilder.addMix(audioMix);
     }
 }
