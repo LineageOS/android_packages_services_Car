@@ -26,6 +26,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -39,6 +40,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -74,6 +76,7 @@ public class CarPropertyService extends ICarProperty.Stub
     // all the binder thread, we do not have thread left for the result callback from VHAL. This
     // will cause all the pending sync operation to timeout because result cannot be delivered.
     private static final int SYNC_GET_SET_PROPERTY_OP_LIMIT = 16;
+    private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -514,9 +517,12 @@ public class CarPropertyService extends ICarProperty.Stub
                 throw new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN);
             }
             mSyncGetSetPropertyOpCount += 1;
-            Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+            if (DBG) {
+                Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+            }
         }
         try {
+            Trace.traceBegin(TRACE_TAG, "call sync operation");
             return c.call();
         } catch (RuntimeException e) {
             throw e;
@@ -524,9 +530,12 @@ public class CarPropertyService extends ICarProperty.Stub
             Slogf.e(TAG, e, "catching unexpected exception for getProperty/setProperty");
             return null;
         } finally {
+            Trace.traceEnd(TRACE_TAG);
             synchronized (mLock) {
                 mSyncGetSetPropertyOpCount -= 1;
-                Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+                if (DBG) {
+                    Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+                }
             }
         }
     }
@@ -535,9 +544,14 @@ public class CarPropertyService extends ICarProperty.Stub
     public CarPropertyValue getProperty(int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         validateGetParameters(propertyId, areaId);
-        return runSyncOperationCheckLimit(() -> {
-            return mPropertyHalService.getProperty(propertyId, areaId);
-        });
+        Trace.traceBegin(TRACE_TAG, "CarPropertyValue#getProperty");
+        try {
+            return runSyncOperationCheckLimit(() -> {
+                return mPropertyHalService.getProperty(propertyId, areaId);
+            });
+        } finally {
+            Trace.traceEnd(TRACE_TAG);
+        }
     }
 
     /**
