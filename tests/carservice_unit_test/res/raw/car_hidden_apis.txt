@@ -398,7 +398,6 @@ android.car.hardware.property CarPropertyEvent int getErrorCode()
 android.car.hardware.property CarPropertyEvent String toString()
 android.car.hardware.property CarPropertyEvent boolean equals(Object object)
 android.car.hardware.property CarPropertyEvent int hashCode()
-android.car.hardware.property CarPropertyManager int STATUS_OK
 android.car.hardware.property CarPropertyManager String getReadPermission(int propId)
 android.car.hardware.property CarPropertyManager String getWritePermission(int propId)
 android.car.hardware.property CarPropertyManager void onCarDisconnected()
