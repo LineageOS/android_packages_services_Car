@@ -139,6 +139,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     private static final String TAG = BaseCarUserServiceTestCase.class.getSimpleName();
     private static final String FAKE_USER_PICKER_PACKAGE = "fake-user-picker-package";
+    private static final String FAKE_SYSTEM_UI_SERVICE_PACKAGE =
+            "com.android.systemui/com.android.systemui.SystemUIService";
 
     protected static final int NO_USER_INFO_FLAGS = 0;
     protected static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
@@ -518,6 +520,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         when(mMockedResources
                 .getString(com.android.car.R.string.config_userPickerActivity))
                 .thenReturn(FAKE_USER_PICKER_PACKAGE);
+
+        when(mMockedResources
+                .getString(com.android.internal.R.string.config_systemUIServiceComponent))
+                .thenReturn(FAKE_SYSTEM_UI_SERVICE_PACKAGE);
 
         return new CarUserService(
                 mMockContext,
@@ -1001,8 +1007,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void sendUserUnlockedEvent(@UserIdInt int userId) {
-        sendUserLifecycleEvent(/* fromUser */ 0, userId,
+        sendUserLifecycleEvent(/* fromUser= */ 0, userId,
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
+    }
+
+    protected void sendUserInvisibleEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(/* fromUser= */ 0, userId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE);
     }
 
     protected void sendUserSwitchingEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
