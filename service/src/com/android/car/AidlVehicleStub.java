@@ -981,10 +981,13 @@ final class AidlVehicleStub extends VehicleStub {
         requestsHandler.addVhalRequest(vhalRequestId, requestedPropValue, /* timeoutInMs= */ 0);
         requestsHandler.sendRequestsToVhal(mAidlVehicle, mGetSetValuesCallback);
 
+        boolean gotResult = false;
+
         try {
             Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#waitingForSyncResult");
             VhalResultType result = resultFuture.get(mSyncOpTimeoutInMs,
                     TimeUnit.MILLISECONDS);
+            gotResult = true;
             return resultHandler.apply(result);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Restore the interrupted status
@@ -998,7 +1001,11 @@ final class AidlVehicleStub extends VehicleStub {
                     "get/set value request timeout for: " + printPropIdAreaId(requestedPropValue));
         } finally {
             Trace.traceEnd(TRACE_TAG);
-            pendingSyncRequestPool.finishRequestIfFound(vhalRequestId);
+            if (!gotResult) {
+                resultFuture = pendingSyncRequestPool.finishRequestIfFound(vhalRequestId);
+                // Something wrong happened, the future is guaranteed not to be used again.
+                resultFuture.cancel(/* mayInterruptIfRunning= */ false);
+            }
             Trace.traceEnd(TRACE_TAG);
         }
     }
