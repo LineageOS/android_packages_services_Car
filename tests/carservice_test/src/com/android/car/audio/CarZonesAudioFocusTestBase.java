@@ -239,14 +239,25 @@ abstract class CarZonesAudioFocusTestBase {
     }
 
     protected SparseArray<CarAudioZone> generateAudioZones() {
+        int testZoneConfigId = 0;
+        SparseArray<CarAudioZone> zones = new SparseArray<>(2);
         CarAudioContext testCarAudioContext =
                 new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                         /* useCoreAudioRouting= */ false);
-        SparseArray<CarAudioZone> zones = new SparseArray<>(2);
-        zones.put(PRIMARY_ZONE_ID,
-                new CarAudioZone(testCarAudioContext, "Primary zone", PRIMARY_ZONE_ID));
-        zones.put(SECONDARY_ZONE_ID,
-                new CarAudioZone(testCarAudioContext, "Secondary zone", SECONDARY_ZONE_ID));
+        CarAudioZone primaryZone = new CarAudioZone(testCarAudioContext, "Primary zone",
+                PRIMARY_ZONE_ID);
+        CarAudioZone secondaryZone = new CarAudioZone(testCarAudioContext, "Secondary zone",
+                SECONDARY_ZONE_ID);
+        CarAudioZoneConfig primaryZoneConfig =
+                new CarAudioZoneConfig.Builder("Primary zone config", PRIMARY_ZONE_ID,
+                        testZoneConfigId, /* isDefault= */ true).build();
+        CarAudioZoneConfig secondaryZoneConfig =
+                new CarAudioZoneConfig.Builder("Secondary zone config", SECONDARY_ZONE_ID,
+                        testZoneConfigId, /* isDefault= */ true).build();
+        primaryZone.addZoneConfig(primaryZoneConfig);
+        secondaryZone.addZoneConfig(secondaryZoneConfig);
+        zones.put(PRIMARY_ZONE_ID, primaryZone);
+        zones.put(SECONDARY_ZONE_ID, secondaryZone);
         return zones;
     }
 

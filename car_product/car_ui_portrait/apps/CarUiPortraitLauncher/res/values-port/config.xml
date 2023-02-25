@@ -46,9 +46,6 @@
         <item>com.android.car.carlauncher.homescreen.audio.AudioCard</item>
     </string-array>
 
-    <!-- Apply GENERIC_OVERLAYS insets to upper task view -->
-    <bool name="config_setInsetsOnUpperTaskView">true</bool>
-
     <!--
      A list of all the apps that are meant to stay in full-screen.
     -->

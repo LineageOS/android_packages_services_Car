@@ -280,11 +280,24 @@ public final class CarZonesAudioFocusUnitTest {
         CarAudioContext testCarAudioContext =
                 new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                         /* useCoreAudioRouting= */ false);
+        int zoneConfigId = 0;
+        CarAudioZoneConfig primaryZoneConfig =
+                new CarAudioZoneConfig.Builder("Primary zone config",
+                        PRIMARY_ZONE_ID, zoneConfigId, /* isDefault= */ true)
+                        .build();
+        CarAudioZoneConfig secondaryZoneConfig =
+                new CarAudioZoneConfig.Builder("Secondary zone config",
+                        SECONDARY_ZONE_ID, zoneConfigId, /* isDefault= */ true)
+                        .build();
+        CarAudioZone primaryZone = new CarAudioZone(testCarAudioContext, "Primary zone",
+                PRIMARY_ZONE_ID);
+        CarAudioZone secondaryZone = new CarAudioZone(testCarAudioContext, "Secondary zone",
+                SECONDARY_ZONE_ID);
+        primaryZone.addZoneConfig(primaryZoneConfig);
+        secondaryZone.addZoneConfig(secondaryZoneConfig);
         SparseArray<CarAudioZone> zones = new SparseArray<>();
-        zones.put(PRIMARY_ZONE_ID, new CarAudioZone(testCarAudioContext, "Primary zone",
-                PRIMARY_ZONE_ID));
-        zones.put(SECONDARY_ZONE_ID, new CarAudioZone(testCarAudioContext, "Secondary zone",
-                SECONDARY_ZONE_ID));
+        zones.put(PRIMARY_ZONE_ID, primaryZone);
+        zones.put(SECONDARY_ZONE_ID, secondaryZone);
         return zones;
     }
 

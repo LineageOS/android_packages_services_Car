@@ -400,7 +400,7 @@
     <!-- Specifies the user picker to be launched on a secondary display when there is no user
          allocation when the system boots and when a visible user stops.
     -->
-    <string name="config_userPickerActivity" translatable="false">com.google.android.car.kitchensink/.UserPickerActivity</string>
+    <string name="config_userPickerActivity" translatable="false">com.android.systemui/.car.userpicker.UserPickerActivity</string>
 
     <!-- Configuration to enable media center to autoplay when the media source is changed.
          There are 3 supported configurations:
