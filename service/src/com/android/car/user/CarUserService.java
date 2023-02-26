@@ -1879,7 +1879,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void onUserInvisible(@UserIdInt int userId) {
-        stopSystemUiForVisibleUser(userId);
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (userId == UserHandle.SYSTEM.getIdentifier()) {
+            return;
+        }
+        stopSystemUiForUser(mContext, userId);
+        unassignInvisibleUserFromZone(userId);
     }
 
     private void startUsersOrHomeOnSecondaryDisplays(@UserIdInt int userId) {
@@ -2336,6 +2343,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         // non-current user only
+        // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
         if (userId == ActivityManager.getCurrentUser()) {
             return;
         }
@@ -2364,6 +2372,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     userId, zoneId, assignResult);
             stopUser(userId, new AndroidFuture<UserStopResult>());
             return;
+        }
+    }
+
+    // Unassigns the non-current invisible user from the occupant zone.
+    private void unassignInvisibleUserFromZone(@UserIdInt int userId) {
+        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                zoneService.getOccupantZoneForUser(UserHandle.of(userId));
+        if (zoneInfo == null) {
+            Slogf.e(TAG, "unassignInvisibleUserFromZone: cannot find occupant zone for user %d",
+                    userId);
+            return;
+        }
+
+        int result = zoneService.unassignOccupantZone(zoneInfo.zoneId);
+        if (result != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+            Slogf.e(TAG,
+                    "unassignInvisibleUserFromZone: failed to unassign user %d from zone %d,"
+                    + " result %d",
+                    userId, zoneInfo.zoneId, result);
         }
     }
 
@@ -2400,17 +2429,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         startSystemUiForUser(mContext, userId);
-    }
-
-    private void stopSystemUiForVisibleUser(@UserIdInt int userId) {
-        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
-            return;
-        }
-        if (userId == UserHandle.SYSTEM.getIdentifier()) {
-            return;
-        }
-
-        stopSystemUiForUser(mContext, userId);
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {

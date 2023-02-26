@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.util.concurrent.AndroidFuture;
@@ -43,6 +44,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.LongSparseArray;
@@ -73,6 +75,9 @@ final class AidlVehicleStub extends VehicleStub {
             "android.hardware.automotive.vehicle.IVehicle/default";
     // default timeout: 10s
     private static final long DEFAULT_TIMEOUT_MS = 10_000;
+
+    private static final String TAG = CarLog.tagFor(AidlVehicleStub.class);
+    private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
 
     private final IVehicle mAidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
@@ -402,7 +407,7 @@ final class AidlVehicleStub extends VehicleStub {
                 }
                 for (int i = 0; i < vhalRequestIdsToCancel.size(); i++) {
                     long vhalRequestIdToCancel = vhalRequestIdsToCancel.get(i);
-                    Slogf.w(CarLog.TAG_SERVICE, "the request for VHAL request ID: %d is cancelled",
+                    Slogf.w(TAG, "the request for VHAL request ID: %d is cancelled",
                             vhalRequestIdToCancel);
                     mPendingRequestsByVhalRequestId.remove(vhalRequestIdToCancel);
                 }
@@ -517,7 +522,7 @@ final class AidlVehicleStub extends VehicleStub {
             return IVehicle.Stub.asInterface(
                     ServiceManagerHelper.waitForDeclaredService(AIDL_VHAL_SERVICE));
         } catch (RuntimeException e) {
-            Slogf.w(CarLog.TAG_SERVICE, "Failed to get \"" + AIDL_VHAL_SERVICE + "\" service", e);
+            Slogf.w(TAG, "Failed to get \"" + AIDL_VHAL_SERVICE + "\" service", e);
         }
         return null;
     }
@@ -594,19 +599,23 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void onGetValues(GetValueResults responses) {
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#onGetValues");
         GetValueResults origResponses = (GetValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(responses,
                         /* keepSharedMemory= */ false);
         onGetSetValues(origResponses.payloads, new AsyncGetResultsHandler(mPropValueBuilder),
                 mPendingSyncGetValueRequestPool);
+        Trace.traceEnd(TRACE_TAG);
     }
 
     private void onSetValues(SetValueResults responses) {
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#onSetValues");
         SetValueResults origResponses = (SetValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(responses,
                         /* keepSharedMemory= */ false);
         onGetSetValues(origResponses.payloads, new AsyncSetResultsHandler(),
                 mPendingSyncSetValueRequestPool);
+        Trace.traceEnd(TRACE_TAG);
     }
 
     /**
@@ -628,7 +637,7 @@ final class AidlVehicleStub extends VehicleStub {
                 AsyncRequestInfo requestInfo = mPendingAsyncRequestPool.finishRequestIfFound(
                         vhalRequestId);
                 if (requestInfo == null) {
-                    Slogf.w(CarLog.TAG_SERVICE,
+                    Slogf.w(TAG,
                             "No pending request for ID: %s, possibly already timed out, "
                             + "or cancelled, or the client already died", vhalRequestId);
                     continue;
@@ -637,7 +646,9 @@ final class AidlVehicleStub extends VehicleStub {
                         requestInfo.getServiceRequestId(), result);
             }
         }
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub call async result callback");
         asyncResultsHandler.callVehicleStubCallback();
+        Trace.traceEnd(TRACE_TAG);
     }
 
     private static int convertHalToCarPropertyManagerError(int errorCode) {
@@ -702,6 +713,7 @@ final class AidlVehicleStub extends VehicleStub {
         for (int i = 0; i < vhalRequestIdsByTimeoutInMs.size(); i++) {
             long timeoutInMs = vhalRequestIdsByTimeoutInMs.keyAt(i);
             List<Long> vhalRequestIds = vhalRequestIdsByTimeoutInMs.valueAt(i);
+            // TODO(b/269669729): Remove the timeout handler once finished.
             mHandler.postDelayed(() -> {
                 requestsTimedout(vhalRequestIds);
             }, timeoutInMs);
@@ -741,17 +753,20 @@ final class AidlVehicleStub extends VehicleStub {
     private <VhalResultType> void completePendingSyncRequestLocked(
             PendingSyncRequestPool<VhalResultType> pendingSyncRequestPool, long vhalRequestId,
             VhalResultType result) {
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#completePendingSyncRequestLocked");
         AndroidFuture<VhalResultType> pendingRequest =
                 pendingSyncRequestPool.finishRequestIfFound(vhalRequestId);
         if (pendingRequest == null) {
-            Slogf.w(CarLog.TAG_SERVICE, "No pending request for ID: " + vhalRequestId
+            Slogf.w(TAG, "No pending request for ID: " + vhalRequestId
                     + ", possibly already timed out");
             return;
         }
-        mHandler.post(() -> {
-            // This might fail if the request already timed out.
-            pendingRequest.complete(result);
-        });
+
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#complete pending request");
+        // This might fail if the request already timed out.
+        pendingRequest.complete(result);
+        Trace.traceEnd(TRACE_TAG);
+        Trace.traceEnd(TRACE_TAG);
     }
 
     private static final class AsyncGetRequestsHandler
@@ -782,15 +797,22 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public void sendRequestsToVhal(IVehicle iVehicle, GetSetValuesCallback callbackForVhal)
                 throws RemoteException, ServiceSpecificException {
+            Trace.traceBegin(TRACE_TAG, "Prepare LargeParcelable");
             GetValueRequests largeParcelableRequest = new GetValueRequests();
             largeParcelableRequest.payloads = mVhalRequestItems;
+
+            // TODO(b/269669729): Don't try to use large parcelable if the request size is too
+            // small.
             largeParcelableRequest = (GetValueRequests) LargeParcelable.toLargeParcelable(
                     largeParcelableRequest, () -> {
                         GetValueRequests newRequests = new GetValueRequests();
                         newRequests.payloads = new GetValueRequest[0];
                         return newRequests;
             });
+            Trace.traceEnd(TRACE_TAG);
+            Trace.traceBegin(TRACE_TAG, "IVehicle#getValues");
             iVehicle.getValues(callbackForVhal, largeParcelableRequest);
+            Trace.traceEnd(TRACE_TAG);
         }
 
         @Override
@@ -949,8 +971,8 @@ final class AidlVehicleStub extends VehicleStub {
             AsyncRequestsHandler requestsHandler,
             Function<VhalResultType, HalPropValue> resultHandler)
             throws RemoteException, ServiceSpecificException {
+        Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#getOrSetSync");
         long vhalRequestId = mRequestId.getAndIncrement();
-        int propId = requestedPropValue.getPropId();
 
         AndroidFuture<VhalResultType> resultFuture = pendingSyncRequestPool.addRequest(
                 vhalRequestId);
@@ -959,9 +981,13 @@ final class AidlVehicleStub extends VehicleStub {
         requestsHandler.addVhalRequest(vhalRequestId, requestedPropValue, /* timeoutInMs= */ 0);
         requestsHandler.sendRequestsToVhal(mAidlVehicle, mGetSetValuesCallback);
 
+        boolean gotResult = false;
+
         try {
+            Trace.traceBegin(TRACE_TAG, "AidlVehicleStub#waitingForSyncResult");
             VhalResultType result = resultFuture.get(mSyncOpTimeoutInMs,
                     TimeUnit.MILLISECONDS);
+            gotResult = true;
             return resultHandler.apply(result);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Restore the interrupted status
@@ -974,7 +1000,13 @@ final class AidlVehicleStub extends VehicleStub {
             throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                     "get/set value request timeout for: " + printPropIdAreaId(requestedPropValue));
         } finally {
-            pendingSyncRequestPool.finishRequestIfFound(vhalRequestId);
+            Trace.traceEnd(TRACE_TAG);
+            if (!gotResult) {
+                resultFuture = pendingSyncRequestPool.finishRequestIfFound(vhalRequestId);
+                // Something wrong happened, the future is guaranteed not to be used again.
+                resultFuture.cancel(/* mayInterruptIfRunning= */ false);
+            }
+            Trace.traceEnd(TRACE_TAG);
         }
     }
 
@@ -1071,7 +1103,7 @@ final class AidlVehicleStub extends VehicleStub {
             AsyncRequestsHandler<VhalRequestType, VhalRequestsType> asyncRequestsHandler,
             VehicleStubCallbackInterface vehicleStubCallback, int errorCode,
             AsyncResultsHandler asyncResultsHandler) {
-        Slogf.w(CarLog.TAG_SERVICE,
+        Slogf.w(TAG,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
                         + "dead, error code: %d", errorCode);
         synchronized (mLock) {
@@ -1081,7 +1113,7 @@ final class AidlVehicleStub extends VehicleStub {
                 AsyncRequestInfo requestInfo = mPendingAsyncRequestPool.finishRequestIfFound(
                         vhalRequestId);
                 if (requestInfo == null) {
-                    Slogf.w(CarLog.TAG_SERVICE,
+                    Slogf.w(TAG,
                             "No pending request for ID: %s, possibly already timed out or "
                             + "the client already died", vhalRequestId);
                     continue;

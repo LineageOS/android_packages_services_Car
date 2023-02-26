@@ -373,6 +373,7 @@ android.car.hardware.hvac CarHvacManager void onCarDisconnected()
 android.car.hardware.power CarPowerManager String TAG
 android.car.hardware.power CarPowerManager void requestShutdownOnNextSuspend()
 android.car.hardware.power CarPowerManager void scheduleNextWakeupTime(int seconds)
+android.car.hardware.power CarPowerManager void notifyUserActivity(int displayId)
 android.car.hardware.power CarPowerManager boolean isCompletionAllowed(int state)
 android.car.hardware.power CarPowerManager void onCarDisconnected()
 android.car.hardware.power PowerComponentUtil int COMPONENT_STATE_ENABLED

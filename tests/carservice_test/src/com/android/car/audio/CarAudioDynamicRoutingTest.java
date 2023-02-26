@@ -75,27 +75,10 @@ public final class CarAudioDynamicRoutingTest {
     @Test
     public void setupAudioDynamicRouting() {
         AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
-        AudioDeviceInfo musicAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
-        when(musicAudioDeviceInfo.isSink()).thenReturn(true);
-        when(musicAudioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
-        when(musicAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
-        AudioDeviceInfo navAudioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
-        when(navAudioDeviceInfo.isSink()).thenReturn(true);
-        when(navAudioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
-        when(navAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
-        CarAudioDeviceInfo musicCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
-        CarAudioDeviceInfo navCarAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
-        when(musicCarAudioDeviceInfo.getAddress()).thenReturn(MUSIC_ADDRESS);
-        when(navCarAudioDeviceInfo.getAddress()).thenReturn(NAV_ADDRESS);
-        when(musicCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(musicAudioDeviceInfo);
-        when(musicCarAudioDeviceInfo.getEncodingFormat())
-                .thenReturn(AudioFormat.ENCODING_PCM_16BIT);
-        when(musicCarAudioDeviceInfo.getChannelCount()).thenReturn(2);
-        when(navCarAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(navAudioDeviceInfo);
-        when(navCarAudioDeviceInfo.getEncodingFormat()).thenReturn(AudioFormat.ENCODING_PCM_16BIT);
-        when(navCarAudioDeviceInfo.getChannelCount()).thenReturn(2);
-        when(navCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(false);
-        when(musicCarAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(true);
+        CarAudioDeviceInfo musicCarAudioDeviceInfo = getCarAudioDeviceInfo(MUSIC_ADDRESS,
+                /* canBeRoutedWithDynamicPolicyMix= */ true);
+        CarAudioDeviceInfo navCarAudioDeviceInfo = getCarAudioDeviceInfo(NAV_ADDRESS,
+                /* canBeRoutedWithDynamicPolicyMix= */ false);
 
         CarVolumeGroup mockMusicGroup = new VolumeGroupBuilder()
                 .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
@@ -190,6 +173,46 @@ public final class CarAudioDynamicRoutingTest {
         expect.withMessage("Non-affected announcement usage")
                 .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_ANNOUNCEMENT))
                 .isFalse();
+    }
+
+    @Test
+    public void setupAudioDynamicRoutingForMirrorDevice() {
+        AudioPolicy.Builder mockBuilder = Mockito.mock(AudioPolicy.Builder.class);
+        CarAudioDeviceInfo carMirrorDeviceInfo = getCarAudioDeviceInfo(MUSIC_ADDRESS,
+                /* canBeRoutedWithDynamicPolicyMix= */ true);
+
+        CarAudioDynamicRouting.setupAudioDynamicRoutingForMirrorDevice(mockBuilder,
+                carMirrorDeviceInfo);
+
+        ArgumentCaptor<AudioMix> audioMixCaptor = ArgumentCaptor.forClass(AudioMix.class);
+
+        verify(mockBuilder).addMix(audioMixCaptor.capture());
+        AudioMix audioMix = audioMixCaptor.getValue();
+        expect.withMessage("Music address registered").that(audioMix.getRegistration())
+                .isEqualTo(MUSIC_ADDRESS);
+        expect.withMessage("Contains Music device")
+                .that(audioMix.isRoutedToDevice(AudioSystem.DEVICE_OUT_BUS, MUSIC_ADDRESS))
+                .isTrue();
+        expect.withMessage("Affected media usage")
+                .that(audioMix.isAffectingUsage(AudioAttributes.USAGE_MEDIA))
+                .isTrue();
+    }
+
+    private CarAudioDeviceInfo getCarAudioDeviceInfo(String address,
+            boolean canBeRoutedWithDynamicPolicyMix) {
+        AudioDeviceInfo audioDeviceInfo = Mockito.mock(AudioDeviceInfo.class);
+        when(audioDeviceInfo.isSink()).thenReturn(true);
+        when(audioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
+        when(audioDeviceInfo.getAddress()).thenReturn(address);
+        CarAudioDeviceInfo carAudioDeviceInfo = Mockito.mock(CarAudioDeviceInfo.class);
+        when(carAudioDeviceInfo.getAddress()).thenReturn(address);
+        when(carAudioDeviceInfo.getAudioDeviceInfo()).thenReturn(audioDeviceInfo);
+        when(carAudioDeviceInfo.getEncodingFormat())
+                .thenReturn(AudioFormat.ENCODING_PCM_16BIT);
+        when(carAudioDeviceInfo.getChannelCount()).thenReturn(2);
+        when(carAudioDeviceInfo.canBeRoutedWithDynamicPolicyMix()).thenReturn(
+                canBeRoutedWithDynamicPolicyMix);
+        return carAudioDeviceInfo;
     }
 
     private static final class VolumeGroupBuilder {
