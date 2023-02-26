@@ -131,7 +131,7 @@ protected:
     void terminate();
 
 private:
-    void unregisterServiceLocked();
+    void unregisterServiceLocked(bool doUnregisterFromProcessService);
 
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     ndk::ScopedAIBinder_DeathRecipient mWatchdogServiceDeathRecipient;

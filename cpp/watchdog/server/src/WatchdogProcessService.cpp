@@ -709,10 +709,11 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
             findClientAndProcessLocked(timeouts, it->second.getAIBinder(),
                                        [&](ClientInfoMap& cachedClients,
                                            ClientInfoMap::const_iterator cachedClientsIt) {
-                                           pid = cachedClientsIt->second.pid;
-                                           startTimeMillis =
-                                                   cachedClientsIt->second.startTimeMillis;
-                                           userId = cachedClientsIt->second.userId;
+                                           auto clientInfo = cachedClientsIt->second;
+                                           pid = clientInfo.pid;
+                                           startTimeMillis = clientInfo.startTimeMillis;
+                                           userId = clientInfo.userId;
+                                           clientInfo.unlinkToDeath(mBinderDeathRecipient.get());
                                            cachedClients.erase(cachedClientsIt);
                                        });
             if (pid != -1 && mStoppedUserIds.count(userId) == 0) {

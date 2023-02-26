@@ -372,6 +372,8 @@ TEST_F(WatchdogServiceHelperTest, TestPrepareProcessTermination) {
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination())
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
+
     auto status = mWatchdogServiceHelper->prepareProcessTermination(
             mMockCarWatchdogServiceForSystem->asBinder());
 
@@ -386,6 +388,8 @@ TEST_F(WatchdogServiceHelperTest,
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination()).Times(0);
 
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
+
     auto notRegisteredService = SharedRefBase::make<MockCarWatchdogServiceForSystem>();
     auto status =
             mWatchdogServiceHelper->prepareProcessTermination(notRegisteredService->asBinder());
@@ -397,6 +401,8 @@ TEST_F(WatchdogServiceHelperTest,
 TEST_F(WatchdogServiceHelperTest,
        TestErrorOnPrepareProcessTerminationWithNoCarWatchdogServiceRegistered) {
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination()).Times(0);
+
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
 
     auto status = mWatchdogServiceHelper->prepareProcessTermination(
             mMockCarWatchdogServiceForSystem->asBinder());
@@ -412,6 +418,8 @@ TEST_F(WatchdogServiceHelperTest,
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, prepareProcessTermination())
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                                                                 "Illegal state"))));
+
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
 
     auto status = mWatchdogServiceHelper->prepareProcessTermination(
             mMockCarWatchdogServiceForSystem->asBinder());
