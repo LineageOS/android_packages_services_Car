@@ -20,6 +20,7 @@ import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.TimeoutLength;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.automotive.watchdog.internal.ResourceStats;
 
 /**
  * ICarWatchdogServiceForSystem interface used by the watchdog server to communicate with the
@@ -56,6 +57,8 @@ interface ICarWatchdogServiceForSystem {
   List<PackageInfo> getPackageInfosForUids(
             in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
 
+  // TODO(b/269191275): This method was replaced by onLatestResourceStats in Android U.
+  //  Deprecate method in Android W (N+2 releases).
   /**
    * Pushes the latest I/O overuse stats to the watchdog server.
    *
@@ -76,4 +79,12 @@ interface ICarWatchdogServiceForSystem {
    * previous boot.
    */
   List<UserPackageIoUsageStats> getTodayIoUsageStats();
+
+  /**
+   * Pushes the latest resource usage and I/O overuse stats to the carwatchdog service.
+   *
+   * @param resourceStats  Latest resource stats, for the overall system and all packages, from
+   * the recent collection.
+   */
+  oneway void onLatestResourceStats(in ResourceStats resourceStats);
 }

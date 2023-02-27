@@ -31,6 +31,7 @@ using ::aidl::android::automotive::watchdog::TimeoutLength;
 using ::aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem;
 using ::aidl::android::automotive::watchdog::internal::PackageInfo;
 using ::aidl::android::automotive::watchdog::internal::PackageIoOveruseStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceStats;
 using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::sp;
 using ::android::wp;
@@ -272,6 +273,18 @@ ScopedAStatus WatchdogServiceHelper::getTodayIoUsageStats(
         service = mService;
     }
     return service->getTodayIoUsageStats(userPackageIoUsageStats);
+}
+
+ScopedAStatus WatchdogServiceHelper::onLatestResourceStats(
+        const ResourceStats& resourceStats) const {
+    std::shared_ptr<ICarWatchdogServiceForSystem> service;
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
+        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                            "Watchdog service is not initialized");
+    } else {
+        service = mService;
+    }
+    return service->onLatestResourceStats(resourceStats);
 }
 
 }  // namespace watchdog
