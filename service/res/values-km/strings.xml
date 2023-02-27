@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"ធ្វើសមកាលកម្មអេក្រង់​របស់កម្មវិធីផ្សេងទៀត​ទៅវិញទៅមក។"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"ធ្វើសមកាលកម្មផ្ទាំងអេក្រង់​របស់អ្នកប្រើប្រាស់​ផ្សេងទៀតទៅវិញទៅមក"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"ធ្វើសមកាលកម្មផ្ទាំងអេក្រង់​របស់អ្នកប្រើប្រាស់​ផ្សេងទៀតទៅវិញទៅមក។"</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"ផ្ដល់​ប្រូកស៊ី ui ប្រព័ន្ធ​ដែលកម្មវិធីផ្សេងទៀត​អាចប្រើ ដើម្បីគ្រប់គ្រង ui ប្រព័ន្ធ និងបង្កើត​ទិដ្ឋភាពកិច្ចការ។"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"ផ្ដល់​ប្រូកស៊ី ui ប្រព័ន្ធ​ដែលកម្មវិធីផ្សេងទៀត​អាចប្រើ ដើម្បីគ្រប់គ្រង ui ប្រព័ន្ធ និងបង្កើត​ទិដ្ឋភាពកិច្ចការ។"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ទំនាក់ទំនង​ជាមួយ ui ប្រព័ន្ធសម្រាប់​ការបង្កើតទិដ្ឋភាពកិច្ចការ ឬទទួលបាន​ការជូនដំណឹងអំពី​ការផ្លាស់ប្ដូរ ui ប្រព័ន្ធ។"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ទំនាក់ទំនង​ជាមួយ ui ប្រព័ន្ធសម្រាប់​ការបង្កើតទិដ្ឋភាពកិច្ចការ ឬទទួលបាន​ការជូនដំណឹងអំពី​ការផ្លាស់ប្ដូរ ui ប្រព័ន្ធ។"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>
