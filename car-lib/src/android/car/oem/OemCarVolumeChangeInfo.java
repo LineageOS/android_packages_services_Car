@@ -110,8 +110,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         return mChangedVolumeGroup;
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
@@ -125,8 +123,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
         " }";
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public boolean equals(@Nullable Object o) {
@@ -143,8 +139,6 @@ public final class OemCarVolumeChangeInfo implements Parcelable {
                 && Objects.equals(mChangedVolumeGroup, that.mChangedVolumeGroup);
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int hashCode() {

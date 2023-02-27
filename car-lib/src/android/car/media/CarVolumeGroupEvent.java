@@ -525,8 +525,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
         return new StringBuilder().append("CarVolumeGroupEvent { mCarVolumeGroupInfos = ")
                 .append(mCarVolumeGroupInfos)
@@ -553,8 +551,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -607,8 +603,6 @@ public final class CarVolumeGroupEvent implements Parcelable {
     };
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int hashCode() {
         return Objects.hash(mCarVolumeGroupInfos, mEventTypes, mExtraInfos);
     }

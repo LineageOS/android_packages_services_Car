@@ -469,7 +469,6 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyConfig{"
                 + "mPropertyId=" + VehiclePropertyIds.toString(mPropertyId)
@@ -554,7 +553,6 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             return "CarAreaConfig{"
                     + "mMinValue=" + mMinValue

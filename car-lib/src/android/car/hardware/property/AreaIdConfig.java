@@ -144,9 +144,6 @@ public final class AreaIdConfig<T> implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(
-            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return "AreaIdConfig{"
                 + "mAreaId="

@@ -200,8 +200,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
                 .append(", zone id = ").append(mZoneId).append(" id = ").append(mId)
@@ -243,8 +241,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -264,8 +260,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
                 mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated);

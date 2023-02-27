@@ -420,7 +420,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         CharArrayWriter charWriter = new CharArrayWriter();
         JsonWriter writer = new JsonWriter(charWriter);
@@ -656,14 +655,12 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         return Objects.hash(mPhysicalPort, mOccupantZoneId, mDisplayType, mMaxStringLength,
                 mMaxCumulativeContentItems, mMaxContentDepth, mRestrictionModes);
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -1281,13 +1278,11 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             @Override
-            @AddedInOrBefore(majorVersion = 33)
             public int hashCode() {
                 return Objects.hash(mMinSpeed, mMaxSpeed);
             }
 
             @Override
-            @AddedInOrBefore(majorVersion = 33)
             public boolean equals(Object obj) {
                 if (this == obj) {
                     return true;
@@ -1301,7 +1296,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             @Override
-            @AddedInOrBefore(majorVersion = 33)
             public String toString() {
                 return new StringBuilder()
                         .append("[min: ").append(mMinSpeed)
@@ -1370,7 +1364,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             return new StringBuilder()
                     .append("Mode: ").append(mMode)

@@ -2256,8 +2256,6 @@ public final class Car {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SuppressWarnings("GenericException")
     protected void finalize() throws Throwable {
         if (mLock == null) {
