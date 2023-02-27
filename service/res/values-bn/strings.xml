@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"অন্যান্য অ্যাপের স্ক্রিন মিরর করুন।"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"অন্যান্য ব্যবহারকারীর ডিসপ্লে মিরর করুন"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"অন্যান্য ব্যবহারকারীর ডিসপ্লে মিরর করুন।"</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"সিস্টেম UI প্রক্সি প্রদান করুন যা অন্যান্য অ্যাপ, সিস্টেম UI ম্যানেজ এবং টাস্ক ভিউ তৈরি করার জন্য ব্যবহার করতে পারে।"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"সিস্টেম UI প্রক্সি প্রদান করুন যা অন্যান্য অ্যাপ, সিস্টেম UI ম্যানেজ এবং টাস্ক ভিউ তৈরি করার জন্য ব্যবহার করতে পারে।"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

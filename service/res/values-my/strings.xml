@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"အခြား ‘အက်ပ်’ များ၏ ဖန်သားပြင်ကို စကရင်ပွားပါ။"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"အခြားအသုံးပြုသူများ၏ ပြကွက်ကို စကရင်ပွားပါ"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"အခြားအသုံးပြုသူများ၏ ပြကွက်ကို စကရင်ပွားပါ။"</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"စနစ် UI စီမံရန်နှင့် လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ရန် အခြားအက်ပ်များ သုံးနိုင်သော စနစ် UI ပရောက်စီကို ပေးပါ။"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"စနစ် UI စီမံရန်နှင့် လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ရန် အခြားအက်ပ်များ သုံးနိုင်သော စနစ် UI ပရောက်စီကို ပေးပါ။"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>

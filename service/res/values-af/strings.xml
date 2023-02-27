@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Weerspieël die skerm van ander apps."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"weerspieël die skerm van ander gebruikers"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Weerspieël die skerm van ander gebruikers."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Verskaf ’n stelsel-UI-instaanbediener wat deur ander apps gebruik kan word om die stelsel-UI te bestuur en taakaansigte te skep."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Verskaf ’n stelsel-UI-instaanbediener wat deur ander apps gebruik kan word om die stelsel-UI te bestuur en taakaansigte te skep."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Kommunikeer met die motorstelsel-UI om taakaansigte te skep of oor stelsel-UI-veranderinge in kennis gestel te word."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Kommunikeer met die motorstelsel-UI om taakaansigte te skep of oor stelsel-UI-veranderinge in kennis gestel te word."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus het misluk"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageer nie. Ontprop hoofeenheidkas, prop dit weer in, en herbegin die motor"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>
