@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Fanisa isibonisi samanye ama-App."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"fanisa isibonisi sabanye abasebenzisi"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Fanisa isibonisi sabanye abasebenzisi."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Nikeza ngommeleli wesistimu ye-ui engasetshenziswa amanye ama-app ukuphatha isistimu ye-ui nokusungula ukubukwa komsebenzi."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Nikeza ngommeleli wesistimu ye-ui engasetshenziswa amanye ama-app ukuphatha isistimu ye-ui nokusungula ukubukwa komsebenzi."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Xhumana nesistimu ye-ui yemoto ngokusungula ukubuka komsebenzi noma ukwaziswa mayelana nezinguquko zesistimu ye-ui."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Xhumana nesistimu ye-ui yemoto ngokusungula ukubuka komsebenzi noma ukwaziswa mayelana nezinguquko zesistimu ye-ui."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ibhasi ye-CAN yehlulekile"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Ibhasi ye-CAN ayiphenduli. Nqamula futhi uxhume ibhokisi le-headunit ukuze uqalise kabusha imoto"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Idivayisi yami"</string>
