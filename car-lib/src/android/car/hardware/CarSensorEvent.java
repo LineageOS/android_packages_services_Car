@@ -858,7 +858,6 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getName() + "[");

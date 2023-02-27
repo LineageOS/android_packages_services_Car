@@ -114,8 +114,6 @@ public final class OemCarAudioFocusResult implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("OemCarAudioFocusResult { audioFocusEntry = ")
                 .append(mAudioFocusEntry)

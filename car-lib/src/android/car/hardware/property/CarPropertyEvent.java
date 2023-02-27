@@ -20,7 +20,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -146,7 +145,6 @@ public class CarPropertyEvent implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyEvent{"
                 + "mEventType=" + mEventType
@@ -156,8 +154,6 @@ public class CarPropertyEvent implements Parcelable {
     }
 
     /** Checks equality with passed {@code object}. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     public boolean equals(Object object) {
         if (this == object) {
@@ -173,8 +169,6 @@ public class CarPropertyEvent implements Parcelable {
     }
 
     /** Generates hash code for this instance. */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     public int hashCode() {
         return Objects.hash(mEventType, mErrorCode, mCarPropertyValue);
