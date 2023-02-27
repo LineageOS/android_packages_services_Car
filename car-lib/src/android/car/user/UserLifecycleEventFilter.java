@@ -118,7 +118,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder builder = new StringBuilder("UserLifecycleEventFilter{eventTypes=");
         if (mEventTypes == null) {
@@ -235,7 +234,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(@Nullable Object o) {
         // You can override field equality logic by defining either of the methods like:
         // boolean fieldNameEquals(UserLifecycleEventFilter other) { ... }
@@ -253,7 +251,6 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
-    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         // You can override field hashCode logic by defining methods like:
         // int fieldNameHashCode() { ... }

@@ -100,7 +100,6 @@ public final class TouchableInsetsProvider {
         mView.getViewTreeObserver().removeOnComputeInternalInsetsListener(mListener);
     }
 
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public String toString() {
         return TAG + "(rect=" + mRect + ", obscuredTouch=" + mObscuredTouchRegion + ")";

@@ -216,8 +216,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }

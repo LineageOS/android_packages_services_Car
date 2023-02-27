@@ -179,7 +179,6 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -193,7 +192,6 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -229,7 +227,6 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "AppBlockingPackageInfo [packageName=" + packageName + ", flags=" + flags
                 + ", minRevisionCode=" + minRevisionCode + ", maxRevisionCode=" + maxRevisionCode

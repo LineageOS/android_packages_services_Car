@@ -99,7 +99,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     }
 
     @Override
-    @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public String toString() {
         return "CarEvsBufferDescriptor: id = " + mId + ", buffer = " + mHardwareBuffer;
@@ -107,8 +106,6 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
 
     @Override
     @SuppressLint("GenericException")
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     protected void finalize() throws Throwable {
         try {
             close();
