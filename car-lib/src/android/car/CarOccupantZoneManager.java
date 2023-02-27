@@ -209,7 +209,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
         }
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public boolean equals(Object other) {
             if (this == other) {
                 return true;
@@ -223,7 +222,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
         }
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public int hashCode() {
             int hash = 23;
             hash = hash * 17 + zoneId;
@@ -245,7 +243,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
                 };
 
         @Override
-        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             StringBuilder b = new StringBuilder(64);
             b.append("OccupantZoneInfo{zoneId=");
