@@ -56,10 +56,6 @@ final class MediaRequestHandler {
             new ArrayMap<>();
 
     @GuardedBy("mLock")
-    private long mMediaRequestCounter;
-    @GuardedBy("mLock")
-    private final ArraySet<Long> mUsedMediaRequestIds = new ArraySet<>();
-    @GuardedBy("mLock")
     private final ArraySet<CarOccupantZoneManager.OccupantZoneInfo> mAssignedOccupants =
             new ArraySet<>();
     @GuardedBy("mLock")
@@ -67,6 +63,7 @@ final class MediaRequestHandler {
     @GuardedBy("mLock")
     private final RemoteCallbackList<IPrimaryZoneMediaAudioRequestCallback>
             mPrimaryZoneMediaAudioRequestCallbacks = new RemoteCallbackList<>();
+    private final RequestIdGenerator mIdGenerator = new RequestIdGenerator();
 
     boolean registerPrimaryZoneMediaAudioRequestCallback(
             IPrimaryZoneMediaAudioRequestCallback callback) {
@@ -108,7 +105,7 @@ final class MediaRequestHandler {
             CarOccupantZoneManager.OccupantZoneInfo info) {
         Objects.requireNonNull(callback, "Media audio request status callback can not be null");
         Objects.requireNonNull(info, "Occupant zone info can not be null");
-        long requestId = generateMediaRequestId();
+        long requestId = mIdGenerator.generateUniqueRequestId();
         Slogf.v(TAG, "requestMediaAudioOnPrimaryZone " + requestId);
 
         synchronized (mLock) {
@@ -311,18 +308,13 @@ final class MediaRequestHandler {
         InternalMediaAudioRequest request;
         synchronized (mLock) {
             request = mMediaAudioRequestIdToCallback.remove(requestId);
-            mUsedMediaRequestIds.remove(requestId);
+            mIdGenerator.releaseRequestId(requestId);
             if (request == null) {
                 return null;
             }
             mAssignedOccupants.remove(request.mOccupantZoneInfo);
             mRequestIdToApprover.remove(requestId);
 
-            // Reset counter back to lower value,
-            // on request the search will automatically assign this value or a newer one.
-            if (mMediaRequestCounter > requestId) {
-                mMediaRequestCounter = requestId;
-            }
         }
         return request;
     }
@@ -372,22 +364,6 @@ final class MediaRequestHandler {
         return handled;
     }
 
-    private long generateMediaRequestId() {
-        synchronized (mLock) {
-            while (mMediaRequestCounter < Long.MAX_VALUE) {
-                if (mUsedMediaRequestIds.contains(mMediaRequestCounter++)) {
-                    continue;
-                }
-
-                mUsedMediaRequestIds.add(mMediaRequestCounter);
-                return mMediaRequestCounter;
-            }
-
-            mMediaRequestCounter = 0;
-        }
-
-        throw new IllegalStateException("Could not generate media request id");
-    }
 
     private static class InternalMediaAudioRequest {
         private final IMediaAudioRequestStatusCallback mIMediaAudioRequestStatusCallback;

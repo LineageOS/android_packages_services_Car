@@ -354,4 +354,22 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
         expectWithMessage("Null values exception").that(thrown).hasMessageThat()
                 .contains("Values to convert to array set");
     }
+
+    @Test
+    public void asList() {
+        int[] values = {1, 2, 3};
+
+        expectWithMessage("Converted int array list").that(CarServiceUtils.asList(values))
+                .containsExactly(1, 2, 3).inOrder();
+    }
+
+    @Test
+    public void asList_withNullValues_fails() {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                CarServiceUtils.asList(/* array= */ null)
+        );
+
+        expectWithMessage("Null array exception").that(thrown).hasMessageThat()
+                .contains("Array to convert to list");
+    }
 }
