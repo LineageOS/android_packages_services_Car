@@ -23,10 +23,7 @@ import android.car.oem.OemCarAudioVolumeService;
 import android.car.oem.OemCarService;
 import android.util.Slog;
 
-import com.android.car.oem.ducking.DuckingInteractions;
-import com.android.car.oem.focus.FocusInteraction;
 import com.android.car.oem.utils.OemCarServiceHelper;
-import com.android.car.oem.volume.VolumeInteractions;
 import com.android.internal.annotations.GuardedBy;
 
 import org.xmlpull.v1.XmlPullParserException;
@@ -87,7 +84,7 @@ public final class OemCarServiceImpl extends OemCarService {
         synchronized (mLock) {
             if (mOemCarAudioFocusServiceImpl == null) {
                 mOemCarAudioFocusServiceImpl = new OemCarAudioFocusServiceImpl(
-                        FocusInteraction.ATTRIBUTES_INTERACTIONS);
+                        mOemCarServiceHelper.getCurrentFocusToIncomingFocusInteractions());
             }
             return mOemCarAudioFocusServiceImpl;
         }
@@ -101,7 +98,7 @@ public final class OemCarServiceImpl extends OemCarService {
         synchronized (mLock) {
             if (mOemCarAudioDuckingService == null) {
                 mOemCarAudioDuckingService = new OemCarAudioDuckingServiceImpl(
-                        DuckingInteractions.DUCKED_PRIORITIES);
+                        mOemCarServiceHelper.getDuckingInteractions());
             }
             return mOemCarAudioDuckingService;
         }
@@ -116,7 +113,7 @@ public final class OemCarServiceImpl extends OemCarService {
         synchronized (mLock) {
             if (mOemCarAudioVolumeService == null) {
                 mOemCarAudioVolumeService = new OemCarAudioVolumeServiceImp(this,
-                        VolumeInteractions.VOLUME_PRIORITIES);
+                        mOemCarServiceHelper.getVolumePriorityList());
             }
             return mOemCarAudioVolumeService;
         }
