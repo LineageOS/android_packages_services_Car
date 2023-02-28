@@ -295,10 +295,14 @@ android.car.user.CarUserManager$UserSwitchUiCallback
 android.car.user.CarUserManager$UserHandleSwitchUiCallback
 android.car.user.ExperimentalCarUserManager
 android.car.user.OperationResult
+android.car.user.UserCreationRequest
+android.car.user.UserCreationRequest$Builder
 android.car.user.UserCreationResult
 android.car.user.UserIdentificationAssociationResponse
 android.car.user.UserLifecycleEventFilter
 android.car.user.UserLifecycleEventFilter$Builder
+android.car.user.UserRemovalRequest
+android.car.user.UserRemovalRequest$Builder
 android.car.user.UserRemovalResult
 android.car.user.UserStartRequest
 android.car.user.UserStartRequest$Builder
@@ -308,6 +312,8 @@ android.car.user.UserStopRequest
 android.car.user.UserStopRequest$Builder
 android.car.user.UserStopResponse
 android.car.user.UserStopResult
+android.car.user.UserSwitchRequest
+android.car.user.UserSwitchRequest$Builder
 android.car.user.UserSwitchResult
 android.car.util.concurrent.AndroidAsyncFuture
 android.car.util.concurrent.AndroidFuture
