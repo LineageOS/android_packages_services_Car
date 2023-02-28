@@ -81,6 +81,16 @@ public:
         };
         std::vector<ProcessValue> topNProcesses = {};
     };
+    struct ProcCpuStatsView {
+        uint64_t cpuTime = 0;
+        uint64_t cpuCycles = 0;
+        struct ProcessCpuValue {
+            std::string comm = "";
+            uint64_t cpuTime = 0;
+            uint64_t cpuCycles = 0;
+        };
+        std::vector<ProcessCpuValue> topNProcesses = {};
+    };
 
     UserPackageStats(MetricType metricType, const UidStats& uidStats);
     UserPackageStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount);
@@ -88,8 +98,10 @@ public:
     // Class must be DefaultInsertable for std::vector<T>::resize to work
     UserPackageStats() : uid(0), genericPackageName("") {}
     // For unit test case only
-    UserPackageStats(uid_t uid, std::string genericPackageName,
-                     std::variant<std::monostate, IoStatsView, ProcSingleStatsView> statsView) :
+    UserPackageStats(
+            uid_t uid, std::string genericPackageName,
+            std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView>
+                    statsView) :
           uid(uid),
           genericPackageName(std::move(genericPackageName)),
           statsView(std::move(statsView)) {}
@@ -104,12 +116,15 @@ public:
 
     uid_t uid;
     std::string genericPackageName;
-    std::variant<std::monostate, IoStatsView, ProcSingleStatsView> statsView;
+    std::variant<std::monostate, IoStatsView, ProcSingleStatsView, ProcCpuStatsView> statsView;
 
 private:
-    bool cacheTopNProcessStats(
-            ProcStatType procStatType, const ProcessStats& processStats,
+    void cacheTopNProcessSingleStats(
+            ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
             std::vector<UserPackageStats::ProcSingleStatsView::ProcessValue>* topNProcesses);
+    void cacheTopNProcessCpuStats(
+            const UidStats& uidStats, int topNProcessCount,
+            std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses);
 };
 
 /**
@@ -125,17 +140,20 @@ struct UserPackageSummaryStats {
     int64_t totalIoStats[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_map<uid_t, uint64_t> taskCountByUid = {};
     int64_t totalCpuTimeMillis = 0;
+    uint64_t totalCpuCycles = 0;
     uint64_t totalMajorFaults = 0;
     // Percentage of increase/decrease in the major page faults since last collection.
     double majorFaultsPercentChange = 0.0;
     std::string toString() const;
 };
 
+// TODO(b/268402964): Calculate the total CPU cycles using the per-UID BPF tool.
 // System performance stats collected from the `/proc/stats` file.
 struct SystemSummaryStats {
     int64_t cpuIoWaitTimeMillis = 0;
     int64_t cpuIdleTimeMillis = 0;
     int64_t totalCpuTimeMillis = 0;
+    uint64_t totalCpuCycles = 0;
     uint64_t contextSwitchesCount = 0;
     uint32_t ioBlockedProcessCount = 0;
     uint32_t totalProcessCount = 0;
