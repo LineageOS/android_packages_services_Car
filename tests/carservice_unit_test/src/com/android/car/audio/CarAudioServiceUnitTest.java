@@ -192,8 +192,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final String RING_TEST_DEVICE = "ring_bus_device";
     private static final String ALARM_TEST_DEVICE = "alarm_bus_device";
     private static final String SYSTEM_BUS_DEVICE = "system_bus_device";
-    private static final String SECONDARY_TEST_DEVICE = "secondary_zone_bus";
-    private static final String TERTIARY_TEST_DEVICE = "tertiary_zone_bus";
+    private static final String SECONDARY_TEST_DEVICE_1 = "secondary_zone_bus_1";
+    private static final String SECONDARY_TEST_DEVICE_2 = "secondary_zone_bus_2";
+    private static final String TERTIARY_TEST_DEVICE_1 = "tertiary_zone_bus_1";
+    private static final String TERTIARY_TEST_DEVICE_2 = "tertiary_zone_bus_2";
     private static final String PRIMARY_ZONE_MICROPHONE_ADDRESS = "Built-In Mic";
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "FM Tuner";
     // From the car audio configuration file in /res/raw/car_audio_configuration.xml
@@ -1316,7 +1318,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 TEST_REAR_LEFT_ZONE_ID, USAGE_MEDIA);
 
         expectWithMessage("Media usage audio device address for secondary zone")
-                .that(mediaDeviceAddress).isEqualTo(SECONDARY_TEST_DEVICE);
+                .that(mediaDeviceAddress).isEqualTo(SECONDARY_TEST_DEVICE_1);
     }
 
     @Test
@@ -2847,7 +2849,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mCarAudioService.init();
         HalAudioGainCallback callback = getHalAudioGainCallback();
         CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(TEST_REAR_LEFT_ZONE_ID,
-                SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+                SECONDARY_TEST_DEVICE_1, TEST_GAIN_INDEX);
 
         callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
 
@@ -2862,7 +2864,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         HalAudioGainCallback callback = getHalAudioGainCallback();
         int volumeBefore = mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP);
         CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
-                SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+                SECONDARY_TEST_DEVICE_1, TEST_GAIN_INDEX);
 
         callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
 
@@ -2878,7 +2880,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioGainConfigInfo primaryAudioZoneCarGain = createCarAudioGainConfigInfo(
                 PRIMARY_AUDIO_ZONE, MEDIA_TEST_DEVICE, TEST_GAIN_INDEX);
         CarAudioGainConfigInfo secondaryAudioZoneCarGain = createCarAudioGainConfigInfo(
-                TEST_REAR_LEFT_ZONE_ID, SECONDARY_TEST_DEVICE, TEST_GAIN_INDEX);
+                TEST_REAR_LEFT_ZONE_ID, SECONDARY_TEST_DEVICE_1, TEST_GAIN_INDEX);
 
         callback.onAudioDeviceGainsChanged(List.of(Reasons.THERMAL_LIMITATION),
                 List.of(primaryAudioZoneCarGain, secondaryAudioZoneCarGain));
@@ -3356,11 +3358,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SECONDARY_TEST_DEVICE)
+                        .setAddressName(SECONDARY_TEST_DEVICE_1)
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE)
+                        .setAddressName(SECONDARY_TEST_DEVICE_2)
+                        .build(),
+                new AudioDeviceInfoBuilder()
+                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                        .setAddressName(TERTIARY_TEST_DEVICE_1)
+                        .build(),
+                new AudioDeviceInfoBuilder()
+                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                        .setAddressName(TERTIARY_TEST_DEVICE_2)
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
@@ -3406,11 +3416,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SECONDARY_TEST_DEVICE)
+                        .setAddressName(SECONDARY_TEST_DEVICE_1)
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE)
+                        .setAddressName(SECONDARY_TEST_DEVICE_2)
+                        .build(),
+                new AudioDeviceInfoBuilder()
+                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                        .setAddressName(TERTIARY_TEST_DEVICE_1)
+                        .build(),
+                new AudioDeviceInfoBuilder()
+                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                        .setAddressName(TERTIARY_TEST_DEVICE_2)
                         .build(),
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
