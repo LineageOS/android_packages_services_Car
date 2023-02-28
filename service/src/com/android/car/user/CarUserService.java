@@ -2375,7 +2375,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
-    // Unassigns the non-current invisible user from the occupant zone.
+    // Unassigns the invisible user from the occupant zone.
     private void unassignInvisibleUserFromZone(@UserIdInt int userId) {
         CarOccupantZoneService zoneService = CarLocalServices.getService(
                 CarOccupantZoneService.class);

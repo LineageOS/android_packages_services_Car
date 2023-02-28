@@ -224,6 +224,7 @@ public final class AndroidMockitoHelperTest {
     }
 
     @Test
+    @SuppressWarnings("DirectInvocationOnMock")
     public void testMockUmIsVisibleBackgroundUsersSupported_true() {
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
 
@@ -231,6 +232,7 @@ public final class AndroidMockitoHelperTest {
     }
 
     @Test
+    @SuppressWarnings("DirectInvocationOnMock")
     public void testMockUmIsVisibleBackgroundUsersSupported_false() {
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, false);
 
