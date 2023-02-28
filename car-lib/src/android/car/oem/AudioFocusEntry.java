@@ -93,8 +93,6 @@ public final class AudioFocusEntry implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String toString() {
         return new StringBuilder().append("AudioFocusEntry { audioFocusInfo = ")
                 .append(getAudioFocusInfoString()).append(", audioContextId = ")
@@ -163,8 +161,6 @@ public final class AudioFocusEntry implements Parcelable {
     };
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -183,8 +179,6 @@ public final class AudioFocusEntry implements Parcelable {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public int hashCode() {
         return Objects.hash(mAudioFocusInfo.hashCode(), mAudioContextId, mAudioFocusResult,
                 mAudioVolumeGroupId);
