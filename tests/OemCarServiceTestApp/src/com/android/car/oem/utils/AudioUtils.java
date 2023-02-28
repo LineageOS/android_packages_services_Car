@@ -38,4 +38,9 @@ public final class AudioUtils {
         }
         return builder.build();
     }
+
+    public static String getUsageString(AudioAttributes incoming) {
+        return AudioAttributes.usageToString(incoming.getSystemUsage()).replace(
+                /* target= */ "USAGE_", /* replacement= */ "");
+    }
 }
