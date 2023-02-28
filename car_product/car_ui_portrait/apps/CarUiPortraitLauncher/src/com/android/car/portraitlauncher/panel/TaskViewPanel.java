@@ -386,10 +386,6 @@ public class TaskViewPanel extends LinearLayout {
         }
     }
     private void onStateChangeEnd(State fromState, State toState, boolean animated) {
-        if (mTaskView != null) {
-            mTaskView.setZOrderOnTop(false);
-        }
-
         if (mOnStateChangeListener != null) {
             mOnStateChangeListener.onStateChangeEnd(fromState, toState, animated);
         }
