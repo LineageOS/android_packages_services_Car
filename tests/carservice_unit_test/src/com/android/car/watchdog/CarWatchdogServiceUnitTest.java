@@ -106,6 +106,7 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.automotive.watchdog.internal.ResourceStats;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
@@ -4566,7 +4567,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
             throws Exception {
-        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+        ResourceStats resourceStats = new ResourceStats();
+        resourceStats.resourceOveruseStats =
+                new android.automotive.watchdog.internal.ResourceOveruseStats();
+        resourceStats.resourceOveruseStats.packageIoOveruseStats = packageIoOveruseStats;
+
+        mWatchdogServiceForSystemImpl.onLatestResourceStats(resourceStats);
 
         // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the
