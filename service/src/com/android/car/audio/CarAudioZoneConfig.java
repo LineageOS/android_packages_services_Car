@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceInfo;
 import android.util.ArraySet;
@@ -323,6 +324,13 @@ final class CarAudioZoneConfig {
         }
 
         return groupInfos;
+    }
+
+    /**
+     * Returns the car audio zone config info
+     */
+    CarAudioZoneConfigInfo getCarAudioZoneConfigInfo() {
+        return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
     }
 
     static final class Builder {
