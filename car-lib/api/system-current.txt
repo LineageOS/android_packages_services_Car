@@ -2120,6 +2120,23 @@ package android.car.user {
     method public void onEvent(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
   }
 
+  public final class UserCreationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public String getName();
+    method public boolean isAdmin();
+    method public boolean isGuest();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserCreationRequest> CREATOR;
+  }
+
+  public static final class UserCreationRequest.Builder {
+    ctor public UserCreationRequest.Builder();
+    method @NonNull public android.car.user.UserCreationRequest build();
+    method @NonNull public android.car.user.UserCreationRequest.Builder setAdmin(boolean);
+    method @NonNull public android.car.user.UserCreationRequest.Builder setGuest(boolean);
+    method @NonNull public android.car.user.UserCreationRequest.Builder setName(@NonNull String);
+  }
+
   public final class UserLifecycleEventFilter implements android.os.Parcelable {
     method public boolean apply(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
     method public int describeContents();
@@ -2132,6 +2149,18 @@ package android.car.user {
     method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addEventType(int);
     method @NonNull public android.car.user.UserLifecycleEventFilter.Builder addUser(@NonNull android.os.UserHandle);
     method @NonNull public android.car.user.UserLifecycleEventFilter build();
+  }
+
+  public final class UserRemovalRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserRemovalRequest> CREATOR;
+  }
+
+  public static final class UserRemovalRequest.Builder {
+    ctor public UserRemovalRequest.Builder(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserRemovalRequest build();
   }
 
   public final class UserStartRequest implements android.os.Parcelable {
@@ -2194,6 +2223,18 @@ package android.car.user {
     field public static final int STATUS_FAILURE_SYSTEM_USER = 102; // 0x66
     field public static final int STATUS_SUCCESSFUL = 1; // 0x1
     field public static final int STATUS_USER_DOES_NOT_EXIST = 101; // 0x65
+  }
+
+  public final class UserSwitchRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserSwitchRequest> CREATOR;
+  }
+
+  public static final class UserSwitchRequest.Builder {
+    ctor public UserSwitchRequest.Builder(@NonNull android.os.UserHandle);
+    method @NonNull public android.car.user.UserSwitchRequest build();
   }
 
 }
