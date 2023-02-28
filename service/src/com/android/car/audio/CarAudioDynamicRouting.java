@@ -55,21 +55,31 @@ final class CarAudioDynamicRouting {
     static void setupAudioDynamicRouting(AudioPolicy.Builder builder,
             SparseArray<CarAudioZone> carAudioZones, CarAudioContext carAudioContext) {
         for (int i = 0; i < carAudioZones.size(); i++) {
-            CarAudioZone zone = carAudioZones.valueAt(i);
-            for (CarVolumeGroup group : zone.getCurrentVolumeGroups()) {
-                setupAudioDynamicRoutingForGroup(group, builder, carAudioContext);
+            List<CarAudioZoneConfig> zoneConfigs =
+                    carAudioZones.valueAt(i).getAllCarAudioZoneConfigs();
+            for (int configIndex = 0; configIndex < zoneConfigs.size(); configIndex++) {
+                setupAudioDynamicRoutingForZoneConfig(builder, zoneConfigs.get(configIndex),
+                        carAudioContext);
             }
+        }
+    }
+
+    private static void setupAudioDynamicRoutingForZoneConfig(AudioPolicy.Builder builder,
+            CarAudioZoneConfig zoneConfig, CarAudioContext carAudioContext) {
+        CarVolumeGroup[] volumeGroups = zoneConfig.getVolumeGroups();
+        for (int index = 0; index < volumeGroups.length; index++) {
+            setupAudioDynamicRoutingForGroup(builder, volumeGroups[index], carAudioContext);
         }
     }
 
     /**
      * Enumerates all physical buses in a given volume group and attach the mixing rules.
-     * @param group {@link CarVolumeGroup} instance to enumerate the buses with
      * @param builder {@link AudioPolicy.Builder} to attach the mixing rules
+     * @param group {@link CarVolumeGroup} instance to enumerate the buses with
      * @param carAudioContext car audio context
      */
-    private static void setupAudioDynamicRoutingForGroup(CarVolumeGroup group,
-            AudioPolicy.Builder builder, CarAudioContext carAudioContext) {
+    private static void setupAudioDynamicRoutingForGroup(AudioPolicy.Builder builder,
+            CarVolumeGroup group, CarAudioContext carAudioContext) {
         // Note that one can not register audio mix for same bus more than once.
         List<String> addresses = group.getAddresses();
         for (int index = 0; index < addresses.size(); index++) {

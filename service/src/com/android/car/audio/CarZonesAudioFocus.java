@@ -117,10 +117,25 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return focus.getAudioFocusHoldersForUid(uid);
     }
 
+
+    /**
+     * For the zone queried, transiently lose all its focus entries
+     * @param zoneId zone id where all focus entries should be lost
+     * @return focus entries lost in the zone.
+     */
+    List<AudioFocusInfo> transientlyLoseAllFocusInZone(int zoneId) {
+        CarAudioFocus focus = mFocusZones.get(zoneId);
+        List<AudioFocusInfo> activeFocusInfos = focus.getAudioFocusHolders();
+        if (!activeFocusInfos.isEmpty()) {
+            transientlyLoseInFocusInZone(activeFocusInfos, zoneId);
+        }
+        return activeFocusInfos;
+    }
+
     /**
      * For each entry in list, transiently lose focus
      * @param afiList list of audio focus entries
-     * @param zoneId zone id where focus should should be lost
+     * @param zoneId zone id where focus should be lost
      */
     void transientlyLoseInFocusInZone(List<AudioFocusInfo> afiList, int zoneId) {
         CarAudioFocus focus = mFocusZones.get(zoneId);
@@ -134,6 +149,19 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             AudioFocusInfo info = audioFocusInfos.get(index);
             focus.removeAudioFocusInfoAndTransientlyLoseFocus(info);
         }
+    }
+
+    /**
+     * For each entry in list, reevaluate and regain focus
+     * @param audioFocusInfos list of audio focus entries to reevaluate and regain
+     * @return list of results for regaining focus
+     */
+    List<Integer> reevaluateAndRegainAudioFocusList(List<AudioFocusInfo> audioFocusInfos) {
+        List<Integer> res = new ArrayList<>(audioFocusInfos.size());
+        for (int index = 0; index < audioFocusInfos.size(); index++) {
+            res.add(reevaluateAndRegainAudioFocus(audioFocusInfos.get(index)));
+        }
+        return res;
     }
 
     int reevaluateAndRegainAudioFocus(AudioFocusInfo afi) {
