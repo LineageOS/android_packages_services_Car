@@ -185,6 +185,7 @@ android.car.hardware.property.LaneCenteringAssistCommand
 android.car.hardware.property.LaneCenteringAssistState
 android.car.hardware.property.LaneDepartureWarningState
 android.car.hardware.property.LaneKeepAssistState
+android.car.hardware.property.LocationCharacterization
 android.car.hardware.property.PropertyAccessDeniedSecurityException
 android.car.hardware.property.PropertyNotAvailableAndRetryException
 android.car.hardware.property.PropertyNotAvailableErrorCode
