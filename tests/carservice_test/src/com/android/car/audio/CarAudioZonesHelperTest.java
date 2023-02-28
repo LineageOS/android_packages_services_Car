@@ -91,11 +91,15 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     private AudioManager mAudioManager;
 
     private static final String PRIMARY_ZONE_NAME = "primary zone";
+    private static final String PRIMARY_ZONE_CONFIG_NAME = "primary zone config 1";
+    private static final String REAR_ZONE_CONFIG_NAME_1 = "rear seat zone config 1";
+    private static final String REAR_ZONE_CONFIG_NAME_2 = "rear seat zone config 2";
 
     private static final String BUS_0_ADDRESS = "bus0_media_out";
     private static final String BUS_1_ADDRESS = "bus1_navigation_out";
     private static final String BUS_3_ADDRESS = "bus3_call_ring_out";
     private static final String BUS_100_ADDRESS = "bus100_rear_seat";
+    private static final String BUS_101_ADDRESS = "bus101_rear_seat";
     private static final String BUS_1000_ADDRESS_DOES_NOT_EXIST = "bus1000_does_not_exist";
 
     private static final String PRIMARY_ZONE_MICROPHONE_ADDRESS = "Built-In Mic";
@@ -139,6 +143,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 generateCarAudioDeviceInfo(BUS_1_ADDRESS),
                 generateCarAudioDeviceInfo(BUS_3_ADDRESS),
                 generateCarAudioDeviceInfo(BUS_100_ADDRESS),
+                generateCarAudioDeviceInfo(BUS_101_ADDRESS),
                 generateCarAudioDeviceInfo(""),
                 generateCarAudioDeviceInfo(""),
                 generateCarAudioDeviceInfo(null),
@@ -179,26 +184,40 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesAllZones() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        assertThat(zones.size()).isEqualTo(2);
+        expectWithMessage("Zones parsed").that(zones.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoParsesAllZones() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            expectWithMessage("Zones parsed for version-two configuration")
+                    .that(zones.size()).isEqualTo(2);
+        }
     }
 
     @Test
     public void loadAudioZones_versionOneParsesAllZones() throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_V1)) {
-            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                    mCarAudioSettings, versionOneStream,
-                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                    /* useCarVolumeGroupMute= */ false,
-                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
 
             SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
@@ -208,122 +227,299 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_parsesAudioZoneId() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
+        expectWithMessage("Primary zone id in zones parsed")
+                .that(zones.contains(PRIMARY_AUDIO_ZONE)).isTrue();
+        expectWithMessage("Secondary zone id in zones parsed")
+                .that(zones.contains(SECONDARY_ZONE_ID)).isTrue();
+    }
 
-        assertThat(zones.size()).isEqualTo(2);
-        assertThat(zones.contains(PRIMARY_AUDIO_ZONE)).isTrue();
-        assertThat(zones.contains(SECONDARY_ZONE_ID)).isTrue();
+    @Test
+    public void loadAudioZones_versionTwoParsesAudioZoneId() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            expectWithMessage("Primary zone id in zones parsed in version-two configuration")
+                    .that(zones.contains(PRIMARY_AUDIO_ZONE)).isTrue();
+            expectWithMessage("Secondary zone id in zones parsed in version-two configuration")
+                    .that(zones.contains(SECONDARY_ZONE_ID)).isTrue();
+        }
     }
 
     @Test
     public void loadAudioZones_parsesOccupantZoneId() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
-        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
-
-        assertThat(zones.size()).isEqualTo(2);
+        cazh.loadAudioZones();
 
         SparseIntArray audioZoneIdToOccupantZoneIdMapping =
                 cazh.getCarAudioZoneIdToOccupantZoneIdMapping();
-        assertThat(audioZoneIdToOccupantZoneIdMapping.get(PRIMARY_AUDIO_ZONE))
+        expectWithMessage("Occupant zone id of primary zone")
+                .that(audioZoneIdToOccupantZoneIdMapping.get(PRIMARY_AUDIO_ZONE))
                 .isEqualTo(PRIMARY_OCCUPANT_ID);
-        assertThat(audioZoneIdToOccupantZoneIdMapping.get(SECONDARY_ZONE_ID, -1))
-                .isEqualTo(-1);
+        expectWithMessage("Occupant zone id of secondary zone")
+                .that(audioZoneIdToOccupantZoneIdMapping.get(SECONDARY_ZONE_ID,
+                        /* valueIfKeyNotFound= */ -1)).isEqualTo(-1);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoParsesOccupantZoneId() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            cazh.loadAudioZones();
+
+            SparseIntArray audioZoneIdToOccupantZoneIdMapping =
+                    cazh.getCarAudioZoneIdToOccupantZoneIdMapping();
+            expectWithMessage("Occupant zone id of primary zone in version-two configuration")
+                    .that(audioZoneIdToOccupantZoneIdMapping.get(PRIMARY_AUDIO_ZONE))
+                    .isEqualTo(PRIMARY_OCCUPANT_ID);
+            expectWithMessage("Occupant zone id of secondary zone in version-two configuration")
+                    .that(audioZoneIdToOccupantZoneIdMapping.get(SECONDARY_ZONE_ID,
+                            /* valueIfKeyNotFound= */ -1)).isEqualTo(-1);
+        }
     }
 
     @Test
     public void loadAudioZones_parsesZoneName() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        assertThat(primaryZone.getName()).isEqualTo(PRIMARY_ZONE_NAME);
+        expectWithMessage("Primary zone name")
+                .that(primaryZone.getName()).isEqualTo(PRIMARY_ZONE_NAME);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoParsesZoneName() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZone primaryZone = zones.get(0);
+            expectWithMessage("Primary zone name in version-two configuration")
+                    .that(primaryZone.getName()).isEqualTo(PRIMARY_ZONE_NAME);
+        }
     }
 
     @Test
     public void loadAudioZones_parsesIsPrimary() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones.get(0);
-        assertThat(primaryZone.isPrimaryZone()).isTrue();
+        expectWithMessage("Primary zone").that(zones.get(0).isPrimaryZone()).isTrue();
+        expectWithMessage("Primary secondary zone").that(zones.get(2).isPrimaryZone()).isFalse();
+    }
 
-        CarAudioZone rseZone = zones.get(2);
-        assertThat(rseZone.isPrimaryZone()).isFalse();
+    @Test
+    public void loadAudioZones_versionTwoParsesIsPrimary() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            expectWithMessage("Primary zone in version-two configuration")
+                    .that(zones.get(0).isPrimaryZone()).isTrue();
+            expectWithMessage("Primary secondary zone in version-two configuration")
+                    .that(zones.get(2).isPrimaryZone()).isFalse();
+        }
+    }
+
+    @Test
+    public void loadAudioZones_parsesZoneConfigs() throws Exception {
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
+
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+        List<CarAudioZoneConfig> primaryZoneConfigs = zones.get(0).getAllCarAudioZoneConfigs();
+        expectWithMessage("Primary zone configs").that(primaryZoneConfigs.size()).isEqualTo(1);
+        expectWithMessage("Primary zone config name")
+                .that(primaryZoneConfigs.get(0).getName()).isEqualTo(PRIMARY_ZONE_CONFIG_NAME);
+        expectWithMessage("Primary zone default config")
+                .that(primaryZoneConfigs.get(0).isDefault()).isTrue();
+        List<CarAudioZoneConfig> secondaryZoneConfigs = zones.get(2).getAllCarAudioZoneConfigs();
+        expectWithMessage("Secondary zone configs")
+                .that(secondaryZoneConfigs.size()).isEqualTo(2);
+        expectWithMessage("Secondary zone config names")
+                .that(List.of(secondaryZoneConfigs.get(0).getName(),
+                        secondaryZoneConfigs.get(1).getName()))
+                .containsExactly(REAR_ZONE_CONFIG_NAME_1, REAR_ZONE_CONFIG_NAME_2);
+    }
+
+    @Test
+    public void loadAudioZones_parsesDefaultZoneConfigs() throws Exception {
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
+
+        SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+        CarAudioZoneConfig primaryZoneConfig = zones.get(0).getCurrentCarAudioZoneConfig();
+        expectWithMessage("Default primary zone config name")
+                .that(primaryZoneConfig.getName()).isEqualTo(PRIMARY_ZONE_CONFIG_NAME);
+        CarAudioZoneConfig secondaryZoneConfig = zones.get(2).getCurrentCarAudioZoneConfig();
+        expectWithMessage("Default secondary zone config name")
+                .that(secondaryZoneConfig.getName()).isEqualTo(REAR_ZONE_CONFIG_NAME_1);
     }
 
     @Test
     public void loadAudioZones_parsesVolumeGroups() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        assertThat(primaryZone.getCurrentVolumeGroupCount()).isEqualTo(2);
+        CarAudioZone secondaryZone = zones.get(2);
+        expectWithMessage("Volume group count for primary zone")
+                .that(primaryZone.getCurrentVolumeGroupCount()).isEqualTo(2);
+        expectWithMessage("Volume group count for secondary zone")
+                .that(secondaryZone.getCurrentVolumeGroupCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoParsesVolumeGroups() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZone primaryZone = zones.get(0);
+            expectWithMessage("Volume group count for primary zone in version-two configuration")
+                    .that(primaryZone.getCurrentVolumeGroupCount()).isEqualTo(2);
+        }
     }
 
     @Test
     public void loadAudioZones_parsesAddresses() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(0);
-        CarVolumeGroup volumeGroup = primaryZone.getCurrentVolumeGroups()[0];
-        List<String> addresses = volumeGroup.getAddresses();
-        assertThat(addresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
+        CarVolumeGroup primaryVolumeGroup = primaryZone.getCurrentVolumeGroups()[0];
+        List<String> primaryAddresses = primaryVolumeGroup.getAddresses();
+        expectWithMessage("Primary zone addresses")
+                .that(primaryAddresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
+        CarAudioZone secondaryZone = zones.get(2);
+        CarVolumeGroup secondaryVolumeGroup = secondaryZone.getCurrentVolumeGroups()[0];
+        List<String> secondaryAddresses = secondaryVolumeGroup.getAddresses();
+        expectWithMessage("Secondary zone addresses")
+                .that(secondaryAddresses).containsExactly(BUS_100_ADDRESS);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoParsesAddresses() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZone primaryZone = zones.get(0);
+            CarVolumeGroup volumeGroup = primaryZone.getCurrentVolumeGroups()[0];
+            List<String> addresses = volumeGroup.getAddresses();
+            expectWithMessage("Primary zone addresses")
+                    .that(addresses).containsExactly(BUS_0_ADDRESS, BUS_3_ADDRESS);
+        }
     }
 
     @Test
     public void loadAudioZones_parsesContexts() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
-        CarAudioZone primaryZone = zones.get(0);
-        CarVolumeGroup volumeGroup = primaryZone.getCurrentVolumeGroups()[0];
-        assertThat(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
+        CarVolumeGroup volumeGroup = zones.get(0).getCurrentVolumeGroups()[0];
+        expectWithMessage("Contexts of primary zone address " + BUS_0_ADDRESS)
+                .that(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
                 .containsExactly(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(CarAudioContext
                         .getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)));
+        CarVolumeGroup rseVolumeGroup = zones.get(2).getCurrentVolumeGroups()[0];
+        List<Integer> contextForBusList = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
+        expectWithMessage("Contexts of secondary zone address" + BUS_100_ADDRESS)
+                .that(contextForBusList).containsExactlyElementsIn(TEST_CAR_AUDIO_CONTEXT
+                .getAllContextsIds());
+    }
 
-        CarAudioZone rearSeatEntertainmentZone = zones.get(2);
-        CarVolumeGroup rseVolumeGroup = rearSeatEntertainmentZone.getCurrentVolumeGroups()[0];
-        List<Integer> contextForBus100List = rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
-        List<Integer> contextsList = TEST_CAR_AUDIO_CONTEXT.getAllContextsIds();
-        assertThat(contextForBus100List).containsExactlyElementsIn(contextsList);
+    @Test
+    public void loadAudioZones_versionTwoParsesContexts() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarVolumeGroup volumeGroup = zones.get(0).getCurrentVolumeGroups()[0];
+            expectWithMessage("Contexts of primary zone address in version-two configuration"
+                    + BUS_0_ADDRESS).that(volumeGroup.getContextsForAddress(BUS_0_ADDRESS))
+                    .containsExactly(TEST_CAR_AUDIO_CONTEXT.getContextForAttributes(CarAudioContext
+                            .getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)));
+            CarVolumeGroup rseVolumeGroup = zones.get(2).getCurrentVolumeGroups()[0];
+            List<Integer> contextForBus100List =
+                    rseVolumeGroup.getContextsForAddress(BUS_100_ADDRESS);
+            expectWithMessage("Contexts of secondary zone address in version-two configuration"
+                    + BUS_100_ADDRESS).that(contextForBus100List)
+                    .containsExactlyElementsIn(TEST_CAR_AUDIO_CONTEXT.getAllContextsIds());
+        }
     }
 
     @Test
@@ -423,31 +619,66 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void loadAudioZones_primaryZoneHasInputDevices() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(PRIMARY_AUDIO_ZONE);
-        assertThat(primaryZone.getInputAudioDevices()).hasSize(2);
+        expectWithMessage("Input devices for primary zone")
+                .that(primaryZone.getInputAudioDevices()).hasSize(2);
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoPrimaryZoneHasInputDevices() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZone primaryZone = zones.get(PRIMARY_AUDIO_ZONE);
+            expectWithMessage("Input devices for primary zone in version-two configuration")
+                    .that(primaryZone.getInputAudioDevices()).hasSize(2);
+        }
     }
 
     @Test
     public void loadAudioZones_primaryZoneHasMicrophoneDevice() throws Exception {
-        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager,
-                mCarAudioSettings, mInputStream,
-                mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
-                /* useCarVolumeGroupMute= */ false,
-                /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
 
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
         CarAudioZone primaryZone = zones.get(PRIMARY_AUDIO_ZONE);
         for (AudioDeviceAttributes info : primaryZone.getInputAudioDevices()) {
             assertThat(info.getType()).isEqualTo(TYPE_BUILTIN_MIC);
+        }
+    }
+
+    @Test
+    public void loadAudioZones_versionTwoPrimaryZoneHasMicrophoneDevice() throws Exception {
+        try (InputStream versionTwoStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionTwoStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            CarAudioZone primaryZone = zones.get(PRIMARY_AUDIO_ZONE);
+            for (AudioDeviceAttributes info : primaryZone.getInputAudioDevices()) {
+                expectWithMessage("Type of primary zone device attribute " + info)
+                        .that(info.getType()).isEqualTo(TYPE_BUILTIN_MIC);
+            }
         }
     }
 
@@ -521,6 +752,60 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void loadAudioZones_failsOnDuplicateZoneConfigName() throws Exception {
+        try (InputStream duplicateZoneConfigNameStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_duplicate_zone_config_name)) {
+            CarAudioZonesHelper cazh =
+                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                            duplicateZoneConfigNameStream, mCarAudioOutputDeviceInfos,
+                            mInputAudioDeviceInfos, /* useCarVolumeGroupMute= */ false,
+                            /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
+
+            expectWithMessage("Exception for duplicate zone config name").that(thrown)
+                    .hasMessageThat().contains("can not repeat.");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_failsOnEmptyZoneConfigName() throws Exception {
+        try (InputStream emptyZoneConfigNameStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_empty_zone_config_name)) {
+            CarAudioZonesHelper cazh =
+                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                            emptyZoneConfigNameStream, mCarAudioOutputDeviceInfos,
+                            mInputAudioDeviceInfos, /* useCarVolumeGroupMute= */ false,
+                            /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
+
+            expectWithMessage("Exception for empty zone config name").that(thrown)
+                    .hasMessageThat().contains("empty.");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_failsOnMissingZoneConfigName() throws Exception {
+        try (InputStream missingZoneConfigNameStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_missing_zone_config_name)) {
+            CarAudioZonesHelper cazh =
+                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                            missingZoneConfigNameStream, mCarAudioOutputDeviceInfos,
+                            mInputAudioDeviceInfos, /* useCarVolumeGroupMute= */ false,
+                            /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            NullPointerException thrown =
+                    assertThrows(NullPointerException.class, () -> cazh.loadAudioZones());
+
+            expectWithMessage("Exception for missing zone config name").that(thrown)
+                    .hasMessageThat().contains("must be present.");
+        }
+    }
+
+    @Test
     public void loadAudioZones_failsOnEmptyInputDeviceAddress() throws Exception {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_empty_input_device)) {
@@ -586,7 +871,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             NullPointerException thrown =
                     assertThrows(NullPointerException.class,
                             () -> cazh.loadAudioZones());
-            assertThat(thrown).hasMessageThat().contains("present.");
+            assertThat(thrown).hasMessageThat().contains("must be present.");
         }
     }
 
@@ -774,10 +1059,10 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                     /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
 
             RuntimeException thrown =
-                    assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
 
-            assertThat(thrown).hasMessageThat().contains(
-                    "Egg and chicken issue, context shall be parsed first");
+            expectWithMessage("Exception thrown when OEM audio contexts was defined after zones")
+                    .that(thrown).hasMessageThat().matches("Car audio context .* is invalid");
         }
     }
 
