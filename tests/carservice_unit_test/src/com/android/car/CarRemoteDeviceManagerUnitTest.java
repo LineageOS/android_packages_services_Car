@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -75,5 +76,36 @@ public final class CarRemoteDeviceManagerUnitTest {
                 .thenReturn(expectedValue);
 
         assertThat(mRemoteDeviceManager.getEndpointPackageInfo(zone)).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testControlOccupantZonePowerOn() throws RemoteException {
+        int zoneId = 0;
+        OccupantZoneInfo zone =
+                new OccupantZoneInfo(zoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
+
+        mRemoteDeviceManager.controlOccupantZonePower(zone, true);
+        verify(mService).controlOccupantZonePower(zone, true);
+    }
+
+    @Test
+    public void testControlOccupantZonePowerOff() throws RemoteException {
+        int zoneId = 0;
+        OccupantZoneInfo zone =
+                new OccupantZoneInfo(zoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
+
+        mRemoteDeviceManager.controlOccupantZonePower(zone, false);
+        verify(mService).controlOccupantZonePower(zone, false);
+    }
+
+    @Test
+    public void testIsOccupantZonePowerOn() throws RemoteException {
+        int zoneId = 0;
+        OccupantZoneInfo zone =
+                new OccupantZoneInfo(zoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
+        boolean expectedValue = true;
+        when(mService.isOccupantZonePowerOn(zone)).thenReturn(expectedValue);
+
+        assertThat(mRemoteDeviceManager.isOccupantZonePowerOn(zone)).isEqualTo(expectedValue);
     }
 }
