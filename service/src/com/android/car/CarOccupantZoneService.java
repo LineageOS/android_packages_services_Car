@@ -19,6 +19,7 @@ package com.android.car;
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -516,6 +517,28 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 displayIds[i] = config.displayInfos.get(i).display.getDisplayId();
             }
             return displayIds;
+        }
+    }
+
+    /**
+     * Checks if all displays for a given OccupantZone are on.
+     *
+     * @param occupantZoneId indicates which OccupantZone's displays to check
+     * @return whether all displays for a given OccupantZone are on
+     */
+    public boolean areDisplaysOnForOccupantZone(int occupantZoneId) {
+        synchronized (mLock) {
+            OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
+            if (config == null) {
+                return false;
+            }
+            for (int i = 0; i < config.displayInfos.size(); i++) {
+                if (config.displayInfos.get(i).display.getState() != STATE_ON) {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 

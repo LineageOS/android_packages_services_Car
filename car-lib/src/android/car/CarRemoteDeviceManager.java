@@ -330,10 +330,10 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      * {@code false}, powers off all the displays of given {@code occupantZone}, but doesn't
      * power off the associated Android system.
      * <p>
-     * Passenger occupant zones are not allowed to control the power of the driver occupant zone.
+     * It is not allowed to control the power of the driver occupant zone.
      *
-     * @throws SecurityException if the caller runs on a passenger occupant zone and {@code
-     *                           occupantZone} represents the driver occupant zone
+     * @throws UnsupportedOperationException if {@code occupantZone} represents the driver occupant
+     *                                       zone
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
