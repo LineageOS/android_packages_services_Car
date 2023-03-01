@@ -100,6 +100,11 @@ message StatsPublisher {
     // It differs from PROCESS_MEMORY_STATE in that the snapshot can be used for leaked memory
     // detection by tracking anon RSS + swap usage.
     PROCESS_MEMORY_SNAPSHOT = 8;
+    // Logs number of milliseconds it takes to start a process.
+    // The definition of app process start time is from the app launch time to
+    // the time that Zygote finished forking the app process and loaded the
+    // application package's java classes.
+    PROCESS_START_TIME = 9;
   }
 
   // Required.
