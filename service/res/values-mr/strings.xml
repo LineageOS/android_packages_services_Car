@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"इतर ॲप्स ची स्क्रीन मिरर करा."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"इतर वापरकर्त्यांचा डिस्प्ले मिरर करा"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"इतर वापरकर्त्यांचा डिस्प्ले मिरर करा."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"सिस्टीम UI व्यवस्थापित करण्यासाठी आणि टास्क व्ह्यू तयार करण्यासाठी इतर अ‍ॅप्सद्वारे वापरली जाऊ शकते अशी सिस्टीम UI प्रॉक्सी पुरवा."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"सिस्टीम UI व्यवस्थापित करण्यासाठी आणि टास्क व्ह्यू तयार करण्यासाठी इतर अ‍ॅप्सद्वारे वापरली जाऊ शकते अशी सिस्टीम UI प्रॉक्सी पुरवा."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"टास्कव्ह्यू तयार करण्यासाठी किंवा सिस्टीम UI बदलांबद्दल सूचना मिळवण्यासाठी कार सिस्टीम UI शी संवाद साधा."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्कव्ह्यू तयार करण्यासाठी किंवा सिस्टीम UI बदलांबद्दल सूचना मिळवण्यासाठी कार सिस्टीम UI शी संवाद साधा."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN बस अयशस्वी"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN बस प्रतिसाद देत नाही. हेडयुनिट बॉक्स अनप्लग करून पुन्हा प्लग करा आणि कार रीस्टार्ट करा"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"माझे डिव्हाइस"</string>
