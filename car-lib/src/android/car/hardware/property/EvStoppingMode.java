@@ -32,7 +32,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SystemApi
 public final class EvStoppingMode {
-
     /**
      * Other EV stopping mode. Ideally, this should never be used.
      */
@@ -64,7 +63,7 @@ public final class EvStoppingMode {
     private EvStoppingMode() {}
 
     /**
-     * Gets a user-friendly representation of an EV stopping mode.
+     * Returns a user-friendly representation of an EV stopping mode.
      */
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
