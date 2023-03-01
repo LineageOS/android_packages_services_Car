@@ -21,6 +21,7 @@ import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAI
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
@@ -61,6 +62,8 @@ import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -79,18 +82,42 @@ public class PropertyHalService extends HalServiceBase {
     private static final boolean DBG = false;
     private static final int ASYNC_RETRY_SLEEP_IN_MS = 100;
 
-    private static final class AsyncGetRequestInfo {
+    // Async get request from user.
+    private static final int GET = 0;
+    // Async set request from user.
+    private static final int SET = 1;
+    // Async get request for getting initial value when user issues async set property request.
+    // The reason we need to get initial value is that if the value to be set is the same as
+    // the current value, there might not be a property update event generated. In this case,
+    // it should be considered a success. If we get the initial value successfully and the
+    // initial value is the same as the target value, we treat the async set as success.
+    private static final int GET_INITIAL_VALUE_FOR_SET = 2;
+
+    // Different type of async get/set property requests.
+    @IntDef({GET, SET, GET_INITIAL_VALUE_FOR_SET})
+    @Retention(RetentionPolicy.SOURCE)
+    private @interface AsyncRequestType {}
+
+    private static final class AsyncPropRequestInfo {
         private final AsyncPropertyServiceRequest mPropMgrRequest;
         // The uptimeMillis when this request time out.
         private final long mTimeoutUptimeMillis;
         // The remaining timeout in milliseconds for this request.
         private final long mTimeoutInMs;
 
-        AsyncGetRequestInfo(AsyncPropertyServiceRequest propMgrRequest,
+        private final @AsyncRequestType int mRequestType;
+
+        AsyncPropRequestInfo(@AsyncRequestType int requestType,
+                AsyncPropertyServiceRequest propMgrRequest,
                 long timeoutUptimeMillis, long timeoutInMs) {
             mPropMgrRequest = propMgrRequest;
             mTimeoutUptimeMillis = timeoutUptimeMillis;
             mTimeoutInMs = timeoutInMs;
+            mRequestType = requestType;
+        }
+
+        private @AsyncRequestType int getRequestType() {
+            return mRequestType;
         }
 
         private int getManagerRequestId() {
@@ -101,20 +128,20 @@ public class PropertyHalService extends HalServiceBase {
             return mPropMgrRequest.getPropertyId();
         }
 
+        public int getAreaId() {
+            return mPropMgrRequest.getAreaId();
+        }
+
+        public long getTimeoutInMs() {
+            return mTimeoutInMs;
+        }
+
         public AsyncPropertyServiceRequest getPropSvcRequest() {
             return mPropMgrRequest;
         }
 
         public long getTimeoutUptimeMillis() {
             return mTimeoutUptimeMillis;
-        }
-
-        public AsyncGetSetRequest toGetVehicleStubAsyncRequest(
-                HalPropValueBuilder propValueBuilder, int serviceRequestId) {
-            int halPropertyId = managerToHalPropId(mPropMgrRequest.getPropertyId());
-            int areaId = mPropMgrRequest.getAreaId();
-            return new AsyncGetSetRequest(
-                    serviceRequestId, propValueBuilder.build(halPropertyId, areaId), mTimeoutInMs);
         }
 
         public GetSetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
@@ -153,8 +180,10 @@ public class PropertyHalService extends HalServiceBase {
             new SparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
+    // A map from a unique propertyHalService request ID to async property request info which
+    // includes original request from CarPropertyManager and timeout info.
     @GuardedBy("mLock")
-    private final SparseArray<AsyncGetRequestInfo> mServiceRequestIdToAsyncGetRequestInfo =
+    private final SparseArray<AsyncPropRequestInfo> mServiceRequestIdToAsyncPropRequestInfo =
             new SparseArray<>();
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
@@ -176,37 +205,75 @@ public class PropertyHalService extends HalServiceBase {
             try {
                 mAsyncPropertyResultCallback.onGetValueResults(results);
             } catch (RemoteException e) {
-                Slogf.w(TAG, "onGetAsyncResults: Client might have died already", e);
+                Slogf.w(TAG, "sendGetValueResults: Client might have died already", e);
             }
         }
 
-        private void retryIfNotExpired(List<AsyncGetRequestInfo> retryRequestInfo) {
-            List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
-            List<GetSetValueResult> timeoutResults = new ArrayList<>();
+        private void sendSetValueResults(List<GetSetValueResult> results) {
+            if (results.isEmpty()) {
+                return;
+            }
+            try {
+                mAsyncPropertyResultCallback.onSetValueResults(results);
+            } catch (RemoteException e) {
+                Slogf.w(TAG, "sendSetValueResults: Client might have died already", e);
+            }
+        }
+
+        private void retryIfNotExpired(List<AsyncPropRequestInfo> retryRequests) {
+            List<AsyncGetSetRequest> vehicleStubAsyncGetRequests = new ArrayList<>();
+            List<GetSetValueResult> timeoutGetResults = new ArrayList<>();
+            List<AsyncGetSetRequest> vehicleStubAsyncSetRequests = new ArrayList<>();
+            List<GetSetValueResult> timeoutSetResults = new ArrayList<>();
             synchronized (mLock) {
                 // Get the current time after obtaining lock since it might take some time to get
                 // the lock.
                 long currentTimeInMillis = SystemClock.uptimeMillis();
-                for (int i = 0; i < retryRequestInfo.size(); i++) {
-                    AsyncGetRequestInfo requestInfo = retryRequestInfo.get(i);
+                for (int i = 0; i < retryRequests.size(); i++) {
+                    AsyncPropRequestInfo requestInfo = retryRequests.get(i);
                     long timeoutUptimeMillis = requestInfo.getTimeoutUptimeMillis();
                     if (timeoutUptimeMillis <= currentTimeInMillis) {
                         // The request already expired.
-                        timeoutResults.add(requestInfo.toErrorGetValueResult(
-                                CarPropertyManager.STATUS_ERROR_TIMEOUT));
+                        GetSetValueResult timeoutResult = requestInfo.toErrorGetValueResult(
+                                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+                        switch (requestInfo.getRequestType()) {
+                            case GET: // fallthrough
+                            case GET_INITIAL_VALUE_FOR_SET:
+                                timeoutGetResults.add(timeoutResult);
+                                break;
+                            case SET:
+                                timeoutSetResults.add(timeoutResult);
+                                break;
+                        }
                         continue;
                     }
-                    long timeoutInMs = timeoutUptimeMillis - currentTimeInMillis;
                     // Need to create a new request for the retry.
-                    AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
-                            requestInfo.getPropSvcRequest(), timeoutUptimeMillis, timeoutInMs);
-                    getVehicleStubAsyncRequests.add(generateGetVehicleStubAsyncRequestLocked(
-                            mPropValueBuilder, asyncGetRequestInfo));
+                    AsyncPropRequestInfo asyncPropRequestInfo = new AsyncPropRequestInfo(
+                            requestInfo.getRequestType(), requestInfo.getPropSvcRequest(),
+                            timeoutUptimeMillis, requestInfo.getTimeoutInMs());
+
+                    AsyncGetSetRequest vehicleStubAsyncRequest =
+                            generateVehicleStubAsyncRequestLocked(asyncPropRequestInfo);
+
+                    switch (requestInfo.getRequestType()) {
+                        case GET: // fallthrough
+                        case GET_INITIAL_VALUE_FOR_SET:
+                            vehicleStubAsyncGetRequests.add(vehicleStubAsyncRequest);
+                            break;
+                        case SET:
+                            vehicleStubAsyncSetRequests.add(vehicleStubAsyncRequest);
+                            break;
+                    }
                 }
             }
-            sendGetValueResults(timeoutResults);
-            if (!getVehicleStubAsyncRequests.isEmpty()) {
-                mVehicleHal.getAsync(getVehicleStubAsyncRequests, this);
+
+            sendGetValueResults(timeoutGetResults);
+            if (!vehicleStubAsyncGetRequests.isEmpty()) {
+                mVehicleHal.getAsync(vehicleStubAsyncGetRequests, this);
+            }
+            sendSetValueResults(timeoutSetResults);
+            if (!vehicleStubAsyncSetRequests.isEmpty()) {
+                mVehicleHal.setAsync(vehicleStubAsyncSetRequests, this);
             }
         }
 
@@ -241,22 +308,24 @@ public class PropertyHalService extends HalServiceBase {
         public void onGetAsyncResults(
                 List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
             List<GetSetValueResult> getValueResults = new ArrayList<>();
-            List<AsyncGetRequestInfo> retryRequestInfo = new ArrayList<>();
+            List<AsyncPropRequestInfo> retryRequests = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
                     GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                             getVehicleStubAsyncResults.get(i);
                     int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
-                    AsyncGetRequestInfo clientRequestInfo =
-                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
+                    AsyncPropRequestInfo clientRequestInfo =
+                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId);
                     if (clientRequestInfo == null) {
+                        Slogf.w(TAG, "async request for ID: " + serviceRequestId + " not found, "
+                                + "ignore the result");
                         continue;
                     }
                     int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
 
                     if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
-                        // We have special logic requests that might need retry.
-                        retryRequestInfo.add(clientRequestInfo);
+                        // The request might need to be retried.
+                        retryRequests.add(clientRequestInfo);
                         continue;
                     }
 
@@ -300,9 +369,9 @@ public class PropertyHalService extends HalServiceBase {
 
             sendGetValueResults(getValueResults);
 
-            if (!retryRequestInfo.isEmpty()) {
+            if (!retryRequests.isEmpty()) {
                 mHandler.postDelayed(() -> {
-                    retryIfNotExpired(retryRequestInfo);
+                    retryIfNotExpired(retryRequests);
                 }, ASYNC_RETRY_SLEEP_IN_MS);
             }
         }
@@ -310,28 +379,86 @@ public class PropertyHalService extends HalServiceBase {
         @Override
         public void onSetAsyncResults(
                 List<SetVehicleStubAsyncResult> setVehicleStubAsyncResults) {
-            // TODO(b/251213448): Implement this.
+            List<GetSetValueResult> setValueResults = new ArrayList<>();
+            List<AsyncPropRequestInfo> retryRequests = new ArrayList<>();
+            synchronized (mLock) {
+                for (int i = 0; i < setVehicleStubAsyncResults.size(); i++) {
+                    SetVehicleStubAsyncResult setVehicleStubAsyncResult =
+                            setVehicleStubAsyncResults.get(i);
+                    int serviceRequestId = setVehicleStubAsyncResult.getServiceRequestId();
+                    AsyncPropRequestInfo clientRequestInfo =
+                            getPendingAsyncPropRequestInfoLocked(serviceRequestId);
+                    if (clientRequestInfo == null) {
+                        Slogf.w(TAG, "async request for ID: " + serviceRequestId + " not found, "
+                                + "ignore the result");
+                        continue;
+                    }
+                    int vehicleStubErrorCode = setVehicleStubAsyncResult.getErrorCode();
+
+                    if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                        // The request might need to be retried.
+                        retryRequests.add(clientRequestInfo);
+                        mServiceRequestIdToAsyncPropRequestInfo.remove(serviceRequestId);
+                        continue;
+                    }
+
+                    if (vehicleStubErrorCode != STATUS_OK) {
+                        // All other error results will be delivered back through callback.
+                        setValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                                vehicleStubErrorCode));
+                        mServiceRequestIdToAsyncPropRequestInfo.remove(serviceRequestId);
+                        continue;
+                    }
+
+                    // TODO(b/264719384): If the result is okay, we should check whether we have
+                    // received the property update event or if the initial value is the target
+                    // value.
+                    // If so, delete the pending request and mark the operation as complete.
+                    // Otherwise, wait for property update event or initial value to arrive.
+                    mServiceRequestIdToAsyncPropRequestInfo.remove(serviceRequestId);
+                }
+            }
+
+            sendSetValueResults(setValueResults);
+
+            if (!retryRequests.isEmpty()) {
+                mHandler.postDelayed(() -> {
+                    retryIfNotExpired(retryRequests);
+                }, ASYNC_RETRY_SLEEP_IN_MS);
+            }
         }
 
         @Override
         public void onRequestsTimeout(List<Integer> serviceRequestIds) {
-            List<GetSetValueResult> timeoutResults = new ArrayList<>();
+            List<GetSetValueResult> timeoutGetResults = new ArrayList<>();
+            List<GetSetValueResult> timeoutSetResults = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < serviceRequestIds.size(); i++) {
                     int serviceRequestId = serviceRequestIds.get(i);
-                    AsyncGetRequestInfo requestInfo =
-                            getAndRemovePendingAsyncGetRequestInfoLocked(serviceRequestId);
+                    AsyncPropRequestInfo requestInfo =
+                            getAndRemovePendingAsyncPropRequestInfoLocked(serviceRequestId);
                     if (requestInfo == null) {
                         Slogf.w(TAG, "The request for hal svc request ID: %d timed out but no "
                                 + "pending request is found. The request may have already been "
                                 + "cancelled or finished", serviceRequestId);
                         continue;
                     }
-                    timeoutResults.add(requestInfo.toErrorGetValueResult(
-                            CarPropertyManager.STATUS_ERROR_TIMEOUT));
+                    GetSetValueResult timeoutResult = requestInfo.toErrorGetValueResult(
+                                CarPropertyManager.STATUS_ERROR_TIMEOUT);
+                    switch (requestInfo.getRequestType()) {
+                        case GET: // fallthrough
+                        case GET_INITIAL_VALUE_FOR_SET:
+                            timeoutGetResults.add(timeoutResult);
+                            break;
+                        case SET:
+                            timeoutSetResults.add(timeoutResult);
+                            break;
+                    }
+
                 }
             }
-            sendGetValueResults(timeoutResults);
+            sendGetValueResults(timeoutGetResults);
+            sendSetValueResults(timeoutSetResults);
         }
     }
 
@@ -363,29 +490,51 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
-    // Generates a {@link AsyncGetSetRequest} according to a {@link AsyncGetRequestInfo}.
-    //
-    // Generates a new PropertyHalService Request ID. Associate the ID with the request and
-    // returns a {@link AsyncGetSetRequest} that could be sent to {@link VehicleStub}.
+    /**
+     * Generates a {@link AsyncGetSetRequest} according to a {@link AsyncPropRequestInfo}.
+     *
+     * <p>Generates a new PropertyHalService Request ID. Associate the ID with the request and
+     * returns a {@link AsyncGetSetRequest} that could be sent to {@link VehicleStub}.
+     */
     @GuardedBy("mLock")
-    private AsyncGetSetRequest generateGetVehicleStubAsyncRequestLocked(
-            HalPropValueBuilder propValueBuilder, AsyncGetRequestInfo asyncGetRequestInfo) {
+    private AsyncGetSetRequest generateVehicleStubAsyncRequestLocked(
+            AsyncPropRequestInfo asyncPropRequestInfo) {
         int newServiceRequestId = mServiceRequestIdCounter.getAndIncrement();
-        mServiceRequestIdToAsyncGetRequestInfo.put(newServiceRequestId, asyncGetRequestInfo);
-        return asyncGetRequestInfo.toGetVehicleStubAsyncRequest(propValueBuilder,
-                newServiceRequestId);
+        mServiceRequestIdToAsyncPropRequestInfo.put(newServiceRequestId, asyncPropRequestInfo);
+
+        HalPropValue halPropValue;
+        CarPropertyValue requestCarPropertyValue = asyncPropRequestInfo.getPropSvcRequest()
+                .getCarPropertyValue();
+        if (requestCarPropertyValue != null) {
+            // If this is a set request, the car property value stores the value to be set.
+            halPropValue = carPropertyValueToHalPropValueLocked(requestCarPropertyValue);
+        } else {
+            // Otherwise this is a get request, we only need the property ID and area ID.
+            int halPropertyId = managerToHalPropId(asyncPropRequestInfo.getPropertyId());
+            int areaId = asyncPropRequestInfo.getAreaId();
+            halPropValue = mPropValueBuilder.build(halPropertyId, areaId);
+        }
+        return new AsyncGetSetRequest(newServiceRequestId, halPropValue,
+                asyncPropRequestInfo.getTimeoutInMs());
     }
 
     @GuardedBy("mLock")
-    private @Nullable AsyncGetRequestInfo getAndRemovePendingAsyncGetRequestInfoLocked(
+    @Nullable private AsyncPropRequestInfo getPendingAsyncPropRequestInfoLocked(
             int serviceRequestId) {
-        AsyncGetRequestInfo requestInfo =
-                mServiceRequestIdToAsyncGetRequestInfo.get(serviceRequestId);
-        mServiceRequestIdToAsyncGetRequestInfo.remove(serviceRequestId);
+        AsyncPropRequestInfo requestInfo =
+                mServiceRequestIdToAsyncPropRequestInfo.get(serviceRequestId);
         if (requestInfo == null) {
             Slogf.w(TAG, "onRequestsTimeout: the request for propertyHalService request "
                     + "ID: %d already timed out or already completed", serviceRequestId);
         }
+        return requestInfo;
+    }
+
+    @GuardedBy("mLock")
+    @Nullable private AsyncPropRequestInfo getAndRemovePendingAsyncPropRequestInfoLocked(
+            int serviceRequestId) {
+        AsyncPropRequestInfo requestInfo = getPendingAsyncPropRequestInfoLocked(serviceRequestId);
+        mServiceRequestIdToAsyncPropRequestInfo.remove(serviceRequestId);
         return requestInfo;
     }
 
@@ -534,15 +683,13 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void setProperty(CarPropertyValue carPropertyValue)
             throws IllegalArgumentException, ServiceSpecificException {
-        int halPropId = managerToHalPropId(carPropertyValue.getPropertyId());
-        HalPropConfig halPropConfig;
+        HalPropValue valueToSet;
         synchronized (mLock) {
-            halPropConfig = mHalPropIdToPropConfig.get(halPropId);
+            valueToSet = carPropertyValueToHalPropValueLocked(carPropertyValue);
         }
-        HalPropValue halPropValue = mPropValueBuilder.build(carPropertyValue, halPropId,
-                halPropConfig);
+
         // CarPropertyManager catches and rethrows exception, no need to handle here.
-        mVehicleHal.set(halPropValue);
+        mVehicleHal.set(valueToSet);
     }
 
     /**
@@ -722,28 +869,21 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
-    /**
-     * Query CarPropertyValue with list of AsyncPropertyServiceRequest objects.
-     *
-     * <p>This method gets the CarPropertyValue using async methods. </p>
-     */
-    public void getCarPropertyValuesAsync(
-            List<AsyncPropertyServiceRequest> getPropertyServiceRequests,
+    private void getOrSetCarPropertyValuesAsync(@AsyncRequestType int requestType,
+            List<AsyncPropertyServiceRequest> serviceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
-        List<AsyncGetSetRequest> getVehicleStubAsyncRequests = new ArrayList<>();
+        List<AsyncGetSetRequest> vehicleStubRequests = new ArrayList<>();
         synchronized (mLock) {
-            for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
-                AsyncPropertyServiceRequest getPropertyServiceRequest =
-                        getPropertyServiceRequests.get(i);
-                AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
-                        getPropertyServiceRequest, SystemClock.uptimeMillis() + timeoutInMs,
-                        timeoutInMs);
-                AsyncGetSetRequest vehicleStubRequest = generateGetVehicleStubAsyncRequestLocked(
-                        mPropValueBuilder, asyncGetRequestInfo);
-                getVehicleStubAsyncRequests.add(vehicleStubRequest);
+            for (int i = 0; i < serviceRequests.size(); i++) {
+                AsyncPropertyServiceRequest serviceRequest = serviceRequests.get(i);
+                AsyncPropRequestInfo asyncPropRequestInfo = new AsyncPropRequestInfo(requestType,
+                        serviceRequest, SystemClock.uptimeMillis() + timeoutInMs, timeoutInMs);
+                AsyncGetSetRequest vehicleStubRequest = generateVehicleStubAsyncRequestLocked(
+                        asyncPropRequestInfo);
+                vehicleStubRequests.add(vehicleStubRequest);
             }
         }
 
@@ -767,11 +907,44 @@ public class PropertyHalService extends HalServiceBase {
                 callback = mResultBinderToVehicleStubCallback.get(asyncPropertyResultBinder);
             }
         }
-        mVehicleHal.getAsync(getVehicleStubAsyncRequests, callback);
+
+        switch (requestType) {
+            case GET: // fallthrough
+            case GET_INITIAL_VALUE_FOR_SET:
+                mVehicleHal.getAsync(vehicleStubRequests, callback);
+                break;
+            case SET:
+                mVehicleHal.setAsync(vehicleStubRequests, callback);
+                break;
+        }
     }
 
     /**
-     * Map managerRequestIds to serviceRequestIds and remove them from the pending request map.
+     * Queries CarPropertyValue with list of AsyncPropertyServiceRequest objects.
+     *
+     * <p>This method gets the CarPropertyValue using async methods. </p>
+     */
+    public void getCarPropertyValuesAsync(
+            List<AsyncPropertyServiceRequest> serviceRequests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
+            long timeoutInMs) {
+        getOrSetCarPropertyValuesAsync(
+                GET, serviceRequests, asyncPropertyResultCallback, timeoutInMs);
+    }
+
+    /**
+     * Sets car property values asynchronously.
+     */
+    public void setCarPropertyValuesAsync(
+            List<AsyncPropertyServiceRequest> serviceRequests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
+            long timeoutInMs) {
+        getOrSetCarPropertyValuesAsync(
+                SET, serviceRequests, asyncPropertyResultCallback, timeoutInMs);
+    }
+
+    /**
+     * Maps managerRequestIds to serviceRequestIds and remove them from the pending request map.
      */
     public void cancelRequests(int[] managerRequestIds) {
         List<Integer> serviceRequestIdsToCancel = new ArrayList<>();
@@ -780,20 +953,31 @@ public class PropertyHalService extends HalServiceBase {
             managerRequestIdsSet.add(managerRequestIds[i]);
         }
         synchronized (mLock) {
-            for (int i = 0; i < mServiceRequestIdToAsyncGetRequestInfo.size(); i++) {
-                if (managerRequestIdsSet.contains(mServiceRequestIdToAsyncGetRequestInfo.valueAt(i)
+            for (int i = 0; i < mServiceRequestIdToAsyncPropRequestInfo.size(); i++) {
+                if (managerRequestIdsSet.contains(mServiceRequestIdToAsyncPropRequestInfo.valueAt(i)
                         .getManagerRequestId())) {
-                    serviceRequestIdsToCancel.add(mServiceRequestIdToAsyncGetRequestInfo.keyAt(i));
+                    serviceRequestIdsToCancel.add(mServiceRequestIdToAsyncPropRequestInfo.keyAt(i));
                 }
             }
             for (int i = 0; i < serviceRequestIdsToCancel.size(); i++) {
                 Slogf.w(TAG, "the request for propertyHalService request ID: %d is cancelled",
                         serviceRequestIdsToCancel.get(i));
-                mServiceRequestIdToAsyncGetRequestInfo.remove(serviceRequestIdsToCancel.get(i));
+                mServiceRequestIdToAsyncPropRequestInfo.remove(serviceRequestIdsToCancel.get(i));
             }
         }
         if (!serviceRequestIdsToCancel.isEmpty()) {
             mVehicleHal.cancelRequests(serviceRequestIdsToCancel);
         }
+    }
+
+    @GuardedBy("mLock")
+    private HalPropValue carPropertyValueToHalPropValueLocked(CarPropertyValue carPropertyValue) {
+        int mgrPropId = carPropertyValue.getPropertyId();
+        int halPropId = managerToHalPropId(mgrPropId);
+        HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
+        if (halPropConfig == null) {
+            throw new IllegalArgumentException("Property ID: " + mgrPropId + " is not supported");
+        }
+        return mPropValueBuilder.build(carPropertyValue, halPropId, halPropConfig);
     }
 }

@@ -1330,7 +1330,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
 
     /**
-     * Query HalPropValue with list of GetVehicleHalRequest objects.
+     * Queries HalPropValue with list of GetVehicleHalRequest objects.
      *
      * <p>This method gets the HalPropValue using async methods.
      */
@@ -1340,7 +1340,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
-     * Cancel all the on-going async requests with the given request IDs.
+     * Sets vehicle property value asynchronously.
+     */
+    public void setAsync(List<VehicleStub.AsyncGetSetRequest> setVehicleStubAsyncRequests,
+            VehicleStub.VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
+        mVehicleStub.setAsync(setVehicleStubAsyncRequests, setVehicleStubAsyncCallback);
+    }
+
+    /**
+     * Cancels all the on-going async requests with the given request IDs.
      */
     public void cancelRequests(List<Integer> vehicleStubRequestIds) {
         mVehicleStub.cancelRequests(vehicleStubRequestIds);
