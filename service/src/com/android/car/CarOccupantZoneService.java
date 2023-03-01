@@ -489,6 +489,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 }
             }
             writer.println(']');
+            writer.println("hasDriverZone: " + hasDriverZone());
         }
     }
 
@@ -1511,6 +1512,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
 
         boolean hasDefaultDisplayConfig = false;
+        boolean hasDriverZone = hasDriverZone();
         for (Display display : mDisplayManager.getDisplays()) {
             DisplayConfig displayConfig = findDisplayConfigForDisplayLocked(display);
             if (displayConfig == null) {
@@ -1518,7 +1520,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         display.getDisplayId());
                 continue;
             }
-            if (display.getDisplayId() == Display.DEFAULT_DISPLAY) {
+            if (hasDriverZone && display.getDisplayId() == Display.DEFAULT_DISPLAY) {
                 if (displayConfig.occupantZoneId != mDriverZoneId) {
                     throw new IllegalStateException(
                             "Default display should be only assigned to driver zone");
@@ -1539,7 +1541,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
         }
 
-        if (!hasDefaultDisplayConfig) {
+        if (hasDriverZone && !hasDefaultDisplayConfig) {
             // This shouldn't happen, since we added the default display config in
             // parseDisplayConfigsLocked().
             throw new IllegalStateException("Default display not assigned");
