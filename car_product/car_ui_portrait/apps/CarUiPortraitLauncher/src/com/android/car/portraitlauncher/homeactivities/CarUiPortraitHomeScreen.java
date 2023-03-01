@@ -631,6 +631,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 new LaunchRootCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
+                        taskView.setZOrderMediaOverlay(true);
                         mRootTaskViewPanel.setTaskView(taskView);
                     }
 
