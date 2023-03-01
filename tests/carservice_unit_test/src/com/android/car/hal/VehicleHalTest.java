@@ -104,6 +104,7 @@ public class VehicleHalTest {
     @Mock private TimeHalService mTimeHalService;
     @Mock private VehicleStub mVehicle;
     @Mock private VehicleStub.VehicleStubCallbackInterface mGetVehicleStubAsyncCallback;
+    @Mock private VehicleStub.VehicleStubCallbackInterface mSetVehicleStubAsyncCallback;
     @Mock private VehicleStub.SubscriptionClient mSubscriptionClient;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -117,6 +118,8 @@ public class VehicleHalTest {
             new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
     private final AsyncGetSetRequest mGetVehicleRequest2 =
             new AsyncGetSetRequest(REQUEST_ID_2, mHalPropValue, /* timeoutInMs= */ 0);
+    private final AsyncGetSetRequest mSetVehicleRequest =
+            new AsyncGetSetRequest(REQUEST_ID_1, mHalPropValue, /* timeoutInMs= */ 0);
 
     @Rule public final TestName mTestName = new TestName();
 
@@ -233,6 +236,17 @@ public class VehicleHalTest {
         assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(mHalPropValue);
         assertThat(captor.getValue().get(1).getServiceRequestId()).isEqualTo(REQUEST_ID_2);
         assertThat(captor.getValue().get(1).getHalPropValue()).isEqualTo(mHalPropValue);
+    }
+
+    @Test
+    public void testSetAsync() {
+        mVehicleHal.setAsync(List.of(mSetVehicleRequest), mSetVehicleStubAsyncCallback);
+
+        ArgumentCaptor<List<AsyncGetSetRequest>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mVehicle).setAsync(captor.capture(),
+                any(VehicleStub.VehicleStubCallbackInterface.class));
+        assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(mHalPropValue);
     }
 
     @Test
