@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"अन्य एपहरूको स्क्रिन मिरर गर्नुहोस्।"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"अन्य प्रयोगकर्ताहरूको डिस्प्ले मिरर गर्नुहोस्"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"अन्य प्रयोगकर्ताहरूको डिस्प्ले मिरर गर्नुहोस्।"</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"अन्य एपहरूले सिस्टम ui व्यवस्थापन गर्ने र टास्क भ्यू बनाउने प्रयोजनका लागि प्रयोग गर्न सक्ने सिस्टम ui प्रोक्सी उपलब्ध गराउनुहोस्।"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"अन्य एपहरूले सिस्टम ui व्यवस्थापन गर्ने र टास्क भ्यू बनाउने प्रयोजनका लागि प्रयोग गर्न सक्ने सिस्टम ui प्रोक्सी उपलब्ध गराउनुहोस्।"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"टास्क भ्यू बनाउन वा सिस्टम ui मा गरिने परिवर्तनहरूका बारेमा सूचना प्राप्त गर्न कारको सिस्टम ui मा कनेक्ट गर्नुहोस्।"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"टास्क भ्यू बनाउन वा सिस्टम ui मा गरिने परिवर्तनहरूका बारेमा सूचना प्राप्त गर्न कारको सिस्टम ui मा कनेक्ट गर्नुहोस्।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ले प्रतिक्रिया जनाएन। हेडयुनिट बाकसलाई प्लगबाट निकालेर फेरि प्लगमा घुसाउनुहोस् र कार पुनःसुरु गर्नुहोस्‌"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो डिभाइस"</string>
