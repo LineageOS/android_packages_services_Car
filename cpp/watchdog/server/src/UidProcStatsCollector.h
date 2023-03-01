@@ -43,7 +43,7 @@ constexpr const char kProcDirPath[] = "/proc";
 constexpr const char kStatFileFormat[] = "/%" PRIu32 "/stat";
 constexpr const char kTaskDirFormat[] = "/%" PRIu32 "/task";
 constexpr const char kStatusFileFormat[] = "/%" PRIu32 "/status";
-
+constexpr const char kTimeInStateFormat[] = "/%" PRIu32 "/time_in_state";
 // Per-pid/tid stats.
 // The int64_t type is used due to AIDL limitations representing long field values.
 struct PidStat {
@@ -59,15 +59,19 @@ struct ProcessStats {
     std::string comm = "";
     int64_t startTimeMillis = 0;  // Useful when identifying PID reuse
     int64_t cpuTimeMillis = 0;
+    // Stats in below fields are aggregated across all threads
+    uint64_t totalCpuCycles = 0;
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
+    std::unordered_map<pid_t, uint64_t> cpuCyclesByTid = {};
     std::string toString() const;
 };
 
 // Per-UID stats.
 struct UidProcStats {
     int64_t cpuTimeMillis = 0;
+    uint64_t cpuCycles = 0;
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
@@ -153,6 +157,10 @@ private:
     // 3. Pid status file at |mPath| + |kStatusFileFormat|
     // Otherwise, set to false.
     bool mEnabled GUARDED_BY(mMutex);
+
+    // True if the tid time_in_state file at
+    // |mPath| + |kTaskDirFormat| + |kTimeInStateFormat| is available.
+    bool mTimeInStateEnabled GUARDED_BY(mMutex);
 
     // Latest dump of per-UID stats.
     std::unordered_map<uid_t, UidProcStats> mLatestStats GUARDED_BY(mMutex);

@@ -933,7 +933,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             int userId = getUserIdForZone(zoneId);
             if (userId == UserManagerHelper.USER_NULL) {
                 throw new IllegalStateException(
-                        "Audio zone must have an active user to allowed mirroring");
+                        "Audio zone must have an active user to allow mirroring");
             }
 
             CarOccupantZoneManager.OccupantZoneInfo info = mOccupantZoneService
@@ -962,7 +962,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
             if (!zones.containsAll(configSet)) {
                 throw new IllegalArgumentException(
-                        "Can not remove zones already in audio mirroring configuration,"
+                        "Can not enable zones already in audio mirroring configuration,"
                                 + " current config " + Arrays.toString(audioZones)
                                 + " requested config " + Arrays.toString(config));
             }
@@ -2066,20 +2066,106 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @Override
     public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
-        // TODO(b/268383539): implement getting current zone config info in car audio service.
-        return null;
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        synchronized (mImplLock) {
+            return getCarAudioZoneLocked(zoneId).getCurrentCarAudioZoneConfig()
+                    .getCarAudioZoneConfigInfo();
+        }
     }
 
     @Override
     public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
-        // TODO(b/268383539): implement getting all zone config infos in car audio service.
-        return Collections.emptyList();
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        synchronized (mImplLock) {
+            return getCarAudioZoneLocked(zoneId).getCarAudioZoneConfigInfos();
+        }
     }
 
     @Override
     public void switchZoneToConfig(CarAudioZoneConfigInfo zoneConfig,
             ISwitchAudioZoneConfigCallback callback) {
-        // TODO(b/268383539): implement switching zone config infos in car audio service.
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        requireDynamicRouting();
+        Objects.requireNonNull(zoneConfig, "Car audio zone config to switch to can not be null");
+        verifyCanSwitchZoneConfigs(zoneConfig);
+        mHandler.post(() -> {
+            boolean isSuccessful = handleSwitchZoneConfig(zoneConfig);
+            try {
+                callback.onAudioZoneConfigSwitched(zoneConfig, isSuccessful);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, e, "Could not inform zone configuration %s switch result",
+                        zoneConfig);
+            }
+        });
+    }
+
+    private void verifyCanSwitchZoneConfigs(CarAudioZoneConfigInfo zoneConfig) {
+        int zoneId = zoneConfig.getZoneId();
+        synchronized (mImplLock) {
+            checkAudioZoneIdLocked(zoneId);
+        }
+
+        int userId = getUserIdForZone(zoneId);
+        if (userId == UserManagerHelper.USER_NULL) {
+            throw new IllegalStateException(
+                    "Audio zone must have an active user to allow switching zone configuration");
+        }
+
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mOccupantZoneService.getOccupantForAudioZoneId(zoneId);
+
+        if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
+            throw new IllegalStateException(
+                    "Occupant " + info + " in audio zone " + zoneId
+                            + " is currently sharing to primary zone, undo audio sharing in "
+                            + "primary zone before switching zone configuration");
+        }
+    }
+
+    private boolean handleSwitchZoneConfig(CarAudioZoneConfigInfo zoneConfig) {
+        int zoneId = zoneConfig.getZoneId();
+        CarAudioZone zone;
+        synchronized (mImplLock) {
+            zone = getCarAudioZoneLocked(zoneId);
+        }
+        if (zone.isCurrentZoneConfig(zoneConfig)) {
+            Slogf.w(TAG, "handleSwitchZoneConfig switch current zone configuration");
+            return true;
+        }
+
+        CarOccupantZoneManager.OccupantZoneInfo info =
+                mOccupantZoneService.getOccupantForAudioZoneId(zoneId);
+        if (mMediaRequestHandler.isMediaAudioAllowedInPrimaryZone(info)) {
+            Slogf.w(TAG, "handleSwitchZoneConfig failed, occupant %s in audio zone %d is "
+                            + "currently sharing to primary zone, undo audio sharing in primary "
+                            + "zone before switching zone configuration", info, zoneId);
+            return false;
+        }
+
+        synchronized (mImplLock) {
+            int userId = getUserIdForZoneLocked(zoneId);
+            if (userId == UserManagerHelper.USER_NULL) {
+                Slogf.w(TAG, "handleSwitchZoneConfig failed, audio zone configuration switching "
+                        + "not allowed for unassigned audio zone %d", zoneId);
+                return false;
+            }
+            List<AudioFocusInfo> pendingFocusInfos =
+                    mFocusHandler.transientlyLoseAllFocusInZone(zoneId);
+
+            boolean succeeded = true;
+            CarAudioZoneConfig prevZoneConfig = zone.getCurrentCarAudioZoneConfig();
+            try {
+                zone.setCurrentCarZoneConfig(zoneConfig);
+                setUserIdDeviceAffinitiesLocked(zone, userId, zoneId);
+            } catch (IllegalStateException e) {
+                zone.setCurrentCarZoneConfig(prevZoneConfig.getCarAudioZoneConfigInfo());
+                succeeded = false;
+            }
+            mFocusHandler.reevaluateAndRegainAudioFocusList(pendingFocusInfos);
+            return succeeded;
+        }
     }
 
     void setAudioEnabled(boolean isAudioEnabled) {

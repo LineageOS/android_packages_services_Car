@@ -40,4 +40,5 @@ interface ICarWatchdogServiceForSystem {
   oneway void latestIoOveruseStats(in List<android.automotive.watchdog.internal.PackageIoOveruseStats> packageIoOveruseStats);
   oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
   List<android.automotive.watchdog.internal.UserPackageIoUsageStats> getTodayIoUsageStats();
+  oneway void onLatestResourceStats(in android.automotive.watchdog.internal.ResourceStats resourceStats);
 }

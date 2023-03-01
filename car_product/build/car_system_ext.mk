@@ -36,6 +36,7 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
 
 # More configurations for AOSP cars
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
+    keyguard.no_require_sim=true \
     ro.carrier=unknown \
     ro.com.android.dataroaming?=true \
-    keyguard.no_require_sim=true \
+    ro.hardware.type=automotive \

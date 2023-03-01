@@ -17,6 +17,8 @@
 package com.android.car;
 
 import static android.car.VehicleAreaSeat.SEAT_UNKNOWN;
+import static android.view.Display.STATE_OFF;
+import static android.view.Display.STATE_ON;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
@@ -142,6 +144,7 @@ public class CarOccupantZoneServiceTest {
     private static final int SECONDARY_AUDIO_ZONE_ID_OCCUPANT = 3;
     private static final int UNMAPPED_AUDIO_ZONE_ID_OCCUPANT = 2;
     private static final int INVALID_AUDIO_ZONE_ID_OCCUPANT = 100;
+    private static final int NO_CONFIG_OCCUPANT_ZONE_ID = 100;
 
     // LHD : Left Hand Drive
     private final OccupantZoneInfo mZoneDriverLHD = new OccupantZoneInfo(0,
@@ -220,6 +223,10 @@ public class CarOccupantZoneServiceTest {
         when(displayManager.getDisplay(displayId)).thenReturn(display);
         when(display.getDisplayId()).thenReturn(displayId);
         when(display.getUniqueId()).thenReturn(uniqueId);
+    }
+
+    private void mockDisplay(Display display, int state) {
+        when(display.getState()).thenReturn(state);
     }
 
     @Before
@@ -1286,6 +1293,32 @@ public class CarOccupantZoneServiceTest {
         assertWithMessage("Occupant zone for rear seat")
                 .that(mService.getOccupantZoneIdForSeat(VehicleAreaSeat.SEAT_ROW_2_RIGHT))
                 .isEqualTo(mZoneRearRight.zoneId);
+    }
+
+    @Test
+    public void areDisplaysOnForOccupantZone_on() {
+        mService.init();
+        mockDisplay(mDisplay0, STATE_ON);
+        mockDisplay(mDisplay1, STATE_ON);
+
+        assertThat(mService.areDisplaysOnForOccupantZone(mZoneDriverLHD.zoneId)).isTrue();
+    }
+    @Test
+    public void areDisplaysOnForOccupantZone_off() {
+        mService.init();
+        mockDisplay(mDisplay0, STATE_ON);
+        mockDisplay(mDisplay1, STATE_OFF);
+
+        assertThat(mService.areDisplaysOnForOccupantZone(mZoneDriverLHD.zoneId)).isFalse();
+    }
+
+    @Test
+    public void areDisplaysOnForOccupantZone_noConfig_off() {
+        mService.init();
+        mockDisplay(mDisplay0, STATE_ON);
+        mockDisplay(mDisplay1, STATE_ON);
+
+        assertThat(mService.areDisplaysOnForOccupantZone(NO_CONFIG_OCCUPANT_ZONE_ID)).isFalse();
     }
 
     private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {

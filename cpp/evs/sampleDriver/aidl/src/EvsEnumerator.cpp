@@ -430,7 +430,7 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
         std::shared_ptr<EvsGlDisplay> pActiveDisplay = existing_display_search->displayWeak.lock();
         if (pActiveDisplay) {
             LOG(WARNING) << "Killing previous display because of new caller";
-            closeDisplay(pActiveDisplay);
+            pActiveDisplay->forceShutdown();
         }
     }
 
