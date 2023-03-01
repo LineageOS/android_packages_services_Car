@@ -37,7 +37,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Binder;
 import android.os.Handler;
@@ -232,7 +231,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     };
     private final RemoteAccessHalWrapper mRemoteAccessHal;
-    private final boolean mBootUpForRemoteAccess;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
 
@@ -260,7 +258,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         mRemoteAccessHal = remoteAccessHal != null ? remoteAccessHal
                 : new RemoteAccessHalWrapper(mHalCallback);
-        mBootUpForRemoteAccess = isBootUpForRemoteAccess();
         mAllowedSystemUptimeMs = allowedSystemUptimeMs == INVALID_ALLOWED_SYSTEM_UPTIME
                 ? getAllowedSystemUptimeForRemoteTaskInMs() : allowedSystemUptimeMs;
         mShutdownTimeInMs = SystemClock.uptimeMillis() + mAllowedSystemUptimeMs;
@@ -281,8 +278,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.e(TAG, e, "Cannot get device/service information from remote access HAL");
         }
         synchronized (mLock) {
-            mNextPowerState = mBootUpForRemoteAccess ? getLastShutdownState()
-                    : CarRemoteAccessManager.NEXT_POWER_STATE_ON;
+            mNextPowerState = getLastShutdownState();
         }
 
         mPowerService.registerListenerWithCompletion(mCarPowerStateListener);
@@ -311,7 +307,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*Car Remote Access Service*");
-            writer.printf("mBootUpForRemoteAccess: %b\n", mBootUpForRemoteAccess);
             writer.printf("mShutdownTimeInMs: %d\n", mShutdownTimeInMs);
             writer.printf("mNextPowerState: %d\n", mNextPowerState);
             writer.printf("mRunGarageMode: %b\n", mRunGarageMode);
@@ -789,18 +784,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private String generateNewClientId() {
         return CLIENT_PREFIX + "_" + mClientCount.incrementAndGet() + "_"
                 + CarServiceUtils.generateRandomAlphaNumericString(RANDOM_STRING_LENGTH);
-    }
-
-    private static boolean isBootUpForRemoteAccess() {
-        CarPropertyService propertyService = CarLocalServices.getService(CarPropertyService.class);
-        CarPropertyValue propValue = propertyService.getPropertySafe(
-                VehicleProperty.AP_POWER_BOOTUP_REASON, /* areaId= */ 0);
-        if (propValue == null) {
-            Slogf.w(TAG, "Cannot get property of AP_POWER_BOOTUP_REASON");
-            return false;
-        }
-        return propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
-                && (int) propValue.getValue() == VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS;
     }
 
     private static boolean isVehicleInUse() {

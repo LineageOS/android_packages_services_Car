@@ -48,7 +48,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -90,10 +89,6 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 2000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
     private static final String TEST_DEVICE_ID = "test_vehicle";
-    private static final CarPropertyValue<Integer> PROP_SYSTEM_REMOTE_ACCESS =
-            new CarPropertyValue<>(VehicleProperty.AP_POWER_BOOTUP_REASON, /* areadId= */ 0,
-                    CarPropertyValue.STATUS_AVAILABLE, /* timestampNanos= */ 0,
-                    VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS);
     private static final String PERMISSION_NOT_GRANTED_PACKAGE = "life.is.beautiful";
     private static final String PERMISSION_GRANTED_PACKAGE_ONE = "we.are.the.world";
     private static final String PERMISSION_GRANTED_PACKAGE_TWO = "android.automotive.os";
@@ -147,8 +142,6 @@ public final class CarRemoteAccessServiceUnitTest {
         doReturn(mPackageManager).when(mContext).getPackageManager();
         doReturn(mResources).when(mContext).getResources();
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
-        when(mCarPropertyService.getPropertySafe(VehicleProperty.AP_POWER_BOOTUP_REASON,
-                /* areadId= */ 0)).thenReturn(PROP_SYSTEM_REMOTE_ACCESS);
         when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
                 .thenReturn(300);
         when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
