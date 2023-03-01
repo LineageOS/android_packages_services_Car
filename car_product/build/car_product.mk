@@ -59,4 +59,10 @@ ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
 endif
 
+# CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
+# and feel for Passenger(Secondary) User.
+ifeq ($(ENABLE_PASSENGER_SYSTEMUI_RRO), true)
+PRODUCT_PACKAGES += CarSystemUIPassengerOverlay
+endif  # ENABLE_PASSENGER_SYSTEMUI_RRO
+
 $(call inherit-product, device/sample/products/location_overlay.mk)
