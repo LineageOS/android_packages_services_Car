@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"שיקוף מסך של אפליקציות אחרות."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"שיקוף מסך של משתמשים אחרים"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"שיקוף מסך של משתמשים אחרים."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"אספקת שרת proxy של ממשק המשתמש של המערכת שיכול לשמש אפליקציות אחרות כדי לנהל את ממשק המשתמש של המערכת וליצור תצוגות משימות."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"אספקת שרת proxy של ממשק המשתמש של המערכת שיכול לשמש אפליקציות אחרות כדי לנהל את ממשק המשתמש של המערכת וליצור תצוגות משימות."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"תקשורת עם ממשק המשתמש של מערכת הרכב ליצירת תצוגות של משימות או לקבלת התראות על שינויים בממשק המשתמש של המערכת."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"תקשורת עם ממשק המשתמש של מערכת הרכב ליצירת תצוגות של משימות או לקבלת התראות על שינויים בממשק המשתמש של המערכת."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"פרוטוקול CAN bus נכשל"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"פרוטוקול CAN bus לא מגיב. יש לנתק ולחבר שוב את מערכת הסטריאו ולהתניע מחדש את הרכב"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"המכשיר שלי"</string>

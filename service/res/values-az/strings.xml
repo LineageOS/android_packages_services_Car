@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Digər Tətbiqlərin ekranını əks etdirin."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"digər istifadəçilərin displeyini əks etdirin"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Digər istifadəçilərin displeyini əks etdirin."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Sistemin istifadə interfeysini idarə etmək və tapşırıq görünüşləri yaratmaq üçün sistemin istifadə interfeysinin digər tətbiqlər tərəfindən istifadə edilə bilən proksisinin təmin edilməsi."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Sistemin istifadə interfeysini idarə etmək və tapşırıq görünüşləri yaratmaq üçün sistemin istifadə interfeysinin digər tətbiqlər tərəfindən istifadə edilə bilən proksisinin təmin edilməsi."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Tapşırıq görünüşləri yaratmaq və ya sistemin istifadə interfeysi dəyişiklikləri haqqında bildiriş almaq üçün avtomobil sisteminin istifadə interfeysi ilə əlaqə yaradılması."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Tapşırıq görünüşləri yaratmaq və ya sistemin istifadə interfeysi dəyişiklikləri haqqında bildiriş almaq üçün avtomobil sisteminin istifadə interfeysi ilə əlaqə yaradılması."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN idarəetmə mexanizmi uğursuz oldu"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN mexanizmi cavab vermir. Əsas cihaz panelini ayırın və yenidən qoşun, sonra avtomobili yenidən işə salın"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Cihazım"</string>
