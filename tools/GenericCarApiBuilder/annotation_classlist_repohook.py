@@ -133,14 +133,6 @@ for path in hidden_apis_previous_releases_paths:
         hidden_apis = set(f.read().splitlines())
         hidden_apis_previous_releases = hidden_apis_previous_releases.union(hidden_apis)
 
-excluded_removed_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
-                                      "/car_hidden_apis_excluded.txt"
-
-with open(excluded_removed_hidden_apis_path) as f:
-    excluded_removed_hidden_apis = set(f.read().splitlines())
-
-hidden_apis_previous_releases = hidden_apis_previous_releases - excluded_removed_hidden_apis
-
 # All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
 modified_or_added_hidden_api = []
