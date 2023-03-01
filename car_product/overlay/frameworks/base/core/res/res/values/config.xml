@@ -100,6 +100,12 @@
     <!-- True if the device supports system decorations on secondary displays. -->
     <bool name="config_supportsSystemDecorsOnSecondaryDisplays">false</bool>
 
+    <!-- Whether the main user is a permanent admin user. If the main user is a permanent admin user
+     it can't be deleted or downgraded to non-admin status.
+     This is generally only relevant on headless system user mode devices; on other devices, the
+     main user is the system user which is always a permanent admin anyway. -->
+    <bool name="config_isMainUserPermanentAdmin">false</bool>
+
     <!-- Whether switch to headless system user is allowed. If allowed,
          headless system user can run in the foreground even though it is not a full user. -->
     <bool name="config_canSwitchToHeadlessSystemUser">true</bool>
