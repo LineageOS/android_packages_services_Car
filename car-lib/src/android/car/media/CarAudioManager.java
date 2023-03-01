@@ -1474,9 +1474,11 @@ public final class CarAudioManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public void unregisterCarVolumeCallback(@NonNull CarVolumeCallback callback) {
         Objects.requireNonNull(callback);
-        if (mCarVolumeCallbacks.remove(callback) && mCarVolumeCallbacks.isEmpty()) {
+        if (mCarVolumeCallbacks.contains(callback) && (mCarVolumeCallbacks.size() == 1)) {
             unregisterVolumeCallback();
         }
+
+        mCarVolumeCallbacks.remove(callback);
     }
 
     private void registerVolumeCallback() {
@@ -1518,13 +1520,8 @@ public final class CarAudioManager extends CarManagerBase {
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
         if (mCarVolumeEventCallbacks.isEmpty()) {
-            try {
-                if (!mService.registerCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
-                    return false;
-                }
-            } catch (RemoteException e) {
-                Log.e(CarLibLog.TAG_CAR, "registerCarVolumeEventCallback failed", e);
-                return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+            if (!registerVolumeGroupEventCallback()) {
+                return false;
             }
         }
 
@@ -1532,6 +1529,18 @@ public final class CarAudioManager extends CarManagerBase {
                 new CarVolumeGroupEventCallbackWrapper(executor, callback));
     }
 
+    private boolean registerVolumeGroupEventCallback() {
+        try {
+            if (!mService.registerCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
+                return false;
+            }
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR, "registerCarVolumeEventCallback failed", e);
+            return handleRemoteExceptionFromCarService(e, /* returnValue= */ false);
+        }
+
+        return true;
+    }
 
     /**
      * Unregisters a {@link CarVolumeGroupEventCallback} registered via
@@ -1552,22 +1561,31 @@ public final class CarAudioManager extends CarManagerBase {
             @NonNull CarVolumeGroupEventCallback callback) {
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
-        if (mCarVolumeEventCallbacks.remove(
-                new CarVolumeGroupEventCallbackWrapper(/* executor= */ null, callback))
-                && mCarVolumeEventCallbacks.isEmpty()) {
-            try {
-                if (!mService.unregisterCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
-                    Log.e(CarLibLog.TAG_CAR,
-                            "unregisterCarVolumeEventCallback failed with service");
-                }
-            } catch (RemoteException e) {
-                Log.e(CarLibLog.TAG_CAR,
-                        "unregisterCarVolumeEventCallback failed with exception", e);
-                handleRemoteExceptionFromCarService(e);
-            }
+        CarVolumeGroupEventCallbackWrapper callbackWrapper =
+                new CarVolumeGroupEventCallbackWrapper(/* executor= */ null, callback);
+        if (mCarVolumeEventCallbacks.contains(callbackWrapper)
+                && (mCarVolumeEventCallbacks.size() == 1)) {
+            unregisterVolumeGroupEventCallback();
         }
+
+        mCarVolumeEventCallbacks.remove(callbackWrapper);
     }
 
+    private boolean unregisterVolumeGroupEventCallback() {
+        try {
+            if (!mService.unregisterCarVolumeEventCallback(mCarVolumeEventCallbackImpl)) {
+                Log.e(CarLibLog.TAG_CAR,
+                        "unregisterCarVolumeEventCallback failed with service");
+                return false;
+            }
+        } catch (RemoteException e) {
+            Log.e(CarLibLog.TAG_CAR,
+                    "unregisterCarVolumeEventCallback failed with exception", e);
+            handleRemoteExceptionFromCarService(e);
+        }
+
+        return true;
+    }
 
     /**
      * Returns the whether a volume group is muted
