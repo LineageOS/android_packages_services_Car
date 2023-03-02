@@ -891,24 +891,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
 
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
-
-        // TODO(b/243967195): Remove this functionality from assignVisibleUserToZone since this
-        // is already done when the user starts in CarUserService.
-        if ((flags & CarOccupantZoneManager.USER_ASSIGNMENT_FLAG_LAUNCH_HOME) != 0) {
-            int targetDisplayId = getDisplayForOccupant(occupantZoneId,
-                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-            // TODO(b/243967195) Add other error code so that the client can know the partial
-            //  failure.
-            if (targetDisplayId == Display.INVALID_DISPLAY) {
-                Slogf.w(TAG,
-                        "USER_ASSIGN_FLAG_LAUNCH_HOME ignored as there is no valid main display"
-                                + " in the zone:%d", occupantZoneId);
-                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
-            }
-            // TODO(b/243967195) check failure
-            CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, targetDisplayId);
-        }
-
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
 
