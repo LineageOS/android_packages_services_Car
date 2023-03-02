@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Phản chiếu màn hình của ứng dụng khác."</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"phản chiếu màn hình của người dùng khác"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Phản chiếu màn hình của người dùng khác."</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Cung cấp proxy giao diện người dùng hệ thống cho các ứng dụng khác sử dụng để quản lý giao diện người dùng hệ thống và tạo các chế độ xem tác vụ."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Cung cấp proxy giao diện người dùng hệ thống cho các ứng dụng khác sử dụng để quản lý giao diện người dùng hệ thống và tạo các chế độ xem tác vụ."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Giao tiếp với giao diện người dùng hệ thống ô tô để tạo các chế độ xem tác vụ hoặc nhận thông báo về các thay đổi đối với giao diện người dùng hệ thống."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Giao tiếp với giao diện người dùng hệ thống ô tô để tạo các chế độ xem tác vụ hoặc nhận thông báo về các thay đổi đối với giao diện người dùng hệ thống."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Đường dẫn chính CAN không hoạt động"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Đường dẫn chính CAN không phản hồi. Rút rồi cắm lại hộp bộ đầu và khởi động lại ô tô"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Thiết bị của tôi"</string>

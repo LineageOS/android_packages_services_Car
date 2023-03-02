@@ -204,14 +204,10 @@
     <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"镜像显示其他应用的界面。"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"镜像显示其他用户的显示屏"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"镜像显示其他用户的显示屏。"</string>
-    <!-- no translation found for car_permission_label_register_car_system_ui_proxy (4211405049007842422) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_register_car_system_ui_proxy (8863676956785764681) -->
-    <skip />
-    <!-- no translation found for car_permission_label_manage_car_system_ui (1361615518679353414) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_car_system_ui (6201733970421818637) -->
-    <skip />
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"提供其他应用可使用的系统界面代理，以便管理系统界面及创建任务视图。"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"提供其他应用可使用的系统界面代理，以便管理系统界面及创建任务视图。"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 总线没有响应。请将主机盒插头拔下并插回，然后重新启动汽车"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>

@@ -166,6 +166,12 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     CarPermissionControllerRRO \
 
+# CarSystemUIPassengerOverlay is an RRO package required for enabling unique look
+# and feel for Passenger(Secondary) User.
+ifeq ($(ENABLE_PASSENGER_SYSTEMUI_RRO), true)
+PRODUCT_PACKAGES += CarSystemUIPassengerOverlay
+endif  # ENABLE_PASSENGER_SYSTEMUI_RRO
+
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service

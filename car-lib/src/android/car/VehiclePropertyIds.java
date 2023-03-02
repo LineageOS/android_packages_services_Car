@@ -16,6 +16,8 @@
 
 package android.car;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
@@ -2637,6 +2639,34 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_MAP_SERVICE = 299895808;
     /**
+     * Characterization of inputs used for computing location.
+     *
+     * <p>This property indicates what (if any) data and sensor inputs are considered by the system
+     * when computing the vehicle's location that is shared with Android through {@link
+     * android.location.LocationManager#GPS_PROVIDER}.
+     *
+     * <p>The value returned is a collection of bit flags. The bit flags are defined in {@link
+     * android.car.hardware.property.LocationCharacterization}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
+     * <ul>
+     *  <li> Dangerous permission {@link ACCESS_FINE_LOCATION} to read property.
+     *  <li> Property is not writable.
+     * </ul>
+     */
+    @RequiresPermission(ACCESS_FINE_LOCATION)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int LOCATION_CHARACTERIZATION = 289410064;
+    /**
      * OBD2 Live Sensor Data
      *
      * Reports a snapshot of the current (live) values of the OBD2 sensors available.
@@ -4112,6 +4142,48 @@ public final class VehiclePropertyIds {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int CRUISE_CONTROL_TARGET_SPEED = 291508243;
+
+    /**
+     * Current target time gap for Adaptive Cruise Control (ACC) or Predictive Cruise Control in
+     * milliseconds.
+     *
+     * <p>This property should specify the target time gap to a leading vehicle. This gap is defined
+     * as the time to travel the distance between the leading vehicle's rear-most point to the ACC
+     * vehicle's front-most point. The actual time gap from a leading vehicle can be above or below
+     * this value.
+     *
+     * <p>The possible values to set for the target time gap should be specified in {@code
+     * configArray} in ascending order. All values must be positive. If the property is writable,
+     * all values must be writable.
+     *
+     * <p>Writing when this property is unavailable will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
+     *  property.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP = 289411092;
+
     /**
      * Enable or disable hands on detection (HOD).
      *
