@@ -41,7 +41,8 @@ interface ICarOccupantConnection {
     boolean isOccupantZonePowerOn(in CarOccupantZoneManager.OccupantZoneInfo occupantZone);
 
     // The following callbacks are used by CarOccupantConnectionManager.
-    void registerReceiver(in String receiverEndpointId, in IPayloadCallback callback);
+    void registerReceiver(String packageName, in String receiverEndpointId,
+            in IPayloadCallback callback);
     void unregisterReceiver(in String receiverEndpointId);
 
     void requestConnection(int requestId,

@@ -21,6 +21,7 @@ import android.car.occupantconnection.Payload;
 
 /** @hide */
 oneway interface IPayloadCallback {
-    void onPayloadReceived(in CarOccupantZoneManager.OccupantZoneInfo senderOccupantZone,
+    void onPayloadReceived(in CarOccupantZoneManager.OccupantZoneInfo senderZone,
+        String receiverEndpointId,
         in Payload payload);
 }

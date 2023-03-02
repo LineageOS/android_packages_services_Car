@@ -48,6 +48,9 @@ import java.util.Objects;
 // TODO(b/257118072): Add tests for other APIs once they're implemented.
 @RunWith(AndroidJUnit4.class)
 public final class CarOccupantConnectionManagerPermissionTest {
+
+    private static final String RECEIVER_ID = "receiver_id";
+
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
 
@@ -69,7 +72,26 @@ public final class CarOccupantConnectionManagerPermissionTest {
     }
 
     @Test
-    public void testCancelConnection() throws Exception {
+    public void testRegisterReceiver() {
+        Exception e = assertThrows(SecurityException.class,
+                () -> mCarOccupantConnectionManager.registerReceiver(RECEIVER_ID, Runnable::run,
+                        (senderZone, payload) -> {}));
+
+        assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+    }
+
+    @Test
+    public void testUnregisterReceiver() {
+        // TODO(b/257118072): add this test.
+    }
+
+    @Test
+    public void testRequestConnection() {
+        // TODO(b/257118072): add this test.
+    }
+
+    @Test
+    public void testCancelConnection() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.cancelConnection(mReceiverZone));
 
@@ -77,7 +99,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
     }
 
     @Test
-    public void testSendPayload() throws Exception {
+    public void testSendPayload() {
         Payload payload = new Payload(new byte[0]);
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.sendPayload(mReceiverZone, payload));
@@ -86,7 +108,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
     }
 
     @Test
-    public void testDisconnect() throws Exception {
+    public void testDisconnect() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.disconnect(mReceiverZone));
 
@@ -94,7 +116,7 @@ public final class CarOccupantConnectionManagerPermissionTest {
     }
 
     @Test
-    public void testIsConnected() throws Exception {
+    public void testIsConnected() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.isConnected(mReceiverZone));
 
