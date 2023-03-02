@@ -136,10 +136,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void registerReceiver(String receiverEndpointId, IPayloadCallback callback) {
+    public void registerReceiver(String packageName, String receiverEndpointId,
+            IPayloadCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
         // TODO(b/257117236): implement this method.
-        // TODO(b/257118072): handle client death (by registering death receipant).
     }
 
     @Override
