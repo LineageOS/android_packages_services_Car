@@ -26,9 +26,7 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserStartRequest;
-import android.car.user.UserStartResponse;
 import android.car.user.UserStopRequest;
-import android.car.user.UserStopResponse;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -271,11 +269,7 @@ public final class SimpleUserPickerFragment extends Fragment {
         }
 
         // Start the user on display.
-        if (!startUserVisibleOnDisplay(userId, displayId)) {
-            return;
-        }
-        mUsersSpinner.updateEntries(getUnassignedUsers());
-        updateTextInfo();
+        startUserVisibleOnDisplay(userId, displayId);
     }
 
     // stopUser stops the visible user on this secondary display.
@@ -309,13 +303,15 @@ public final class SimpleUserPickerFragment extends Fragment {
 
         Log.i(TAG, "stop user:" + userId);
         UserStopRequest request = new UserStopRequest.Builder(UserHandle.of(userId)).build();
-        UserStopResponse response = mCarUserManager.stopUser(request);
-        if (!response.isSuccess()) {
-            setMessage(ERROR_MESSAGE, "Cannot stop user " + userId + ", Response: " + response);
-            return;
-        }
-
-        getActivity().recreate();
+        mCarUserManager.stopUser(request, Runnable::run,
+                response -> {
+                    if (!response.isSuccess()) {
+                        setMessage(ERROR_MESSAGE,
+                                "Cannot stop user " + userId + ", Response: " + response);
+                        return;
+                    }
+                    getActivity().recreate();
+                });
     }
 
     private void switchUser() {
@@ -327,26 +323,27 @@ public final class SimpleUserPickerFragment extends Fragment {
         }
 
         int displayId = mDisplayAttached.getDisplayId();
-        if (!startUserVisibleOnDisplay(userId, displayId)) {
-            return;
-        }
-        mUsersSpinner.updateEntries(getUnassignedUsers());
-        updateTextInfo();
+        startUserVisibleOnDisplay(userId, displayId);
     }
 
-    private boolean startUserVisibleOnDisplay(@UserIdInt int userId, int displayId) {
+    private void startUserVisibleOnDisplay(@UserIdInt int userId, int displayId) {
         Log.i(TAG, "start user: " + userId + " in background on display: " + displayId);
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(userId))
                 .setDisplayId(displayId).build();
-        UserStartResponse response = mCarUserManager.startUser(request);
-        boolean isSuccess = response.isSuccess();
-        if (!isSuccess) {
-            setMessage(ERROR_MESSAGE, "Cannot start user " + userId + " on display " + displayId
-                    + ", response: " + response);
-        } else {
-            setMessage(INFO_MESSAGE, "Started user " + userId + " on display " + displayId);
-        }
-        return isSuccess;
+        mCarUserManager.startUser(request, Runnable::run,
+                response -> {
+                    boolean isSuccess = response.isSuccess();
+                    if (!isSuccess) {
+                        setMessage(ERROR_MESSAGE,
+                                "Cannot start user " + userId + " on display " + displayId
+                                        + ", response: " + response);
+                    } else {
+                        setMessage(INFO_MESSAGE,
+                                "Started user " + userId + " on display " + displayId);
+                        mUsersSpinner.updateEntries(getUnassignedUsers());
+                        updateTextInfo();
+                    }
+                });
     }
 
     private void createUser() {
