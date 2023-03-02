@@ -22,4 +22,9 @@
 
     <!-- App drawer system bar button intent -->
     <string name="system_bar_app_drawer_intent" translatable="false">intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end</string>
+
+    <!-- Determines whether the car system UI should register the System UI Proxy with the
+         CarService. CarUiPortrait uses LaunchRootCarTaskView and hence should not register
+         CarSystemUIProxy. -->
+    <bool name="config_registerCarSystemUIProxy">false</bool>
 </resources>
