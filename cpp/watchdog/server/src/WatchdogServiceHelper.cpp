@@ -93,7 +93,7 @@ ScopedAStatus WatchdogServiceHelper::registerService(
         if (mService != nullptr && mService->asBinder() == binder) {
             return ScopedAStatus::ok();
         }
-        unregisterServiceLocked();
+        unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
         if (auto status = mWatchdogProcessService->registerCarWatchdogService(binder);
             !status.isOk()) {
             return status;
@@ -131,7 +131,7 @@ ScopedAStatus WatchdogServiceHelper::unregisterService(
                                             "Failed to unregister car watchdog service as it is "
                                             "not registered");
     }
-    unregisterServiceLocked();
+    unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
 
     if (DEBUG) {
         ALOGW("CarWatchdogService is unregistered");
@@ -155,7 +155,7 @@ void WatchdogServiceHelper::handleBinderDeath(void* cookie) {
 
 void WatchdogServiceHelper::terminate() {
     std::unique_lock writeLock(mRWMutex);
-    unregisterServiceLocked();
+    unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
     mWatchdogProcessService.clear();
 }
 
@@ -206,19 +206,23 @@ ScopedAStatus WatchdogServiceHelper::prepareProcessTermination(const SpAIBinder&
          * CarWatchdogService.
          */
         if (mService == service) {
-            unregisterServiceLocked();
+            // WatchdogProcessService unregisters the watchdog service before calling
+            // prepareProcessTermination. So skip unregistering from WatchdogProcessService.
+            unregisterServiceLocked(/*doUnregisterFromProcessService=*/false);
         }
     }
     return status;
 }
 
-void WatchdogServiceHelper::unregisterServiceLocked() {
+void WatchdogServiceHelper::unregisterServiceLocked(bool doUnregisterFromProcessService) {
     if (mService == nullptr) return;
     const auto binder = mService->asBinder();
     AIBinder* aiBinder = binder.get();
     mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mWatchdogServiceDeathRecipient.get(),
                                              static_cast<void*>(aiBinder));
-    mWatchdogProcessService->unregisterCarWatchdogService(binder);
+    if (doUnregisterFromProcessService) {
+        mWatchdogProcessService->unregisterCarWatchdogService(binder);
+    }
     mService.reset();
 }
 
