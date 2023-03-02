@@ -354,11 +354,11 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>When the vehicle is moving forward, PERF_VEHICLE_SPEED is positive and negative when the
-     * vehicle is moving backward. Also, this value is independent of gear value (CURRENT_GEAR or
-     * GEAR_SELECTION). For example, if GEAR_SELECTION is GEAR_NEUTRAL, PERF_VEHICLE_SPEED is
-     * positive when the vehicle is moving forward, negative when moving backward, and zero when
-     * not moving.
+     * <p>When the vehicle is moving forward, {@code PERF_VEHICLE_SPEED} is positive and negative
+     * when the vehicle is moving backward. Also, this value is independent of gear value ({@link
+     * #CURRENT_GEAR} or {@link #GEAR_SELECTION}). For example, if {@link #GEAR_SELECTION} is
+     * {@link VehicleGear#GEAR_NEUTRAL}, {@code PERF_VEHICLE_SPEED} is positive when the vehicle is
+     * moving forward, negative when moving backward, and zero when not moving.
      *
      * <p>Required Permissions:
      * <ul>
@@ -438,9 +438,8 @@ public final class VehiclePropertyIds {
     /**
      * Engine oil level.
      *
-     * <p>Returns the status of the oil level for the vehicle. See {@link
-     * android.car.hardware.property.VehicleOilLevel} for possible values for
-     * {@code ENGINE_OIL_LEVEL}.
+     * <p>Returns the status of the oil level for the vehicle. See {@code VehicleOilLevel} for
+     * possible values for {@code ENGINE_OIL_LEVEL}.
      *
      * <p>Property Config:
      * <ul>
@@ -761,8 +760,10 @@ public final class VehiclePropertyIds {
     /**
      * Tire pressure in kilopascals.
      *
-     * <p>min/max value indicates tire pressure sensor range.  Each tire will have a separate
-     * min/max value denoted by its areaConfig.areaId.
+     * <p>For each area ID listed in {@link android.car.hardware.CarPropertyConfig#getAreaIds}, the
+     * corresponding {@link android.car.hardware.property.AreaIdConfig#getMinValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the OEM recommended tire
+     * pressure range for that tire.
      *
      * <p>Required Permissions:
      * <ul>
@@ -776,12 +777,10 @@ public final class VehiclePropertyIds {
     /**
      * Critically low tire pressure.
      *
-     * <p>This property indicates the critically low pressure threshold for each tire. It
-     * indicates when it is time for tires to be replaced or fixed. The value
-     * must be less than or equal to minFloatValue in {@link VehiclePropertyIds#TIRE_PRESSURE}.
-     *
-     * <p>Minimum and maximum property values
-     * (that is, {@code minFloatValue}, {@code maxFloatValue}) are not applicable to this property.
+     * <p>For each area ID listed in {@link android.car.hardware.CarPropertyConfig#getAreaIds}, the
+     * corresponding {@code CRITICALLY_LOW_TIRE_PRESSURE} will be less than or equal the {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} of {@link #TIRE_PRESSURE} for the
+     * same area ID.
      *
      * <p>Required Permissions:
      * <ul>
@@ -928,10 +927,11 @@ public final class VehiclePropertyIds {
      * feature is currently enabled. False indicates that the car's automatic parking brake feature
      * is currently disabled.
      *
-     * <p>This property is often confused with PARKING_BRAKE_ON. The difference is that
-     * PARKING_BRAKE_ON describes whether the actual parking brake is currently on/off, whereas
-     * PARKING_BRAKE_AUTO_APPLY describes whether the feature of automatic parking brake is enabled/
-     * disabled, and does not describe the current state of the actual parking brake.
+     * <p>This property is often confused with {@link #PARKING_BRAKE_ON}. The difference is that
+     * {@link #PARKING_BRAKE_ON} describes whether the actual parking brake is currently on/off,
+     * whereas {@code PARKING_BRAKE_AUTO_APPLY} describes whether the feature of automatic parking
+     * brake is enabled/disabled, and does not describe the current state of the actual parking
+     * brake.
      *
      * <p>Property Config:
      * <ul>
@@ -955,8 +955,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the current regenerative braking level. Larger values mean more energy regenerated
      * from braking while smaller values mean less energy regenerated from braking. 0 means no
-     * regenerative braking. See {@link CarPropertyConfig#getMaxValue(int)} and {@link
-     * CarPropertyConfig#getMinValue(int)} for the range of possible values.
+     * regenerative braking. See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()}
+     * and {@link android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of
+     * possible values.
      *
      * <p>Property Config:
      * <ul>
@@ -982,10 +983,11 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for the current stopping mode of the vehicle.
      *
-     * <p>For the global area ID, the {@link AreaIdConfig#getSupportedEnumValues()} obtained from
-     * {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from
-     * {@link EvStoppingMode} are supported. EvStoppingMode may be extended to include more states
-     * in the future.
+     * <p>For the global area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
+     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
+     * {@code EvStoppingMode} are supported. {@code EvStoppingMode} may be extended to include more
+     * states in the future.
      *
      * <p>Property Config:
      * <ul>
@@ -1064,8 +1066,7 @@ public final class VehiclePropertyIds {
     /**
      * State of the vehicles turn signals
      *
-     * <p>See {@link android.car.hardware.property.VehicleTurnSignal} for possible values for
-     * {@code TURN_SIGNAL_STATE}.
+     * <p>See {@code VehicleTurnSignal} for possible values for {@code TURN_SIGNAL_STATE}.
      *
      * <p>Property Config:
      * <ul>
@@ -1549,12 +1550,12 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_ACTUAL_FAN_SPEED_RPM = 356517135;
     /**
-     * Represents global power state for HVAC. Setting this property to false
-     * MAY mark some properties that control individual HVAC features/subsystems
-     * to UNAVAILABLE state. Setting this property to true MAY mark some
-     * properties that control individual HVAC features/subsystems to AVAILABLE
-     * state (unless any/all of them are UNAVAILABLE on their own individual
-     * merits).
+     * Represents global power state for HVAC.
+     *
+     * <p>Setting this property to false MAY mark some properties that control individual HVAC
+     * features/subsystems to UNAVAILABLE state. Setting this property to true MAY mark some
+     * properties that control individual HVAC features/subsystems to AVAILABLE state (unless
+     * any/all of them are UNAVAILABLE on their own individual merits).
      *
      * <p>Property Config:
      * <ul>
@@ -1903,11 +1904,11 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int AP_POWER_STATE_REPORT = 289475073;
     /**
-     * Property to report bootup reason for the current power on. This is a
-     * static property that will not change for the whole duration until power
-     * off. For example, even if user presses power on button after automatic
-     * power on with door unlock, bootup reason must stay with
-     * VehicleApPowerBootupReason#USER_UNLOCK.
+     * Property to report bootup reason for the current power on.
+     *
+     * <p>This is a static property that will not change for the whole duration until power off. For
+     * example, even if user presses power on button after automatic power on with door unlock,
+     * bootup reason must stay with {@code VehicleApPowerBootupReason#USER_UNLOCK}.
      *
      * <p>Required Permissions:
      * <ul>
@@ -1921,14 +1922,12 @@ public final class VehiclePropertyIds {
     /**
      * Property to represent brightness of the display.
      *
-     * <p>Some cars have single control for the brightness of all displays and this
-     * property is to share change in that control. In cars which have displays
-     * whose brightness is controlled separately, they must use
-     * PER_DISPLAY_BRIGHTNESS.
+     * <p>Some cars have single control for the brightness of all displays and this property is to
+     * share change in that control. In cars which have displays whose brightness is controlled
+     * separately, they must use {@link #PER_DISPLAY_BRIGHTNESS}.
      *
-     * <p>Only one of DISPLAY_BRIGHTNESS and PER_DISPLAY_BRIGHTNESS should be
-     * implemented. If both are available, PER_DISPLAY_BRIGHTNESS is used by
-     * AAOS.
+     * <p>Only one of {@code DISPLAY_BRIGHTNESS} and {@link #PER_DISPLAY_BRIGHTNESS} should be
+     * implemented. If both are available, {@link #PER_DISPLAY_BRIGHTNESS} is used by AAOS.
      *
      * <p>Required Permissions:
      * <ul>
@@ -1942,14 +1941,12 @@ public final class VehiclePropertyIds {
     /**
      * Property to represent brightness of the displays which are controlled separately.
      *
-     * <p>Some cars have one or more displays whose brightness is controlled
-     * separately and this property is to inform the brightness of each
-     * passenger display. In cars where all displays' brightness is controlled
-     * together, they must use DISPLAY_BRIGHTNESS.
+     * <p>Some cars have one or more displays whose brightness is controlled separately and this
+     * property is to inform the brightness of each passenger display. In cars where all displays'
+     * brightness is controlled together, they must use {@link #DISPLAY_BRIGHTNESS}.
      *
-     * <p>Only one of DISPLAY_BRIGHTNESS and PER_DISPLAY_BRIGHTNESS should be
-     * implemented. If both are available, PER_DISPLAY_BRIGHTNESS is used by
-     * AAOS.
+     * <p>Only one of {@link #DISPLAY_BRIGHTNESS} and {@code PER_DISPLAY_BRIGHTNESS} should be
+     * implemented. If both are available, {@code PER_DISPLAY_BRIGHTNESS} is used by AAOS.
      *
      * <p>Required Permissions:
      * <ul>
@@ -2246,15 +2243,17 @@ public final class VehiclePropertyIds {
     /**
      * Property that represents the current position of the glove box door.
      *
-     * <p>{@link CarPropertyConfig#getMinValue(int)} indicates that the glove box is closed.
-     * {@link CarPropertyConfig#getMaxValue(int)} indicates that the glove box is fully open.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates that the glove
+     * box is closed.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates that the glove
+     * box is fully open.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the closed and fully open positions.
      *
      * <p>The supported area IDs match the seat(s) by which the glove box is intended to be used
-     * (e.g. if the front right dashboard has a glove box embedded in it, then the area ID should be
-     * ROW_1_RIGHT).
+     * (e.g.) if the front right dashboard has a glove box embedded in it, then the area ID should
+     * be {@link VehicleAreaSeat#SEAT_ROW_1_RIGHT}).
      *
      * <p>Property Config:
      * <ul>
@@ -2314,9 +2313,10 @@ public final class VehiclePropertyIds {
     /**
      * Seat memory select.
      *
-     * <p>This parameter selects the memory preset to use to select the seat
-     * position. The minValue is always 0, and the maxValue determines the
-     * number of seat positions available (i.e. numSeatPresets - 1).
+     * <p>This parameter selects the memory preset to use to select the seat position. The {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} is always 0, and the {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} determines the number of seat
+     * positions available (i.e. numSeatPresets - 1).
      *
      * <p>Required Permissions:
      * <ul>
@@ -2331,9 +2331,10 @@ public final class VehiclePropertyIds {
     /**
      * Seat memory set.
      *
-     * <p>This setting allows the user to save the current seat position settings
-     * into the selected preset slot.  The maxValue for each seat position
-     * must match the maxValue for SEAT_MEMORY_SELECT.
+     * <p>This setting allows the user to save the current seat position settings into the selected
+     * preset slot. The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} for each
+     * seat position must match the {@link android.car.hardware.property.AreaIdConfig#getMaxValue()}
+     * for {@link #SEAT_MEMORY_SELECT}.
      *
      * <p>Required Permissions:
      * <ul>
@@ -2782,11 +2783,13 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the height of the headrest for supported seats. This value is not in any
      * particular unit but in a specified range of steps. The {@link
-     * CarPropertyConfig#getMaxValue(int)} indicates the tallest height. See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)}
-     * for the range of possible positions.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the tallest height. See
+     * {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * positions.
      *
-     * <p>{@link CarPropertyConfig#getAreaIdConfigs()} specifies which seats are supported.
+     * <p>{@link android.car.hardware.CarPropertyConfig#getAreaIds()} specifies which seats are
+     * supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2916,18 +2919,20 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for state of the footwell lights.
      *
-     * <p>SEAT_FOOTWELL_LIGHTS_STATE reflects the current state of the lights at any point in time.
-     * This is different from the function of {@link SEAT_FOOTWELL_LIGHTS_SWITCH} which represents
-     * the position of the switch controlling the lights. Therefore, SEAT_FOOTWELL_LIGHTS_STATE may
-     * not match the value of SEAT_FOOTWELL_LIGHTS_SWITCH (e.g.
-     * SEAT_FOOTWELL_LIGHTS_SWITCH=AUTOMATIC and SEAT_FOOTWELL_LIGHTS_STATE=ON).
+     * <p>{@code SEAT_FOOTWELL_LIGHTS_STATE} reflects the current state of the lights at any point
+     * in time. This is different from the function of {@link #SEAT_FOOTWELL_LIGHTS_SWITCH} which
+     * represents the position of the switch controlling the lights. Therefore, {@code
+     * SEAT_FOOTWELL_LIGHTS_STATE} may not match the value of {@link #SEAT_FOOTWELL_LIGHTS_SWITCH}
+     * (e.g. {@link #SEAT_FOOTWELL_LIGHTS_SWITCH}={@code VehicleLightSwitch#STATE_AUTOMATIC} and
+     * {@code SEAT_FOOTWELL_LIGHTS_STATE}={@code VehicleLightState#STATE_ON}).
      *
-     * <p>This property will only be implemented if SEAT_FOOTWELL_LIGHTS_STATE's value may be
-     * different from that of {@link CABIN_LIGHTS_STATE}.
+     * <p>This property will only be implemented if {@code SEAT_FOOTWELL_LIGHTS_STATE}'s value may
+     * be different from that of {@link #CABIN_LIGHTS_STATE}.
      *
-     * <p>For each supported area ID, the {@link AreaIdConfig#getSupportedEnumValues()} obtained
-     * from {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from {@link
-     * android.car.hardware.property.VehicleLightState} are supported.
+     * <p>For each supported area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
+     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
+     * {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2951,18 +2956,20 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for switch of the footwell lights.
      *
-     * <p>SEAT_FOOTWELL_LIGHTS_SWITCH represents the position of the switch controlling the lights.
-     * This is different from the function of {@link SEAT_FOOTWELL_LIGHTS_STATE} which reflects the
-     * current state of the lights at any point in time. Therefore, SEAT_FOOTWELL_LIGHTS_SWITCH may
-     * not match the value of SEAT_FOOTWELL_LIGHTS_STATE (e.g. SEAT_FOOTWELL_LIGHTS_SWITCH=AUTOMATIC
-     * and SEAT_FOOTWELL_LIGHTS_STATE=ON).
+     * <p>{@code SEAT_FOOTWELL_LIGHTS_SWITCH} represents the position of the switch controlling the
+     * lights. This is different from the function of {@link #SEAT_FOOTWELL_LIGHTS_STATE} which
+     * reflects the current state of the lights at any point in time. Therefore, {@code
+     * SEAT_FOOTWELL_LIGHTS_SWITCH} may not match the value of {@link #SEAT_FOOTWELL_LIGHTS_STATE}
+     * (e.g. {@code SEAT_FOOTWELL_LIGHTS_SWITCH}={@code VehicleLightSwitch#STATE_AUTOMATIC} and
+     * {@link #SEAT_FOOTWELL_LIGHTS_STATE}={@code VehicleLightState#STATE_ON}).
      *
-     * <p>This property will only be implemented if SEAT_FOOTWELL_LIGHTS_SWITCH's value may be
-     * different from that of {@link CABIN_LIGHTS_SWITCH}.
+     * <p>This property will only be implemented if {@code SEAT_FOOTWELL_LIGHTS_SWITCH}'s value may
+     * be different from that of {@link #CABIN_LIGHTS_SWITCH}.
      *
-     * <p>For each supported area ID, the {@link AreaIdConfig#getSupportedEnumValues()} obtained
-     * from {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from
-     * {@link VehicleLightSwitch} are supported.
+     * <p>For each supported area ID, the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
+     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
+     * {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3048,8 +3055,9 @@ public final class VehiclePropertyIds {
      * <p>This value is not in any particular unit but in a specified range of steps. The max value
      * indicates the widest cushion side support setting (i.e. least support). The min value
      * indicates the thinnest cushion side support setting (i.e most support). See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
-     * range of possible positions. All integers between min and max value are supported.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * positions. All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3080,8 +3088,9 @@ public final class VehiclePropertyIds {
      * values mean growing wider (i.e. less support) and negative values mean growing thinner (i.e.
      * more support). Larger integers, either positive or negative, indicate a faster speed. Once
      * the support reaches the positional limit, the value resets to 0. See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
-     * range of possible speeds. All integers between min and max value are supported.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3110,8 +3119,9 @@ public final class VehiclePropertyIds {
      *
      * <p>This value is not in any particular unit but in a specified range of steps. The max value
      * indicates the highest position. The min value indicates the lowest position. See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
-     * range of possible positions. All integers between min and max value are supported.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * positions. All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3142,8 +3152,9 @@ public final class VehiclePropertyIds {
      * values mean the support is moving up and negative values mean the support is moving down.
      * Larger integers, either positive or negative, indicate a faster speed. Once the support
      * reaches the positional limit, the value resets to 0. See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
-     * range of possible speeds. All integers between min and max value are supported.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3170,9 +3181,10 @@ public final class VehiclePropertyIds {
     /**
      * Represents property that indicates the current walk-in position of the seat.
      *
-     * <p>{@link CarPropertyConfig#getMinValue(int)} indicates the normal seat position.
-     * {@link CarPropertyConfig#getMaxValue(int)} indicates the seat is in the full walk-in
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the normal seat
      * position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat is in
+     * the full walk-in position.
      *
      * <p>All integers in between the min and max values are supported and indicate a transition
      * state between the normal and walk-in positions. The area IDs match the seats that actually
@@ -3402,8 +3414,10 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns how close the steering wheel is to the driver. This value is not in any
      * particular unit but in a specified range of steps. The max value indicates the wheel
-     * position closest to the driver. See {@link CarPropertyConfig#getMaxValue(int)} and
-     * {@link CarPropertyConfig#getMinValue(int)} for the range of possible positions.
+     * position closest to the driver. See {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3435,8 +3449,8 @@ public final class VehiclePropertyIds {
      * range of steps. Positive values mean moving towards the driver and negative values mean
      * moving away from the driver. Larger integers, either positive or negative, indicate a
      * faster speed. Once the steering wheel reaches the positional limit, the value resets to 0.
-     * See {@link CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)}
-     * for the range of possible values.
+     * See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible values.
      *
      * <p>Property Config:
      * <ul>
@@ -3464,9 +3478,10 @@ public final class VehiclePropertyIds {
      * Steering wheel height position.
      *
      * <p>Returns the steering wheel height. This value is not in any particular unit but in a
-     * specified range of steps. The max value indicates the heightest position that can be set. See
-     * {@link CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for
-     * the range of possible positions.
+     * specified range of steps. The max value indicates the highest position that can be set. See
+     * {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3498,8 +3513,8 @@ public final class VehiclePropertyIds {
      * Positive values mean moving upwards and negative values mean moving downwards. Larger
      * integers, either positive or negative, indicate a faster speed. Once the steering wheel
      * reaches the positional limit, the value resets to 0. See {@link
-     * CarPropertyConfig#getMaxValue(int)} and {@link CarPropertyConfig#getMinValue(int)} for the
-     * range of possible values.
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible values.
      *
      * <p>Property Config:
      * <ul>
@@ -3650,7 +3665,8 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permission:
      * <ul>
-     *  <li>Dangerous permission {@link ACCESS_FINE_LOCATION} to read property.
+     *  <li>Dangerous permission {@link android.Manifest.permission#ACCESS_FINE_LOCATION} to read
+     *  property.
      *  <li>Property is not writable.
      * </ul>
      */
@@ -3706,7 +3722,7 @@ public final class VehiclePropertyIds {
      * OBD2 Freeze Frame Clear.
      *
      * <p>This property allows deletion of any of the freeze frames stored in
-     * vehicle memory, as described by OBD2_FREEZE_FRAME_INFO.
+     * vehicle memory, as described by {@link #OBD2_FREEZE_FRAME_INFO}.
      *
      * <p>Required Permission:
      * <ul>
@@ -3749,23 +3765,23 @@ public final class VehiclePropertyIds {
      *
      * <p>If the car has both front and rear fog lights:
      * <ul>
-     *  <li>If front and rear fog lights can only be controlled together: FOG_LIGHTS_STATE provides
-     *  the state of fog lights.
-     *  <li>If front and rear fog lights can only be controlled independently:
-     *  FRONT_FOG_LIGHTS_STATE and REAR_FOG_LIGHTS_STATE provide the state of front, rear fog lights
-     *  respectively.
+     *  <li>If front and rear fog lights can only be controlled together: {@code FOG_LIGHTS_STATE}
+     *  provides the state of fog lights.
+     *  <li>If front and rear fog lights can only be controlled independently: {@link
+     *  #FRONT_FOG_LIGHTS_STATE} and {@link #REAR_FOG_LIGHTS_STATE} provide the state of front, rear
+     *  fog lights respectively.
      * </ul>
      *
      * <p>If the car has only front fog lights:
      * <ul>
-     *  <li>Only one of FOG_LIGHTS_STATE or FRONT_FOG_LIGHTS_STATE will be implemented in the car.
-     *  The implemented property provides the state of the front fog lights.
+     *  <li>Only one of {@code FOG_LIGHTS_STATE} or {@link #FRONT_FOG_LIGHTS_STATE} will be
+     *  implemented in the car. The implemented property provides the state of the front fog lights.
      * </ul>
      *
      * <p>If the car has only rear fog lights:
      * <ul>
-     *  <li>Only one of FOG_LIGHTS_STATE or REAR_FOG_LIGHTS_STATE will be implemented in the car.
-     *  The implemented property provides the state of the rear fog lights.
+     *  <li>Only one of {@code FOG_LIGHTS_STATE} or {@link #REAR_FOG_LIGHTS_STATE} will be
+     *  implemented in the car. The implemented property provides the state of the rear fog lights.
      * </ul>
      *
      * <p>Required Permission:
@@ -3838,23 +3854,25 @@ public final class VehiclePropertyIds {
      *
      * <p>If the car has both front and rear fog lights:
      * <ul>
-     *  <li>If front and rear fog lights can only be controlled together: FOG_LIGHTS_SWITCH should
-     *  be used to change the fog lights state.
-     *  <li>If front and rear fog lights can only be controlled independently:
-     *  FRONT_FOG_LIGHTS_SWITCH and REAR_FOG_LIGHTS_SWITCH should be used to change the front and
-     *  rear fog lights state respectively.
+     *  <li>If front and rear fog lights can only be controlled together: {@code FOG_LIGHTS_SWITCH}
+     *  should be used to change the fog lights state.
+     *  <li>If front and rear fog lights can only be controlled independently: {@link
+     *  #FRONT_FOG_LIGHTS_SWITCH} and {@link #REAR_FOG_LIGHTS_SWITCH} should be used to change the
+     *  front and rear fog lights state respectively.
      * </ul>
      *
      * <p>If the car has only front fog lights:
      * <ul>
-     *  <li>Only one of FOG_LIGHTS_SWITCH or FRONT_FOG_LIGHTS_SWITCH will be implemented in the car.
-     *  The implemented property should be used to change the front fog lights state.
+     *  <li>Only one of {@code FOG_LIGHTS_SWITCH} or {@link #FRONT_FOG_LIGHTS_SWITCH} will be
+     *  implemented in the car. The implemented property should be used to change the front fog
+     *  lights state.
      * </ul>
      *
      * <p>If the car has only rear fog lights:
      * <ul>
-     *  <li>Only one of FOG_LIGHTS_SWITCH or REAR_FOG_LIGHTS_SWITCH will be implemented in the car.
-     *  The implemented property should be used to change the rear fog lights state.
+     *  <li>Only one of {@code FOG_LIGHTS_SWITCH} or {@link #REAR_FOG_LIGHTS_SWITCH} will be
+     *  implemented in the car. The implemented property should be used to change the rear fog
+     *  lights state.
      * </ul>
      *
      * <p>Property Config:
@@ -3971,15 +3989,17 @@ public final class VehiclePropertyIds {
      * <p>Returns the current state of the steering wheel lights. This is different from {@link
      * #STEERING_WHEEL_LIGHTS_SWITCH} which represents the position of the switch controlling
      * the lights. Therefore, {@code STEERING_WHEEL_LIGHTS_STATE} may not match the value of
-     * {@link #STEERING_WHEEL_LIGHTS_SWITCH} (e.g. STEERING_WHEEL_LIGHTS_SWITCH=AUTOMATIC
-     * and STEERING_WHEEL_LIGHTS_STATE=ON).
+     * {@link #STEERING_WHEEL_LIGHTS_SWITCH} (e.g. {@link #STEERING_WHEEL_LIGHTS_SWITCH}={@code
+     * VehicleLightSwitch#STATE_AUTOMATIC} and {@code STEERING_WHEEL_LIGHTS_STATE}={@code
+     * VehicleLightState#STATE_ON}).
      *
      * <p>This property will only be implemented if {@code STEERING_WHEEL_LIGHTS_STATE}'s value may
      * be different from that of {@link #CABIN_LIGHTS_STATE}.
      *
-     * <p>For the global area ID (0), the {@link AreaIdConfig#getSupportedEnumValues()} obtained
-     * from {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from {@link
-     * android.car.hardware.property.VehicleLightState} are supported.
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
+     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
+     * {@code VehicleLightState} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4007,15 +4027,17 @@ public final class VehiclePropertyIds {
      * <p>Returns the position of the switch controlling the steering wheel lights. This is
      * different from {@link #STEERING_WHEEL_LIGHTS_STATE} which represents the current state of the
      * steering wheel lights. Therefore, {@code STEERING_WHEEL_LIGHTS_SWITCH} may not match the
-     * value of {@link #STEERING_WHEEL_LIGHTS_STATE} (e.g. STEERING_WHEEL_LIGHTS_SWITCH=AUTOMATIC
-     * and STEERING_WHEEL_LIGHTS_STATE=ON).
+     * value of {@link #STEERING_WHEEL_LIGHTS_STATE} (e.g. {@code STEERING_WHEEL_LIGHTS_SWITCH}=
+     * {@code VehicleLightSwitch#STATE_AUTOMATIC} and {@link #STEERING_WHEEL_LIGHTS_STATE}={@code
+     * VehicleLightState#STATE_ON}).
      *
      * <p>This property will only be implemented if {@code STEERING_WHEEL_LIGHTS_SWITCH}'s value may
      * be different from that of {@link #CABIN_LIGHTS_SWITCH}.
      *
-     * <p>For the global area ID (0), the {@link AreaIdConfig#getSupportedEnumValues()} obtained
-     * from {@link CarPropertyConfig#getAreaId(int)} specifies which enum values from {@link
-     * VehicleLightSwitch} are supported.
+     * <p>For the global area ID (0), the {@link
+     * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} obtained from {@link
+     * android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which enum values from
+     * {@code VehicleLightSwitch} are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -4233,9 +4255,9 @@ public final class VehiclePropertyIds {
      * Electronic Toll Collection card type.
      *
      * <p>This property indicates the type of ETC(Electronic Toll Collection) card in the vehicle.
-     * If the head unit is aware of an ETC card attached to the vehicle, this property should
-     * return the type of card attached; otherwise, this property should be UNAVAILABLE. The
-     * property value should be one of {@link VehicleElectronicTollCollectionCardType}.
+     * If the head unit is aware of an ETC card attached to the vehicle, this property should return
+     * the type of card attached; otherwise, this property should be UNAVAILABLE. The property value
+     * should be one of {@link VehicleElectronicTollCollectionCardType}.
      *
      * <p>Property Config:
      * <ul>
@@ -4258,10 +4280,10 @@ public final class VehiclePropertyIds {
     /**
      * Electronic Toll Collection card status.
      *
-     * <p>This property indicates the status of ETC(Electronic Toll Collection) card in the
-     * vehicle. If the head unit is aware of an ETC card attached to the vehicle, ETC_CARD_STATUS
-     * gives that status of the card; otherwise, this property should be UNAVAILABLE. The property
-     * value should be one of {@link VehicleElectronicTollCollectionCardStatus}.
+     * <p>This property indicates the status of ETC(Electronic Toll Collection) card in the vehicle.
+     * If the head unit is aware of an ETC card attached to the vehicle, ETC_CARD_STATUS gives that
+     * status of the card; otherwise, this property should be UNAVAILABLE. The property value should
+     * be one of {@link VehicleElectronicTollCollectionCardStatus}.
      *
      * <p>Property Config:
      * <ul>
@@ -4364,8 +4386,8 @@ public final class VehiclePropertyIds {
     /**
      * EV charge current draw limit.
      *
-     * <p>Indicates the maximum current draw threshold for charging set by the user. configArray[0]
-     * contains the max current draw allowed by the vehicle in Amperes.
+     * <p>Indicates the maximum current draw threshold for charging set by the user. {@code
+     * configArray[0]} contains the max current draw allowed by the vehicle in Amperes.
      *
      * <p>Property Config:
      * <ul>
@@ -4544,8 +4566,8 @@ public final class VehiclePropertyIds {
      /**
      * Indicates if there is a trailer present or not.
      *
-     * <p>Returns the trailer state of the car. See {@link
-     * android.car.hardware.property.TrailerState} for possible values for {@code TRAILER_PRESENT}.
+     * <p>Returns the trailer state of the car. See {@code TrailerState} for possible values for
+     * {@code TRAILER_PRESENT}.
      *
      * <p>Property Config:
      * <ul>
@@ -5119,7 +5141,8 @@ public final class VehiclePropertyIds {
      * <p>Returns the current state of ELKA. Generally, this property should return a valid state
      * defined in the {@link android.car.hardware.property.EmergencyLaneKeepAssistState} or {@link
      * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
-     * to some temporary state, that information should be conveyed through ErrorState.
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
      *
      * <p>For the global area ID (0), the {@link
      * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
@@ -5191,7 +5214,7 @@ public final class VehiclePropertyIds {
     /**
      * Current type of Cruise Control (CC).
      *
-     * <p>When {@link CRUISE_CONTROL_ENABLED} is true, this property returns the type of CC that is
+     * <p>When {@link #CRUISE_CONTROL_ENABLED} is true, this property returns the type of CC that is
      * currently enabled (for example, standard CC, adaptive CC, etc.). Generally, this property
      * should return a valid state defined in the {@link
      * android.car.hardware.property.CruiseControlType} or {@link
@@ -5206,7 +5229,8 @@ public final class VehiclePropertyIds {
      * android.car.hardware.property.ErrorState} are supported.
      *
      * Trying to write {@link android.car.hardware.property.CruiseControlType#OTHER} or an
-     * ErrorState to this property will throw an {@code IllegalArgumentException}.
+     * {@link android.car.hardware.property.ErrorState} to this property will throw an {@code
+     * IllegalArgumentException}.
      *
      * <p>Property Config:
      * <ul>
@@ -5313,13 +5337,13 @@ public final class VehiclePropertyIds {
     /**
      * Current target speed for Cruise Control (CC) in meters per second.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue(int)} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue(int)} return the min and max target
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} return the min and max target
      * speed values respectively. These values will be non-negative.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue(int)} represents the lower
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} represents the lower
      * bound of the target speed.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue(int)} represents the upper
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} represents the upper
      * bound of the target speed.
      *
      * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
@@ -5479,11 +5503,12 @@ public final class VehiclePropertyIds {
      * should return a valid state defined in the {@link
      * android.car.hardware.property.HandsOnDetectionDriverState} or {@link
      * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
-     * to some temporary state, that information should be conveyed through ErrorState.
+     * to some temporary state, that information should be conveyed through {@link
+     * android.car.hardware.property.ErrorState}.
      *
      * <p>If the vehicle is sending a warning to the user because the driver's hands have been off
      * the steering wheel for too long, the warning should be surfaced through
-     * {@link HANDS_ON_DETECTION_WARNING}.
+     * {@link #HANDS_ON_DETECTION_WARNING}.
      *
      * <p>For the global area ID (0), the {@link
      * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
@@ -5522,7 +5547,8 @@ public final class VehiclePropertyIds {
      * <p>Generally, this property should return a valid state defined in the {@link
      * android.car.hardware.property.HandsOnDetectionWarning} or {@link
      * android.car.hardware.property.ErrorState}. For example, if the feature is not available due
-     * to some temporary state, that information should be conveyed through an ErrorState.
+     * to some temporary state, that information should be conveyed through an {@link
+     * android.car.hardware.property.ErrorState}.
      *
      * <p>For the global area ID (0), the {@link
      * android.car.hardware.property.AreaIdConfig#getSupportedEnumValues()} array obtained from
