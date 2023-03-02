@@ -71,6 +71,13 @@ import java.util.concurrent.Executor;
  *     =    * receiver1A *    * receiver1B *    =        =    * receiver2A *   * receiver2B *    =
  *     =    **************    **************    =        =    **************   **************    =
  *     ==========================================        =========================================
+ *
+ *                 ****** Payload *****
+ *                 * ID: "receiver2A" *
+ *                 * value: "123"     *
+ *                 ********************                        Payload     |---> receiver2A
+ *     sender1A -------------------------->ReceiverService2--------------->|
+ *                                                                         |.... receiver2B
  * </pre>
  * <ul>
  *   <li> Client1 and client2 must have the same package name. Client1 runs in occupantZone1
@@ -105,7 +112,9 @@ import java.util.concurrent.Executor;
  *     </ul>
  *   <li> Send Payload:
  *     <ul>
- *       <li> Sender1A sends a Payload to occupantZone2 by calling {@link #sendPayload}.
+ *       <li> Sender1A sends a Payload to occupantZone2 by calling {@link #sendPayload}. To indicate
+ *            that the Payload is sent to receiver2A, Sender1A puts receiver2A's ID ("receiver2A")
+ *            into the Payload.
  *       <li> ReceiverService2 is notified for the Payload via {@link
  *            AbstractReceiverService#onPayloadReceived}.
  *            In this method, ReceiverService2 can forward the Payload to client2's receiver
@@ -114,10 +123,11 @@ import java.util.concurrent.Executor;
  *     </ul>
  *   <li> Register receiver:
  *     <ul>
- *       <li> Receiver2A calls {@link #registerReceiver}. Then ReceiverService2 is notified
- *            via {@link AbstractReceiverService#onReceiverRegistered}. In that method,
- *            ReceiverService2 forwards the cached Payload to Receiver2A via {@link
- *            AbstractReceiverService#forwardPayload}.
+ *       <li> Receiver2A calls {@link #registerReceiver} with ID "receiver2A". Then
+ *            ReceiverService2 is notified via {@link AbstractReceiverService#onReceiverRegistered}.
+ *            In that method, ReceiverService2 parses the Payload and finds that the Payload should
+ *            be sent to the endpoint with ID "receiver2A", then invokes {@link
+ *            AbstractReceiverService#forwardPayload} to forward the cached Payload to receiver2A.
  *            <p>
  *            Note: this step can be done before "Establish connection". In this case,
  *            ReceiverService2 will be started and bound by car service early.
@@ -423,10 +433,10 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * The caller endpoint must call {@link #unregisterReceiver} before it is destroyed.
      *
      * @param receiverEndpointId the ID of this receiver endpoint. Since there might be multiple
-     *                           receiver endpoints in the client app, the ID can be used by
-     *                           {@link AbstractReceiverService#onPayloadReceived} to decide which
-     *                           endpoint(s) to dispatch the Payload to. The ID must be unique
-     *                           among the client app.
+     *                           receiver endpoints in the client app, the ID can be used by the
+     *                           client app ({@link AbstractReceiverService}) to decide which
+     *                           endpoint(s) to dispatch the Payload to. The client app can use any
+     *                           String as the ID, as long as it is unique among the client app.
      * @param executor           the Executor to run the callback
      * @param callback           the callback notified when this endpoint receives a Payload
      * @throws IllegalStateException if the {@code receiverEndpointId} had a {@link PayloadCallback}
