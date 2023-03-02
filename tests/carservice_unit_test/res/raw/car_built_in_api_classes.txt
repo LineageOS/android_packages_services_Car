@@ -14,6 +14,8 @@ android.car.builtin.content.ContextHelper
 android.car.builtin.content.pm.PackageManagerHelper
 android.car.builtin.input.InputManagerHelper
 android.car.builtin.job.JobSchedulerHelper
+android.car.builtin.keyguard.KeyguardServiceDelegate
+android.car.builtin.keyguard.KeyguardServiceDelegate$KeyguardLockedStateCallback
 android.car.builtin.media.AudioManagerHelper
 android.car.builtin.media.AudioManagerHelper$AudioGainInfo
 android.car.builtin.media.AudioManagerHelper$AudioPatchInfo
