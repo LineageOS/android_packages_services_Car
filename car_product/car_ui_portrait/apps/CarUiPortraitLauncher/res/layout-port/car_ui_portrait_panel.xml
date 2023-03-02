@@ -25,7 +25,15 @@
         <FrameLayout
             android:id="@+id/task_view_container"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:layout_below="@id/grip_bar"
             android:background="@color/car_background"/>
+
+        <FrameLayout
+            android:id="@+id/task_view_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/grip_bar"
+            android:background="@color/car_background"
+            android:visibility="gone"/>
 </com.android.car.portraitlauncher.panel.TaskViewPanel>

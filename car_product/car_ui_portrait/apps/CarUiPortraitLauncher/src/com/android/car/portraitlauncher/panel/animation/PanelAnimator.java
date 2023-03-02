@@ -16,68 +16,48 @@
 
 package com.android.car.portraitlauncher.panel.animation;
 
+import android.graphics.Path;
 import android.graphics.Rect;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 
-/** A helper class to generate various animations for the panel. */
-public class PanelAnimator {
-    private static final Interpolator OPEN_PANEL_INTERPOLATOR =
-            new PathInterpolator(0.05f, 0.7f, 0.1f, 1);
-    private static final long OPEN_PANEL_DURATION = 417;
+/** An abstract class for all the animators that can be used on the {@code TaskViewPanel}. */
+public abstract class PanelAnimator {
 
-    private static final Interpolator CLOSE_PANEL_INTERPOLATOR =
-            new PathInterpolator(0.6f, 0, 1, 1);
-    private static final long CLOSE_PANEL_DURATION = 400;
+    /** The panel on which the animation will be applied. */
+    protected ViewGroup mPanel;
 
-    private static final Interpolator FULL_SCREEN_PANEL_INTERPOLATOR =
-            new PathInterpolator(0.05f, 0.7f, 0.1f, 1);
-    private static final long FULL_SCREEN_PANEL_MOVE_DURATION = 400;
-
-    private ViewGroup mPanel;
-
-    public PanelAnimator(ViewGroup panel) {
+    protected PanelAnimator(ViewGroup panel) {
         mPanel = panel;
     }
 
     /**
-     * Creates an animation to the open state.
+     * Performs the animation on the panel.
      *
-     * @param toBounds The final bounds of the panel.
-     * @param onAnimationEnd A {@code Runnable} to be called at the end of the animation.
+     * The {@code endAction} should be called at the end of the animation.
      */
-    public Animation createOpenPanelAnimation(Rect toBounds, Runnable onAnimationEnd) {
-        Animation anim = new BoundsAnimation(mPanel, toBounds, onAnimationEnd);
-        anim.setInterpolator(OPEN_PANEL_INTERPOLATOR);
-        anim.setDuration(OPEN_PANEL_DURATION);
-        return anim;
+    public abstract void animate(Runnable endAction);
+
+    /** Updates the bounds of the panel to the given {@code bounds}. */
+    protected void updateBounds(Rect bounds) {
+        final ViewGroup.MarginLayoutParams layoutParams =
+                (ViewGroup.MarginLayoutParams) mPanel.getLayoutParams();
+        layoutParams.topMargin = bounds.top;
+        layoutParams.rightMargin = bounds.right;
+        layoutParams.width = bounds.width();
+        layoutParams.height = bounds.height();
+        mPanel.setLayoutParams(layoutParams);
     }
 
-    /**
-     * Creates an animation to the close state.
-     *
-     * @param toBounds The final bounds of the panel.
-     * @param onAnimationEnd A {@code Runnable} to be called at the end of the animation.
-     */
-    public Animation createClosePanelAnimation(Rect toBounds, Runnable onAnimationEnd) {
-        Animation anim = new BoundsAnimation(mPanel, toBounds, onAnimationEnd);
-        anim.setInterpolator(CLOSE_PANEL_INTERPOLATOR);
-        anim.setDuration(CLOSE_PANEL_DURATION);
-        return anim;
-    }
-
-    /**
-     * Creates an animation to the full screen state.
-     *
-     * @param toBounds The final bounds of the panel.
-     * @param onAnimationEnd A {@code Runnable} to be called at the end of the animation.
-     */
-    public Animation createFullScreenPanelAnimation(Rect toBounds, Runnable onAnimationEnd) {
-        Animation anim = new BoundsAnimation(mPanel, toBounds, onAnimationEnd);
-        anim.setInterpolator(FULL_SCREEN_PANEL_INTERPOLATOR);
-        anim.setDuration(FULL_SCREEN_PANEL_MOVE_DURATION);
-        return anim;
+    // Create the default emphasized interpolator
+    protected static PathInterpolator createEmphasizedInterpolator() {
+        Path path = new Path();
+        // Doing the same as fast_out_extra_slow_in
+        path.moveTo(/* x= */ 0f, /* y= */ 0f);
+        path.cubicTo(/* x1= */ 0.05f, /* y1= */ 0f, /* x2= */ 0.133333f,
+                /* y2= */ 0.06f, /* x3= */ 0.166666f, /* y3= */0.4f);
+        path.cubicTo(/* x1= */ 0.208333f, /* y1= */ 0.82f, /* x2= */ 0.25f,
+                /* y2= */ 1f, /* x3= */ 1f, /* y3= */ 1f);
+        return new PathInterpolator(path);
     }
 }
