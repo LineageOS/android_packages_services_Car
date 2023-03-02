@@ -2310,12 +2310,13 @@ public final class VehiclePropertyIds {
     /**
      * Windshield wipers period (milliseconds).
      *
-     * <p>Returns the instantaneous time period for 1 full cycle of the windshield wipers in
-     * milliseconds. A full cycle is defined as a wiper moving from and returning to its rest
-     * position. The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} specifies the
-     * longest wiper period. The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is
-     * always 0. When an intermittent wiper setting is selected, this property value will be set to
-     * 0 during the "pause" phase of the intermittent wiping.
+     * <p>Returns the instantaneous time period for 1 full cycle of the windshield wipers in {@link
+     * android.car.VehicleUnit#MILLI_SECS}. A full cycle is defined as a wiper moving from and
+     * returning to its rest position. The {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} specifies the longest wiper period.
+     * The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is always 0. When an
+     * intermittent wiper setting is selected, this property value will be set to 0 during the
+     * "pause" phase of the intermittent wiping.
      *
      * <p>Property Config:
      * <ul>
