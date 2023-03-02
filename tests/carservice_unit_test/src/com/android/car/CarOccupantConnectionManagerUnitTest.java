@@ -29,6 +29,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,8 +38,12 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.occupantconnection.CarOccupantConnectionManager;
 import android.car.occupantconnection.CarOccupantConnectionManager.ConnectionRequestCallback;
+import android.car.occupantconnection.CarOccupantConnectionManager.PayloadCallback;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
+import android.car.occupantconnection.IPayloadCallback;
+import android.car.occupantconnection.Payload;
+import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -53,8 +58,14 @@ import java.util.concurrent.Executor;
 @RunWith(MockitoJUnitRunner.class)
 public final class CarOccupantConnectionManagerUnitTest {
 
+    private static final String PACKAGE_NAME = "my_package_name";
+    private static final String RECEIVER_ENDPOINT_ID = "test_receiver_endpointId";
+    private static final int TIMEOUT_MS = 1000;
+
     @Mock
     private Car mCar;
+    @Mock
+    private Context mContext;
     @Mock
     private IBinder mBinder;
     @Mock
@@ -63,6 +74,8 @@ public final class CarOccupantConnectionManagerUnitTest {
     private Executor mCallbackExecutor;
     @Mock
     private ConnectionRequestCallback mConnectionRequestCallback;
+    @Mock
+    private PayloadCallback mPayloadCallback;
 
     private final OccupantZoneInfo mReceiverZone =
             new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
@@ -72,6 +85,8 @@ public final class CarOccupantConnectionManagerUnitTest {
     @Before
     public void setUp() {
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mService);
+        when(mCar.getContext()).thenReturn(mContext);
+        when(mContext.getPackageName()).thenReturn(PACKAGE_NAME);
         mOccupantConnectionManager = new CarOccupantConnectionManager(mCar, mBinder);
     }
 
@@ -134,5 +149,73 @@ public final class CarOccupantConnectionManagerUnitTest {
             verify(mConnectionRequestCallback, timeout(1000)).onConnected(mReceiverZone);
         }, mConnectionRequestCallback);
         binderCallback[0].onConnected(/* requestId= */ 0, mReceiverZone);
+    }
+
+    @Test
+    public void testRegisterReceiverWithNullParameters() {
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.registerReceiver(
+                        /* receiverEndpointId= */ null, mCallbackExecutor, mPayloadCallback));
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.registerReceiver(
+                        RECEIVER_ENDPOINT_ID, /* executor= */ null, mPayloadCallback));
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.registerReceiver(
+                        RECEIVER_ENDPOINT_ID, mCallbackExecutor, /* callback= */ null));
+    }
+
+    @Test
+    public void testRegisterReceiverWithDuplicateReceiverId() throws RemoteException {
+        // The first registerReceiver() call should run normally, while the second
+        // registerReceiver() call should throw an exception because the same ID has been registered.
+        doNothing().doThrow(IllegalStateException.class)
+                .when(mService).registerReceiver(eq(PACKAGE_NAME), eq(RECEIVER_ENDPOINT_ID), any());
+        mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, mCallbackExecutor,
+                mPayloadCallback);
+
+        assertThrows(IllegalStateException.class,
+                () -> mOccupantConnectionManager.registerReceiver(
+                        RECEIVER_ENDPOINT_ID, mCallbackExecutor, mPayloadCallback));
+    }
+
+    @Test
+    public void testRegisterReceiverWithRemoteException() throws RemoteException {
+        // The first call fails due to a RemoteException.
+        doThrow(new RemoteException())
+                .when(mService).registerReceiver(anyString(), anyString(), any());
+        mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, mCallbackExecutor,
+                mPayloadCallback);
+
+        // The second call succeeds. It should not trigger IllegalStateException because
+        // mPayloadCallback was not added previously.
+        doNothing().when(mService).registerReceiver(anyString(), anyString(), any());
+        mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, mCallbackExecutor,
+                mPayloadCallback);
+    }
+
+    @Test
+    public void testRegisterReceiverCallbackInvoked() throws RemoteException {
+        OccupantZoneInfo senderZone = mock(OccupantZoneInfo.class);
+        Payload payload = mock(Payload.class);
+        IPayloadCallback[] binderCallback = new IPayloadCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            String packageName = (String) args[0];
+            assertThat(packageName).isEqualTo(PACKAGE_NAME);
+            String receiverEndpointId = (String) args[1];
+            assertThat(receiverEndpointId).isEqualTo(RECEIVER_ENDPOINT_ID);
+            binderCallback[0] = (IPayloadCallback) args[2];
+            // Don't call binderCallback[0].onPayloadReceived() here, because mPayloadCallback
+            // is added AFTER this method returns. So if we call binderCallback.onPayloadReceived()
+            // here, mPayloadCallback will not be invoked.
+            return null;
+        }).when(mService).registerReceiver(anyString(), anyString(), any());
+
+        mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, command -> {
+            command.run();
+            // Verify that mPayloadCallback is invoked on the Executor.
+            verify(mPayloadCallback, timeout(TIMEOUT_MS)).onPayloadReceived(senderZone, payload);
+        }, mPayloadCallback);
+        binderCallback[0].onPayloadReceived(senderZone, RECEIVER_ENDPOINT_ID, payload);
     }
 }

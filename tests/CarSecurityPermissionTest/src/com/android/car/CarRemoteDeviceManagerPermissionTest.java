@@ -76,6 +76,11 @@ public final class CarRemoteDeviceManagerPermissionTest {
     }
 
     @Test
+    public void testUnregisterOccupantZoneStateCallback() {
+        // TODO(b/257118072): add this test.
+    }
+
+    @Test
     public void testGetEndpointPackageInfo() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarRemoteDeviceManager.getEndpointPackageInfo(mReceiverZone));
