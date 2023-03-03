@@ -47,6 +47,9 @@ public class AnnotationHelper {
                     method.getReturnType().toString() + method.getName() + Arrays.toString(
                             method.getParameterTypes()));
         }
+
+        // getMethods excludes protected functions.
+        sJavaLangObjectNames.add("voidfinalize[]");
     }
 
     public static void checkForAnnotation(String[] classes, HashSet<String> addedInOrBeforeApis,
