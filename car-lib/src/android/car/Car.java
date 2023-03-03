@@ -1422,8 +1422,7 @@ public final class Car {
      *
      * @hide
      */
-    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
@@ -1435,8 +1434,7 @@ public final class Car {
      * getting notified about system ui changes.
      * @hide
      */
-    // STOPSHIP(b/266718395): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
