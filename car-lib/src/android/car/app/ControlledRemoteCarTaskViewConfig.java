@@ -76,8 +76,6 @@ public final class ControlledRemoteCarTaskViewConfig {
     }
 
     @Override
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public String toString() {
         return TAG + " {"
                 + "activityIntent=" + mActivityIntent
