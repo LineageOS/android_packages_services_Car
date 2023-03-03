@@ -435,7 +435,8 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled((Car.CAR_REMOTE_ACCESS_SERVICE))) {
             mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
-                    () -> new CarRemoteAccessService(serviceContext, systemInterface), allServices);
+                    () -> new CarRemoteAccessService(
+                            serviceContext, systemInterface, mHal.getPowerHal()), allServices);
         } else {
             mCarRemoteAccessService = null;
         }
