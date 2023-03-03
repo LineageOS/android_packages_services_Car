@@ -60,7 +60,7 @@ public final class VehicleHalStatusCode {
      * For features that are not available because the underlying feature is disabled.
      *
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
-     * error will be mapped to {@link VehicleHalStatusCode.NOT_AVAILABLE}.
+     * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -69,7 +69,7 @@ public final class VehicleHalStatusCode {
      * For features that are not available because the vehicle speed is too low.
      *
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
-     * error will be mapped to {@link VehicleHalStatusCode.NOT_AVAILABLE}.
+     * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -78,7 +78,7 @@ public final class VehicleHalStatusCode {
      * For features that are not available because the vehicle speed is too high.
      *
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
-     * error will be mapped to {@link VehicleHalStatusCode.NOT_AVAILABLE}.
+     * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -88,7 +88,7 @@ public final class VehicleHalStatusCode {
      * might be bird poop blocking the camera or a bumper cover blocking an ultrasonic sensor.
      *
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
-     * error will be mapped to {@link VehicleHalStatusCode.NOT_AVAILABLE}.
+     * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -99,7 +99,7 @@ public final class VehicleHalStatusCode {
      * operation such as closing a trunk door, etc.
      *
      * For platform versions before {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, this
-     * error will be mapped to {@link VehicleHalStatusCode.NOT_AVAILABLE}.
+     * error will be mapped to {@link #STATUS_NOT_AVAILABLE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
