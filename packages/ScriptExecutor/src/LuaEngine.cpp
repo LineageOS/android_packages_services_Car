@@ -147,6 +147,13 @@ int LuaEngine::run() {
     int err_handler_index = -n_args - 2;
     lua_insert(mLuaState, err_handler_index);
 
+    // After lua_pcall, the function and all arguments are removed from the stack i.e. (n_args+1)
+    // If there is no error then lua_pcall pushes "n_results" elements to the stack.
+    // But in case of error, lua_pcall pushes exactly one element (error message).
+    // So, "error message" will be at top of the stack i.e. "-1".
+    // Therefore, we need to pop error_handler explicitly.
+    // error_handler will be at "-2" index from top of stack after lua_pcall,
+    // but once we pop error_message from top of stack, error_handler's new index will be "-1".
     int status = lua_pcall(mLuaState, n_args, n_results, err_handler_index);
     if (status) {
         const char* error = lua_tostring(mLuaState, -1);
@@ -162,8 +169,7 @@ int LuaEngine::run() {
         std::string error_msg = s.substr(0, dpos - 1);
         std::string stack_traceback = s.substr(dpos + delimiter.length() + 2);
 
-        lua_remove(mLuaState, err_handler_index);  // remove the error_handler from the stack.
-        lua_pop(mLuaState, 1);  // pop the error object from the stack.
+        lua_pop(mLuaState, 2);  // pop top 2 elements (error message & error handler) from the stack
         std::ostringstream out;
         out << "Error encountered while running the script. The returned error code=" << status
             << ". Refer to lua.h file of Lua C API library for error code definitions. Error: "
@@ -171,6 +177,7 @@ int LuaEngine::run() {
         sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(),
                            stack_traceback.c_str());
     }
+    lua_pop(mLuaState, 1);  // pop top element (error handler) from the stack.
     return status;
 }
 
