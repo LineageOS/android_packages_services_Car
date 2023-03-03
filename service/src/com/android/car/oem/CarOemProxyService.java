@@ -19,7 +19,9 @@ package com.android.car.oem;
 import android.annotation.Nullable;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.oem.IOemCarAudioDuckingService;
 import android.car.oem.IOemCarAudioFocusService;
 import android.car.oem.IOemCarAudioVolumeService;
@@ -108,6 +110,8 @@ public final class CarOemProxyService implements CarServiceBase {
     private CarOemAudioVolumeProxyService mCarOemAudioVolumeProxyService;
     @GuardedBy("mLock")
     private CarOemAudioDuckingProxyService mCarOemAudioDuckingProxyService;
+    private long mWaitForOemServiceConnectedDuration;
+    private long mWaitForOemServiceReadyDuration;
 
 
     private final ServiceConnection mCarOemServiceConnection = new ServiceConnection() {
@@ -308,6 +312,13 @@ public final class CarOemProxyService implements CarServiceBase {
                     mOemServiceConnectionTimeoutMs);
             writer.printf("OEM_CAR_SERVICE_READY_TIMEOUT_MS: %s\n", mOemServiceReadyTimeoutMs);
             writer.printf("mComponentName: %s\n", mComponentName);
+            writer.printf("waitForOemServiceConnected completed in : %d ms\n",
+                    mWaitForOemServiceConnectedDuration);
+            writer.printf("waitForOemServiceReady completed in : %d ms\n",
+                    mWaitForOemServiceReadyDuration);
+            // Dump other service components.
+            getCarOemAudioFocusService().dump(writer);
+            getCarOemAudioVolumeService().dump(writer);
             // Dump OEM service stack
             if (mIsOemServiceReady) {
                 writer.printf("OEM callstack\n");
@@ -476,7 +487,13 @@ public final class CarOemProxyService implements CarServiceBase {
      * CarService is ready.
      */
     public void onCarServiceReady() {
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        long startTime = SystemClock.uptimeMillis();
+        t.traceBegin("waitForOemServiceConnected");
         waitForOemServiceConnected();
+        mWaitForOemServiceConnectedDuration = SystemClock.uptimeMillis() - startTime;
+        t.traceEnd();
+
         IOemCarService oemCarService = getOemService();
         mHelper.doBinderOneWayCall(CALL_TAG, () -> {
             try {
@@ -486,7 +503,12 @@ public final class CarOemProxyService implements CarServiceBase {
                         ex);
             }
         });
+
+        t.traceBegin("waitForOemServiceReady");
+        startTime = SystemClock.uptimeMillis();
         waitForOemServiceReady();
+        mWaitForOemServiceReadyDuration = SystemClock.uptimeMillis() - startTime;
+        t.traceEnd();
     }
 
     private void waitForOemServiceConnected() {
