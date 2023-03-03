@@ -33,6 +33,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -387,6 +388,10 @@ public final class CarActivityManager extends CarManagerBase {
 
     /**
      * Gets the {@link CarTaskViewController} using the {@code carTaskViewControllerCallback}.
+     *
+     * This method is expected to be called from the {@link Activity#onCreate(Bundle)}. It will
+     * take care of freeing up the held resources when activity is destroyed. If an activity is
+     * recreated, it should be called again in the next {@link Activity#onCreate(Bundle)}.
      *
      * @param carTaskViewControllerCallback the callback which the client can use to monitor the
      *                                      lifecycle of the {@link CarTaskViewController}.
