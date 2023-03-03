@@ -24,7 +24,6 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -37,7 +36,6 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -53,10 +51,10 @@ import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
-import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.hal.PowerHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
@@ -243,6 +241,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     };
     private final RemoteAccessHalWrapper mRemoteAccessHal;
+    private final PowerHalService mPowerHalService;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
 
@@ -255,17 +254,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private CarPowerManagementService mPowerService;
     private AtomicBoolean mInitialized;
 
-    public CarRemoteAccessService(Context context, SystemInterface systemInterface) {
-        this(context, systemInterface, /* remoteAccessHal= */ null,
+    public CarRemoteAccessService(Context context, SystemInterface systemInterface,
+            PowerHalService powerHalService) {
+        this(context, systemInterface, powerHalService, /* remoteAccessHal= */ null,
                 new RemoteAccessStorage(context, systemInterface),
                 INVALID_ALLOWED_SYSTEM_UPTIME);
     }
 
     @VisibleForTesting
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
+            PowerHalService powerHalService,
             @Nullable RemoteAccessHalWrapper remoteAccessHal,
             @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs) {
         mContext = context;
+        mPowerHalService = powerHalService;
         mPackageManager = mContext.getPackageManager();
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         mRemoteAccessHal = remoteAccessHal != null ? remoteAccessHal
@@ -516,7 +518,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 Slogf.i(TAG, "Will not shutdown. The next power state is ON.");
                 return;
             }
-            if (isVehicleInUse()) {
+            if (mPowerHalService.isVehicleInUse()) {
                 Slogf.i(TAG, "Will not shutdown. The vehicle is in use.");
                 return;
             }
@@ -781,18 +783,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private String generateNewClientId() {
         return CLIENT_PREFIX + "_" + mClientCount.incrementAndGet() + "_"
                 + CarServiceUtils.generateRandomAlphaNumericString(RANDOM_STRING_LENGTH);
-    }
-
-    private static boolean isVehicleInUse() {
-        CarPropertyService propertyService = CarLocalServices.getService(CarPropertyService.class);
-        CarPropertyValue propValue = propertyService.getPropertySafe(
-                VehicleProperty.VEHICLE_IN_USE, /* areaId= */ 0);
-        if (propValue == null) {
-            Slogf.w(TAG, "Cannot get property of VEHICLE_IN_USE");
-            return false;
-        }
-        return propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
-                && (boolean) propValue.getValue();
     }
 
     private static String nextPowerStateToString(int nextPowerState) {
