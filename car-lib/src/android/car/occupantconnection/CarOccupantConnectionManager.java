@@ -28,6 +28,7 @@ import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
+import android.util.ArrayMap;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -289,6 +290,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
 
     private final Object mLock = new Object();
 
+    private final String mPackageName;
+
     /**
      * A map of connection requests. The key is the ID of the request, and the value is the callback
      * and executor.
@@ -339,6 +342,33 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             };
 
     /**
+     * A map of registered receivers. The key is the endpointId of the receiver, the value is
+     * the associated callback and the Executor of the callback.
+     */
+    @GuardedBy("mLock")
+    private final ArrayMap<String, Pair<PayloadCallback, Executor>> mReceiverPayloadCallbackMap =
+            new ArrayMap<>();
+
+    private final IPayloadCallback mBinderPayloadCallback = new IPayloadCallback.Stub() {
+        @Override
+        public void onPayloadReceived(OccupantZoneInfo senderZone, String receiverEndpointId,
+                Payload payload) {
+            Pair<PayloadCallback, Executor> pair;
+            synchronized (mLock) {
+                pair = mReceiverPayloadCallbackMap.get(receiverEndpointId);
+                if (pair == null) {
+                    // This should never happen, but let's be cautious.
+                    Slog.e(TAG, "Couldn't find receiver " + receiverEndpointId);
+                    return;
+                }
+            }
+            PayloadCallback callback = pair.first;
+            Executor executor = pair.second;
+            executor.execute(() -> callback.onPayloadReceived(senderZone, payload));
+        }
+    };
+
+    /**
      * The ID for the current connection request. It will increase by one each time {@link
      * #requestConnection} is called.
      */
@@ -353,6 +383,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         // is mainly for debugging.
         int userId = Process.myUserHandle().getIdentifier();
         mCurrentRequestId = userId * 10000;
+        mPackageName = mCar.getContext().getPackageName();
     }
 
     /** @hide */
@@ -362,6 +393,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void onCarDisconnected() {
         synchronized (mLock) {
             mConnectionRequestMap.clear();
+            mReceiverPayloadCallbackMap.clear();
         }
     }
 
@@ -375,13 +407,13 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * @param receiverEndpointId the ID of this receiver endpoint. Since there might be multiple
      *                           receiver endpoints in the client app, the ID can be used by
      *                           {@link AbstractReceiverService#onPayloadReceived} to decide which
-     *                           endpoint(s) to dispatch the Payload to.
+     *                           endpoint(s) to dispatch the Payload to. The ID must be unique
+     *                           among the client app.
      * @param executor           the Executor to run the callback
      * @param callback           the callback notified when this endpoint receives a Payload
      * @throws IllegalStateException if the {@code receiverEndpointId} had a {@link PayloadCallback}
      *                               registered
      */
-    // TODO(b/257118072): this method should save the callback like in CarRemoteDeviceManager.
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
@@ -391,7 +423,17 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
-        // TODO(b/257117236): implement this method.
+        synchronized (mLock) {
+            try {
+                mService.registerReceiver(mPackageName, receiverEndpointId, mBinderPayloadCallback);
+                // Save the callback only after the remote call succeeded.
+                mReceiverPayloadCallbackMap.put(
+                        receiverEndpointId, new Pair<>(callback, executor));
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to register receiver: " + receiverEndpointId);
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
     }
 
     /**

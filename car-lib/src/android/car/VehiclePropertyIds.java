@@ -809,7 +809,7 @@ public final class VehiclePropertyIds {
      * <p>Required Permissions:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
      *  property.
      * </ul>
      */
@@ -837,7 +837,7 @@ public final class VehiclePropertyIds {
      * <p>Required Permissions:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_POWERTRAIN} to write
      *  property.
      * </ul>
      */
@@ -2310,12 +2310,13 @@ public final class VehiclePropertyIds {
     /**
      * Windshield wipers period (milliseconds).
      *
-     * <p>Returns the instantaneous time period for 1 full cycle of the windshield wipers in
-     * milliseconds. A full cycle is defined as a wiper moving from and returning to its rest
-     * position. The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} specifies the
-     * longest wiper period. The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is
-     * always 0. When an intermittent wiper setting is selected, this property value will be set to
-     * 0 during the "pause" phase of the intermittent wiping.
+     * <p>Returns the instantaneous time period for 1 full cycle of the windshield wipers in {@link
+     * android.car.VehicleUnit#MILLI_SECS}. A full cycle is defined as a wiper moving from and
+     * returning to its rest position. The {@link
+     * android.car.hardware.property.AreaIdConfig#getMaxValue()} specifies the longest wiper period.
+     * The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is always 0. When an
+     * intermittent wiper setting is selected, this property value will be set to 0 during the
+     * "pause" phase of the intermittent wiping.
      *
      * <p>Property Config:
      * <ul>
@@ -2740,7 +2741,7 @@ public final class VehiclePropertyIds {
      * Only one of FOG_LIGHTS_STATE or REAR_FOG_LIGHTS_STATE will be implemented in the car. The
      * implemented property provides the state of the rear fog lights.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
@@ -2789,7 +2790,7 @@ public final class VehiclePropertyIds {
      * Only one of FOG_LIGHTS_SWITCH or REAR_FOG_LIGHTS_SWITCH will be implemented in the car. The
      * implemented property should be used to change the rear fog lights state.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
@@ -3135,7 +3136,7 @@ public final class VehiclePropertyIds {
      *
      * Please refer to the documentation on FOG_LIGHTS_STATE for more information.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
@@ -3147,7 +3148,7 @@ public final class VehiclePropertyIds {
      *
      * Please refer to the documentation on FOG_LIGHTS_SWITCH for more information.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
@@ -3159,7 +3160,7 @@ public final class VehiclePropertyIds {
      *
      * Please refer to the documentation on FOG_LIGHTS_STATE for more information.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
@@ -3171,7 +3172,7 @@ public final class VehiclePropertyIds {
      *
      * Please refer to the documentation on FOG_LIGHTS_SWITCH for more information.
      *
-     * The property is protected by the privileged|signature permission:
+     * The property is protected by the Signature|Privileged permission:
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
@@ -3195,7 +3196,7 @@ public final class VehiclePropertyIds {
      * <p>Required Permissions:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
      *  property.
      * </ul>
      */
@@ -3230,7 +3231,7 @@ public final class VehiclePropertyIds {
      * <p>Required Permissions:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
      *  property.
      * </ul>
      */
@@ -3273,7 +3274,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to read/write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to read/write
      *  property.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY)
@@ -3337,7 +3338,7 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
      *  property.
      * </ul>
      */
