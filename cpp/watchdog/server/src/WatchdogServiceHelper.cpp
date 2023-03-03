@@ -72,8 +72,7 @@ Result<void> WatchdogServiceHelper::init(
         return Error() << "Must provide a non-null watchdog process service instance";
     }
     mWatchdogProcessService = watchdogProcessService;
-    return mWatchdogProcessService->registerWatchdogServiceHelper(
-            sp<WatchdogServiceHelper>::fromExisting(this));
+    return {};
 }
 
 ScopedAStatus WatchdogServiceHelper::registerService(
@@ -94,7 +93,10 @@ ScopedAStatus WatchdogServiceHelper::registerService(
             return ScopedAStatus::ok();
         }
         unregisterServiceLocked(/*doUnregisterFromProcessService=*/true);
-        if (auto status = mWatchdogProcessService->registerCarWatchdogService(binder);
+        if (auto status = mWatchdogProcessService
+                                  ->registerCarWatchdogService(binder,
+                                                               sp<WatchdogServiceHelperInterface>::
+                                                                       fromExisting(this));
             !status.isOk()) {
             return status;
         }

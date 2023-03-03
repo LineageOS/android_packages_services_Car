@@ -45,8 +45,6 @@ public:
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, onDump, (int), (override));
     MOCK_METHOD(void, doHealthCheck, (int), (override));
-    MOCK_METHOD(android::base::Result<void>, registerWatchdogServiceHelper,
-                (const android::sp<WatchdogServiceHelperInterface>&), (override));
     MOCK_METHOD(void, handleBinderDeath, (void*), (override));
     MOCK_METHOD(ndk::ScopedAStatus, registerClient,
                 (const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&,
@@ -55,7 +53,8 @@ public:
     MOCK_METHOD(ndk::ScopedAStatus, unregisterClient,
                 (const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&),
                 (override));
-    MOCK_METHOD(ndk::ScopedAStatus, registerCarWatchdogService, (const ndk::SpAIBinder&),
+    MOCK_METHOD(ndk::ScopedAStatus, registerCarWatchdogService,
+                (const ndk::SpAIBinder&, const android::sp<WatchdogServiceHelperInterface>&),
                 (override));
     MOCK_METHOD(void, unregisterCarWatchdogService, (const ndk::SpAIBinder&), (override));
     MOCK_METHOD(ndk::ScopedAStatus, registerMonitor,
