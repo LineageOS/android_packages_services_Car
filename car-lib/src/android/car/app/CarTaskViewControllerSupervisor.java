@@ -175,6 +175,18 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
 
         ActivityHolder activityHolder = mActivityHolders.remove(getToken(activity));
         activityHolder.onActivityDestroyed();
+
+        // When all the underlying activities are destroyed, the callback should be removed
+        // from the CarActivityService as its no longer required.
+        // A new callback will be registered when a new activity calls the createTaskViewController.
+        if (mActivityHolders.isEmpty()) {
+            try {
+                mCarActivityService.removeCarSystemUIProxyCallback(mSystemUIProxyCallback);
+                mSystemUIProxyCallback = null;
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to remove CarSystemUIProxyCallback", e);
+            }
+        }
     }
 
     private static final class ActivityHolder {

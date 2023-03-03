@@ -483,7 +483,7 @@ public final class CarActivityService extends ICarActivityService.Stub
             int numCallbacks = mCarSystemUIProxyCallbacks.beginBroadcast();
             for (int i = 0; i < numCallbacks; i++) {
                 try {
-                    mCarSystemUIProxyCallbacks.getBroadcastItem(numCallbacks).onConnected(
+                    mCarSystemUIProxyCallbacks.getBroadcastItem(i).onConnected(
                             mCarSystemUIProxy);
                 } catch (RemoteException remoteException) {
                     Slogf.e(TAG, "Error dispatching onConnected", remoteException);
