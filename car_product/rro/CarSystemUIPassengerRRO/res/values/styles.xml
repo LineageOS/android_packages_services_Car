@@ -20,4 +20,18 @@
         <item name="android:layout_width">75dp</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
+
+    <style name="QuickControlEntryPointButton">
+        <item name="android:layout_marginTop">@dimen/car_quick_controls_entry_points_button_margin_top</item>
+        <item name="android:layout_marginBottom">@dimen/car_quick_controls_entry_points_button_margin_bottom</item>
+        <item name="android:layout_marginStart">@dimen/car_quick_controls_entry_points_button_margin_start</item>
+        <item name="android:layout_marginEnd">@dimen/car_quick_controls_entry_points_button_margin_end</item>
+        <item name="android:background">@drawable/status_icon_background</item>
+    </style>
+
+    <style name="TextAppearance.SystemBar.ClockWithSelection"
+        parent="@*android:style/TextAppearance.StatusBar.Icon">
+        <item name="android:textSize">@dimen/car_body1_size</item>
+        <item name="android:textColor">@color/system_bar_text_color_with_selection</item>
+    </style>
 </resources>
