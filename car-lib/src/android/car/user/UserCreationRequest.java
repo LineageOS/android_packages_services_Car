@@ -41,11 +41,13 @@ public final class UserCreationRequest implements Parcelable {
     private final @Nullable String mName;
     private final boolean mAdmin;
     private final boolean mGuest;
+    private final boolean mEphemeral;
 
     private UserCreationRequest(Builder builder) {
         this.mName = builder.mName;
         this.mAdmin = builder.mAdmin;
         this.mGuest = builder.mGuest;
+        this.mEphemeral = builder.mEphemeral;
     }
 
     /** Builder for {@link UserCreationRequest}. */
@@ -53,6 +55,7 @@ public final class UserCreationRequest implements Parcelable {
         private String mName;
         private boolean mAdmin;
         private boolean mGuest;
+        private boolean mEphemeral;
 
         /**
          * Sets user name.
@@ -69,8 +72,8 @@ public final class UserCreationRequest implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public @NonNull Builder setAdmin(boolean isAdmin) {
-            mAdmin = isAdmin;
+        public @NonNull Builder setAdmin() {
+            mAdmin = true;
             return this;
         }
 
@@ -79,8 +82,18 @@ public final class UserCreationRequest implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public @NonNull Builder setGuest(boolean isGuest) {
-            mGuest = isGuest;
+        public @NonNull Builder setGuest() {
+            mGuest = true;
+            return this;
+        }
+
+        /**
+         * Sets user as a Ephemeral user.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public @NonNull Builder setEphemeral() {
+            mEphemeral = true;
             return this;
         }
 
@@ -134,6 +147,13 @@ public final class UserCreationRequest implements Parcelable {
         return mGuest;
     }
 
+    @DataClass.Generated.Member
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean isEphemeral() {
+        return mEphemeral;
+    }
+
     @Override
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -145,6 +165,7 @@ public final class UserCreationRequest implements Parcelable {
         byte flg = 0;
         if (mAdmin) flg |= 0x2;
         if (mGuest) flg |= 0x4;
+        if (mEphemeral) flg |= 0x8;
         if (mName != null) flg |= 0x1;
         dest.writeByte(flg);
         if (mName != null) dest.writeString(mName);
@@ -166,11 +187,13 @@ public final class UserCreationRequest implements Parcelable {
         byte flg = in.readByte();
         boolean admin = (flg & 0x2) != 0;
         boolean guest = (flg & 0x4) != 0;
+        boolean ephemeral = (flg & 0x8) != 0;
         String name = (flg & 0x1) == 0 ? null : in.readString();
 
         this.mName = name;
         this.mAdmin = admin;
         this.mGuest = guest;
+        this.mEphemeral = ephemeral;
 
         // onConstructed(); // You can define this method to get a callback
     }
@@ -192,10 +215,10 @@ public final class UserCreationRequest implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1677202956731L,
+            time = 1677736413834L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserCreationRequest.java",
-            inputSignatures = "private final @android.annotation.Nullable java.lang.String mName\nprivate final  boolean mAdmin\nprivate final  boolean mGuest\nclass UserCreationRequest extends java.lang.Object implements [android.os.Parcelable]\nprivate final @android.annotation.Nullable java.lang.String mName\nprivate  boolean mAdmin\nprivate  boolean mGuest\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setFlag(boolean)\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setGuest(boolean)\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest build()\nclass Builder extends java.lang.Object implements []\n@com.android.car.internal.util.DataClass(genParcelable=true, genConstructor=false, genAidl=true)")
+            inputSignatures = "private final @android.annotation.Nullable java.lang.String mName\nprivate final  boolean mAdmin\nprivate final  boolean mGuest\nprivate final  boolean mEphemeral\nclass UserCreationRequest extends java.lang.Object implements [android.os.Parcelable]\nprivate  java.lang.String mName\nprivate  boolean mAdmin\nprivate  boolean mGuest\nprivate  boolean mEphemeral\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setName(java.lang.String)\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setAdmin()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setGuest()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest.Builder setEphemeral()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserCreationRequest build()\nclass Builder extends java.lang.Object implements []\n@com.android.car.internal.util.DataClass(genParcelable=true, genConstructor=false, genAidl=true)")
     @Deprecated
     private void __metadata() {}
 
