@@ -27,9 +27,11 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_OCCUPANT_CONNECTION_SERVICE = "car_occupant_connection_service";
     field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE = "android.car.remoteaccess.RemoteTaskClientService";
     field public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
+    field public static final String CAR_REMOTE_DEVICE_SERVICE = "car_remote_device_service";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -81,7 +83,9 @@ package android.car {
     field public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS = "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI = "android.car.permission.MANAGE_CAR_SYSTEM_UI";
+    field public static final String PERMISSION_MANAGE_OCCUPANT_CONNECTION = "android.car.permission.MANAGE_OCCUPANT_CONNECTION";
     field public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
+    field public static final String PERMISSION_MANAGE_REMOTE_DEVICE = "android.car.permission.MANAGE_REMOTE_DEVICE";
     field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field public static final String PERMISSION_MIRROR_DISPLAY = "android.car.permission.MIRROR_DISPLAY";
@@ -194,6 +198,27 @@ package android.car {
 
   public static interface CarProjectionManager.ProjectionStatusListener {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
+  }
+
+  public final class CarRemoteDeviceManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public android.content.pm.PackageInfo getEndpointPackageInfo(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public boolean isOccupantZonePowerOn(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void registerStateCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.CarRemoteDeviceManager.StateCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void setOccupantZonePower(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, boolean);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void unregisterStateCallback(@NonNull android.car.CarRemoteDeviceManager.StateCallback);
+    field public static final int FLAG_CLIENT_INSTALLED = 1; // 0x1
+    field public static final int FLAG_CLIENT_IN_FOREGROUND = 16; // 0x10
+    field public static final int FLAG_CLIENT_RUNNING = 8; // 0x8
+    field public static final int FLAG_CLIENT_SAME_SIGNATURE = 4; // 0x4
+    field public static final int FLAG_CLIENT_SAME_VERSION = 2; // 0x2
+    field public static final int FLAG_OCCUPANT_ZONE_CONNECTION_READY = 4; // 0x4
+    field public static final int FLAG_OCCUPANT_ZONE_POWER_ON = 1; // 0x1
+    field public static final int FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED = 2; // 0x2
+  }
+
+  public static interface CarRemoteDeviceManager.StateCallback {
+    method public void onAppStateChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method public void onOccupantZoneStateChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
   }
 
   public interface ResultCallback<V> {
@@ -1663,6 +1688,65 @@ package android.car.navigation {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
+  }
+
+}
+
+package android.car.occupantconnection {
+
+  public abstract class AbstractReceiverService extends android.app.Service {
+    ctor public AbstractReceiverService();
+    method public void acceptConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public boolean forwardPayload(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull String, @NonNull android.car.occupantconnection.Payload);
+    method @NonNull public java.util.List<java.lang.String> getAllReceiverEndpoints();
+    method @Nullable public android.os.IBinder onBind(@NonNull android.content.Intent);
+    method public abstract void onConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public abstract void onConnectionCanceled(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public abstract void onConnectionInitiated(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public abstract void onDisconnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public abstract void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
+    method public abstract void onReceiverRegistered(@NonNull String);
+    method public void rejectConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+  }
+
+  public final class CarOccupantConnectionManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void cancelConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void disconnect(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public boolean isConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void registerReceiver(@NonNull String, @NonNull java.util.concurrent.Executor, @NonNull android.car.occupantconnection.CarOccupantConnectionManager.PayloadCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void requestConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull java.util.concurrent.Executor, @NonNull android.car.occupantconnection.CarOccupantConnectionManager.ConnectionRequestCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void sendPayload(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload) throws android.car.occupantconnection.CarOccupantConnectionManager.PayloadTransferException;
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void unregisterReceiver(@NonNull String);
+    field public static final int CONNECTION_ERROR_NOT_READY = 1; // 0x1
+    field public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 2; // 0x2
+    field public static final int CONNECTION_ERROR_UNKNOWN = 0; // 0x0
+  }
+
+  public static interface CarOccupantConnectionManager.ConnectionRequestCallback {
+    method public void onConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public void onDisconnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public void onFailed(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method public void onRejected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+  }
+
+  public static interface CarOccupantConnectionManager.PayloadCallback {
+    method public void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
+  }
+
+  public static final class CarOccupantConnectionManager.PayloadTransferException extends java.lang.Exception {
+    ctor public CarOccupantConnectionManager.PayloadTransferException();
+  }
+
+  public final class Payload implements java.io.Closeable android.os.Parcelable {
+    ctor public Payload(@NonNull byte[]);
+    method public void close();
+    method public int describeContents();
+    method public void deserialize(@NonNull android.os.Parcel);
+    method @Nullable public byte[] getBytes();
+    method public void serialize(@NonNull android.os.Parcel, int);
+    method public void serializeNullPayload(@NonNull android.os.Parcel);
+    method public final void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantconnection.Payload> CREATOR;
   }
 
 }

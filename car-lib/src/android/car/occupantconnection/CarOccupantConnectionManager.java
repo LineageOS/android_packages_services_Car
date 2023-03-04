@@ -20,9 +20,11 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.CarRemoteDeviceManager.AppState;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
 import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
@@ -42,11 +44,11 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
- * API for communication between different endpoints on the occupant zones in the car.
+ * API for communication between different endpoints in the occupant zones in the car.
  * <p>
  * Unless specified explicitly, a client means an app that uses this API and runs as a
- * foreground user on an occupant zone, while a peer client means an app that has the same package
- * name as the caller app and runs as another foreground user (on another occupant zone or even
+ * foreground user in an occupant zone, while a peer client means an app that has the same package
+ * name as the caller app and runs as another foreground user (in another occupant zone or even
  * another Android system).
  * An endpoint means a component (such as a Fragment or an Activity) that has an instance of
  * {@link CarOccupantConnectionManager}.
@@ -72,8 +74,8 @@ import java.util.concurrent.Executor;
  *     ==========================================        =========================================
  * </pre>
  * <ul>
- *   <li> Client1 and client2 must have the same package name. Client1 runs on occupantZone1
- *        while client2 runs on occupantZone2. Sender1A (an endpoint in client1) wants to
+ *   <li> Client1 and client2 must have the same package name. Client1 runs in occupantZone1
+ *        while client2 runs in occupantZone2. Sender1A (an endpoint in client1) wants to
  *        send a {@link Payload} to receiver2A (an endpoint in client2).
  *   <li> Pre-connection:
  *     <ul>
@@ -83,13 +85,15 @@ import java.util.concurrent.Executor;
  *   <li> Establish connection:
  *     <ul>
  *       <li> Sender1A monitors occupantZone2 by calling {@link
- *            android.car.CarRemoteDeviceManager#registerOccupantZoneStateCallback}.
+ *            android.car.CarRemoteDeviceManager#registerStateCallback}.
  *       <li> Sender1A waits until the {@link OccupantZoneState} of occupantZone2 becomes
- *            {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_CONNECTION_READY} (and {@link
- *            android.car.CarRemoteDeviceManager#FLAG_SCREEN_UNLOCKED} and {@link
- *            android.car.CarRemoteDeviceManager#FLAG_CLIENT_IN_FOREGROUND} if UI is needed to
- *            establish the connection), then requests a connection to occupantZone2 by calling
- *            {@link #requestConnection}.
+ *            {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_CONNECTION_READY} and
+ *            the {@link AppState} of client2 becomes {@link
+ *            android.car.CarRemoteDeviceManager#FLAG_CLIENT_INSTALLED}, then requests a connection
+ *            to occupantZone2 by calling {@link #requestConnection}. If UI is needed to establish
+ *            the connection, sender1A must wait until {@link
+ *            android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED} and {@link
+ *            android.car.CarRemoteDeviceManager#FLAG_CLIENT_IN_FOREGROUND}).
  *       <li> ReceiverService2 is started and bound by car service ({@link
  *            com.android.car.occupantconnection.CarOccupantConnectionService} automatically.
  *            ReceiverService2 is notified via {@link
@@ -135,11 +139,11 @@ import java.util.concurrent.Executor;
  *          it calls {@link #unregisterReceiver}.
  *    <li> Unbound and destroy ReceiverService2:
  *         Since all the senders have disconnected from occupantZone2 and there is no receiver
- *         registered on occupantZone2, ReceiverService2 will be unbound and destroyed
+ *         registered in occupantZone2, ReceiverService2 will be unbound and destroyed
  *         automatically.
  *   </ul>
  *   <li> Sender1A stops monitoring other occupant zones by calling {@link
- *        android.car.CarRemoteDeviceManager#unregisterOccupantZoneStateCallback}. This step can
+ *        android.car.CarRemoteDeviceManager#unregisterStateCallback}. This step can
  *        be done before or after "Terminate the connection".
  * </ul>
  * <p>
@@ -161,8 +165,7 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-// TODO(b/257117236): Change it to system API once it's ready to release.
-// @SystemApi
+@SystemApi
 public final class CarOccupantConnectionManager extends CarManagerBase {
 
     private static final String TAG = CarOccupantConnectionManager.class.getSimpleName();
@@ -173,15 +176,24 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public static final int CONNECTION_ERROR_UNKNOWN = 0;
 
     /**
-     * The connection request failed because the {@link OccupantZoneState} of the peer occupant zone
-     * was not {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_CONNECTION_READY}. To avoid
-     * this error, the caller endpoint should ensure its state is {@link
-     * android.car.CarRemoteDeviceManager#FLAG_CLIENT_CONNECTION_READY} before requesting a
-     * connection to it.
+     * The connection request failed because the peer occupant zone was not ready for connection.
+     * To avoid this error, the caller endpoint should ensure that the state of the peer occupant
+     * zone is {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_CONNECTION_READY} before
+     * requesting a connection to it.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int CONNECTION_ERROR_NOT_READY = 1;
+
+    /**
+     * The connection request failed because the peer app was not installed. To avoid this error,
+     * the caller endpoint should ensure that the state of the peer app is {@link
+     * android.car.CarRemoteDeviceManager#FLAG_CLIENT_INSTALLED} before requesting a connection to
+     * it.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 2;
 
     /**
      * Flags for the error type of connection request.
@@ -190,7 +202,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @IntDef(flag = false, prefix = {"CONNECTION_ERROR_"}, value = {
             CONNECTION_ERROR_UNKNOWN,
-            CONNECTION_ERROR_NOT_READY
+            CONNECTION_ERROR_NOT_READY,
+            CONNECTION_ERROR_PEER_APP_NOT_INSTALLED
     })
     @Retention(RetentionPolicy.SOURCE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -250,17 +263,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         void onDisconnected(@NonNull OccupantZoneInfo receiverZone);
     }
 
-    /** A callback to listen to connection state changes. */
-    public interface ConnectionStateCallback {
-        /**
-         * Invoked when the callback is registered, or when the connection to the occupant zone
-         * is established or terminated.
-         */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        void onConnectionChanged(@NonNull OccupantZoneInfo receiverZone, boolean isConnected);
-    }
-
     /** A callback to receive a {@link Payload}. */
     public interface PayloadCallback {
         /**
@@ -276,7 +278,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     /** An exception to indicate that it failed to send the {@link Payload}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public final class PayloadTransferException extends Exception {
+    public static final class PayloadTransferException extends Exception {
     }
 
     private static final int ICONNECTION_REQUEST_CALLBACK_ON_CONNECTED = 1;
@@ -456,13 +458,13 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Sends a request to connect to the peer client on {@code receiverZone}. The {@link
+     * Sends a request to connect to the peer client in {@code receiverZone}. The {@link
      * AbstractReceiverService} in the peer client will be started and bound automatically if it
      * was not started yet.
      * <p>
      * This method should only be called when the state of the {@code receiverZone} is
-     * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_CONNECTION_READY} (and
-     * {@link android.car.CarRemoteDeviceManager#FLAG_SCREEN_UNLOCKED} and {@link
+     * {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_CONNECTION_READY} (and
+     * {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED} and {@link
      * android.car.CarRemoteDeviceManager#FLAG_CLIENT_IN_FOREGROUND} if UI is needed to
      * establish the connection). Otherwise, errors may occur.
      * <p>
@@ -504,7 +506,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Cancels the pending connection request to the peer client on {@code receiverZone}.
+     * Cancels the pending connection request to the peer client in {@code receiverZone}.
      * <p>
      * The caller endpoint may call this method when it has requested a connection, but hasn't
      * received any response for a long time, or the user wants to cancel the request explicitly.
@@ -528,7 +530,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Sends the {@code payload} to the peer client on {@code receiverZone}.
+     * Sends the {@code payload} to the peer client in {@code receiverZone}.
      * <p>
      * Different sender endpoints in the same client app are treated as the same sender. If the
      * sender endpoints need to differentiate themselves, they can put the identity info into the
@@ -554,7 +556,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Disconnects from the peer client on {@code receiverZone}. No operation if it was not
+     * Disconnects from the peer client in {@code receiverZone}. No operation if it was not
      * connected to the peer client.
      * <p>
      * This method can be called as soon as the caller app no longer needs to send {@link Payload}
@@ -582,7 +584,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * @return whether it is connected to its peer client on {@code receiverZone}.
+     * @return whether it is connected to its peer client in {@code receiverZone}.
      */
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

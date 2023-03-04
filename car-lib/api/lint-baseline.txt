@@ -37,6 +37,8 @@ ExecutorRegistration: android.car.media.CarAudioManager#registerCarVolumeCallbac
 
 IntentName: android.car.Car#CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION:
     Intent extra constant name must be EXTRA_FOO: CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION
+IntentName: android.car.Car#CAR_INTENT_ACTION_RECEIVER_SERVICE:
+    Intent action constant name must be ACTION_FOO: CAR_INTENT_ACTION_RECEIVER_SERVICE
 
 
 ListenerLast: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
