@@ -19,6 +19,8 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
@@ -37,6 +39,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
+@SystemApi
 public final class UserRemovalResult implements Parcelable, OperationResult {
 
     /**
@@ -145,10 +148,10 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     public @interface Status {}
 
-    /** @hide */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @NonNull
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:

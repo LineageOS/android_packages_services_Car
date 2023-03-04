@@ -132,26 +132,6 @@ package android.car.user {
     method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
   }
 
-  public final class UserSwitchResult implements android.os.Parcelable {
-    method public int describeContents();
-    method @Nullable public String getErrorMessage();
-    method public int getStatus();
-    method public boolean isSuccess();
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserSwitchResult> CREATOR;
-    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
-    field public static final int STATUS_HAL_FAILURE = 3; // 0x3
-    field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
-    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
-    field public static final int STATUS_NOT_LOGGED_IN = 105; // 0x69
-    field public static final int STATUS_NOT_SWITCHABLE = 104; // 0x68
-    field public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND = 101; // 0x65
-    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
-    field public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST = 103; // 0x67
-    field public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO = 102; // 0x66
-    field public static final int STATUS_UX_RESTRICTION_FAILURE = 6; // 0x6
-  }
-
 }
 
 package android.car.util.concurrent {
