@@ -273,8 +273,7 @@ public final class Car {
      * @hide
      */
     @OptionalFeature
-    // TODO(b/257117236): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String CAR_OCCUPANT_CONNECTION_SERVICE = "car_occupant_connection_service";
@@ -285,8 +284,7 @@ public final class Car {
      * @hide
      */
     @OptionalFeature
-    // TODO(b/257117236): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String CAR_REMOTE_DEVICE_SERVICE = "car_remote_device_service";
@@ -1349,8 +1347,7 @@ public final class Car {
      *
      * @hide
      */
-    // STOPSHIP(b/257117236): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String PERMISSION_MANAGE_REMOTE_DEVICE =
@@ -1362,8 +1359,7 @@ public final class Car {
      *
      * @hide
      */
-    // STOPSHIP(b/257117236): Change it to system API once it's ready to release.
-    // @SystemApi
+    @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String PERMISSION_MANAGE_OCCUPANT_CONNECTION =
@@ -1504,6 +1500,18 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE =
             "android.car.remoteaccess.RemoteTaskClientService";
+
+    /*
+     * Intent for binding the implementation of {@link
+     * android.car.occupantconnection.AbstractReceiverService} in the app.
+     *
+     * @hide
+     */
+    @SdkConstant(SdkConstantType.SERVICE_ACTION)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String CAR_INTENT_ACTION_RECEIVER_SERVICE =
+            "android.car.intent.action.RECEIVER_SERVICE";
 
     /** @hide */
     @VisibleForHiddenApiCheck

@@ -21,7 +21,7 @@ android.car.CarProjectionManager$ProjectionKeyEventHandler
 android.car.CarProjectionManager$ProjectionStatusListener
 android.car.CarProjectionManager$ProjectionAccessPointCallback
 android.car.CarRemoteDeviceManager
-android.car.CarRemoteDeviceManager$OccupantZoneStateCallback
+android.car.CarRemoteDeviceManager$StateCallback
 android.car.CarTransactionException
 android.car.CarVersion
 android.car.CarVersion$VERSION_CODES
@@ -235,7 +235,6 @@ android.car.occupantawareness.SystemStatusEvent
 android.car.occupantconnection.AbstractReceiverService
 android.car.occupantconnection.CarOccupantConnectionManager
 android.car.occupantconnection.CarOccupantConnectionManager$ConnectionRequestCallback
-android.car.occupantconnection.CarOccupantConnectionManager$ConnectionStateCallback
 android.car.occupantconnection.CarOccupantConnectionManager$PayloadCallback
 android.car.occupantconnection.CarOccupantConnectionManager$PayloadTransferException
 android.car.occupantconnection.Payload

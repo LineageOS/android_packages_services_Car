@@ -18,6 +18,7 @@ package android.car.occupantconnection;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 
@@ -27,27 +28,46 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * A payload sent between endpoints in the car.
+ * A payload sent between client apps that have the same package name but run in different occupant
+ * zones in the car.
+ * <p>
+ * After establishing a connection to the receiver client, the sender client can send a payload via
+ * {@link CarOccupantConnectionManager#sendPayload}. The receiver service in the receiver client
+ * will receive the payload via {@link AbstractReceiverService#onPayloadReceived}, then dispatch it
+ * to the proper receiver endpoint(s).
+ * <p>
+ * The sender client can put the receiver endpoint ID in the payload so that the receiver service
+ * knows which receiver endpoint(s) to dispatch the payload to.
  *
  * @hide
  */
-// TODO(b/257117236): Change it to system API once it's ready to release.
-// @SystemApi
+@SystemApi
 public final class Payload extends LargeParcelableBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+
     @Nullable
-    public byte[] bytes;
+    private byte[] mBytes;
 
     public Payload(@NonNull byte[] bytes) {
+        super();
         Objects.requireNonNull(bytes, "bytes cannot be null");
-        this.bytes = bytes.clone();
+        this.mBytes = bytes.clone();
     }
 
     private Payload(Parcel in) {
         super(in);
     }
 
+    /** Returns a reference to the byte array of the payload. */
+    @Nullable
+    public byte[] getBytes() {
+        return mBytes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -55,31 +75,43 @@ public final class Payload extends LargeParcelableBase {
         }
         if (o instanceof Payload) {
             Payload other = (Payload) o;
-            return Arrays.equals(bytes, other.bytes);
+            return Arrays.equals(mBytes, other.mBytes);
         }
         return false;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
-        return Arrays.hashCode(bytes);
+        return Arrays.hashCode(mBytes);
     }
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static final Creator<Payload> CREATOR = new Creator<>() {
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Payload createFromParcel(Parcel in) {
             return new Payload(in);
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public Payload[] newArray(int size) {
             return new Payload[size];
         }
     };
 
+    /**
+     * {@inheritDoc}
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
@@ -87,21 +119,27 @@ public final class Payload extends LargeParcelableBase {
         return 0;
     }
 
+    /** Writes this {@link Payload} into the given {@link Parcel}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    protected void serialize(Parcel dest, int flags) {
-        dest.writeByteArray(bytes);
+    @Override
+    public void serialize(@NonNull Parcel dest, int flags) {
+        dest.writeByteArray(mBytes);
     }
 
+    /** Writes {@code null} {@link Payload} to the given {@link Parcel}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    protected void serializeNullPayload(@NonNull Parcel dest) {
+    @Override
+    public void serializeNullPayload(@NonNull Parcel dest) {
         dest.writeByteArray(null);
     }
 
+    /** Reads a {@link Payload} from the given {@link Parcel}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    protected void deserialize(Parcel src) {
-        bytes = src.createByteArray();
+    @Override
+    public void deserialize(@NonNull Parcel src) {
+        mBytes = src.createByteArray();
     }
 }
