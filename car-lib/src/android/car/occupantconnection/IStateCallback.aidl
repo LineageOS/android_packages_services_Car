@@ -19,7 +19,10 @@ package android.car.occupantconnection;
 import android.car.CarOccupantZoneManager;
 
 /** @hide */
-oneway interface IOccupantZoneStateCallback {
-    void onStateChanged(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
-        int occupantZoneState);
+oneway interface IStateCallback {
+    void onOccupantZoneStateChanged(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
+        int occupantZoneStates);
+
+    void onAppStateChanged(in CarOccupantZoneManager.OccupantZoneInfo occupantZone,
+        int AppStates);
 }
