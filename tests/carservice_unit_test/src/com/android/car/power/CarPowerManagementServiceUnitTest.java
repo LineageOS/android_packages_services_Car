@@ -221,6 +221,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
                 mFileHwStateMonitoring.getFile().getPath(),
                 mFileKernelSilentMode.getFile().getPath(), NORMAL_BOOT);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mService);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
