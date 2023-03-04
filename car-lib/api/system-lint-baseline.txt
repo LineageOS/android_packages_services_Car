@@ -857,7 +857,7 @@ UseParcelFileDescriptor: android.car.oem.OemCarServiceComponent#dump(java.io.Fil
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in android.car.oem.OemCarServiceComponent.dump(java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 
 
-UserHandle: android.car.CarOccupantZoneManager#assignVisibleUserToOccupantZone(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.os.UserHandle, int):
+UserHandle: android.car.CarOccupantZoneManager#assignVisibleUserToOccupantZone(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.os.UserHandle):
     When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added
 UserHandle: android.car.admin.CarDevicePolicyManager#removeUser(android.os.UserHandle):
     When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added

@@ -828,8 +828,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 return unassignOccupantZoneUnchecked(occupantZoneId)
                         == CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             } else {
-                return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user,
-                        /* flags= */ 0) == CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
+                return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user)
+                        == CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             }
         } finally {
             Binder.restoreCallingIdentity(token);
@@ -837,13 +837,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
-    public int assignVisibleUserToOccupantZone(int occupantZoneId, UserHandle user, int flags) {
+    public int assignVisibleUserToOccupantZone(int occupantZoneId, UserHandle user) {
         CarServiceUtils.assertAnyPermission(mContext, android.Manifest.permission.MANAGE_USERS,
                 Car.PERMISSION_MANAGE_OCCUPANT_ZONE);
         Preconditions.checkNotNull(user);
         long token = Binder.clearCallingIdentity();
         try {
-            return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user, flags);
+            return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -853,7 +853,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
      * Precondition: permission check should be done and binder caller identity should be cleared.
      */
     private int assignVisibleUserToOccupantZoneUnchecked(int occupantZoneId,
-            @NonNull UserHandle user, int flags) {
+            @NonNull UserHandle user) {
         int userId;
         if (user.equals(UserHandle.CURRENT)) {
             userId = getCurrentUser();
