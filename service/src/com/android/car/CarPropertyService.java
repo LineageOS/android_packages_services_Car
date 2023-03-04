@@ -291,6 +291,7 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             writer.println(String.format("There are %d clients using CarPropertyService.",
                     mClientMap.size()));
+            writer.println("Current sync operation count: " + mSyncGetSetPropertyOpCount);
             writer.println("Properties registered: ");
             writer.increaseIndent();
             for (int i = 0; i < mPropIdClientMap.size(); i++) {
@@ -563,6 +564,7 @@ public class CarPropertyService extends ICarProperty.Stub
         return false;
     }
 
+    @Nullable
     private <V> V runSyncOperationCheckLimit(Callable<V> c) {
         synchronized (mLock) {
             if (mSyncGetSetPropertyOpCount >= SYNC_GET_SET_PROPERTY_OP_LIMIT) {
@@ -570,7 +572,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
             mSyncGetSetPropertyOpCount += 1;
             if (DBG) {
-                Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+                Slogf.d(TAG, "mSyncGetSetPropertyOpCount: %d", mSyncGetSetPropertyOpCount);
             }
         }
         try {
@@ -586,7 +588,7 @@ public class CarPropertyService extends ICarProperty.Stub
             synchronized (mLock) {
                 mSyncGetSetPropertyOpCount -= 1;
                 if (DBG) {
-                    Slogf.d(TAG, "mSyncGetSetPropertyOpCount: " + mSyncGetSetPropertyOpCount);
+                    Slogf.d(TAG, "mSyncGetSetPropertyOpCount: %d", mSyncGetSetPropertyOpCount);
                 }
             }
         }
