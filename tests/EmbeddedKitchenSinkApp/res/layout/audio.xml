@@ -57,6 +57,46 @@
             android:layout_width="3dp"
             android:layout_height="match_parent" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/audio_zone_configuration_layout" >
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/select_zone_configuration_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/zone_configuration" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Spinner
+            android:id="@+id/zone_configuration_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <Button
+            android:id="@+id/switch_zone_configuration_key_event_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_zone_configuration" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+        <TextView
+            android:id="@+id/text_current_configuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/empty" />
+        <Space
+            android:layout_width="3dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
     <ScrollView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
