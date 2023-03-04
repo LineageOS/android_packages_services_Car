@@ -80,6 +80,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_STEERING_WHEEL = "android.car.permission.CONTROL_STEERING_WHEEL";
     field public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS = "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI = "android.car.permission.MANAGE_CAR_SYSTEM_UI";
     field public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
     field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
@@ -94,6 +95,7 @@ package android.car {
     field public static final String PERMISSION_READ_DRIVER_MONITORING_STATES = "android.car.permission.READ_DRIVER_MONITORING_STATES";
     field public static final String PERMISSION_READ_WINDSHIELD_WIPERS = "android.car.permission.READ_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
+    field public static final String PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY = "android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY";
     field public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY = "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
     field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
     field public static final String PERMISSION_TEMPLATE_RENDERER = "android.car.permission.TEMPLATE_RENDERER";
@@ -352,10 +354,10 @@ package android.car.app {
   public final class CarActivityManager {
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_MIRROR_DISPLAY) public android.os.IBinder createDisplayMirroringToken(int);
     method @Nullable @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public android.os.IBinder createTaskMirroringToken(int);
-    method @MainThread @RequiresPermission("android.car.permission.MANAGE_CAR_SYSTEM_UI") public void getCarTaskViewController(@NonNull android.app.Activity, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.CarTaskViewControllerCallback);
+    method @MainThread @RequiresPermission(android.car.Car.PERMISSION_MANAGE_CAR_SYSTEM_UI) public void getCarTaskViewController(@NonNull android.app.Activity, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.CarTaskViewControllerCallback);
     method @NonNull @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS) public java.util.List<android.app.ActivityManager.RunningTaskInfo> getVisibleTasks();
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public void moveRootTaskToDisplay(int, int);
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void registerCarSystemUIProxy(@NonNull android.car.app.CarSystemUIProxy);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void registerCarSystemUIProxy(@NonNull android.car.app.CarSystemUIProxy);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public int setPersistentActivity(@NonNull android.content.ComponentName, int, int);
     method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public void startUserPickerOnDisplay(int);
     field public static final int RESULT_FAILURE = -1; // 0xffffffff
@@ -376,9 +378,9 @@ package android.car.app {
   }
 
   public final class CarTaskViewController {
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void release();
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void showEmbeddedTasks();
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void release();
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void showEmbeddedTasks();
   }
 
   public interface CarTaskViewControllerCallback {
@@ -398,17 +400,17 @@ package android.car.app {
   }
 
   public final class ControlledRemoteCarTaskView extends android.view.SurfaceView {
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
     method @MainThread @Nullable public android.app.ActivityManager.RunningTaskInfo getTaskInfo();
     method @MainThread public boolean isInitialized();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void removeInsets(@NonNull int[]);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void removeInsets(@NonNull int[]);
     method @MainThread public void setObscuredTouchRect(@NonNull android.graphics.Rect);
     method @MainThread public void setObscuredTouchRegion(@NonNull android.graphics.Region);
-    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void showEmbeddedTask();
-    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void startActivity();
-    method @MainThread @RequiresPermission("android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY") public void updateWindowBounds();
+    method @MainThread @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void showEmbeddedTask();
+    method @MainThread @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void startActivity();
+    method @MainThread @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void updateWindowBounds();
   }
 
   public interface ControlledRemoteCarTaskViewCallback {
@@ -2125,6 +2127,7 @@ package android.car.user {
     method public int describeContents();
     method @Nullable public String getName();
     method public boolean isAdmin();
+    method public boolean isEphemeral();
     method public boolean isGuest();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserCreationRequest> CREATOR;
@@ -2133,8 +2136,9 @@ package android.car.user {
   public static final class UserCreationRequest.Builder {
     ctor public UserCreationRequest.Builder();
     method @NonNull public android.car.user.UserCreationRequest build();
-    method @NonNull public android.car.user.UserCreationRequest.Builder setAdmin(boolean);
-    method @NonNull public android.car.user.UserCreationRequest.Builder setGuest(boolean);
+    method @NonNull public android.car.user.UserCreationRequest.Builder setAdmin();
+    method @NonNull public android.car.user.UserCreationRequest.Builder setEphemeral();
+    method @NonNull public android.car.user.UserCreationRequest.Builder setGuest();
     method @NonNull public android.car.user.UserCreationRequest.Builder setName(@NonNull String);
   }
 

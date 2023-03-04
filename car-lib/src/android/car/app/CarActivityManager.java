@@ -49,7 +49,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -204,8 +203,7 @@ public final class CarActivityManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo,
-                @NonNull SurfaceControl leash) {
-        Objects.requireNonNull(leash);
+                @Nullable SurfaceControl leash) {
         onTaskAppearedInternal(taskInfo, leash);
     }
 

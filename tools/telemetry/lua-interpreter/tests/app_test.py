@@ -24,10 +24,11 @@ class TestWebApp(unittest.TestCase):
         'activity_foreground_state_changed', 'anr_occurred',
         'app_start_memory_state_captured', 'app_crash_occurred',
         'connectivity_publisher', 'memory_publisher', 'process_cpu_time',
-        'process_memory_state', 'wtf_occurred'
+        'process_memory_snapshot', 'process_memory_state',
+        'vehicle_property_publisher', 'wtf_occurred'
     ], data)
     data = response.get_json()['memory_publisher']
-    self.assertIn('"timestamp_millis": 1664995933733', data)
+    self.assertIn('"mem.timestamp_millis": 1664995933733', data)
 
   def test_execute_script_output(self):
     response = self.client.post(
