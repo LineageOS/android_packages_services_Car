@@ -223,28 +223,26 @@ TEST_F(WatchdogProcessServiceTest, TestHandleClientBinderDeath) {
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterCarWatchdogService) {
     sp<MockWatchdogServiceHelper> mockServiceHelper = sp<MockWatchdogServiceHelper>::make();
-    ASSERT_RESULT_OK(mWatchdogProcessService->registerWatchdogServiceHelper(mockServiceHelper));
 
     std::shared_ptr<MockCarWatchdogServiceForSystem> mockService =
             SharedRefBase::make<MockCarWatchdogServiceForSystem>();
     const auto binder = mockService->asBinder();
 
-    auto status = mWatchdogProcessService->registerCarWatchdogService(binder);
+    auto status = mWatchdogProcessService->registerCarWatchdogService(binder, mockServiceHelper);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
-    status = mWatchdogProcessService->registerCarWatchdogService(binder);
+    status = mWatchdogProcessService->registerCarWatchdogService(binder, mockServiceHelper);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 }
 
 TEST_F(WatchdogProcessServiceTest,
-       TestErrorOnRegisterCarWatchdogServiceWithUninitializedWatchdogServiceHelper) {
+       TestErrorOnRegisterCarWatchdogServiceWithNullWatchdogServiceHelper) {
     std::shared_ptr<MockCarWatchdogServiceForSystem> mockService =
             SharedRefBase::make<MockCarWatchdogServiceForSystem>();
     const auto binder = mockService->asBinder();
 
-    ASSERT_FALSE(mWatchdogProcessService->registerCarWatchdogService(binder).isOk())
-            << "Registering car watchdog service should fail when watchdog service helper is "
-               "uninitialized";
+    ASSERT_FALSE(mWatchdogProcessService->registerCarWatchdogService(binder, nullptr).isOk())
+            << "Registering car watchdog service should fail when watchdog service helper is null";
 }
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterMonitor) {
@@ -325,9 +323,6 @@ TEST_F(WatchdogProcessServiceTest, TestTellClientAlive) {
 }
 
 TEST_F(WatchdogProcessServiceTest, TestTellCarWatchdogServiceAlive) {
-    sp<MockWatchdogServiceHelper> mockServiceHelper = sp<MockWatchdogServiceHelper>::make();
-    ASSERT_RESULT_OK(mWatchdogProcessService->registerWatchdogServiceHelper(mockServiceHelper));
-
     std::shared_ptr<MockCarWatchdogServiceForSystem> mockService =
             SharedRefBase::make<MockCarWatchdogServiceForSystem>();
 

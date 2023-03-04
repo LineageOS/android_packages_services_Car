@@ -63,8 +63,6 @@ public:
     virtual void terminate() = 0;
     virtual void onDump(int fd) = 0;
     virtual void doHealthCheck(int what) = 0;
-    virtual android::base::Result<void> registerWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& helper) = 0;
     virtual void handleBinderDeath(void* cookie) = 0;
     virtual ndk::ScopedAStatus registerClient(
             const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
@@ -72,7 +70,9 @@ public:
     virtual ndk::ScopedAStatus unregisterClient(
             const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
                     client) = 0;
-    virtual ndk::ScopedAStatus registerCarWatchdogService(const ndk::SpAIBinder& binder) = 0;
+    virtual ndk::ScopedAStatus registerCarWatchdogService(
+            const ndk::SpAIBinder& binder,
+            const android::sp<WatchdogServiceHelperInterface>& helper) = 0;
     virtual void unregisterCarWatchdogService(const ndk::SpAIBinder& binder) = 0;
     virtual ndk::ScopedAStatus registerMonitor(
             const std::shared_ptr<
@@ -110,8 +110,6 @@ public:
     void terminate() override;
     void onDump(int fd) override;
     void doHealthCheck(int what) override;
-    android::base::Result<void> registerWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& helper) override;
     void handleBinderDeath(void* cookie) override;
     ndk::ScopedAStatus registerClient(
             const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
@@ -119,7 +117,9 @@ public:
     ndk::ScopedAStatus unregisterClient(
             const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client)
             override;
-    ndk::ScopedAStatus registerCarWatchdogService(const ndk::SpAIBinder& binder) override;
+    ndk::ScopedAStatus registerCarWatchdogService(
+            const ndk::SpAIBinder& binder,
+            const android::sp<WatchdogServiceHelperInterface>& helper) override;
     void unregisterCarWatchdogService(const ndk::SpAIBinder& binder) override;
     ndk::ScopedAStatus registerMonitor(
             const std::shared_ptr<
@@ -311,7 +311,6 @@ private:
     std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
             mVhalProcessIdentifier GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
-    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogProcessServicePeer;
