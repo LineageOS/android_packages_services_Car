@@ -2092,12 +2092,15 @@ package android.car.user {
   public final class CarUserManager {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.UserLifecycleEventFilter, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void createUser(@NonNull android.car.user.UserCreationRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserCreationResult>);
     method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public boolean isValidUser(@NonNull android.os.UserHandle);
     method @NonNull public static String lifecycleEventTypeToString(int);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void removeUser(@NonNull android.car.user.UserRemovalRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserRemovalResult>);
     method @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public void setUserSwitchUiCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserHandleSwitchUiCallback);
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStartResponse startUser(@NonNull android.car.user.UserStartRequest);
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStopResponse stopUser(@NonNull android.car.user.UserStopRequest);
+    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void switchUser(@NonNull android.car.user.UserSwitchRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserSwitchResult>);
     field public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8; // 0x8
     field public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE = 11; // 0xb
     field public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED = 9; // 0x9
@@ -2143,6 +2146,24 @@ package android.car.user {
     method @NonNull public android.car.user.UserCreationRequest.Builder setName(@NonNull String);
   }
 
+  public final class UserCreationResult implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public Integer getAndroidFailureStatus();
+    method @Nullable public String getErrorMessage();
+    method @Nullable public String getInternalErrorMessage();
+    method public int getStatus();
+    method @Nullable public android.os.UserHandle getUser();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserCreationResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_HAL_FAILURE = 3; // 0x3
+    field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
+    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+  }
+
   public final class UserLifecycleEventFilter implements android.os.Parcelable {
     method public boolean apply(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
     method public int describeContents();
@@ -2167,6 +2188,22 @@ package android.car.user {
   public static final class UserRemovalRequest.Builder {
     ctor public UserRemovalRequest.Builder(@NonNull android.os.UserHandle);
     method @NonNull public android.car.user.UserRemovalRequest build();
+  }
+
+  public final class UserRemovalResult implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getStatus();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserRemovalResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+    field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED = 102; // 0x66
+    field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL = 104; // 0x68
+    field public static final int STATUS_SUCCESSFUL_SET_EPHEMERAL = 103; // 0x67
+    field public static final int STATUS_USER_DOES_NOT_EXIST = 101; // 0x65
   }
 
   public final class UserStartRequest implements android.os.Parcelable {
@@ -2241,6 +2278,28 @@ package android.car.user {
   public static final class UserSwitchRequest.Builder {
     ctor public UserSwitchRequest.Builder(@NonNull android.os.UserHandle);
     method @NonNull public android.car.user.UserSwitchRequest build();
+  }
+
+  public final class UserSwitchResult implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public Integer getAndroidFailureStatus();
+    method @Nullable public String getErrorMessage();
+    method public int getStatus();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserSwitchResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_HAL_FAILURE = 3; // 0x3
+    field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
+    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_NOT_LOGGED_IN = 105; // 0x69
+    field public static final int STATUS_NOT_SWITCHABLE = 104; // 0x68
+    field public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND = 101; // 0x65
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+    field public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST = 103; // 0x67
+    field public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO = 102; // 0x66
+    field public static final int STATUS_UX_RESTRICTION_FAILURE = 6; // 0x6
   }
 
 }

@@ -19,7 +19,9 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserHandle;
@@ -41,12 +43,11 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
+@SystemApi
 public final class UserCreationResult implements Parcelable, OperationResult {
 
     /**
      * {@link Status} called when user creation is successful for both HAL and Android.
-     *
-     * @hide
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
@@ -55,8 +56,6 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     /**
      * {@link Status} called when user creation failed on Android - HAL is not even called in this
      * case.
-     *
-     * @hide
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
@@ -65,8 +64,6 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     /**
      * {@link Status} called when user was created on Android but HAL returned a failure - the
      * Android user is automatically removed.
-     *
-     * @hide
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
@@ -75,8 +72,6 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     /**
      * {@link Status} called when user creation is failed for HAL for some internal error - the
      * Android user is not automatically removed.
-     *
-     * @hide
      */
     @Status
     @AddedInOrBefore(majorVersion = 33)
@@ -127,8 +122,6 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     /**
      * Gets the internal error message , if any.
-     *
-     * @hide
      */
     @Nullable
     private final String mInternalErrorMessage;
@@ -186,10 +179,10 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     public @interface Status {}
 
-    /** @hide */
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedInOrBefore(majorVersion = 33)
+    @NonNull
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
@@ -310,8 +303,6 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     /**
      * Gets the internal error message , if any.
-     *
-     * @hide
      */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
