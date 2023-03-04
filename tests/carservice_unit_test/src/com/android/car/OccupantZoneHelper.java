@@ -122,7 +122,7 @@ public final class OccupantZoneHelper {
                     return Display.INVALID_DISPLAY;
                 }
         );
-        when(service.assignVisibleUserToOccupantZone(anyInt(), any(), anyInt())).thenAnswer(
+        when(service.assignVisibleUserToOccupantZone(anyInt(), any())).thenAnswer(
                 inv -> {
                     int zoneId = (int) inv.getArgument(0);
                     UserHandle user = (UserHandle) inv.getArgument(1);

@@ -2387,7 +2387,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         CarOccupantZoneService zoneService = CarLocalServices.getService(
                 CarOccupantZoneService.class);
         int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
-                UserHandle.of(userId), /* flags= */ 0);
+                UserHandle.of(userId));
         if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
             Slogf.w(TAG,
                     "assignVisibleUserToZone: failed to assign user %d to zone %d, result %d",

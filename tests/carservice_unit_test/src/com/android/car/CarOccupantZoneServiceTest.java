@@ -518,8 +518,8 @@ public class CarOccupantZoneServiceTest {
 
         assertWithMessage("Visible user assigning should work").that(
                 mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
-                UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
-                CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+                UserHandle.of(VISIBLE_USER))).isEqualTo(
+                        CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
 
         assertPassengerDisplaysFromDefaultConfig();
         assertDisplayAllowlist(VISIBLE_USER, new int[]{mDisplay2.getDisplayId()});
@@ -538,7 +538,7 @@ public class CarOccupantZoneServiceTest {
         // Assign VISIBLE_USER to a zone.
         assertWithMessage("Assigning visible user to zone succeeds").that(
                 mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
-                        UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
+                        UserHandle.of(VISIBLE_USER))).isEqualTo(
                 CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
 
         // Check zone assignment.
@@ -559,11 +559,11 @@ public class CarOccupantZoneServiceTest {
         mVisibleUsers.add(VISIBLE_USER);
         mService.init();
         mManager.assignVisibleUserToOccupantZone(mZoneDriverLHD,
-                UserHandle.of(VISIBLE_USER), /* flags= */ 0);
+                UserHandle.of(VISIBLE_USER));
 
         assertWithMessage("Visible user assignment for already assigned").that(
                 mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
-                        UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
+                        UserHandle.of(VISIBLE_USER))).isEqualTo(
                 CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED);
     }
 
