@@ -212,16 +212,6 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
     mGetStartTimeForPidFunc = &getStartTimeForPid;
 }
 
-Result<void> WatchdogProcessService::registerWatchdogServiceHelper(
-        const sp<WatchdogServiceHelperInterface>& helper) {
-    if (helper == nullptr) {
-        return Error() << "Must provide a non-null watchdog service helper instance";
-    }
-    Mutex::Autolock lock(mMutex);
-    mWatchdogServiceHelper = helper;
-    return {};
-}
-
 ScopedAStatus WatchdogProcessService::registerClient(
         const std::shared_ptr<ICarWatchdogClient>& client, TimeoutLength timeout) {
     if (client == nullptr) {
@@ -246,19 +236,15 @@ ScopedAStatus WatchdogProcessService::unregisterClient(
     return unregisterClientLocked(kTimeouts, client->asBinder(), ClientType::Regular);
 }
 
-ScopedAStatus WatchdogProcessService::registerCarWatchdogService(const SpAIBinder& binder) {
+ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
+        const SpAIBinder& binder, const sp<WatchdogServiceHelperInterface>& helper) {
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
 
-    sp<WatchdogServiceHelperInterface> helper;
-    {
-        Mutex::Autolock lock(mMutex);
-        if (mWatchdogServiceHelper == nullptr) {
-            return ScopedAStatus::
-                    fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                 "Watchdog service helper instance is null");
-        }
-        helper = mWatchdogServiceHelper;
+    if (helper == nullptr) {
+        return ScopedAStatus::
+                fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT,
+                                             "Watchdog service helper instance is null");
     }
     ClientInfo clientInfo(helper, binder, callingPid, callingUid,
                           mGetStartTimeForPidFunc(callingPid), *this);
@@ -551,7 +537,6 @@ void WatchdogProcessService::terminate() {
             clients.clear();
         }
         mClientsByTimeout.clear();
-        mWatchdogServiceHelper.clear();
         if (mMonitor != nullptr) {
             AIBinder* aiBinder = mMonitor->asBinder().get();
             mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mBinderDeathRecipient.get(),
