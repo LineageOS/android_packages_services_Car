@@ -21,6 +21,7 @@ import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHA
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,6 +50,7 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -71,6 +73,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyServiceUnitTest {
+
+    private static final String TAG = CarLog.tagFor(CarPropertyServiceUnitTest.class);
 
     @Mock
     private Context mContext;
@@ -762,13 +766,12 @@ public final class CarPropertyServiceUnitTest {
         CountDownLatch finishCd = new CountDownLatch(16);
         CountDownLatch returnCd = new CountDownLatch(1);
         when(mHalService.getProperty(CONTINUOUS_READ_ONLY_PROPERTY_ID, 0))
-                .thenAnswer((invocation) -> {
-                    return new CarPropertyValue(CONTINUOUS_READ_ONLY_PROPERTY_ID, GLOBAL_AREA_ID,
-                            Integer.valueOf(11));
-                });
+                .thenReturn(new CarPropertyValue(HVAC_TEMP, /* areaId= */ 0, Float.valueOf(11f)));
         doAnswer((invocation) -> {
             // Notify the operation has started.
             startCd.countDown();
+
+            Log.d(TAG, "simulate sync operation ongoing, waiting for signal before finish.");
 
             // Wait for the signal before finishing the operation.
             returnCd.await(10, TimeUnit.SECONDS);
@@ -796,6 +799,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Unblock the operations.
         returnCd.countDown();
-        finishCd.await(10, TimeUnit.SECONDS);
+        assertWithMessage("All setProperty operations finished within 10 seconds")
+                .that(finishCd.await(10, TimeUnit.SECONDS)).isTrue();
     }
 }

@@ -62,7 +62,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -1311,7 +1310,13 @@ public class CarPropertyManager extends CarManagerBase {
         return arr;
     }
 
-    private static <V> V runSyncOperation(Callable<V> c)
+    @FunctionalInterface
+    private interface RemoteCallable<V> {
+        V call() throws RemoteException;
+    }
+
+    @Nullable
+    private static <V> V runSyncOperation(RemoteCallable<V> c)
             throws RemoteException, ServiceSpecificException {
         int retryCount = 0;
         while (retryCount < SYNC_OP_RETRY_MAX_COUNT) {
@@ -1328,11 +1333,8 @@ public class CarPropertyManager extends CarManagerBase {
                         + " ms before retry");
                 SystemClock.sleep(SYNC_OP_RETRY_SLEEP_IN_MS);
                 continue;
-            } catch (RuntimeException | RemoteException e) {
+            } catch (RemoteException e) {
                 throw e;
-            } catch (Exception e) {
-                Log.e(TAG, "catching unexpected exception for getProperty/setProperty", e);
-                return null;
             }
         }
         throw new ServiceSpecificException(VehicleHalStatusCode.STATUS_INTERNAL_ERROR,
@@ -1460,7 +1462,7 @@ public class CarPropertyManager extends CarManagerBase {
 
         assertPropertyIdIsSupported(propId);
 
-        Trace.beginSection("CarPropertyManager#getProperty");
+        Trace.beginSection("getProperty-" + propId + "/" + areaId);
         try {
             return (CarPropertyValue<E>) (runSyncOperation(() -> {
                 return mService.getProperty(propId, areaId);
@@ -1542,7 +1544,7 @@ public class CarPropertyManager extends CarManagerBase {
 
         assertPropertyIdIsSupported(propId);
 
-        Trace.beginSection("CarPropertyManager#setProperty");
+        Trace.beginSection("setProperty-" + propId + "/" + areaId);
         try {
             runSyncOperation(() -> {
                 mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
