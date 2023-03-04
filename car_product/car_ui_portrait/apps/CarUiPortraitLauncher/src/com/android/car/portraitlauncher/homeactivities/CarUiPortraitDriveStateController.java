@@ -59,7 +59,7 @@ public class CarUiPortraitDriveStateController {
      */
     public boolean isDrivingStateMoving() {
         logIfDebuggable("Driving state is " + mCurrentDrivingState);
-        return mCurrentDrivingState != DRIVING_STATE_MOVING;
+        return mCurrentDrivingState == DRIVING_STATE_MOVING;
     }
 
     /**
