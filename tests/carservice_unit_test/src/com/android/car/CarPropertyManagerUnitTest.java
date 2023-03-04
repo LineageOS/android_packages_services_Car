@@ -217,6 +217,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testGetProperty_syncOpTryAgain_exceedRetryCountLimit() throws RemoteException {
+        // Car service will throw CarInternalException with version >= R.
         setAppTargetSdk(Build.VERSION_CODES.R);
 
         when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenThrow(
