@@ -46,6 +46,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarVersion;
+import android.car.SyncResultCallback;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
@@ -60,6 +61,7 @@ import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.TelemetryProto.TelemetryError;
 import android.car.user.CarUserManager;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
@@ -2075,6 +2077,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
+        // TODO(b/235991826): Update this call with new switchUser call
         AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
 
         showUserSwitchResult(writer, future, timeout);
@@ -2159,11 +2162,40 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         if (!halOnly) {
             CarUserManager carUserManager = getCarUserManager(mContext);
-            AsyncFuture<UserCreationResult> future = isGuest
-                    ? carUserManager.createGuest(name)
-                    : carUserManager.createUser(name, flags);
 
-            UserCreationResult result = waitForFuture(writer, future, timeout);
+            SyncResultCallback<UserCreationResult> syncResultCallback =
+                    new SyncResultCallback<UserCreationResult>();
+            UserCreationRequest.Builder builder = new UserCreationRequest.Builder();
+            if (name != null) {
+                builder.setName(name);
+            }
+
+            if (isGuest) {
+                builder.setGuest();
+            }
+
+            if ((flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
+                builder.setAdmin();
+            }
+
+            if ((flags & UserManagerHelper.FLAG_EPHEMERAL) == UserManagerHelper.FLAG_EPHEMERAL) {
+                builder.setEphemeral();
+            }
+
+            carUserManager.createUser(builder.build(), Runnable::run, syncResultCallback);
+
+            UserCreationResult result;
+            try {
+                result = syncResultCallback.get(timeout, TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                writer.printf("UserCreationResult: Got Timeout Exception - %s", e);
+                return;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                writer.printf("UserCreationResult: Got InterruptedException - %s", e);
+                return;
+            }
+
             if (result == null) return;
 
             UserHandle user = result.getUser();
@@ -2311,6 +2343,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
+        // TODO(b/235994391): Update this call with new removeUser call
         UserRemovalResult result = carUserManager.removeUser(userId);
         writer.printf("UserRemovalResult: status = %s\n",
                 UserRemovalResult.statusToString(result.getStatus()));
