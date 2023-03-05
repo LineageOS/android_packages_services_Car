@@ -27,9 +27,11 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String CAR_OCCUPANT_CONNECTION_SERVICE = "car_occupant_connection_service";
     field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE = "android.car.remoteaccess.RemoteTaskClientService";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String CAR_REMOTE_DEVICE_SERVICE = "car_remote_device_service";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -81,7 +83,9 @@ package android.car {
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final String PERMISSION_CONTROL_WINDSHIELD_WIPERS = "android.car.permission.CONTROL_WINDSHIELD_WIPERS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI = "android.car.permission.MANAGE_CAR_SYSTEM_UI";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MANAGE_OCCUPANT_CONNECTION = "android.car.permission.MANAGE_OCCUPANT_CONNECTION";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MANAGE_REMOTE_DEVICE = "android.car.permission.MANAGE_REMOTE_DEVICE";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_1) public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MIRROR_DISPLAY = "android.car.permission.MIRROR_DISPLAY";
@@ -137,12 +141,11 @@ package android.car {
   }
 
   public class CarOccupantZoneManager {
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int assignVisibleUserToOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.os.UserHandle, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int assignVisibleUserToOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.os.UserHandle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int getAudioZoneIdForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.ACCESS_PRIVATE_DISPLAY_ID) public int getDisplayIdForDriver(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int unassignOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGNMENT_FLAG_LAUNCH_HOME = 1; // 0x1
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED = 1; // 0x1
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE = 3; // 0x3
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER = 2; // 0x2
@@ -201,6 +204,27 @@ package android.car {
 
   public static interface CarProjectionManager.ProjectionStatusListener {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
+  }
+
+  public final class CarRemoteDeviceManager {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @Nullable @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public android.content.pm.PackageInfo getEndpointPackageInfo(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public boolean isOccupantZonePowerOn(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void registerStateCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.CarRemoteDeviceManager.StateCallback);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void setOccupantZonePower(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, boolean);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void unregisterStateCallback(@NonNull android.car.CarRemoteDeviceManager.StateCallback);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_CLIENT_INSTALLED = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_CLIENT_IN_FOREGROUND = 16; // 0x10
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_CLIENT_RUNNING = 8; // 0x8
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_CLIENT_SAME_SIGNATURE = 4; // 0x4
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_CLIENT_SAME_VERSION = 2; // 0x2
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_OCCUPANT_ZONE_CONNECTION_READY = 4; // 0x4
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_OCCUPANT_ZONE_POWER_ON = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED = 2; // 0x2
+  }
+
+  public static interface CarRemoteDeviceManager.StateCallback {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onAppStateChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onOccupantZoneStateChanged(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
   }
 
   public interface ResultCallback<V> {
@@ -1739,6 +1763,65 @@ package android.car.navigation {
 
 }
 
+package android.car.occupantconnection {
+
+  public abstract class AbstractReceiverService extends android.app.Service {
+    ctor public AbstractReceiverService();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void acceptConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public boolean forwardPayload(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull String, @NonNull android.car.occupantconnection.Payload);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public java.util.List<java.lang.String> getAllReceiverEndpoints();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @Nullable public android.os.IBinder onBind(@NonNull android.content.Intent);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onConnectionCanceled(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onConnectionInitiated(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onDisconnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public abstract void onReceiverRegistered(@NonNull String);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void rejectConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+  }
+
+  public final class CarOccupantConnectionManager {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void cancelConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void disconnect(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public boolean isConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void registerReceiver(@NonNull String, @NonNull java.util.concurrent.Executor, @NonNull android.car.occupantconnection.CarOccupantConnectionManager.PayloadCallback);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void requestConnection(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull java.util.concurrent.Executor, @NonNull android.car.occupantconnection.CarOccupantConnectionManager.ConnectionRequestCallback);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void sendPayload(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload) throws android.car.occupantconnection.CarOccupantConnectionManager.PayloadTransferException;
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION) public void unregisterReceiver(@NonNull String);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int CONNECTION_ERROR_NOT_READY = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 2; // 0x2
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int CONNECTION_ERROR_UNKNOWN = 0; // 0x0
+  }
+
+  public static interface CarOccupantConnectionManager.ConnectionRequestCallback {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onDisconnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onFailed(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onRejected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
+  }
+
+  public static interface CarOccupantConnectionManager.PayloadCallback {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
+  }
+
+  @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final class CarOccupantConnectionManager.PayloadTransferException extends java.lang.Exception {
+    ctor public CarOccupantConnectionManager.PayloadTransferException();
+  }
+
+  public final class Payload implements java.io.Closeable android.os.Parcelable {
+    ctor public Payload(@NonNull byte[]);
+    method public void close();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public int describeContents();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void deserialize(@NonNull android.os.Parcel);
+    method @Nullable public byte[] getBytes();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void serialize(@NonNull android.os.Parcel, int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void serializeNullPayload(@NonNull android.os.Parcel);
+    method public final void writeToParcel(@NonNull android.os.Parcel, int);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public static final android.os.Parcelable.Creator<android.car.occupantconnection.Payload> CREATOR;
+  }
+
+}
+
 package android.car.oem {
 
   @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public final class AudioFocusEntry implements android.os.Parcelable {
@@ -2176,12 +2259,15 @@ package android.car.user {
   public final class CarUserManager {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.UserLifecycleEventFilter, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void createUser(@NonNull android.car.user.UserCreationRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserCreationResult>);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public boolean isValidUser(@NonNull android.os.UserHandle);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public static String lifecycleEventTypeToString(int);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void removeUser(@NonNull android.car.user.UserRemovalRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserRemovalResult>);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.Manifest.permission.MANAGE_USERS) public void setUserSwitchUiCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserHandleSwitchUiCallback);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStartResponse startUser(@NonNull android.car.user.UserStartRequest);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS}) public android.car.user.UserStopResponse stopUser(@NonNull android.car.user.UserStopRequest);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public void switchUser(@NonNull android.car.user.UserSwitchRequest, @NonNull java.util.concurrent.Executor, @NonNull android.car.ResultCallback<android.car.user.UserSwitchResult>);
     method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_1) public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8; // 0x8
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE = 11; // 0xb
@@ -2228,6 +2314,24 @@ package android.car.user {
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.user.UserCreationRequest.Builder setName(@NonNull String);
   }
 
+  public final class UserCreationResult implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public Integer getAndroidFailureStatus();
+    method @Nullable public String getErrorMessage();
+    method @Nullable public String getInternalErrorMessage();
+    method public int getStatus();
+    method @Nullable public android.os.UserHandle getUser();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserCreationResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_HAL_FAILURE = 3; // 0x3
+    field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
+    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+  }
+
   public final class UserLifecycleEventFilter implements android.os.Parcelable {
     method public boolean apply(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
     method public int describeContents();
@@ -2252,6 +2356,22 @@ package android.car.user {
   public static final class UserRemovalRequest.Builder {
     ctor public UserRemovalRequest.Builder(@NonNull android.os.UserHandle);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @NonNull public android.car.user.UserRemovalRequest build();
+  }
+
+  public final class UserRemovalResult implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getStatus();
+    method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserRemovalResult> CREATOR;
+    field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2
+    field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_SUCCESSFUL = 1; // 0x1
+    field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED = 102; // 0x66
+    field public static final int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL = 104; // 0x68
+    field public static final int STATUS_SUCCESSFUL_SET_EPHEMERAL = 103; // 0x67
+    field public static final int STATUS_USER_DOES_NOT_EXIST = 101; // 0x65
   }
 
   public final class UserStartRequest implements android.os.Parcelable {
@@ -2330,9 +2450,11 @@ package android.car.user {
 
   public final class UserSwitchResult implements android.os.Parcelable {
     method public int describeContents();
+    method @Nullable public Integer getAndroidFailureStatus();
     method @Nullable public String getErrorMessage();
     method public int getStatus();
     method public boolean isSuccess();
+    method @NonNull public static String statusToString(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserSwitchResult> CREATOR;
     field public static final int STATUS_ANDROID_FAILURE = 2; // 0x2

@@ -64,6 +64,7 @@ import android.car.user.CarUserManager.UserIdentificationAssociationSetValue;
 import android.car.user.CarUserManager.UserIdentificationAssociationType;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
@@ -125,6 +126,7 @@ import com.android.car.hal.HalCallback;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
@@ -1294,6 +1296,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         createUser(name, userType, flags, timeoutMs, receiver, /* hasCallerRestrictions= */ false);
     }
 
+    // TODO(b/235994008): convert this call to createUser once other createUser call is removed.
+    @Override
+    public void createUser2(@NonNull UserCreationRequest userCreationRequest, int timeoutMs,
+            ResultCallbackImpl<UserCreationResult> callback) {
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
+            @Override
+            protected void onCompleted(UserCreationResult result, Throwable err) {
+                callback.complete(result);
+            }
+        };
+        String name = userCreationRequest.getName();
+        String userType = userCreationRequest.isGuest() ? UserManager.USER_TYPE_FULL_GUEST
+                : UserManager.USER_TYPE_FULL_SECONDARY;
+        int flags = 0;
+        flags |= userCreationRequest.isAdmin() ? UserManagerHelper.FLAG_ADMIN : 0;
+        flags |= userCreationRequest.isEphemeral() ? UserManagerHelper.FLAG_EPHEMERAL : 0;
+
+        createUser(name, userType, flags, timeoutMs, future);
+    }
+
     /**
      * Internal implementation of {@code createUser()}, which is used by both
      * {@code ICarUserService} and {@code ICarDevicePolicyService}.
@@ -2365,7 +2387,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         CarOccupantZoneService zoneService = CarLocalServices.getService(
                 CarOccupantZoneService.class);
         int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
-                UserHandle.of(userId), /* flags= */ 0);
+                UserHandle.of(userId));
         if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
             Slogf.w(TAG,
                     "assignVisibleUserToZone: failed to assign user %d to zone %d, result %d",

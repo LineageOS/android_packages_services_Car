@@ -205,8 +205,8 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         int userId = 99;
         assertWithMessage("User assignment").that(
                 mCarOccupantZoneService.assignVisibleUserToOccupantZone(
-                zoneInfo.zoneId, UserHandle.of(userId), /* flags= */ 0)).isEqualTo(
-                CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+                zoneInfo.zoneId, UserHandle.of(userId))).isEqualTo(
+                        CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
 
         ICarOccupantZoneCallback callback = getOccupantZoneCallback();
         callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);

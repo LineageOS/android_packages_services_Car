@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AcronymName: android.car.app.CarActivityManager#registerCarSystemUIProxy(android.car.app.CarSystemUIProxy):
+    Acronyms should not be capitalized in method names: was `registerCarSystemUIProxy`, should this be `registerCarSystemUiProxy`?
+AcronymName: android.car.app.CarSystemUIProxy:
+    Acronyms should not be capitalized in class names: was `CarSystemUIProxy`, should this be `CarSystemUiProxy`?
+
+
 AllUpper: android.car.diagnostic.CarDiagnosticEvent.SparkIgnitionMonitors#EGR:
     Constant EGR must be marked static final
 
@@ -31,6 +37,14 @@ AutoBoxing: android.car.diagnostic.CarDiagnosticEvent#getVendorFloatSensor(int):
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: android.car.diagnostic.CarDiagnosticEvent#getVendorIntegerSensor(int):
     Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: android.car.user.UserCreationResult#getAndroidFailureStatus():
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: android.car.user.UserSwitchResult#getAndroidFailureStatus():
+    Must avoid boxed primitives (`java.lang.Integer`)
+
+
+BannedThrow: android.car.occupantconnection.CarOccupantConnectionManager#sendPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.car.occupantconnection.Payload):
+    Methods must not throw unchecked exceptions
 
 
 BuilderSetStyle: android.car.diagnostic.CarDiagnosticEvent.Builder#newFreezeFrameBuilder():
@@ -145,6 +159,10 @@ HiddenSuperclass: android.car.vms.VmsSubscriberManager:
     Public class android.car.vms.VmsSubscriberManager stripped of unavailable superclass android.car.CarManagerBase
 
 
+IntentBuilderName: android.car.app.ControlledRemoteCarTaskViewConfig#getActivityIntent():
+    Methods creating an Intent should be named `create<Foo>Intent()`, was `getActivityIntent`
+
+
 IntentName: android.car.Car#CAR_EXTRA_CLUSTER_ACTIVITY_STATE:
     Intent extra constant name must be EXTRA_FOO: CAR_EXTRA_CLUSTER_ACTIVITY_STATE
 IntentName: android.car.media.CarAudioManager#AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS:
@@ -171,6 +189,8 @@ MinMaxConstant: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_CURR
     If min/max could change in future, make them dynamic methods: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_CURRENT
 MinMaxConstant: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_VOLTAGE:
     If min/max could change in future, make them dynamic methods: android.car.diagnostic.IntegerSensorIndex#MAX_OXYGEN_SENSOR_VOLTAGE
+MinMaxConstant: android.car.occupantconnection.Payload#MAX_DIRECT_PAYLOAD_SIZE:
+    If min/max could change in future, make them dynamic methods: android.car.occupantconnection.Payload#MAX_DIRECT_PAYLOAD_SIZE
 
 
 MissingGetterMatchingBuilder: android.car.diagnostic.CarDiagnosticEvent.Builder#setDtc(String):
@@ -195,10 +215,18 @@ MissingGetterMatchingBuilder: android.car.projection.ProjectionStatus.Builder#se
     android.car.projection.ProjectionStatus does not declare a `getProjectionTransport()` method matching method android.car.projection.ProjectionStatus.Builder.setProjectionTransport(int)
 MissingGetterMatchingBuilder: android.car.projection.ProjectionStatus.MobileDevice.Builder#addTransport(int):
     android.car.projection.ProjectionStatus.MobileDevice does not declare a `getTransports()` method matching method android.car.projection.ProjectionStatus.MobileDevice.Builder.addTransport(int)
+MissingGetterMatchingBuilder: android.car.user.UserCreationRequest.Builder#setAdmin():
+    android.car.user.UserCreationRequest does not declare a `getAdmin()` method matching method android.car.user.UserCreationRequest.Builder.setAdmin()
+MissingGetterMatchingBuilder: android.car.user.UserCreationRequest.Builder#setEphemeral():
+    android.car.user.UserCreationRequest does not declare a `getEphemeral()` method matching method android.car.user.UserCreationRequest.Builder.setEphemeral()
+MissingGetterMatchingBuilder: android.car.user.UserCreationRequest.Builder#setGuest():
+    android.car.user.UserCreationRequest does not declare a `getGuest()` method matching method android.car.user.UserCreationRequest.Builder.setGuest()
 MissingGetterMatchingBuilder: android.car.user.UserLifecycleEventFilter.Builder#addEventType(int):
     android.car.user.UserLifecycleEventFilter does not declare a `getEventTypes()` method matching method android.car.user.UserLifecycleEventFilter.Builder.addEventType(int)
 MissingGetterMatchingBuilder: android.car.user.UserLifecycleEventFilter.Builder#addUser(android.os.UserHandle):
     android.car.user.UserLifecycleEventFilter does not declare a `getUsers()` method matching method android.car.user.UserLifecycleEventFilter.Builder.addUser(android.os.UserHandle)
+MissingGetterMatchingBuilder: android.car.user.UserStopRequest.Builder#setForce():
+    android.car.user.UserStopRequest does not declare a `getForce()` method matching method android.car.user.UserStopRequest.Builder.setForce()
 
 
 MissingNullability: android.car.AoapService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
@@ -657,6 +685,16 @@ MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.o
     Missing nullability on parameter `out` in method `writeToParcel`
 
 
+NotCloseable: android.car.app.CarTaskViewController:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewController
+NotCloseable: android.car.app.CarTaskViewHost:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewHost
+MutableBareField: android.car.occupantconnection.Payload#bytes:
+    Bare field bytes must be marked final, or moved behind accessors if mutable
+
+
+NotCloseable: android.car.occupantconnection.CarOccupantConnectionManager:
+    Classes that release resources (disconnect()) should implement AutoCloseable and CloseGuard: class android.car.occupantconnection.CarOccupantConnectionManager
 NotCloseable: android.car.oem.OemCarServiceComponent:
     Classes that release resources (release()) should implement AutoClosable and CloseGuard: class android.car.oem.OemCarServiceComponent
 NotCloseable: android.car.view.MirroredSurfaceView:
@@ -701,6 +739,14 @@ OnNameExpected: android.car.cluster.renderer.InstrumentClusterRenderingService#s
     If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockingPolicy():
     Methods implemented by developers should follow the on<Something> style, was `getAppBlockingPolicy`
+OnNameExpected: android.car.occupantconnection.AbstractReceiverService#acceptConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.occupantconnection.AbstractReceiverService#getAllReceiverEndpoints():
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.occupantconnection.AbstractReceiverService#rejectConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo, int):
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.oem.OemCarService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]):
     If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.oem.OemCarService#getOemAudioFocusService():
@@ -743,6 +789,32 @@ ProtectedMember: android.car.cluster.renderer.InstrumentClusterRenderingService#
     Protected methods not allowed; must be public: method android.car.cluster.renderer.InstrumentClusterRenderingService.startNavigationActivity(android.content.ComponentName)}
 ProtectedMember: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockingPolicy():
     Protected methods not allowed; must be public: method android.car.content.pm.CarAppBlockingPolicyService.getAppBlockingPolicy()}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#acceptConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.acceptConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo,String,android.car.occupantconnection.Payload)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#getAllReceiverEndpoints():
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.getAllReceiverEndpoints()}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onConnected(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onConnected(android.car.CarOccupantZoneManager.OccupantZoneInfo)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onConnectionCanceled(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onConnectionCanceled(android.car.CarOccupantZoneManager.OccupantZoneInfo)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onConnectionInitiated(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onConnectionInitiated(android.car.CarOccupantZoneManager.OccupantZoneInfo)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onDisconnected(android.car.CarOccupantZoneManager.OccupantZoneInfo):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onDisconnected(android.car.CarOccupantZoneManager.OccupantZoneInfo)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onPayloadReceived(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.car.occupantconnection.Payload):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onPayloadReceived(android.car.CarOccupantZoneManager.OccupantZoneInfo,android.car.occupantconnection.Payload)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#onReceiverRegistered(String):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.onReceiverRegistered(String)}
+ProtectedMember: android.car.occupantconnection.AbstractReceiverService#rejectConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo, int):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.AbstractReceiverService.rejectConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo,int)}
+ProtectedMember: android.car.occupantconnection.Payload#deserialize(android.os.Parcel):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.Payload.deserialize(android.os.Parcel)}
+ProtectedMember: android.car.occupantconnection.Payload#serialize(android.os.Parcel, int):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.Payload.serialize(android.os.Parcel,int)}
+ProtectedMember: android.car.occupantconnection.Payload#serializeNullPayload(android.os.Parcel):
+    Protected methods not allowed; must be public: method android.car.occupantconnection.Payload.serializeNullPayload(android.os.Parcel)}
 ProtectedMember: android.car.view.MirroredSurfaceView#onAttachedToWindow():
     Protected methods not allowed; must be public: method android.car.view.MirroredSurfaceView.onAttachedToWindow()}
 ProtectedMember: android.car.view.MirroredSurfaceView#onDetachedFromWindow():
@@ -831,7 +903,7 @@ UseParcelFileDescriptor: android.car.oem.OemCarServiceComponent#dump(java.io.Fil
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in android.car.oem.OemCarServiceComponent.dump(java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
 
 
-UserHandle: android.car.CarOccupantZoneManager#assignVisibleUserToOccupantZone(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.os.UserHandle, int):
+UserHandle: android.car.CarOccupantZoneManager#assignVisibleUserToOccupantZone(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.os.UserHandle):
     When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added
 UserHandle: android.car.admin.CarDevicePolicyManager#removeUser(android.os.UserHandle):
     When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added
