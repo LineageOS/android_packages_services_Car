@@ -48,4 +48,8 @@
 
     <!-- Setting the icon mask to circular path data -->
     <string name="config_icon_mask" translatable="false">"M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"</string>
+
+    <!-- Whether the device allows users to start in background visible on displays.
+     Should be false for most devices, except automotive vehicle with passenger displays. -->
+    <bool name="config_multiuserVisibleBackgroundUsers">false</bool>
 </resources>
