@@ -21,4 +21,7 @@
         <item name="*android:successColor">@*android:color/car_blue_500</item>
         <item name="*android:errorColor">?android:attr/colorError</item>
     </style>
+    <style name="CarSettingsFragmentContainerStyle">
+        <item name="android:layout_marginHorizontal">16dp</item>
+    </style>
 </resources>
