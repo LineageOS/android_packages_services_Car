@@ -23,6 +23,7 @@ import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.A
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_SNAPSHOT;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_START_TIME;
 import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
 
 import android.annotation.NonNull;
@@ -494,6 +495,32 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME =
             METRICS_CONFIG_PROCESS_MEMORY_SNAPSHOT_V1.getName();
 
+    /** ProcessStartTime section. */
+    private static final String LUA_SCRIPT_ON_PROCESS_START_TIME = new StringBuilder()
+            .append("function onProcessStartTime(published_data, state)\n")
+            .append("    on_script_finished(published_data)\n")
+            .append("end\n")
+            .toString();
+    private static final TelemetryProto.Publisher PROCESS_START_TIME_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(PROCESS_START_TIME))
+                    .build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_PROCESS_START_TIME_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("process_start_time_metrics_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_PROCESS_START_TIME)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onProcessStartTime")
+                                    .setPublisher(PROCESS_START_TIME_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final String PROCESS_START_TIME_CONFIG_NAME =
+                METRICS_CONFIG_PROCESS_START_TIME_V1.getName();
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private boolean mReceiveReportNotification = false;
@@ -628,6 +655,13 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveProcessMemorySnapshotConfigBtnClick);
         view.findViewById(R.id.get_on_process_memory_snapshot_report)
                 .setOnClickListener(this::onGetProcessMemorySnapshotReportBtnClick);
+        /** StatsPublisher process_start_time */
+        view.findViewById(R.id.send_on_process_start_time_config)
+                .setOnClickListener(this::onSendProcessStartTimeConfigBtnClick);
+        view.findViewById(R.id.remove_on_process_start_time_config)
+                .setOnClickListener(this::onRemoveProcessStartTimeConfigBtnClick);
+        view.findViewById(R.id.get_on_process_start_time_report)
+                .setOnClickListener(this::onGetProcessStartTimeReportBtnClick);
         /** Print mem info button */
         view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
@@ -1034,6 +1068,24 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onGetProcessMemorySnapshotReportBtnClick(View view) {
         mCarTelemetryManager.getFinishedReport(
                 PROCESS_MEMORY_SNAPSHOT_CONFIG_NAME, mExecutor, mListener);
+    }
+
+    private void onSendProcessStartTimeConfigBtnClick(View view) {
+        mCarTelemetryManager.addMetricsConfig(
+                PROCESS_START_TIME_CONFIG_NAME,
+                METRICS_CONFIG_PROCESS_START_TIME_V1.toByteArray(),
+                mExecutor,
+                mAddMetricsConfigCallback);
+    }
+
+    private void onRemoveProcessStartTimeConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for PROCESS_START_TIME...");
+        mCarTelemetryManager.removeMetricsConfig(PROCESS_START_TIME_CONFIG_NAME);
+    }
+
+    private void onGetProcessStartTimeReportBtnClick(View view) {
+        mCarTelemetryManager.getFinishedReport(
+                PROCESS_START_TIME_CONFIG_NAME, mExecutor, mListener);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
