@@ -20,6 +20,7 @@ import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
 
+import static com.android.car.CarServiceUtils.assertPackageName;
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -411,6 +412,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
+        assertPackageName(mContext, packageName);
 
         // PackageManager#getPackageInfoAsUser() can do this with few lines, but it's hidden API.
         int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
@@ -457,6 +459,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     public void registerReceiver(String packageName, String receiverEndpointId,
             IPayloadCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertPackageName(mContext, packageName);
 
         ClientId receiverClient = getCallingClientId(packageName);
         ReceiverEndpointId receiverEndpoint =
@@ -490,6 +493,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     public void requestConnection(String packageName, OccupantZoneInfo receiverZone,
             IConnectionRequestCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+        assertPackageName(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
