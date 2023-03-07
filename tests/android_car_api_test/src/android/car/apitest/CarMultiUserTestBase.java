@@ -39,9 +39,7 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartRequest;
-import android.car.user.UserStartResponse;
 import android.car.user.UserStopRequest;
-import android.car.user.UserStopResponse;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.BroadcastReceiver;
@@ -348,11 +346,10 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(userId))
                 .setDisplayId(displayId).build();
-        UserStartResponse result = mCarUserManager.startUser(request);
-
-        assertWithMessage("startUserVisibleOnDisplay success for user %s on display %s",
-                        userId, displayId)
-                .that(result.isSuccess()).isTrue();
+        mCarUserManager.startUser(request, Runnable::run,
+                response ->
+                    assertWithMessage("startUser success for user %s on display %s",
+                            userId, displayId).that(response.isSuccess()).isTrue());
     }
 
     protected void forceStopUser(@UserIdInt int userId) throws Exception {
@@ -360,9 +357,10 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(userId)).setForce().build();
-        UserStopResponse result = mCarUserManager.stopUser(request);
-
-        assertWithMessage("stopUser success for user %s", userId).that(result.isSuccess()).isTrue();
+        mCarUserManager.stopUser(request, Runnable::run,
+                response ->
+                    assertWithMessage("stopUser success for user %s", userId)
+                            .that(response.isSuccess()).isTrue());
     }
 
     @Nullable
