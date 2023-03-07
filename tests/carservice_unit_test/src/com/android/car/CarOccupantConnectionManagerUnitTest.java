@@ -195,6 +195,20 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
+    public void testCancelConnectionWithNullParameter_throwsException() throws RemoteException {
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.cancelConnection(/* receiverZone= */ null));
+
+    }
+
+    @Test
+    public void testCancelConnection() throws RemoteException {
+        mOccupantConnectionManager.cancelConnection(mReceiverZone);
+
+        verify(mService).cancelConnection(eq(PACKAGE_NAME), eq(mReceiverZone));
+    }
+
+    @Test
     public void testRegisterReceiverWithNullParameters_throwsException() {
         assertThrows(NullPointerException.class,
                 () -> mOccupantConnectionManager.registerReceiver(
