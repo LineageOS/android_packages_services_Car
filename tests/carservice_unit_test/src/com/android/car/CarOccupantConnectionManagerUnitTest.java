@@ -167,7 +167,8 @@ public final class CarOccupantConnectionManagerUnitTest {
     @Test
     public void testRegisterReceiverWithDuplicateReceiverId() throws RemoteException {
         // The first registerReceiver() call should run normally, while the second
-        // registerReceiver() call should throw an exception because the same ID has been registered.
+        // registerReceiver() call should throw an exception because the same ID has been
+        // registered.
         doNothing().doThrow(IllegalStateException.class)
                 .when(mService).registerReceiver(eq(PACKAGE_NAME), eq(RECEIVER_ENDPOINT_ID), any());
         mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, mCallbackExecutor,
