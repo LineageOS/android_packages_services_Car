@@ -3292,6 +3292,26 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void switchZoneToConfig_afterMirroring_fails() throws Exception {
+        mCarAudioService.init();
+        SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
+        TestAudioZonesMirrorStatusCallbackCallback mirrorCallback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.enableMirrorForAudioZones(TEST_AUDIO_ZONES);
+        mirrorCallback.waitForCallback();
+        mirrorCallback.reset(/* count= */ 1);
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = getZoneConfigToSwitch(TEST_REAR_LEFT_ZONE_ID);
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () ->
+                        mCarAudioService.switchZoneToConfig(zoneConfigSwitchTo, callback));
+
+        expectWithMessage("Switching zone configuration while audio mirroring").that(thrown)
+                .hasMessageThat().contains("currently in a mirroring configuration");
+    }
+
+    @Test
     public void switchZoneToConfig_withPendingFocus() throws Exception {
         mCarAudioService.init();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
