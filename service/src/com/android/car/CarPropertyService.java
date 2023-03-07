@@ -28,12 +28,17 @@ import android.car.Car;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarHvacFanDirection;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.AreaIdConfig;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CruiseControlType;
+import android.car.hardware.property.ErrorState;
+import android.car.hardware.property.EvStoppingMode;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.hardware.property.WindshieldWipersSwitch;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -56,6 +61,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +83,52 @@ public class CarPropertyService extends ICarProperty.Stub
     // will cause all the pending sync operation to timeout because result cannot be delivered.
     private static final int SYNC_GET_SET_PROPERTY_OP_LIMIT = 16;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
+
+    private static final Set<Integer> ERROR_STATES =
+            new HashSet<Integer>(Arrays.asList(
+                    ErrorState.OTHER_ERROR_STATE,
+                    ErrorState.NOT_AVAILABLE_DISABLED,
+                    ErrorState.NOT_AVAILABLE_SPEED_LOW,
+                    ErrorState.NOT_AVAILABLE_SPEED_HIGH,
+                    ErrorState.NOT_AVAILABLE_SAFETY
+            ));
+    private static final Set<Integer> CAR_HVAC_FAN_DIRECTION_UNWRITABLE_STATES =
+            new HashSet<Integer>(Arrays.asList(
+                    CarHvacFanDirection.UNKNOWN
+            ));
+    private static final Set<Integer> CRUISE_CONTROL_TYPE_UNWRITABLE_STATES =
+            new HashSet<Integer>(Arrays.asList(
+                    CruiseControlType.OTHER
+            ));
+    static {
+        CRUISE_CONTROL_TYPE_UNWRITABLE_STATES.addAll(ERROR_STATES);
+    }
+    private static final Set<Integer> EV_STOPPING_MODE_UNWRITABLE_STATES =
+            new HashSet<Integer>(Arrays.asList(
+                    EvStoppingMode.STATE_OTHER
+            ));
+    private static final Set<Integer> WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES =
+            new HashSet<Integer>(Arrays.asList(
+                    WindshieldWipersSwitch.OTHER
+            ));
+
+    private static final SparseArray<Set<Integer>> PROPERTY_ID_TO_UNWRITABLE_STATES =
+            new SparseArray<>();
+    static {
+        PROPERTY_ID_TO_UNWRITABLE_STATES.put(
+                VehiclePropertyIds.CRUISE_CONTROL_TYPE,
+                CRUISE_CONTROL_TYPE_UNWRITABLE_STATES);
+        PROPERTY_ID_TO_UNWRITABLE_STATES.put(
+                VehiclePropertyIds.EV_STOPPING_MODE,
+                EV_STOPPING_MODE_UNWRITABLE_STATES);
+        PROPERTY_ID_TO_UNWRITABLE_STATES.put(
+                VehiclePropertyIds.HVAC_FAN_DIRECTION,
+                CAR_HVAC_FAN_DIRECTION_UNWRITABLE_STATES);
+        PROPERTY_ID_TO_UNWRITABLE_STATES.put(
+                VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH,
+                WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES);
+    }
+
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -930,6 +982,17 @@ public class CarPropertyService extends ICarProperty.Stub
                             + "property ID: %s area ID: 0x%s supported enum values: %s",
                     VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
                     toHexString(areaId), areaIdConfig.getSupportedEnumValues());
+        }
+
+        if (PROPERTY_ID_TO_UNWRITABLE_STATES.contains(carPropertyConfig.getPropertyId())) {
+            Preconditions.checkArgument(!(PROPERTY_ID_TO_UNWRITABLE_STATES
+                    .get(carPropertyConfig.getPropertyId()).contains(valueToSet)),
+                    "setProperty: value to set: %s must not be an unwritable state value. - "
+                            + "property ID: %s area ID: 0x%s unwritable states: %s",
+                    valueToSet,
+                    VehiclePropertyIds.toString(carPropertyConfig.getPropertyId()),
+                    toHexString(areaId),
+                    PROPERTY_ID_TO_UNWRITABLE_STATES.get(carPropertyConfig.getPropertyId()));
         }
     }
 }
