@@ -28,5 +28,9 @@
     <!-- Whether the app grid should use @dimen/app_grid_width and @dimen/app_grid_height.
     If this is set to true, app grid will fill the available space, If this is set to false, exact
     defined dimensions will be used instead.-->
-    <bool name="use_defined_app_grid_dimensions">true</bool>
+    <bool name="use_defined_app_grid_dimensions">false</bool>
+
+    <!-- Whether the app grid should use vertical pagination (up and down swipe) in app grid
+    instead of horizontal pagination (left and right)-->
+    <bool name="use_vertical_app_grid">true</bool>
 </resources>

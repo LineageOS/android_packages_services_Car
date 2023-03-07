@@ -117,6 +117,7 @@
           value="@bool/use_media_source_color_for_seek_bar" />
     <item target="bool/use_defined_app_grid_dimensions"
           value="@bool/use_defined_app_grid_dimensions" />
+    <item target="bool/use_vertical_app_grid" value="@bool/use_vertical_app_grid" />
 
     <item target="integer/optional_seekbar_max" value="@integer/optional_seekbar_max" />
     <item target="integer/car_app_selector_column_number"
