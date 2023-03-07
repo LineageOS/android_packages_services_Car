@@ -16,13 +16,14 @@
 
 package com.android.car.occupantconnection;
 
-
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
 
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.builtin.util.Slogf;
@@ -55,6 +56,8 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.Set;
+
 /**
  * Service to implement API defined in
  * {@link android.car.occupantconnection.CarOccupantConnectionManager} and
@@ -78,33 +81,33 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
      * {@link #mConnectedReceiverServiceMap}.
      */
     @GuardedBy("mLock")
-    private final ArraySet<ClientToken> mConnectingReceiverServices;
+    private final ArraySet<ClientId> mConnectingReceiverServices;
 
     /**
-     * A map of connected receiver services. The key is the clientToken of the receiver service,
+     * A map of connected receiver services. The key is the clientId of the receiver service,
      * while the value is to the binder of the receiver service.
      */
     @GuardedBy("mLock")
-    private final BinderKeyValueContainer<ClientToken, IBackendReceiver>
+    private final BinderKeyValueContainer<ClientId, IBackendReceiver>
             mConnectedReceiverServiceMap;
 
     /** A map of receiver services to their ServiceConnections. */
     @GuardedBy("mLock")
-    private final ArrayMap<ClientToken, ServiceConnection> mReceiverServiceConnectionMap;
+    private final ArrayMap<ClientId, ServiceConnection> mReceiverServiceConnectionMap;
 
     /**
      * A map of receiver endpoints to be registered when the {@link
-     * android.car.occupantconnection.AbstractReceiverService} is connected. The key is its token,
+     * android.car.occupantconnection.AbstractReceiverService} is connected. The key is its ID,
      * and the value is its IPayloadCallback. When a receiver endpoint is registered successfully,
      * it will be removed from this map and added into {@link #mRegisteredReceiverEndpointMap}.
      */
     @GuardedBy("mLock")
-    private final BinderKeyValueContainer<ReceiverEndpointToken, IPayloadCallback>
+    private final BinderKeyValueContainer<ReceiverEndpointId, IPayloadCallback>
             mPreregisteredReceiverEndpointMap;
 
     /**
      * A map of receiver endpoints that have been registered into the {@link
-     * android.car.occupantconnection.AbstractReceiverService}. The key is its token,
+     * android.car.occupantconnection.AbstractReceiverService}. The key is its ID,
      * and the value is its IPayloadCallback.
      * <p>
      * Once this service has registered the receiver endpoint into the receiver service, it still
@@ -117,8 +120,36 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
      * callback dies.
      */
     @GuardedBy("mLock")
-    private final BinderKeyValueContainer<ReceiverEndpointToken, IPayloadCallback>
+    private final BinderKeyValueContainer<ReceiverEndpointId, IPayloadCallback>
             mRegisteredReceiverEndpointMap;
+
+    /**
+     * A map of connection requests that have not received any response from the receiver app yet.
+     * The request was not responded because the {@link
+     * android.car.occupantconnection.AbstractReceiverService} in the receiver app was not bound,
+     * or was bound but didn't respond to the request yet.
+     * The key is its ID, and the value is its IConnectionRequestCallback.
+     * <p>
+     * When a connection request has been responded by the receiver, the request will be
+     * removed from this map; what's more, if the response is acceptation, the request
+     * will be added into {@link #mAcceptedConnectionRequestMap}.
+     */
+    @GuardedBy("mLock")
+    private final BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
+            mPendingConnectionRequestMap;
+
+    /**
+     * A map of accepted connection requests. The key is its ID, and the value is its
+     * IConnectionRequestCallback.
+     */
+    @GuardedBy("mLock")
+    private final BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
+            mAcceptedConnectionRequestMap;
+
+    // TODO(b/257117236): update this map when the sender dies.
+    /** A set of established connection records. */
+    @GuardedBy("mLock")
+    private final ArraySet<ConnectionRecord> mEstablishConnections;
 
     /**
      * A class to handle the connection to {@link
@@ -126,25 +157,67 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
      */
     private final class ReceiverServiceConnection implements ServiceConnection {
 
-        private final ClientToken mReceiverClient;
+        private final ClientId mReceiverClient;
         private final IBackendConnectionResponder mResponder;
+        @Nullable
+        private IBackendReceiver mReceiverService;
 
-        private ReceiverServiceConnection(ClientToken receiverClient) {
+        private ReceiverServiceConnection(ClientId receiverClient) {
             mReceiverClient = receiverClient;
             mResponder = new IBackendConnectionResponder.Stub() {
                 @Override
                 public void acceptConnection(OccupantZoneInfo senderZone) {
-                    Slogf.v(TAG, "receiver service acceptConnection "
-                            + mReceiverClient);
-                    // TODO(b/257117236): implement this method.
+                    ClientId senderClient = getClientIdInOccupantZone(senderZone,
+                            receiverClient.packageName);
+                    ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+                    synchronized (mLock) {
+                        IConnectionRequestCallback callback =
+                                extractRequestCallbackToNotifyLocked(senderZone, receiverClient);
+                        if (callback == null) {
+                            return;
+                        }
+                        if (mReceiverService == null) {
+                            // mReceiverService can't be null because mResponder is registered
+                            // after onServiceConnected() in invoked, where mReceiverService will
+                            // be initialized to a non-null value. But let's be cautious.
+                            Slogf.wtf(TAG, "The receiver service accepted the connection request"
+                                    + " but mReceiverService is null: " + mReceiverClient);
+                            return;
+                        }
+                        try {
+                            // Both the sender and receiver should be notified for connection
+                            // success.
+                            callback.onConnected(receiverClient.occupantZone);
+                            mReceiverService.onConnected(senderZone);
+
+                            mAcceptedConnectionRequestMap.put(connectionId, callback);
+                            mEstablishConnections.add(new ConnectionRecord(
+                                    receiverClient.packageName,
+                                    senderZone.zoneId,
+                                    receiverClient.occupantZone.zoneId));
+                        } catch (RemoteException e) {
+                            Slogf.e(TAG, "Failed to notify connection success", e);
+                        }
+                    }
                 }
 
                 @Override
-                public void rejectConnection(OccupantZoneInfo senderZone,
-                        int rejectionReason) {
-                    Slogf.v(TAG, "receiver service rejectConnection "
-                            + mReceiverClient);
-                    // TODO(b/257117236): implement this method.
+                public void rejectConnection(OccupantZoneInfo senderZone, int rejectionReason) {
+                    synchronized (mLock) {
+                        IConnectionRequestCallback callback =
+                                extractRequestCallbackToNotifyLocked(senderZone, receiverClient);
+                        if (callback == null) {
+                            return;
+                        }
+                        try {
+                            // Only the sender needs to be notified for connection rejection
+                            // since the connection was rejected by the receiver.
+                            callback.onRejected(receiverClient.occupantZone, rejectionReason);
+                        } catch (RemoteException e) {
+                            Slogf.e(TAG, "Failed to notify the sender for connection"
+                                    + " rejection", e);
+                        }
+                    }
                 }
             };
         }
@@ -152,35 +225,66 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             Slogf.v(TAG, "onServiceConnected " + service);
-            IBackendReceiver receiverService = IBackendReceiver.Stub.asInterface(service);
+            mReceiverService = IBackendReceiver.Stub.asInterface(service);
             try {
-                receiverService.registerBackendConnectionResponder(mResponder);
+                mReceiverService.registerBackendConnectionResponder(mResponder);
             } catch (RemoteException e) {
                 Slogf.e(TAG, "Failed to register IBackendConnectionResponder", e);
             }
 
             synchronized (mLock) {
                 // Update receiver service maps.
-                mConnectedReceiverServiceMap.put(mReceiverClient, receiverService);
+                mConnectedReceiverServiceMap.put(mReceiverClient, mReceiverService);
                 mConnectingReceiverServices.remove(mReceiverClient);
 
                 // Register cached callbacks into AbstractReceiverService, and update receiver
                 // endpoint maps.
-                registerCachedReceiverEndpointsLocked(receiverService, mReceiverClient);
+                registerPreregisteredReceiverEndpointsLocked(mReceiverService, mReceiverClient);
 
-                // TODO(b/257117236): If there are cached connection requests, notify the
-                //  AbstractReceiverService now.
+                // If there are cached connection requests, notify the AbstractReceiverService now.
+                sendCachedConnectionRequestLocked(mReceiverService, mReceiverClient);
             }
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
             Slogf.v(TAG, "onServiceDisconnected " + name);
+            mReceiverService = null;
             synchronized (mLock) {
-                mConnectedReceiverServiceMap.remove(mReceiverClient);
                 mConnectingReceiverServices.remove(mReceiverClient);
+                mConnectedReceiverServiceMap.remove(mReceiverClient);
+                mReceiverServiceConnectionMap.remove(mReceiverClient);
+
+                for (int i = mPreregisteredReceiverEndpointMap.size() - 1; i >= 0; i--) {
+                    ReceiverEndpointId receiverEndpoint =
+                            mPreregisteredReceiverEndpointMap.keyAt(i);
+                    if (receiverEndpoint.clientId.equals(mReceiverClient)) {
+                        mPreregisteredReceiverEndpointMap.removeAt(i);
+                    }
+                }
+
+                for (int i = mRegisteredReceiverEndpointMap.size() - 1; i >= 0; i--) {
+                    ReceiverEndpointId receiverEndpoint =
+                            mRegisteredReceiverEndpointMap.keyAt(i);
+                    if (receiverEndpoint.clientId.equals(mReceiverClient)) {
+                        mRegisteredReceiverEndpointMap.removeAt(i);
+                    }
+                }
+
+                notifySenderOfReceiverServiceDisconnect(mPendingConnectionRequestMap,
+                        mReceiverClient);
+                notifySenderOfReceiverServiceDisconnect(mAcceptedConnectionRequestMap,
+                        mReceiverClient);
+
+                for (int i = mEstablishConnections.size() - 1; i >= 0; i--) {
+                    ConnectionRecord connectionRecord = mEstablishConnections.valueAt(i);
+                    if (connectionRecord.packageName.equals(mReceiverClient.packageName)
+                            && connectionRecord.receiverZoneId
+                            == mReceiverClient.occupantZone.zoneId) {
+                        mEstablishConnections.removeAt(i);
+                    }
+                }
             }
-            // TODO(b/257117236): update connection map, invoke disconnect(), etc.
         }
     }
 
@@ -194,20 +298,28 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 /* connectedReceiverServiceMap= */ new BinderKeyValueContainer<>(),
                 /* receiverServiceConnectionMap= */ new ArrayMap<>(),
                 /* preregisteredReceiverEndpointMap= */ new BinderKeyValueContainer<>(),
-                /* registeredReceiverEndpointMap= */ new BinderKeyValueContainer<>());
+                /* registeredReceiverEndpointMap= */ new BinderKeyValueContainer<>(),
+                /* pendingConnectionRequestMap= */ new BinderKeyValueContainer<>(),
+                /* acceptedConnectionRequestMap= */ new BinderKeyValueContainer<>(),
+                /* establishConnections= */ new ArraySet<>());
     }
 
     @VisibleForTesting
     CarOccupantConnectionService(Context context,
             CarOccupantZoneService occupantZoneService,
             CarPowerManagementService powerManagementService,
-            ArraySet<ClientToken> connectingReceiverServices,
-            BinderKeyValueContainer<ClientToken, IBackendReceiver> connectedReceiverServiceMap,
-            ArrayMap<ClientToken, ServiceConnection> receiverServiceConnectionMap,
-            BinderKeyValueContainer<ReceiverEndpointToken, IPayloadCallback>
+            ArraySet<ClientId> connectingReceiverServices,
+            BinderKeyValueContainer<ClientId, IBackendReceiver> connectedReceiverServiceMap,
+            ArrayMap<ClientId, ServiceConnection> receiverServiceConnectionMap,
+            BinderKeyValueContainer<ReceiverEndpointId, IPayloadCallback>
                     preregisteredReceiverEndpointMap,
-            BinderKeyValueContainer<ReceiverEndpointToken, IPayloadCallback>
-                    registeredReceiverEndpointMap) {
+            BinderKeyValueContainer<ReceiverEndpointId, IPayloadCallback>
+                    registeredReceiverEndpointMap,
+            BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
+                    pendingConnectionRequestMap,
+            BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
+                    acceptedConnectionRequestMap,
+            ArraySet<ConnectionRecord> establishConnections) {
         mContext = context;
         mOccupantZoneService = occupantZoneService;
         mPowerManagementService = powerManagementService;
@@ -216,6 +328,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         mReceiverServiceConnectionMap = receiverServiceConnectionMap;
         mPreregisteredReceiverEndpointMap = preregisteredReceiverEndpointMap;
         mRegisteredReceiverEndpointMap = registeredReceiverEndpointMap;
+        mPendingConnectionRequestMap = pendingConnectionRequestMap;
+        mAcceptedConnectionRequestMap = acceptedConnectionRequestMap;
+        mEstablishConnections = establishConnections;
     }
 
     @Override
@@ -235,32 +350,48 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         writer.println("*CarOccupantConnectionService*");
         synchronized (mLock) {
             writer.printf("%smConnectingReceiverServices:\n", INDENTATION_2);
-            for (ClientToken token : mConnectingReceiverServices) {
-                writer.printf("%s%s\n", INDENTATION_4, token);
+            for (int i = 0; i < mConnectingReceiverServices.size(); i++) {
+                writer.printf("%s%s\n", INDENTATION_4, mConnectingReceiverServices.valueAt(i));
             }
             writer.printf("%smConnectedReceiverServiceMap:\n", INDENTATION_2);
             for (int i = 0; i < mConnectedReceiverServiceMap.size(); i++) {
-                ClientToken token = mConnectedReceiverServiceMap.keyAt(i);
+                ClientId id = mConnectedReceiverServiceMap.keyAt(i);
                 IBackendReceiver service = mConnectedReceiverServiceMap.valueAt(i);
-                writer.printf("%s%s, receiver service:%s\n", INDENTATION_4, token, service);
+                writer.printf("%s%s, receiver service:%s\n", INDENTATION_4, id, service);
             }
             writer.printf("%smReceiverServiceConnectionMap:\n", INDENTATION_2);
             for (int i = 0; i < mReceiverServiceConnectionMap.size(); i++) {
-                ClientToken token = mReceiverServiceConnectionMap.keyAt(i);
+                ClientId id = mReceiverServiceConnectionMap.keyAt(i);
                 ServiceConnection connection = mReceiverServiceConnectionMap.valueAt(i);
-                writer.printf("%s%s, connection:%s\n", INDENTATION_4, token, connection);
+                writer.printf("%s%s, connection:%s\n", INDENTATION_4, id, connection);
             }
             writer.printf("%smPreregisteredReceiverEndpointMap:\n", INDENTATION_2);
             for (int i = 0; i < mPreregisteredReceiverEndpointMap.size(); i++) {
-                ReceiverEndpointToken token = mPreregisteredReceiverEndpointMap.keyAt(i);
+                ReceiverEndpointId id = mPreregisteredReceiverEndpointMap.keyAt(i);
                 IPayloadCallback callback = mPreregisteredReceiverEndpointMap.valueAt(i);
-                writer.printf("%s%s, callback:%s\n", INDENTATION_4, token, callback);
+                writer.printf("%s%s, callback:%s\n", INDENTATION_4, id, callback);
             }
             writer.printf("%smRegisteredReceiverEndpointMap:\n", INDENTATION_2);
             for (int i = 0; i < mRegisteredReceiverEndpointMap.size(); i++) {
-                ReceiverEndpointToken token = mRegisteredReceiverEndpointMap.keyAt(i);
+                ReceiverEndpointId id = mRegisteredReceiverEndpointMap.keyAt(i);
                 IPayloadCallback callback = mRegisteredReceiverEndpointMap.valueAt(i);
-                writer.printf("%s%s, callback:%s\n", INDENTATION_4, token, callback);
+                writer.printf("%s%s, callback:%s\n", INDENTATION_4, id, callback);
+            }
+            writer.printf("%smPendingConnectionRequestMap:\n", INDENTATION_2);
+            for (int i = 0; i < mPendingConnectionRequestMap.size(); i++) {
+                ConnectionId id = mPendingConnectionRequestMap.keyAt(i);
+                IConnectionRequestCallback callback = mPendingConnectionRequestMap.valueAt(i);
+                writer.printf("%s%s, callback:%s\n", INDENTATION_4, id, callback);
+            }
+            writer.printf("%smAcceptedConnectionRequestMap:\n", INDENTATION_2);
+            for (int i = 0; i < mAcceptedConnectionRequestMap.size(); i++) {
+                ConnectionId id = mAcceptedConnectionRequestMap.keyAt(i);
+                IConnectionRequestCallback callback = mAcceptedConnectionRequestMap.valueAt(i);
+                writer.printf("%s%s, callback:%s\n", INDENTATION_4, id, callback);
+            }
+            writer.printf("%smEstablishConnections:\n", INDENTATION_2);
+            for (int i = 0; i < mEstablishConnections.size(); i++) {
+                writer.printf("%s%s\n", INDENTATION_4, mEstablishConnections.valueAt(i));
             }
         }
     }
@@ -327,9 +458,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             IPayloadCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
 
-        ClientToken receiverClient = getCallingClientToken(packageName);
-        ReceiverEndpointToken receiverEndpoint =
-                new ReceiverEndpointToken(receiverClient, receiverEndpointId);
+        ClientId receiverClient = getCallingClientId(packageName);
+        ReceiverEndpointId receiverEndpoint =
+                new ReceiverEndpointId(receiverClient, receiverEndpointId);
         synchronized (mLock) {
             assertNoDuplicateReceiverEndpointLocked(receiverEndpoint);
             // If the AbstractReceiverService of the receiver app is connected already, register
@@ -359,7 +490,31 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     public void requestConnection(String packageName, OccupantZoneInfo receiverZone,
             IConnectionRequestCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
+
+        ClientId senderClient = getCallingClientId(packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        synchronized (mLock) {
+            assertNoDuplicateConnectionRequestLocked(connectionId);
+
+            // Save the callback in mPendingConnectionRequestMap.
+            // The requester will be notified when there is a response from the receiver app.
+            mPendingConnectionRequestMap.put(connectionId, callback);
+
+            // If the AbstractReceiverService of the receiver app is bound, notify it of the
+            // request now.
+            IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+            if (receiverService != null) {
+                try {
+                    receiverService.onConnectionInitiated(senderClient.occupantZone);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to notify the receiver for connection request", e);
+                }
+                return;
+            }
+            // Otherwise, bind to it, and notify the requester once it is bound.
+            maybeBindReceiverServiceLocked(receiverClient);
+        }
     }
 
     @Override
@@ -389,20 +544,19 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @GuardedBy("mLock")
-    private void registerCachedReceiverEndpointsLocked(IBackendReceiver receiverService,
-            ClientToken receiverClient) {
+    private void registerPreregisteredReceiverEndpointsLocked(IBackendReceiver receiverService,
+            ClientId receiverClient) {
         for (int i = mPreregisteredReceiverEndpointMap.size() - 1; i >= 0; i--) {
-            ReceiverEndpointToken receiverEndpoint = mPreregisteredReceiverEndpointMap.keyAt(i);
-            if (!receiverClient.equals(receiverEndpoint.clientToken)) {
+            ReceiverEndpointId receiverEndpoint = mPreregisteredReceiverEndpointMap.keyAt(i);
+            if (!receiverClient.equals(receiverEndpoint.clientId)) {
                 // This endpoint belongs to another client, so skip it.
                 continue;
             }
-            String receiverEndpointId = receiverEndpoint.receiverEndpointId;
+            String receiverEndpointId = receiverEndpoint.endpointId;
             IPayloadCallback callback = mPreregisteredReceiverEndpointMap.valueAt(i);
             try {
                 receiverService.registerReceiver(receiverEndpointId, callback);
-                // Only update the maps after registration succeeded. This allows to
-                // retry.
+                // Only update the maps after registration succeeded. This allows to retry.
                 mPreregisteredReceiverEndpointMap.removeAt(i);
                 mRegisteredReceiverEndpointMap.put(receiverEndpoint, callback);
             } catch (RemoteException e) {
@@ -412,17 +566,23 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @VisibleForTesting
-    ClientToken getCallingClientToken(String packageName) {
+    ClientId getCallingClientId(String packageName) {
         UserHandle callingUserHandle = Binder.getCallingUserHandle();
         int callingUserId = callingUserHandle.getIdentifier();
         OccupantZoneInfo occupantZone =
                 mOccupantZoneService.getOccupantZoneForUser(callingUserHandle);
         // Note: the occupantZone is not null because the calling user must be a valid user.
-        return new ClientToken(occupantZone, callingUserId, packageName);
+        return new ClientId(occupantZone, callingUserId, packageName);
+    }
+
+    private ClientId getClientIdInOccupantZone(OccupantZoneInfo occupantZone,
+            String packageName) {
+        int userId = mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
+        return new ClientId(occupantZone, userId, packageName);
     }
 
     @GuardedBy("mLock")
-    private void assertNoDuplicateReceiverEndpointLocked(ReceiverEndpointToken receiverEndpoint) {
+    private void assertNoDuplicateReceiverEndpointLocked(ReceiverEndpointId receiverEndpoint) {
         if (hasReceiverEndpointLocked(receiverEndpoint)) {
             throw new IllegalStateException("The receiver endpoint was registered already: "
                     + receiverEndpoint);
@@ -430,17 +590,17 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @GuardedBy("mLock")
-    private boolean hasReceiverEndpointLocked(ReceiverEndpointToken receiverEndpoint) {
+    private boolean hasReceiverEndpointLocked(ReceiverEndpointId receiverEndpoint) {
         return mPreregisteredReceiverEndpointMap.containsKey(receiverEndpoint)
                 || mRegisteredReceiverEndpointMap.containsKey(receiverEndpoint);
     }
 
     @GuardedBy("mLock")
     private void registerReceiverEndpointLocked(IBackendReceiver receiverService,
-            ReceiverEndpointToken receiverEndpoint,
+            ReceiverEndpointId receiverEndpoint,
             IPayloadCallback callback) {
         try {
-            receiverService.registerReceiver(receiverEndpoint.receiverEndpointId, callback);
+            receiverService.registerReceiver(receiverEndpoint.endpointId, callback);
             mRegisteredReceiverEndpointMap.put(receiverEndpoint, callback);
         } catch (RemoteException e) {
             Slogf.e(TAG, "Failed to register receiver", e);
@@ -448,7 +608,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @GuardedBy("mLock")
-    private void maybeBindReceiverServiceLocked(ClientToken receiverClient) {
+    private void maybeBindReceiverServiceLocked(ClientId receiverClient) {
         if (mConnectedReceiverServiceMap.containsKey(receiverClient)) {
             Slogf.i(TAG, "Don't bind to the receiver service in %s because it's already bound",
                     receiverClient);
@@ -464,7 +624,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @GuardedBy("mLock")
-    private void bindReceiverServiceLocked(ClientToken receiverClient) {
+    private void bindReceiverServiceLocked(ClientId receiverClient) {
         Intent intent = new Intent(CAR_INTENT_ACTION_RECEIVER_SERVICE);
         intent.setPackage(receiverClient.packageName);
         ReceiverServiceConnection connection = new ReceiverServiceConnection(receiverClient);
@@ -472,5 +632,82 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         mContext.bindServiceAsUser(intent, connection,
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, userHandle);
         mReceiverServiceConnectionMap.put(receiverClient, connection);
+    }
+
+    @GuardedBy("mLock")
+    private void assertNoDuplicateConnectionRequestLocked(ConnectionId connectionId) {
+        if (mPendingConnectionRequestMap.containsKey(connectionId)) {
+            throw new IllegalStateException("The client " + connectionId.senderClient
+                    + " already requested a connection to " + connectionId.receiverClient
+                    + " and is waiting for response");
+        }
+        if (mAcceptedConnectionRequestMap.containsKey(connectionId)) {
+            throw new IllegalStateException("The client " + connectionId.senderClient
+                    + " already established a connection to " + connectionId.receiverClient);
+        }
+    }
+
+    private void notifySenderOfReceiverServiceDisconnect(
+            BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
+                    connectionRequestMap, ClientId receiverClient) {
+        for (int i = connectionRequestMap.size() - 1; i >= 0; i--) {
+            ConnectionId connectionId = connectionRequestMap.keyAt(i);
+            if (!connectionId.receiverClient.equals(receiverClient)) {
+                continue;
+            }
+            IConnectionRequestCallback callback = connectionRequestMap.valueAt(i);
+            try {
+                callback.onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to notify the sender for connection failure", e);
+            }
+            connectionRequestMap.removeAt(i);
+        }
+    }
+
+    /**
+     * Returns whether the sender client is connected to the receiver client.
+     */
+    // TODO(b/257117236): call this method in isConnected() and sendPayload().
+    @GuardedBy("mLock")
+    private boolean isConnectedLocked(String packageName, OccupantZoneInfo senderZone,
+            OccupantZoneInfo receiverZone) {
+        ConnectionRecord expectedConnection =
+                new ConnectionRecord(packageName, senderZone.zoneId, receiverZone.zoneId);
+        return mEstablishConnections.contains(expectedConnection);
+    }
+
+    @GuardedBy("mLock")
+    private IConnectionRequestCallback extractRequestCallbackToNotifyLocked(
+            OccupantZoneInfo senderZone, ClientId receiverClient) {
+        ClientId senderClient = getClientIdInOccupantZone(senderZone, receiverClient.packageName);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        IConnectionRequestCallback pendingCallback = mPendingConnectionRequestMap.get(connectionId);
+        if (pendingCallback == null) {
+            Slogf.e(TAG, "The connection requester no longer exists " + senderClient);
+            return null;
+        }
+        mPendingConnectionRequestMap.remove(connectionId);
+        return pendingCallback;
+    }
+
+    @GuardedBy("mLock")
+    private void sendCachedConnectionRequestLocked(IBackendReceiver receiverService,
+            ClientId receiverClient) {
+        Set<ClientId> notifiedSenderClients = new ArraySet<>();
+        for (int i = mPendingConnectionRequestMap.size() - 1; i >= 0; i--) {
+            ConnectionId connectionId = mPendingConnectionRequestMap.keyAt(i);
+            // If there is a pending request to the receiver service and the receiver service has
+            // not been notified of the request before, notify the receiver service now.
+            if (connectionId.receiverClient.equals(receiverClient)
+                    && !notifiedSenderClients.contains(connectionId.senderClient)) {
+                try {
+                    receiverService.onConnectionInitiated(connectionId.senderClient.occupantZone);
+                    notifiedSenderClients.add(connectionId.senderClient);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to notify the receiver for connection request", e);
+                }
+            }
+        }
     }
 }
