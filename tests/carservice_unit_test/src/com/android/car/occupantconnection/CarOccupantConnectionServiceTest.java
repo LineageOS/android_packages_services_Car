@@ -46,6 +46,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -71,6 +72,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public final class CarOccupantConnectionServiceTest {
 
     private static final String PACKAGE_NAME = "my_package_name";
+    private static final String FAKE_PACKAGE_NAME = "fake_package_name";
     private static final String RECEIVER_ENDPOINT_ID = "test_receiver_endpoint";
 
     @Mock
@@ -111,7 +113,7 @@ public final class CarOccupantConnectionServiceTest {
     private CarOccupantConnectionService mService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws PackageManager.NameNotFoundException {
         // Stored as static: Other tests can leave things behind and fail this test in add call.
         // So just remove as safety guard.
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
@@ -133,6 +135,7 @@ public final class CarOccupantConnectionServiceTest {
         mService.init();
         when(mPayloadCallback.asBinder()).thenReturn(mPayloadCallbackBinder);
         when(mConnectionRequestCallback.asBinder()).thenReturn(mConnectionRequestCallbackBinder);
+        mockPackageName();
     }
 
     @After
@@ -148,6 +151,14 @@ public final class CarOccupantConnectionServiceTest {
 
         assertThrows(SecurityException.class,
                 () -> mService.getEndpointPackageInfo(occupantZoneId, PACKAGE_NAME));
+    }
+
+    @Test
+    public void testGetEndpointPackageInfoWithFakePackageName_throwsException() {
+        int occupantZoneId = 0;
+
+        assertThrows(SecurityException.class,
+                () -> mService.getEndpointPackageInfo(occupantZoneId, FAKE_PACKAGE_NAME));
     }
 
     @Test
@@ -237,6 +248,13 @@ public final class CarOccupantConnectionServiceTest {
 
         assertThrows(SecurityException.class,
                 () -> mService.registerReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID,
+                        mPayloadCallback));
+    }
+
+    @Test
+    public void testRegisterReceiverWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.registerReceiver(FAKE_PACKAGE_NAME, RECEIVER_ENDPOINT_ID,
                         mPayloadCallback));
     }
 
@@ -395,12 +413,19 @@ public final class CarOccupantConnectionServiceTest {
     }
 
     @Test
-    public void testRequestConnectionWithoutPermission() {
+    public void testRequestConnectionWithoutPermission_throwsException() {
         when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
                 .thenReturn(PackageManager.PERMISSION_DENIED);
 
         assertThrows(SecurityException.class,
                 () -> mService.requestConnection(PACKAGE_NAME, mReceiverZone,
+                        mConnectionRequestCallback));
+    }
+
+    @Test
+    public void testRequestConnectionWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.requestConnection(FAKE_PACKAGE_NAME, mReceiverZone,
                         mConnectionRequestCallback));
     }
 
@@ -581,5 +606,13 @@ public final class CarOccupantConnectionServiceTest {
         verify(mConnectionRequestCallback).onFailed(receiverClient.occupantZone,
                 CONNECTION_ERROR_UNKNOWN);
         verify(callback2).onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+    }
+
+    private void mockPackageName() throws PackageManager.NameNotFoundException {
+        PackageManager pm = mock(PackageManager.class);
+        when(mContext.getPackageManager()).thenReturn(pm);
+        ApplicationInfo app = new ApplicationInfo();
+        app.uid = Binder.getCallingUid();
+        when(pm.getApplicationInfo(eq(PACKAGE_NAME), anyInt())).thenReturn(app);
     }
 }
