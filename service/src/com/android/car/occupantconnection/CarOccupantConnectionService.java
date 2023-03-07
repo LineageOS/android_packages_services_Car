@@ -356,8 +356,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void requestConnection(int requestId,
-            OccupantZoneInfo receiverZone,
+    public void requestConnection(String packageName, OccupantZoneInfo receiverZone,
             IConnectionRequestCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
         // TODO(b/257117236): implement this method.
