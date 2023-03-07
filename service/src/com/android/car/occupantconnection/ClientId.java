@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import java.util.Objects;
 
 /** A class used to identify a client. */
-final class ClientToken {
+final class ClientId {
 
     /** The occupant zone that the client runs in. */
     public final OccupantZoneInfo occupantZone;
@@ -31,7 +31,7 @@ final class ClientToken {
     /** The package name of the client. */
     public final String packageName;
 
-    ClientToken(@NonNull OccupantZoneInfo occupantZone, int userId, @NonNull String packageName) {
+    ClientId(@NonNull OccupantZoneInfo occupantZone, int userId, @NonNull String packageName) {
         this.occupantZone = Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         this.userId = userId;
         this.packageName = Objects.requireNonNull(packageName, "packageName cannot be null");
@@ -42,12 +42,13 @@ final class ClientToken {
         if (this == o) {
             return true;
         }
-        if (o instanceof ClientToken) {
-            ClientToken other = (ClientToken) o;
-            return occupantZone.equals(other.occupantZone) && userId == other.userId
-                    && TextUtils.equals(packageName, other.packageName);
+        if (!(o instanceof ClientId)) {
+            return false;
         }
-        return false;
+        ClientId other = (ClientId) o;
+        return occupantZone.equals(other.occupantZone) && userId == other.userId
+                && TextUtils.equals(packageName, other.packageName);
+
     }
 
     @Override
@@ -57,7 +58,7 @@ final class ClientToken {
 
     @Override
     public String toString() {
-        return "ClientToken[occupantZone=" + occupantZone + ", userId=" + userId
+        return "ClientId[occupantZone=" + occupantZone + ", userId=" + userId
                 + ", packageName=" + packageName + "]";
     }
 }
