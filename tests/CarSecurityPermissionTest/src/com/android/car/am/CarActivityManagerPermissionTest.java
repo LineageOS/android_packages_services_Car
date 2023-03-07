@@ -19,9 +19,13 @@ package com.android.car.am;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import android.app.Activity;
 import android.car.Car;
 import android.car.app.CarActivityManager;
+import android.car.app.CarSystemUIProxy;
+import android.car.app.CarTaskViewControllerCallback;
 import android.content.ComponentName;
 import android.os.Binder;
 import android.os.IBinder;
@@ -35,6 +39,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.concurrent.Executor;
 
 /**
  * This class contains security permission tests for {@link CarActivityManager}.
@@ -117,5 +123,22 @@ public class CarActivityManagerPermissionTest {
                 () -> mCarActivityManager.moveRootTaskToDisplay(taskId, displayId));
 
         assertThat(e).hasMessageThat().contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+    }
+
+    @Test
+    public void registerCarSystemUIProxy_requiresPermission() {
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.registerCarSystemUIProxy(mock(CarSystemUIProxy.class)));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
+    }
+
+    @Test
+    public void getCarTaskViewController_requiresPermission() {
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.getCarTaskViewController(mock(Activity.class),
+                        mock(Executor.class), mock(CarTaskViewControllerCallback.class)));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI);
     }
 }
