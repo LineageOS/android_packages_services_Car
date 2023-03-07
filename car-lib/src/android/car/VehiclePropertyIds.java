@@ -42,6 +42,8 @@ public final class VehiclePropertyIds {
 
     /**
      * Undefined property.
+     *
+     * <p>This property should never be used/will never be supported.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID = 0;
