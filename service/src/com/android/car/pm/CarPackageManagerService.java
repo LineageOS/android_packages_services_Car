@@ -789,11 +789,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                         for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
                             int displayId = mUxRestrictionsListeners.keyAt(i);
                             if (!updatedDisplayIds.contains(displayId)) {
-                                mUxRestrictionsListeners.removeAt(displayId);
                                 UxRestrictionsListener listener =
                                         mUxRestrictionsListeners.valueAt(i);
                                 mCarUxRestrictionsService.unregisterUxRestrictionsChangeListener(
                                         listener);
+                                mUxRestrictionsListeners.remove(displayId);
                             }
                         }
                     }
