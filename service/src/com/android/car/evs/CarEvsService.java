@@ -897,6 +897,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
                     mGearSelectionPropertyListener);
         }
+
+        mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
         mStatusListeners.kill();
         mHalWrapper.release();
     }
