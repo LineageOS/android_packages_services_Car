@@ -77,6 +77,10 @@ public final class BinderKeyValueContainerTest {
         assertThat(mContainer.get(mKey1)).isNull();
         assertThat(mContainer.size()).isEqualTo(1);
         assertThat(!mContainer.containsKey(mKey1)).isTrue();
+
+        // Remove the item at index 0 (key2).
+        mContainer.removeAt(0);
+        assertThat(mContainer.size()).isEqualTo(0);
     }
 
     @Test
