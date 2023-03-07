@@ -453,14 +453,17 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    // TODO(b/257335554) Change to an asynchronous method.
-    public @NonNull UserStartResponse startUser(@NonNull UserStartRequest request) {
+    public void startUser(@NonNull UserStartRequest request,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull ResultCallback<UserStartResponse> callback) {
         try {
-            return mService.startUser(request);
+            // TODO(b/271293309) Also update the service call to be async.
+            UserStartResponse response = mService.startUser(request);
+            executor.execute(() -> callback.onResult(response));
         } catch (SecurityException e) {
             throw e;
         } catch (RemoteException | RuntimeException e) {
-            return handleExceptionFromCarService(e, /* returnValue= */ null);
+            handleExceptionFromCarService(e, /* returnValue= */ null);
         }
     }
 
@@ -474,14 +477,17 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    // TODO(b/257335554) Change to an asynchronous method.
-    public @NonNull UserStopResponse stopUser(@NonNull UserStopRequest request) {
+    public void stopUser(@NonNull UserStopRequest request,
+            @NonNull @CallbackExecutor Executor executor,
+            @NonNull ResultCallback<UserStopResponse> callback) {
         try {
-            return mService.stopUser(request);
+            // TODO(b/271293309) Also update the service call to be async.
+            UserStopResponse response = mService.stopUser(request);
+            executor.execute(() -> callback.onResult(response));
         } catch (SecurityException e) {
             throw e;
         } catch (RemoteException | RuntimeException e) {
-            return handleExceptionFromCarService(e, /* returnValue= */ null);
+            handleExceptionFromCarService(e, /* returnValue= */ null);
         }
     }
 
