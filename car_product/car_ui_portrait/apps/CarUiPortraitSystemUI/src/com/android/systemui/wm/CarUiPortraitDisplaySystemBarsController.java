@@ -346,6 +346,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                     && mCurrentDrivingState == DRIVING_STATE_MOVING) {
                 mImmersiveState = STATE_DEFAULT;
                 updateDisplayWindowRequestedVisibleTypes();
+                notifyOnImmersiveRequestedChanged(null, false);
             }
         }
     }
