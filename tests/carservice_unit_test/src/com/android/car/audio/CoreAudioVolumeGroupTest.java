@@ -21,6 +21,34 @@ import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 
+import static com.android.car.audio.CoreAudioRoutingUtils.MEDIA_CONTEXT_INFO;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_DEVICE_ADDRESS;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_GROUP_NAME;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_MAX_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_MIN_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.MUSIC_STRATEGY_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_CAR_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_CONTEXT_INFO;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_DEVICE_ADDRESS;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_GROUP_NAME;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_MAX_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_MIN_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.NAV_STRATEGY_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_ATTRIBUTES;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_CAR_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_CONTEXT_INFO;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_DEVICE_ADDRESS;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_ID;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_GROUP_NAME;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_MAX_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_MIN_INDEX;
+import static com.android.car.audio.CoreAudioRoutingUtils.OEM_STRATEGY_ID;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -33,7 +61,6 @@ import static org.mockito.Mockito.when;
 import android.car.Car;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.util.ArrayMap;
 import android.util.SparseArray;
@@ -44,87 +71,19 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CoreAudioVolumeGroupTest.class.getSimpleName();
 
-    private static final HashSet<String> OEM_TAG_STRING_SET = new HashSet<>();
-
     private static final int ZONE_CONFIG_ID = 0;
+    private CarAudioContext mMusicContext;
+    private CarAudioContext mNavContext;
+    private CarAudioContext mOemContext;
 
-    private static final AudioAttributes MUSIC_ATTRIBUTES = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_MEDIA)
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .build();
-    private static final int MUSIC_STRATEGY_ID = 777;
-    private static final int MUSIC_CAR_GROUP_ID = 0;
-    private static final int MUSIC_GROUP_ID = 666;
-    private static final String MUSIC_CONTEXT_NAME = "MUSIC_CONTEXT";
-    private static final AudioAttributes[] MUSIC_AAS = { MUSIC_ATTRIBUTES };
-    private static final String MUSIC_GROUP_NAME = "MUSIC_GROUP";
-    private static final int MUSIC_AM_INIT_INDEX = 8;
-    private static final int MUSIC_MIN_INDEX = 0;
-    private static final int MUSIC_MAX_INDEX = 40;
-    private static final CarAudioContextInfo MEDIA_CONTEXT_INFO;
-    private static final CarAudioContext MUSIC_CONTEXT;
-    private static final String MUSIC_DEVICE_ADDRESS = "MUSIC_DEVICE_ADDRESS";
-
-    private static final AudioAttributes NAV_ATTRIBUTES = new AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-            .build();
-    private static final int NAV_STRATEGY_ID = 99;
-    private static final int NAV_CAR_GROUP_ID = 1;
-    private static final String NAV_CONTEXT_NAME = "NAV_CONTEXT";
-    private static final AudioAttributes[] NAV_AAS = { NAV_ATTRIBUTES };
-    private static final String NAV_GROUP_NAME = "NAV_GROUP";
-    private static final int NAV_MIN_INDEX = 5;
-    private static final int NAV_MAX_INDEX = 35;
-    private static final CarAudioContextInfo NAV_CONTEXT_INFO;
-    private static final CarAudioContext NAV_CONTEXT;
-    private static final String NAV_DEVICE_ADDRESS = "NAV_DEVICE_ADDRESS";
     private CarAudioDeviceInfo mNavInfoMock = mock(CarAudioDeviceInfo.class);
-
-    private static final AudioAttributes OEM_ATTRIBUTES;
-    private static final int OEM_STRATEGY_ID = 1979;
-    private static final int OEM_CAR_GROUP_ID = 2;
-    private static final String OEM_CONTEXT_NAME = "OEM_CONTEXT";
-    private static final String OEM_GROUP_NAME = "OEM_GROUP";
-    private static final String OEM_FORMATTED_TAGS = "oem=extension_1979";
-    private static final int OEM_MIN_INDEX = 1;
-    private static final int OEM_MAX_INDEX = 15;
-    private static final CarAudioContextInfo OEM_CONTEXT_INFO;
-    private static final CarAudioContext OEM_CONTEXT;
-    private static final String OEM_DEVICE_ADDRESS = "OEM_DEVICE_ADDRESS";
     private CarAudioDeviceInfo mOemInfoMock = mock(CarAudioDeviceInfo.class);
-
-    static {
-        OEM_TAG_STRING_SET.add(OEM_FORMATTED_TAGS);
-
-        OEM_ATTRIBUTES = new AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                .replaceTags(OEM_TAG_STRING_SET)
-                .build();
-        AudioAttributes[] oemAas = {OEM_ATTRIBUTES};
-
-        MEDIA_CONTEXT_INFO = new CarAudioContextInfo(
-            MUSIC_AAS, MUSIC_CONTEXT_NAME, MUSIC_STRATEGY_ID);
-        MUSIC_CONTEXT = new CarAudioContext(
-            Arrays.asList(MEDIA_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
-
-        NAV_CONTEXT_INFO = new CarAudioContextInfo(NAV_AAS, NAV_CONTEXT_NAME, NAV_STRATEGY_ID);
-        NAV_CONTEXT = new CarAudioContext(
-            Arrays.asList(NAV_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
-
-        OEM_CONTEXT_INFO = new CarAudioContextInfo(
-            oemAas, OEM_CONTEXT_NAME, OEM_STRATEGY_ID);
-        OEM_CONTEXT = new CarAudioContext(
-            Arrays.asList(OEM_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
-    }
 
     @Mock
     AudioManager mMockAudioManager;
@@ -146,9 +105,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .spyStatic(Car.class);
     }
     void setupMock() {
-        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID).when(() ->
-                CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
+        doReturn(MUSIC_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(MUSIC_ATTRIBUTES));
         doReturn(MUSIC_ATTRIBUTES)
                 .when(() ->
                         CoreAudioHelper.selectAttributesForVolumeGroupName(eq(MUSIC_GROUP_NAME)));
@@ -163,10 +121,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .thenReturn(MUSIC_AM_INIT_INDEX);
         when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(false);
 
-        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
-                .when(() ->
-                        CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                                CoreAudioRoutingUtils.NAV_ATTRIBUTES));
+        doReturn(NAV_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(NAV_ATTRIBUTES));
         doReturn(NAV_ATTRIBUTES)
                 .when(() -> CoreAudioHelper
                         .selectAttributesForVolumeGroupName(eq(NAV_GROUP_NAME)));
@@ -180,9 +136,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                         .selectAttributesForVolumeGroupName(eq(OEM_GROUP_NAME)));
         when(mMockAudioManager.getMinVolumeIndexForAttributes(OEM_ATTRIBUTES))
                 .thenReturn(OEM_MIN_INDEX);
-        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
+        doReturn(OEM_GROUP_ID)
                 .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
-                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
+                        OEM_ATTRIBUTES));
         when(mMockAudioManager.getMaxVolumeIndexForAttributes(OEM_ATTRIBUTES))
                 .thenReturn(OEM_MAX_INDEX);
 
@@ -193,11 +149,18 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     public void setUp() {
         setupMock();
 
+        mMusicContext = new CarAudioContext(
+                List.of(MEDIA_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
+        mNavContext = new CarAudioContext(
+                List.of(NAV_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
+        mOemContext = new CarAudioContext(
+                List.of(OEM_CONTEXT_INFO), /* useCoreAudioRouting= */ true);
+
         SparseArray<String> musicContextToAddress = new SparseArray<>();
         musicContextToAddress.put(MUSIC_STRATEGY_ID, MUSIC_DEVICE_ADDRESS);
         ArrayMap<String, CarAudioDeviceInfo> musicMap = new ArrayMap<>();
         musicMap.put(MUSIC_DEVICE_ADDRESS, mOemInfoMock);
-        mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, MUSIC_CONTEXT,
+        mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mMusicContext,
                 mSettingsMock, musicContextToAddress, musicMap,
                 PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
@@ -206,7 +169,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         navContextToAddress.put(NAV_STRATEGY_ID, NAV_DEVICE_ADDRESS);
         ArrayMap<String, CarAudioDeviceInfo> navMap = new ArrayMap<>();
         navMap.put(NAV_DEVICE_ADDRESS, mNavInfoMock);
-        mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, NAV_CONTEXT,
+        mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mNavContext,
             mSettingsMock, navContextToAddress, navMap,
             PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
             /* useCarVolumeGroupMute= */ false);
@@ -215,7 +178,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         oemContextToAddress.put(OEM_STRATEGY_ID, OEM_DEVICE_ADDRESS);
         ArrayMap<String, CarAudioDeviceInfo> oemMap = new ArrayMap<>();
         oemMap.put(OEM_DEVICE_ADDRESS, mOemInfoMock);
-        mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, OEM_CONTEXT,
+        mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, mOemContext,
                 mSettingsMock, oemContextToAddress, oemMap,
                 PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
@@ -256,15 +219,15 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
     @Test
     public void setAndGetIndex() {
-        expectWithMessage("Initial am gain index")
+        expectWithMessage("Initial music am gain index from cache")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expectWithMessage("Initial am gain index")
+        expectWithMessage("Initial music am last audible gain index")
                 .that(mMusicCoreAudioVolumeGroup.getAmLastAudibleIndex())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
-        expectWithMessage("Initial am gain index")
+        expectWithMessage("Initial music am gain index")
                 .that(mMusicCoreAudioVolumeGroup.getAmCurrentGainIndex())
                 .isEqualTo(MUSIC_AM_INIT_INDEX);
 
@@ -339,7 +302,6 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MUSIC_MIN_INDEX);
 
-        mMusicCoreAudioVolumeGroup.setMute(false);
         when(mMockAudioManager.isVolumeGroupMuted(MUSIC_GROUP_ID)).thenReturn(true);
 
         mMusicCoreAudioVolumeGroup.setMute(false);
@@ -366,7 +328,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         when(mMockAudioManager.getVolumeIndexForAttributes(MUSIC_ATTRIBUTES)).thenReturn(amIndex);
         int flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expectWithMessage("Index synchronized")
+        expectWithMessage("Index synchronized event")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
         expectWithMessage("Index synchronized")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
@@ -375,7 +337,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         // Double sync is a no-op
         flags = mMusicCoreAudioVolumeGroup.onAudioVolumeGroupChanged(/* flags= */ 0);
 
-        expectWithMessage("Index already synchronized").that(flags).isEqualTo(0);
+        expectWithMessage("Index event already reported").that(flags).isEqualTo(0);
         expectWithMessage("Index already synchronized")
                 .that(mMusicCoreAudioVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(amIndex);
@@ -387,6 +349,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
         expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+
+        int initialIndex = mMusicCoreAudioVolumeGroup.getCurrentGainIndex();
+        expectWithMessage("Initial gain index").that(amIndex).isEqualTo(initialIndex);
 
         expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -429,6 +394,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
         expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+
+        int initialIndex = mMusicCoreAudioVolumeGroup.getCurrentGainIndex();
+        expectWithMessage("Initial gain index").that(amIndex).isEqualTo(initialIndex);
 
         expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -480,6 +448,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         int amIndex = mMusicCoreAudioVolumeGroup.getAmCurrentGainIndexFromCache();
         expectWithMessage("Initial am gain index").that(amIndex).isEqualTo(MUSIC_AM_INIT_INDEX);
+
+        int initialIndex = mMusicCoreAudioVolumeGroup.getCurrentGainIndex();
+        expectWithMessage("Initial gain index").that(amIndex).isEqualTo(initialIndex);
 
         expectWithMessage("Initial mute state is unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
@@ -557,7 +528,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         expectWithMessage("switched to unmuted")
                 .that(mMusicCoreAudioVolumeGroup.isMuted())
                 .isFalse();
-        expectWithMessage("Mute State synchronized")
+        expectWithMessage("Mute State and Index synchronized")
                 .that(flags).isEqualTo(CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE
                         | CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE);
         expectWithMessage("Index updated")

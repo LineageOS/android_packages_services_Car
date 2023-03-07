@@ -63,6 +63,7 @@ import static android.media.AudioManager.AUDIOFOCUS_NONE;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
+import static android.media.AudioManager.FLAG_PLAY_SOUND;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 import static android.media.AudioManager.MASTER_MUTE_CHANGED_ACTION;
 import static android.media.AudioManager.STREAM_MUSIC;
@@ -512,6 +513,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioManager.class)
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapperAidl.class)
+                .spyStatic(CoreAudioHelper.class)
                 .spyStatic(AudioControlFactory.class)
                 .spyStatic(SystemProperties.class)
                 .spyStatic(ServiceManager.class)
@@ -4174,6 +4176,62 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
     }
 
+    @Test
+    public void onAudioVolumeGroupChanged_dispatchCallbackEvent() throws RemoteException {
+        CarAudioService useCoreAudioCarAudioService =
+                getCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        int musicIndex = useCoreAudioCarAudioService.getGroupVolume(
+                PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID);
+        // Report a volume change
+        when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(musicIndex + 1);
+        when(mAudioManager.getLastAudibleVolumeForVolumeGroup(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(musicIndex + 1);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(false);
+
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
+
+        verify(mCarVolumeCallbackHandler)
+                .onVolumeGroupChange(PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID,
+                        FLAG_PLAY_SOUND);
+    }
+
+    @Test
+    public void onAudioVolumeGroupChanged_noDispatchCallbackEvent_whenAlreadySynced()
+            throws RemoteException {
+        CarAudioService useCoreAudioCarAudioService =
+                getCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        useCoreAudioCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, CoreAudioRoutingUtils.MUSIC_AM_INIT_INDEX,
+                /* flags= */ 0);
+        reset(mCarVolumeCallbackHandler);
+
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
+
+        verify(mCarVolumeCallbackHandler, never())
+                .onVolumeGroupChange(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
+    public void onAudioVolumeGroupChanged_dispatchCallbackEvent_whenMuted() throws RemoteException {
+        CarAudioService useCoreAudioCarAudioService =
+                getCarAudioServiceUsingCoreAudioRoutingAndVolume();
+        // Report a mute change
+        when(mAudioManager.getVolumeIndexForAttributes(eq(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)))
+                .thenReturn(CoreAudioRoutingUtils.MUSIC_MIN_INDEX);
+        when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.MUSIC_GROUP_ID))
+                .thenReturn(true);
+
+        useCoreAudioCarAudioService.onAudioVolumeGroupChanged(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
+
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
+                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, /* flags= */ 0);
+    }
+
     private String removeUpToEquals(String command) {
         return command.replaceAll("^[^=]*=", "");
     }
@@ -4445,6 +4503,27 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(CoreAudioRoutingUtils.OEM_MAX_INDEX);
         when(mAudioManager.isVolumeGroupMuted(CoreAudioRoutingUtils.OEM_GROUP_ID))
                 .thenReturn(false);
+
+        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.NAV_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.NAV_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.OEM_GROUP_NAME));
     }
 
     private static AudioFocusInfo createAudioFocusInfoForMedia() {
