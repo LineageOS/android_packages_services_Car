@@ -164,6 +164,8 @@
     <style name="Widget.DeviceDefault.SeekBar" parent="android:Widget.Material.SeekBar">
         <item name="android:progressDrawable">@drawable/car_seekbar_track</item>
         <item name="android:thumb">@drawable/car_seekbar_thumb</item>
+        <item name="android:paddingStart">@dimen/car_seekbar_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_seekbar_horizontal_padding</item>
     </style>
 
     <style name="Widget.DeviceDefault.ActionBar.Solid" parent="android:Widget.Material.ActionBar.Solid">
