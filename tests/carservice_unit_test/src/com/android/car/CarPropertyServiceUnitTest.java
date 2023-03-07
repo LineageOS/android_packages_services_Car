@@ -97,6 +97,9 @@ public final class CarPropertyServiceUnitTest {
     private static final int WRITE_ONLY_LONG_PROPERTY_ID = 22345;
     private static final int WRITE_ONLY_FLOAT_PROPERTY_ID = 32345;
     private static final int WRITE_ONLY_ENUM_PROPERTY_ID = 112345;
+    private static final int WRITE_ONLY_OTHER_ENUM_PROPERTY_ID =
+            VehiclePropertyIds.EV_STOPPING_MODE;
+
     private static final int ON_CHANGE_READ_WRITE_PROPERTY_ID = 1111;
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
     private static final String GRANTED_PERMISSION = "GRANTED_PERMISSION";
@@ -112,8 +115,10 @@ public final class CarPropertyServiceUnitTest {
     private static final long MAX_LONG_VALUE = 200;
     private static final float MIN_FLOAT_VALUE = 0.5f;
     private static final float MAX_FLOAT_VALUE = 5.5f;
-    private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(1, 2, 4, 5);
+    private static final List<Integer> SUPPORTED_ENUM_VALUES = List.of(-1, 0, 1, 2, 4, 5);
     private static final Integer UNSUPPORTED_ENUM_VALUE = 3;
+    private static final Integer SUPPORTED_ERROR_STATE_ENUM_VALUE = -1;
+    private static final Integer SUPPORTED_OTHER_STATE_ENUM_VALUE = 0;
 
     @Before
     public void setUp() {
@@ -178,6 +183,13 @@ public final class CarPropertyServiceUnitTest {
                 GRANTED_PERMISSION);
         configs.put(WRITE_ONLY_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 WRITE_ONLY_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
+                SUPPORTED_ENUM_VALUES).build()).setAccess(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
+        when(mHalService.getWritePermission(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
+                WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaIdConfig(new AreaIdConfig.Builder(GLOBAL_AREA_ID).setSupportedEnumValues(
                 SUPPORTED_ENUM_VALUES).build()).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build());
@@ -625,6 +637,20 @@ public final class CarPropertyServiceUnitTest {
         assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
                 new CarPropertyValue(WRITE_ONLY_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
                         UNSUPPORTED_ENUM_VALUE), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfSetValueIsErrorStateEnum() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        SUPPORTED_ERROR_STATE_ENUM_VALUE), mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsExceptionBecauseOfSetValueIsOtherStateEnum() {
+        assertThrows(IllegalArgumentException.class, () -> mService.setProperty(
+                new CarPropertyValue(WRITE_ONLY_OTHER_ENUM_PROPERTY_ID, GLOBAL_AREA_ID,
+                        SUPPORTED_OTHER_STATE_ENUM_VALUE), mICarPropertyEventListener));
     }
 
     @Test
