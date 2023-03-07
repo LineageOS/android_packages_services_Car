@@ -663,6 +663,10 @@ public class PropertyHalServiceIds {
                 new Pair<>(
                         Car.PERMISSION_READ_ADAS_STATES,
                         Car.PERMISSION_CONTROL_ADAS_STATES));
+        mHalPropIdToPermissions.put(
+                VehicleProperty.ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE, new Pair<>(
+                        Car.PERMISSION_READ_ADAS_STATES,
+                        null));
         mHalPropIdToPermissions.put(VehicleProperty.HANDS_ON_DETECTION_ENABLED, new Pair<>(
                 Car.PERMISSION_READ_DRIVER_MONITORING_SETTINGS,
                 Car.PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS));
