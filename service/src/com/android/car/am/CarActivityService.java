@@ -305,22 +305,28 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     /**
-     * Returns all the visible tasks. The order is not guaranteed.
+     * Returns all the visible tasks in the given display. The order is not guaranteed.
      */
     @Override
-    public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasks(int displayId) {
         ensureManageActivityTasksPermission();
-        return getVisibleTasksInternal();
+        return getVisibleTasksInternal(displayId);
+    }
+
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal() {
+        return getVisibleTasksInternal(Display.INVALID_DISPLAY);
     }
 
     /** Car service internal version without the permission enforcement. */
-    public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal() {
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasksInternal(int displayId) {
         ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
         synchronized (mLock) {
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
                 // Activities launched in the private display or non-focusable display can't be
                 // focusable. So we just monitor all visible Activities/Tasks.
-                if (TaskInfoHelper.isVisible(taskInfo)) {
+                if (TaskInfoHelper.isVisible(taskInfo)
+                        && (displayId == Display.INVALID_DISPLAY
+                                || displayId == TaskInfoHelper.getDisplayId(taskInfo))) {
                     tasksToReturn.add(taskInfo);
                 }
             }
