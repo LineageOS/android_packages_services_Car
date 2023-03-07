@@ -136,6 +136,21 @@ public final class BinderKeyValueContainer<K, V extends IInterface> {
     }
 
     /**
+     * Removes the item at the given index, if there is any.
+     */
+    public void removeAt(int index) {
+        synchronized (mLock) {
+            BinderInterfaceHolder<K, V> holder = mBinderMap.valueAt(index);
+            if (holder == null) {
+                Slogf.i(TAG, "Failed to remove because there was no item at index %d", index);
+                return;
+            }
+            holder.mBinder.unlinkToDeath(holder, 0);
+            mBinderMap.removeAt(index);
+        }
+    }
+
+    /**
      * Returns the number of registered {@link BinderInterfaceHolder} objects in this container.
      */
     public int size() {
