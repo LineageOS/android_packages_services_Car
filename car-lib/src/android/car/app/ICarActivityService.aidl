@@ -58,21 +58,19 @@ interface ICarActivityService {
      */
     void unregisterTaskMonitor(in IBinder token) = 5;
 
-    /**
-     * Returns all the visible tasks ordered in top to bottom manner.
-     */
-    List<RunningTaskInfo> getVisibleTasks() = 6;
+    /** See {@link CarActivityManager#getVisibleTasks(int)} */
+    List<RunningTaskInfo> getVisibleTasks(int displayId) = 6;
 
-    /** See {@link CarActivityManager#startUserPickerOnDisplay(int) */
+    /** See {@link CarActivityManager#startUserPickerOnDisplay(int)} */
     void startUserPickerOnDisplay(int displayId) = 7;
 
-    /** See {@link CarActivityManager#createTaskMirroringToken(int) */
+    /** See {@link CarActivityManager#createTaskMirroringToken(int)} */
     IBinder createTaskMirroringToken(int taskId) = 9;
 
-    /** See {@link CarActivityManager#createDisplayMirroringToken(int) */
+    /** See {@link CarActivityManager#createDisplayMirroringToken(int)} */
     IBinder createDisplayMirroringToken(int displayId) = 10;
 
-    /** See {@link CarActivityManager#getMirroredSurface(IBinder, Rect) */
+    /** See {@link CarActivityManager#getMirroredSurface(IBinder, Rect)} */
     SurfaceControl getMirroredSurface(in IBinder mirroringToken, out Rect bounds) = 11;
 
     /**
@@ -93,7 +91,7 @@ interface ICarActivityService {
      */
     void removeCarSystemUIProxyCallback(in ICarSystemUIProxyCallback callback) = 14;
 
-    /** See {@link CarActivityManager#moveRootTaskToDisplay(int, int) */
+    /** See {@link CarActivityManager#moveRootTaskToDisplay(int, int)} */
     void moveRootTaskToDisplay(int taskId, int displayId) = 15;
 }
 
