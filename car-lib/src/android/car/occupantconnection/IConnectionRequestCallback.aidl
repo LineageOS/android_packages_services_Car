@@ -21,15 +21,13 @@ import android.car.CarOccupantZoneManager;
 /** @hide */
 oneway interface IConnectionRequestCallback {
 
-    void onConnected(int requestId, in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
+    void onConnected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
-    void onRejected(int requestId,
-        in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
+    void onRejected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         int rejectionReason);
 
-    void onFailed(int requestId,
-        in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
+    void onFailed(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         int connectionError);
 
-    void onDisconnected(int requestId, in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
+    void onDisconnected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 }
