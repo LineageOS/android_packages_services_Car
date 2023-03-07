@@ -25,6 +25,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <include layout="@layout/car_ui_portrait_panel" android:id="@+id/app_grid_panel"/>
+
     <include layout="@layout/car_ui_portrait_panel" android:id="@+id/application_panel"/>
 
     <LinearLayout

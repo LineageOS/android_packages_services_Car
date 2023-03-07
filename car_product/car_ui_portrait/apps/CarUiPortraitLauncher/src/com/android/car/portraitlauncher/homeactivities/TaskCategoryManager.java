@@ -28,6 +28,7 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.Log;
 
+import com.android.car.carlauncher.AppGridActivity;
 import com.android.car.portraitlauncher.R;
 
 import java.util.List;
@@ -42,9 +43,10 @@ class TaskCategoryManager {
     private static final boolean DBG = Build.IS_DEBUGGABLE;
 
     private final ComponentName mBackgroundActivityComponent;
+    private final ComponentName mBlankActivityComponent;
+    private final ComponentName mAppGridActivityComponent;
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
     public Set<ComponentName> mFullScreenActivities;
-    public Set<ComponentName> mDrawerActivities;
     private final Context mContext;
 
     TaskCategoryManager(Context context) {
@@ -54,10 +56,10 @@ class TaskCategoryManager {
                 mContext.getResources().getString(R.string.config_backgroundActivity));
         mFullScreenActivities = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_fullScreenActivities));
-        mDrawerActivities = convertToComponentNames(mContext.getResources()
-                .getStringArray(R.array.config_drawerActivities));
         mIgnoreOpeningRootTaskViewComponentsSet = convertToComponentNames(mContext.getResources()
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
+        mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
+        mBlankActivityComponent = new ComponentName(context, BlankActivity.class);
 
         updateVoicePlateActivityMap();
     }
@@ -87,8 +89,12 @@ class TaskCategoryManager {
         return mBackgroundActivityComponent.equals(taskInfo.baseActivity);
     }
 
-    boolean isDrawerActivity(TaskInfo taskInfo) {
-        return mDrawerActivities.contains(taskInfo.baseActivity);
+    boolean isBlankActivity(ActivityManager.RunningTaskInfo taskInfo) {
+        return mBlankActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    boolean isAppGridActivity(TaskInfo taskInfo) {
+        return mAppGridActivityComponent.equals(taskInfo.baseActivity);
     }
 
     boolean isFullScreenActivity(TaskInfo taskInfo) {

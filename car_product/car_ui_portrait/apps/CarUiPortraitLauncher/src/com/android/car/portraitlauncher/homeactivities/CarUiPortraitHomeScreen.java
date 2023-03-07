@@ -50,7 +50,6 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -143,6 +142,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
     private TaskInfoCache mTaskInfoCache;
+    private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
@@ -184,6 +184,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mService = null;
         }
     };
+
     // This listener lets us know when actives are added and removed from any of the display regions
     // we care about, so we can trigger the opening and closing of the app containers as needed.
     private final TaskStackListener mTaskStackListener = new TaskStackListener() {
@@ -196,9 +197,25 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 cacheTask(taskInfo);
                 return;
             }
+
+            // Close the panel if the top application is a blank activity.
+            // This is to prevent showing a blank panel to the user if an app crashes an reveals
+            // the blank activity underneath.
+            if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
+                mRootTaskViewPanel.closePanel(/* animated = */ true);
+                return;
+            }
+
             if (shouldTaskShowOnRootTaskView(taskInfo)) {
-                // Switch to state open if it's not.
-                mRootTaskViewPanel.openPanel(/* animate = */ true);
+                logIfDebuggable("Opening in root task view: " + taskInfo);
+
+                if (mAppGridTaskViewPanel.isOpen()) {
+                    // Animate the root task view to expand on top of the app grid task view.
+                    mRootTaskViewPanel.expandPanel();
+                } else {
+                    // Open the root task view.
+                    mRootTaskViewPanel.openPanel(/* animate = */ true);
+                }
             } else {
                 logIfDebuggable("Not showing task in rootTaskView");
             }
@@ -208,20 +225,20 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
          * Called whenever IActivityManager.startActivity is called on an activity that is already
          * running, but the task is either brought to the front or a new Intent is delivered to it.
          *
-         * @param task information about the task the activity was relaunched into
+         * @param taskInfo information about the task the activity was relaunched into
          * @param homeTaskVisible whether or not the home task is visible
          * @param clearedTask whether or not the launch activity also cleared the task as a part of
          * starting
          * @param wasVisible whether the activity was visible before the restart attempt
          */
         @Override
-        public void onActivityRestartAttempt(ActivityManager.RunningTaskInfo task,
+        public void onActivityRestartAttempt(ActivityManager.RunningTaskInfo taskInfo,
                 boolean homeTaskVisible, boolean clearedTask, boolean wasVisible)
                 throws RemoteException {
-            super.onActivityRestartAttempt(task, homeTaskVisible, clearedTask, wasVisible);
+            super.onActivityRestartAttempt(taskInfo, homeTaskVisible, clearedTask, wasVisible);
 
-            logIfDebuggable("On Activity restart attempt, task = " + task);
-            if (task.baseIntent == null || task.baseIntent.getComponent() == null
+            logIfDebuggable("On Activity restart attempt, task = " + taskInfo);
+            if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null
                     || mRootTaskViewPanel.isAnimating()) {
                 return;
             }
@@ -230,19 +247,45 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
-            if (mTaskCategoryManager.isBackgroundApp(task)) {
+            if (mTaskCategoryManager.isBackgroundApp(taskInfo)
+                    || mTaskCategoryManager.isBlankActivity(taskInfo)) {
                 return;
             }
 
-            logIfDebuggable("Update UI state on app restart attempt, task = " + task);
-            // Toggle between open and close states when any task is in foreground and a new
-            // Intent is sent to start the same task. In this case it's needed to toggle the root
-            // task view when notification or AppGrid is in foreground and onClick on nav bar
-            // buttons should close/open it.
-            if (mRootTaskViewPanel.isOpen()) {
-                mRootTaskViewPanel.closePanel(/* animate = */ true);
-            } else {
-                mRootTaskViewPanel.openPanel(/* animate = */ true);
+            if (mRootTaskViewPanel.isAnimating() || mAppGridTaskViewPanel.isAnimating()) {
+                return;
+            }
+
+            logIfDebuggable("Update UI state on app restart attempt, task = " + taskInfo);
+            if (mTaskCategoryManager.isAppGridActivity(taskInfo)) {
+                // If the new task is an app grid then toggle the app grid panel:
+                // 1 - Close the app grid panel if it is open.
+                // 2 - Open the app grid panel if it is closed:
+                //    a) If the root task view is open on top of the app grid then use a fade
+                //       animation to hide the root task view panel and show the app grid panel.
+                //    b) Otherwise, simply open the app grid panel.
+                if (mAppGridTaskViewPanel.isOpen()) {
+                    mAppGridTaskViewPanel.closePanel();
+                } else if (mRootTaskViewPanel.isOpen()) {
+                    mAppGridTaskViewPanel.fadeInPanel();
+                    mRootTaskViewPanel.fadeOutPanel();
+                } else {
+                    mAppGridTaskViewPanel.openPanel();
+                }
+            } else if (shouldTaskShowOnRootTaskView(taskInfo)) {
+                // If the new task should be launched in the root task view panel:
+                // 1 - Close the root task view panel if it is open.
+                // 2 - Open the root task view panel if it is closed:
+                //    a) If the app grid panel is already open then use an expand animation
+                //       to open the root task view on top of the app grid task view.
+                //    b) Otherwise, simply open the app grid panel.
+                if (mRootTaskViewPanel.isOpen()) {
+                    mRootTaskViewPanel.closePanel();
+                } else if (mAppGridTaskViewPanel.isOpen()) {
+                    mRootTaskViewPanel.expandPanel();
+                } else {
+                    mRootTaskViewPanel.openPanel();
+                }
             }
         }
     };
@@ -276,7 +319,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     return;
                 }
 
-                updateRootTaskViewInsets();
+                updateTaskViewInsets();
                 updateBackgroundTaskViewInsets();
                 updateObscuredTouchRegion();
             };
@@ -309,6 +352,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mContainer = findViewById(R.id.container);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
         setHomeScreenBottomMargin(mNavBarHeight);
+
+        mAppGridTaskViewPanel = findViewById(R.id.app_grid_panel);
 
         mRootTaskViewPanel = findViewById(R.id.application_panel);
 
@@ -348,6 +393,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             setUpBackgroundTaskView(backgroundAppArea);
         }
 
+        if (mAppGridTaskViewPanel != null) {
+            setUpAppGridTaskView();
+        }
+
         if (mRootTaskViewPanel != null) {
             setUpRootTaskView();
         }
@@ -373,19 +422,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // This is done to handle the case where 'close' is tapped on ActivityBlockingActivity and
         // it navigates to the home app. It assumes that the currently display task will be
         // replaced with the home.
-        // In this case, ABA is actually displayed inside launch-root-task and hence we show apps
-        // grid to make sure that it is replaced.
-        startAppsGrid();
+        // In this case, ABA is actually displayed inside launch-root-task. By closing the
+        // root task view panel we make sure the app goes to the background.
+        mRootTaskViewPanel.closePanel();
     }
-
-    private void startAppsGrid() {
-        // Don't start Apps when the display is off for ActivityVisibilityTests.
-        if (getDisplay().getState() != Display.STATE_ON) {
-            return;
-        }
-        startActivity(CarLauncherUtils.getAppsGridIntent());
-    }
-
 
     private void initializeCards() {
         Set<HomeCardModule> homeCardModules = new androidx.collection.ArraySet<>();
@@ -395,7 +435,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 long reflectionStartTime = System.currentTimeMillis();
                 HomeCardModule cardModule = (HomeCardModule) Class.forName(
                         providerClassName).getDeclaredConstructor().newInstance();
-                cardModule.setViewModelProvider(new ViewModelProvider(/* owner= */this));
+                cardModule.setViewModelProvider(new ViewModelProvider(/* owner= */ this));
                 homeCardModules.add(cardModule);
                 if (DBG) {
                     long reflectionTime = System.currentTimeMillis() - reflectionStartTime;
@@ -448,9 +488,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             return false;
         }
 
-        if (mTaskCategoryManager.isDrawerActivity(taskInfo)
-                && mRootTaskViewPanel.isFullScreen()) {
-            logIfDebuggable("Don't open drawer activity after full screen task");
+        if (mTaskCategoryManager.isAppGridActivity(taskInfo)) {
+            logIfDebuggable("Don't open app grid activity on the root task view");
             return false;
         }
 
@@ -474,7 +513,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void cacheTask(ActivityManager.RunningTaskInfo taskInfo) {
         if (TaskCategoryManager.isHomeIntent(taskInfo)
-                || mTaskCategoryManager.isBackgroundApp(taskInfo)) {
+                || mTaskCategoryManager.isBackgroundApp(taskInfo)
+                || mTaskCategoryManager.isAppGridActivity(taskInfo)) {
             logIfDebuggable("Skip as task is a home intent or background app " + taskInfo);
             return;
         }
@@ -498,7 +538,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mControlBarView.getBoundsOnScreen(controlBarRect);
 
         Rect appPanelGripBarRect = new Rect();
-        mRootTaskViewPanel.getGripBarBounds(appPanelGripBarRect);
+        mAppGridTaskViewPanel.getGripBarBounds(appPanelGripBarRect);
+
+        Rect rootPanelGripBarRect = new Rect();
+        mRootTaskViewPanel.getGripBarBounds(rootPanelGripBarRect);
 
         Rect navigationBarRect = new Rect(controlBarRect.right, controlBarRect.bottom,
                 controlBarRect.left, mContainer.getMeasuredHeight());
@@ -508,7 +551,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         obscuredTouchRegion.union(navigationBarRect);
 
         mRootTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
+        mAppGridTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
         obscuredTouchRegion.union(appPanelGripBarRect);
+        obscuredTouchRegion.union(rootPanelGripBarRect);
         mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
         mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
     }
@@ -520,6 +565,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         int bottomOverlap = Math.min(mControlBarView.getTop(),
                 mRootTaskViewPanel.getTop());
+        bottomOverlap = Math.min(bottomOverlap, mAppGridTaskViewPanel.getTop());
 
         Rect appAreaBounds = new Rect();
         mBackgroundTaskView.getBoundsOnScreen(appAreaBounds);
@@ -539,19 +585,27 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         });
     }
 
-    private void updateRootTaskViewInsets() {
-        if (mRootTaskViewPanel == null) {
-            return;
+    private void updateTaskViewInsets() {
+        Insets insets =
+                Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0, mControlBarView.getHeight());
+        if (mRootTaskViewPanel != null) {
+            mRootTaskViewPanel.setInsets(insets);
         }
-        Insets insets = Insets.of(0, 0, 0, mControlBarView.getHeight());
-        mRootTaskViewPanel.setInsets(insets);
+        if (mAppGridTaskViewPanel != null) {
+            mAppGridTaskViewPanel.setInsets(insets);
+        }
     }
 
     private void onContainerDimensionsChanged() {
         if (mRootTaskViewPanel != null) {
             mRootTaskViewPanel.onParentDimensionChanged();
-            updateRootTaskViewInsets();
         }
+
+        if (mAppGridTaskViewPanel != null) {
+            mAppGridTaskViewPanel.onParentDimensionChanged();
+        }
+
+        updateTaskViewInsets();
 
         if (mBackgroundTaskView != null) {
             mBackgroundTaskView.post(() -> mBackgroundTaskView.onLocationChanged());
@@ -562,11 +616,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mTaskViewManager.createControlledCarTaskView(getMainExecutor(),
                 ControlledCarTaskViewConfig.builder()
                         .setActivityIntent(CarLauncherUtils.getMapsIntent(getApplicationContext()))
-                        .setAutoRestartOnCrash(true)
+                        .setAutoRestartOnCrash(/* autoRestartOnCrash- */ true)
                         .build(),
                 new ControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
+                        taskView.setTag("Background");
                         mBackgroundTaskView = taskView;
                         parent.addView(mBackgroundTaskView);
                     }
@@ -589,6 +644,44 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     }
 
+    private void setUpAppGridTaskView() {
+        mTaskViewManager.createControlledCarTaskView(getMainExecutor(),
+                ControlledCarTaskViewConfig.builder()
+                        .setActivityIntent(CarLauncherUtils.getAppsGridIntent())
+                        .setAutoRestartOnCrash(/* autoRestartOnCrash= */ true)
+                        .build(),
+                new ControlledCarTaskViewCallbacks() {
+                    @Override
+                    public void onTaskViewCreated(CarTaskView taskView) {
+                        mAppGridTaskViewPanel.setTaskView(taskView);
+                    }
+
+                    @Override
+                    public void onTaskViewReady() {
+                        updateBackgroundTaskViewInsets();
+                    }
+                }
+        );
+
+        mAppGridTaskViewPanel.setOnStateChangeListener(new TaskViewPanel.OnStateChangeListener() {
+            @Override
+            public void onStateChangeStart(TaskViewPanel.State oldState,
+                    TaskViewPanel.State newState, boolean animated) {
+                // No-op
+            }
+
+            @Override
+            public void onStateChangeEnd(TaskViewPanel.State oldState,
+                    TaskViewPanel.State newState, boolean animated) {
+                updateObscuredTouchRegion();
+                updateBackgroundTaskViewInsets();
+
+                boolean isVisible = newState.isVisible();
+                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(isVisible));
+            }
+        });
+    }
+
     private void setUpRootTaskView() {
         mRootTaskViewPanel.setOnStateChangeListener(new TaskViewPanel.OnStateChangeListener() {
             @Override
@@ -596,7 +689,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 if (newState.isFullScreen()) {
                     if (mIsSUWInProgress) {
-                        setHomeScreenBottomMargin(0);
+                        setHomeScreenBottomMargin(/* bottomMargin= */ 0);
                     } else {
                         setHomeScreenBottomMargin(mNavBarHeight);
                     }
@@ -612,7 +705,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             @Override
             public void onStateChangeEnd(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
-
                 updateObscuredTouchRegion();
 
                 updateBackgroundTaskViewInsets();
@@ -620,6 +712,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 // Hide the control bar after the animation if in full screen.
                 if (newState.isFullScreen()) {
                     setControlBarVisibility(/* isVisible= */ false, animated);
+                }
+
+                // Hide the app grid task view behind the root task view.
+                if (newState.isVisible()) {
+                    mAppGridTaskViewPanel.closePanel(/* animated = */ false);
+                } else {
+                    // Launch a blank activity to move the top activity to background.
+                    startActivity(BlankActivity.createIntent(getApplicationContext()));
                 }
 
                 boolean isVisible = newState.isVisible();
@@ -679,7 +779,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 mRootTaskViewPanel.openPanel(animate);
             } else {
                 // Don't animate if there is no task in the panel.
-                mRootTaskViewPanel.closePanel(/* animate = */ false);
+                mRootTaskViewPanel.closePanel(/* animated = */ false);
             }
         }
     }
