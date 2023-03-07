@@ -21,17 +21,20 @@ import android.text.TextUtils;
 import java.util.Objects;
 
 /** A class used to identify a receiver endpoint. */
-final class ReceiverEndpointToken {
+final class ReceiverEndpointId {
 
     /** Indicates which client this endpoint is in. */
-    public final ClientToken clientToken;
-    /** The ID of this endpoint. The ID is specified by this endpoint. */
-    public final String receiverEndpointId;
+    public final ClientId clientId;
 
-    ReceiverEndpointToken(@NonNull ClientToken clientToken, @NonNull String receiverEndpointId) {
-        this.clientToken = Objects.requireNonNull(clientToken, "clientToKen cannot be null");
-        this.receiverEndpointId =
-                Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
+    /**
+     * The ID of this endpoint. The ID is specified by the client app via {@link
+     * android.car.occupantconnection.CarOccupantConnectionManager#registerReceiver}.
+     */
+    public final String endpointId;
+
+    ReceiverEndpointId(@NonNull ClientId clientId, @NonNull String endpointId) {
+        this.clientId = Objects.requireNonNull(clientId, "clientId cannot be null");
+        this.endpointId = Objects.requireNonNull(endpointId, "endpointId cannot be null");
     }
 
     @Override
@@ -39,22 +42,21 @@ final class ReceiverEndpointToken {
         if (this == o) {
             return true;
         }
-        if (o instanceof ReceiverEndpointToken) {
-            ReceiverEndpointToken other = (ReceiverEndpointToken) o;
-            return clientToken.equals(other.clientToken)
-                    && TextUtils.equals(receiverEndpointId, other.receiverEndpointId);
+        if (!(o instanceof ReceiverEndpointId)) {
+            return false;
         }
-        return false;
+        ReceiverEndpointId other = (ReceiverEndpointId) o;
+        return clientId.equals(other.clientId)
+                && TextUtils.equals(endpointId, other.endpointId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(clientToken, receiverEndpointId);
+        return Objects.hash(clientId, endpointId);
     }
 
     @Override
     public String toString() {
-        return "ReceiverEndpointToken[clientToken=" + clientToken
-                + ", receiverEndpointId=" + receiverEndpointId + "]";
+        return "ReceiverEndpointId[clientId=" + clientId + ", endpointId=" + endpointId + "]";
     }
 }
