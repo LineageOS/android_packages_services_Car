@@ -21,10 +21,10 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 import android.util.ArrayMap;
-import android.util.ArraySet;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -194,11 +194,12 @@ public final class BinderKeyValueContainer<K, V extends IInterface> {
     }
 
     /**
-     * Returns a copy of keys in the container, or an empty set if the container is empty.
+     * Returns an unmodifiable copy of keys in the container, or an empty set if the container is
+     * empty.
      */
     public Set<K> keySet() {
         synchronized (mLock) {
-            return new ArraySet<>(mBinderMap.keySet());
+            return Collections.unmodifiableSet(mBinderMap.keySet());
         }
     }
 
