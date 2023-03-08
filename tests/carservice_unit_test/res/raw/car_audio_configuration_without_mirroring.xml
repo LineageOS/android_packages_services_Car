@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2022 The Android Open Source Project
+<!-- Copyright (C) 2023 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -14,9 +14,6 @@
      limitations under the License.
 -->
 <carAudioConfiguration version="3">
-    <mirroringDevices>
-        <mirroringDevice address="mirror_bus_device"/>
-    </mirroringDevices>
     <zones>
         <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
             <zoneConfigs>
@@ -132,30 +129,6 @@
                     <volumeGroups>
                         <group>
                             <device address="tertiary_zone_bus_2">
-                                <context context="music"/>
-                                <context context="navigation"/>
-                                <context context="voice_command"/>
-                                <context context="call_ring"/>
-                                <context context="call"/>
-                                <context context="alarm"/>
-                                <context context="system_sound"/>
-                                <context context="notification"/>
-                                <context context="emergency"/>
-                                <context context="safety"/>
-                                <context context="vehicle_status"/>
-                                <context context="announcement"/>
-                            </device>
-                        </group>
-                    </volumeGroups>
-                </zoneConfig>
-            </zoneConfigs>
-        </zone>
-        <zone name="quaternary zone" audioZoneId="3" occupantZoneId="4">
-            <zoneConfigs>
-                <zoneConfig  name="quaternary zone config 1" isDefault="true">
-                    <volumeGroups>
-                        <group>
-                            <device address="quaternary_zone_bus_1">
                                 <context context="music"/>
                                 <context context="navigation"/>
                                 <context context="voice_command"/>
