@@ -110,7 +110,7 @@ public final class UsbDeviceHandlerResolver {
     public interface StartAoapFailureListener {
 
         /** Called if startAoap fails. */
-        void onFailure();
+        void onFailure(UsbDevice failedDevice);
     }
 
     /**
@@ -151,7 +151,7 @@ public final class UsbDeviceHandlerResolver {
                                 requestAoapSwitch(device, filter);
                             } catch (IOException e) {
                                 Log.w(TAG, "Start AOAP command failed:" + e);
-                                failureListener.onFailure();
+                                failureListener.onFailure(device);
                             }
                         } else {
                             Log.i(TAG, "Ignore AOAP switch for device " + device
