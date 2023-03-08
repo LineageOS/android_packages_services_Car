@@ -76,6 +76,7 @@ message ProcessCpuStats {
   optional string command = 1;
   optional int32 cpu_time_ms = 2;
   optional float package_cpu_time_percent = 3;
+  optional int64 cpu_cycles = 4;
 }
 
 message PackageCpuStats {
@@ -83,7 +84,8 @@ message PackageCpuStats {
   optional string package_name = 2;
   optional int32 cpu_time_ms = 3;
   optional float total_cpu_time_percent = 4;
-  repeated ProcessCpuStats process_cpu_stats = 5;
+  optional int64 cpu_cycles = 5;
+  repeated ProcessCpuStats process_cpu_stats = 6;
 }
 
 message StatsCollection {
