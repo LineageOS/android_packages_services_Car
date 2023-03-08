@@ -45,7 +45,10 @@ public final class OemCarServiceHelper {
 
     // Per documentation if namespace is disabled, it must be null
     private static final String NO_NAMESPACE = null;
-    private static final String TAG_ROOT = "oemAudioManagementConfiguration";
+    private static final String NO_TAG = null;
+    private static final String TAG_ROOT_VOLUME = "oemAudioVolumeConfiguration";
+    private static final String TAG_ROOT_DUCKING = "oemAudioDuckingConfigurations";
+    private static final String TAG_ROOT_FOCUS = "oemAudioFocusConfigurations";
     private static final String TAG_ATTRIBUTE = "attribute";
     private static final String TAG_DUCK = "duck";
     private static final String TAG_EXCLUSIVE = "exclusive";
@@ -87,7 +90,14 @@ public final class OemCarServiceHelper {
         // When setInput() is used with a XmlPullParser, the parser is set to the
         // initial value of START_DOCUMENT.
         parser.next();
-        parser.require(XmlPullParser.START_TAG, NO_NAMESPACE, TAG_ROOT);
+        // Per XmlPullParser documentation, null will match with any namespace and any name
+        parser.require(XmlPullParser.START_TAG, NO_NAMESPACE, NO_TAG);
+        String parserName = parser.getName();
+        if (parserName == null || (!parserName.equals(TAG_ROOT_VOLUME)
+                && !parserName.equals(TAG_ROOT_DUCKING) && !parserName.equals(TAG_ROOT_FOCUS))) {
+            throw new XmlPullParserException("expected " + TAG_ROOT_VOLUME + " or "
+                + TAG_ROOT_DUCKING + " or " + TAG_ROOT_FOCUS);
+        }
 
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -108,7 +118,7 @@ public final class OemCarServiceHelper {
             }
         }
 
-        if (evaluateLoops(mDuckingInteractions)) {
+        if (mDuckingInteractions != null && evaluateLoops(mDuckingInteractions)) {
             throw new IllegalStateException("Ducking interactions contain loops");
         }
 
