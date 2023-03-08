@@ -16,6 +16,15 @@
 #
 """
 Tool to parse CarWatchdog's performance stats dump.
+
+To build the parser script run:
+  m perf_stats_parser
+
+To parse a carwatchdog dump text file run:
+  perf_stats_parser -f <cw-dump>.txt -o cw_proto_out.pb
+
+To read a carwatchdog proto file as a json run:
+  pers_stats_parser -r <cw-proto-out>.pb -j
 """
 import argparse
 import json
@@ -35,8 +44,8 @@ DUMP_DATETIME_FORMAT = "%a %b %d %H:%M:%S %Y %Z"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 STATS_COLLECTION_PATTERN = "Collection (\d+): <(.+)>"
-PACKAGE_CPU_STATS_PATTERN = "(\d+), (.+), (\d+), (\d+).(\d+)%"
-PROCESS_CPU_STATS_PATTERN = "\s+(.+), (\d+), (\d+).(\d+)%"
+PACKAGE_CPU_STATS_PATTERN = "(\d+), (.+), (\d+), (\d+).(\d+)%, (\d+)"
+PROCESS_CPU_STATS_PATTERN = "\s+(.+), (\d+), (\d+).(\d+)%, (\d+)"
 TOTAL_CPU_TIME_PATTERN = "Total CPU time \\(ms\\): (\d+)"
 TOTAL_IDLE_CPU_TIME_PATTERN = "Total idle CPU time \\(ms\\)/percent: (\d+) / .+"
 CPU_IO_WAIT_TIME_PATTERN = "CPU I/O wait time \\(ms\\)/percent: (\d+) / .+"
@@ -69,24 +78,27 @@ class BuildInformation:
 
 
 class ProcessCpuStats:
-  def __init__(self, command, cpu_time_ms, package_cpu_time_percent):
+  def __init__(self, command, cpu_time_ms, package_cpu_time_percent, cpu_cycles):
     self.command = command
     self.cpu_time_ms = cpu_time_ms
     self.package_cpu_time_percent = package_cpu_time_percent
+    self.cpu_cycles = cpu_cycles
 
   def __repr__(self):
     return "ProcessCpuStats (command={}, CPU time={}ms, percent of " \
-           "package's CPU time={}%)".format(self.command, self.cpu_time_ms,
-                                           self.package_cpu_time_percent)
+           "package's CPU time={}%, CPU cycles={})"\
+      .format(self.command, self.cpu_time_ms, self.package_cpu_time_percent,
+              self.cpu_cycles)
 
 
 class PackageCpuStats:
   def __init__(self, user_id, package_name, cpu_time_ms,
-      total_cpu_time_percent):
+      total_cpu_time_percent, cpu_cycles):
     self.user_id = user_id
     self.package_name = package_name
     self.cpu_time_ms = cpu_time_ms
     self.total_cpu_time_percent = total_cpu_time_percent
+    self.cpu_cycles = cpu_cycles
     self.process_cpu_stats = []
 
   def to_dict(self):
@@ -95,6 +107,7 @@ class PackageCpuStats:
         "package_name": self.package_name,
         "cpu_time_ms": self.cpu_time_ms,
         "total_cpu_time_percent": self.total_cpu_time_percent,
+        "cpu_cycles": self.cpu_cycles,
         "process_cpu_stats": [vars(p) for p in self.process_cpu_stats]
     }
 
@@ -104,9 +117,9 @@ class PackageCpuStats:
       process_list_str = "\n      ".join(list(map(repr, self.process_cpu_stats)))
       process_cpu_stats_str = "\n      {}\n    )".format(process_list_str)
     return "PackageCpuStats (user id={}, package name={}, CPU time={}ms, " \
-           "percent of total CPU time={}%, process CPU stats={}" \
+           "percent of total CPU time={}%, CPU cycles={}, process CPU stats={}" \
       .format(self.user_id, self.package_name, self.cpu_time_ms,
-              self.total_cpu_time_percent, process_cpu_stats_str)
+              self.total_cpu_time_percent, self.cpu_cycles, process_cpu_stats_str)
 
 
 class StatsCollection:
@@ -267,19 +280,22 @@ def parse_cpu_times(lines, idx):
       cpu_time_ms = int(match.group(3))
       total_cpu_time_percent = float("{}.{}".format(match.group(4),
                                                     match.group(5)))
+      cpu_cycles = int(match.group(6))
 
       package_cpu_stat = PackageCpuStats(user_id, package_name,
                                          cpu_time_ms,
-                                         total_cpu_time_percent)
+                                         total_cpu_time_percent,
+                                         cpu_cycles)
       package_cpu_stats.append(package_cpu_stat)
     elif match := re.match(PROCESS_CPU_STATS_PATTERN, line):
       command = match.group(1)
       cpu_time_ms = int(match.group(2))
       package_cpu_time_percent = float("{}.{}".format(match.group(3),
                                                       match.group(4)))
+      cpu_cycles = int(match.group(5))
       if package_cpu_stat:
         package_cpu_stat.process_cpu_stats.append(
-          ProcessCpuStats(command, cpu_time_ms, package_cpu_time_percent))
+          ProcessCpuStats(command, cpu_time_ms, package_cpu_time_percent, cpu_cycles))
       else:
         print("No package CPU stats parsed for process:", command, file=sys.stderr)
 
@@ -383,13 +399,14 @@ def add_system_event_pb(system_event_stats, system_event_pb):
       package_cpu_stats_pb.package_name = package_cpu_stats.package_name
       package_cpu_stats_pb.cpu_time_ms = package_cpu_stats.cpu_time_ms
       package_cpu_stats_pb.total_cpu_time_percent = package_cpu_stats.total_cpu_time_percent
+      package_cpu_stats_pb.cpu_cycles = package_cpu_stats.cpu_cycles
 
       for process_cpu_stats in package_cpu_stats.process_cpu_stats:
         process_cpu_stats_pb = package_cpu_stats_pb.process_cpu_stats.add()
         process_cpu_stats_pb.command = process_cpu_stats.command
         process_cpu_stats_pb.cpu_time_ms = process_cpu_stats.cpu_time_ms
         process_cpu_stats_pb.package_cpu_time_percent = process_cpu_stats.package_cpu_time_percent
-
+        process_cpu_stats_pb.cpu_cycles = process_cpu_stats.cpu_cycles
 
 def get_system_event(system_event_pb):
   system_event_stats = SystemEventStats()
@@ -411,14 +428,16 @@ def get_system_event(system_event_pb):
         PackageCpuStats(package_cpu_stats_pb.user_id,
                         package_cpu_stats_pb.package_name,
                         package_cpu_stats_pb.cpu_time_ms,
-                        round(package_cpu_stats_pb.total_cpu_time_percent, 2))
+                        round(package_cpu_stats_pb.total_cpu_time_percent, 2),
+                        package_cpu_stats_pb.cpu_cycles)
 
       for process_cpu_stats_pb in package_cpu_stats_pb.process_cpu_stats:
         process_cpu_stats = \
           ProcessCpuStats(process_cpu_stats_pb.command,
                           process_cpu_stats_pb.cpu_time_ms,
                           round(process_cpu_stats_pb.package_cpu_time_percent,
-                                2))
+                                2),
+                          process_cpu_stats_pb.cpu_cycles)
 
         package_cpu_stats.process_cpu_stats.append(process_cpu_stats)
       stats_collection.package_cpu_stats.append(package_cpu_stats)
