@@ -87,6 +87,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * </p>
      *
      * @hide
+     * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     public interface CpuAvailabilityChangeListener {
         /**
@@ -118,6 +119,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @throws IllegalStateException if {@code listener} is already added.
      *
      * @hide
+     * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -140,6 +142,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * interface.
      *
      * @hide
+     * @removed API not used since Android U. Must be removed in Android W (release 35).
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
     @AddedInOrBefore(majorVersion = 33)
