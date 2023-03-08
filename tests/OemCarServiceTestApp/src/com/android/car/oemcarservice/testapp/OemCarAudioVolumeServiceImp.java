@@ -25,10 +25,13 @@ import android.util.Log;
 import android.util.Slog;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
+import com.android.car.oem.utils.OemCarServiceHelper;
 import com.android.car.oem.volume.VolumeInteractions;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -46,10 +49,9 @@ public class OemCarAudioVolumeServiceImp implements OemCarAudioVolumeService {
      * @param context The given context
      * @param volumePriorities A list of volume priorities from highest priority to lowest priority
      */
-    public OemCarAudioVolumeServiceImp(Context context, @Nullable List<AudioAttributes>
-            volumePriorities) {
-        List<AudioAttributes> priorityList = volumePriorities;
-        if (volumePriorities == null) {
+    public OemCarAudioVolumeServiceImp(Context context) {
+        List<AudioAttributes> priorityList = parseAndGetVolumeConfig(context);
+        if (priorityList == null) {
             priorityList = VolumeInteractions.VOLUME_PRIORITIES;
         }
         mVolumeInteractions = new VolumeInteractions(context, priorityList);
@@ -94,5 +96,17 @@ public class OemCarAudioVolumeServiceImp implements OemCarAudioVolumeService {
         }
         writer.println("  OemCarAudioVolumeServiceImpl");
         mVolumeInteractions.dump(writer, "  ");
+    }
+
+    private List<AudioAttributes> parseAndGetVolumeConfig(Context context) {
+        OemCarServiceHelper oemCarServiceHelper = new OemCarServiceHelper();
+        try {
+            oemCarServiceHelper.parseAudioManagementConfiguration(context.getAssets().open(
+                    "oem_volume_config.xml"));
+            return oemCarServiceHelper.getVolumePriorityList();
+        } catch (XmlPullParserException | IOException e) {
+            Slog.w(TAG, "Volume config file was not able to be parsed", e);
+            return null;
+        }
     }
 }
