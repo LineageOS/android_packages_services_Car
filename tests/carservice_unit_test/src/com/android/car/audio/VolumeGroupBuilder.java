@@ -16,15 +16,18 @@
 
 package com.android.car.audio;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.util.ArrayMap;
 import android.util.SparseArray;
 
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,7 +36,18 @@ import java.util.Map;
 public final class VolumeGroupBuilder {
 
     private SparseArray<String> mDeviceAddresses = new SparseArray<>();
+    private CarAudioDeviceInfo mCarAudioDeviceInfoMock;
+    private ArrayMap<String, List<Integer>> mUsagesDeviceAddresses = new ArrayMap<>();
+    private String mName;
     private boolean mIsMuted;
+
+    /**
+     * Add name for volume group
+     */
+    public VolumeGroupBuilder setName(String name) {
+        mName = name;
+        return this;
+    }
 
     /**
      * Add devices address for context
@@ -45,6 +59,25 @@ public final class VolumeGroupBuilder {
     }
 
     /**
+     * Set devices address with usage
+     */
+    public VolumeGroupBuilder addDeviceAddressAndUsages(int usage, String address) {
+        if (!mUsagesDeviceAddresses.containsKey(address)) {
+            mUsagesDeviceAddresses.put(address, new ArrayList<>());
+        }
+        mUsagesDeviceAddresses.get(address).add(usage);
+        return this;
+    }
+
+    /**
+     * Add mocked car audio device info
+     */
+    public VolumeGroupBuilder addCarAudioDeviceInfoMock(CarAudioDeviceInfo infoMock) {
+        mCarAudioDeviceInfoMock = infoMock;
+        return this;
+    }
+
+    /**
      * Sets volume group is muted
      */
     public VolumeGroupBuilder setIsMuted(boolean isMuted) {
@@ -52,17 +85,16 @@ public final class VolumeGroupBuilder {
         return this;
     }
 
-
     /**
      * Builds car volume group
      */
     public CarVolumeGroup build() {
         CarVolumeGroup carVolumeGroup = mock(CarVolumeGroup.class);
-        Map<String, ArrayList<Integer>> addressToContexts = new HashMap<>();
-        int[] contexts = new int[mDeviceAddresses.size()];
+        Map<String, ArrayList<Integer>> addressToContexts = new ArrayMap<>();
+        @CarAudioContext.AudioContext int[] contexts = new int[mDeviceAddresses.size()];
 
         for (int index = 0; index < mDeviceAddresses.size(); index++) {
-            int context = mDeviceAddresses.keyAt(index);
+            @CarAudioContext.AudioContext int context = mDeviceAddresses.keyAt(index);
             String address = mDeviceAddresses.get(context);
             when(carVolumeGroup.getAddressForContext(context)).thenReturn(address);
             if (!addressToContexts.containsKey(address)) {
@@ -72,16 +104,30 @@ public final class VolumeGroupBuilder {
             contexts[index] = context;
         }
 
+        for (int index = 0; index < mUsagesDeviceAddresses.size(); index++) {
+            String address = mUsagesDeviceAddresses.keyAt(index);
+            List<Integer> usagesForAddress = mUsagesDeviceAddresses.get(address);
+            when(carVolumeGroup.getAllSupportedUsagesForAddress(eq(address)))
+                    .thenReturn(usagesForAddress);
+        }
+
         when(carVolumeGroup.getContexts()).thenReturn(contexts);
 
-        addressToContexts.forEach((address, array) ->
-                when(carVolumeGroup.getContextsForAddress(address))
-                .thenReturn(ImmutableList.copyOf(array)));
-
+        for (String address : addressToContexts.keySet()) {
+            when(carVolumeGroup.getContextsForAddress(address))
+                    .thenReturn(ImmutableList.copyOf(addressToContexts.get(address)));
+        }
         when(carVolumeGroup.getAddresses())
                 .thenReturn(ImmutableList.copyOf(addressToContexts.keySet()));
 
+        when(carVolumeGroup.getCarAudioDeviceInfoForAddress(any()))
+                .thenReturn(mCarAudioDeviceInfoMock);
+
+        if (mName != null) {
+            when(carVolumeGroup.getName()).thenReturn(mName);
+        }
         when(carVolumeGroup.isMuted()).thenReturn(mIsMuted);
+
         return carVolumeGroup;
     }
 }
