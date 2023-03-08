@@ -18,7 +18,8 @@
 <shape
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
-    <solid android:color="@color/car_seekbar_primary_color"
+    <size
         android:width="@dimen/car_seekbar_thumb_size"
-        android:height="@dimen/car_seekbar_thumb_size" />
+        android:height="@dimen/car_seekbar_thumb_size"/>
+    <solid android:color="@color/car_seekbar_primary_color" />
 </shape>

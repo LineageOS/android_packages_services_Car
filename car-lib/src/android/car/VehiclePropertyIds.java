@@ -4186,6 +4186,44 @@ public final class VehiclePropertyIds {
     public static final int ADAPTIVE_CRUISE_CONTROL_TARGET_TIME_GAP = 289411092;
 
     /**
+     * Measured distance from leading vehicle when using Adaptive Cruise Control (ACC) or Predictive
+     * Cruise Control in millimeters.
+     *
+     * <p>Returns the measured distance in meters from the lead vehicle for ACC between the
+     * rear-most point of the leading vehicle and the front-most point of the ACC vehicle.
+     *
+     * <p>{@link CarPropertyConfig#getMinValue(int)} returns 0.
+     * <p>{@link CarPropertyConfig#getMaxValue(int)} returns the maximum range the distance sensor
+     * can support. This value will be non-negative.
+     *
+     * <p>When no lead vehicle is detected (that is, when there is no leading vehicle or the leading
+     * vehicle is too far away for the sensor to detect), this property will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
+     *  property.
+     *  <li>Property is not writable.
+     * </ul>
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_ADAS_STATES))
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int ADAPTIVE_CRUISE_CONTROL_LEAD_VEHICLE_MEASURED_DISTANCE = 289411093;
+
+    /**
      * Enable or disable hands on detection (HOD).
      *
      * <p>Return true if HOD is enabled and false if HOD is disabled. When HOD is enabled, a system

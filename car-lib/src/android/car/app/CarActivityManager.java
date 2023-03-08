@@ -39,6 +39,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Display;
 import android.view.SurfaceControl;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -265,7 +266,7 @@ public final class CarActivityManager extends CarManagerBase {
     }
 
     /**
-     * Returns all the visible tasks. The order is not guaranteed.
+     * Returns all the visible tasks in the all displays. The order is not guaranteed.
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -273,7 +274,26 @@ public final class CarActivityManager extends CarManagerBase {
     @NonNull
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
         try {
-            return mService.getVisibleTasks();
+            return mService.getVisibleTasks(Display.INVALID_DISPLAY);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Returns all the visible tasks in the given display. The order is not guaranteed.
+     *
+     * @param displayId the id of {@link Display} to retrieve the tasks,
+     *         {@link Display.INVALID_DISPLAY} to retrieve the tasks in the all displays.
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasks(int displayId) {
+        try {
+            return mService.getVisibleTasks(displayId);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

@@ -78,8 +78,11 @@
     <dimen name="car_switch_focus_ring_pressed_width">@dimen/car_focus_ring_pressed_width</dimen>
 
     <!-- ****** Seekbar dimens ***** -->
+    <dimen name="car_seekbar_background_height">4dp</dimen>
+    <dimen name="car_seekbar_background_corner_radius">2dp</dimen>
     <dimen name="car_seekbar_height">4dp</dimen>
     <dimen name="car_seekbar_rounded_corner_radius">2dp</dimen>
     <dimen name="car_seekbar_thumb_size">16dp</dimen>
+    <dimen name="car_seekbar_horizontal_padding">8dp</dimen>
 
 </resources>

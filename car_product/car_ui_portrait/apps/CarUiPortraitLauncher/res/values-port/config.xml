@@ -16,12 +16,6 @@
   -->
 
 <resources>
-
-    <string-array name="config_drawerActivities" translatable="false">
-        <item>com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity</item>
-        <item>com.android.car.notification/.CarNotificationCenterActivity</item>
-    </string-array>
-
     <string name="config_backgroundActivity" translatable="false">
         com.google.android.apps.maps/com.google.android.maps.MapsActivity
     </string>

@@ -14,8 +14,21 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+
 <permissions>
     <privapp-permissions package="com.android.car.multidisplay.controlcenter">
         <permission name="android.permission.MEDIA_CONTENT_CONTROL"/>
+        <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
+        <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
+        <permission name="android.car.permission.CAR_POWER"/>
+        <permission name="android.car.permission.ACCESS_PRIVATE_DISPLAY_ID"/>
+        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <permission name="android.car.permission.MANAGE_OCCUPANT_CONNECTION"/>
+        <permission name="android.car.permission.MANAGE_REMOTE_DEVICE"/>
+        <permission name="android.permission.MANAGE_ACTIVITY_TASKS" />
+        <permission name="android.car.permission.ACCESS_MIRRORED_SURFACE" />
+        <permission name="android.permission.CAPTURE_SECURE_VIDEO_OUTPUT" />
+        <permission name="android.permission.ADD_TRUSTED_DISPLAY"/>
+        <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH" />
     </privapp-permissions>
 </permissions>

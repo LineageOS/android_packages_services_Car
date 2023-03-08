@@ -23,7 +23,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -91,7 +90,7 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
-    public void testRequestConnectionWithNullParameters() {
+    public void testRequestConnectionWithNullParameters_throwsException() {
         assertThrows(NullPointerException.class,
                 () -> mOccupantConnectionManager.requestConnection(
                         /* receiverZone= */ null, mCallbackExecutor, mConnectionRequestCallback));
@@ -104,27 +103,69 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
-    public void testRequestConnectionWithDuplicateCallbacks() {
+    public void testRequestConnectionWithPendingConnection_throwsException() {
         mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
-                mConnectionRequestCallback);
+                mock(ConnectionRequestCallback.class));
 
-        // Duplicate callbacks are not allowed.
+        // The client shouldn't request another connection to the same occupant zone because there
+        // is a pending connection request to that occupant zone.
         assertThrows(IllegalStateException.class,
                 () -> mOccupantConnectionManager.requestConnection(
                         mReceiverZone, mCallbackExecutor, mConnectionRequestCallback));
     }
 
     @Test
+    public void testRequestConnectionWithEstablishedConnection_throwsException()
+            throws RemoteException {
+        IConnectionRequestCallback[] binderCallback = new IConnectionRequestCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            binderCallback[0] = (IConnectionRequestCallback) args[2];
+            return null;
+        }).when(mService).requestConnection(anyString(), any(OccupantZoneInfo.class), any());
+
+        mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
+                mock(ConnectionRequestCallback.class));
+        binderCallback[0].onConnected(mReceiverZone);
+
+        // The client shouldn't request another connection to the same occupant zone because there
+        // is an established connection to that occupant zone.
+        assertThrows(IllegalStateException.class,
+                () -> mOccupantConnectionManager.requestConnection(
+                        mReceiverZone, mCallbackExecutor, mConnectionRequestCallback));
+    }
+
+    @Test
+    public void testRequestConnectionWithRejectedConnection() throws RemoteException {
+        IConnectionRequestCallback[] binderCallback = new IConnectionRequestCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            binderCallback[0] = (IConnectionRequestCallback) args[2];
+            return null;
+        }).when(mService).requestConnection(anyString(), any(OccupantZoneInfo.class), any());
+
+        mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
+                mock(ConnectionRequestCallback.class));
+        binderCallback[0].onRejected(mReceiverZone, /* rejectionReason= */ 0);
+
+        // The client can request another connection to the same occupant zone since the previous
+        // request was rejected.
+        mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
+                mConnectionRequestCallback);
+    }
+
+    @Test
     public void testRequestConnectionWithRemoteException() throws RemoteException {
         // The first call fails due to a RemoteException.
         doThrow(new RemoteException())
-                .when(mService).requestConnection(anyInt(), eq(mReceiverZone), any());
+                .when(mService).requestConnection(anyString(), any(OccupantZoneInfo.class), any());
         mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
                 mConnectionRequestCallback);
 
         // The second call succeeds. It should not trigger IllegalStateException because
         // mConnectionRequestCallback was not added previously.
-        doNothing().when(mService).requestConnection(anyInt(), eq(mReceiverZone), any());
+        doNothing()
+                .when(mService).requestConnection(anyString(), any(OccupantZoneInfo.class), any());
         mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
                 mConnectionRequestCallback);
     }
@@ -134,6 +175,8 @@ public final class CarOccupantConnectionManagerUnitTest {
         IConnectionRequestCallback[] binderCallback = new IConnectionRequestCallback[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
+            String packageName = (String) args[0];
+            assertThat(packageName).isEqualTo(PACKAGE_NAME);
             OccupantZoneInfo receiverZone = (OccupantZoneInfo) args[1];
             assertThat(receiverZone).isEqualTo(mReceiverZone);
             binderCallback[0] = (IConnectionRequestCallback) args[2];
@@ -141,14 +184,14 @@ public final class CarOccupantConnectionManagerUnitTest {
             // is added AFTER this method returns. So if we call binderCallback.onConnected() here,
             // mConnectionRequestCallback will not be invoked.
             return null;
-        }).when(mService).requestConnection(anyInt(), any(), any());
+        }).when(mService).requestConnection(anyString(), any(OccupantZoneInfo.class), any());
 
         mOccupantConnectionManager.requestConnection(mReceiverZone, command -> {
             command.run();
             // Verify that mConnectionRequestCallback is invoked on the Executor.
             verify(mConnectionRequestCallback, timeout(1000)).onConnected(mReceiverZone);
         }, mConnectionRequestCallback);
-        binderCallback[0].onConnected(/* requestId= */ 0, mReceiverZone);
+        binderCallback[0].onConnected(mReceiverZone);
     }
 
     @Test
@@ -167,7 +210,8 @@ public final class CarOccupantConnectionManagerUnitTest {
     @Test
     public void testRegisterReceiverWithDuplicateReceiverId() throws RemoteException {
         // The first registerReceiver() call should run normally, while the second
-        // registerReceiver() call should throw an exception because the same ID has been registered.
+        // registerReceiver() call should throw an exception because the same ID has been
+        // registered.
         doNothing().doThrow(IllegalStateException.class)
                 .when(mService).registerReceiver(eq(PACKAGE_NAME), eq(RECEIVER_ENDPOINT_ID), any());
         mOccupantConnectionManager.registerReceiver(RECEIVER_ENDPOINT_ID, mCallbackExecutor,
