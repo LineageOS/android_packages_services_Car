@@ -847,7 +847,9 @@ public final class Car {
 
     /**
      * Permission necessary to control display units for distance, fuel volume, tire pressure
-     * and ev battery.
+     * and ev battery. Currently, all display unit properties require both {@code
+     * PERMISSION_CONTROL_DISPLAY_UNITS} and {@code PERMISSION_VENDOR_EXTENSION} to be granted in
+     * order to write to them.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CONTROL_DISPLAY_UNITS =
