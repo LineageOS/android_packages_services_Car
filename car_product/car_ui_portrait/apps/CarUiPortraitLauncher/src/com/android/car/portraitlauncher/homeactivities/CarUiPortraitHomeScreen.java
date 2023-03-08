@@ -460,7 +460,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         initializeCards();
-        mRootTaskViewPanel.refresh(getTheme());
+
+        mRootTaskViewPanel.post(() -> mRootTaskViewPanel.refresh(getTheme()));
+        mAppGridTaskViewPanel.post(() -> mAppGridTaskViewPanel.refresh(getTheme()));
     }
 
     @Override
