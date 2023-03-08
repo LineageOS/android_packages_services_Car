@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.IAudioZonesMirrorStatusCallback;
+import android.media.AudioDeviceInfo;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
@@ -41,6 +42,7 @@ import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -63,7 +65,7 @@ import java.util.Objects;
     private final RemoteCallbackList<IAudioZonesMirrorStatusCallback>
             mAudioZonesMirrorStatusCallbacks = new RemoteCallbackList<>();
     @GuardedBy("mLock")
-    private String mMirrorDeviceAddress;
+    private final List<CarAudioDeviceInfo> mMirrorDevices = new ArrayList<>();
     @GuardedBy("mLock")
     private final SparseLongArray mZonesToMirrorRequestId = new SparseLongArray();
 
@@ -92,15 +94,29 @@ import java.util.Objects;
 
     boolean isMirrorAudioEnabled() {
         synchronized (mLock) {
-            return mMirrorDeviceAddress != null;
+            return !mMirrorDevices.isEmpty();
         }
     }
 
-    void setMirrorDeviceAddress(String deviceAddress) {
-        Objects.requireNonNull(deviceAddress, "Mirror device address can not be null");
+    void setMirrorDeviceInfos(List<CarAudioDeviceInfo> mirroringDevices) {
+        Objects.requireNonNull(mirroringDevices, "Mirror devices can not be null");
 
         synchronized (mLock) {
-            mMirrorDeviceAddress = deviceAddress;
+            mMirrorDevices.clear();
+            mMirrorDevices.addAll(mirroringDevices);
+        }
+    }
+
+    List<CarAudioDeviceInfo> getMirroringDeviceInfos() {
+        synchronized (mLock) {
+            return List.copyOf(mMirrorDevices);
+        }
+    }
+
+    @Nullable AudioDeviceInfo getAudioDeviceInfo() {
+        //TODO (b/265973263): Replace 0 index with a request id indexing scheme
+        synchronized (mLock) {
+            return mMirrorDevices.isEmpty() ? null : mMirrorDevices.get(0).getAudioDeviceInfo();
         }
     }
 
@@ -219,6 +235,23 @@ import java.util.Objects;
         return CarServiceUtils.toIntArray(newConfig);
     }
 
+    long getUniqueRequestId() {
+        return mRequestIdGenerator.generateUniqueRequestId();
+    }
+
+    long getRequestIdForAudioZone(int audioZoneId) {
+        synchronized (mLock) {
+            return mZonesToMirrorRequestId.get(audioZoneId, INVALID_REQUEST_ID);
+        }
+    }
+
+    public void verifyValidRequestId(long requestId) {
+        synchronized (mLock) {
+            Preconditions.checkArgument(mRequestIdToZones.containsKey(requestId),
+                    "Mirror request id " + requestId + " is not valid");
+        }
+    }
+
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("Is audio mirroring enabled? %s\n", isMirrorAudioEnabled() ? "Yes" : "No");
@@ -228,7 +261,8 @@ import java.util.Objects;
         writer.increaseIndent();
         int registeredCount = mAudioZonesMirrorStatusCallbacks.getRegisteredCallbackCount();
         synchronized (mLock) {
-            writer.printf("Mirroring device info: %s\n", mMirrorDeviceAddress);
+            writer.println("Mirroring device info:");
+            dumpMirrorDeviceInfosLocked(writer);
             writer.printf("Registered callback count: %d\n", registeredCount);
             writer.println("Mirroring configurations:");
             writer.increaseIndent();
@@ -249,20 +283,14 @@ import java.util.Objects;
         writer.decreaseIndent();
     }
 
-    long getUniqueRequestId() {
-        return mRequestIdGenerator.generateUniqueRequestId();
-    }
-
-    long getRequestIdForAudioZone(int audioZoneId) {
-        synchronized (mLock) {
-            return mZonesToMirrorRequestId.get(audioZoneId, INVALID_REQUEST_ID);
-        }
-    }
-
-    public void verifyValidRequestId(long requestId) {
-        synchronized (mLock) {
-            Preconditions.checkArgument(mRequestIdToZones.containsKey(requestId),
-                    "Mirror request id " + requestId + " is not valid");
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpMirrorDeviceInfosLocked(IndentingPrintWriter writer) {
+        for (int index = 0; index < mMirrorDevices.size(); index++) {
+            writer.printf("Mirror device[%d]\n", index);
+            writer.increaseIndent();
+            mMirrorDevices.get(index).dump(writer);
+            writer.decreaseIndent();
         }
     }
 }

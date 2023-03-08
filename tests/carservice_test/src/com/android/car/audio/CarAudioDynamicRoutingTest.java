@@ -182,7 +182,7 @@ public final class CarAudioDynamicRoutingTest {
                 /* canBeRoutedWithDynamicPolicyMix= */ true);
 
         CarAudioDynamicRouting.setupAudioDynamicRoutingForMirrorDevice(mockBuilder,
-                carMirrorDeviceInfo);
+                List.of(carMirrorDeviceInfo));
 
         ArgumentCaptor<AudioMix> audioMixCaptor = ArgumentCaptor.forClass(AudioMix.class);
 
