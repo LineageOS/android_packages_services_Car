@@ -203,6 +203,13 @@ public final class UserManagerHelper {
         return userManager.isVisibleBackgroundUsersSupported();
     }
 
+    /** Check {@link UserManager#isVisibleBackgroundUsersOnDefaultDisplaySupported()}. */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
+            @NonNull UserManager userManager) {
+        return userManager.isVisibleBackgroundUsersOnDefaultDisplaySupported();
+    }
+
     /** Check {@link UserManager#getMaxSupportedUsers()}. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int getMaxSupportedUsers(@NonNull Context context) {
