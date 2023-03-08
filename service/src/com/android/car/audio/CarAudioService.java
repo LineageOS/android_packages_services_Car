@@ -2122,6 +2122,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                             + " is currently sharing to primary zone, undo audio sharing in "
                             + "primary zone before switching zone configuration");
         }
+
+        if (mCarAudioMirrorRequestHandler.isMirrorAudioEnabled()
+                && mCarAudioMirrorRequestHandler.getMirrorAudioZonesForAudioZone(zoneId) != null) {
+            throw new IllegalStateException("Audio zone " + zoneId + " is currently in a mirroring"
+                    + " configuration, undo audio mirroring before switching zone configuration");
+        }
     }
 
     private boolean handleSwitchZoneConfig(CarAudioZoneConfigInfo zoneConfig) {
@@ -2141,6 +2147,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.w(TAG, "handleSwitchZoneConfig failed, occupant %s in audio zone %d is "
                             + "currently sharing to primary zone, undo audio sharing in primary "
                             + "zone before switching zone configuration", info, zoneId);
+            return false;
+        }
+
+        if (mCarAudioMirrorRequestHandler.isMirrorAudioEnabled()
+                && mCarAudioMirrorRequestHandler.getMirrorAudioZonesForAudioZone(zoneId) != null) {
+            Slogf.w(TAG, "handleSwitchZoneConfig failed, audio zone %d is currently in a mirroring"
+                    + "configuration, undo audio mirroring before switching zone configuration",
+                    zoneId);
             return false;
         }
 

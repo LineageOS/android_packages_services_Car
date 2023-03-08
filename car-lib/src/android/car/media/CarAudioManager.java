@@ -882,6 +882,9 @@ public final class CarAudioManager extends CarManagerBase {
      *                 configuration
      * @throws NullPointerException if either executor or callback are {@code null}
      * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if no user is assigned to the audio zone
+     * @throws IllegalStateException if the audio zone is currently in a mirroring configuration
+     *                               or sharing audio with primary audio zone
      * @throws IllegalArgumentException if the audio zone configuration is invalid
      *
      * @hide
