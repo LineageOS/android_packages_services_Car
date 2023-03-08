@@ -45,6 +45,7 @@ class TaskCategoryManager {
     private final ComponentName mBackgroundActivityComponent;
     private final ComponentName mBlankActivityComponent;
     private final ComponentName mAppGridActivityComponent;
+    private final ComponentName mNotificationActivityComponent;
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
     public Set<ComponentName> mFullScreenActivities;
     private final Context mContext;
@@ -60,6 +61,8 @@ class TaskCategoryManager {
                 .getStringArray(R.array.config_ignoreOpeningForegroundDA));
         mAppGridActivityComponent = new ComponentName(context, AppGridActivity.class);
         mBlankActivityComponent = new ComponentName(context, BlankActivity.class);
+        mNotificationActivityComponent = ComponentName.unflattenFromString(
+                mContext.getResources().getString(R.string.config_notificationActivity));
 
         updateVoicePlateActivityMap();
     }
@@ -99,6 +102,10 @@ class TaskCategoryManager {
 
     boolean isFullScreenActivity(TaskInfo taskInfo) {
         return mFullScreenActivities.contains(taskInfo.baseActivity);
+    }
+
+    boolean isNotificationActivity(TaskInfo taskInfo) {
+        return mNotificationActivityComponent.equals(taskInfo.baseActivity);
     }
 
     boolean shouldIgnoreOpeningForegroundDA(TaskInfo taskInfo) {
