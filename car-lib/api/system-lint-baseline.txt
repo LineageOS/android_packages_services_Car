@@ -487,6 +487,16 @@ MissingNullability: android.car.navigation.CarNavigationStatusManager#sendEvent(
     Missing nullability on parameter `bundle` in method `sendEvent`
 MissingNullability: android.car.navigation.CarNavigationStatusManager#sendNavigationStateChange(android.os.Bundle) parameter #0:
     Missing nullability on parameter `bundle` in method `sendNavigationStateChange`
+MissingNullability: android.car.occupantconnection.AbstractReceiverService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
+    Missing nullability on parameter `fd` in method `dump`
+MissingNullability: android.car.occupantconnection.AbstractReceiverService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Missing nullability on parameter `writer` in method `dump`
+MissingNullability: android.car.occupantconnection.AbstractReceiverService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #2:
+    Missing nullability on parameter `args` in method `dump`
+MissingNullability: android.car.occupantconnection.AbstractReceiverService#onBind(android.content.Intent) parameter #0:
+    Missing nullability on parameter `intent` in method `onBind`
+MissingNullability: android.car.occupantconnection.AbstractReceiverService#onLocalServiceBind(android.content.Intent) parameter #0:
+    Missing nullability on parameter `intent` in method `onLocalServiceBind`
 MissingNullability: android.car.projection.ProjectionOptions#ProjectionOptions(android.os.Bundle) parameter #0:
     Missing nullability on parameter `bundle` in method `ProjectionOptions`
 MissingNullability: android.car.projection.ProjectionStatus#CREATOR:
@@ -741,6 +751,8 @@ OnNameExpected: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockin
     Methods implemented by developers should follow the on<Something> style, was `getAppBlockingPolicy`
 OnNameExpected: android.car.occupantconnection.AbstractReceiverService#acceptConnection(android.car.CarOccupantZoneManager.OccupantZoneInfo):
     If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.occupantconnection.AbstractReceiverService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]):
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
     If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.occupantconnection.AbstractReceiverService#getAllReceiverEndpoints():
@@ -853,6 +865,10 @@ RegistrationName: android.car.storagemonitoring.CarStorageMonitoringManager#regi
     Listener methods should be named add/remove; was registerListener
 RegistrationName: android.car.storagemonitoring.CarStorageMonitoringManager#unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener):
     Listener methods should be named add/remove; was unregisterListener
+
+
+RethrowRemoteException: android.car.occupantconnection.AbstractReceiverService#forwardPayload(android.car.CarOccupantZoneManager.OccupantZoneInfo, String, android.car.occupantconnection.Payload):
+    Methods calling system APIs should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)
 
 
 SamShouldBeLast: android.car.CarProjectionManager#registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int):
