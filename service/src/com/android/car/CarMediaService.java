@@ -17,6 +17,7 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.os.UserManagerHelper.getMaxRunningUsers;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
@@ -29,16 +30,19 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.usage.UsageStatsManager;
 import android.car.Car;
 import android.car.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimeUtils;
+import android.car.builtin.util.UsageStatsManagerHelper;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -134,6 +138,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private final CarUserService mUserService;
     private final UserManager mUserManager;
     private final MediaSessionManager mMediaSessionManager;
+    private final UsageStatsManager mUsageStatsManager;
 
     /**
      * An array to store all per-user media data.
@@ -366,6 +371,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mContext = context;
         mUserManager = mContext.getSystemService(UserManager.class);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
+        mUsageStatsManager = mContext.getSystemService(UsageStatsManager.class);
         mDefaultIndependentPlaybackConfig = mContext.getResources().getBoolean(
                 R.bool.config_mediaSourceIndependentPlayback);
         mUserMediaPlayContexts =
@@ -1185,6 +1191,14 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             setPlaybackMediaSource(componentName, userId);
         } else if (mode == MEDIA_SOURCE_MODE_BROWSE) {
             setBrowseMediaSource(componentName, userId);
+        }
+        // Android logs app usage into UsageStatsManager. ACTIVITY_RESUMED and ACTIVITY_STOPPED
+        // events do not capture media app usage on AAOS because apps are hosted by a proxy such as
+        // Media Center. Reporting a USER_INTERACTION event in setPrimaryMediaSource allows
+        // attribution of non-foreground media app interactions to the app's package name
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            UsageStatsManagerHelper.reportUserInteraction(mUsageStatsManager,
+                    componentName.getPackageName(), userId);
         }
     }
 
