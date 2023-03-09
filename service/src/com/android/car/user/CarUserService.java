@@ -1141,8 +1141,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void removeUser(@UserIdInt int userId, AndroidFuture<UserRemovalResult> receiver) {
-        removeUser(userId, /* hasCallerRestrictions= */ false, receiver);
+    public void removeUser(@UserIdInt int userId, ResultCallbackImpl<UserRemovalResult> callback) {
+        AndroidFuture<UserRemovalResult> future = new AndroidFuture<>() {
+            @Override
+            protected void onCompleted(UserRemovalResult result, Throwable err) {
+                callback.complete(result);
+            }
+        };
+        removeUser(userId, /* hasCallerRestrictions= */ false, future);
     }
 
     /**

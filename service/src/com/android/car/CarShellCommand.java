@@ -64,6 +64,7 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserRemovalRequest;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
@@ -2362,10 +2363,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
-        // TODO(b/235994391): Update this call with new removeUser call
-        UserRemovalResult result = carUserManager.removeUser(userId);
-        writer.printf("UserRemovalResult: status = %s\n",
-                UserRemovalResult.statusToString(result.getStatus()));
+        carUserManager.removeUser(new UserRemovalRequest.Builder(
+                        UserHandle.of(userId)).build(), Runnable::run,
+                response -> writer.printf("UserRemovalResult: status = %s\n",
+                        UserRemovalResult.statusToString(response.getStatus()))
+        );
     }
 
     private static <T> T waitForFuture(IndentingPrintWriter writer,

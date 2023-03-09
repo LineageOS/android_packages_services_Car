@@ -254,9 +254,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testRemoveUser_binderMethod() {
         CarUserService spy = spy(mCarUserService);
 
-        spy.removeUser(42, mUserRemovalFuture);
+        spy.removeUser(42, mUserRemovalResultCallbackImpl);
 
-        verify(spy).removeUser(42, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        //TODO(b/272587123): Update this to use ResultCallbackImpl
+        verify(spy).removeUser(42, mUserRemovalResultCallbackImpl);
     }
 
     @Test
@@ -940,7 +941,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUserNoCallback(removeUser, UserManager.REMOVE_RESULT_DEFERRED);
 
-        removeUser(removedUserId, mUserRemovalFuture);
+        removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
@@ -955,7 +956,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUser(removeUser, UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED);
 
-        removeUser(removedUserId, mUserRemovalFuture);
+        removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
