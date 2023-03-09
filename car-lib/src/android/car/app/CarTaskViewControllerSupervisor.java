@@ -22,6 +22,7 @@ import android.app.Activity;
 import android.app.Application;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.window.WindowManagerHelper;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -86,6 +87,8 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
             throw new IllegalArgumentException("A CarTaskViewController already exists for this "
                     + "activity. Cannot create another one.");
         }
+        // Setting as trusted overlay to let touches pass through.
+        WindowManagerHelper.setTrustedOverlay(hostActivity.getWindow().getAttributes());
         hostActivity.registerActivityLifecycleCallbacks(this);
         ActivityHolder activityHolder = new ActivityHolder(hostActivity, callbackExecutor,
                 carTaskViewControllerCallback);
