@@ -1056,13 +1056,13 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         private final @UserIdInt int mUserId;
         private final MediaController mMediaController;
-        private int mPreviousPlaybackState;
+        private PlaybackState mPreviousPlaybackState;
 
         private MediaControllerCallback(MediaController mediaController, @UserIdInt int userId) {
             mUserId = userId;
             mMediaController = mediaController;
             PlaybackState state = mediaController.getPlaybackState();
-            mPreviousPlaybackState = (state == null) ? PlaybackState.STATE_NONE : state.getState();
+            mPreviousPlaybackState = state;
         }
 
         private void register() {
@@ -1079,8 +1079,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 Slogf.d(TAG, "onPlaybackStateChanged() for user %d; previous state: %s,"
                         + " new state: %s", mUserId, mPreviousPlaybackState, state.getState());
             }
-            if (state.getState() == PlaybackState.STATE_PLAYING
-                    && state.getState() != mPreviousPlaybackState) {
+            if (state != null && state.isActive()
+                    && (mPreviousPlaybackState == null || !mPreviousPlaybackState.isActive())) {
                 ComponentName mediaSource = getMediaSource(mMediaController.getPackageName(),
                         getClassName(mMediaController), mUserId);
                 if (mediaSource != null && Slogf.isLoggable(TAG, Log.INFO)) {
@@ -1094,7 +1094,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 }
                 setPrimaryMediaSource(mediaSource, MEDIA_SOURCE_MODE_PLAYBACK, mUserId);
             }
-            mPreviousPlaybackState = state.getState();
+            mPreviousPlaybackState = state;
         }
     }
 
@@ -1278,8 +1278,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private void updatePrimaryMediaSourceWithCurrentlyPlaying(
             List<MediaController> controllers, @UserIdInt int userId) {
         for (MediaController controller : controllers) {
-            if (controller.getPlaybackState() != null
-                    && controller.getPlaybackState().getState() == PlaybackState.STATE_PLAYING) {
+            if (controller.getPlaybackState() != null && controller.getPlaybackState().isActive()) {
                 String newPackageName = controller.getPackageName();
                 String newClassName = getClassName(controller);
                 if (!matchPrimaryMediaSource(newPackageName, newClassName,
