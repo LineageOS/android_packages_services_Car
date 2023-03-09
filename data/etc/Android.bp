@@ -265,3 +265,10 @@ prebuilt_etc {
     src: "com.android.car.multidisplay.controlcenter.xml",
     filename_from_src: true,
 }
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.multidisplay.passenger",
+    sub_dir: "permissions",
+    src: "com.android.car.multidisplay.passenger.xml",
+    filename_from_src: true,
+}
