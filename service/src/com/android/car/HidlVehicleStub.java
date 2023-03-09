@@ -300,15 +300,6 @@ final class HidlVehicleStub extends VehicleStub {
                 List.of(new SetVehicleStubAsyncResult(serviceRequestId, errorCode)));
     }
 
-    private int convertHalToCarPropertyManagerError(int errorCode) {
-        if (errorCode == StatusCode.NOT_AVAILABLE) {
-            return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
-        } else if (errorCode == StatusCode.TRY_AGAIN) {
-            return STATUS_TRY_AGAIN;
-        }
-        return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
-    }
-
     /**
      * Sets a property.
      *
