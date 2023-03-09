@@ -18,16 +18,20 @@ package com.android.car.oemcarservice.testapp;
 
 import android.car.oem.OemCarAudioDuckingService;
 import android.car.oem.OemCarAudioVolumeRequest;
+import android.content.Context;
 import android.media.AudioAttributes;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.Slog;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.android.car.oem.ducking.DuckingInteractions;
+import com.android.car.oem.utils.OemCarServiceHelper;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -46,10 +50,9 @@ final class OemCarAudioDuckingServiceImpl implements OemCarAudioDuckingService {
      * @param duckingInteractions A mapping from one AudioAttributes to a list of AudioAttributes
      *        to be ducked.
      */
-    OemCarAudioDuckingServiceImpl(@Nullable ArrayMap<AudioAttributes, List<AudioAttributes>>
-            duckingInteractions) {
+    OemCarAudioDuckingServiceImpl(Context context) {
         ArrayMap<AudioAttributes, List<AudioAttributes>> duckingInteractionsMapping =
-                duckingInteractions;
+                parseAndGetDuckingConfig(context);
         if (duckingInteractionsMapping == null) {
             duckingInteractionsMapping = DuckingInteractions.DEFAULT_INTERACTION;
         }
@@ -95,5 +98,18 @@ final class OemCarAudioDuckingServiceImpl implements OemCarAudioDuckingService {
         }
         writer.println("  OemCarAudioDuckingServiceImpl");
         mDuckingInteractions.dump(writer, "  ");
+    }
+
+    private ArrayMap<AudioAttributes, List<AudioAttributes>> parseAndGetDuckingConfig(
+            Context context) {
+        OemCarServiceHelper oemCarServiceHelper = new OemCarServiceHelper();
+        try {
+            oemCarServiceHelper.parseAudioManagementConfiguration(context.getAssets().open(
+                    "oem_ducking_config.xml"));
+            return oemCarServiceHelper.getDuckingInteractions();
+        } catch (XmlPullParserException | IOException e) {
+            Slog.w(TAG, "Ducking config file was not able to be parsed", e);
+            return null;
+        }
     }
 }
