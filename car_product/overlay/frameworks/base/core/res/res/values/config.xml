@@ -192,8 +192,15 @@
     <string name="config_icon_mask" translatable="false">
         "M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"</string>
 
-    <!-- For the system with 3+ internal displays, this should be false, or it will not boot. -->
     <bool name="config_matchSecondaryInternalDisplaysOrientationToReverseDefaultDisplay">
         false
     </bool>
+
+    <!-- Component name for the activity that will be presenting the Recents UI, which will receive
+         special permissions for API related to fetching and presenting recent tasks. The default
+         configuration uses CarLauncher as default launcher and points to the corresponding
+         recents component. -->
+    <string name="config_recentsComponentName" translatable="false">
+        com.android.car.carlauncher/.recents.CarRecentsActivity
+    </string>
 </resources>
