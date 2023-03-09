@@ -283,6 +283,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final SilentModeHandler mSilentModeHandler;
     private final ScreenOffHandler mScreenOffHandler;
 
+    @VisibleForTesting
+    PolicyReader getPowerPolicyReader() {
+        return mPolicyReader;
+    }
+
     interface ActionOnDeath<T extends IInterface> {
         void take(T listener);
     }

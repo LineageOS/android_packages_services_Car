@@ -960,6 +960,30 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .that(mPowerHal.getRequestedShutdownPowerState())
                 .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_UNDEFINED);
     }
+    @Test
+    public void testPowerPolicyNotificationCustomComponents() throws Exception {
+        grantPowerPolicyPermission();
+
+        PolicyReader policyReader = mService.getPowerPolicyReader();
+        Context context = InstrumentationRegistry.getInstrumentation().getContext();
+        policyReader.readPowerPolicyFromXml(context.getResources().openRawResource(
+                R.raw.valid_power_policy_custom_components));
+
+        int custom_component_1000 = 1000;
+        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder().setComponents(
+                custom_component_1000).build();
+        MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
+        mService.addPowerPolicyListener(filter, listener);
+        String policyIdCustomOtherOff = "policy_id_custom_other_off";
+        mService.applyPowerPolicy(policyIdCustomOtherOff);
+
+        waitForPowerPolicy(policyIdCustomOtherOff);
+        assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(
+                policyIdCustomOtherOff);
+        PollingCheck.check("Current power policy of listener is null", WAIT_TIMEOUT_LONG_MS,
+                () -> listener.getCurrentPowerPolicy() != null);
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyIdCustomOtherOff);
+    }
 
     private void suspendDevice() throws Exception {
         mService.handleOn();
