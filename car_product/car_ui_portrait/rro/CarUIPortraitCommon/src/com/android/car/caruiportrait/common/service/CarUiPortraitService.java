@@ -51,9 +51,9 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE =
             "INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE";
 
-    // key name for the intent's extra that tells the root task view visibility status
-    public static final String INTENT_EXTRA_ROOT_TASK_VIEW_VISIBILITY_CHANGE =
-            "INTENT_EXTRA_ROOT_TASK_VIEW_VISIBILITY_CHANGE";
+    // key name for the intent's extra that tells the app grid's visibility status
+    public static final String INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE =
+            "INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE";
 
     // key name for the intent's extra that tells if suw is in progress
     public static final String INTENT_EXTRA_SUW_IN_PROGRESS =
@@ -83,9 +83,9 @@ public class CarUiPortraitService extends Service {
     public static final int MSG_UNREGISTER_CLIENT = 2;
 
     /**
-     * Command to service to set a new value for root task visibility.
+     * Command to service to set a new value for app grid visibility.
      */
-    public static final int MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE = 3;
+    public static final int MSG_APP_GRID_VISIBILITY_CHANGE = 3;
 
     /**
      * Command to service to set a new value when immersive mode is requested or exited.
@@ -123,9 +123,9 @@ public class CarUiPortraitService extends Service {
                 case MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
                     break;
-                case MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE:
+                case MSG_APP_GRID_VISIBILITY_CHANGE:
                     Intent intent = new Intent(REQUEST_FROM_LAUNCHER);
-                    intent.putExtra(INTENT_EXTRA_ROOT_TASK_VIEW_VISIBILITY_CHANGE,
+                    intent.putExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE,
                             intToBoolean(msg.arg1));
                     CarUiPortraitService.this.sendBroadcast(intent);
                     break;
