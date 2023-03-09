@@ -458,4 +458,8 @@
     <!-- Drive Mode Switch -->
     <string name="drive_mode_state" translatable="false">Drive Mode State</string>
 
+    <!-- Privacy chip test -->
+    <string name="audio_permission_granted">Audio permission granted</string>
+    <string name="audio_permission_not_granted">No audio permission</string>
+
 </resources>
