@@ -26,6 +26,9 @@
     <dimen name="list_divider_width">2dp</dimen>
     <dimen name="primary_icon_size">@dimen/car_ui_primary_icon_size</dimen>
     <dimen name="vertical_divider_inset">24dp</dimen>
+    <!-- Add Favorite dimensions -->
+    <dimen name="add_fav_button_height">88dp</dimen>
+    <dimen name="add_fav_button_width">412dp</dimen>
     <!-- Call list dimensions -->
     <dimen name="call_history_item_height">136dp</dimen>
     <!-- Contact details dimensions -->

@@ -15,6 +15,7 @@
   ~ limitations under the License.
   -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="add_favorite_button_text">Add favorite</string>
     <string name="restricted_dialing_mode_label">Dialpad usage is restricted while driving</string>
     <string name="emergency_button_text">Emergency</string>
     <string name="connect_bluetooth_button_text">Connect to Bluetooth</string>
