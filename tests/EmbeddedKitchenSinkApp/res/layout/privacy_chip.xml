@@ -27,7 +27,7 @@
         android:orientation="vertical"
         app:layout_constraintGuide_percent="0.5"/>
 
-    <TextView
+    <Button
         android:id="@+id/mic_icon"
         android:text="Start/Stop Recording"
         android:gravity="center"
@@ -40,7 +40,7 @@
         app:layout_constraintStart_toStartOf="@id/divider"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <TextView
+    <Button
         android:id="@+id/bar_icon"
         android:text="Show/Hide System Bars"
         android:gravity="center"
@@ -52,5 +52,17 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="@id/divider"/>
+
+    <TextView
+        android:id="@+id/permission_text"
+        android:text="@string/audio_permission_not_granted"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="20sp"
+        android:layout_marginBottom="6dp"
+        app:layout_constraintBottom_toTopOf="@+id/mic_icon"
+        app:layout_constraintStart_toStartOf="@id/divider"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
