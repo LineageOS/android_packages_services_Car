@@ -349,12 +349,16 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
 
     /**
      * Inits the vhal configurations.
-     *
-     * <p><Note that {@link #getIfAvailableOrFailForEarlyStage(int, int)}
-     * can be called before {@code init()}.
      */
     @Override
     public void init() {
+        // nothing to init as everything was done on priorityInit
+    }
+
+    /**
+     * PriorityInit for the vhal configurations.
+     */
+    public void priorityInit() {
         fetchAllPropConfigs();
 
         // PropertyHalService will take most properties, so make it big enough.
