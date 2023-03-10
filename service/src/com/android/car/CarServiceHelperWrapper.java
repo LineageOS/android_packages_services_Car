@@ -288,7 +288,11 @@ public final class CarServiceHelperWrapper {
         if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
             return INVALID_PID;
         }
-        // TODO(b/259086896): Fetch AIDL VHAL pid from CarServiceHelperService.
+        try {
+            return waitForCarServiceHelper().fetchAidlVhalPid();
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
         return INVALID_PID;
     }
 
