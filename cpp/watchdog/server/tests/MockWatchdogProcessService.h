@@ -83,6 +83,7 @@ public:
                 (override));
     MOCK_METHOD(void, setEnabled, (bool), (override));
     MOCK_METHOD(void, onUserStateChange, (userid_t, bool), (override));
+    MOCK_METHOD(void, onAidlVhalPidFetched, (int32_t), (override));
 };
 
 }  // namespace watchdog

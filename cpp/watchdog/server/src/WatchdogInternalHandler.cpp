@@ -422,6 +422,14 @@ ScopedAStatus WatchdogInternalHandler::getThreadPriority(
     return ScopedAStatus::ok();
 }
 
+ScopedAStatus WatchdogInternalHandler::onAidlVhalPidFetched(int pid) {
+    if (auto status = checkSystemUser(/*methodName=*/"onAidlVhalPidFetched"); !status.isOk()) {
+        return status;
+    }
+    mWatchdogProcessService->onAidlVhalPidFetched(pid);
+    return ScopedAStatus::ok();
+}
+
 void WatchdogInternalHandler::setThreadPriorityController(
         std::unique_ptr<ThreadPriorityControllerInterface> threadPriorityController) {
     mThreadPriorityController = std::move(threadPriorityController);

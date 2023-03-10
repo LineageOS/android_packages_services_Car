@@ -16,6 +16,11 @@
 
 package com.android.car;
 
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
+
+import static com.android.car.internal.common.CommonConstants.INVALID_PID;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -274,6 +279,17 @@ public final class CarServiceHelperWrapper {
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
+    public int fetchAidlVhalPid() {
+        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            return INVALID_PID;
+        }
+        // TODO(b/259086896): Fetch AIDL VHAL pid from CarServiceHelperService.
+        return INVALID_PID;
     }
 
     private CarServiceHelperWrapper(long carServiceHelperWaitTimeoutMs) {
