@@ -115,6 +115,18 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     }
 
     @Test
+    public void getZoneId_fromBuilder() {
+        expectWithMessage("Builder zone id").that(mTestAudioZoneConfigBuilder.getZoneId())
+                .isEqualTo(CarAudioManager.PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    public void getZoneConfigId_fromBuilder() {
+        expectWithMessage("Builder zone configuration id")
+                .that(mTestAudioZoneConfigBuilder.getZoneConfigId()).isEqualTo(TEST_ZONE_CONFIG_ID);
+    }
+
+    @Test
     public void getZoneId() {
         CarAudioZoneConfig zoneConfig = mTestAudioZoneConfigBuilder.build();
 

@@ -57,6 +57,8 @@ class CarAudioZonesHelperLegacy {
     private static final String TAG_GROUP = "group";
     private static final String TAG_CONTEXT = "context";
 
+    private static final int ZONE_CONFIG_ID = 0;
+
     private static final int NO_BUS_FOR_CONTEXT = -1;
 
     private final Context mContext;
@@ -148,7 +150,7 @@ class CarAudioZonesHelperLegacy {
     SparseArray<CarAudioZone> loadAudioZones() {
         String zoneName = "Primary zone";
         CarAudioZoneConfig.Builder zoneConfigBuilder = new CarAudioZoneConfig.Builder(zoneName,
-                PRIMARY_AUDIO_ZONE, /* zoneConfigId= */ 0, /* isDefault= */ true);
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, /* isDefault= */ true);
         List<CarVolumeGroup> volumeGroups = loadVolumeGroups();
         for (int index = 0; index < volumeGroups.size(); index++) {
             zoneConfigBuilder.addVolumeGroup(volumeGroups.get(index));
@@ -203,8 +205,8 @@ class CarAudioZonesHelperLegacy {
             XmlResourceParser parser) throws XmlPullParserException, IOException {
         CarVolumeGroupFactory groupFactory =
                 new CarVolumeGroupFactory(/* audioManager= */ null, mCarAudioSettings,
-                        mCarAudioContext, PRIMARY_AUDIO_ZONE, id, String.valueOf(id),
-                        /* useCarVolumeGroupMute= */ false);
+                        mCarAudioContext, PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, id,
+                        String.valueOf(id), /* useCarVolumeGroupMute= */ false);
 
         List<Integer> audioContexts = parseAudioContexts(parser, attrs);
 
