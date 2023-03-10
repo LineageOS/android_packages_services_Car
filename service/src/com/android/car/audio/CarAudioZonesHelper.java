@@ -544,6 +544,10 @@ import java.util.stream.Collectors;
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_ZONE_CONFIG.equals(parser.getName())) {
+                if (zone.getId() == PRIMARY_AUDIO_ZONE && zoneConfigId > 0) {
+                    throw new IllegalArgumentException(
+                            "Primary zone cannot have multiple zone configurations");
+                }
                 parseZoneConfig(parser, zone, zoneConfigId);
                 zoneConfigId++;
             } else {
