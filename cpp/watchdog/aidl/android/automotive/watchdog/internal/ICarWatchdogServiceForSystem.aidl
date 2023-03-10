@@ -40,7 +40,7 @@ interface ICarWatchdogServiceForSystem {
    * @param sessionId                   Unique id to identify each health check session.
    * @param timeout                     Final timeout given by the server based on client request.
    */
-  oneway void checkIfAlive(in int sessionId, in TimeoutLength timeout);
+  oneway void checkIfAlive(int sessionId, in TimeoutLength timeout);
 
   /**
    * Notifies the client that it will be forcedly terminated in 1 second.
@@ -87,4 +87,15 @@ interface ICarWatchdogServiceForSystem {
    * the recent collection.
    */
   oneway void onLatestResourceStats(in ResourceStats resourceStats);
+
+  /**
+   * Request watchdog service to fetch the AIDL VHAL pid.
+   *
+   * Watchdog service responds with the AIDL VHAL pid via the onAidlVhalPidFetched callback in
+   * the ICarWatchdog.aidl. The response is provided via an asynchronous call because
+   * the watchdog service (that resides inside the CarService process) should make a binder call
+   * to the CarServiceHelperService (that resides inside the SystemServer process) to fetch the PID.
+   * This is a time consuming operation and cannot be performed on the same binder call.
+   */
+  oneway void requestAidlVhalPid();
 }
