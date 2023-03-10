@@ -91,9 +91,12 @@ interface ICarAudio {
 
     boolean registerAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);
     void unregisterAudioZonesMirrorStatusCallback(in IAudioZonesMirrorStatusCallback callback);
-    void enableMirrorForAudioZones(in int[] audioZones);
+    long enableMirrorForAudioZones(in int[] audioZones);
+    void extendAudioMirrorRequest(long mirrorId, in int[] audioZones);
     void disableAudioMirrorForZone(int zoneId);
+    void disableAudioMirror(long mirrorId);
     int[] getMirrorAudioZonesForAudioZone(int zoneId);
+    int[] getMirrorAudioZonesForMirrorRequest(long mirrorId);
 
 
     /**
