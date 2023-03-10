@@ -806,6 +806,25 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void loadAudioZones_failsOnPrimaryZoneWithMultipleConfigs() throws Exception {
+        try (InputStream missingZoneConfigNameStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_primary_zone_with_multiple_configs)) {
+            CarAudioZonesHelper cazh =
+                    new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                            missingZoneConfigNameStream, mCarAudioOutputDeviceInfos,
+                            mInputAudioDeviceInfos, /* useCarVolumeGroupMute= */ false,
+                            /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
+
+            expectWithMessage("Exception for multiple configurations in primary zone").that(thrown)
+                    .hasMessageThat().contains(
+                            "Primary zone cannot have multiple zone configurations");
+        }
+    }
+
+    @Test
     public void loadAudioZones_failsOnEmptyInputDeviceAddress() throws Exception {
         try (InputStream inputDevicesStream = mContext.getResources().openRawResource(
                 R.raw.car_audio_configuration_empty_input_device)) {
