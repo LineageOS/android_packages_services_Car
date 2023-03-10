@@ -47,6 +47,7 @@ import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.DebugUtils;
@@ -142,8 +143,8 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     }
 
     @Override
-    public void removeUser(@UserIdInt int userId, AndroidFuture<UserRemovalResult> receiver) {
-        mCarUserService.removeUser(userId, /* hasCallerRestrictions= */ true, receiver);
+    public void removeUser(@UserIdInt int userId, ResultCallbackImpl<UserRemovalResult> callback) {
+        mCarUserService.removeUser(userId, /* hasCallerRestrictions= */ true, callback);
     }
 
     @Override
