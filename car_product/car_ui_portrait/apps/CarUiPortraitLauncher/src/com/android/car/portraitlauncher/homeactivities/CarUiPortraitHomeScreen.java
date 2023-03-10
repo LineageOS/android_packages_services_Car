@@ -21,11 +21,11 @@ import static android.view.InsetsState.ITYPE_TOP_GENERIC_OVERLAY;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
-import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_UNREGISTER_CLIENT;
 
@@ -671,7 +671,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             @Override
             public void onStateChangeStart(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
-                // No-op
+                boolean isVisible = newState.isVisible();
+                if (isVisible) {
+                    notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(isVisible));
+                }
             }
 
             @Override
@@ -681,7 +684,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 updateBackgroundTaskViewInsets();
 
                 boolean isVisible = newState.isVisible();
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(isVisible));
+                if (!isVisible) {
+                    notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(isVisible));
+                }
             }
         });
     }
@@ -725,9 +730,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     // Launch a blank activity to move the top activity to background.
                     startActivity(BlankActivity.createIntent(getApplicationContext()));
                 }
-
-                boolean isVisible = newState.isVisible();
-                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(isVisible));
             }
         });
 
