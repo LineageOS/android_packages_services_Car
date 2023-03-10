@@ -71,6 +71,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.carrier=unknown
 
+# Disable developer options activity embedding
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.sys.fflag.override.settings_support_large_screen=false
+
 # Set default Bluetooth profiles
 TARGET_SYSTEM_PROP += \
     packages/services/Car/car_product/properties/bluetooth.prop
