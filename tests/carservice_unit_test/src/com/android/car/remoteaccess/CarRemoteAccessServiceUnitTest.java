@@ -19,18 +19,32 @@ package com.android.car.remoteaccess;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
+import android.car.VehiclePropertyIds;
+import android.car.hardware.CarPropertyValue;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.hardware.automotive.vehicle.VehicleApPowerBootupReason;
+import android.os.UserHandle;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarPropertyService;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
@@ -42,9 +56,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -53,10 +72,30 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final long WAIT_TIMEOUT_MS = 5000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
     private static final String TEST_DEVICE_ID = "test_vehicle";
+    private static final CarPropertyValue<Integer> PROP_SYSTEM_REMOTE_ACCESS =
+            new CarPropertyValue<>(VehiclePropertyIds.AP_POWER_BOOTUP_REASON, /* areadId= */ 0,
+                    CarPropertyValue.STATUS_AVAILABLE, /* timestampNanos= */ 0,
+                    VehicleApPowerBootupReason.SYSTEM_REMOTE_ACCESS);
+    private static final List<PackagePrepForTest> AVAILABLE_PACKAGES = new ArrayList<>();
+    private static final String PERMISSION_NOT_GRANTED_PACKAGE = "life.is.beautiful";
+    private static final String PERMISSION_GRANTED_PACKAGE_ONE = "we.are.the.world";
+    private static final String PERMISSION_GRANTED_PACKAGE_TWO = "android.automotive.os";
+    private static final String CLASS_NAME_ONE = "Hello";
+    private static final String CLASS_NAME_TWO = "Best";
+
+    static {
+        AVAILABLE_PACKAGES.add(createPackagePrepForTest(PERMISSION_NOT_GRANTED_PACKAGE, "Happy",
+                /* permissionGranted= */ false));
+        AVAILABLE_PACKAGES.add(createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_ONE,
+                CLASS_NAME_ONE, /* permissionGranted= */ true));
+        AVAILABLE_PACKAGES.add(createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
+                CLASS_NAME_TWO, /* permissionGranted= */ true));
+    }
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
     private CarPowerManagementService mOldCarPowerManagementService;
+    private CarPropertyService mOldCarPropertyService;
 
     @Mock private Context mContext;
     @Mock private Resources mResources;
@@ -64,9 +103,19 @@ public final class CarRemoteAccessServiceUnitTest {
     @Mock private RemoteAccessHalWrapper mRemoteAccessHal;
     @Mock private SystemInterface mSystemInterface;
     @Mock private CarPowerManagementService mCarPowerManagementService;
+    @Mock private CarPropertyService mCarPropertyService;
 
     @Before
     public void setUp() {
+        mOldCarPropertyService = CarLocalServices.getService(CarPropertyService.class);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
+        CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
+        mOldCarPowerManagementService = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
+        when(mCarPropertyService.getPropertySafe(VehiclePropertyIds.AP_POWER_BOOTUP_REASON, 0))
+                .thenReturn(PROP_SYSTEM_REMOTE_ACCESS);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mContext.getResources()).thenReturn(mResources);
         when(mResources.getInteger(R.integer.config_allowedSystemUpTimeForRemoteAccess))
@@ -75,24 +124,45 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mRemoteAccessHal.getDeviceId()).thenReturn(TEST_DEVICE_ID);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
+        mockPackageInfo();
+
         mService = new CarRemoteAccessService(mContext, mSystemInterface, mRemoteAccessHal);
         mService.init();
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
-        mOldCarPowerManagementService = CarLocalServices.getService(
-                CarPowerManagementService.class);
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
     }
 
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mOldCarPowerManagementService);
+        CarLocalServices.removeServiceForTest(CarPropertyService.class);
+        CarLocalServices.addService(CarPropertyService.class, mOldCarPropertyService);
+    }
+
+    @Test
+    public void testStartRemoteTaskClientService() {
+        String[] packageNames = new String[]{PERMISSION_GRANTED_PACKAGE_ONE,
+                PERMISSION_GRANTED_PACKAGE_TWO};
+        String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO};
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        InOrder checkOrder = inOrder(mContext);
+
+        for (int i = 0; i < packageNames.length; i++) {
+            checkOrder.verify(mContext).bindServiceAsUser(intentCaptor.capture(),
+                    any(ServiceConnection.class), anyInt(), any(UserHandle.class));
+            Intent intent = intentCaptor.getValue();
+            ComponentName component = intent.getComponent();
+
+            assertWithMessage("Package name to start").that(component.getPackageName())
+                    .isEqualTo(packageNames[i]);
+            assertWithMessage("Class name to start").that(component.getClassName())
+                    .isEqualTo(classNames[i]);
+        }
     }
 
     @Test
     public void testAddCarRemoteTaskClient() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
+        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
 
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -105,7 +175,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient_addTwice() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
+        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -120,8 +190,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient_addMultipleClients() throws Exception {
-        String packageNameOne = "com.android.remoteaccess.unittest.one";
-        String packageNameTwo = "com.android.remoteaccess.unittest.two";
+        String packageNameOne = PERMISSION_GRANTED_PACKAGE_ONE;
+        String packageNameTwo = PERMISSION_GRANTED_PACKAGE_TWO;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageNameOne)
                 .thenReturn(packageNameTwo);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
@@ -139,7 +209,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoveCarRemoteTaskClient() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
+        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
 
@@ -178,9 +248,22 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     @Test
+    public void testRemoteTaskRequested_clientRegisteredAfterRequest() throws Exception {
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+    }
+
+    @Test
     public void testRemoteTaskRequested_withTwoClientsRegistered() throws Exception {
-        String packageNameOne = "com.android.remoteaccess.unittest.one";
-        String packageNameTwo = "com.android.remoteaccess.unittest.two";
+        String packageNameOne = PERMISSION_GRANTED_PACKAGE_ONE;
+        String packageNameTwo = PERMISSION_GRANTED_PACKAGE_TWO;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageNameOne)
                 .thenReturn(packageNameTwo);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
@@ -264,7 +347,7 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     private RemoteAccessHalCallback prepareCarRemoteTastClient() throws Exception {
-        String packageName = "com.android.remoteaccess.unittest";
+        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
         when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -279,6 +362,43 @@ public final class CarRemoteAccessServiceUnitTest {
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
         PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
                 () -> mRemoteAccessCallback.getTaskId() != null);
+    }
+
+    private void mockPackageInfo() {
+        List<ResolveInfo> resolveInfos = new ArrayList<>(AVAILABLE_PACKAGES.size());
+        for (int i = 0; i < AVAILABLE_PACKAGES.size(); i++) {
+            PackagePrepForTest packagePrep = AVAILABLE_PACKAGES.get(i);
+            ResolveInfo resolveInfo = packagePrep.resolveInfo;
+            resolveInfos.add(resolveInfo);
+            String packageName = resolveInfo.serviceInfo.packageName;
+            int permission = packagePrep.permissionGranted ? PackageManager.PERMISSION_GRANTED
+                    : PackageManager.PERMISSION_DENIED;
+            when(mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS, packageName))
+                    .thenReturn(permission);
+        }
+        when(mPackageManager.queryIntentServices(any(), any())).thenReturn(resolveInfos);
+        doAnswer(inv -> {
+            Runnable runnable = inv.getArgument(0);
+            runnable.run();
+            return null;
+        }).when(mSystemInterface)
+                .scheduleActionForBootCompleted(any(Runnable.class), any(Duration.class));
+    }
+
+    private static PackagePrepForTest createPackagePrepForTest(String packageName, String className,
+            boolean permissionGranted) {
+        PackagePrepForTest packagePrep = new PackagePrepForTest();
+        packagePrep.resolveInfo = new ResolveInfo();
+        packagePrep.resolveInfo.serviceInfo = new ServiceInfo();
+        packagePrep.resolveInfo.serviceInfo.packageName = packageName;
+        packagePrep.resolveInfo.serviceInfo.name = className;
+        packagePrep.permissionGranted = permissionGranted;
+        return packagePrep;
+    }
+
+    private static final class PackagePrepForTest {
+        public ResolveInfo resolveInfo;
+        public boolean permissionGranted;
     }
 
     private static final class ICarRemoteAccessCallbackImpl extends ICarRemoteAccessCallback.Stub {
