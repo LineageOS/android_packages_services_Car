@@ -115,6 +115,20 @@ public final class VehiclePropertyIds {
     /**
      * List the {@link FuelType}s the vehicle may use.
      *
+     * <p>{@link FuelType#ELECTRIC} will only be included if the vehicle is plug in rechargeable.
+     * Note that for this reason, even though {@link FuelType#ELECTRIC} is not listed as a fuel
+     * type, other EV properties such as {@link #INFO_EV_BATTERY_CAPACITY} can still be supported on
+     * the vehicle.
+     *
+     * <p>For example:
+     *  <p>FHEVs (Fully Hybrid Electric Vehicles) will not include {@link FuelType#ELECTRIC} in its
+     *  {@code Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
+     *  { {@link FuelType#UNLEADED} }.
+     *  <p>On the other hand, PHEVs (Partially Hybrid Electric Vehicles) are plug in rechargeable,
+     *  and hence will include {@link FuelType#ELECTRIC} in {@code INFO_FUEL_TYPE}'s {@code
+     *  Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
+     *  { {@link FuelType#UNLEADED}, {@link FuelType#ELECTRIC} }.
+     *
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
