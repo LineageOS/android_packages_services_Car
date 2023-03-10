@@ -48,12 +48,12 @@
             android:gravity="center"
             android:layoutDirection="ltr">
 
-            <com.android.systemui.car.systembar.CarUiPortraitSystemBarButton
+            <com.android.systemui.car.systembar.CarUiPortraitAppGridButton
                 android:id="@+id/grid_nav"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity"
                 systemui:icon="@drawable/car_ic_apps"
-                systemui:highlightWhenSelected="true"
+                systemui:highlightWhenSelected="false"
                 systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
                 systemui:clearBackStack="false"/>
 
