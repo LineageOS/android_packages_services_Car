@@ -19,6 +19,7 @@ package com.android.systemui.car.systembar;
 import android.app.ActivityTaskManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.view.View;
 
 import com.android.systemui.dagger.SysUISingleton;
 
@@ -33,6 +34,8 @@ import com.android.systemui.dagger.SysUISingleton;
 @SysUISingleton
 public class CarUiPortraitButtonSelectionStateController extends ButtonSelectionStateController {
 
+    private CarUiPortraitAppGridButton mAppGridButton;
+
     public CarUiPortraitButtonSelectionStateController(Context context) {
         super(context);
     }
@@ -41,5 +44,21 @@ public class CarUiPortraitButtonSelectionStateController extends ButtonSelection
     protected ComponentName getTopActivity(
             ActivityTaskManager.RootTaskInfo validTaskInfo) {
         return validTaskInfo.topActivity;
+    }
+
+    @Override
+    protected void addAllButtonsWithSelectionState(View v) {
+        if (v instanceof CarUiPortraitAppGridButton) {
+            mAppGridButton = (CarUiPortraitAppGridButton) v;
+        } else {
+            super.addAllButtonsWithSelectionState(v);
+        }
+    }
+
+    /** Updates the selected state of the app grid button */
+    void setAppGridButtonSelected(boolean isSelected) {
+        if (mAppGridButton != null) {
+            mAppGridButton.setSelected(isSelected);
+        }
     }
 }
