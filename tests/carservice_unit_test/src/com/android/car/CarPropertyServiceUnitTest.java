@@ -86,6 +86,8 @@ public final class CarPropertyServiceUnitTest {
     private IBinder mIBinder;
     @Mock
     private IAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+    @Mock
+    private CarPropertyConfig<?> mCarPropertyConfig;
 
     private CarPropertyService mService;
 
@@ -208,6 +210,12 @@ public final class CarPropertyServiceUnitTest {
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
         when(mHalService.getReadPermission(HVAC_CURRENT_TEMP)).thenReturn(GRANTED_PERMISSION);
         when(mHalService.getPropertyList()).thenReturn(configs);
+
+        SparseArray<Pair<String, String>> propToPermission = new SparseArray<>();
+        propToPermission.put(ON_CHANGE_READ_WRITE_PROPERTY_ID,
+                new Pair<String, String>(DENIED_PERMISSION, Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        when(mHalService.getPermissionsForAllProperties()).thenReturn(
+                propToPermission);
 
         mService = new CarPropertyService(mContext, mHalService);
         mService.init();
@@ -514,6 +522,19 @@ public final class CarPropertyServiceUnitTest {
         assertThrows(IllegalArgumentException.class,
                 () -> mService.getProperty(ON_CHANGE_READ_WRITE_PROPERTY_ID,
                         NOT_SUPPORTED_AREA_ID));
+    }
+
+    @Test
+    public void
+            getPropertyConfigList_returnEmptyIfNoVendorExtensionPermissionForDisplayUnitsProp() {
+        when(mHalService.isDisplayUnitsProperty(ON_CHANGE_READ_WRITE_PROPERTY_ID)).thenReturn(true);
+        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_VENDOR_EXTENSION)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
+        when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
+                .thenReturn(PackageManager.PERMISSION_GRANTED);
+        List<CarPropertyConfig> configList = mService.getPropertyConfigList(
+                new int[] { ON_CHANGE_READ_WRITE_PROPERTY_ID });
+        assertThat(configList).isEmpty();
     }
 
     @Test

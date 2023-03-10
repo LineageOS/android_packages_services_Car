@@ -535,14 +535,13 @@ public class CarPropertyService extends ICarProperty.Stub
             if (readPermission == null && writePermission == null) {
                 continue;
             }
-            boolean isHvacTemperatureDisplayUnitsAvailable =
-                    (propId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS
-                            && checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
-                            Car.PERMISSION_READ_DISPLAY_UNITS));
+
             // Check if context already granted permission first
             if (checkAndUpdateGrantedPermissionSet(mContext, grantedPermission, readPermission)
-                    || checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
-                    writePermission) || isHvacTemperatureDisplayUnitsAvailable) {
+                    || checkAndUpdateGrantedWritePermissionSet(mContext, grantedPermission,
+                            writePermission, propId)
+                    || checkAndUpdateGrantedTemperatureDisplayUnitsPermissionSet(mContext,
+                            grantedPermission, propId)) {
                 synchronized (mLock) {
                     availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
                 }
@@ -552,6 +551,26 @@ public class CarPropertyService extends ICarProperty.Stub
             Slogf.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
         return availableProp;
+    }
+
+    private boolean checkAndUpdateGrantedWritePermissionSet(Context context,
+            Set<String> grantedPermissions, @Nullable String permission, int propertyId) {
+        if (!checkAndUpdateGrantedPermissionSet(context, grantedPermissions, permission)) {
+            return false;
+        }
+        if (mPropertyHalService.isDisplayUnitsProperty(propertyId) && permission != null
+                && permission.equals(Car.PERMISSION_CONTROL_DISPLAY_UNITS)) {
+            return checkAndUpdateGrantedPermissionSet(context, grantedPermissions,
+                    Car.PERMISSION_VENDOR_EXTENSION);
+        }
+        return true;
+    }
+
+    private static boolean checkAndUpdateGrantedTemperatureDisplayUnitsPermissionSet(
+            Context context, Set<String> grantedPermissions, int propertyId) {
+        return propertyId == VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS
+                && checkAndUpdateGrantedPermissionSet(context, grantedPermissions,
+                Car.PERMISSION_READ_DISPLAY_UNITS);
     }
 
     private static boolean checkAndUpdateGrantedPermissionSet(Context context,
