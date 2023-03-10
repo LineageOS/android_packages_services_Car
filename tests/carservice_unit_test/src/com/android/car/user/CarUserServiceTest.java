@@ -31,6 +31,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersSupported;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
@@ -2341,7 +2342,25 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStartUser_withInvalidDisplayId_startsUserInBackground() throws Exception {
+    public void testStartUser_onDefaultDisplay_notPassengerOnly()
+            throws Exception {
+        mockCurrentUser(mRegularUser);
+        expectRegularUserExists(mMockedUserHandleHelper, TEST_USER_ID);
+        mockAmStartUserInBackground(TEST_USER_ID, true);
+        mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported(mMockedUserManager, false);
+
+        UserStartRequest request =
+                new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                    .setDisplayId(Display.DEFAULT_DISPLAY)
+                    .build();
+        UserStartResponse result = mCarUserService.startUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_DISPLAY_INVALID);
+        assertThat(result.isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStartUser_withoutDisplayId_startsUserInBackground() throws Exception {
         mockCurrentUser(mRegularUser);
         expectRegularUserExists(mMockedUserHandleHelper, TEST_USER_ID);
         mockAmStartUserInBackground(TEST_USER_ID, true);

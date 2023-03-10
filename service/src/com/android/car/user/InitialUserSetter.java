@@ -414,7 +414,19 @@ final class InitialUserSetter {
     }
 
     private void executeDefaultBehavior(@NonNull InitialUserInfo info, boolean fallback) {
-        if (!hasValidInitialUser()) {
+        boolean isVisibleBackgroundUsersOnDefaultDisplaySupported =
+                UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm);
+        if (isVisibleBackgroundUsersOnDefaultDisplaySupported) {
+            if (DBG) {
+                Slogf.d(TAG, "executeDefaultBehavior(): "
+                        + "Multi User No Driver switching to system user");
+            }
+            switchUser(new Builder(TYPE_SWITCH)
+                    .setSwitchUserId(UserHandle.SYSTEM.getIdentifier())
+                    .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
+                    .setReplaceGuest(false)
+                    .build(), fallback);
+        } else if (!hasValidInitialUser()) {
             if (DBG) Slogf.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
             createAndSwitchUser(new Builder(TYPE_CREATE)
                     .setNewUserName(mNewUserName)
@@ -485,7 +497,15 @@ final class InitialUserSetter {
         }
 
         int currentUserId = ActivityManager.getCurrentUser();
-        if (actualUserId != currentUserId) {
+
+        if (DBG) {
+            Slogf.d(TAG, "switchUser: currentUserId = %d, actualUserId = %d",
+                    currentUserId, actualUserId);
+        }
+        // TODO(b/266473227): Set isMdnd on InitialUserInfo.
+        boolean isVisibleBackgroundUsersOnDefaultDisplaySupported =
+                UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm);
+        if (actualUserId != currentUserId || isVisibleBackgroundUsersOnDefaultDisplaySupported) {
             if (!startForegroundUser(info, actualUserId)) {
                 fallbackDefaultBehavior(info, fallback,
                         "am.switchUser(" + actualUserId + ") failed");
@@ -693,9 +713,19 @@ final class InitialUserSetter {
         if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
             EventLogHelper.writeCarInitialUserStartFgUser(userId);
         }
+
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
-            // System User doesn't associate with real person, can not be switched to.
-            return false;
+            if (!UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm)) {
+                // System User is not associated with real person, can not be switched to.
+                // But in Multi User No Driver mode, we'll need to put system user to foreground as
+                // this is exactly the user model.
+                return false;
+            } else {
+                if (DBG) {
+                    Slogf.d(TAG, "startForegroundUser: "
+                            + "Multi User No Driver, continue to put system user in foreground");
+                }
+            }
         }
 
         // Keep the old boot user flow for platform before U
