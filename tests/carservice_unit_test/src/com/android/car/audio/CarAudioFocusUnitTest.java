@@ -41,6 +41,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -64,6 +65,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
@@ -213,6 +215,41 @@ public class CarAudioFocusUnitTest {
                 AUDIOFOCUS_REQUEST_GRANTED, mAudioPolicy);
         verify(mMockAudioManager, times(1)).setFocusRequestResult(sameClientAndUsageFocusInfo,
                 AUDIOFOCUS_REQUEST_GRANTED, mAudioPolicy);
+    }
+
+    @Test
+    public void onAudioFocusAbandon_whileMediaWaitsForRingerAndCall_focusRegained() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo mediaFocusInfo = getInfoForFirstClientWithMedia();
+        carAudioFocus.onAudioFocusRequest(mediaFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioFocusInfo ringerFocusInfo = getInfo(USAGE_NOTIFICATION_RINGTONE, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(ringerFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioFocusInfo callFocusInfo = getInfo(USAGE_VOICE_COMMUNICATION, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        carAudioFocus.onAudioFocusAbandon(callFocusInfo);
+
+        List<Integer> focusChanges = getFocusChanges(mediaFocusInfo);
+        assertWithMessage("Media focus changes with call and ringer")
+                .that(focusChanges).containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
+    }
+
+    @Test
+    public void onAudioFocusAbandon_whileMediaWaitsOnCallOnly_focusRegained() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo mediaFocusInfo = getInfoForFirstClientWithMedia();
+        carAudioFocus.onAudioFocusRequest(mediaFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        AudioFocusInfo callFocusInfo = getInfo(USAGE_VOICE_COMMUNICATION, CALL_CLIENT_ID,
+                AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, /* acceptsDelayedFocus= */ false);
+        carAudioFocus.onAudioFocusRequest(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        carAudioFocus.onAudioFocusAbandon(callFocusInfo);
+
+        List<Integer> focusChanges = getFocusChanges(mediaFocusInfo);
+        assertWithMessage("Media focus changes with call only")
+                .that(focusChanges).containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
     }
 
     @Test
@@ -1158,6 +1195,13 @@ public class CarAudioFocusUnitTest {
 
         verify(mMockAudioManager).setFocusRequestResult(mediaInfo, AUDIOFOCUS_REQUEST_GRANTED,
                 mAudioPolicy);
+    }
+
+    private List<Integer> getFocusChanges(AudioFocusInfo info) {
+        ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
+        verify(mMockAudioManager, atLeastOnce()).dispatchAudioFocusChange(eq(info),
+                captor.capture(), any());
+        return captor.getAllValues();
     }
 
     private AudioFocusInfo setupFocusInfoAndRequestFocusForCall(CarAudioFocus carAudioFocus) {
