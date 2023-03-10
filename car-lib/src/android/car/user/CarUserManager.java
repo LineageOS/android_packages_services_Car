@@ -1050,11 +1050,13 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/272817932): Update notation to reflect removal timeline.
     /**
      * Sets a callback to be notified before user switch. It should only be used by Car System UI.
      *
      * @hide
-     * @deprecated use {@link #setUserSwitchUiCallback(UserHandleSwitchUiCallback)} instead.
+     * @deprecated use {@link #setUserSwitchUiCallback(Executor, UserHandleSwitchUiCallback)}
+     * instead. It will be marked removed in {@code V} and hard removed in {@code X}.
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
@@ -1240,6 +1242,7 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/272817932): Update notation to reflect removal timeline.
     /**
      * Checks if the given {@code userId} represents a valid user.
      *
@@ -1253,7 +1256,8 @@ public final class CarUserManager extends CarManagerBase {
      * </ul>
      *
      * @hide
-     * @deprecated use {@link #isValidUser(UserHandle)} instead.
+     * @deprecated use {@link #isValidUser(UserHandle)} instead. It
+     * will be marked removed in {@code V} and hard removed in {@code X}.
      */
     @Deprecated
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
