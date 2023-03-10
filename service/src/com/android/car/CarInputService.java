@@ -55,6 +55,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
@@ -212,6 +213,7 @@ public class CarInputService extends ICarInput.Stub
     private final CarPowerManagementService mCarPowerService;
     private final TelecomManager mTelecomManager;
     private final SystemInterface mSystemInterface;
+    private final UserManager mUserManager;
 
     // The default handler for main-display key events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
@@ -299,7 +301,7 @@ public class CarInputService extends ICarInput.Stub
     public CarInputService(Context context, InputHalService inputHalService,
             CarUserService userService, CarOccupantZoneService occupantZoneService,
             CarBluetoothService bluetoothService, CarPowerManagementService carPowerService,
-            SystemInterface systemInterface) {
+            SystemInterface systemInterface, UserManager userManager) {
         this(context, inputHalService, userService, occupantZoneService, bluetoothService,
                 carPowerService, systemInterface,
                 new Handler(getCommonHandlerThread().getLooper()),
@@ -318,7 +320,7 @@ public class CarInputService extends ICarInput.Stub
                 /* longPressDelaySupplier= */ () -> getViewLongPressDelay(context),
                 /* shouldCallButtonEndOngoingCallSupplier= */ () -> context.getResources()
                         .getBoolean(R.bool.config_callButtonEndsOngoingCall),
-                new InputCaptureClientController(context));
+                new InputCaptureClientController(context), userManager);
     }
 
     @VisibleForTesting
@@ -329,7 +331,8 @@ public class CarInputService extends ICarInput.Stub
             KeyEventListener defaultKeyHandler, MotionEventListener defaultMotionHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
-            InputCaptureClientController captureController) {
+            InputCaptureClientController captureController,
+            UserManager userManager) {
         mContext = context;
         mCaptureController = captureController;
         mInputHalService = inputHalService;
@@ -343,6 +346,7 @@ public class CarInputService extends ICarInput.Stub
         mDefaultMotionHandler = defaultMotionHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mLongPressDelaySupplier = longPressDelaySupplier;
+        mUserManager = userManager;
 
         mVoiceKeyTimer =
                 new KeyPressTimer(
@@ -872,7 +876,13 @@ public class CarInputService extends ICarInput.Stub
             int userId = mCarOccupantZoneService.getUserForOccupant(zoneId);
             int displayId = mCarOccupantZoneService.getDisplayForOccupant(zoneId,
                     targetDisplayType);
-            CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId);
+            // TODO(b/272281432): Do not explicitly launch intents.
+            if (CarServiceUtils.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager)) {
+                // Passenger only system: Start secondary home on any display.
+                CarServiceUtils.startSecondaryHomeForUserAndDisplay(mContext, userId, displayId);
+            } else {
+                CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId);
+            }
         }
     }
 
