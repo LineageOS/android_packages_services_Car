@@ -170,22 +170,22 @@ private:
                            client,
                    pid_t pid, userid_t userId, uint64_t startTimeMillis,
                    const WatchdogProcessService& service) :
-              pid(pid),
-              userId(userId),
-              startTimeMillis(startTimeMillis),
-              type(ClientType::Regular),
-              service(service),
-              client(client) {}
+              kPid(pid),
+              kUserId(userId),
+              kStartTimeMillis(startTimeMillis),
+              kType(ClientType::Regular),
+              kService(service),
+              kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
                    const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
                    uint64_t startTimeMillis, const WatchdogProcessService& service) :
-              pid(pid),
-              userId(userId),
-              startTimeMillis(startTimeMillis),
-              type(ClientType::Service),
-              watchdogServiceHelper(helper),
-              service(service),
-              watchdogServiceBinder(binder) {}
+              kPid(pid),
+              kUserId(userId),
+              kStartTimeMillis(startTimeMillis),
+              kType(ClientType::Service),
+              kService(service),
+              kWatchdogServiceHelper(helper),
+              kWatchdogServiceBinder(binder) {}
 
         std::string toString() const;
         AIBinder* getAIBinder() const;
@@ -195,17 +195,16 @@ private:
                 aidl::android::automotive::watchdog::TimeoutLength timeout) const;
         ndk::ScopedAStatus prepareProcessTermination() const;
 
-        pid_t pid;
-        userid_t userId;
-        int64_t startTimeMillis;
-        int sessionId;
-        ClientType type;
-        android::sp<WatchdogServiceHelperInterface> watchdogServiceHelper = nullptr;
+        const pid_t kPid;
+        const userid_t kUserId;
+        const int64_t kStartTimeMillis;
+        const ClientType kType;
+        const WatchdogProcessService& kService;
+        const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient> kClient;
+        const android::sp<WatchdogServiceHelperInterface> kWatchdogServiceHelper;
+        const ndk::SpAIBinder kWatchdogServiceBinder;
 
-    private:
-        const WatchdogProcessService& service;
-        std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient> client = nullptr;
-        ndk::SpAIBinder watchdogServiceBinder = nullptr;
+        int sessionId;
     };
 
     struct HeartBeat {
@@ -218,7 +217,8 @@ private:
     class PropertyChangeListener final :
           public android::frameworks::automotive::vhal::ISubscriptionCallback {
     public:
-        explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service);
+        explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service) :
+              kService(service) {}
 
         void onPropertyEvent(const std::vector<
                              std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>&
@@ -229,22 +229,24 @@ private:
                 override;
 
     private:
-        android::sp<WatchdogProcessService> mService;
+        const android::sp<WatchdogProcessService> kService;
     };
 
     class MessageHandlerImpl final : public MessageHandler {
     public:
-        explicit MessageHandlerImpl(const android::sp<WatchdogProcessService>& service);
+        explicit MessageHandlerImpl(const android::sp<WatchdogProcessService>& service) :
+              kService(service) {}
 
         void handleMessage(const Message& message) override;
 
     private:
-        android::sp<WatchdogProcessService> mService;
+        const android::sp<WatchdogProcessService> kService;
     };
 
 private:
-    ndk::ScopedAStatus registerClient(const ClientInfo& clientInfo,
-                                      aidl::android::automotive::watchdog::TimeoutLength timeout);
+    android::base::Result<void> registerClient(
+            const ClientInfo& clientInfo,
+            aidl::android::automotive::watchdog::TimeoutLength timeout);
     ndk::ScopedAStatus unregisterClientLocked(
             const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
             const ndk::SpAIBinder& binder, ClientType clientType);
@@ -299,7 +301,7 @@ private:
 
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
-    ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mClientBinderDeathRecipient;
     std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
             mNotSupportedVhalProperties;
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
@@ -309,7 +311,7 @@ private:
     std::chrono::milliseconds mVhalHealthCheckWindowMs;
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
-            mOnBinderDiedCallback;
+            mVhalBinderDiedCallback;
     android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
 
     android::Mutex mMutex;
