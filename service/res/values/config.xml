@@ -575,7 +575,7 @@
 
     <!-- Number of seconds to wait until all remote tasks are completed. Should be no smaller than
          30 seconds -->
-    <integer name="config_allowedSystemUpTimeForRemoteAccess">300</integer>
+    <integer name="config_allowedSystemUptimeForRemoteAccess">300</integer>
 
     <!-- Assigns passenger Activities to foreground cpuset rather than the top app cpuset.
          This is enabled only for a system having both driver and passenger zones. If the system
