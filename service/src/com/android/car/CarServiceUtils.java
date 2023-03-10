@@ -692,6 +692,16 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Returns {@code true} if the current configuration supports visible background users on
+     * default display.
+     */
+    public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
+            UserManager userManager) {
+        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+                && UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(userManager);
+    }
+
+    /**
      * Starts Activity for the given {@code userId} and {@code displayId}.
      *
      * @return {@code true} when starting activity succeeds. It can fail in situation like secondary
@@ -717,6 +727,35 @@ public final class CarServiceUtils {
             return true;
         } catch (Exception e) {
             Slogf.w(TAG, e, "Cannot start HOME for user: %d, display:%d", userId, displayId);
+            return false;
+        }
+    }
+
+    /**
+     * Starts Secondary Home Activity for the given {@code userId} and {@code displayId}.
+     *
+     * @return {@code true} when starting activity succeeds. It can fail in situation like secondary
+     *         home package not existing.
+     */
+    public static boolean startSecondaryHomeForUserAndDisplay(Context context,
+            @UserIdInt int userId, int displayId) {
+        if (DBG) {
+            Slogf.d(TAG, "Starting secondary HOME for user: %d, display:%d", userId, displayId);
+        }
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        homeIntent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
+        ActivityOptions activityOptions = ActivityOptions.makeBasic()
+                .setLaunchDisplayId(displayId);
+        try {
+            ContextHelper.startActivityAsUser(context, homeIntent, activityOptions.toBundle(),
+                    UserHandle.of(userId));
+            if (DBG) {
+                Slogf.d(TAG, "Started secondary HOME for user: %d, display:%d", userId, displayId);
+            }
+            return true;
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "Could not start secondary HOME for user: %d, display:%d", userId,
+                    displayId);
             return false;
         }
     }

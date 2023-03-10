@@ -25,7 +25,9 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETU
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.isMultipleUsersOnMultipleDisplaysSupported;
+import static com.android.car.CarServiceUtils.isVisibleBackgroundUsersOnDefaultDisplaySupported;
 import static com.android.car.CarServiceUtils.startHomeForUserAndDisplay;
+import static com.android.car.CarServiceUtils.startSecondaryHomeForUserAndDisplay;
 import static com.android.car.CarServiceUtils.startSystemUiForUser;
 import static com.android.car.CarServiceUtils.stopSystemUiForUser;
 import static com.android.car.CarServiceUtils.toIntArray;
@@ -2433,7 +2435,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (!startHomeForUserAndDisplay(mContext, userId, displayId)) {
+        boolean result = isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager)
+                ? startSecondaryHomeForUserAndDisplay(mContext, userId, displayId)
+                : startHomeForUserAndDisplay(mContext, userId, displayId);
+        if (!result) {
             Slogf.w(TAG,
                     "Cannot launch home for assigned user %d, display %d, will stop the user",
                     userId, displayId);

@@ -274,12 +274,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
             } else if (shouldTaskShowOnRootTaskView(taskInfo)) {
                 // If the new task should be launched in the root task view panel:
-                // 1 - Close the root task view panel if it is open.
+                // 1 - Close the root task view panel if it is open and the task is notification
+                //    center.
                 // 2 - Open the root task view panel if it is closed:
                 //    a) If the app grid panel is already open then use an expand animation
                 //       to open the root task view on top of the app grid task view.
                 //    b) Otherwise, simply open the app grid panel.
-                if (mRootTaskViewPanel.isOpen()) {
+                if (mRootTaskViewPanel.isOpen()
+                        && mTaskCategoryManager.isNotificationActivity(taskInfo)) {
                     mRootTaskViewPanel.closePanel();
                 } else if (mAppGridTaskViewPanel.isOpen()) {
                     mRootTaskViewPanel.expandPanel();
@@ -460,7 +462,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         initializeCards();
-        mRootTaskViewPanel.refresh(getTheme());
+
+        mRootTaskViewPanel.post(() -> mRootTaskViewPanel.refresh(getTheme()));
+        mAppGridTaskViewPanel.post(() -> mAppGridTaskViewPanel.refresh(getTheme()));
     }
 
     @Override
