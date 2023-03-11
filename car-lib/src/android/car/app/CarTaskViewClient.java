@@ -46,9 +46,9 @@ public final class CarTaskViewClient {
         try {
             return mICarTaskViewClient.getCurrentBoundsOnScreen();
         } catch (RemoteException ex) {
-            throw new RuntimeException(
-                    "Failed to call getCurrentBoundsOnScreen() on TaskView client", ex);
+            ex.rethrowFromSystemServer();
         }
+        return null; // cannot reach here. This is just to satisfy compiler.
     }
 
     /**
@@ -64,7 +64,7 @@ public final class CarTaskViewClient {
         try {
             mICarTaskViewClient.setResizeBackgroundColor(transaction, color);
         } catch (RemoteException ex) {
-            throw new RuntimeException("Failed to setResizeBgColor() on TaskView client", ex);
+            ex.rethrowFromSystemServer();
         }
     }
 
@@ -76,7 +76,7 @@ public final class CarTaskViewClient {
         try {
             mICarTaskViewClient.onTaskAppeared(taskInfo, leash);
         } catch (RemoteException ex) {
-            throw new RuntimeException("Failed to call onTaskAppeared() on TaskView client", ex);
+            ex.rethrowFromSystemServer();
         }
     }
 
@@ -87,7 +87,7 @@ public final class CarTaskViewClient {
         try {
             mICarTaskViewClient.onTaskVanished(taskInfo);
         } catch (RemoteException ex) {
-            throw new RuntimeException("Failed to call onTaskVanished() on TaskView client", ex);
+            ex.rethrowFromSystemServer();
         }
     }
 
@@ -98,7 +98,7 @@ public final class CarTaskViewClient {
         try {
             mICarTaskViewClient.onTaskInfoChanged(taskInfo);
         } catch (RemoteException ex) {
-            throw new RuntimeException("Failed to call onTaskInfoChanged() on TaskView client", ex);
+            ex.rethrowFromSystemServer();
         }
     }
 }

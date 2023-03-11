@@ -272,6 +272,7 @@ abstract class RemoteCarTaskView extends SurfaceView {
         getHolder().removeCallback(mSurfaceCallbackHandler);
         try {
             mICarTaskViewHost.release();
+            mTaskInfo = null;
         } catch (DeadObjectException e) {
             Slogf.w(TAG, "TaskView's host has already died", e);
         } catch (RemoteException e) {
