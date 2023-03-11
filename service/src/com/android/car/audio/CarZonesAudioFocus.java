@@ -29,6 +29,7 @@ import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
@@ -152,15 +153,25 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     /**
-     * For each entry in list, reevaluate and regain focus
+     * For each entry in list, reevaluate and regain focus and notify focus listener of its zone
+     *
      * @param audioFocusInfos list of audio focus entries to reevaluate and regain
      * @return list of results for regaining focus
      */
     List<Integer> reevaluateAndRegainAudioFocusList(List<AudioFocusInfo> audioFocusInfos) {
         List<Integer> res = new ArrayList<>(audioFocusInfos.size());
+        ArraySet<Integer> zoneIds = new ArraySet<>();
         for (int index = 0; index < audioFocusInfos.size(); index++) {
-            res.add(reevaluateAndRegainAudioFocus(audioFocusInfos.get(index)));
+            AudioFocusInfo afi = audioFocusInfos.get(index);
+            int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
+            res.add(getCarAudioFocusForZoneId(zoneId).reevaluateAndRegainAudioFocus(afi));
+            zoneIds.add(zoneId);
         }
+        int[] zoneIdArray = new int[zoneIds.size()];
+        for (int zoneIdIndex = 0; zoneIdIndex < zoneIds.size(); zoneIdIndex++) {
+            zoneIdArray[zoneIdIndex] = zoneIds.valueAt(zoneIdIndex);
+        }
+        notifyFocusListeners(zoneIdArray);
         return res;
     }
 
