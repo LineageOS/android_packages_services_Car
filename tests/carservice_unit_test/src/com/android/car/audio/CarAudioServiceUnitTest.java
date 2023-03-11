@@ -95,6 +95,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -3312,7 +3313,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void switchZoneToConfig_withPendingFocus() throws Exception {
+    public void switchZoneToConfig_withPendingFocus_regainsFocus() throws Exception {
         mCarAudioService.init();
         SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
         assignOccupantToAudioZones();
@@ -3330,6 +3331,33 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         List<Integer> focusChanges = getFocusChanges(audioFocusInfo);
         expectWithMessage("Media audio focus changes after switching zone")
                 .that(focusChanges).containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
+    }
+
+    @Test
+    public void switchZoneToConfig_withPendingFocus_updatesDuckingInfo() throws Exception {
+        mCarAudioService.init();
+        SwitchAudioZoneConfigCallbackImpl callback = new SwitchAudioZoneConfigCallbackImpl();
+        assignOccupantToAudioZones();
+        AudioFocusInfo audioFocusInfo = createAudioFocusInfoForMedia(TEST_REAR_RIGHT_UID);
+        mCarAudioService.requestAudioFocusForTest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        ArgumentCaptor<List<CarDuckingInfo>> carDuckingInfosCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mAudioControlWrapperAidl).onDevicesToDuckChange(carDuckingInfosCaptor.capture());
+        verifyMediaDuckingInfoInZone(carDuckingInfosCaptor, TEST_REAR_RIGHT_ZONE_ID,
+                " before switching zone");
+        CarAudioZoneConfigInfo zoneConfigSwitchTo = getZoneConfigToSwitch(TEST_REAR_RIGHT_ZONE_ID);
+
+        mCarAudioService.switchZoneToConfig(zoneConfigSwitchTo, callback);
+
+        callback.waitForCallback();
+        expectWithMessage("Updated zone configuration with pending focus")
+                .that(callback.getZoneConfig()).isEqualTo(zoneConfigSwitchTo);
+        expectWithMessage("Zone configuration switching status with pending focus")
+                .that(callback.getSwitchStatus()).isTrue();
+        verify(mAudioControlWrapperAidl, times(2))
+                .onDevicesToDuckChange(carDuckingInfosCaptor.capture());
+        verifyMediaDuckingInfoInZone(carDuckingInfosCaptor, TEST_REAR_RIGHT_ZONE_ID,
+                " after switching zone");
     }
 
     @Test
@@ -3649,6 +3677,19 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         verify(mAudioManager, atLeastOnce()).dispatchAudioFocusChange(eq(info), captor.capture(),
                 any());
         return captor.getAllValues();
+    }
+
+    private void verifyMediaDuckingInfoInZone(ArgumentCaptor<List<CarDuckingInfo>>
+            carDuckingInfosCaptor, int zoneId, String message) {
+        expectWithMessage("Zone size of notified ducking info " + message)
+                .that(carDuckingInfosCaptor.getValue().size()).isEqualTo(1);
+        CarDuckingInfo duckingInfo = carDuckingInfosCaptor.getValue().get(0);
+        expectWithMessage("Ducking info zone id " + message)
+                .that(duckingInfo.mZoneId).isEqualTo(zoneId);
+        expectWithMessage("Audio attributes holding focus " + message)
+                .that(CarHalAudioUtils.metadataToAudioAttributes(duckingInfo
+                        .mPlaybackMetaDataHoldingFocus))
+                .containsExactly(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
     }
 
     private CarAudioZoneConfigInfo getZoneConfigToSwitch(int zoneId) {
