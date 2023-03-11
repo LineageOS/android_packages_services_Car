@@ -111,7 +111,6 @@ final class CarDucking implements CarFocusCallback {
         int zoneId = oldDuckingInfo.mZoneId;
         CarAudioZone zone = mCarAudioZones.get(zoneId);
 
-        // TODO(b/268533937): preserving ducking info when zone configuration is switched
         List<CarVolumeGroupInfo> groupInfos = zone.getCurrentVolumeGroupInfos();
 
         List<AudioAttributes> attributesHoldingFocus =
