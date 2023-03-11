@@ -458,6 +458,9 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public void registerCarSystemUIProxy(ICarSystemUIProxy carSystemUIProxy) {
+        if (DBG) {
+            Slogf.d(TAG, "registerCarSystemUIProxy %s", carSystemUIProxy.toString());
+        }
         ensurePermission(PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
         synchronized (mLock) {
             if (mCarSystemUIProxy != null) {
@@ -471,6 +474,8 @@ public final class CarActivityService extends ICarActivityService.Stub
                     @Override
                     public void binderDied() {
                         synchronized (mLock) {
+                            Slogf.d(TAG, "CarSystemUIProxy died %s",
+                                        mCarSystemUIProxy.toString());
                             mCarSystemUIProxy.asBinder().unlinkToDeath(this, /* flags= */ 0);
                             mCarSystemUIProxy = null;
                         }
@@ -487,6 +492,10 @@ public final class CarActivityService extends ICarActivityService.Stub
             }
 
             int numCallbacks = mCarSystemUIProxyCallbacks.beginBroadcast();
+            if (DBG) {
+                Slogf.d(TAG, "Broadcasting CarSystemUIProxy connected to %d callbacks",
+                        numCallbacks);
+            }
             for (int i = 0; i < numCallbacks; i++) {
                 try {
                     mCarSystemUIProxyCallbacks.getBroadcastItem(i).onConnected(
@@ -500,7 +509,17 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
+    public boolean isCarSystemUIProxyRegistered() {
+        synchronized (mLock) {
+            return mCarSystemUIProxy != null;
+        }
+    }
+
+    @Override
     public void addCarSystemUIProxyCallback(ICarSystemUIProxyCallback callback) {
+        if (DBG) {
+            Slogf.d(TAG, "addCarSystemUIProxyCallback %s", callback.toString());
+        }
         ensurePermission(PERMISSION_MANAGE_CAR_SYSTEM_UI);
         synchronized (mLock) {
             boolean alreadyExists = mCarSystemUIProxyCallbacks.unregister(callback);
@@ -531,6 +550,9 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public void removeCarSystemUIProxyCallback(ICarSystemUIProxyCallback callback) {
+        if (DBG) {
+            Slogf.d(TAG, "removeCarSystemUIProxyCallback %s", callback.toString());
+        }
         ensurePermission(PERMISSION_MANAGE_CAR_SYSTEM_UI);
         synchronized (mLock) {
             mCarSystemUIProxyCallbacks.unregister(callback);
@@ -647,8 +669,10 @@ public final class CarActivityService extends ICarActivityService.Stub
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarActivityService*");
-        writer.println(" Tasks:");
         synchronized (mLock) {
+            writer.println(" CarSystemUIProxy registered:");
+            writer.println(" " + (mCarSystemUIProxy != null));
+            writer.println(" Tasks:");
             for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
                 writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
