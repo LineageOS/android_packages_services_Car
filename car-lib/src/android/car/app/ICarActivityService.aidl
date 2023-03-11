@@ -93,5 +93,10 @@ interface ICarActivityService {
 
     /** See {@link CarActivityManager#moveRootTaskToDisplay(int, int)} */
     void moveRootTaskToDisplay(int taskId, int displayId) = 15;
+
+    /**
+     * Returns true if the {@link CarSystemUIProxy} is registered, false otherwise.
+     */
+    boolean isCarSystemUIProxyRegistered() = 16;
 }
 
