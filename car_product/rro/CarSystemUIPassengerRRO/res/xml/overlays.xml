@@ -115,4 +115,42 @@
     <item target="id/light_icon" value="@id/light_icon"/>
     <item target="id/dark_icon" value="@id/dark_icon"/>
     <item target="id/focus_view" value="@id/focus_view"/>
+
+    <!-- Passenger QuickControls related fields -->
+    <item target="color/system_bar_icon_selected_color" value="@color/system_bar_icon_selected_color"/>
+    <item target="color/system_bar_icon_color" value="@color/system_bar_icon_color"/>
+    <item target="color/system_bar_text_color_with_selection" value="@color/system_bar_text_color_with_selection"/>
+    <item target="color/system_bar_text_selected_color" value="@color/system_bar_text_selected_color"/>
+    <item target="color/system_bar_text_color" value="@color/system_bar_text_color"/>
+    <item target="dimen/system_bar_user_icon_drawing_size" value="@dimen/system_bar_user_icon_drawing_size"/>
+    <item target="drawable/car_user_icon_circle_background" value="@drawable/car_user_icon_circle_background"/>
+    <item target="color/car_user_switcher_add_user_background_color" value="@color/car_user_switcher_add_user_background_color"/>
+    <item target="dimen/user_icon_background_size" value="@dimen/user_icon_background_size"/>
+    <item target="drawable/status_icon_background" value="@drawable/status_icon_background"/>
+    <item target="color/status_icon_selected_button_color" value="@color/status_icon_selected_button_color"/>
+    <item target="dimen/system_bar_pill_radius" value="@dimen/system_bar_pill_radius"/>
+    <item target="drawable/system_bar_pill_rotary_background" value="@drawable/system_bar_pill_rotary_background"/>
+    <item target="color/system_bar_background_pill_color" value="@color/system_bar_background_pill_color"/>
+    <item target="drawable/system_bar_background_pill" value="@drawable/system_bar_background_pill"/>
+    <item target="attr/showAsDropDown" value="@attr/showAsDropDown"/>
+    <item target="attr/panelGravity" value="@attr/panelGravity"/>
+    <item target="layout/car_qc_entry_points_button" value="@layout/car_qc_entry_points_button"/>
+    <item target="id/user_icon" value="@id/user_icon"/>
+    <item target="id/user_name_text" value="@id/user_name_text"/>
+    <item target="id/clock" value="@id/clock"/>
+    <item target="attr/amPmStyle" value="@attr/amPmStyle"/>
+    <item target="style/QuickControlEntryPointButton" value="@style/QuickControlEntryPointButton"/>
+    <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
+    <item target="attr/showDark" value="@attr/showDark"/>
+    <item target="dimen/car_quick_controls_entry_points_icon_width" value="@dimen/car_quick_controls_entry_points_icon_width"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_top" value="@dimen/car_quick_controls_entry_points_button_margin_top"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_bottom" value="@dimen/car_quick_controls_entry_points_button_margin_bottom"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_start" value="@dimen/car_quick_controls_entry_points_button_margin_start"/>
+    <item target="dimen/car_quick_controls_entry_points_button_margin_end" value="@dimen/car_quick_controls_entry_points_button_margin_end"/>
+    <item target="dimen/car_body1_size" value="@dimen/car_body1_size"/>
+    <item target="dimen/car_padding_1" value="@dimen/car_padding_1"/>
+    <item target="dimen/car_padding_2" value="@dimen/car_padding_2"/>
+    <item target="dimen/car_padding_3" value="@dimen/car_padding_3"/>
+    <item target="string/qc_icon_tag" value="@string/qc_icon_tag"/>
+    <item target="style/TextAppearance.SystemBar.ClockWithSelection" value="@style/TextAppearance.SystemBar.ClockWithSelection"/>
 </overlay>

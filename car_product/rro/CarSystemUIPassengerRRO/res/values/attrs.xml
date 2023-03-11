@@ -41,4 +41,18 @@
         <attr name="android:minEms"/>
         <attr name="android:textAppearance"/>
     </declare-styleable>
+
+    <declare-styleable name="QuickControlsEntryPointContainer">
+        <attr name="showAsDropDown" format="boolean"/>
+        <attr name="panelGravity" format="integer"/>
+    </declare-styleable>
+
+    <declare-styleable name="Clock">
+        <attr name="amPmStyle" format="enum">
+            <enum name="normal" value="0" />
+            <enum name="small" value="1" />
+            <enum name="gone" value="2" />
+        </attr>
+        <attr name="showDark" format="boolean" />
+    </declare-styleable>
 </resources>
