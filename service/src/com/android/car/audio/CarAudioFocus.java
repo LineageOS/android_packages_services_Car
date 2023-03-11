@@ -272,8 +272,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     // This is a request from a current focus holder.
                     // Abandon the previous request (without sending a LOSS notification to it),
                     // and don't check the interaction matrix for it.
-                    Slogf.i(TAG, "Replacing accepted request from same client: %s",
-                            afi.getClientId());
+                    Slogf.i(TAG, "Replacing accepted request from same client: %s", afi);
                     replacedCurrentEntry = entry;
                     continue;
                 } else {
@@ -310,8 +309,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     // Evaluate it as if it were a new request, but note that we should remove
                     // the old pending request, and move it.
                     // We do not want to evaluate the new request against itself.
-                    Slogf.i(TAG, "Replacing pending request from same client id",
-                            afi.getClientId());
+                    Slogf.i(TAG, "Replacing pending request from same client id", afi);
                     replacedCurrentEntry = entry;
                     continue;
                 } else {
@@ -335,6 +333,12 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         if (evaluationResults.getAudioFocusResult() == AUDIOFOCUS_REQUEST_FAILED
                 || evaluationResults.getAudioFocusEntry() == null) {
             return AUDIOFOCUS_REQUEST_FAILED;
+        }
+
+        if (replacedCurrentEntry != null) {
+            mFocusHolders.remove(replacedCurrentEntry.getClientId());
+            mFocusLosers.remove(replacedCurrentEntry.getClientId());
+            permanentlyLost.add(replacedCurrentEntry);
         }
 
         // Now that we've decided we'll grant focus, construct our new FocusEntry
@@ -463,11 +467,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         if (losersEvaluation.equals(FocusEvaluation.FOCUS_EVALUATION_FAILED)) {
             return OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
-        }
-
-        if (replacedCurrentEntry != null) {
-            mFocusHolders.remove(replacedCurrentEntry.getClientId());
-            mFocusLosers.remove(replacedCurrentEntry.getClientId());
         }
 
         boolean delayFocus = holdersEvaluation.mAudioFocusEvalResults == AUDIOFOCUS_REQUEST_DELAYED
