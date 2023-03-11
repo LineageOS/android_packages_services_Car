@@ -407,6 +407,24 @@ public final class CarActivityManager extends CarManagerBase {
     }
 
     /**
+     * Returns true if the {@link CarSystemUIProxy} is registered, false otherwise.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(
+            minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public boolean isCarSystemUIProxyRegistered() {
+        try {
+            return mService.isCarSystemUIProxyRegistered();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+            return false;
+        }
+    }
+
+    /**
      * Gets the {@link CarTaskViewController} using the {@code carTaskViewControllerCallback}.
      *
      * This method is expected to be called from the {@link Activity#onCreate(Bundle)}. It will

@@ -853,6 +853,8 @@ public final class CarAudioManager extends CarManagerBase {
      * <p>If the car audio configuration does not include zone configurations, a default
      * configuration consisting current output devices for each zone is returned.
      *
+     * <p>There exists exactly one zone configuration in primary zone.
+     *
      * @param zoneId Zone id for the configuration to query
      * @return all the car audio zone configuration info for the zone id
      * @throws IllegalStateException if dynamic audio routing is not enabled
