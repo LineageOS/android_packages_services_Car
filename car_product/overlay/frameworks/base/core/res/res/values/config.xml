@@ -191,4 +191,9 @@
     <!-- Setting the icon mask to circular path data -->
     <string name="config_icon_mask" translatable="false">
         "M50 0A50 50,0,1,1,50 100A50 50,0,1,1,50 0"</string>
+
+    <!-- For the system with 3+ internal displays, this should be false, or it will not boot. -->
+    <bool name="config_matchSecondaryInternalDisplaysOrientationToReverseDefaultDisplay">
+        false
+    </bool>
 </resources>
