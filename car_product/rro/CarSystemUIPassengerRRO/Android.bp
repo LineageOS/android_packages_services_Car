@@ -24,7 +24,7 @@ runtime_resource_overlay {
     product_specific: true,
 
     static_libs: [
-        "car-ui-lib",
+        "car-ui-lib-no-overlayable",
         "androidx-constraintlayout_constraintlayout",
     ],
 }
