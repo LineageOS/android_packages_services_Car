@@ -24,6 +24,7 @@ import static android.car.VehiclePropertyIds.INVALID;
 import static android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import static android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
+import static android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
@@ -1016,14 +1017,17 @@ public final class CarPropertyManagerUnitTest {
                 () -> mCarPropertyManager.setProperty(Float.class, INVALID, 0, 17.0f));
     }
 
-    private CarPropertyManager.SetPropertyRequest createSetPropertyRequest() {
+    private SetPropertyRequest createSetPropertyRequest() {
         return mCarPropertyManager.generateSetPropertyRequest(HVAC_TEMPERATURE_SET, 0,
                 Float.valueOf(17.0f));
     }
 
     @Test
     public void testSetPropertiesAsync() throws RemoteException {
-        mCarPropertyManager.setPropertiesAsync(List.of(createSetPropertyRequest()), null, null,
+        SetPropertyRequest setPropertyRequest = createSetPropertyRequest();
+        setPropertyRequest.setUpdateRateHz(10.1f);
+        setPropertyRequest.setWaitForPropertyUpdate(false);
+        mCarPropertyManager.setPropertiesAsync(List.of(setPropertyRequest), null, null,
                 mSetPropertyCallback);
 
         verify(mICarProperty).setPropertiesAsync(mAsyncPropertyServiceRequestCaptor.capture(),
@@ -1034,6 +1038,8 @@ public final class CarPropertyManagerUnitTest {
         assertThat(request.getRequestId()).isEqualTo(0);
         assertThat(request.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(request.getAreaId()).isEqualTo(0);
+        assertThat(request.isWaitForPropertyUpdate()).isFalse();
+        assertThat(request.getUpdateRateHz()).isEqualTo(10.1f);
         CarPropertyValue requestValue = request.getCarPropertyValue();
         assertThat(requestValue).isNotNull();
         assertThat(requestValue.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
@@ -1116,7 +1122,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testSetPropertiesAsync_duplicateRequestId() throws RemoteException {
-        CarPropertyManager.SetPropertyRequest request = createSetPropertyRequest();
+        SetPropertyRequest request = createSetPropertyRequest();
 
         mCarPropertyManager.setPropertiesAsync(List.of(request), null, null,
                 mSetPropertyCallback);
@@ -1129,7 +1135,7 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testSetPropertiesAsync_clearRequestIdAfterFailed() throws RemoteException {
-        CarPropertyManager.SetPropertyRequest setPropertyRequest = createSetPropertyRequest();
+        SetPropertyRequest setPropertyRequest = createSetPropertyRequest();
         IllegalArgumentException exception = new IllegalArgumentException();
         doThrow(exception).when(mICarProperty).setPropertiesAsync(any(List.class),
                 any(IAsyncPropertyResultCallback.class), anyLong());

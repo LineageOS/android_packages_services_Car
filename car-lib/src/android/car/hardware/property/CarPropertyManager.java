@@ -340,11 +340,85 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mPropertyId;
         private final int mAreaId;
         private float mUpdateRateHz = 0.f;
+        // By default, the async set operation will wait for the property to be updated to the
+        // target value before calling the success callback (or when the target value is the
+        // same as the current value).
+        private boolean mWaitForPropertyUpdate = true;
 
         /**
          * The value to set.
          */
         private final T mValue;
+
+        /**
+         * Sets the update rate in Hz for listening for property updates for continuous property.
+         *
+         * <p>If {@code waitForPropertyUpdate} is set to {@code true} (by default) and if the
+         * property is set to a different value than its current value, the success callback will be
+         * called when a property update event for the new value arrived. This option controls how
+         * frequent the property update event should be reported for continuous property. This is
+         * similar to {@code updateRateHz} in {@link CarPropertyManager#registerCallback}.
+         *
+         * <p>This is ignored for non-continuous properties.
+         *
+         * <p>This is ignored if {@code waitForPropertyUpdate} is set to {@code false}.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public void setUpdateRateHz(float updateRateHz) {
+            mUpdateRateHz = updateRateHz;
+        }
+
+        /**
+         * Sets whether to wait for the property update event before calling success callback.
+         *
+         * <p>This arguments controls under what conditions the operation is considered succeeded
+         * and the success callback will be called.
+         *
+         * <p>If this is set to {@code true} (by default), the success callback will be called when
+         * both of the following coniditions are met:
+         *
+         * <ul>
+         * <li>the set operation is successfully delivered to vehicle bus.
+         * <li>the {@link #mPropertyId}+{@link #mAreaId}'s value already equal to {@link #mValue} or
+         * is successfully updated to the {@link #mValue} through the set operation.
+         * </ul>
+         *
+         * <p>Even if the target value is the same as the current value, we will still send the set
+         * operation to the vehicle bus. If caller wants to reduce unnecessary overhead, caller must
+         * check existing values before issuing the requests.
+         *
+         * <p>If the first condition fails, the error callback will be called. If the second
+         * condition fails, which means we don't see the property updated to the target value within
+         * a specified timeout, the error callback will be called with {@link STATUS_ERROR_TIMEOUT}.
+         *
+         * <p>If this is set to {@code false}, the success callback will be called after the
+         * set operation is successfully delivered to vehicle bus.
+         *
+         * <p>Under most cases, client should wait for the property update to verify that the set
+         * operation actually succeeded.
+         *
+         * <p>For cases when the property is write-only (no way to get property update event) or
+         * when the property represents some action, instead of an actual state, e.g. key stroke
+         * where the property's current value is not meaningful, caller should set
+         * {@code waitForPropertyUpdate} to {@code false}.
+         *
+         * <p>For {@code HVAC_TEMPERATURE_VALUE_SUGGESTION}, this must be set to {@code false}
+         * because the updated property value will not be the same as the value to be set.
+         *
+         * <p>Note that even if this is set to {@code true}, it is only guaranteed that the property
+         * value is the target value after the success callback is called if no other clients are
+         * changing the property at the same time. It is always possible that another client changes
+         * the property value after the property is updated to the target value, but before the
+         * client success callback runs. We only guarantee that at some point during the period
+         * after the client issues the request and before the success callback is called, the
+         * property value was set to the target value.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public void setWaitForPropertyUpdate(boolean waitForPropertyUpdate) {
+            mWaitForPropertyUpdate = waitForPropertyUpdate;
+        }
 
         /**
          * @see AsyncPropertyRequest#getRequestId
@@ -386,28 +460,21 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Sets the update rate for listening for property updates for continuous property.
-         *
-         * <p>For continuous property, if the property is set to a different value, the success
-         * callback will be called when a property update event for the new value arrived. This
-         * option controls how frequent the property update event should be reported. This is
-         * similar to {@code updateRateHz} in {@link CarPropertyManager#registerCallback}.
-         *
-         * <p>This is ignored for non-continuous properties.
-         */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public void setUpdateRateHz(float updateRateHz) {
-            mUpdateRateHz = updateRateHz;
-        }
-
-        /**
          * Gets the update rate for listening for property updates.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public float getUpdateRateHz() {
             return mUpdateRateHz;
+        }
+
+        /**
+         * Gets whether to wait for property update event before calling success callback.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        public boolean isWaitForPropertyUpdate() {
+            return mWaitForPropertyUpdate;
         }
 
         /**
@@ -606,6 +673,10 @@ public class CarPropertyManager extends CarManagerBase {
          *
          * <p>The timestamp will use the same time base as
          * {@link SystemClock#elapsedRealtimeNanos()}.
+         *
+         * <p>NOTE: If {@code waitForPropertyUpdate} is set to {@code false} for the request, then
+         * this value will be the time when the async set request is successfully sent to the
+         * vehicle bus, not when the property is updated since we have no way of knowing that.
          *
          * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
          * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
@@ -1768,7 +1839,6 @@ public class CarPropertyManager extends CarManagerBase {
         return new SetPropertyRequest(requestIdCounter, propertyId, areaId, value);
     }
 
-
     private void checkAsyncArguments(Object requests, Object callback, long timeoutInMs) {
         requireNonNull(requests);
         requireNonNull(callback);
@@ -1831,8 +1901,8 @@ public class CarPropertyManager extends CarManagerBase {
             }
             assertPropertyIdIsSupported(propertyId);
 
-            getPropertyServiceRequests.add(new AsyncPropertyServiceRequest(
-                    getPropertyRequest.getRequestId(), propertyId, areaId));
+            getPropertyServiceRequests.add(AsyncPropertyServiceRequest.newGetAsyncRequest(
+                    getPropertyRequest));
         }
 
         List<Integer> requestIds = storePendingRequestInfo(getPropertyRequests, callbackExecutor,
@@ -1889,6 +1959,25 @@ public class CarPropertyManager extends CarManagerBase {
      * precedence is undefined. Typically, the last set operation (in the order that they are issued
      * to the car's ECU) overrides the previous set operations.
      *
+     * <p>When the success callback will be called depends on whether {@code waitForPropertyUpdate}
+     * for each request is set. If this is set to {@code true} (by default), the success callback
+     * will be called when the set operation is successfully delivered to vehicle bus AND either
+     * target value is the same as the current or when the property is updated to the target value.
+     *
+     * <p>When {@code waitForPropertyUpdate} is set to {@code false}, the success callback will be
+     * called as long as the set operation is successfully delivered to vehicle bus.
+     *
+     * <p>Under most cases, client should wait for the property update to verify that the set
+     * operation actually succeeded.
+     *
+     * <p>For cases when the property is write-only (no way to get property update event) or when
+     * the property represents some action, instead of an actual state, e.g. key stroke where the
+     * property's current value is not meaningful, caller must set {@code waitForPropertyUpdate}
+     * to {@code false}.
+     *
+     * <p>For {@code HVAC_TEMPERATURE_VALUE_SUGGESTION}, this must be set to {@code false}
+     * because the updated property value will not be the same as the value to be set.
+     *
      * @param setPropertyRequests a list of properties to set
      * @param timeoutInMs the timeout for the operation, in milliseconds
      * @param cancellationSignal a signal that could be used to cancel the on-going operation
@@ -1896,6 +1985,11 @@ public class CarPropertyManager extends CarManagerBase {
      * @param setPropertyCallback the callback function to deliver the result
      * @throws SecurityException if missing permission to write one of the specific properties.
      * @throws IllegalArgumentException if one of the properties to set is not supported.
+     * @throws IllegalArgumentException if one of the properties is not readable and does not set
+     *   {@code waitForPropertyUpdate} to {@code false}.
+     * @throws IllegalArgumentException if one of the properties is
+     *   {@code HVAC_TEMPERATURE_VALUE_SUGGESTION} and does not set {@code waitForPropertyUpdate}
+     *   to {@code false}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -1923,9 +2017,8 @@ public class CarPropertyManager extends CarManagerBase {
             }
             assertPropertyIdIsSupported(propertyId);
 
-            setPropertyServiceRequests.add(new AsyncPropertyServiceRequest(
-                    setPropertyRequest.getRequestId(), propertyId, areaId,
-                    new CarPropertyValue(propertyId, areaId, setPropertyRequest.getValue())));
+            setPropertyServiceRequests.add(AsyncPropertyServiceRequest.newSetAsyncRequest(
+                    setPropertyRequest));
         }
 
         List<Integer> requestIds = storePendingRequestInfo(setPropertyRequests, callbackExecutor,
