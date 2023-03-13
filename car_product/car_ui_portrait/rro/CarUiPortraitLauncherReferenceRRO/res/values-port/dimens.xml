@@ -70,6 +70,7 @@
     <dimen name="app_name_margin_bottom">32dp</dimen>
     <dimen name="app_name_margin_horizontal">6dp</dimen>
 
+    <dimen name="progress_bar_height">6dp</dimen>
     <dimen name="seekbar_thumb_size">16dp</dimen>
     <dimen name="seekbar_thumb_offset">0dp</dimen>
     <dimen name="seekbar_padding">0dp</dimen>
