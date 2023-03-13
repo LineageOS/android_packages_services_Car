@@ -38,6 +38,7 @@ import android.car.builtin.util.TimingsTraceLog;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
+import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -176,6 +177,7 @@ final class InitialUserSetter {
         private int mNewUserFlags;
         private boolean mSupportsOverrideUserIdProperty;
         private @Nullable String mUserLocales;
+        private int mRequestType;
 
         /**
          * Constructor for the given type.
@@ -187,6 +189,14 @@ final class InitialUserSetter {
             Preconditions.checkArgument(type == TYPE_DEFAULT_BEHAVIOR || type == TYPE_SWITCH
                     || type == TYPE_CREATE || type == TYPE_REPLACE_GUEST, "invalid builder type");
             mType = type;
+        }
+
+        /**
+         * Sets the request type for {@link InitialUserInfoRequestType}.
+         */
+        public Builder setRequestType(int requestType) {
+            mRequestType = requestType;
+            return this;
         }
 
         /**
@@ -281,6 +291,7 @@ final class InitialUserSetter {
         public final int newUserFlags;
         public final boolean supportsOverrideUserIdProperty;
         public @Nullable String userLocales;
+        public final int requestType;
 
         private InitialUserInfo(@NonNull Builder builder) {
             type = builder.mType;
@@ -290,6 +301,7 @@ final class InitialUserSetter {
             newUserFlags = builder.mNewUserFlags;
             supportsOverrideUserIdProperty = builder.mSupportsOverrideUserIdProperty;
             userLocales = builder.mUserLocales;
+            requestType = builder.mRequestType;
         }
 
         @Override
@@ -467,11 +479,14 @@ final class InitialUserSetter {
 
         int actualUserId = actualUser.getIdentifier();
 
-        unlockSystemUserIfNecessary(actualUserId);
+        // Keep the old boot user flow for platform before U
+        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            unlockSystemUserIfNecessary(actualUserId);
+        }
 
         int currentUserId = ActivityManager.getCurrentUser();
         if (actualUserId != currentUserId) {
-            if (!startForegroundUser(actualUserId)) {
+            if (!startForegroundUser(info, actualUserId)) {
                 fallbackDefaultBehavior(info, fallback,
                         "am.switchUser(" + actualUserId + ") failed");
                 return;
@@ -674,7 +689,7 @@ final class InitialUserSetter {
     }
 
     @VisibleForTesting
-    boolean startForegroundUser(@UserIdInt int userId) {
+    boolean startForegroundUser(InitialUserInfo info, @UserIdInt int userId) {
         if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
             EventLogHelper.writeCarInitialUserStartFgUser(userId);
         }
@@ -682,7 +697,16 @@ final class InitialUserSetter {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
-        return ActivityManagerHelper.startUserInForeground(userId);
+
+        // Keep the old boot user flow for platform before U
+        if (info.requestType == InitialUserInfoRequestType.RESUME
+                || !isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            return ActivityManagerHelper.startUserInForeground(userId);
+        } else {
+            Slogf.i(TAG, "Setting boot user to: %d", userId);
+            mUm.setBootUser(UserHandle.of(userId));
+            return true;
+        }
     }
 
     private void notifyListener(@Nullable UserHandle initialUser) {
