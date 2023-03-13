@@ -103,7 +103,7 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
         IRemoteAccess remoteAccessHal = getRemoteAccessHal();
         try {
             return remoteAccessHal.getDeviceId();
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             throw new IllegalStateException("Failed to get device ID", e);
         }
     }
@@ -113,24 +113,25 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
         IRemoteAccess remoteAccessHal = getRemoteAccessHal();
         try {
             return remoteAccessHal.getWakeupServiceName();
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             throw new IllegalStateException("Failed to get wakeup service name", e);
         }
     }
 
     /** Check {@link IRemoteAccess#notifyApStateChange(ApState)}. */
-    public void notifyApStateChange(boolean isReadyForRemoteTask, boolean isWakeupRequired) {
-        IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+    public boolean notifyApStateChange(boolean isReadyForRemoteTask, boolean isWakeupRequired) {
         try {
+            IRemoteAccess remoteAccessHal = getRemoteAccessHal();
             ApState state = new ApState();
             state.isReadyForRemoteTask = isReadyForRemoteTask;
             state.isWakeupRequired = isWakeupRequired;
             remoteAccessHal.notifyApStateChange(state);
-        } catch (RemoteException e) {
-            throw new IllegalStateException("Failed to notify power state change: "
-                    + "isReadyForRemoteTask=" + isReadyForRemoteTask + ", isWakeupRequired="
-                    + isWakeupRequired);
+        } catch (RemoteException | RuntimeException e) {
+            Slogf.w(TAG, e, "Failed to notify power state change: isReadyForRemoteTask=%b, "
+                    + "isWakeupRequired=%b", isReadyForRemoteTask, isWakeupRequired);
+            return false;
         }
+        return true;
     }
 
     private void connectToHal() {
