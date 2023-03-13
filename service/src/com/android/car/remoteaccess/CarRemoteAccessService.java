@@ -61,6 +61,7 @@ import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.remoteaccess.RemoteAccessStorage.ClientIdEntry;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
 import com.android.car.systeminterface.SystemInterface;
@@ -119,6 +120,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private final ArrayMap<String, RemoteTaskClientServiceInfo> mClientServiceInfoByPackage =
             new ArrayMap<>();
+    private final RemoteAccessStorage mRemoteAccessStorage;
 
     private final ICarPowerStateListener mCarPowerStateListener =
             new ICarPowerStateListener.Stub() {
@@ -187,16 +189,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                             mShutdownTimeInMs, SystemClock.uptimeMillis());
                     return;
                 }
+                taskId = generateNewTaskId();
+                pushTaskToPendingQueueLocked(clientId, new RemoteTask(taskId, data));
+                // TODO(b/271954440): Set a timeout for a task in the pending queue.
                 String packageName = mPackageByClientId.get(clientId);
                 if (packageName == null) {
                     Slogf.w(TAG, "Cannot notify task: client(%s) is not registered.", clientId);
-                    return;
-                }
-                RemoteTaskClientServiceInfo serviceInfo =
-                        mClientServiceInfoByPackage.get(packageName);
-                if (serviceInfo == null) {
-                    Slogf.w(TAG, "Cannot find the remote client service information for %s",
-                            packageName);
                     return;
                 }
                 ClientToken token = mClientTokenByPackage.get(packageName);
@@ -207,14 +205,17 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
                 taskId = generateNewTaskId();
                 pushTaskToPendingQueueLocked(clientId, new RemoteTask(taskId, data));
-                addTaskToActiveTasksLocked(packageName, taskId);
                 if (DEBUG) {
                     Slogf.d(TAG, "New task(%s) is added to the package(%s)", taskId, packageName);
                 }
-                if (serviceInfo.getServiceConnection() == null) {
+                RemoteTaskClientServiceInfo serviceInfo =
+                        mClientServiceInfoByPackage.get(packageName);
+                if (serviceInfo == null || serviceInfo.getServiceConnection() == null) {
                     Slogf.w(TAG, "Notifying task is delayed: client(%s) is not started yet.",
                             clientId);
-                    startRemoteTaskClientService(serviceInfo, /* scheduleUnbind= */ false);
+                    if (serviceInfo != null) {
+                        startRemoteTaskClientService(serviceInfo, /* scheduleUnbind= */ false);
+                    }
                     return;
                 }
                 if (token == null || token.getCallback() == null) {
@@ -224,6 +225,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
                 remoteTasksToNotify = popTasksFromPendingQueueLocked(clientId);
                 callback = token.getCallback();
+                addTasksToActiveTasksLocked(packageName, remoteTasksToNotify);
             }
             invokeTaskRequestCallbacks(callback, clientId, remoteTasksToNotify,
                     taskMaxDurationInSec);
@@ -244,12 +246,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private AtomicBoolean mInitialized;
 
     public CarRemoteAccessService(Context context, SystemInterface systemInterface) {
-        this(context, systemInterface, /* remoteAccessHal= */ null, INVALID_ALLOWED_SYSTEM_UPTIME);
+        this(context, systemInterface, /* remoteAccessHal= */ null,
+                new RemoteAccessStorage(context, systemInterface),
+                INVALID_ALLOWED_SYSTEM_UPTIME);
     }
 
     @VisibleForTesting
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
-            @Nullable RemoteAccessHalWrapper remoteAccessHal, long allowedSystemUptimeMs) {
+            @Nullable RemoteAccessHalWrapper remoteAccessHal,
+            @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs) {
         mContext = context;
         mPackageManager = mContext.getPackageManager();
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
@@ -259,6 +264,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mAllowedSystemUptimeMs = allowedSystemUptimeMs == INVALID_ALLOWED_SYSTEM_UPTIME
                 ? getAllowedSystemUptimeForRemoteTaskInMs() : allowedSystemUptimeMs;
         mShutdownTimeInMs = SystemClock.uptimeMillis() + mAllowedSystemUptimeMs;
+        mRemoteAccessStorage = remoteAccessStorage;
         // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
                 PACKAGE_SEARCH_DELAY);
@@ -266,8 +272,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     @Override
     public void init() {
-        // TODO(b/255335607): Read client IDs, creation time, and package mapping from the DB
-
+        populatePackageClientIdMapping();
         mRemoteAccessHal.init();
         try {
             mWakeupServiceName = mRemoteAccessHal.getWakeupServiceName();
@@ -296,7 +301,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     @Override
     public void release() {
+        mHandler.cancelAll();
         mRemoteAccessHal.release();
+        mRemoteAccessStorage.release();
     }
 
     @Override
@@ -373,6 +380,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 throw new IllegalStateException("Failed to linkToDeath callback");
             }
         }
+        saveClientIdInDb(token, packageName);
         postRegistrationUpdated(callback, token.getClientId());
     }
 
@@ -453,6 +461,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return mHalCallback;
     }
 
+    private void populatePackageClientIdMapping() {
+        List<ClientIdEntry> clientIdEntries = mRemoteAccessStorage.getClientIdEntries();
+        if (clientIdEntries == null) return;
+
+        synchronized (mLock) {
+            for (int i = 0; i < clientIdEntries.size(); i++) {
+                ClientIdEntry entry = clientIdEntries.get(i);
+                mPackageByClientId.put(entry.clientId, entry.packageName);
+                mClientTokenByPackage.put(entry.packageName,
+                        new ClientToken(entry.clientId, entry.idCreationTime));
+            }
+        }
+    }
+
+    private void saveClientIdInDb(ClientToken token, String packageName) {
+        ClientIdEntry entry = new ClientIdEntry(token.getClientId(), token.getIdCreationTime(),
+                packageName);
+        if (!mRemoteAccessStorage.updateClientId(entry)) {
+            Slogf.e(TAG, "Failed to save %s for %s in the database", token, packageName);
+        }
+    }
+
     private void postRegistrationUpdated(ICarRemoteAccessCallback callback, String clientId) {
         mHandler.post(() -> {
             try {
@@ -483,6 +513,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     Slogf.w(TAG, "No pending tasks to deliver to client(%s)", clientId);
                     return;
                 }
+                // packageName cannot be null because clientId is verified.
+                String packageName = mPackageByClientId.get(clientId);
+                addTasksToActiveTasksLocked(packageName, tasks);
             }
             invokeTaskRequestCallbacks(callback, clientId, tasks, taskMaxDurationInSec);
         });
@@ -720,13 +753,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     @GuardedBy("mLock")
-    private void addTaskToActiveTasksLocked(String packageName, String taskId) {
+    private void addTasksToActiveTasksLocked(String packageName, List<RemoteTask> tasks) {
         ArraySet<String> activeTasks = mActiveTasksByPackage.get(packageName);
         if (activeTasks == null) {
             activeTasks = new ArraySet<>();
             mActiveTasksByPackage.put(packageName, activeTasks);
         }
-        activeTasks.add(taskId);
+        for (int i = 0; i < tasks.size(); i++) {
+            RemoteTask task = tasks.get(i);
+            activeTasks.add(task.id);
+        }
     }
 
     @GuardedBy("mLock")
@@ -1004,8 +1040,22 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             removeMessages(MSG_UNBIND_SERVICE_AFTER_REGISTRATION, serviceInfo);
         }
 
+        private void cancelAllUnbindServiceAfterRegistration() {
+            removeMessages(MSG_UNBIND_SERVICE_AFTER_REGISTRATION);
+        }
+
         private void cancelNotifyShutdownStarting() {
             removeMessages(MSG_NOTIFY_SHUTDOWN_STARTING);
+        }
+
+        private void cancelWrapUpRemoteAccessService() {
+            removeMessages(MSG_WRAP_UP_REMOTE_ACCESS_SERVICE);
+        }
+
+        private void cancelAll() {
+            cancelAllUnbindServiceAfterRegistration();
+            cancelWrapUpRemoteAccessService();
+            cancelNotifyShutdownStarting();
         }
 
         @Override
