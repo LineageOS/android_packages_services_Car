@@ -463,7 +463,10 @@ public final class VehiclePropertyIds {
      * the typically expected rim/tire size. configArray is set as follows:
      *
      * <ul>
-     *  <li>configArray[0], bits [0:3] = supported wheels.  Uses {@link VehicleAreaWheel}.
+     *  <li>configArray[0], bits [0:3] = supported wheels. Uses {@link VehicleAreaWheel}. For
+     *  example, if all wheels are supported, then configArray[0] = {@link
+     *  VehicleAreaWheel#WHEEL_LEFT_FRONT} | {@link VehicleAreaWheel#WHEEL_RIGHT_FRONT} | {@link
+     *  VehicleAreaWheel#WHEEL_LEFT_REAR} | {@link VehicleAreaWheel#WHEEL_RIGHT_REAR}
      *  <li>configArray[1] = micrometers per front left wheel tick
      *  <li>configArray[2] = micrometers per front right wheel tick
      *  <li>configArray[3] = micrometers per rear right wheel tick
