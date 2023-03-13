@@ -136,12 +136,28 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4;
 
+    /**
+     * This is used to determine if audio mirroring is supported via
+     * {@link #isAudioFeatureEnabled()}
+     *
+     * <p>If enabled, audio mirroring can be managed by using the following APIs:
+     * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
+     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #enableMirrorForAudioZones(List)},
+     * {@link #extendAudioMirrorRequest(List, long)},{@link #disableAudioMirrorForZone(int)},
+     * {@link #disableAudioMirror(long)}, {@link #getMirrorAudioZonesForAudioZone(int)},
+     * {@link #getMirrorAudioZonesForMirrorRequest(long)}
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
+
     /** @hide */
     @IntDef(flag = false, prefix = "AUDIO_FEATURE", value = {
             AUDIO_FEATURE_DYNAMIC_ROUTING,
             AUDIO_FEATURE_VOLUME_GROUP_MUTING,
             AUDIO_FEATURE_OEM_AUDIO_SERVICE,
-            AUDIO_FEATURE_VOLUME_GROUP_EVENTS
+            AUDIO_FEATURE_VOLUME_GROUP_EVENTS,
+            AUDIO_FEATURE_AUDIO_MIRRORING
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarAudioFeature {}
@@ -1213,11 +1229,14 @@ public final class CarAudioManager extends CarManagerBase {
      * @param executor Executor on which the callback will be invoked
      * @param callback Callback to inform about audio mirror status changes
      * @return {@code true} if audio zones mirror status is set successfully, or {@code false}
-     *      in the case that audio mirror is not enabled for the device
+     * otherwise
      * @throws NullPointerException if {@link AudioZonesMirrorStatusCallback} or {@link Executor}
-     *      passed in are {@code null}
+     * passed in are {@code null}
      * @throws IllegalStateException if dynamic audio routing is not enabled, also if
-     *      there is a callback already set
+     * there is a callback already set
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
      *
      * @hide
      */
@@ -1251,7 +1270,7 @@ public final class CarAudioManager extends CarManagerBase {
         }
         boolean error;
         synchronized (mLock) {
-            //Unless there is a race condition mAudioZonesMirrorStatusCallbackWrapper
+            // Unless there is a race condition mAudioZonesMirrorStatusCallbackWrapper
             // should not be set
             error = mAudioZonesMirrorStatusCallbackWrapper != null;
             if (!error) {
@@ -1276,6 +1295,9 @@ public final class CarAudioManager extends CarManagerBase {
      * Clears the currently set {@code AudioZonesMirrorStatusCallback}
      *
      * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
      *
      * @hide
      */
@@ -1307,9 +1329,20 @@ public final class CarAudioManager extends CarManagerBase {
      * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
      * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
      *
-     * @param audioZonesToMirror List of audio zones that should have audio mirror enabled
+     * @param audioZonesToMirror List of audio zones that should have audio mirror enabled,
+     * a minimum of two audio zones are needed to enable mirroring
+     * @return returns a valid mirror request id if successful or {@code INVALID_REQUEST_ID}
+     * otherwise
      * @throws NullPointerException if the audio mirror list is {@code null}
-     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalArgumentException if the audio mirror list size is less than 2, if a zone id
+     * repeats within the list, or if the list contains the {@link #PRIMARY_AUDIO_ZONE}
+     * @throws IllegalStateException if dynamic audio routing is not enabled, or there is an
+     * attempt to merge zones from two different mirroring request, or any of the zone ids
+     * are currently sharing audio to primary zone as allowed via
+     * {@link #allowMediaAudioOnPrimaryZone(long, boolean)}
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
      *
      * @hide
      */
@@ -1317,11 +1350,51 @@ public final class CarAudioManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public void enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
+    public long enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
         Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
 
         try {
-            mService.enableMirrorForAudioZones(toIntArray(audioZonesToMirror));
+            return mService.enableMirrorForAudioZones(toIntArray(audioZonesToMirror));
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, INVALID_REQUEST_ID);
+        }
+    }
+
+    /**
+     * Extends the audio zone mirroring request by appending new zones to the mirroring
+     * configuration. The zones previously mirroring in the audio mirroring configuration, will
+     * continue to mirror and the mirroring will be further extended to the new zones.
+     *
+     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}.
+     * For example, to further extend a mirroring request currently containing zones 1 and 2, with
+     * a new zone (3) Simply call the API with zone 3 in the list, after the completion of audio
+     * mirroring extension, zones 1, 2, and 3 will now have mirroring enabled.
+     *
+     * @param audioZonesToMirror List of audio zones that will be added to the mirroring request
+     * @param mirrorId Audio mirroring request to expand with more audio zones
+     * @throws NullPointerException if the audio mirror list is {@code null}
+     * @throws IllegalArgumentException if a zone id repeats within the list, or if the list
+     * contains the {@link #PRIMARY_AUDIO_ZONE}, or if the request id to expand is no longer valid
+     * @throws IllegalStateException if dynamic audio routing is not enabled, or there is an
+     * attempt to merge zones from two different mirroring request, or any of the zone ids
+     * are currently sharing audio to primary zone as allowed via
+     * {@link #allowMediaAudioOnPrimaryZone(long, boolean)}
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void extendAudioMirrorRequest(long mirrorId, @NonNull List<Integer> audioZonesToMirror) {
+        Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
+
+        try {
+            mService.extendAudioMirrorRequest(mirrorId, toIntArray(audioZonesToMirror));
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -1331,11 +1404,20 @@ public final class CarAudioManager extends CarManagerBase {
      * Disables audio mirror for a particular audio zone
      *
      * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
-     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
+     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}.
+     * The results will contain the information for the audio zones whose mirror was cancelled.
+     * For example, if the mirror configuration only has two zones, mirroring will be undone for
+     * both zones and the callback will have both zones. On the other hand, if the mirroring
+     * configuration contains three zones, then this API will only cancel mirroring for one zone
+     * and the other two zone will continue mirroring. In this case, the callback will only have
+     * information about the cancelled zone
      *
      * @param zoneId Zone id where audio mirror should be disabled
      * @throws IllegalArgumentException if the zoneId is invalid
      * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
      *
      * @hide
      */
@@ -1352,8 +1434,37 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Determines the current mirror configuration for an audio zone as set by
+     * Disables audio mirror for all the zones mirroring in a particular request
+     *
+     * <p><b>Note:<b/> The results will be notified in the {@link AudioZonesMirrorStatusCallback}
+     * set via {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)}
+     *
+     * @param mirrorId Whose audio mirroring should be disabled as obtained via
      * {@link #enableMirrorForAudioZones(List)}
+     * @throws IllegalArgumentException if the request id is no longer valid
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public void disableAudioMirror(long mirrorId) {
+        try {
+            mService.disableAudioMirror(mirrorId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Determines the current mirror configuration for an audio zone as set by
+     * {@link #enableMirrorForAudioZones(List)} or extended via
+     * {@link #extendAudioMirrorRequest(long, List)}
      *
      * @param zoneId The audio zone id where mirror audio should be queried
      * @return A list of audio zones where the queried audio zone is mirroring or empty if the
@@ -1361,6 +1472,9 @@ public final class CarAudioManager extends CarManagerBase {
      * queried zone if audio mirroring is enabled for that zone.
      * @throws IllegalArgumentException if the audio zone id is invalid
      * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
      *
      * @hide
      */
@@ -1372,6 +1486,33 @@ public final class CarAudioManager extends CarManagerBase {
     public List<Integer> getMirrorAudioZonesForAudioZone(int zoneId) {
         try {
             return asList(mService.getMirrorAudioZonesForAudioZone(zoneId));
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
+        }
+    }
+
+    /**
+     * Determines the current mirror configuration for a mirror id
+     *
+     * @param mirrorId The request id that should be queried
+     * @return A list of audio zones where the queried audio zone is mirroring or empty if the
+     * request id is no longer valid.
+     * @throws IllegalArgumentException if mirror request id is {@link #INVALID_REQUEST_ID}
+     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
+     *
+     * @hide
+     */
+    @SystemApi
+    @NonNull
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public List<Integer> getMirrorAudioZonesForMirrorRequest(long mirrorId) {
+        try {
+            return asList(mService.getMirrorAudioZonesForMirrorRequest(mirrorId));
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }

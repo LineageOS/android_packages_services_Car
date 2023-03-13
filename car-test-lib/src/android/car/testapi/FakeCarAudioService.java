@@ -200,7 +200,15 @@ final class FakeCarAudioService extends ICarAudio.Stub {
      * {@link CarAudioManager#enableMirrorForAudioZones(List)}
      */
     @Override
-    public void enableMirrorForAudioZones(int[] audioZones) {
+    public long enableMirrorForAudioZones(int[] audioZones) {
+        return INVALID_REQUEST_ID;
+    }
+
+    /**
+     * {@link CarAudioManager#extendAudioMirrorRequest(long, List)}
+     */
+    @Override
+    public void extendAudioMirrorRequest(long mirrorId, int[] audioZones) {
     }
 
     /**
@@ -211,10 +219,26 @@ final class FakeCarAudioService extends ICarAudio.Stub {
     }
 
     /**
+     * {@link CarAudioManager#disableAudioMirrorRequest(int)}
+     */
+    @Override
+    public void disableAudioMirror(long requestId) {
+    }
+
+    /**
      * {@link CarAudioManager#getMirrorAudioZonesForAudioZone(int)}
      */
     @Override
     public int[] getMirrorAudioZonesForAudioZone(int zoneId) {
+        return new int[0];
+    }
+
+    /**
+     * {@link CarAudioManager#getMirrorAudioZonesForMirrorRequest(long)}
+     */
+    @Override
+    public int[] getMirrorAudioZonesForMirrorRequest(long mirrorId
+    ) {
         return new int[0];
     }
 
