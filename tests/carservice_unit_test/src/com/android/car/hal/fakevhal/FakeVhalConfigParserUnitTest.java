@@ -776,8 +776,8 @@ public class FakeVhalConfigParserUnitTest {
         assertThat(result.get(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS).getConfig().configArray)
                 .isEqualTo(new int[]{VehicleUnit.METER_PER_SEC, VehicleUnit.MILES_PER_HOUR,
                         VehicleUnit.KILOMETERS_PER_HOUR});
-        assertThat(result.get(VehicleProperty.SEAT_OCCUPANCY).getInitialAreaValuesByAreaId()
-                .get(SEAT_1_LEFT).int32Values[0]).isEqualTo(VehicleSeatOccupancyState.VACANT);
+        assertThat(result.get(VehicleProperty.SEAT_OCCUPANCY).getInitialValue().int32Values[0])
+                .isEqualTo(VehicleSeatOccupancyState.VACANT);
         assertThat(result.get(VehicleProperty.TIRE_PRESSURE).getConfig().areaConfigs[0].areaId)
                 .isEqualTo(WHEEL_FRONT_LEFT);
     }
