@@ -61,9 +61,10 @@
     <item target="id/position_indicator" value="@id/position_indicator" />
     <item target="id/position_indicator_container" value="@id/position_indicator_container" />
 
+    <item target="id/optional_progress_bar" value="@id/optional_progress_bar" />
     <item target="id/optional_seek_bar" value="@id/optional_seek_bar" />
-    <item target="id/optional_times" value="@id/optional_times" />
     <item target="id/optional_seek_bar_with_times_container" value="@id/optional_seek_bar_with_times_container" />
+    <item target="id/optional_times" value="@id/optional_times" />
 
     <item target="layout/app_item" value="@layout/app_item" />
     <item target="layout/app_grid_activity" value="@layout/app_grid_activity" />
@@ -113,6 +114,7 @@
 
     <item target="bool/car_app_show_recent_apps" value="@bool/car_app_show_recent_apps" />
     <item target="bool/car_app_show_toolbar" value="@bool/car_app_show_toolbar" />
+    <item target="bool/show_seek_bar" value="@bool/show_seek_bar" />
     <item target="bool/use_media_source_color_for_seek_bar"
           value="@bool/use_media_source_color_for_seek_bar" />
     <item target="bool/use_defined_app_grid_dimensions"
