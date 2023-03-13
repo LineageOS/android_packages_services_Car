@@ -151,9 +151,8 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
     public void testNotifyApStateChange_noHalService() throws Exception {
         setUpNoHalService();
 
-        assertThrows(IllegalStateException.class, () -> mHalWrapper.notifyApStateChange(
-                /* isReadyForRemoteTask= */ false, /* isWakeupRequired= */ true));
-
+        assertWithMessage("Return value").that(mHalWrapper.notifyApStateChange(
+                /* isReadyForRemoteTask= */ false, /* isWakeupRequired= */ true)).isFalse();
         verify(mRemoteAccessHal, never()).notifyApStateChange(any(ApState.class));
     }
 
