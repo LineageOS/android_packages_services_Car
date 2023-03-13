@@ -23,22 +23,40 @@
     android:layout_below="@id/content_container"
     android:layout_marginEnd="@dimen/seekbar_marginHorizontal"
     android:layout_marginTop="@dimen/seekbar_marginVertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
     <!-- Support user interaction later and remove clickable false -->
-    <SeekBar
-        android:id="@+id/optional_seek_bar"
-        android:layout_width="0dp"
+    <LinearLayout
         android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:orientation="vertical"
         android:layout_weight="0.6"
-        android:splitTrack="false"
-        android:progressTint="@color/seek_bar_color"
-        android:progressBackgroundTint="@color/car_secondary_container"
-        android:thumbOffset="@dimen/seekbar_thumb_offset"
-        android:thumb="@drawable/seekbar_thumb"
-        android:paddingStart="@dimen/seekbar_padding"
-        android:paddingEnd="@dimen/seekbar_padding"
-        android:max="@integer/optional_seekbar_max"
-        android:layout_gravity="center_vertical | start"/>
+        android:gravity="center_vertical | start">
+        <SeekBar
+            android:id="@+id/optional_seek_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:splitTrack="false"
+            android:progressTint="@color/seek_bar_color"
+            android:progressBackgroundTint="@color/car_secondary_container"
+            android:thumbOffset="@dimen/seekbar_thumb_offset"
+            android:thumb="@drawable/seekbar_thumb"
+            android:paddingStart="@dimen/seekbar_padding"
+            android:paddingEnd="@dimen/seekbar_padding"
+            android:max="@integer/optional_seekbar_max"
+            android:visibility="gone"/>
+        <ProgressBar
+            android:id="@+id/optional_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/progress_bar_height"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:splitTrack="false"
+            android:progressTint="@color/seek_bar_color"
+            android:progressBackgroundTint="@color/car_secondary_container"
+            android:paddingStart="@dimen/seekbar_padding"
+            android:paddingEnd="@dimen/seekbar_padding"
+            android:max="@integer/optional_seekbar_max"/>
+    </LinearLayout>
     <TextView
         android:id="@+id/optional_times"
         android:layout_width="@dimen/seekbar_times_width"
