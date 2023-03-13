@@ -19,6 +19,8 @@ package android.car.settings;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 
 /**
  * System-level, car-related settings.
@@ -87,7 +89,7 @@ public class CarSettings {
          */
         @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_USER_ID =
-                        "android.car.LAST_ACTIVE_USER_ID";
+                "android.car.LAST_ACTIVE_USER_ID";
 
         /**
          * User id of the last persistent (i.e, not counting ephemeral guests) foreground user
@@ -96,11 +98,11 @@ public class CarSettings {
          */
         @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_PERSISTENT_USER_ID =
-                        "android.car.LAST_ACTIVE_PERSISTENT_USER_ID";
+                "android.car.LAST_ACTIVE_PERSISTENT_USER_ID";
 
         /**
          * Defines global runtime overrides to system bar policy.
-         *
+         * <p>
          * See {@link com.android.systemui.wm.BarControlPolicy} for value format.
          *
          * @hide
@@ -138,13 +140,14 @@ public class CarSettings {
          * <p> Input lock will be applied to those passenger displays. If any entry in the value
          * is invalid, then the invalid entry is ignored. If there are duplicate entries, then
          * only one entry is valid and the other duplicates are ignored.
+         *
          * @hide
          */
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public static final String DISPLAY_INPUT_LOCK =
-                        "android.car.DISPLAY_INPUT_LOCK";
+                "android.car.DISPLAY_INPUT_LOCK";
 
         /**
          * Defines display power mode to assign per each display.
@@ -240,6 +243,7 @@ public class CarSettings {
         /**
          * Key for a list of devices to automatically connect on Bluetooth.
          * Written to and read by {@link com.android.car.BluetoothDeviceManager}
+         *
          * @hide
          */
         @AddedInOrBefore(majorVersion = 33)
@@ -249,6 +253,7 @@ public class CarSettings {
         /**
          * Key for storing temporarily-disconnected devices and profiles.
          * Read and written by {@link com.android.car.BluetoothProfileInhibitManager}.
+         *
          * @hide
          */
         @AddedInOrBefore(majorVersion = 33)
@@ -259,6 +264,7 @@ public class CarSettings {
          * Key to enable / disable rotary key event filtering. When enabled, a USB keyboard can be
          * used as a stand-in for a rotary controller.
          * The value is boolean (1 or 0).
+         *
          * @hide
          */
         @SystemApi
@@ -270,6 +276,7 @@ public class CarSettings {
          * Key to enable / disable initial notice screen that will be shown for all user-starting
          * moments including cold boot, wake up from suspend, and user switching.
          * The value is boolean (1 or 0).
+         *
          * @hide
          */
         @SystemApi
@@ -281,6 +288,7 @@ public class CarSettings {
          * Key to indicate Setup Wizard is in progress. It differs from USER_SETUP_COMPLETE in
          * that this flag can be reset to 0 in deferred Setup Wizard flow.
          * The value is boolean (1 or 0).
+         *
          * @hide
          */
         @SystemApi
@@ -300,12 +308,54 @@ public class CarSettings {
          *
          * <p>When an application (which is on this list) is enabled, CarService will immediately
          * remove the application's package name form the list.
+         *
          * @hide
          */
         @SystemApi
         @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE =
                 "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
+
+        /**
+         * Key for an int value to indicate whether the user has accepted the Terms of
+         * Service.
+         *
+         * <p>The value is an int value where:
+         * <ul>
+         * <li>0 - the acceptance value is unknown. In this case, functionality
+         * should not be restricted.
+         * <li>1 - the acceptance value is {@code false}. In this case, some system
+         * functionality is restricted.
+         * <li>2 - the acceptance value is {@code true}. In this case, system functionality is
+         * not restricted.
+         * </ul>
+         *
+         * <p>Recommended 0 as default value.
+         *
+         * @hide
+         */
+        @SystemApi
+        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public static final String KEY_USER_TOS_ACCEPTED = "android.car.KEY_USER_TOS_ACCEPTED";
+
+
+        /**
+         * Key for a string value to indicate which apps are disabled because the
+         * user has not accepted the Terms of Service.
+         *
+         * <p>The value is a string value of comma-separated package names. For example,
+         * {@code "com.company.maps,com.company.voiceassistant,com.company.appstore"}
+         *
+         * <p>Recommended "" as default value.
+         *
+         * @hide
+         */
+        @SystemApi
+        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public static final String KEY_UNACCEPTED_TOS_DISABLED_APPS =
+                "android.car.KEY_UNACCEPTED_TOS_DISABLED_APPS";
 
         /**
          * Defines non-current visible users to assign per each occupant zone.
