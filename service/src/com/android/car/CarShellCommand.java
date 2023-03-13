@@ -659,9 +659,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [zoneId1] [zoneId2]\n", COMMAND_SET_AUDIO_MIRROR);
         pw.println("\t  sets audio mirror for zones [zoneId1] and [zoneId2],");
         pw.println("\t  [zoneId#] must be a valid zone id ");
-        pw.printf("\t%s [zoneId1]\n", COMMAND_UNSET_AUDIO_MIRROR);
-        pw.println("\t  unsets audio mirror with zones [zoneId],");
-        pw.println("\t  [zoneId] must be a valid zone id");
+        pw.printf("\t%s [value] [--requestId]\n", COMMAND_UNSET_AUDIO_MIRROR);
+        pw.println("\t  unsets audio mirror for zone [value],");
+        pw.println("\t  [value] must be a valid zone id");
+        pw.println("\t  use --requestId to disable a request id instead");
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
         pw.println("\tstop-fixed-mode displayId");
@@ -986,8 +987,20 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.decreaseIndent();
     }
 
-    private void runUnsetAudioMirror(String zoneIdString, IndentingPrintWriter writer) {
-        int zoneId = Integer.parseInt(zoneIdString);
+    private void runUnsetAudioMirror(String[] args, IndentingPrintWriter writer) {
+        boolean useConfig = false;
+        for (int i = 2; i < args.length; i++) {
+            String arg = args[i];
+            switch (arg) {
+                case "--requestId":
+                    useConfig = true;
+                    break;
+                default:
+                    writer.println("Invalid option at index " + i + ": " + arg);
+                    return;
+            }
+        }
+        String inputString = args[1];
         if (mMirrorStatusCallback == null) {
             mMirrorStatusCallback = new AudioZoneMirrorStatusCallbackImpl();
             boolean registered = mCarAudioService.registerAudioZonesMirrorStatusCallback(
@@ -999,23 +1012,29 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         mMirrorStatusCallback.reset();
 
-        mCarAudioService.disableAudioMirrorForZone(zoneId);
+        if (useConfig) {
+            long requestId = Long.parseLong(inputString);
+            mCarAudioService.disableAudioMirror(requestId);
+        } else {
+            int zoneId = Integer.parseInt(inputString);
+            mCarAudioService.disableAudioMirrorForZone(zoneId);
+        }
 
         boolean called;
         try {
             called = mMirrorStatusCallback.waitForCallback();
         } catch (Exception e) {
             Slogf.e(TAG, e, "runUnsetAudioMirror wait for callback failed for zones %s",
-                    zoneIdString);
+                    inputString);
             return;
         }
 
         if (!called) {
-            writer.printf("Did not receive mirror status callback for zones %s\n", zoneIdString);
+            writer.printf("Did not receive mirror status callback for zones %s\n", inputString);
             return;
         }
 
-        writer.printf("Received mirror status callback for zones %s\n", zoneIdString);
+        writer.printf("Received mirror status callback for zones %s\n", inputString);
         writer.increaseIndent();
         for (int c = 0; c < mMirrorStatusCallback.mZoneIds.length; c++) {
             writer.printf("Received zone[%d] %d\n", c , mMirrorStatusCallback.mZoneIds[c]);
@@ -1226,10 +1245,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 runSetAudioMirror(args[1], args[2], writer);
                 break;
             case COMMAND_UNSET_AUDIO_MIRROR:
-                if (args.length != 2) {
+                if (args.length < 1) {
                     return showInvalidArguments(writer);
                 }
-                runUnsetAudioMirror(args[1], writer);
+                runUnsetAudioMirror(args, writer);
                 break;
             case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
                 if (args.length != 3) {

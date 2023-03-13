@@ -458,6 +458,19 @@ public final class CarServiceUtils {
         return array;
     }
 
+    /**
+     * Converts array to an array list
+     */
+    public static ArrayList<Integer> asList(int[] array) {
+        Preconditions.checkArgument(array != null, "Array to convert to list can not be null");
+        int size = array.length;
+        ArrayList<Integer> results = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            results.add(array[i]);
+        }
+        return results;
+    }
+
     public static byte[] toByteArray(List<Byte> list) {
         int size = list.size();
         byte[] array = new byte[size];
