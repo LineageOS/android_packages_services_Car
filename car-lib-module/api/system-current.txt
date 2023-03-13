@@ -2019,6 +2019,8 @@ package android.car.settings {
     field public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE = "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
     field public static final String KEY_ROTARY_KEY_EVENT_FILTER = "android.car.ROTARY_KEY_EVENT_FILTER";
     field public static final String KEY_SETUP_WIZARD_IN_PROGRESS = "android.car.SETUP_WIZARD_IN_PROGRESS";
+    field public static final String KEY_UNACCEPTED_TOS_DISABLED_APPS = "android.car.KEY_UNACCEPTED_TOS_DISABLED_APPS";
+    field public static final String KEY_USER_TOS_ACCEPTED = "android.car.KEY_USER_TOS_ACCEPTED";
     field public static final String VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.VISIBLE_USER_ALLOCATION_PER_ZONE";
   }
 
