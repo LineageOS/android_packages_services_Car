@@ -129,14 +129,15 @@ final class CarAudioDynamicRouting {
     }
 
     public static void setupAudioDynamicRoutingForMirrorDevice(
-            AudioPolicy.Builder mirrorPolicyBuilder, CarAudioDeviceInfo mirrorDevice) {
-        AudioFormat mixFormat = createMixFormatFromDevice(mirrorDevice);
+            AudioPolicy.Builder mirrorPolicyBuilder, List<CarAudioDeviceInfo> audioDeviceInfos) {
+        for (int index = 0; index < audioDeviceInfos.size(); index++) {
+            AudioFormat mixFormat = createMixFormatFromDevice(audioDeviceInfos.get(index));
+            AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
+            mixingRuleBuilder.addRule(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+                    AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
 
-        AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-        mixingRuleBuilder.addRule(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
-
-        addMix(mirrorPolicyBuilder, mirrorDevice, mixFormat, mixingRuleBuilder);
+            addMix(mirrorPolicyBuilder, audioDeviceInfos.get(index), mixFormat, mixingRuleBuilder);
+        }
     }
 
     private static AudioFormat createMixFormatFromDevice(CarAudioDeviceInfo mirrorDevice) {
