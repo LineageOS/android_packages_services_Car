@@ -29,8 +29,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.LongSparseArray;
 import android.util.SparseLongArray;
 
 import com.android.car.CarLog;
@@ -68,9 +68,12 @@ import java.util.Objects;
     private final List<CarAudioDeviceInfo> mMirrorDevices = new ArrayList<>();
     @GuardedBy("mLock")
     private final SparseLongArray mZonesToMirrorRequestId = new SparseLongArray();
+    @GuardedBy("mLock")
+    private final LongSparseArray<CarAudioDeviceInfo> mRequestIdToMirrorDevice =
+            new LongSparseArray<>();
 
     @GuardedBy("mLock")
-    private final ArrayMap<Long, int[]> mRequestIdToZones = new ArrayMap<>();
+    private final LongSparseArray<int[]> mRequestIdToZones = new LongSparseArray<>();
 
     private final RequestIdGenerator mRequestIdGenerator = new RequestIdGenerator();
 
@@ -113,10 +116,15 @@ import java.util.Objects;
         }
     }
 
-    @Nullable AudioDeviceInfo getAudioDeviceInfo() {
-        //TODO (b/265973263): Replace 0 index with a request id indexing scheme
+    @Nullable AudioDeviceInfo getAudioDeviceInfo(long requestId) {
+        Preconditions.checkArgument(requestId != INVALID_REQUEST_ID,
+                "Request id for device can not be INVALID_REQUEST_ID");
         synchronized (mLock) {
-            return mMirrorDevices.isEmpty() ? null : mMirrorDevices.get(0).getAudioDeviceInfo();
+            int index = mRequestIdToMirrorDevice.indexOfKey(requestId);
+            if (index < 0) {
+                return null;
+            }
+            return mRequestIdToMirrorDevice.valueAt(index).getAudioDeviceInfo();
         }
     }
 
@@ -155,7 +163,7 @@ import java.util.Objects;
     @Nullable
     int[] getMirrorAudioZonesForRequest(long requestId) {
         synchronized (mLock) {
-            return mRequestIdToZones.getOrDefault(requestId, /* valueIfNotFound= */ null);
+            return mRequestIdToZones.get(requestId, /* valueIfKeyNotFound= */ null);
         }
     }
 
@@ -165,7 +173,14 @@ import java.util.Objects;
         }
     }
 
-    void rejectMirrorForZones(int[] audioZones) {
+    void rejectMirrorForZones(long requestId, int[] audioZones) {
+        Objects.requireNonNull(audioZones, "Rejected audio zones can not be null");
+        Preconditions.checkArgument(audioZones.length > 1,
+                "Rejected audio zones must be greater than one");
+
+        synchronized (mLock) {
+            releaseRequestIdLocked(requestId);
+        }
         mHandler.post(() ->
                 handleInformCallbacks(audioZones, CarAudioManager.AUDIO_REQUEST_STATUS_REJECTED));
     }
@@ -174,7 +189,7 @@ import java.util.Objects;
         ArraySet<Integer> newConfigSet = CarServiceUtils.toIntArraySet(newConfig);
         ArrayList<Integer> delta = new ArrayList<>();
         synchronized (mLock) {
-            int[] prevConfig = mRequestIdToZones.getOrDefault(requestId, new int[0]);
+            int[] prevConfig = mRequestIdToZones.get(requestId, new int[0]);
             for (int index = 0; index < prevConfig.length; index++) {
                 int zoneId = prevConfig[index];
                 mZonesToMirrorRequestId.delete(zoneId);
@@ -185,7 +200,7 @@ import java.util.Objects;
             }
             if (newConfig.length == 0) {
                 mRequestIdToZones.remove(requestId);
-                mRequestIdGenerator.releaseRequestId(requestId);
+                releaseRequestIdLocked(requestId);
             } else {
                 mRequestIdToZones.put(requestId, newConfig);
             }
@@ -214,11 +229,11 @@ import java.util.Objects;
         int[] oldConfig;
 
         synchronized (mLock) {
-            oldConfig = mRequestIdToZones.getOrDefault(requestId, null);
+            oldConfig = mRequestIdToZones.get(requestId, /* valueIfKeyNotFound= */ null);
         }
 
         if (oldConfig == null) {
-            Slogf.w(TAG, "calculateAudioConfingurationAfterRemovingZonesFromRequestId Request "
+            Slogf.w(TAG, "calculateAudioConfigurationAfterRemovingZonesFromRequestId Request "
                     + "id %d is no longer valid");
             return null;
         }
@@ -235,8 +250,15 @@ import java.util.Objects;
         return CarServiceUtils.toIntArray(newConfig);
     }
 
-    long getUniqueRequestId() {
-        return mRequestIdGenerator.generateUniqueRequestId();
+    long getUniqueRequestIdAndAssignMirrorDevice() {
+        long requestId = mRequestIdGenerator.generateUniqueRequestId();
+        synchronized (mLock) {
+            if (assignAvailableDeviceToRequestIdLocked(requestId)) {
+                return requestId;
+            }
+            releaseRequestIdLocked(requestId);
+        }
+        return INVALID_REQUEST_ID;
     }
 
     long getRequestIdForAudioZone(int audioZoneId) {
@@ -245,9 +267,9 @@ import java.util.Objects;
         }
     }
 
-    public void verifyValidRequestId(long requestId) {
+    void verifyValidRequestId(long requestId) {
         synchronized (mLock) {
-            Preconditions.checkArgument(mRequestIdToZones.containsKey(requestId),
+            Preconditions.checkArgument(mRequestIdToZones.indexOfKey(requestId) >= 0,
                     "Mirror request id " + requestId + " is not valid");
         }
     }
@@ -264,21 +286,47 @@ import java.util.Objects;
             writer.println("Mirroring device info:");
             dumpMirrorDeviceInfosLocked(writer);
             writer.printf("Registered callback count: %d\n", registeredCount);
-            writer.println("Mirroring configurations:");
-            writer.increaseIndent();
-            for (int index = 0; index < mRequestIdToZones.size(); index++) {
-                writer.printf("Audio zone request id %d: %s\n", mRequestIdToZones.keyAt(index),
-                        Arrays.toString(mRequestIdToZones.valueAt(index)));
-            }
-            writer.decreaseIndent();
-            writer.println("Mirroring zone to id mapping:");
-            writer.increaseIndent();
-            for (int index = 0; index < mZonesToMirrorRequestId.size(); index++) {
-                writer.printf("Audio zone %d: request id %d\n",
-                        mZonesToMirrorRequestId.keyAt(index),
-                        mZonesToMirrorRequestId.valueAt(index));
-            }
-            writer.decreaseIndent();
+            dumpMirroringConfigurationsLocked(writer);
+            dumpZonesToIdMappingLocked(writer);
+            dumpMirrorDeviceMappingLocked(writer);
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpMirroringConfigurationsLocked(IndentingPrintWriter writer) {
+        writer.println("Mirroring configurations:");
+        writer.increaseIndent();
+        for (int index = 0; index < mRequestIdToZones.size(); index++) {
+            writer.printf("Audio zone request id %d: %s\n", mRequestIdToZones.keyAt(index),
+                    Arrays.toString(mRequestIdToZones.valueAt(index)));
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpZonesToIdMappingLocked(IndentingPrintWriter writer) {
+        writer.println("Mirroring zone to id mapping:");
+        writer.increaseIndent();
+        for (int index = 0; index < mZonesToMirrorRequestId.size(); index++) {
+            writer.printf("Audio zone %d: request id %d\n",
+                    mZonesToMirrorRequestId.keyAt(index),
+                    mZonesToMirrorRequestId.valueAt(index));
+        }
+        writer.decreaseIndent();
+    }
+
+    @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpMirrorDeviceMappingLocked(IndentingPrintWriter writer) {
+        writer.println("Mirroring device to id mapping:");
+        writer.increaseIndent();
+        for (int index = 0; index < mRequestIdToMirrorDevice.size(); index++) {
+            writer.printf("Mirror device %s: request id %d\n",
+                    mRequestIdToMirrorDevice.valueAt(index),
+                    mRequestIdToMirrorDevice.keyAt(index));
         }
         writer.decreaseIndent();
     }
@@ -291,6 +339,27 @@ import java.util.Objects;
             writer.increaseIndent();
             mMirrorDevices.get(index).dump(writer);
             writer.decreaseIndent();
+        }
+    }
+
+    @GuardedBy("mLock")
+    private boolean assignAvailableDeviceToRequestIdLocked(long requestId) {
+        for (int index = 0; index < mMirrorDevices.size(); index++) {
+            CarAudioDeviceInfo info = mMirrorDevices.get(index);
+            if (mRequestIdToMirrorDevice.indexOfValue(info) >= 0) {
+                continue;
+            }
+            mRequestIdToMirrorDevice.put(requestId, info);
+            return true;
+        }
+        return false;
+    }
+
+    @GuardedBy("mLock")
+    private void releaseRequestIdLocked(long requestId) {
+        mRequestIdGenerator.releaseRequestId(requestId);
+        synchronized (mLock) {
+            mRequestIdToMirrorDevice.remove(requestId);
         }
     }
 }
