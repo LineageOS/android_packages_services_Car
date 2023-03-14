@@ -188,6 +188,10 @@ public final class MirroredSurfaceView extends SurfaceView {
     }
 
     private void removeMirroredSurface() {
+        if (mMirroredSurface == null) {
+            Slog.w(TAG, "Skip removeMirroredSurface() on null Surface.");
+            return;
+        }
         mTransaction.reparent(mMirroredSurface, null).apply();
         mMirroredSurface.release();
         mMirroredSurface = null;
