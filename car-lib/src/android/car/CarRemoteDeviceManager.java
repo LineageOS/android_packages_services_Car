@@ -24,20 +24,19 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.annotation.ApiRequirements;
+import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IStateCallback;
 import android.content.pm.PackageInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
-import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -206,42 +205,54 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     }
 
     private final Object mLock = new Object();
-
-    @GuardedBy("mLock")
-    private final ArrayMap<StateCallback, Executor> mCallbackToExecutorMap =
-            new ArrayMap<>();
-
-    @GuardedBy("mLock")
-    private final ArrayMap<OccupantZoneInfo, Integer> mOccupantZoneStates = new ArrayMap<>();
-
-    private final IStateCallback mBinderCallback =
-            new IStateCallback.Stub() {
-                @Override
-                public void onOccupantZoneStateChanged(OccupantZoneInfo occupantZone,
-                        int occupantZoneStates) {
-                    ArrayMap<StateCallback, Executor> callbacks;
-                    synchronized (mLock) {
-                        callbacks = new ArrayMap<>(mCallbackToExecutorMap);
-                        mOccupantZoneStates.put(occupantZone, occupantZoneStates);
-                    }
-                    for (Map.Entry<StateCallback, Executor> entry :
-                            callbacks.entrySet()) {
-                        StateCallback callback = entry.getKey();
-                        Executor executor = entry.getValue();
-                        executor.execute(() -> callback.onOccupantZoneStateChanged(
-                                occupantZone, occupantZoneStates));
-                    }
-                }
-
-                @Override
-                public void onAppStateChanged(OccupantZoneInfo occupantZone,
-                        int appStates) {
-                    //TODO(b/257118072): implement this method.
-                }
-            };
-
     private final ICarOccupantConnection mService;
     private final String mPackageName;
+
+    @GuardedBy("mLock")
+    private StateCallback mCallback;
+    @GuardedBy("mLock")
+    private Executor mCallbackExecutor;
+
+    private final IStateCallback mBinderCallback = new IStateCallback.Stub() {
+        @Override
+        public void onOccupantZoneStateChanged(OccupantZoneInfo occupantZone,
+                int occupantZoneStates) {
+            StateCallback callback;
+            Executor callbackExecutor;
+            synchronized (CarRemoteDeviceManager.this.mLock) {
+                callback = mCallback;
+                callbackExecutor = mCallbackExecutor;
+            }
+            if (callback == null || callbackExecutor == null) {
+                // This should never happen, but let's be cautious.
+                Slogf.e(TAG, "Failed to notify occupant zone state change because "
+                        + "the callback was unregistered! callback: " + callback
+                        + ", callbackExecutor: " + callbackExecutor);
+                return;
+            }
+            callbackExecutor.execute(() -> callback.onOccupantZoneStateChanged(
+                    occupantZone, occupantZoneStates));
+        }
+
+        @Override
+        public void onAppStateChanged(OccupantZoneInfo occupantZone, int appStates) {
+            StateCallback callback;
+            Executor callbackExecutor;
+            synchronized (CarRemoteDeviceManager.this.mLock) {
+                callback = mCallback;
+                callbackExecutor = mCallbackExecutor;
+            }
+            if (callback == null || callbackExecutor == null) {
+                // This should never happen, but let's be cautious.
+                Slogf.e(TAG, "Failed to notify app state change because the "
+                        + "callback was unregistered! callback: " + callback
+                        + ", callbackExecutor: " + callbackExecutor);
+                return;
+            }
+            callbackExecutor.execute(() ->
+                    callback.onAppStateChanged(occupantZone, appStates));
+        }
+    };
 
     /** @hide */
     public CarRemoteDeviceManager(Car car, IBinder service) {
@@ -256,8 +267,8 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
         synchronized (mLock) {
-            mCallbackToExecutorMap.clear();
-            mOccupantZoneStates.clear();
+            mCallback = null;
+            mCallbackExecutor = null;
         }
     }
 
@@ -277,42 +288,25 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void registerStateCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull StateCallback callback) {
-        //TODO(b/257118072): update this method for the callback update.
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
         ArrayMap<OccupantZoneInfo, Integer> occupantZoneStates;
         synchronized (mLock) {
-            Preconditions.checkState(!mCallbackToExecutorMap.containsKey(callback),
-                    "The OccupantZoneStateCallback was registered already");
-            if (mCallbackToExecutorMap.isEmpty()) {
-                // This is the first client callback, so register the mBinderCallback.
-                // The client callback will be invoked when mBinderCallback is invoked.
-                try {
-                    mService.registerStateCallback(mBinderCallback);
-                    // Put the callback into the map only when the remote call succeeded, otherwise
-                    // it may get stuck in a bad state permanently.
-                    mCallbackToExecutorMap.put(callback, executor);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to register StateCallback");
-                    handleRemoteExceptionFromCarService(e);
-                }
-                return;
+            Preconditions.checkState(mCallback == null,
+                    "A StateCallback was registered already");
+            try {
+                mService.registerStateCallback(mPackageName, mBinderCallback);
+                mCallback = callback;
+                mCallbackExecutor = executor;
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to register StateCallback");
+                handleRemoteExceptionFromCarService(e);
             }
-            occupantZoneStates = new ArrayMap<>(mOccupantZoneStates);
-        }
-        // This is not the first client callback, so mBinderCallback was already registered,
-        // thus it won't invoke the client callback unless there is a state change.
-        // So invoked the client callback with the cached states now.
-        for (Map.Entry<OccupantZoneInfo, Integer> entry : occupantZoneStates.entrySet()) {
-            OccupantZoneInfo occupantZone = entry.getKey();
-            Integer occupantZoneState = entry.getValue();
-            executor.execute(
-                    () -> callback.onOccupantZoneStateChanged(occupantZone, occupantZoneState));
         }
     }
 
     /**
-     * Unregisters the existing {@code callback}.
+     * Unregisters the existing {@link StateCallback}.
      * <p>
      * This method can be called after calling {@link #registerStateCallback}, as soon
      * as this caller no longer needs to monitor other occupant zones or becomes inactive.
@@ -325,19 +319,17 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
-    public void unregisterStateCallback(@NonNull StateCallback callback) {
-        Objects.requireNonNull(callback, "callback cannot be null");
+    public void unregisterStateCallback() {
         synchronized (mLock) {
-            Preconditions.checkState(mCallbackToExecutorMap.containsKey(callback),
-                    "The StateCallback was not registered before");
-            mCallbackToExecutorMap.remove(callback);
-            if (mCallbackToExecutorMap.isEmpty()) {
-                try {
-                    mService.unregisterStateCallback();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "Failed to unregister OccupantZoneStateCallback");
-                    handleRemoteExceptionFromCarService(e);
-                }
+            Preconditions.checkState(mCallback != null, "There is no StateCallback "
+                    + "registered by this CarRemoteDeviceManager");
+            mCallback = null;
+            mCallbackExecutor = null;
+            try {
+                mService.unregisterStateCallback(mPackageName);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to unregister StateCallback");
+                handleRemoteExceptionFromCarService(e);
             }
         }
     }
@@ -355,7 +347,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
         try {
             return mService.getEndpointPackageInfo(occupantZone.zoneId, mPackageName);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to get peer endpoint PackageInfo in " + occupantZone);
+            Slogf.e(TAG, "Failed to get peer endpoint PackageInfo in " + occupantZone);
             return handleRemoteExceptionFromCarService(e, null);
         }
     }
@@ -379,7 +371,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
         try {
             mService.setOccupantZonePower(occupantZone, powerOn);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to control the power of " + occupantZone);
+            Slogf.e(TAG, "Failed to control the power of " + occupantZone);
             handleRemoteExceptionFromCarService(e);
         }
     }
@@ -396,7 +388,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
         try {
             return mService.isOccupantZonePowerOn(occupantZone);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to get power state of " + occupantZone);
+            Slogf.e(TAG, "Failed to get power state of " + occupantZone);
             return handleRemoteExceptionFromCarService(e, false);
         }
     }

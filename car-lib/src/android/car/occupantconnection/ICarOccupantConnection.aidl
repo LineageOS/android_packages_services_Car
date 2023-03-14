@@ -30,8 +30,8 @@ import java.util.List;
 interface ICarOccupantConnection {
 
     // The following callbacks are used by CarRemoteDeviceManager.
-    void registerStateCallback(in IStateCallback callback);
-    void unregisterStateCallback();
+    void registerStateCallback(String packageName, in IStateCallback callback);
+    void unregisterStateCallback(String packageName);
 
     PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName);
 
