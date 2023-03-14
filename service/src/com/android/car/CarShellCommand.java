@@ -3916,7 +3916,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-        int displayId = CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId);
+        int displayId = CarServiceHelperWrapper.getInstance().getMainDisplayAssignedToUser(userId);
         if (displayId == Display.INVALID_DISPLAY) {
             writer.println("none");
         } else {
