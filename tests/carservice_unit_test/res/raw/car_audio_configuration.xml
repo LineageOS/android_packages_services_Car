@@ -174,5 +174,29 @@
                 </zoneConfig>
             </zoneConfigs>
         </zone>
+        <zone name="rear row three zone" audioZoneId="4" occupantZoneId="5">
+            <zoneConfigs>
+                <zoneConfig  name="rear row three zone config 1" isDefault="true">
+                    <volumeGroups>
+                        <group>
+                            <device address="rear_row_three_zone_bus_1">
+                                <context context="music"/>
+                                <context context="navigation"/>
+                                <context context="voice_command"/>
+                                <context context="call_ring"/>
+                                <context context="call"/>
+                                <context context="alarm"/>
+                                <context context="system_sound"/>
+                                <context context="notification"/>
+                                <context context="emergency"/>
+                                <context context="safety"/>
+                                <context context="vehicle_status"/>
+                                <context context="announcement"/>
+                            </device>
+                        </group>
+                    </volumeGroups>
+                </zoneConfig>
+            </zoneConfigs>
+        </zone>
     </zones>
 </carAudioConfiguration>
