@@ -651,22 +651,6 @@ final class AidlVehicleStub extends VehicleStub {
         Trace.traceEnd(TRACE_TAG);
     }
 
-    private static int convertHalToCarPropertyManagerError(int errorCode) {
-        switch (errorCode) {
-            case StatusCode.NOT_AVAILABLE:
-            case StatusCode.NOT_AVAILABLE_DISABLED:
-            case StatusCode.NOT_AVAILABLE_SPEED_LOW:
-            case StatusCode.NOT_AVAILABLE_SPEED_HIGH:
-            case StatusCode.NOT_AVAILABLE_POOR_VISIBILITY:
-            case StatusCode.NOT_AVAILABLE_SAFETY:
-                return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
-            case StatusCode.TRY_AGAIN:
-                return STATUS_TRY_AGAIN;
-            default:
-                return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
-        }
-    }
-
     private static String printPropIdAreaId(HalPropValue value) {
         return "propID: " + value.getPropId() + ", areaID: " + value.getAreaId();
     }

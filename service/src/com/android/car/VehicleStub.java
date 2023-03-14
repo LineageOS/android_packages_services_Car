@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
+import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
@@ -379,4 +380,22 @@ public abstract class VehicleStub {
      * @param requestIds a list of async get/set request IDs.
      */
     public void cancelRequests(List<Integer> requestIds) {}
+
+    protected static int convertHalToCarPropertyManagerError(int errorCode) {
+        switch (errorCode) {
+            case StatusCode.OK:
+                return STATUS_OK;
+            case StatusCode.NOT_AVAILABLE:
+            case StatusCode.NOT_AVAILABLE_DISABLED:
+            case StatusCode.NOT_AVAILABLE_SPEED_LOW:
+            case StatusCode.NOT_AVAILABLE_SPEED_HIGH:
+            case StatusCode.NOT_AVAILABLE_POOR_VISIBILITY:
+            case StatusCode.NOT_AVAILABLE_SAFETY:
+                return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+            case StatusCode.TRY_AGAIN:
+                return STATUS_TRY_AGAIN;
+            default:
+                return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
+        }
+    }
 }
