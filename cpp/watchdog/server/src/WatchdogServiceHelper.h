@@ -69,9 +69,6 @@ public:
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>*
                     packageInfos) = 0;
-    virtual ndk::ScopedAStatus latestIoOveruseStats(
-            const std::vector<aidl::android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    packageIoOveruseStats) = 0;
     virtual ndk::ScopedAStatus resetResourceOveruseStats(
             const std::vector<std::string>& packageNames) = 0;
     virtual ndk::ScopedAStatus getTodayIoUsageStats(
@@ -120,9 +117,6 @@ public:
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>* packageInfos)
             override;
-    ndk::ScopedAStatus latestIoOveruseStats(
-            const std::vector<aidl::android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    packageIoOveruseStats) override;
     ndk::ScopedAStatus resetResourceOveruseStats(
             const std::vector<std::string>& packageNames) override;
     ndk::ScopedAStatus getTodayIoUsageStats(

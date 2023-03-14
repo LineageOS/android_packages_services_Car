@@ -36,6 +36,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::aidl::android::automotive::watchdog::internal::ResourceStats;
 using ::android::wp;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -487,7 +488,8 @@ Result<void> PerformanceProfiler::onSystemStartup() {
 
 Result<void> PerformanceProfiler::onBoottimeCollection(
         time_t time, const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector) {
+        const wp<ProcStatCollectorInterface>& procStatCollector,
+        [[maybe_unused]] ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
@@ -502,7 +504,8 @@ Result<void> PerformanceProfiler::onBoottimeCollection(
 Result<void> PerformanceProfiler::onPeriodicCollection(
         time_t time, [[maybe_unused]] SystemState systemState,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector) {
+        const wp<ProcStatCollectorInterface>& procStatCollector,
+        [[maybe_unused]] ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     clearExpiredSystemEventCollections(time);
@@ -563,7 +566,8 @@ Result<void> PerformanceProfiler::onCustomCollection(
         time_t time, [[maybe_unused]] SystemState systemState,
         const std::unordered_set<std::string>& filterPackages,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector) {
+        const wp<ProcStatCollectorInterface>& procStatCollector,
+        [[maybe_unused]] ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);

@@ -47,12 +47,12 @@ Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
     if (auto result = startWatchdogProcessService(mainLooper); !result.ok()) {
         return result;
     }
-    if (auto result = startWatchdogPerfService(); !result.ok()) {
-        return result;
-    }
     mWatchdogServiceHelper = sp<WatchdogServiceHelper>::make();
     if (auto result = mWatchdogServiceHelper->init(mWatchdogProcessService); !result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
+    }
+    if (auto result = startWatchdogPerfService(mWatchdogServiceHelper); !result.ok()) {
+        return result;
     }
     if (auto result = packageInfoResolver->initWatchdogServiceHelper(mWatchdogServiceHelper);
         !result.ok()) {
@@ -100,8 +100,9 @@ Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& mainL
     return {};
 }
 
-Result<void> ServiceManager::startWatchdogPerfService() {
-    mWatchdogPerfService = sp<WatchdogPerfService>::make();
+Result<void> ServiceManager::startWatchdogPerfService(
+        const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) {
+    mWatchdogPerfService = sp<WatchdogPerfService>::make(watchdogServiceHelper);
     if (auto result = mWatchdogPerfService->registerDataProcessor(sp<PerformanceProfiler>::make());
         !result.ok()) {
         return Error() << "Failed to register performance profiler: " << result.error();
