@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_TESTS_MOCKWATCHDOGPERFSERVICE_H_
 
 #include "WatchdogPerfService.h"
+#include "WatchdogServiceHelper.h"
 
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>

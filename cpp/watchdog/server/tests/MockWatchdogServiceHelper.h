@@ -63,10 +63,6 @@ public:
                 (const std::vector<int32_t>&, const std::vector<std::string>&,
                  std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
-    MOCK_METHOD(ndk::ScopedAStatus, latestIoOveruseStats,
-                (const std::vector<
-                        aidl::android::automotive::watchdog::internal::PackageIoOveruseStats>&),
-                (override));
     MOCK_METHOD(ndk::ScopedAStatus, resetResourceOveruseStats, (const std::vector<std::string>&),
                 (override));
     MOCK_METHOD(

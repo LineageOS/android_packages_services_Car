@@ -80,7 +80,8 @@ private:
 
     void terminateServices();
     android::base::Result<void> startWatchdogProcessService(const android::sp<Looper>& mainLooper);
-    android::base::Result<void> startWatchdogPerfService();
+    android::base::Result<void> startWatchdogPerfService(
+            const sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
 
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
