@@ -17,7 +17,6 @@
 
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -34,48 +33,43 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <FrameLayout
-                android:id="@+id/exit_button_container"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:visibility="gone"/>
-
-            <TextView
-                android:id="@+id/empty_notification_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toTopOf="@id/manage_button"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_chainStyle="packed"
-                android:text="@string/empty_notification_header"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:visibility="gone"/>
-
-            <Button
-                android:id="@+id/manage_button"
-                style="@style/ManageButton"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/manage_button_height"
-                android:layout_marginTop="@dimen/manage_button_top_margin"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/empty_notification_text"
-                app:layout_constraintVertical_chainStyle="packed"
-                android:text="@string/manage_text"
-                android:visibility="gone"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/notifications"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/notification_center_title"/>
+                android:layout_height="match_parent">
+
+                <FrameLayout
+                    android:id="@+id/exit_button_container"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:visibility="gone"/>
+
+                <TextView
+                    android:id="@+id/empty_notification_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/empty_notification_header"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:visibility="gone"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/notifications"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:orientation="vertical"/>
+
+                <Button
+                    android:id="@+id/manage_button"
+                    style="@style/ManageButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/manage_button_height"
+                    android:layout_marginTop="@dimen/manage_button_top_margin"
+                    android:layout_below="@+id/notifications"
+                    android:layout_alignParentStart="true"
+                    android:text="@string/manage_text"
+                    android:visibility="gone"/>
+            </RelativeLayout>
         </com.android.car.notification.CarNotificationView>
     </com.android.car.ui.FocusArea>
 </FrameLayout>
