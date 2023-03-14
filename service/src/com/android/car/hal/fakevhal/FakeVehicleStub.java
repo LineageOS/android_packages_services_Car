@@ -18,6 +18,7 @@ package com.android.car.hal.fakevhal;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
@@ -188,7 +189,30 @@ public final class FakeVehicleStub extends VehicleStub {
     @Override
     public void getAsync(List<AsyncGetSetRequest> getVehicleStubAsyncRequests,
             VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
-        // TODO(b/238646350)
+        List<GetVehicleStubAsyncResult> onGetAsyncResultList = new ArrayList<>();
+        for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
+            AsyncGetSetRequest request = getVehicleStubAsyncRequests.get(i);
+            GetVehicleStubAsyncResult result;
+            try {
+                HalPropValue halPropValue = get(request.getHalPropValue());
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                    halPropValue);
+                if (halPropValue == null) {
+                    result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+                }
+            } catch (ServiceSpecificException e) {
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                        convertHalToCarPropertyManagerError(e.errorCode));
+            } catch (RemoteException e) {
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+            }
+            onGetAsyncResultList.add(result);
+        }
+        mHandler.post(() -> {
+            getVehicleStubAsyncCallback.onGetAsyncResults(onGetAsyncResultList);
+        });
     }
 
     /**
