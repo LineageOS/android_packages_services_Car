@@ -36,6 +36,7 @@
           <item type="integer" name="audioVolumeAdjustmentContextsVersion"/>
           <item type="bool" name="audioPersistMasterMuteState"/>
           <item type="integer" name="audioVolumeKeyEventTimeoutMs"/>
+          <item type="bool" name="audioUseCarVolumeGroupEvent"/>
           <item type="bool" name="displayOffMuteLockAllAudio"/>
           <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
           <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
