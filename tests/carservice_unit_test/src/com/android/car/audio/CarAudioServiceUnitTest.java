@@ -3029,7 +3029,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
                 MEDIA_TEST_DEVICE, TEST_GAIN_INDEX);
 
-        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.THERMAL_LIMITATION), List.of(carGain));
 
         expectWithMessage("New audio gains for primary zone")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
@@ -3043,7 +3043,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(TEST_REAR_LEFT_ZONE_ID,
                 SECONDARY_TEST_DEVICE_1, TEST_GAIN_INDEX);
 
-        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.THERMAL_LIMITATION), List.of(carGain));
 
         expectWithMessage("New audio gains for secondary zone")
                 .that(mCarAudioService.getGroupVolume(TEST_REAR_LEFT_ZONE_ID, TEST_PRIMARY_GROUP))
@@ -3058,7 +3058,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
                 SECONDARY_TEST_DEVICE_1, TEST_GAIN_INDEX);
 
-        callback.onAudioDeviceGainsChanged(List.of(Reasons.REMOTE_MUTE), List.of(carGain));
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.THERMAL_LIMITATION), List.of(carGain));
 
         expectWithMessage("Same audio gains for primary zone")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP))
