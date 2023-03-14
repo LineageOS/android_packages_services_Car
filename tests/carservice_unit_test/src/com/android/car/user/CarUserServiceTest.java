@@ -2442,6 +2442,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testInitBootUser_halNotSupported() {
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockUserHalSupported(false);
 
         mCarUserService.initBootUser();
@@ -2455,6 +2456,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testInitBootUser_halNullResponse() throws Exception {
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mockHalGetInitialInfo(mAdminUserId, null);
 
@@ -2468,6 +2470,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testInitBootUser_halDefaultResponse() throws Exception {
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mGetUserInfoResponse.userLocales = "LOL";
@@ -2485,6 +2488,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testInitBootUser_halSwitchResponse() throws Exception {
         int switchUserId = mGuestUserId;
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
@@ -2503,6 +2507,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testInitBootUser_halCreateResponse() throws Exception {
         int newUserFlags = 42;
         String newUserName = "TheDude";
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
