@@ -354,6 +354,7 @@
     </install-in-user-type>
     <install-in-user-type package="com.android.permissioncontroller.car.rro">
         <install-in user-type="FULL" />
+        <install-in user-type="PROFILE" />
     </install-in-user-type>
     <install-in-user-type package="com.android.uwb.resources">
         <install-in user-type="FULL" />
@@ -402,5 +403,6 @@
     <install-in-user-type package="com.android.permissioncontroller">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
+        <install-in user-type="PROFILE" />
     </install-in-user-type>
 </config>

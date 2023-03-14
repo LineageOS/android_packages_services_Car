@@ -33,6 +33,10 @@
     <string name="car_permission_label_control_car_energy">Control car\u2019s EV charge settings</string>
     <!-- Permission text: can control your car's EV charge settings [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_energy">Control your car\u2019s EV charge settings.</string>
+    <!-- Permission text: can control oem car service binding [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_oem_car_service" translatable="false">Controls OEM Car Service binding</string>
+    <!-- Permission text: can control oem car service binding [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_oem_car_service" translatable="false">Controls which service can bind to OemCarService</string>
     <!-- Permission text: can adjust value of your car's range remaining [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_adjust_range_remaining">adjust car\u2019s range remaining</string>
     <!-- Permission text: can adjust value of your car's range remaining [CHAR LIMIT=NONE] -->

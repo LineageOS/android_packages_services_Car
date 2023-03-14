@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"ระบบจะลบข้อมูลในอุปกรณ์ของคุณ"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"ใช้แอปผู้ดูแลระบบนี้ไม่ได้ ขณะนี้ระบบจะลบข้อมูลในอุปกรณ์ของคุณ\n\nโปรดติดต่อผู้ดูแลระบบขององค์กรหากมีคำถาม"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> กำลังส่งผลต่อประสิทธิภาพการทำงานของระบบ"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"ปิดใช้แอปเพื่อเพิ่มประสิทธิภาพระบบ คุณเปิดใช้แอปได้อีกครั้งในการตั้งค่า"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"ตั้งเป็นแอปสำคัญเพื่อใช้แอปต่อไป"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"ถอนการติดตั้งแอปเพื่อเพิ่มประสิทธิภาพระบบ"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"ปิดใช้แอป"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"แอปนี้ถูกป้องกันไม่ให้ทำงานอยู่เบื้องหลัง ตั้งเป็นแอปสำคัญเพื่อใช้งานเบื้องหลังต่อไป"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"ปิด"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ตั้งเป็นแอปสำคัญ"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"ถอนการติดตั้งแอป"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"ปิดใช้ <xliff:g id="ID_1">^1</xliff:g> แล้ว คุณจะเปิดใช้ได้อีกครั้งในการตั้งค่า"</string>
 </resources>

@@ -19,13 +19,15 @@ package android.car.hardware.property;
 import static java.lang.Integer.toHexString;
 
 /**
- * Exception thrown when device that associated with the vehicle property is temporarily
- * not available because of the current state of cars. For example, applications try to change
- * HVAC fan speed when the HVAC system is power off.
+ * Exception thrown when the vehicle property is not available because of the current state of the
+ * vehicle.
+ *
+ * <p>For example, {@link android.car.VehiclePropertyIds#HVAC_FAN_SPEED} is unavailable because
+ * {@link android.car.VehiclePropertyIds#HVAC_POWER_ON} is {@code false}.
  */
 public class PropertyNotAvailableException extends IllegalStateException {
     PropertyNotAvailableException(int property, int areaId) {
         super("Property 0x" + toHexString(property) + " with area: " + toHexString(areaId)
-                + " is temporarily not available because the current state of cars.");
+                + " is not available because of the current state of the vehicle.");
     }
 }

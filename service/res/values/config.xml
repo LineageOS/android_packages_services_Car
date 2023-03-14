@@ -490,4 +490,38 @@
     <!-- How many milli-seconds CarService should wait before managing pre-created users after
          system start. This property only applied when config_userPreCreationStage flag is 2. -->
     <integer name="config_userPreCreationDelay">5000</integer>
+
+    <!-- This is the component name for the OEM customization service. OEM can choose to implement
+         this service to customize car service behavior for different policies. If OEMs choose to
+         implement it, they have to implement a service extending OemCarService exposed by car-lib,
+         and implement the needed component services.
+         If the component name is invalid, CarService would not connect to any OEM service.
+         Component name can not be a third party package. It should be pre-installed -->
+   <string name="config_oemCarService" translatable="false"></string>
+
+    <!-- Related to OEM customization service. How many milliseconds CarService should wait for
+         OEM service to connect. If `config_oemCarService` is set and oem service package exists,
+         then CarService would wait for this much time for OEM service to connect. If OEM service
+         doesn't connect within this time, CarService would crash itself. -->
+    <integer name="config_oemCarService_connection_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. How many milliseconds CarService should wait for
+         OEM service to be ready. This is the wait time after OEM service is connected to
+         CarService. CarService would poll OEM service for being ready, if OEM service not ready
+         within timeout, CarService would crash. -->
+    <integer name="config_oemCarService_serviceReady_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. Default timeout for calls made by CarService to
+         OEM service. After this, CarService would timeout the call. If OEM service returns the
+         results after timeout, it would be ignored. -->
+    <integer name="config_oemCarService_regularCall_timeout_ms">5000</integer>
+
+    <!-- Related to OEM customization service. Default timeout for critical calls made by CarService
+         to OEM service. After this timeout, CarService would itself and OEM Service. -->
+    <integer name="config_oemCarService_crashCall_timeout_ms">10000</integer>
+
+    <!-- Related to OEM customization service. Default thread pool size for communicating with the
+         OEM Service. The value can only be between 8 and 16. If value is higher than 16, thread
+         pool size will be 16. If value is lower than 8, thread pool size will be 8.-->
+    <integer name="config_oemCarService_thread_pool_size">8</integer>
 </resources>

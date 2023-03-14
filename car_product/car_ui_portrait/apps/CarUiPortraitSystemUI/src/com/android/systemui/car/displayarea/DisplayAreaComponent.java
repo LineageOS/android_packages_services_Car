@@ -34,7 +34,7 @@ import javax.inject.Inject;
  * Dagger Subcomponent for DisplayAreas within SysUI.
  */
 @SysUISingleton
-public class DisplayAreaComponent extends CoreStartable {
+public class DisplayAreaComponent implements CoreStartable {
     public static final String TAG = "DisplayAreaComponent";
     // action name for the intent when to update the foreground DA visibility
     public static final String DISPLAY_AREA_VISIBILITY_CHANGED =
@@ -50,7 +50,6 @@ public class DisplayAreaComponent extends CoreStartable {
     @Inject
     public DisplayAreaComponent(Context context,
             CarDisplayAreaController carDisplayAreaController) {
-        super(context);
         mContext = context;
         mCarDisplayAreaController = carDisplayAreaController;
     }
@@ -61,6 +60,23 @@ public class DisplayAreaComponent extends CoreStartable {
         if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
             // Register the DA's
             mCarDisplayAreaController.register();
+
+            IntentFilter filter = new IntentFilter();
+            // add a receiver to listen to ACTION_BOOT_COMPLETED where we will perform tasks that
+            // require system to be ready. For example, search list of activities with a specific
+            // Intent. This cannot be done while the component is created as that is too early in
+            // the lifecycle of system starting and the results returned by package manager is
+            // not reliable. So we want to wait until system is ready before we query for list of
+            // activities.
+            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
+            mContext.registerReceiverForAllUsers(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                        mCarDisplayAreaController.updateVoicePlateActivityMap();
+                    }
+                }
+            }, filter, /* broadcastPermission= */ null, /* scheduler= */ null);
 
             IntentFilter packageChangeFilter = new IntentFilter();
             // add a receiver to listen to ACTION_PACKAGE_ADDED to perform any action when a new

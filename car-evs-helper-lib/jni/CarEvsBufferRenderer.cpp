@@ -20,19 +20,18 @@
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
-
 #include <android/hardware_buffer_jni.h>
+
 #include <jni.h>
 
 namespace {
 
-const char kClassName[] = "com/google/android/car/evs/GLES20CarEvsCameraPreviewRenderer";
+const char kClassName[] = "com/android/car/internal/evs/GLES20CarEvsBufferRenderer";
 
 EGLImageKHR gKHRImage = EGL_NO_IMAGE_KHR;
 
-jboolean nativeUpdateTexture(
-        JNIEnv* env, jobject /*thiz*/, jobject hardwareBufferObj, jint textureId) {
-
+jboolean nativeUpdateTexture(JNIEnv* env, jobject /*thiz*/, jobject hardwareBufferObj,
+                             jint textureId) {
     EGLDisplay eglCurrentDisplay = eglGetCurrentDisplay();
     if (gKHRImage != EGL_NO_IMAGE_KHR) {
         // Release a previous EGL image
@@ -49,11 +48,8 @@ jboolean nativeUpdateTexture(
     // Create EGL image from a native hardware buffer
     EGLClientBuffer eglBuffer = eglGetNativeClientBufferANDROID(nativeBuffer);
     EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
-    gKHRImage = eglCreateImageKHR(eglCurrentDisplay,
-                                  EGL_NO_CONTEXT,
-                                  EGL_NATIVE_BUFFER_ANDROID,
-                                  eglBuffer,
-                                  eglImageAttributes);
+    gKHRImage = eglCreateImageKHR(eglCurrentDisplay, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID,
+                                  eglBuffer, eglImageAttributes);
     if (gKHRImage == EGL_NO_IMAGE_KHR) {
         return JNI_FALSE;
     }
@@ -74,7 +70,7 @@ jboolean nativeUpdateTexture(
     return JNI_TRUE;
 }
 
-} // namespace unnamed
+}  // namespace
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/) {
     JNIEnv* env;
@@ -85,7 +81,7 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* /*reserved*/) {
     // Registers native methods
     static const JNINativeMethod methods[] = {
             {"nUpdateTexture", "(Landroid/hardware/HardwareBuffer;I)Z",
-                reinterpret_cast<void*>(nativeUpdateTexture)},
+             reinterpret_cast<void*>(nativeUpdateTexture)},
     };
 
     jclass clazz = env->FindClass(kClassName);

@@ -36,6 +36,7 @@ import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.Xml;
@@ -98,6 +99,7 @@ public final class PolicyReader {
     private static final String TAG_OTHER_COMPONENTS = "otherComponents";
     private static final String TAG_COMPONENT = "component";
     private static final String TAG_SYSTEM_POLICY_OVERRIDES = "systemPolicyOverrides";
+    private static final String ATTR_DEFAULT_POLICY_GROUP = "defaultPolicyGroup";
     private static final String ATTR_VERSION = "version";
     private static final String ATTR_ID = "id";
     private static final String ATTR_STATE = "state";
@@ -155,6 +157,7 @@ public final class PolicyReader {
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
     private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;
+    private String mDefaultPolicyGroupId;
 
     /**
      * Gets {@code CarPowerPolicy} corresponding to the given policy ID.
@@ -170,7 +173,8 @@ public final class PolicyReader {
      */
     @Nullable
     CarPowerPolicy getDefaultPowerPolicyForState(String groupId, int state) {
-        SparseArray<String> group = mPolicyGroups.get(groupId);
+        SparseArray<String> group = mPolicyGroups.get(
+                (groupId == null || groupId.isEmpty()) ? mDefaultPolicyGroupId : groupId);
         if (group == null) {
             return null;
         }
@@ -198,6 +202,16 @@ public final class PolicyReader {
 
     boolean isPreemptivePowerPolicy(String policyId) {
         return mPreemptivePowerPolicies.containsKey(policyId);
+    }
+
+    /**
+     * Gets default power policy group ID.
+     *
+     * @return {@code String} containing power policy group ID or {@code null} if it is not defined
+     */
+    @Nullable
+    String getDefaultPowerPolicyGroup() {
+        return mDefaultPolicyGroupId;
     }
 
     void init() {
@@ -346,6 +360,7 @@ public final class PolicyReader {
         ArrayMap<String, CarPowerPolicy> registeredPolicies = new ArrayMap<>();
         ArrayMap<String, SparseArray<String>> policyGroups = new ArrayMap<>();
         CarPowerPolicy systemPolicyOverride = null;
+        String defaultGroupPolicyId = null;
 
         int type;
         while ((type = parser.next()) != END_DOCUMENT && type != END_TAG) {
@@ -355,6 +370,8 @@ public final class PolicyReader {
                     registeredPolicies = parsePolicies(parser, true);
                     break;
                 case TAG_POLICY_GROUPS:
+                    defaultGroupPolicyId = parser.getAttributeValue(NAMESPACE,
+                            ATTR_DEFAULT_POLICY_GROUP);
                     policyGroups = parsePolicyGroups(parser);
                     break;
                 case TAG_SYSTEM_POLICY_OVERRIDES:
@@ -365,8 +382,9 @@ public final class PolicyReader {
                             + TAG_POWER_POLICY);
             }
         }
-        validatePolicyGroups(policyGroups, registeredPolicies);
+        validatePolicyGroups(policyGroups, registeredPolicies, defaultGroupPolicyId);
 
+        mDefaultPolicyGroupId = defaultGroupPolicyId;
         mRegisteredPowerPolicies = registeredPolicies;
         registerBasicPowerPolicies();
         mPolicyGroups = policyGroups;
@@ -576,7 +594,8 @@ public final class PolicyReader {
     }
 
     private void validatePolicyGroups(ArrayMap<String, SparseArray<String>> policyGroups,
-            ArrayMap<String, CarPowerPolicy> registeredPolicies) throws PolicyXmlException {
+            ArrayMap<String, CarPowerPolicy> registeredPolicies, String defaultGroupPolicyId)
+            throws PolicyXmlException {
         for (Map.Entry<String, SparseArray<String>> entry : policyGroups.entrySet()) {
             SparseArray<String> group = entry.getValue();
             for (int i = 0; i < group.size(); i++) {
@@ -586,6 +605,16 @@ public final class PolicyReader {
                             + ") contains invalid policy(id: " + policyId + ")");
                 }
             }
+        }
+
+        if ((defaultGroupPolicyId == null || defaultGroupPolicyId.isEmpty())
+                && !policyGroups.isEmpty()) {
+            Log.w(TAG, "No defaultGroupPolicyId is defined");
+        }
+
+        if (defaultGroupPolicyId != null && !policyGroups.containsKey(defaultGroupPolicyId)) {
+            throw new PolicyXmlException(
+                    "defaultGroupPolicyId is defined, but group with this ID doesn't exist ");
         }
     }
 

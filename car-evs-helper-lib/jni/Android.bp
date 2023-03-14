@@ -23,9 +23,7 @@ cc_library_shared {
 
     sdk_version: "current",
 
-    srcs: [
-        "CarEvsCameraPreviewRenderer.cpp",
-    ],
+    srcs: ["./**/*.cpp"],
 
     header_libs: ["jni_headers"],
 
@@ -43,7 +41,7 @@ cc_library_shared {
     },
 
     cflags: [
-        "-DLOG_TAG=\"CarEvsCameraRendererJNI\"",
+        "-DLOG_TAG=\"CarEvsBufferRendererJNI\"",
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
         "-Wall",

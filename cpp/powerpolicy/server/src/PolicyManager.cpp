@@ -15,6 +15,7 @@
  */
 
 #define LOG_TAG "carpowerpolicyd"
+#define DEBUG false  // STOPSHIP if true.
 
 #include "PolicyManager.h"
 
@@ -66,6 +67,7 @@ constexpr const char kTagSystemPolicyOverrides[] = "systemPolicyOverrides";
 constexpr const char kAttrBehavior[] = "behavior";
 constexpr const char kAttrId[] = "id";
 constexpr const char kAttrState[] = "state";
+constexpr const char kAttrDefaultPolicyGroup[] = "defaultPolicyGroup";
 
 // Power states.
 constexpr const char kPowerStateOn[] = "on";
@@ -324,14 +326,27 @@ Result<PolicyGroup> readPolicyGroup(
     return policyGroup;
 }
 
-Result<std::unordered_map<std::string, PolicyGroup>> readPolicyGroups(
+struct PolicyGroups {
+    std::unordered_map<std::string, PolicyGroup> groups;
+    std::string defaultGroup;
+};
+
+Result<PolicyGroups> readPolicyGroups(
         const XMLElement* pRoot,
         const std::unordered_map<std::string, CarPowerPolicyPtr>& registeredPowerPolicies) {
     const XMLElement* pPolicyGroups = pRoot->FirstChildElement(kTagPolicyGroups);
+
+    PolicyGroups policyGroups;
+
     if (pPolicyGroups == nullptr) {
-        return std::unordered_map<std::string, PolicyGroup>();
+        return policyGroups;
     }
-    std::unordered_map<std::string, PolicyGroup> policyGroups;
+
+    const char* pDefaultPolicyGroupId = nullptr;
+    pPolicyGroups->QueryStringAttribute(kAttrDefaultPolicyGroup, &pDefaultPolicyGroupId);
+    if (pDefaultPolicyGroupId != nullptr) {
+        policyGroups.defaultGroup = pDefaultPolicyGroupId;
+    }
 
     for (const XMLElement* pPolicyGroup = pPolicyGroups->FirstChildElement(kTagPolicyGroup);
          pPolicyGroup != nullptr;
@@ -345,7 +360,7 @@ Result<std::unordered_map<std::string, PolicyGroup>> readPolicyGroups(
         if (!policyGroup.ok()) {
             return Error() << policyGroup.error();
         }
-        policyGroups.emplace(policyGroupId, *policyGroup);
+        policyGroups.groups.emplace(policyGroupId, *policyGroup);
     }
     return policyGroups;
 }
@@ -475,10 +490,13 @@ Result<CarPowerPolicyMeta> PolicyManager::getPowerPolicy(const std::string& poli
 
 Result<CarPowerPolicyPtr> PolicyManager::getDefaultPowerPolicyForState(
         const std::string& groupId, VehicleApPowerStateReport state) const {
-    if (mPolicyGroups.count(groupId) == 0) {
-        return Error() << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
+    auto groupIdToUse = groupId.empty() ? mDefaultPolicyGroup : groupId;
+
+    if (mPolicyGroups.count(groupIdToUse) == 0) {
+        return Error() << StringPrintf("Power policy group %s is not found", groupIdToUse.c_str());
     }
-    PolicyGroup policyGroup = mPolicyGroups.at(groupId);
+
+    PolicyGroup policyGroup = mPolicyGroups.at(groupIdToUse);
     int32_t key = static_cast<int32_t>(state);
     if (policyGroup.count(key) == 0) {
         return Error() << StringPrintf("Policy for %s is not found", toString(state).c_str());
@@ -572,6 +590,7 @@ void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
     for (auto policy : *registeredPolicies) {
         registeredPoliciesMap.emplace(policy->policyId, policy);
     }
+
     const auto& policyGroups = readPolicyGroups(pRootElement, registeredPoliciesMap);
     if (!policyGroups.ok()) {
         logXmlError(StringPrintf("Reading power policy groups for power state failed: %s",
@@ -587,7 +606,8 @@ void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
 
     mRegisteredPowerPolicies = registeredPoliciesMap;
     initRegularPowerPolicy(/*override=*/false);
-    mPolicyGroups = *policyGroups;
+    mPolicyGroups = policyGroups->groups;
+    mDefaultPolicyGroup = policyGroups->defaultGroup;
     reconstructNoUserInteractionPolicy(*systemPolicyOverrides);
 }
 
@@ -631,6 +651,10 @@ void PolicyManager::initPreemptivePowerPolicy() {
     mPreemptivePowerPolicies.emplace(kSystemPolicyIdSuspendPrep,
                                      createPolicy(kSystemPolicyIdSuspendPrep, kNoComponents,
                                                   kSuspendPrepDisabledComponents));
+}
+
+std::string PolicyManager::getDefaultPolicyGroup() const {
+    return mDefaultPolicyGroup;
 }
 
 }  // namespace powerpolicy

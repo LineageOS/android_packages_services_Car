@@ -74,6 +74,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
+import com.android.compatibility.common.util.PollingCheck;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
@@ -315,6 +316,11 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
+
+        // Prepare for test
+        applyInitialPolicyForTest(/* policyName= */ "audio_off", /* enabledComponents= */
+                new String[]{}, /* disabledComponents= */ new String[]{"AUDIO"});
+
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
@@ -332,8 +338,10 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         mCarPowerManager.addPowerPolicyListener(mExecutor, filterLocation, listenerLocation);
         mCarPowerManager.applyPowerPolicy(policyId);
 
-        assertThat(listenerAudio.getCurrentPolicyId()).isEqualTo(policyId);
-        assertThat(listenerWifi.getCurrentPolicyId()).isEqualTo(policyId);
+        assertPowerPolicyId(listenerAudio, policyId, "Current policy ID of listenerAudio is not "
+                + policyId);
+        assertPowerPolicyId(listenerWifi, policyId, "Current policy ID of listenerWifi is not "
+                + policyId);
         assertThat(listenerLocation.getCurrentPolicyId()).isNull();
     }
 
@@ -372,6 +380,11 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void testRemovePowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
+
+        String initialPolicyId = "audio_off";
+        applyInitialPolicyForTest(initialPolicyId, /* enabledComponents= */
+                new String[]{}, /* disabledComponents= */ new String[]{"AUDIO"});
+
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyListener listenerOne = new MockedPowerPolicyListener();
@@ -384,8 +397,18 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         mCarPowerManager.removePowerPolicyListener(listenerOne);
         mCarPowerManager.applyPowerPolicy(policyId);
 
-        assertThat(listenerOne.getCurrentPolicyId()).isNull();
-        assertThat(listenerTwo.getCurrentPolicyId()).isEqualTo(policyId);
+        String receivedPolicyId = listenerOne.getCurrentPolicyId();
+        assertWithMessage("Policy ID received after removing listeners")
+                .that(receivedPolicyId == null || receivedPolicyId.equals(initialPolicyId))
+                .isTrue();
+        assertPowerPolicyId(listenerTwo, policyId, "Current policy ID of listenerTwo is not "
+                + policyId);
+    }
+
+    private void applyInitialPolicyForTest(String policyName, String[] enabledComponents,
+            String[] disabledComponents) {
+        mService.definePowerPolicy(policyName, enabledComponents, disabledComponents);
+        mCarPowerManager.applyPowerPolicy(policyName);
     }
 
     @Test
@@ -484,6 +507,12 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
             List<Integer> referenceStates) {
         assertWithMessage(message).that(states).containsExactlyElementsIn(
                 referenceStates).inOrder();
+    }
+
+    private static void assertPowerPolicyId(MockedPowerPolicyListener listener, String policyId,
+            String errorMsg) throws Exception {
+        PollingCheck.check(errorMsg, WAIT_TIMEOUT_MS,
+                () -> policyId.equals(listener.getCurrentPolicyId()));
     }
 
     private static boolean isCompletionAllowed(@CarPowerManager.CarPowerState int state) {

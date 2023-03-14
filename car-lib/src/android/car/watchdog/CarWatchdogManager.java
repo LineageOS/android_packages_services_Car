@@ -267,8 +267,8 @@ public final class CarWatchdogManager extends CarManagerBase {
                         "Cannot report client status. The client has not been registered.");
             }
             Preconditions.checkArgument(sessionId != -1 && mSession.currentId == sessionId,
-                    "Cannot report client status. "
-                    + "The given session id doesn't match the current one.");
+                    "Cannot report client status. Received session id (" + sessionId
+                            + ") doesn't match the current one (" + mSession.currentId + ").");
             if (mSession.lastReportedId == sessionId) {
                 Log.w(TAG, "The given session id is already reported.");
                 return;
@@ -837,6 +837,9 @@ public final class CarWatchdogManager extends CarManagerBase {
     private void reportToService(int sessionId) {
         try {
             mService.tellClientAlive(mClientImpl, sessionId);
+            if (DEBUG) {
+                Log.d(TAG, "Informed CarService that client is alive");
+            }
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

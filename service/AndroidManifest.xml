@@ -50,6 +50,14 @@
                 android:label="@string/car_permission_label_control_car_energy"
                 android:description="@string/car_permission_desc_control_car_energy"/>
 
+    <!-- Allows CarService to connect to OEM CarService.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.BIND_OEM_CAR_SERVICE"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_bind_oem_car_service"
+                android:description="@string/car_permission_desc_bind_oem_car_service"/>
+
     <!-- Allows an application to adjust the vehicle's range remaining information.
          <p>Protection level: signature|privileged
     -->

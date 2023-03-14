@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Pajisja do të spastrohet"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Aplikacioni i administratorit nuk mund të përdoret. Pajisja jote tani do të fshihet.\n\nNëse ke pyetje, kontakto administratorin e organizatës."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> po ndikon në performancën e sistemit"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Çaktivizo aplikacionin për të përmirësuar performancën e sistemit. Mund ta aktivizosh aplikacionin sërish te \"Cilësimet\"."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Jepi përparësi aplikacionit për të vazhduar ta përdorësh."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Çinstalo aplikacionin për të përmirësuar performancën e sistemit."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Çaktivizo aplikacionin"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Luajtja e këtij aplikacioni në sfond është ndaluar. Jepi përparësi aplikacionit për të vazhduar luajtjen në sfond."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Mbyll"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Jepi përparësi aplikacionit"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Çinstalo aplikacionin"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> është çaktivizuar. Mund ta aktivizosh përsëri te \"Cilësimet\"."</string>
 </resources>

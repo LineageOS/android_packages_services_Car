@@ -42,6 +42,7 @@
     <item target="drawable/car_ui_toolbar_menu_item_divider" value="@drawable/car_ui_toolbar_menu_item_divider" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_ripple" value="@drawable/car_ui_toolbar_menu_item_icon_ripple" />
     <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
+    <item target="bool/car_ui_is_light_theme" value="@bool/car_ui_is_light_theme" />
 
     <item target="style/TextAppearance_CarUi_AlertDialog_Title" value="@style/TextAppearance_CarUi_AlertDialog_Title" />
     <item target="style/TextAppearance_CarUi_AlertDialog_Subtitle" value="@style/TextAppearance_CarUi_AlertDialog_Subtitle" />

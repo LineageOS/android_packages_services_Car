@@ -75,6 +75,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.oem.CarOemProxyService;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
@@ -109,6 +110,9 @@ public class ICarImpl extends ICar.Stub {
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
+    // Disable OEM service for TM-QPR2 release.
+    private static final boolean ENABLE_OEM_SERVICE = false;
+
     private final Context mContext;
     private final Context mCarServiceBuiltinPackageContext;
     private final VehicleHal mHal;
@@ -117,6 +121,8 @@ public class ICarImpl extends ICar.Stub {
 
     private final SystemInterface mSystemInterface;
 
+    @Nullable
+    private final CarOemProxyService mCarOemService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarPackageManagerService mCarPackageManagerService;
@@ -207,6 +213,14 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarServiceBuiltinPackageContext = builtinContext;
         }
+
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService = constructWithTrace(t, CarOemProxyService.class,
+                    () -> new CarOemProxyService(serviceContext));
+        } else {
+            mCarOemService = null;
+        }
+
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         mHal = constructWithTrace(t, VehicleHal.class,
@@ -487,8 +501,12 @@ public class ICarImpl extends ICar.Stub {
             service.init();
             t.traceEnd();
         }
+        t.traceBegin("CarOemService.initComplete");
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService.onInitComplete();
+        }
+        t.traceEnd();
         t.traceEnd(); // "CarService.initAllServices"
-
         t.traceEnd(); // "ICarImpl.init"
     }
 
@@ -736,6 +754,7 @@ public class ICarImpl extends ICar.Stub {
                 dumpAllHals(writer);
                 return;
             }
+
             int length = args.length - 1;
             String[] halNames = new String[length];
             System.arraycopy(args, 1, halNames, 0, length);
@@ -747,11 +766,43 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--data-dir".equals(args[0])) {
             dumpDataDir(writer);
             return;
+        } else if ("--oem-service".equals(args[0])) {
+            if (args.length > 1 && args[1].equalsIgnoreCase("--name-only")) {
+                writer.println(getOemServiceName());
+            } else {
+                dumpOemService(writer);
+            }
+            return;
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
             execShellCmd(args, writer);
         }
+    }
+
+    private void dumpOemService(IndentingPrintWriter writer) {
+        if (ENABLE_OEM_SERVICE) {
+            mCarOemService.dump(writer);
+            return;
+        }
+
+        writer.println("OEM service is disabled.");
+    }
+
+    public String getOemServiceName() {
+        if (ENABLE_OEM_SERVICE) {
+            return mCarOemService.getOemServiceName();
+        }
+
+        return "";
+    }
+
+    private void dumpAll(IndentingPrintWriter writer) {
+        writer.println("*Dump car service*");
+        dumpVersions(writer);
+        dumpAllServices(writer);
+        dumpAllHals(writer);
+        dumpRROs(writer);
     }
 
     private void dumpRROs(IndentingPrintWriter writer) {

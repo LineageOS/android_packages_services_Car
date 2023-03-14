@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"আপোনাৰ ডিভাইচৰ ডেটা মচা হ\'ব"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"এই প্ৰশাসক এপ্‌টো ব্যৱহাৰ কৰিব নোৱাৰি। এতিয়া আপোনাৰ ডিভাইচটোৰ ডেটা মচা হ’ব।\n\nআপোনাৰ কিবা প্ৰশ্ন থাকিলে আপোনাৰ প্ৰতিষ্ঠানৰ প্ৰশাসকৰ সৈতে যোগাযোগ কৰক।"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g>এ আপোনাৰ ছিষ্টেমৰ কাৰ্যদক্ষতাত প্ৰভাৱ পেলাইছে"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"ছিষ্টেমৰ কাৰ্যদক্ষতা উন্নত কৰিবলৈ এপ্ অক্ষম কৰক। আপুনি ছেটিঙত পুনৰ এপ্‌টো সক্ষম কৰিব পাৰে।"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"এপ্‌টো ব্যৱহাৰ কৰি থাকিবলৈ এপক অগ্ৰাধিকাৰ দিয়ক।"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"ছিষ্টেমৰ কাৰ্যদক্ষতা উন্নত কৰিবলৈ এপ্ আনইনষ্টল কৰক।"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"এপ্ অক্ষম কৰক"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"এই এপ্‌টোক নেপথ্যত চলাত বাধা আৰোপ কৰা হৈছে। নেপথ্য়ত ব্যৱহাৰ হৈ থকাটো অব্যাহত ৰাখিবলৈ এপক অগ্ৰাধিকাৰ দিয়ক।"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"বন্ধ কৰক"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"এপক অগ্ৰাধিকাৰ দিয়ক"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"এপ্ আনইনষ্টল কৰক"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g>ক অক্ষম কৰা হৈছে। আপুনি এইটো ছেটিঙত পুনৰ সক্ষম কৰিব পাৰে।"</string>
 </resources>

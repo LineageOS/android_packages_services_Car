@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"तपाईंको यन्त्र मेटिनेछ"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"एड्मिन एप प्रयोग गर्न मिल्दैन। त्यसैले तपाईंको डिभाइसको डेटा अब मेटाइने छ।\n\nतपाईंसँग कुनै प्रश्न छ भने आफ्नो सङ्गठनका एड्मिनसँग सम्पर्क गर्नुहोस्।"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> ले तपाईंको सिस्टमको पर्फर्मेन्समा असर गरिरहेको छ"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"सिस्टमको पर्फर्मेन्स सुधार गर्न एप अफ गर्नुहोस्। तपाईं सेटिङमा गई एप फेरि अन गर्न सक्नुहुन्छ।"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"एप प्रयोग गरिरहन एपलाई प्राथमिकता दिनुहोस्।"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"सिस्टमको पर्फर्मेन्स सुधार गर्न एप अनइन्स्टल गर्नुहोस्।"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"एप अफ गर्नुहोस्"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"यो एपलाई ब्याकग्राउन्डमा चल्नबाट रोकिएको छ। तपाईं यो एप ब्याकग्राउन्डमा चलाइरहन चाहनुहुन्छ भने यसलाई प्राथमिकता दिनुहोस्।"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"बन्द गर्नुहोस्"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"एपलाई प्राथमिकता दिनुहोस्"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"एप अनइन्स्टल गर्नुहोस्"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> अफ गरिएको छ। तपाईं सेटिङमा गई यो एप फेरि अन गर्न सक्नुहुन्छ।"</string>
 </resources>

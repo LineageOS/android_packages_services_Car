@@ -172,6 +172,9 @@ android.car.occupantawareness.OccupantAwarenessManager
 android.car.occupantawareness.OccupantAwarenessManager$ChangeCallback
 android.car.occupantawareness.Point3D
 android.car.occupantawareness.SystemStatusEvent
+android.car.oem.OemCarAudioFocusService
+android.car.oem.OemCarService
+android.car.oem.OemCarServiceComponent
 android.car.os.CarPerformanceManager
 android.car.os.CarPerformanceManager$SetSchedulerFailedException
 android.car.os.CarPerformanceManager$CpuAvailabilityChangeListener

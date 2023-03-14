@@ -51,6 +51,7 @@ import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.scriptexecutorinterface.BundleList;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
@@ -67,8 +68,10 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -458,6 +461,24 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     }
 
     @Test
+    public void testScheduleNextTask_withBundleList_shouldPassData() throws Exception {
+        List<PersistableBundle> bundles = new ArrayList<>();
+        bundles.add(new PersistableBundle());
+        bundles.add(new PersistableBundle());
+        ScriptExecutionTask highPriorityTask = new ScriptExecutionTask(
+                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
+                bundles,
+                SystemClock.elapsedRealtime(),
+                TelemetryProto.Publisher.PublisherCase.STATS.getNumber());
+        mDataBroker.getTaskQueue().add(highPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mFakeScriptExecutor.getInvokeScriptForBundleListCount()).isEqualTo(1);
+    }
+
+    @Test
     public void testScheduleNextTask_bindScriptExecutorFailedOnce_shouldRebind()
             throws Exception {
         Mockito.reset(mMockContext);
@@ -698,6 +719,7 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
         private IScriptExecutorListener mListener;
         private int mInvokeScriptCount = 0;
         private int mInvokeScriptForLargeInputCount = 0;
+        private int mInvokeScriptForBundleListCount = 0;
         private int mFailApi = 0;
         private PersistableBundle mSavedState = null;
 
@@ -742,6 +764,19 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
                     PersistableBundle.readFromStream(input);
                 } catch (IOException e) { }
             });
+        }
+
+        @Override
+        public void invokeScriptForBundleList(String scriptBody, String functionName,
+                BundleList bundleList, PersistableBundle savedState,
+                IScriptExecutorListener listener) throws RemoteException {
+            mInvokeScriptForBundleListCount++;
+            mSavedState = savedState;
+            mListener = listener;
+            if (mFailApi > 0) {
+                mFailApi--;
+                throw new RemoteException("Simulated failure");
+            }
         }
 
         @Override
@@ -798,6 +833,11 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
         /** Returns number of times invokeScriptForLargeInput() was called. */
         public int getInvokeScriptForLargeInputCount() {
             return mInvokeScriptForLargeInputCount;
+        }
+
+        /** Returns number of times invokeScriptForBundleList() was called. */
+        public int getInvokeScriptForBundleListCount() {
+            return mInvokeScriptForBundleListCount;
         }
 
         /** Returns the interim data passed in invokeScript(). */

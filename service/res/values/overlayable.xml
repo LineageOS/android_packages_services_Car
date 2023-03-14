@@ -108,6 +108,12 @@
           <item type="bool" name="config_enableExternalCarTimeToExternalTimeSuggestion"/>
           <item type="integer" name="config_userPreCreationStage"/>
           <item type="integer" name="config_userPreCreationDelay"/>
+          <item type="string" name="config_oemCarService" translatable="false"/>
+          <item type="integer" name="config_oemCarService_connection_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_serviceReady_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_regularCall_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_crashCall_timeout_ms"/>
+          <item type="integer" name="config_oemCarService_thread_pool_size"/>
           <!-- Params from config.xml that can be overlaid -->
 
           <!-- XML files that can be overlaid -->

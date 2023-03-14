@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Enheden slettes"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Administrationsappen kan ikke bruges. Enheden vil nu blive ryddet. \n\nKontakt din organisations administrator, hvis du har spørgsmål."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> påvirker systemets ydeevne."</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Deaktiver appen for at forbedre systemets ydeevne. Du kan aktivere appen igen under Indstillinger."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Prioriter appen for at fortsætte med at bruge den."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Afinstaller appen for at forbedre systemets ydeevne."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Deaktiver app"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Denne app er blevet forhindret i at køre i baggrunden. Prioriter appen, hvis den skal fortsætte med køre i baggrunden."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Luk"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioriter app"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Afinstaller app"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> er blevet deaktiveret. Du kan aktivere den igen under Indstillinger."</string>
 </resources>

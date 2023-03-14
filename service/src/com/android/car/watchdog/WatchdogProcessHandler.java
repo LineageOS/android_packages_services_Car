@@ -45,6 +45,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Handles clients' health status checking and reporting the statuses to the watchdog daemon.
@@ -181,35 +182,58 @@ public final class WatchdogProcessHandler {
             }
             clients.add(clientInfo);
             if (CarWatchdogService.DEBUG) {
-                Slogf.d(CarWatchdogService.TAG, "Client(pid: %d) is registered", pid);
+                Slogf.d(CarWatchdogService.TAG, "Registered client: %s", clientInfo);
             }
         }
     }
 
     /** Unregisters the previously registered client callback */
     public void unregisterClient(ICarWatchdogServiceCallback client) {
+        ClientInfo clientInfo;
         synchronized (mLock) {
             IBinder binder = client.asBinder();
-            for (int timeout : ALL_TIMEOUTS) {
-                ArrayList<ClientInfo> clients = mClientMap.get(timeout);
-                for (int i = 0; i < clients.size(); i++) {
-                    ClientInfo clientInfo = clients.get(i);
-                    if (binder != clientInfo.client.asBinder()) {
-                        continue;
-                    }
-                    clientInfo.unlinkToDeath();
-                    clients.remove(i);
-                    if (CarWatchdogService.DEBUG) {
-                        Slogf.d(CarWatchdogService.TAG, "Client(pid: %d) is unregistered",
-                                clientInfo.pid);
-                    }
-                    return;
+            // Even if a client did not respond to the latest ping, CarWatchdogService should honor
+            // the unregister request at this point and remove it from all internal caches.
+            // Otherwise, the client might be killed even after unregistering.
+            Optional<ClientInfo> optionalClientInfo = removeFromClientMapsLocked(binder);
+            if (optionalClientInfo.isEmpty()) {
+                Slogf.w(CarWatchdogService.TAG,
+                        "Cannot unregister the client: the client has not been registered before");
+                return;
+            }
+            clientInfo = optionalClientInfo.get();
+            for (int i = 0; i < mClientsNotResponding.size(); i++) {
+                ClientInfo notRespondingClientInfo = mClientsNotResponding.get(i);
+                if (binder == notRespondingClientInfo.client.asBinder()) {
+                    mClientsNotResponding.remove(i);
+                    break;
                 }
             }
         }
-        Slogf.w(CarWatchdogService.TAG,
-                "Cannot unregister the client: the client has not been registered before");
-        return;
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Unregistered client: %s", clientInfo);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private Optional<ClientInfo> removeFromClientMapsLocked(IBinder binder) {
+        for (int timeout : ALL_TIMEOUTS) {
+            ArrayList<ClientInfo> clients = mClientMap.get(timeout);
+            for (int i = 0; i < clients.size(); i++) {
+                ClientInfo clientInfo = clients.get(i);
+                if (binder != clientInfo.client.asBinder()) {
+                    continue;
+                }
+                clientInfo.unlinkToDeath();
+                clients.remove(i);
+                SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
+                if (pingedClients != null) {
+                    pingedClients.remove(clientInfo.sessionId);
+                }
+                return Optional.of(clientInfo);
+            }
+        }
+        return Optional.empty();
     }
 
     /** Tells the handler that the client is alive. */
@@ -479,6 +503,13 @@ public final class WatchdogProcessHandler {
 
         private void unlinkToDeath() {
             client.asBinder().unlinkToDeath(this, 0);
+        }
+
+        @Override
+        public String toString() {
+            return "ClientInfo{client=" + client + ", pid=" + pid + ", startTimeMillis="
+                    + startTimeMillis + ", userId=" + userId + ", timeout=" + timeout
+                    + ", sessionId=" + sessionId + '}';
         }
     }
 }

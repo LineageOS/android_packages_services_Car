@@ -18,6 +18,7 @@ package com.android.car.power;
 
 import static android.car.hardware.power.CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
 import static android.car.hardware.power.CarPowerManager.STATE_SHUTDOWN_PREPARE;
+import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -45,6 +46,8 @@ import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.net.TetheringManager;
+import android.net.TetheringManager.TetheringRequest;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -119,8 +122,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
 
     private static final String WIFI_STATE_FILENAME = "wifi_state";
-    private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
-    private static final String WIFI_STATE_ORIGINAL = "original";
+    private static final String TETHERING_STATE_FILENAME = "tethering_state";
+    private static final String COMPONENT_STATE_MODIFIED = "forcibly_disabled";
+    private static final String COMPONENT_STATE_ORIGINAL = "original";
     // If Suspend to RAM fails, we retry with an exponential back-off:
     // The wait interval will be 10 msec, 20 msec, 40 msec, ...
     // Once the wait interval goes beyond 100 msec, it is fixed at 100 msec.
@@ -186,7 +190,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final CarUserService mUserService;
 
     private final WifiManager mWifiManager;
+    private final TetheringManager mTetheringManager;
     private final AtomicFile mWifiStateFile;
+    private final AtomicFile mTetheringStateFile;
     private final boolean mWifiAdjustmentForSuspend;
 
     // This is a temp work-around to reduce user switching delay after wake-up.
@@ -324,9 +330,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mHasControlOverDaemon = true;
         }
         mWifiManager = context.getSystemService(WifiManager.class);
+        mTetheringManager = mContext.getSystemService(TetheringManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
-        mWifiAdjustmentForSuspend = getWifiAdjustmentForSuspendConfig();
+        mTetheringStateFile = new AtomicFile(
+                new File(mSystemInterface.getSystemCarDir(), TETHERING_STATE_FILENAME));
+        mWifiAdjustmentForSuspend = isWifiAdjustmentForSuspendConfig();
         mPowerComponentHandler = powerComponentHandler;
         mSilentModeHandler = new SilentModeHandler(this, silentModeHwStatePath,
                 silentModeKernelStatePath, bootReason);
@@ -410,6 +419,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.printf("mIsPowerPolicyLocked: %b\n", mIsPowerPolicyLocked);
             writer.printf("mMaxSuspendWaitDurationMs: %d\n", mMaxSuspendWaitDurationMs);
             writer.printf("config_maxSuspendWaitDuration: %d\n", getMaxSuspendWaitDurationConfig());
+            writer.printf("mWifiStateFile: %s\n", mWifiStateFile);
+            writer.printf("mTetheringStateFile: %s\n", mTetheringStateFile);
+            writer.printf("mWifiAdjustmentForSuspend: %b\n", mWifiAdjustmentForSuspend);
             writer.printf("# of power policy change listener: %d\n",
                     mPowerPolicyListeners.getRegisteredCallbackCount());
             writer.printf("mFactoryResetCallback: %s\n", mFactoryResetCallback);
@@ -569,6 +581,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // TODO(b/177478420): Restore Wifi, Audio, Location, and Bluetooth, if they are artificially
         // modified for S2R.
         mSilentModeHandler.querySilentModeHwState();
+
+        applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
+                    PolicyReader.POWER_POLICY_ID_INITIAL_ON);
+
+        if (!mSilentModeHandler.isSilentMode()) {
+            cancelPreemptivePowerPolicy();
+        }
+
         sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
@@ -588,7 +608,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendHibernationExit();
                 break;
         }
-        if (mWifiAdjustmentForSuspend) restoreWifi();
+        if (mWifiAdjustmentForSuspend) {
+            restoreWifiFully();
+        }
     }
 
     private void updateCarUserNoticeServiceIfNecessary() {
@@ -910,7 +932,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
         // To make Kernel implementation simpler when going into sleep.
-        if (mWifiAdjustmentForSuspend) disableWifi();
+        if (mWifiAdjustmentForSuspend) {
+            disableWifiFully();
+        }
 
         if (mustShutDown) {
             // shutdown HU
@@ -923,76 +947,124 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    private void disableWifiFully() {
+        disableWifi();
+        disableTethering();
+    }
+
+    private void restoreWifiFully() {
+        restoreTethering();
+        restoreWifi();
+    }
+
     private void restoreWifi() {
-        boolean needToRestore = readWifiModifiedState();
-        if (needToRestore) {
-            if (!mWifiManager.isWifiEnabled()) {
-                Slogf.i(TAG, "Wifi has been enabled to restore the last setting");
-                mWifiManager.setWifiEnabled(true);
-            }
-            // Update the persistent data as wifi is not modified by car framework.
-            saveWifiModifiedState(false);
+        boolean needToRestore = readWifiModifiedState(mWifiStateFile);
+        if (!needToRestore) return;
+        if (!mWifiManager.isWifiEnabled()) {
+            Slogf.i(TAG, "Wifi has been enabled to restore the last setting");
+            mWifiManager.setWifiEnabled(true);
         }
+        // Update the persistent data as wifi is not modified by car framework.
+        saveWifiModifiedState(mWifiStateFile, /* forciblyDisabled= */ false);
     }
 
     private void disableWifi() {
         boolean wifiEnabled = mWifiManager.isWifiEnabled();
-        boolean wifiModifiedState = readWifiModifiedState();
+        boolean wifiModifiedState = readWifiModifiedState(mWifiStateFile);
         if (wifiEnabled != wifiModifiedState) {
-            saveWifiModifiedState(wifiEnabled);
+            Slogf.i(TAG, "Saving the current Wifi state");
+            saveWifiModifiedState(mWifiStateFile, wifiEnabled);
         }
-        if (!wifiEnabled) return;
 
+        // In some devices, enabling a tether temporarily turns off Wifi. To make sure that Wifi is
+        // disabled, we call this method in all cases.
         mWifiManager.setWifiEnabled(false);
         Slogf.i(TAG, "Wifi has been disabled and the last setting was saved");
     }
 
-    private void saveWifiModifiedState(boolean forciblyDisabled) {
+    private void restoreTethering() {
+        boolean needToRestore = readWifiModifiedState(mTetheringStateFile);
+        if (!needToRestore) return;
+        if (!mWifiManager.isWifiApEnabled()) {
+            Slogf.i(TAG, "Tethering has been enabled to restore the last setting");
+            startTethering();
+        }
+        // Update the persistent data as wifi is not modified by car framework.
+        saveWifiModifiedState(mTetheringStateFile, /*forciblyDisabled= */ false);
+    }
+
+    private void disableTethering() {
+        boolean tetheringEnabled = mWifiManager.isWifiApEnabled();
+        boolean tetheringModifiedState = readWifiModifiedState(mTetheringStateFile);
+        if (tetheringEnabled != tetheringModifiedState) {
+            Slogf.i(TAG, "Saving the current tethering state: tetheringEnabled=%b",
+                    tetheringEnabled);
+            saveWifiModifiedState(mTetheringStateFile, tetheringEnabled);
+        }
+        if (!tetheringEnabled) return;
+
+        mTetheringManager.stopTethering(TETHERING_WIFI);
+        Slogf.i(TAG, "Tethering has been disabled and the last setting was saved");
+    }
+
+    private void saveWifiModifiedState(AtomicFile file, boolean forciblyDisabled) {
         FileOutputStream fos;
         try {
-            fos = mWifiStateFile.startWrite();
+            fos = file.startWrite();
         } catch (IOException e) {
-            Slogf.e(TAG, e, "Cannot create %s", WIFI_STATE_FILENAME);
+            Slogf.e(TAG, e, "Cannot create %s", file);
             return;
         }
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            writer.write(forciblyDisabled ? WIFI_STATE_MODIFIED : WIFI_STATE_ORIGINAL);
+            writer.write(forciblyDisabled ? COMPONENT_STATE_MODIFIED : COMPONENT_STATE_ORIGINAL);
             writer.newLine();
             writer.flush();
-            mWifiStateFile.finishWrite(fos);
+            file.finishWrite(fos);
         } catch (IOException e) {
-            mWifiStateFile.failWrite(fos);
-            Slogf.e(TAG, e, "Writing %s failed", WIFI_STATE_FILENAME);
+            file.failWrite(fos);
+            Slogf.e(TAG, e, "Writing %s failed", file);
         }
     }
 
-    private boolean readWifiModifiedState() {
+    private boolean readWifiModifiedState(AtomicFile file) {
         boolean needToRestore = false;
         boolean invalidState = false;
 
         try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(mWifiStateFile.openRead(), StandardCharsets.UTF_8))) {
+                new InputStreamReader(file.openRead(), StandardCharsets.UTF_8))) {
             String line = reader.readLine();
             if (line == null) {
                 needToRestore = false;
                 invalidState = true;
             } else {
                 line = line.trim();
-                needToRestore = WIFI_STATE_MODIFIED.equals(line);
-                invalidState = !(needToRestore || WIFI_STATE_ORIGINAL.equals(line));
+                needToRestore = COMPONENT_STATE_MODIFIED.equals(line);
+                invalidState = !(needToRestore || COMPONENT_STATE_ORIGINAL.equals(line));
             }
         } catch (IOException e) {
             // If a file named wifi_state doesn't exist, we will not modify Wifi at system start.
-            Slogf.w(TAG, "Failed to read %s: %s", WIFI_STATE_FILENAME, e);
+            Slogf.w(TAG, "Failed to read %s: %s", file, e);
             return false;
         }
         if (invalidState) {
-            mWifiStateFile.delete();
+            file.delete();
         }
 
         return needToRestore;
+    }
+
+    private void startTethering() {
+        TetheringRequest request = new TetheringRequest.Builder(TETHERING_WIFI)
+                .setShouldShowEntitlementUi(false).build();
+        mTetheringManager.startTethering(request, mContext.getMainExecutor(),
+                new TetheringManager.StartTetheringCallback() {
+                    @Override
+                    public void onTetheringFailed(int error) {
+                        Slogf.w(TAG, "Starting tethering failed: %d", error);
+                    }
+                });
     }
 
     private void waitForShutdownPrepareListenersToComplete(long timeoutMs, long intervalMs) {
@@ -1977,23 +2049,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             // We failed to suspend. Block the thread briefly and try again.
             synchronized (mLock) {
-                if (mPendingPowerStates.isEmpty()) {
-                    Slogf.w(TAG, "Failed to Suspend; will retry after %dms", retryIntervalMs);
-                    try {
-                        mLock.wait(retryIntervalMs);
-                    } catch (InterruptedException ignored) {
-                        Thread.currentThread().interrupt();
-                    }
-                    totalWaitDurationMs += retryIntervalMs;
-                    retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
-                } else {
+                if (!mPendingPowerStates.isEmpty()) {
                     // Check for a new power state now, before going around the loop again.
                     CpmsState state = mPendingPowerStates.peekFirst();
                     if (state != null && needPowerStateChangeLocked(state)) {
-                        Slogf.i(TAG, "Terminating the attempt to %s", suspendTarget);
+                        Slogf.i(TAG, "Terminating the attempt to suspend target = %s,"
+                                        + " currentState = %s, pendingState = %s", suspendTarget,
+                                mCurrentState.stateToString(), state.stateToString());
                         return false;
                     }
                 }
+
+                Slogf.w(TAG, "Failed to Suspend; will retry after %dms", retryIntervalMs);
+                try {
+                    mLock.wait(retryIntervalMs);
+                } catch (InterruptedException ignored) {
+                    Thread.currentThread().interrupt();
+                }
+                totalWaitDurationMs += retryIntervalMs;
+                retryIntervalMs = Math.min(retryIntervalMs * 2, MAX_RETRY_INTERVAL_MS);
             }
         }
         // Too many failures trying to suspend. Shut down.
@@ -2504,7 +2578,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return mContext.getResources().getInteger(R.integer.config_maxSuspendWaitDuration);
     }
 
-    private boolean getWifiAdjustmentForSuspendConfig() {
+    private boolean isWifiAdjustmentForSuspendConfig() {
         return mContext.getResources().getBoolean(R.bool.config_wifiAdjustmentForSuspend);
     }
 

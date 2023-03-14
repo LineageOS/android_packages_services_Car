@@ -65,6 +65,8 @@ EqualsAndHashCode: android.car.vms.VmsAvailableLayers#equals(Object):
     Must override both equals and hashCode; missing one in android.car.vms.VmsAvailableLayers
 
 
+ExecutorRegistration: android.car.CarBugreportManager#requestBugreport(android.os.ParcelFileDescriptor, android.os.ParcelFileDescriptor, android.car.CarBugreportManager.CarBugreportManagerCallback):
+    Registration methods should have overload that accepts delivery Executor: `requestBugreport`
 ExecutorRegistration: android.car.CarProjectionManager#registerProjectionListener(android.car.CarProjectionManager.CarProjectionListener, int):
     Registration methods should have overload that accepts delivery Executor: `registerProjectionListener`
 ExecutorRegistration: android.car.CarProjectionManager#registerProjectionStatusListener(android.car.CarProjectionManager.ProjectionStatusListener):
@@ -75,6 +77,8 @@ ExecutorRegistration: android.car.diagnostic.CarDiagnosticManager#registerListen
     Registration methods should have overload that accepts delivery Executor: `registerListener`
 ExecutorRegistration: android.car.drivingstate.CarDrivingStateManager#registerListener(android.car.drivingstate.CarDrivingStateManager.CarDrivingStateEventListener):
     Registration methods should have overload that accepts delivery Executor: `registerListener`
+ExecutorRegistration: android.car.drivingstate.CarUxRestrictionsManager#setListener(int, android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener):
+    Registration methods should have overload that accepts delivery Executor: `setListener`
 ExecutorRegistration: android.car.hardware.CarVendorExtensionManager#registerCallback(android.car.hardware.CarVendorExtensionManager.CarVendorExtensionCallback):
     Registration methods should have overload that accepts delivery Executor: `registerCallback`
 ExecutorRegistration: android.car.hardware.cabin.CarCabinManager#registerCallback(android.car.hardware.cabin.CarCabinManager.CarCabinEventCallback):
@@ -643,8 +647,16 @@ MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.o
     Missing nullability on parameter `out` in method `writeToParcel`
 
 
+NotCloseable: android.car.oem.OemCarServiceComponent:
+    Classes that release resources (release()) should implement AutoClosable and CloseGuard: class android.car.oem.OemCarServiceComponent
+
+
 NullableCollection: android.car.cluster.ClusterActivityState#getExtras():
     Return type of method android.car.cluster.ClusterActivityState.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
+NullableCollection: android.car.drivingstate.CarUxRestrictionsManager#getConfigs():
+    Return type of method android.car.drivingstate.CarUxRestrictionsManager.getConfigs() is a nullable collection (`java.util.List`); must be non-null
+NullableCollection: android.car.drivingstate.CarUxRestrictionsManager#getStagedConfigs():
+    Return type of method android.car.drivingstate.CarUxRestrictionsManager.getStagedConfigs() is a nullable collection (`java.util.List`); must be non-null
 NullableCollection: android.car.telemetry.CarTelemetryManager.MetricsReportCallback#onResult(String, android.os.PersistableBundle, byte[], int) parameter #1:
     Type of parameter report in android.car.telemetry.CarTelemetryManager.MetricsReportCallback.onResult(String metricsConfigName, android.os.PersistableBundle report, byte[] telemetryError, int status) is a nullable collection (`android.os.PersistableBundle`); must be non-null
 NullableCollection: android.car.watchdog.CarWatchdogManager#getResourceOveruseConfigurations(int):
@@ -677,6 +689,14 @@ OnNameExpected: android.car.cluster.renderer.InstrumentClusterRenderingService#s
     If implemented by developer, should follow the on<Something> style; otherwise consider marking final
 OnNameExpected: android.car.content.pm.CarAppBlockingPolicyService#getAppBlockingPolicy():
     Methods implemented by developers should follow the on<Something> style, was `getAppBlockingPolicy`
+OnNameExpected: android.car.oem.OemCarService#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]):
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.oem.OemCarService#getOemAudioFocusService():
+    If implemented by developer, should follow the on<Something> style; otherwise consider marking final
+OnNameExpected: android.car.oem.OemCarService#getSupportedCarVersion():
+    Methods implemented by developers should follow the on<Something> style, was `getSupportedCarVersion`
+OnNameExpected: android.car.oem.OemCarService#isOemServiceReady():
+    Methods implemented by developers should follow the on<Something> style, was `isOemServiceReady`
 
 
 ParcelConstructor: android.car.content.pm.AppBlockingPackageInfo#AppBlockingPackageInfo(android.os.Parcel):
@@ -791,6 +811,12 @@ StaticFinalBuilder: android.car.hardware.CarPropertyConfig.Builder:
     Builder must be final: android.car.hardware.CarPropertyConfig.Builder
 
 
+UseParcelFileDescriptor: android.car.oem.OemCarServiceComponent#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in android.car.oem.OemCarServiceComponent.dump(java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+
+
+UserHandle: android.car.CarOccupantZoneManager#assignVisibleUserToOccupantZone(android.car.CarOccupantZoneManager.OccupantZoneInfo, android.os.UserHandle, int):
+    When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added
 UserHandle: android.car.admin.CarDevicePolicyManager#removeUser(android.os.UserHandle):
     When a method overload is needed to target a specific UserHandle, callers should be directed to use Context.createPackageContextAsUser() and re-obtain the relevant Manager, and no new API should be added
 UserHandle: android.car.watchdog.CarWatchdogManager#getPackageKillableStatesAsUser(android.os.UserHandle):

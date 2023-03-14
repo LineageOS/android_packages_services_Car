@@ -31,6 +31,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -290,6 +291,21 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
                 .isEqualTo(MEDIA_COMPONENT2);
+        verify(mContext, times(2)).startForegroundService(any());
+    }
+
+    @Test
+    public void testActiveSessionListener_StatePlayingNonMediaAppDoesntChangesSource() {
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING));
+
+        // setup media source info only for MEDIA Component
+        // second one will stay null
+        initMediaService(MEDIA_CLASS);
+
+        // New Media source should be null
+        assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK)).isNull();
+        // service start should happen on init but not on media source change
+        verify(mContext, times(1)).startForegroundService(any());
     }
 
     @Test
@@ -303,6 +319,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT2);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE))
                 .isEqualTo(MEDIA_COMPONENT);
+        verify(mContext, times(2)).startForegroundService(any());
     }
 
     @Test
@@ -316,6 +333,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT2);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_BROWSE))
                 .isEqualTo(MEDIA_COMPONENT2);
+        verify(mContext, times(2)).startForegroundService(any());
     }
 
     @Test
@@ -326,6 +344,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
                 .isEqualTo(MEDIA_COMPONENT);
+        verify(mContext, times(1)).startForegroundService(any());
     }
 
     private void initMediaService(String... classesToResolve) {

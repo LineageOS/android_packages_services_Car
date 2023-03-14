@@ -237,7 +237,7 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
       mSilentModeHandler(this),
       mIsPowerPolicyLocked(false),
       mIsCarServiceInOperation(false),
-      mIsFirstConnectionToVhal(false) {
+      mIsFirstConnectionToVhal(true) {
     mMessageHandler = new MessageHandlerImpl(this);
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onBinderDied));
@@ -713,6 +713,7 @@ void CarPowerPolicyServer::applyInitialPowerPolicy() {
         !ret.ok()) {
         ALOGW("Cannot apply the initial power policy(%s): %s", policyId.c_str(),
               ret.error().message().c_str());
+        return;
     }
     ALOGD("Policy(%s) is applied as the initial one", policyId.c_str());
 }

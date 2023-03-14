@@ -35,11 +35,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Stores values broken down by area for a vehicle property.
- *
- * <p>This class is a java representation of {@code struct VehiclePropValue} defined in
- * {@code hardware/interfaces/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehiclePropValue.aidl}.
- * See {@link com.android.car.hal.CarPropertyUtils} to learn conversion details.
+ * Stores a value for a vehicle property ID and area ID combination.
  *
  * Client should use {@code android.car.*} types when dealing with property ID, area ID or property
  * value and MUST NOT use {@code android.hardware.automotive.vehicle.*} types directly.

@@ -463,8 +463,16 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
         constexpr auto kFrameTimeout = 5s;  // timeout in seconds.
         int64_t lastFrameTimestamp = -1;
         EvsResult status = EvsResult::OK;
-        while (mStreamState == RUNNING) {
+        while (true) {
             std::unique_lock lock(mMutex);
+            ::android::base::ScopedLockAssertion assume_lock(mMutex);
+
+            if (mStreamState != RUNNING) {
+                // A video stream is stopped while a capture thread is acquiring
+                // a lock.
+                LOG(DEBUG) << "Requested to stop capturing frames";
+                break;
+            }
 
             unsigned count = 0;
             for (auto&& [key, hwCamera] : mHalCamera) {
@@ -485,7 +493,7 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
                 break;
             }
 
-            if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() {
+            if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() REQUIRES(mMutex) {
                     // Stops waiting if
                     // 1) we've requested to stop capturing
                     //    new frames
@@ -498,35 +506,43 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
                 LOG(DEBUG) << "Timer for a new frame expires";
                 status = EvsResult::UNDERLYING_SERVICE_ERROR;
                 break;
-            } else if (mStreamState == RUNNING) {
-                // Fetch frames and forward to the client
-                if (!mFramesHeld.empty() && mStream) {
-                    // Pass this buffer through to our client
-                    std::vector<BufferDesc> frames;
-                    frames.resize(count);
-                    unsigned i = 0;
-                    for (auto&& [key, hwCamera] : mHalCamera) {
-                        std::shared_ptr<HalCamera> pHwCamera = hwCamera.lock();
-                        if (!pHwCamera || mFramesHeld[key].empty()) {
-                            continue;
-                        }
+            }
 
-                        // Duplicate the latest buffer and forward it to the
-                        // active clients
-                        auto frame = Utils::dupBufferDesc(mFramesHeld[key].back(),
-                                                          /* doDup= */ true);
-                        if (frame.timestamp > lastFrameTimestamp) {
-                            lastFrameTimestamp = frame.timestamp;
-                        }
-                        frames[i++] = std::move(frame);
-                    }
+            if (mStreamState != RUNNING || !mStream) {
+                // A video stream is stopped while a capture thread is waiting
+                // for a new frame or we have lost a client.
+                LOG(DEBUG) << "Requested to stop capturing frames or lost a client";
+                break;
+            }
 
-                    if (!mStream->deliverFrame(frames).isOk()) {
-                        LOG(WARNING) << "Failed to forward frames";
-                    }
+            // Fetch frames and forward to the client
+            if (mFramesHeld.empty()) {
+                // We do not have any frame to forward.
+                continue;
+            }
+
+            // Pass this buffer through to our client
+            std::vector<BufferDesc> frames;
+            frames.resize(count);
+            unsigned i = 0;
+            for (auto&& [key, hwCamera] : mHalCamera) {
+                std::shared_ptr<HalCamera> pHwCamera = hwCamera.lock();
+                if (!pHwCamera || mFramesHeld[key].empty()) {
+                    continue;
                 }
-            } else if (mStreamState != RUNNING) {
-                LOG(DEBUG) << "Requested to stop capturing frames";
+
+                // Duplicate the latest buffer and forward it to the
+                // active clients
+                auto frame = Utils::dupBufferDesc(mFramesHeld[key].back(),
+                                                  /* doDup= */ true);
+                if (frame.timestamp > lastFrameTimestamp) {
+                    lastFrameTimestamp = frame.timestamp;
+                }
+                frames[i++] = std::move(frame);
+            }
+
+            if (!mStream->deliverFrame(frames).isOk()) {
+                LOG(WARNING) << "Failed to forward frames";
             }
         }
 
@@ -554,6 +570,10 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
 ScopedAStatus VirtualCamera::stopVideoStream() {
     {
         std::lock_guard lock(mMutex);
+        if (mStreamState != RUNNING) {
+            // No action is required.
+            return ScopedAStatus::ok();
+        }
 
         if (!mStream || mStreamState != RUNNING) {
             // Safely ignore a request to stop video stream
@@ -570,7 +590,7 @@ ScopedAStatus VirtualCamera::stopVideoStream() {
         EvsEventDesc event{
                 .aType = EvsEventType::STREAM_STOPPED,
         };
-        if (!mStream->notify(std::move(event)).isOk()) {
+        if (mStream && !mStream->notify(std::move(event)).isOk()) {
             LOG(WARNING) << "Error delivering end of stream event";
         }
 
@@ -579,19 +599,19 @@ ScopedAStatus VirtualCamera::stopVideoStream() {
         // Note, however, that there still might be frames already queued that client will see
         // after returning from the client side of this call.
         mStreamState = STOPPED;
-
-        // Give the underlying hardware camera the heads up that it might be time to stop
-        for (auto&& [_, hwCamera] : mHalCamera) {
-            auto pHwCamera = hwCamera.lock();
-            if (pHwCamera) {
-                pHwCamera->clientStreamEnding(this);
-            }
-        }
-
-        // Signal a condition to unblock a capture thread and then join
-        mSourceCameras.clear();
-        mFramesReadySignal.notify_all();
     }
+
+    // Give the underlying hardware camera the heads up that it might be time to stop
+    for (auto&& [_, hwCamera] : mHalCamera) {
+        auto pHwCamera = hwCamera.lock();
+        if (pHwCamera) {
+            pHwCamera->clientStreamEnding(this);
+        }
+    }
+
+    // Signal a condition to unblock a capture thread and then join
+    mSourceCameras.clear();
+    mFramesReadySignal.notify_all();
 
     if (mCaptureThread.joinable()) {
         mCaptureThread.join();
@@ -740,18 +760,23 @@ bool VirtualCamera::deliverFrame(const BufferDesc& bufDesc) {
 
 bool VirtualCamera::notify(const EvsEventDesc& event) {
     switch (event.aType) {
-        case EvsEventType::STREAM_STOPPED:
-            if (mStreamState != STOPPING) {
+        case EvsEventType::STREAM_STOPPED: {
+            {
+                std::lock_guard lock(mMutex);
+                if (mStreamState != RUNNING) {
+                    // We're not actively consuming a video stream or already in
+                    // a process to stop a video stream.
+                    return true;
+                }
+
                 // Warn if we got an unexpected stream termination
                 LOG(WARNING) << "Stream unexpectedly stopped, current status " << mStreamState;
-
-                // Clean up the resource and forward an event to the client
-                stopVideoStream();
-
-                // This event is handled properly.
-                return true;
             }
-            break;
+
+            // Clean up the resource and forward an event to the client
+            stopVideoStream();
+            return true;
+        }
 
         // v1.0 client will ignore all other events.
         case EvsEventType::PARAMETER_CHANGED:

@@ -31,4 +31,9 @@ interface ICarTest {
 
     /** Re initializes car services that was previously released by #releaseCarService method. */
     void startCarService(IBinder token) = 2;
+
+    /**
+     * Returns OEM service name.
+     */
+    String getOemServiceName() = 3;
 }

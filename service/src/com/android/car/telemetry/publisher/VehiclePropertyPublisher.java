@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.CarTelemetryService.DEBUG;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
@@ -38,9 +40,11 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,32 +54,12 @@ import java.util.List;
  * property id of the subscriber and starts pushing the change events to the subscriber.
  */
 public class VehiclePropertyPublisher extends AbstractPublisher {
-    private static final boolean DEBUG = false;  // STOPSHIP if true
-
-    public static final String BUNDLE_TIMESTAMP_KEY = "timestamp";
-    public static final String BUNDLE_STRING_KEY = "stringVal";
-    public static final String BUNDLE_BOOLEAN_KEY = "boolVal";
-    public static final String BUNDLE_INT_KEY = "intVal";
-    public static final String BUNDLE_INT_ARRAY_KEY = "intArrayVal";
-    public static final String BUNDLE_LONG_KEY = "longVal";
-    public static final String BUNDLE_LONG_ARRAY_KEY = "longArrayVal";
-    public static final String BUNDLE_FLOAT_KEY = "floatVal";
-    public static final String BUNDLE_FLOAT_ARRAY_KEY = "floatArrayVal";
-    public static final String BUNDLE_BYTE_ARRAY_KEY = "byteArrayVal";
 
     private final CarPropertyService mCarPropertyService;
     private final Handler mTelemetryHandler;
-
     // The class only reads, no need to synchronize this object.
     // Maps property_id to CarPropertyConfig.
     private final SparseArray<CarPropertyConfig> mCarPropertyList;
-
-    // SparseArray and ArraySet are memory optimized, but they can be bit slower for more
-    // than 100 items. We're expecting much less number of subscribers, so these DS are ok.
-    // Maps property_id to the set of DataSubscriber.
-    private final SparseArray<ArraySet<DataSubscriber>> mCarPropertyToSubscribers =
-            new SparseArray<>();
-
     private final ICarPropertyEventListener mCarPropertyEventListener =
             new ICarPropertyEventListener.Stub() {
                 @Override
@@ -89,6 +73,11 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                     }
                 }
             };
+
+    // Maps property id to the PropertyData containing batch of its bundles and subscribers.
+    // Each property is batched separately.
+    private final SparseArray<PropertyData> mPropertyDataLookup = new SparseArray<>();
+    private long mBatchIntervalMillis = 100L;  // Batch every 100 milliseconds = 10Hz
 
     public VehiclePropertyPublisher(
             @NonNull CarPropertyService carPropertyService,
@@ -122,18 +111,18 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                         || config.getAccess()
                         == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
-
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        if (subscribers == null) {
-            subscribers = new ArraySet<>();
-            mCarPropertyToSubscribers.put(propertyId, subscribers);
-            // Register the listener only once per propertyId.
+        PropertyData propertyData = mPropertyDataLookup.get(propertyId);
+        if (propertyData == null) {
+            propertyData = new PropertyData(config);
+            mPropertyDataLookup.put(propertyId, propertyData);
+        }
+        if (propertyData.subscribers.isEmpty()) {
             mCarPropertyService.registerListener(
                     propertyId,
                     publisherParam.getVehicleProperty().getReadRate(),
                     mCarPropertyEventListener);
         }
-        subscribers.add(subscriber);
+        propertyData.subscribers.add(subscriber);
     }
 
     @Override
@@ -146,14 +135,13 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             return;
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        if (subscribers == null) {
+        PropertyData propertyData = mPropertyDataLookup.get(propertyId);
+        if (propertyData == null) {
             return;
         }
-        subscribers.remove(subscriber);
-        if (subscribers.isEmpty()) {
-            mCarPropertyToSubscribers.remove(propertyId);
+        propertyData.subscribers.remove(subscriber);
+        if (propertyData.subscribers.isEmpty()) {
+            mPropertyDataLookup.remove(propertyId);
             // Doesn't throw exception as listener is not null. mCarPropertyService and
             // local mCarPropertyToSubscribers will not get out of sync.
             mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
@@ -162,13 +150,13 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
 
     @Override
     public void removeAllDataSubscribers() {
-        for (int i = 0; i < mCarPropertyToSubscribers.size(); i++) {
-            int propertyId = mCarPropertyToSubscribers.keyAt(i);
+        for (int i = 0; i < mPropertyDataLookup.size(); i++) {
             // Doesn't throw exception as listener is not null. mCarPropertyService and
             // local mCarPropertyToSubscribers will not get out of sync.
-            mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
+            mCarPropertyService.unregisterListener(
+                    mPropertyDataLookup.keyAt(i), mCarPropertyEventListener);
         }
-        mCarPropertyToSubscribers.clear();
+        mPropertyDataLookup.clear();
     }
 
     @Override
@@ -178,9 +166,17 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             return false;
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-        return subscribers != null && subscribers.contains(subscriber);
+        return mPropertyDataLookup.contains(propertyId)
+                && mPropertyDataLookup.get(propertyId).subscribers.contains(subscriber);
     }
+
+    @VisibleForTesting
+    public void setBatchIntervalMillis(long intervalMillis) {
+        mBatchIntervalMillis = intervalMillis;
+    }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 
     /**
      * Called when publisher receives new event. It's executed on a CarPropertyService's
@@ -190,13 +186,29 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         // move the work from CarPropertyService's worker thread to the telemetry thread
         mTelemetryHandler.post(() -> {
             CarPropertyValue propValue = event.getCarPropertyValue();
+            int propertyId = propValue.getPropertyId();
+            PropertyData propertyData = mPropertyDataLookup.get(propertyId);
             PersistableBundle bundle = parseCarPropertyValue(
-                    propValue, mCarPropertyList.get(propValue.getPropertyId()).getConfigArray());
-            for (DataSubscriber subscriber
-                    : mCarPropertyToSubscribers.get(propValue.getPropertyId())) {
-                subscriber.push(bundle);
+                    propValue, propertyData.config.getConfigArray());
+            propertyData.pendingData.add(bundle);
+            if (propertyData.pendingData.size() == 1) {
+                mTelemetryHandler.postDelayed(
+                        () -> {
+                            pushPendingDataToSubscribers(propertyData);
+                        },
+                        mBatchIntervalMillis);
             }
         });
+    }
+
+    /**
+     * Pushes bundle batch to subscribers and resets batch.
+     */
+    private void pushPendingDataToSubscribers(PropertyData propertyData) {
+        for (DataSubscriber subscriber : propertyData.subscribers) {
+            subscriber.push(propertyData.pendingData);
+        }
+        propertyData.pendingData = new ArrayList<>();
     }
 
     /**
@@ -204,89 +216,97 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
      */
     private PersistableBundle parseCarPropertyValue(
             CarPropertyValue propValue, List<Integer> configArray) {
-        Object value = propValue.getValue();
         PersistableBundle bundle = new PersistableBundle();
-        bundle.putLong(BUNDLE_TIMESTAMP_KEY, propValue.getTimestamp());
+        bundle.putLong(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_TIMESTAMP, propValue.getTimestamp());
+        bundle.putInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_PROP_ID, propValue.getPropertyId());
+        bundle.putInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_AREA_ID, propValue.getAreaId());
+        bundle.putInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STATUS, propValue.getStatus());
         int type = propValue.getPropertyId() & VehiclePropertyType.MASK;
+        Object value = propValue.getValue();
         if (VehiclePropertyType.BOOLEAN == type) {
-            bundle.putBoolean(BUNDLE_BOOLEAN_KEY, (Boolean) value);
+            bundle.putBoolean(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BOOLEAN, (Boolean) value);
         } else if (VehiclePropertyType.FLOAT == type) {
-            bundle.putDouble(BUNDLE_FLOAT_KEY, ((Float) value).doubleValue());
+            bundle.putDouble(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT,
+                    ((Float) value).doubleValue());
         } else if (VehiclePropertyType.INT32 == type) {
-            bundle.putInt(BUNDLE_INT_KEY, (Integer) value);
+            bundle.putInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT, (Integer) value);
         } else if (VehiclePropertyType.INT64 == type) {
-            bundle.putLong(BUNDLE_LONG_KEY, (Long) value);
+            bundle.putLong(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG, (Long) value);
         } else if (VehiclePropertyType.FLOAT_VEC == type) {
             Float[] floats = (Float[]) value;
             double[] doubles = new double[floats.length];
             for (int i = 0; i < floats.length; i++) {
                 doubles[i] = floats[i].doubleValue();
             }
-            bundle.putDoubleArray(BUNDLE_FLOAT_ARRAY_KEY, doubles);
+            bundle.putDoubleArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT_ARRAY, doubles);
         } else if (VehiclePropertyType.INT32_VEC == type) {
             Integer[] integers = (Integer[]) value;
             int[] ints = new int[integers.length];
             for (int i = 0; i < integers.length; i++) {
                 ints[i] = integers[i];
             }
-            bundle.putIntArray(BUNDLE_INT_ARRAY_KEY, ints);
+            bundle.putIntArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT_ARRAY, ints);
         } else if (VehiclePropertyType.INT64_VEC == type) {
             Long[] oldLongs = (Long[]) value;
             long[] longs = new long[oldLongs.length];
             for (int i = 0; i < oldLongs.length; i++) {
                 longs[i] = oldLongs[i];
             }
-            bundle.putLongArray(BUNDLE_LONG_ARRAY_KEY, longs);
+            bundle.putLongArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG_ARRAY, longs);
         } else if (VehiclePropertyType.STRING == type) {
-            bundle.putString(BUNDLE_STRING_KEY, (String) value);
+            bundle.putString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING, (String) value);
         } else if (VehiclePropertyType.BYTES == type) {
             bundle.putString(
-                    BUNDLE_BYTE_ARRAY_KEY, new String((byte[]) value, StandardCharsets.UTF_8));
+                    Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BYTE_ARRAY,
+                    new String((byte[]) value, StandardCharsets.UTF_8));
         } else if (VehiclePropertyType.MIXED == type) {
             Object[] mixed = (Object[]) value;
             int k = 0;
             if (configArray.get(0) == 1) {  // Has single String
-                bundle.putString(BUNDLE_STRING_KEY, (String) mixed[k++]);
+                bundle.putString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_STRING, (String) mixed[k++]);
             }
             if (configArray.get(1) == 1) {  // Has single Boolean
-                bundle.putBoolean(BUNDLE_BOOLEAN_KEY, (Boolean) mixed[k++]);
+                bundle.putBoolean(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BOOLEAN,
+                        (Boolean) mixed[k++]);
             }
             if (configArray.get(2) == 1) {  // Has single Integer
-                bundle.putInt(BUNDLE_INT_KEY, (Integer) mixed[k++]);
+                bundle.putInt(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT, (Integer) mixed[k++]);
             }
             if (configArray.get(3) != 0) {  // Integer[] length is non-zero
                 int[] ints = new int[configArray.get(3)];
                 for (int i = 0; i < configArray.get(3); i++) {
                     ints[i] = (Integer) mixed[k++];
                 }
-                bundle.putIntArray(BUNDLE_INT_ARRAY_KEY, ints);
+                bundle.putIntArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_INT_ARRAY, ints);
             }
             if (configArray.get(4) == 1) {  // Has single Long
-                bundle.putLong(BUNDLE_LONG_KEY, (Long) mixed[k++]);
+                bundle.putLong(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG, (Long) mixed[k++]);
             }
             if (configArray.get(5) != 0) {  // Long[] length is non-zero
                 long[] longs = new long[configArray.get(5)];
                 for (int i = 0; i < configArray.get(5); i++) {
                     longs[i] = (Long) mixed[k++];
                 }
-                bundle.putLongArray(BUNDLE_LONG_ARRAY_KEY, longs);
+                bundle.putLongArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_LONG_ARRAY, longs);
             }
             if (configArray.get(6) == 1) {  // Has single Float
-                bundle.putDouble(BUNDLE_FLOAT_KEY, ((Float) mixed[k++]).doubleValue());
+                bundle.putDouble(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT,
+                        ((Float) mixed[k++]).doubleValue());
             }
             if (configArray.get(7) != 0) {  // Float[] length is non-zero
                 double[] doubles = new double[configArray.get(7)];
                 for (int i = 0; i < configArray.get(7); i++) {
                     doubles[i] = ((Float) mixed[k++]).doubleValue();
                 }
-                bundle.putDoubleArray(BUNDLE_FLOAT_ARRAY_KEY, doubles);
+                bundle.putDoubleArray(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_FLOAT_ARRAY, doubles);
             }
             if (configArray.get(8) != 0) {  // Byte[] length is non-zero
                 byte[] bytes = new byte[configArray.get(8)];
                 for (int i = 0; i < configArray.get(8); i++) {
                     bytes[i] = (Byte) mixed[k++];
                 }
-                bundle.putString(BUNDLE_BYTE_ARRAY_KEY, new String(bytes, StandardCharsets.UTF_8));
+                bundle.putString(Constants.VEHICLE_PROPERTY_BUNDLE_KEY_BYTE_ARRAY,
+                        new String(bytes, StandardCharsets.UTF_8));
             }
         } else {
             throw new IllegalArgumentException(
@@ -295,6 +315,19 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         return bundle;
     }
 
-    @Override
-    protected void handleSessionStateChange(SessionAnnotation annotation) {}
+    /**
+     * Container class holding all the relevant information for a property.
+     */
+    private static final class PropertyData {
+        // The config containing info on how to parse the property value.
+        public final CarPropertyConfig config;
+        // Subscribers subscribed to the property this PropertyData is mapped to.
+        public final ArraySet<DataSubscriber> subscribers = new ArraySet<>();
+        // The list of bundles that are batched together and pushed to subscribers
+        public List<PersistableBundle> pendingData = new ArrayList<>();
+
+        PropertyData(CarPropertyConfig propConfig) {
+            config = propConfig;
+        }
+    }
 }

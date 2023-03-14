@@ -210,6 +210,21 @@ public final class PolicyReaderUnitTest {
     }
 
     @Test
+    public void testValidXmlWithDefaultPolicyGroup() throws Exception {
+        try (InputStream inputStream = mResources.openRawResource(
+                R.raw.valid_power_policy_default_policy_group)) {
+            mPolicyReader.readPowerPolicyFromXml(inputStream);
+        }
+
+        assertThat(mPolicyReader.getDefaultPowerPolicyGroup()).isEqualTo("mixed_policy_group");
+    }
+
+    @Test
+    public void testInvalidXml_wrongDefaultPolicyGroupId() throws Exception {
+        assertInvalidXml(R.raw.invalid_system_power_policy_incorrect_default_power_policy_group_id);
+    }
+
+    @Test
     public void testDefaultPolicies() throws Exception {
         assertDefaultPolicies();
     }

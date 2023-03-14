@@ -160,7 +160,7 @@ private:
     std::set<int> mBufferRecords GUARDED_BY(mLock);
 
     // A name of the camera device currently in use.
-    std::string_view mCameraIdInUse;
+    std::string mCameraIdInUse;
 
     // List of available camera devices
     std::vector<::aidl::android::hardware::automotive::evs::CameraDesc> mCameraList;

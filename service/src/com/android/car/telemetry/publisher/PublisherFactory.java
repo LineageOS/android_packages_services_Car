@@ -123,7 +123,7 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.MEMORY_FIELD_NUMBER:
                     if (mMemoryPublisher == null) {
                         mMemoryPublisher = new MemoryPublisher(
-                                mPublisherListener, mTelemetryHandler, mResultStore,
+                                mContext, mPublisherListener, mTelemetryHandler, mResultStore,
                                 mSessionController);
                     }
                     return mMemoryPublisher;
