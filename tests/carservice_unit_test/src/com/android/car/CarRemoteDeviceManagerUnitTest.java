@@ -20,16 +20,22 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager;
+import android.car.CarRemoteDeviceManager.StateCallback;
 import android.car.occupantconnection.ICarOccupantConnection;
+import android.car.occupantconnection.IStateCallback;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.os.IBinder;
@@ -41,10 +47,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.concurrent.Executor;
+
 @RunWith(MockitoJUnitRunner.class)
 public final class CarRemoteDeviceManagerUnitTest {
 
     private static final String PACKAGE_NAME = "my_package_name";
+    private static final int TIMEOUT_MS = 1000;
 
     @Mock
     private Car mCar;
@@ -54,6 +63,11 @@ public final class CarRemoteDeviceManagerUnitTest {
     private ICarOccupantConnection mService;
     @Mock
     private Context mContext;
+    @Mock
+    private StateCallback mStateCallback;
+
+    private final OccupantZoneInfo mReceiverZone =
+            new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
 
     private CarRemoteDeviceManager mRemoteDeviceManager;
 
@@ -67,6 +81,12 @@ public final class CarRemoteDeviceManagerUnitTest {
     }
 
     @Test
+    public void testGetEndpointPackageInfoWithNullParameters_throwsException() {
+        assertThrows(NullPointerException.class,
+                () -> mRemoteDeviceManager.getEndpointPackageInfo(/* receiverZone= */ null));
+    }
+
+    @Test
     public void testGetEndpointPackageInfo() throws RemoteException {
         int zoneId = 0;
         OccupantZoneInfo zone =
@@ -76,6 +96,93 @@ public final class CarRemoteDeviceManagerUnitTest {
                 .thenReturn(expectedValue);
 
         assertThat(mRemoteDeviceManager.getEndpointPackageInfo(zone)).isEqualTo(expectedValue);
+    }
+
+    @Test
+    public void testRegisterStateCallbackWithNullParameters_throwsException() {
+        assertThrows(NullPointerException.class,
+                () -> mRemoteDeviceManager.registerStateCallback(/* executor= */ null,
+                        mock(StateCallback.class)));
+        assertThrows(NullPointerException.class,
+                () -> mRemoteDeviceManager.registerStateCallback(Runnable::run,
+                        /* callback= */ null));
+    }
+
+    @Test
+    public void testRegisterStateCallbackWithOccupantZoneStateChange() throws RemoteException {
+        IStateCallback[] binderCallback = new IStateCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            assertThat(args.length).isEqualTo(2);
+
+            String packageName = (String) args[0];
+            assertThat(packageName).isEqualTo(PACKAGE_NAME);
+
+            binderCallback[0] = (IStateCallback) args[1];
+            // Don't call binderCallback[0].on*StateChanged() here, because mStateCallback
+            // is added AFTER this method returns. So if we call
+            // binderCallback[0].on*StateChanged here, mStateCallback will not be invoked.
+            return null;
+        }).when(mService).registerStateCallback(anyString(), any());
+
+        int occupantZoneStates = 123;
+        mRemoteDeviceManager.registerStateCallback(command -> {
+            command.run();
+            // Verify that mStateCallback is invoked on the Executor.
+            verify(mStateCallback, timeout(TIMEOUT_MS))
+                    .onOccupantZoneStateChanged(eq(mReceiverZone), eq(occupantZoneStates));
+        }, mStateCallback);
+        binderCallback[0].onOccupantZoneStateChanged(mReceiverZone, occupantZoneStates);
+    }
+
+    @Test
+    public void testRegisterStateCallbackWithAppStateChange() throws RemoteException {
+        IStateCallback[] binderCallback = new IStateCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            String packageName = (String) args[0];
+            assertThat(packageName).isEqualTo(PACKAGE_NAME);
+            binderCallback[0] = (IStateCallback) args[1];
+            // Don't call binderCallback[0].on*StateChanged() here, because mStateCallback
+            // is added AFTER this method returns. So if we call
+            // binderCallback[0].on*StateChanged here, mStateCallback will not be invoked.
+            return null;
+        }).when(mService).registerStateCallback(anyString(), any());
+
+        int appStates = 456;
+        mRemoteDeviceManager.registerStateCallback(command -> {
+            command.run();
+            // Verify that mStateCallback is invoked on the Executor.
+            verify(mStateCallback, timeout(1000))
+                    .onAppStateChanged(eq(mReceiverZone), eq(appStates));
+        }, mStateCallback);
+        binderCallback[0].onAppStateChanged(mReceiverZone, appStates);
+    }
+
+    @Test
+    public void testRegisterDuplicateStateCallback_throwsException() {
+        mRemoteDeviceManager.registerStateCallback(mock(Executor.class), mock(StateCallback.class));
+
+        // The client shouldn't register another StateCallback.
+        assertThrows(IllegalStateException.class,
+                () -> mRemoteDeviceManager.registerStateCallback(mock(Executor.class),
+                        mock(StateCallback.class)));
+    }
+
+    @Test
+    public void testUnregisterNonexistentStateCallback_throwsException() {
+        assertThrows(IllegalStateException.class,
+                () -> mRemoteDeviceManager.unregisterStateCallback());
+    }
+
+    @Test
+    public void testUnregisterStateCallback() throws RemoteException {
+        mRemoteDeviceManager.registerStateCallback(mock(Executor.class), mStateCallback);
+        mRemoteDeviceManager.unregisterStateCallback();
+
+        verify(mService).unregisterStateCallback(eq(PACKAGE_NAME));
+        // The mStateCallback must be unregistered, otherwise it will throw an exception.
+        mRemoteDeviceManager.registerStateCallback(mock(Executor.class), mStateCallback);
     }
 
     @Test
