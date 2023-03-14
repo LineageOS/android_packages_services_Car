@@ -16,9 +16,12 @@
 
 package android.car.media;
 
+import static android.media.AudioAttributes.USAGE_MEDIA;
+
 import static org.junit.Assert.assertThrows;
 
 import android.car.test.AbstractExpectableTestCase;
+import android.media.AudioAttributes;
 import android.os.Parcel;
 
 import org.junit.Test;
@@ -39,16 +42,19 @@ public final class CarVolumeGroupEventUnitTest extends AbstractExpectableTestCas
     private static final boolean TEST_DEFAULT_BLOCKED_STATE = false;
     private static final boolean TEST_DEFAULT_ATTENUATED_STATE = false;
     private static final boolean TEST_DEFAULT_MUTE_STATE = false;
+    private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final int TEST_PARCEL_FLAGS = 0;
 
     private static final CarVolumeGroupInfo TEST_CAR_VOLUME_GROUP_INFO =
             new CarVolumeGroupInfo.Builder(TEST_GROUP_NAME_MEDIA, TEST_ZONE_ID, TEST_ID)
-            .setAttenuated(TEST_DEFAULT_ATTENUATED_STATE)
-            .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
-            .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
-            .setVolumeGainIndex(TEST_CURRENT_GAIN_INDEX)
-            .setBlocked(TEST_DEFAULT_BLOCKED_STATE)
-            .setMuted(TEST_DEFAULT_MUTE_STATE).build();
+                    .setAttenuated(TEST_DEFAULT_ATTENUATED_STATE)
+                    .setMaxVolumeGainIndex(TEST_MAX_GAIN_INDEX)
+                    .setMinVolumeGainIndex(TEST_MIN_GAIN_INDEX)
+                    .setVolumeGainIndex(TEST_CURRENT_GAIN_INDEX)
+                    .setBlocked(TEST_DEFAULT_BLOCKED_STATE)
+                    .setMuted(TEST_DEFAULT_MUTE_STATE)
+                    .setAudioAttributes(List.of(TEST_MEDIA_AUDIO_ATTRIBUTE)).build();
 
     private static final CarVolumeGroupEvent TEST_CAR_VOLUME_GROUP_EVENT =
             new CarVolumeGroupEvent.Builder(List.of(TEST_CAR_VOLUME_GROUP_INFO),
