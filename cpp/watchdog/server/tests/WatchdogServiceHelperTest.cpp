@@ -473,46 +473,6 @@ TEST_F(WatchdogServiceHelperTest,
     ASSERT_TRUE(actualPackageInfo.empty());
 }
 
-TEST_F(WatchdogServiceHelperTest, TestLatestIoOveruseStats) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    PackageIoOveruseStats stats;
-    stats.uid = 101000;
-    stats.ioOveruseStats.killableOnOveruse = true;
-    stats.ioOveruseStats.startTime = 99898;
-    stats.ioOveruseStats.durationInSeconds = 12345;
-    stats.ioOveruseStats.totalOveruses = 10;
-    stats.shouldNotify = true;
-    std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(expectedIoOveruseStats))
-            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-
-    auto status = mWatchdogServiceHelper->latestIoOveruseStats(expectedIoOveruseStats);
-
-    ASSERT_TRUE(status.isOk()) << status.getMessage();
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatestIoOveruseStatsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_)).Times(0);
-
-    ASSERT_FALSE(mWatchdogServiceHelper->latestIoOveruseStats({}).isOk())
-            << "latestIoOveruseStats " << kFailOnNoCarWatchdogServiceMessage;
-}
-
-TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatestIoOveruseStatsWithErrorStatusFromCarWatchdogService) {
-    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
-
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_))
-            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                                                                "Illegal state"))));
-
-    ASSERT_FALSE(mWatchdogServiceHelper->latestIoOveruseStats({}).isOk())
-            << "latestIoOveruseStats " << kFailOnCarWatchdogServiceErrMessage;
-}
-
 TEST_F(WatchdogServiceHelperTest, TestResetResourceOveruseStats) {
     ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
 

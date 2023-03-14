@@ -21,8 +21,11 @@
 #include "ProcDiskStatsCollector.h"
 #include "ProcStatCollector.h"
 #include "UidStatsCollector.h"
+#include "WatchdogServiceHelper.h"
 
 #include <WatchdogProperties.sysprop.h>
+#include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
+#include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
@@ -87,7 +90,8 @@ public:
     // Callback to process the data collected during boot-time.
     virtual android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) = 0;
     // Callback to process the data collected during a wake-up event.
     virtual android::base::Result<void> onWakeUpCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -96,7 +100,8 @@ public:
     virtual android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) = 0;
     // Callback to process the data collected during user switch.
     virtual android::base::Result<void> onUserSwitchCollection(
             time_t time, userid_t from, userid_t to,
@@ -111,7 +116,8 @@ public:
             time_t time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) = 0;
     /**
      * Callback to periodically monitor the collected data and trigger the given |alertHandler|
      * on detecting resource overuse.
@@ -119,6 +125,11 @@ public:
     virtual android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
             const std::function<void()>& alertHandler) = 0;
+    // Callback to perform actions (such as clearing caches) after resource stats are sent to
+    // the car watchdog service.
+    // TODO(b/272524458): WatchdogPerfService should manage the ResourceStats, instead of
+    // each individual data processor.
+    virtual android::base::Result<void> onResourceStatsSent(bool successful) = 0;
     // Callback to dump the boot-time collected and periodically collected data.
     virtual android::base::Result<void> onDump(int fd) const = 0;
     /**
@@ -218,7 +229,7 @@ public:
 
 class WatchdogPerfService final : public WatchdogPerfServiceInterface {
 public:
-    WatchdogPerfService() :
+    WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::postSystemEventDuration().value_or(
                           kDefaultPostSystemEventDurationSec.count())))),
@@ -239,7 +250,8 @@ public:
           mUidStatsCollector(android::sp<UidStatsCollector>::make()),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
-          mDataProcessors({}) {}
+          mDataProcessors({}),
+          mWatchdogServiceHelper(watchdogServiceHelper) {}
 
     android::base::Result<void> registerDataProcessor(
             android::sp<DataProcessorInterface> processor) override;
@@ -398,6 +410,9 @@ private:
 
     // Data processors for the collected performance data.
     std::vector<android::sp<DataProcessorInterface>> mDataProcessors GUARDED_BY(mMutex);
+
+    // Helper to communicate with the CarWatchdogService.
+    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogPerfServicePeer;
