@@ -93,6 +93,7 @@ final class CarVolumeGroupFactory {
         mAddressToCarAudioDeviceInfo.put(info.getAddress(), info);
         mContextToAddress.put(carAudioContextId, info.getAddress());
 
+        // TODO(b/271749259) - this logic is redundant now. clean up
         if (info.getDefaultGain() > mDefaultGain) {
             // We're arbitrarily selecting the highest
             // device default gain as the group's default.
