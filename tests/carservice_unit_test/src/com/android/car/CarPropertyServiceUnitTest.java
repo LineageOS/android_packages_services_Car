@@ -100,7 +100,7 @@ public final class CarPropertyServiceUnitTest {
     private static final int WRITE_ONLY_FLOAT_PROPERTY_ID = 32345;
     private static final int WRITE_ONLY_ENUM_PROPERTY_ID = 112345;
     private static final int WRITE_ONLY_OTHER_ENUM_PROPERTY_ID =
-            VehiclePropertyIds.EV_STOPPING_MODE;
+            VehiclePropertyIds.CRUISE_CONTROL_TYPE;
 
     private static final int ON_CHANGE_READ_WRITE_PROPERTY_ID = 1111;
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
