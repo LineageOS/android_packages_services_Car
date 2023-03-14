@@ -357,7 +357,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 clients.add(client);
             }
             // Set the new updateRateHz
-            if (sanitizedUpdateRateHz > mPropertyHalService.getSampleRate(propertyId)) {
+            if (sanitizedUpdateRateHz > mPropertyHalService.getSubscribedUpdateRateHz(propertyId)) {
                 mPropertyHalService.subscribeProperty(propertyId, sanitizedUpdateRateHz);
             }
             finalClient = client;
@@ -479,7 +479,8 @@ public class CarPropertyService extends ICarProperty.Stub
             float rate = c.getRate(propId);
             updateMaxRate = Math.max(rate, updateMaxRate);
         }
-        if (Float.compare(updateMaxRate, mPropertyHalService.getSampleRate(propId)) != 0) {
+        if (Float.compare(updateMaxRate,
+                mPropertyHalService.getSubscribedUpdateRateHz(propId)) != 0) {
             try {
                 // Only reset the sample rate if needed
                 mPropertyHalService.subscribeProperty(propId, updateMaxRate);
