@@ -26,6 +26,7 @@ import static android.content.Context.BIND_AUTO_CREATE;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.Nullable;
@@ -56,9 +57,12 @@ import android.util.Log;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -85,7 +89,6 @@ final class VendorServiceController implements UserLifecycleListener {
     private static final String PACKAGE_DATA_SCHEME = "package";
 
     private final List<VendorServiceInfo> mVendorServiceInfos = new ArrayList<>();
-    // TODO(b/240607225): Synchronize access to mConnections. It can lead to unexpected behavior.
     private final Map<ConnectionKey, VendorServiceConnection> mConnections =
             new ConcurrentHashMap<>();
     private final Context mContext;
@@ -172,6 +175,30 @@ final class VendorServiceController implements UserLifecycleListener {
         }
         mVendorServiceInfos.clear();
         mConnections.clear();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dump(IndentingPrintWriter writer) {
+        writer.println("VendorServiceController:");
+
+        writer.increaseIndent();
+        writer.printf("DBG=%b\n", DBG);
+
+        writer.println("VendorServiceInfo:");
+        writer.increaseIndent();
+        for (VendorServiceInfo info : mVendorServiceInfos) {
+            writer.println(info.toString());
+        }
+        writer.decreaseIndent(); // end of VendorServiceInfo:
+
+        writer.println("Connections:");
+        writer.increaseIndent();
+        for (VendorServiceConnection connection : mConnections.values()) {
+            connection.dump(writer);
+        }
+        writer.decreaseIndent(); // end of Connections:
+
+        writer.decreaseIndent(); // end of VendorServiceController:
     }
 
     @Override
@@ -459,6 +486,12 @@ final class VendorServiceController implements UserLifecycleListener {
         public String toString() {
             return "VendorServiceConnection[user=" + mUser
                     + ", service=" + mVendorServiceInfo + "]";
+        }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        public void dump(PrintWriter writer) {
+            writer.printf("%s, mRecentFailures=%d, mBound=%b, mStarted=%b, mStopRequested=%b\n",
+                    toString(), mRecentFailures, mBound, mStarted, mStopRequested);
         }
 
         private boolean isUser(@UserIdInt int userId) {
