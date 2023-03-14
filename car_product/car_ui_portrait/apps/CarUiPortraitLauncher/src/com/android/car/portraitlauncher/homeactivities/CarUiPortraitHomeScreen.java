@@ -696,19 +696,17 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             @Override
             public void onStateChangeStart(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
-                if (newState.isFullScreen()) {
-                    if (mIsSUWInProgress) {
-                        setHomeScreenBottomMargin(/* bottomMargin= */ 0);
-                    } else {
-                        setHomeScreenBottomMargin(mNavBarHeight);
-                    }
+                boolean isSystemBarHidden = newState.isFullScreen();
+                if (isSystemBarHidden) {
+                    setHomeScreenBottomMargin(mIsSUWInProgress ? 0 : mNavBarHeight);
                 } else {
                     setHomeScreenBottomMargin(mNavBarHeight);
                     setControlBarVisibility(/* isVisible= */ true, animated);
                 }
 
-                boolean isStatusBarHidden = newState.isFullScreen();
-                notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isStatusBarHidden));
+                if (!mIsSUWInProgress) {
+                    notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isSystemBarHidden));
+                }
             }
 
             @Override
