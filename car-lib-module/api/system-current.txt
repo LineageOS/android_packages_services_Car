@@ -1594,6 +1594,7 @@ package android.car.media {
     field public static final int EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED = 1; // 0x1
     field public static final int EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED = 4; // 0x4
     field public static final int EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED = 2; // 0x2
+    field public static final int EVENT_TYPE_ZONE_CONFIGURATION_CHANGED = 64; // 0x40
     field public static final int EXTRA_INFO_ATTENUATION_ACTIVATION = 110; // 0x6e
     field public static final int EXTRA_INFO_MUTE_LOCKED = 210; // 0xd2
     field public static final int EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM = 203; // 0xcb
@@ -1629,6 +1630,7 @@ package android.car.media {
 
   public final class CarVolumeGroupInfo implements android.os.Parcelable {
     method public int describeContents();
+    method @NonNull public java.util.List<android.media.AudioAttributes> getAudioAttributes();
     method public int getId();
     method public int getMaxVolumeGainIndex();
     method public int getMinVolumeGainIndex();
@@ -1648,6 +1650,7 @@ package android.car.media {
     ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull public android.car.media.CarVolumeGroupInfo build();
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
     method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
