@@ -21,14 +21,17 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
+import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -321,6 +324,15 @@ public class CarAudioZone {
                 }
             }
         }
+    }
+
+    List<CarVolumeGroupEvent> onAudioPortsChanged(List<HalAudioDeviceInfo> deviceInfos) {
+        ArraySet<CarVolumeGroupEvent> events = new ArraySet<>();
+        for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
+            // filter out duplicate volume group events from different zone configs
+            events.addAll(mCarAudioZoneConfigs.valueAt(index).onAudioPortsChanged(deviceInfos));
+        }
+        return new ArrayList<>(events);
     }
 
     /**
