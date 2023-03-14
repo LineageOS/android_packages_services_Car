@@ -517,6 +517,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             opts.areaIds = new int[0];
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
+                if (mSubscribedProperties.get(property) != null
+                        && mSubscribedProperties.get(property).sampleRate == samplingRateHz) {
+                    Slogf.w(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
+                            + " is already subscribed at rate: " + samplingRateHz + " hz");
+                    return;
+                }
                 mSubscribedProperties.put(property, opts);
             }
             try {
