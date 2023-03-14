@@ -54,9 +54,6 @@ public final class GetSetValueResult implements Parcelable {
     /**
      * Creates an async get property result.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-
     public static GetSetValueResult newGetValueResult(int requestId,
             CarPropertyValue carPropertyValue) {
         return new GetSetValueResult(requestId, carPropertyValue,
@@ -66,8 +63,6 @@ public final class GetSetValueResult implements Parcelable {
     /**
      * Creates an async error get property result.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static GetSetValueResult newErrorGetValueResult(int requestId,
             @CarPropertyAsyncErrorCode int errorCode) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
@@ -77,8 +72,6 @@ public final class GetSetValueResult implements Parcelable {
     /**
      * Creates an async set property result.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static GetSetValueResult newSetValueResult(int requestId,
             long updateTimestampNanos) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
@@ -88,8 +81,6 @@ public final class GetSetValueResult implements Parcelable {
     /**
      * Creates an async error set property result.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                     minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static GetSetValueResult newErrorSetValueResult(int requestId,
             @CarPropertyAsyncErrorCode int errorCode) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
