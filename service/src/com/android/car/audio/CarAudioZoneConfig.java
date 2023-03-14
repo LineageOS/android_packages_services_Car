@@ -15,26 +15,31 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioZoneConfigInfo;
+import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceInfo;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * A class encapsulates the configuration of an audio zone in car.
@@ -45,23 +50,24 @@ import java.util.Set;
  */
 final class CarAudioZoneConfig {
 
+    private static final int INVALID_GROUP_ID = -1;
     private final int mZoneId;
     private final int mZoneConfigId;
     private final String mName;
     private final boolean mIsDefault;
     private final List<CarVolumeGroup> mVolumeGroups;
-    private final Set<String> mDeviceAddresses;
     private final List<String> mGroupIdToNames;
+    private final Map<String, Integer> mDeviceAddressToGroupId;
 
     private CarAudioZoneConfig(String name, int zoneId, int zoneConfigId, boolean isDefault,
-            List<CarVolumeGroup> volumeGroups, Set<String> deviceAddresses,
+            List<CarVolumeGroup> volumeGroups, Map<String, Integer> deviceAddressToGroupId,
             List<String> groupIdToNames) {
         mName = name;
         mZoneId = zoneId;
         mZoneConfigId = zoneConfigId;
         mIsDefault = isDefault;
         mVolumeGroups = volumeGroups;
-        mDeviceAddresses = deviceAddresses;
+        mDeviceAddressToGroupId = deviceAddressToGroupId;
         mGroupIdToNames = groupIdToNames;
     }
 
@@ -300,7 +306,7 @@ final class CarAudioZoneConfig {
     }
 
     private boolean containsDeviceAddress(String deviceAddress) {
-        return mDeviceAddresses.contains(deviceAddress);
+        return mDeviceAddressToGroupId.containsKey(deviceAddress);
     }
 
     boolean onAudioGainChanged(List<Integer> halReasons, CarAudioGainConfigInfo gainInfo) {
@@ -333,13 +339,49 @@ final class CarAudioZoneConfig {
         return new CarAudioZoneConfigInfo(mName, mZoneId, mZoneConfigId);
     }
 
+    /**
+     * For the list of {@link HalAudioDeviceInfo}, update respective {@link CarAudioDeviceInfo}.
+     * If the volume group has new gains (min/max/default/current), add a
+     * {@link CarVolumeGroupEvent}
+     */
+    List<CarVolumeGroupEvent> onAudioPortsChanged(List<HalAudioDeviceInfo> deviceInfos) {
+        List<CarVolumeGroupEvent> events = new ArrayList<>();
+        ArraySet<Integer> updatedGroupIds = new ArraySet<>();
+
+        // iterate through the incoming hal device infos and update the respective groups
+        // car audio device infos
+        for (int index = 0; index < deviceInfos.size(); index++) {
+            HalAudioDeviceInfo deviceInfo = deviceInfos.get(index);
+            int groupId = mDeviceAddressToGroupId.getOrDefault(deviceInfo.getAddress(),
+                    INVALID_GROUP_ID);
+            if (groupId == INVALID_GROUP_ID) {
+                continue;
+            }
+            mVolumeGroups.get(groupId).updateAudioDeviceInfo(deviceInfo);
+            updatedGroupIds.add(groupId);
+        }
+
+        // for the updated groups, recalculate the gain stages. If new gain stage, create
+        // an event to callback
+        for (int index = 0; index < updatedGroupIds.size(); index++) {
+            CarVolumeGroup group = mVolumeGroups.get(updatedGroupIds.valueAt(index));
+            int eventType = group.calculateNewGainStageFromDeviceInfos();
+            if (eventType != 0) {
+                events.add(new CarVolumeGroupEvent.Builder(List.of(group.getCarVolumeGroupInfo()),
+                        eventType, List.of(EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM))
+                        .build());
+            }
+        }
+        return events;
+    }
+
     static final class Builder {
         private final int mZoneId;
         private final int mZoneConfigId;
         private final String mName;
         private final boolean mIsDefault;
         private final List<CarVolumeGroup> mVolumeGroups = new ArrayList<>();
-        private final Set<String> mDeviceAddresses = new ArraySet<>();
+        private final Map<String, Integer> mDeviceAddressToGroupId = new ArrayMap<>();
         private final List<String> mGroupIdToNames = new ArrayList<>();
 
         Builder(String name, int zoneId, int zoneConfigId, boolean isDefault) {
@@ -351,14 +393,20 @@ final class CarAudioZoneConfig {
 
         Builder addVolumeGroup(CarVolumeGroup volumeGroup) {
             mVolumeGroups.add(volumeGroup);
-            mDeviceAddresses.addAll(volumeGroup.getAddresses());
             mGroupIdToNames.add(volumeGroup.getName());
+            addGroupAddressesToMap(volumeGroup.getAddresses(), volumeGroup.getId());
             return this;
         }
 
         CarAudioZoneConfig build() {
             return new CarAudioZoneConfig(mName, mZoneId, mZoneConfigId, mIsDefault, mVolumeGroups,
-                    mDeviceAddresses, mGroupIdToNames);
+                    mDeviceAddressToGroupId, mGroupIdToNames);
+        }
+
+        private void addGroupAddressesToMap(List<String> addresses, int groupId) {
+            for (int index = 0; index < addresses.size(); index++) {
+                mDeviceAddressToGroupId.put(addresses.get(index), groupId);
+            }
         }
     }
 }

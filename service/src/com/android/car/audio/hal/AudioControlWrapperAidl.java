@@ -33,7 +33,9 @@ import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IAudioGainCallback;
 import android.hardware.automotive.audiocontrol.IFocusListener;
+import android.hardware.automotive.audiocontrol.IModuleChangeCallback;
 import android.hardware.automotive.audiocontrol.MutingInfo;
+import android.media.audio.common.AudioPort;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -50,6 +52,8 @@ import com.android.internal.util.Preconditions;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /** Wrapper for AIDL interface for AudioControl HAL */
 public final class AudioControlWrapperAidl implements AudioControlWrapper, IBinder.DeathRecipient {
@@ -59,13 +63,17 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             "android.hardware.automotive.audiocontrol.IAudioControl/default";
 
     private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
+    private static final int AIDL_AUDIO_CONTROL_VERSION_2 = 2;
 
     private IBinder mBinder;
     private IAudioControl mAudioControl;
     private boolean mListenerRegistered = false;
     private boolean mGainCallbackRegistered = false;
+    private boolean mModuleChangeCallbackRegistered;
 
     private AudioControlDeathRecipient mDeathRecipient;
+
+    private Executor mExecutor = Executors.newSingleThreadExecutor();
 
     public static @Nullable IBinder getService() {
         return ServiceManagerHelper.waitForDeclaredService(AUDIO_CONTROL_SERVICE);
@@ -96,7 +104,14 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
                 } catch (RemoteException e) {
                     Slogf.w("supportsFeature Failed to get version for feature: " + feature, e);
                 }
-                // Fallthrough
+                return false;
+            case AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK:
+                try {
+                    return mAudioControl.getInterfaceVersion() > AIDL_AUDIO_CONTROL_VERSION_2;
+                } catch (RemoteException e) {
+                    Slogf.w("supportsFeature Failed to get version for feature: " + feature, e);
+                }
+                return false;
             default:
                 return false;
         }
@@ -165,6 +180,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         }
         writer.printf("Focus listener registered on HAL? %b\n", mListenerRegistered);
         writer.printf("Audio Gain Callback registered on HAL? %b\n", mGainCallbackRegistered);
+        writer.printf("Module change Callback set on HAL? %b\n", mModuleChangeCallbackRegistered);
 
         writer.println("Supported Features");
         writer.increaseIndent();
@@ -173,6 +189,9 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         if (supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA)) {
             writer.println("- AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA");
             writer.println("- AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK");
+        }
+        if (supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK)) {
+            writer.println("- AUDIOCONTROL_FEATURE_AUDIO_MODULE_CALLBACK");
         }
         writer.decreaseIndent();
 
@@ -227,6 +246,47 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     }
 
     @Override
+    public void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
+        IModuleChangeCallback callback = new ModuleChangeCallbackWrapper(moduleChangeCallback);
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mAudioControl.setModuleChangeCallback(callback);
+                } catch (RemoteException e) {
+                    // maybe hal already has a callback, lets clear it and try again one more time.
+                    try {
+                        mAudioControl.clearModuleChangeCallback();
+                        mAudioControl.setModuleChangeCallback(callback);
+                    } catch (RemoteException ex) {
+                        Slogf.e(TAG, ex, "Failed to set module change callback");
+                        throw new IllegalStateException(
+                                "IAudioControl#setModuleChangeCallback failed", ex);
+                    }
+                }
+            }
+        });
+        mModuleChangeCallbackRegistered = true;
+    }
+
+    @Override
+    public void clearModuleChangeCallback() {
+        mExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    mAudioControl.clearModuleChangeCallback();
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, e, "Failed to clear module change callback");
+                    throw new IllegalStateException(
+                            "IAudioControl#clearModuleChangeCallback failed", e);
+                }
+            }
+        });
+        mModuleChangeCallbackRegistered = false;
+    }
+
+    @Override
     public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
         try {
             mBinder.linkToDeath(this, 0);
@@ -247,6 +307,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
         Slogf.w(TAG, "AudioControl HAL died. Fetching new handle");
         mListenerRegistered = false;
         mGainCallbackRegistered = false;
+        mModuleChangeCallbackRegistered = false;
         mBinder = AudioControlWrapperAidl.getService();
         mAudioControl = IAudioControl.Stub.asInterface(mBinder);
         linkToDeath(mDeathRecipient);
@@ -372,6 +433,36 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
                         gainsLiteral);
             }
             mCallback.onAudioDeviceGainsChanged(reasonsList, carAudioGainConfigs);
+        }
+    }
+
+    private static final class ModuleChangeCallbackWrapper extends IModuleChangeCallback.Stub {
+        private final HalAudioModuleChangeCallback mCallback;
+
+        ModuleChangeCallbackWrapper(HalAudioModuleChangeCallback callback) {
+            mCallback = callback;
+        }
+
+        @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+        public int getInterfaceVersion() {
+            return this.VERSION;
+        }
+
+        @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+        public String getInterfaceHash() {
+            return this.HASH;
+        }
+
+        @Override
+        public void onAudioPortsChanged(AudioPort[] audioPorts) {
+            List<HalAudioDeviceInfo> halAudioDeviceInfos = new ArrayList<>();
+            for (int index = 0; index < audioPorts.length; index++) {
+                AudioPort port = audioPorts[index];
+                halAudioDeviceInfos.add(new HalAudioDeviceInfo(port));
+            }
+            mCallback.onAudioPortsChanged(halAudioDeviceInfos);
         }
     }
 }
