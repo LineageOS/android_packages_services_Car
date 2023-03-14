@@ -1294,6 +1294,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                     + SystemProperties.get(
                             PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES,
                             /* default= */ null));
+            mVendorServiceController.dump(writer);
         }
     }
 
