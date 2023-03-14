@@ -398,13 +398,13 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void registerStateCallback(IStateCallback callback) {
+    public void registerStateCallback(String packageName, IStateCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
         // TODO(b/257117236): implement this method.
     }
 
     @Override
-    public void unregisterStateCallback() {
+    public void unregisterStateCallback(String packageName) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
         // TODO(b/257117236): implement this method.
     }
