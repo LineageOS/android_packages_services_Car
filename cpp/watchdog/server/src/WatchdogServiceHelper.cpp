@@ -245,18 +245,6 @@ ScopedAStatus WatchdogServiceHelper::getPackageInfosForUids(
     return service->getPackageInfosForUids(uids, vendorPackagePrefixes, packageInfos);
 }
 
-ScopedAStatus WatchdogServiceHelper::latestIoOveruseStats(
-        const std::vector<PackageIoOveruseStats>& packageIoOveruseStats) {
-    std::shared_ptr<ICarWatchdogServiceForSystem> service;
-    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Watchdog service is not initialized");
-    } else {
-        service = mService;
-    }
-    return service->latestIoOveruseStats(packageIoOveruseStats);
-}
-
 ScopedAStatus WatchdogServiceHelper::resetResourceOveruseStats(
         const std::vector<std::string>& packageNames) {
     std::shared_ptr<ICarWatchdogServiceForSystem> service;
