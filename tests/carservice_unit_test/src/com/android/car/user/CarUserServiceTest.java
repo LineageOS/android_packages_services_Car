@@ -394,7 +394,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUmIsUserVisible(mMockedUserManager, true);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
 
-        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
 
         List<CarOccupantZoneManager.OccupantZoneInfo> infos = new ArrayList<>();
         CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
@@ -431,7 +431,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUmIsUserVisible(mMockedUserManager, false);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
 
-        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
 
         List<CarOccupantZoneManager.OccupantZoneInfo> infos = new ArrayList<>();
         CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
@@ -2251,7 +2251,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testStartUser_userAlreadyVisibleOnDisplay_success()
             throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
-        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
@@ -2309,7 +2309,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testStartUser_userOnAnotherDisplay() throws Exception {
         initUserAndDisplay(TEST_USER_ID, TEST_DISPLAY_ID);
-        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID + 1);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID + 1);
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
@@ -2982,6 +2982,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockAmStartUserInBackgroundVisibleOnDisplay(userId, displayId, true);
         mockCarOccupantZoneServiceGetUserForDisplay(displayId,
                 CarOccupantZoneManager.INVALID_USER_ID);
-        mockCarServiceHelperGetDisplayAssignedToUser(userId, Display.INVALID_DISPLAY);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(userId, Display.INVALID_DISPLAY);
     }
 }

@@ -431,7 +431,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
         if (mDisplayId == Display.INVALID_DISPLAY) {
             // If there is no display id associated with the context, further obtain the display
             // id by mapping the user to display id.
-            mDisplayId = UserManagerHelper.getDisplayIdAssignedToUser(mUserManager);
+            mDisplayId = UserManagerHelper.getMainDisplayIdAssignedToUser(mUserManager);
             Log.d(TAG, "Display ID assigned to user is display " + mDisplayId);
         }
 

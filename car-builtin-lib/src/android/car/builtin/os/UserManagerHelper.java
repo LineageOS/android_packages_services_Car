@@ -218,9 +218,9 @@ public final class UserManagerHelper {
                         com.android.internal.R.integer.config_multiuserMaximumUsers)));
     }
 
-    /** Check {@link UserManager#getDisplayIdAssignedToUser()}. */
+    /** Check {@link UserManager#getMainDisplayIdAssignedToUser()}. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static int getDisplayIdAssignedToUser(@NonNull UserManager userManager) {
-        return userManager.getDisplayIdAssignedToUser();
+    public static int getMainDisplayIdAssignedToUser(@NonNull UserManager userManager) {
+        return userManager.getMainDisplayIdAssignedToUser();
     }
 }

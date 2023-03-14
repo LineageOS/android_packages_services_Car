@@ -79,8 +79,8 @@ interface ICarServiceHelper {
     /** Check {@link android.os.Process#getProcessGroup(int)}. */
     int getProcessGroup(int pid) = 8;
 
-    /** Same as {@code UserManagerInternal#getDisplayAssignedToUser()} */
-    int getDisplayAssignedToUser(int userId) = 9;
+    /** Same as {@code UserManagerInternal#getMainDisplayAssignedToUser()} */
+    int getMainDisplayAssignedToUser(int userId) = 9;
 
     /** Same as {@code UserManagerInternal#getUsersAssignedToDisplay()} */
     int getUserAssignedToDisplay(int displayId) = 10;

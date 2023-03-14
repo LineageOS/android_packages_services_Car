@@ -236,9 +236,9 @@ public final class CarServiceHelperWrapper {
     /**
      * See {@code ICarServiceHelper}.
      */
-    public int getDisplayAssignedToUser(int userId) {
+    public int getMainDisplayAssignedToUser(int userId) {
         try {
-            return waitForCarServiceHelper().getDisplayAssignedToUser(userId);
+            return waitForCarServiceHelper().getMainDisplayAssignedToUser(userId);
         } catch (RemoteException e) {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
