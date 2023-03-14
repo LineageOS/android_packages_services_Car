@@ -22,6 +22,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
+import android.media.AudioAttributes;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -29,6 +30,8 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -52,6 +55,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
     private final boolean mIsMuted;
     private final boolean mIsBlocked;
     private final boolean mIsAttenuated;
+    private final List<AudioAttributes> mAudioAttributes;
 
     private CarVolumeGroupInfo(
             String name,
@@ -62,7 +66,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
             int minVolumeGainIndex,
             boolean isMuted,
             boolean isBlocked,
-            boolean isAttenuated) {
+            boolean isAttenuated,
+            List<AudioAttributes> audioAttributes) {
         mName = Objects.requireNonNull(name, "Volume info name can not be null");
         mZoneId = zoneId;
         mId = id;
@@ -72,6 +77,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
         mIsMuted = isMuted;
         mIsBlocked = isBlocked;
         mIsAttenuated = isAttenuated;
+        mAudioAttributes = Objects.requireNonNull(audioAttributes,
+                "Audio attributes can not be null");
     }
 
     /**
@@ -81,16 +88,28 @@ public final class CarVolumeGroupInfo implements Parcelable {
      */
     @VisibleForTesting()
     public CarVolumeGroupInfo(Parcel in) {
-        mZoneId = in.readInt();
-        mId = in.readInt();
-        mName = in.readString();
-        mVolumeGainIndex = in.readInt();
-        mMaxVolumeGainIndex = in.readInt();
-        mMinVolumeGainIndex = in.readInt();
-        mIsMuted = in.readBoolean();
-        mIsBlocked = in.readBoolean();
-        mIsAttenuated = in.readBoolean();
-
+        int zoneId = in.readInt();
+        int id = in.readInt();
+        String name = in.readString();
+        int volumeGainIndex = in.readInt();
+        int maxVolumeGainIndex = in.readInt();
+        int minVolumeGainIndex = in.readInt();
+        boolean isMuted = in.readBoolean();
+        boolean isBlocked = in.readBoolean();
+        boolean isAttenuated = in.readBoolean();
+        List<AudioAttributes> audioAttributes = new ArrayList<>();
+        in.readParcelableList(audioAttributes, AudioAttributes.class.getClassLoader(),
+                AudioAttributes.class);
+        this.mZoneId = zoneId;
+        this.mId = id;
+        this.mName = name;
+        this.mVolumeGainIndex = volumeGainIndex;
+        this.mMaxVolumeGainIndex = maxVolumeGainIndex;
+        this.mMinVolumeGainIndex = minVolumeGainIndex;
+        this.mIsMuted = isMuted;
+        this.mIsBlocked = isBlocked;
+        this.mIsAttenuated = isAttenuated;
+        this.mAudioAttributes = audioAttributes;
     }
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
@@ -199,6 +218,16 @@ public final class CarVolumeGroupInfo implements Parcelable {
         return mIsAttenuated;
     }
 
+    /**
+     * Returns a list of audio attributes associated with the volume group
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @NonNull
+    public List<AudioAttributes> getAudioAttributes() {
+        return mAudioAttributes;
+    }
+
     @Override
     public String toString() {
         return new StringBuilder().append("CarVolumeGroupId { .name = ").append(mName)
@@ -209,6 +238,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 .append(", muted = ").append(mIsMuted)
                 .append(", blocked = ").append(mIsBlocked)
                 .append(", attenuated = ").append(mIsAttenuated)
+                .append(", audio attributes = ").append(mAudioAttributes)
                 .append(" }").toString();
     }
 
@@ -225,6 +255,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         dest.writeBoolean(mIsMuted);
         dest.writeBoolean(mIsBlocked);
         dest.writeBoolean(mIsAttenuated);
+        dest.writeParcelableList(mAudioAttributes, flags);
     }
 
     /**
@@ -256,13 +287,14 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 && mMaxVolumeGainIndex == that.mMaxVolumeGainIndex
                 && mMinVolumeGainIndex == that.mMinVolumeGainIndex
                 && mIsMuted == that.mIsMuted && mIsBlocked == that.mIsBlocked
-                && mIsAttenuated == that.mIsAttenuated;
+                && mIsAttenuated == that.mIsAttenuated
+                && Objects.equals(mAudioAttributes, that.mAudioAttributes);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mName, mZoneId, mId, mVolumeGainIndex, mMaxVolumeGainIndex,
-                mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated);
+                mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated, mAudioAttributes);
     }
 
     /**
@@ -282,6 +314,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
         private boolean mIsMuted;
         private boolean mIsBlocked;
         private boolean mIsAttenuated;
+        private List<AudioAttributes> mAudioAttributes = new ArrayList<>();
 
         private long mBuilderFieldsSet = 0L;
 
@@ -302,6 +335,7 @@ public final class CarVolumeGroupInfo implements Parcelable {
             mIsMuted = info.mIsMuted;
             mIsBlocked = info.mIsBlocked;
             mIsAttenuated = info.mIsAttenuated;
+            mAudioAttributes = info.mAudioAttributes;
         }
 
         /**
@@ -371,6 +405,19 @@ public final class CarVolumeGroupInfo implements Parcelable {
         }
 
         /**
+         * Sets the list of audio attributes associated with the volume group
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @NonNull
+        public Builder setAudioAttributes(@NonNull List<AudioAttributes> audioAttributes) {
+            checkNotUsed();
+            mAudioAttributes = Objects.requireNonNull(audioAttributes,
+                    "Audio Attributes can not be null");
+            return this;
+        }
+
+        /**
          * Builds the instance.
          *
          * @throws IllegalArgumentException if min volume gain index is larger than max volume
@@ -390,7 +437,8 @@ public final class CarVolumeGroupInfo implements Parcelable {
 
 
             return new CarVolumeGroupInfo(mName, mZoneId, mId, mVolumeGainIndex,
-                    mMaxVolumeGainIndex, mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated);
+                    mMaxVolumeGainIndex, mMinVolumeGainIndex, mIsMuted, mIsBlocked, mIsAttenuated,
+                    mAudioAttributes);
         }
 
         private void validateGainIndexRange() {
