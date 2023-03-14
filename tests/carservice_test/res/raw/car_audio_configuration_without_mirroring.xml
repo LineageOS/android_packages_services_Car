@@ -14,10 +14,6 @@
      limitations under the License.
 -->
 <carAudioConfiguration version="3">
-    <mirroringDevices>
-        <mirroringDevice address="mirror_bus_device_1"/>
-        <mirroringDevice address="mirror_bus_device_2"/>
-    </mirroringDevices>
     <zones>
         <zone name="primary zone" isPrimary="true" audioZoneId="0" occupantZoneId="1">
             <zoneConfigs>
