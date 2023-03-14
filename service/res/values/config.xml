@@ -75,6 +75,18 @@
             adjustments to change what user is adjusting. -->
     <integer name="audioVolumeKeyEventTimeoutMs">3000</integer>
 
+    <!--  Configuration to enable callback events to volume groups. If this is set to true, clients
+          will receive callback through ICarVolumeGroupEvent to events impacting volume groups.
+          When enabled:
+          - It is strongly recommended that the vendors also support
+            IAudioControl#setModuleChangeCallback, IAudioControl#registerGainCallback for events
+            and changes to audio hardware.
+          - If both CarVolumeCallback and CarVolumeGroupEventCallback are registered by the same
+            application, then the volume group index and volume group mute callbacks shall be
+            through CarVolumeGroupEventCallback ONLY. Therefore, it is strongly recommended that
+            all the applications migrate to the new callback interface for consistent behavior. -->
+    <bool name="audioUseCarVolumeGroupEvent">false</bool>
+
     <!-- Whether to block other audio while media audio is muted with display off. When set to true,
          other sounds cannot be played either while display is off. If false, only media is muted
          and other sounds can be still played. -->

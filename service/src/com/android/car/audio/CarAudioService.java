@@ -353,8 +353,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     + "this requires audioVolumeAdjustmentContextsVersion 2,"
                     + " instead version " + mAudioVolumeAdjustmentContextsVersion + " was found");
         }
-        // TODO(b/261647905): add new rro flag to enable the feature
-        mUseCarVolumeGroupEvents = false;
+        mUseCarVolumeGroupEvents = mUseDynamicRouting && mContext.getResources().getBoolean(
+                R.bool.audioUseCarVolumeGroupEvent);
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
         mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
                 R.bool.audioPersistMasterMuteState);
@@ -2387,7 +2387,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     private void requireVolumeGroupEvents() {
         Preconditions.checkState(mUseCarVolumeGroupEvents,
-                "Car Volume Group Events is required");
+                "Car Volume Group Event is required");
     }
 
     private void requireValidFadeRange(float value) {
