@@ -24,13 +24,23 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static com.android.car.audio.CarAudioContext.AudioContext;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.media.CarAudioManager;
+import android.car.media.CarAudioZoneConfigInfo;
 import android.car.test.AbstractExpectableTestCase;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 
@@ -52,6 +62,10 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     private static final String ALARM_ADDRESS = "bus11_alarm";
     private static final String ANNOUNCEMENT_ADDRESS = "bus12_announcement";
     private static final String CONFIG_1_ALL_ADDRESS = "bus100_all";
+
+    private static final String TEST_ZONE_NAME = "Secondary zone";
+    private static final String TEST_ZONE_CONFIG_NAME_0 = "Zone Config 0";
+    private static final String TEST_ZONE_CONFIG_NAME_1 = "Zone Config 1";
 
     private static final int TEST_ZONE_ID = 1;
     private static final int TEST_ZONE_CONFIG_ID_0 = 0;
@@ -84,6 +98,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     @Mock
     private CarAudioZoneConfig mMockZoneConfig1;
 
+    private List<CarVolumeGroup> mZoneConfig0VolumeGroups;
+
     private CarAudioZone mTestAudioZone;
 
     @AudioContext
@@ -114,13 +130,252 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, CONFIG_1_ALL_ADDRESS)
                 .build();
 
-        mMockZoneConfig0 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_0)
-                .setIsDefault(true).addVolumeGroup(mMockMusicGroup0)
+        mZoneConfig0VolumeGroups = List.of(mMockMusicGroup0, mMockNavGroup0, mMockVoiceGroup0);
+
+        mMockZoneConfig0 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_0,
+                TEST_ZONE_CONFIG_NAME_0).setIsDefault(true).addVolumeGroup(mMockMusicGroup0)
                 .addVolumeGroup(mMockNavGroup0).addVolumeGroup(mMockVoiceGroup0).build();
-        mMockZoneConfig1 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_1)
-                .addVolumeGroup(mMockGroup1).build();
-        mTestAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, "Secondary zone",
+        mMockZoneConfig1 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID, TEST_ZONE_CONFIG_ID_1,
+                TEST_ZONE_CONFIG_NAME_1).addVolumeGroup(mMockGroup1).build();
+        mTestAudioZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT, TEST_ZONE_NAME,
                 TEST_ZONE_ID);
+    }
+
+    @Test
+    public void init_allZoneConfigsInitialized() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        mTestAudioZone.init();
+
+        verify(mMockZoneConfig0).synchronizeCurrentGainIndex();
+        verify(mMockZoneConfig1).synchronizeCurrentGainIndex();
+    }
+
+    @Test
+    public void getId() {
+        expectWithMessage("Zone id").that(mTestAudioZone.getId()).isEqualTo(TEST_ZONE_ID);
+    }
+
+    @Test
+    public void getName() {
+        expectWithMessage("Zone name").that(mTestAudioZone.getName()).isEqualTo(TEST_ZONE_NAME);
+    }
+
+    @Test
+    public void isPrimaryZone_forPrimaryZone_returnsTrue() {
+        CarAudioZone primaryZone = new CarAudioZone(TEST_CAR_AUDIO_CONTEXT,
+                /* name= */ "primary zone", CarAudioManager.PRIMARY_AUDIO_ZONE);
+
+        expectWithMessage("Primary zone").that(primaryZone.isPrimaryZone()).isTrue();
+    }
+
+    @Test
+    public void isPrimaryZone_forNonPrimaryZone_returnsFalse() {
+        expectWithMessage("Non-primary zone").that(mTestAudioZone.isPrimaryZone()).isFalse();
+    }
+
+    @Test
+    public void getCurrentCarAudioZoneConfig() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current zone configuration")
+                .that(mTestAudioZone.getCurrentCarAudioZoneConfig()).isEqualTo(mMockZoneConfig0);
+    }
+
+    @Test
+    public void getAllCarAudioZoneConfigs() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("All zone configurations")
+                .that(mTestAudioZone.getAllCarAudioZoneConfigs())
+                .containsExactly(mMockZoneConfig0, mMockZoneConfig1);
+    }
+
+    @Test
+    public void isCurrentZoneConfig_forCurrentConfig_returnsTrue() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
+                .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
+
+        expectWithMessage("Current zone config info")
+                .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfo))
+                .isTrue();
+    }
+
+    @Test
+    public void isCurrentZoneConfig_forCurrentConfig_returnsFalse() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo nonCurrentZoneConfigInfo = getNonCurrentZoneConfigInfo();
+
+        expectWithMessage("Non-current zone config info")
+                .that(mTestAudioZone.isCurrentZoneConfig(nonCurrentZoneConfigInfo))
+                .isFalse();
+    }
+
+    @Test
+    public void setCurrentCarZoneConfig() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        CarAudioZoneConfigInfo currentZoneConfigInfoToSwitch = getNonCurrentZoneConfigInfo();
+
+        mTestAudioZone.setCurrentCarZoneConfig(currentZoneConfigInfoToSwitch);
+
+        expectWithMessage("Current zone config info after switching zone configuration")
+                .that(mTestAudioZone.isCurrentZoneConfig(currentZoneConfigInfoToSwitch))
+                .isTrue();
+    }
+
+    @Test
+    public void getCurrentVolumeGroup_withGroupId() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        int groupId = 1;
+
+        expectWithMessage("Current volume group with id %s", groupId)
+                .that(mTestAudioZone.getCurrentVolumeGroup(groupId)).isEqualTo(mMockNavGroup0);
+    }
+
+    @Test
+    public void getCurrentVolumeGroup_withName() {
+        String groupName0 = "Group Name 0";
+        when(mMockZoneConfig0.getVolumeGroup(groupName0)).thenReturn(mMockVoiceGroup0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current volume group with name %s", groupName0)
+                .that(mTestAudioZone.getCurrentVolumeGroup(groupName0))
+                .isEqualTo(mMockVoiceGroup0);
+    }
+
+    @Test
+    public void getCurrentVolumeGroupCount() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current volume group count")
+                .that(mTestAudioZone.getCurrentVolumeGroupCount())
+                .isEqualTo(mZoneConfig0VolumeGroups.size());
+    }
+
+    @Test
+    public void getCurrentVolumeGroups() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current volume groups")
+                .that(mTestAudioZone.getCurrentVolumeGroups()).asList()
+                .containsExactlyElementsIn(mZoneConfig0VolumeGroups).inOrder();
+    }
+
+    @Test
+    public void validateZoneConfigs_withValidConfigs_returnsTrue() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Valid zone configurations")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isTrue();
+    }
+
+    @Test
+    public void validateZoneConfigs_withoutConfigs_returnsFalse() {
+        expectWithMessage("Invalid zone without zone configurations")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneConfigs_withoutInvalidDefaultZoneConfigId_returnsFalse() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Invalid zone with invalid default zone configuration id")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneConfigs_withWrongZoneIdInZoneConfigs_returnsFalse() {
+        CarAudioZoneConfig zoneConfig2 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID + 1,
+                /* configId= */ 2, TEST_ZONE_CONFIG_NAME_1).build();
+        mTestAudioZone.addZoneConfig(zoneConfig2);
+
+        expectWithMessage("Invalid zone with wrong zone id in zone configurations")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneConfigs_withoutDefaultZoneConfig_returnsFalse() {
+        CarAudioZoneConfig zoneConfig2 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                /* configId= */ 2, TEST_ZONE_CONFIG_NAME_1).build();
+        mTestAudioZone.addZoneConfig(zoneConfig2);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Invalid zone without default zone configuration")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneConfigs_withMultipleDefaultZoneConfigs_returnsFalse() {
+        CarAudioZoneConfig zoneConfig2 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                /* configId= */ 2, TEST_ZONE_CONFIG_NAME_1).setIsDefault(true).build();
+        mTestAudioZone.addZoneConfig(zoneConfig2);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        expectWithMessage("Invalid zone with multiple default zone configurations")
+                .that(mTestAudioZone.validateZoneConfigs(/* useCoreAudioRouting= */ false))
+                .isFalse();
+    }
+
+    @Test
+    public void validateZoneConfigs_withInvalidVolumeGroupsInZoneConfigs_returnsFalse() {
+        boolean useCoreAudioRouting = true;
+        CarAudioZoneConfig zoneConfig2 = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                /* configId= */ 2, TEST_ZONE_CONFIG_NAME_1).build();
+        when(zoneConfig2.validateVolumeGroups(any(), eq(useCoreAudioRouting))).thenReturn(false);
+        mTestAudioZone.addZoneConfig(zoneConfig2);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+
+        expectWithMessage("Invalid zone with invalid volume groups in zone configurations")
+                .that(mTestAudioZone.validateZoneConfigs(useCoreAudioRouting))
+                .isFalse();
+    }
+
+    @Test
+    public void validateCanUseDynamicMixRouting() {
+        when(mMockZoneConfig0.validateCanUseDynamicMixRouting(
+                /* useCoreAudioRouting= */ false)).thenReturn(true);
+        when(mMockZoneConfig1.validateCanUseDynamicMixRouting(
+                /* useCoreAudioRouting= */ false)).thenReturn(false);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Using dynamic mix routing validated")
+                .that(mTestAudioZone.validateCanUseDynamicMixRouting(
+                        /* useCoreAudioRouting= */ false)).isTrue();
+    }
+
+    @Test
+    public void getAddressForContext_returnsExpectedDeviceAddress() {
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        String musicAddress = mTestAudioZone.getAddressForContext(TEST_MEDIA_CONTEXT);
+        String navAddress = mTestAudioZone.getAddressForContext(TEST_NAVIGATION_CONTEXT);
+        String voiceAddress = mTestAudioZone.getAddressForContext(TEST_ASSISTANT_CONTEXT);
+
+        expectWithMessage("Music volume group address")
+                .that(musicAddress).isEqualTo(MUSIC_ADDRESS);
+        expectWithMessage("Navigation volume group address")
+                .that(navAddress).matches(NAV_ADDRESS);
+        expectWithMessage("Assistant volume group address")
+                .that(voiceAddress).matches(VOICE_ADDRESS);
     }
 
     @Test
@@ -143,6 +398,17 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Non-existing context exception").that(thrown).hasMessageThat()
                 .contains("Could not find output device in zone");
+    }
+
+    @Test
+    public void getInputDevices() {
+        AudioDeviceAttributes mockInputDevice1 = mock(AudioDeviceAttributes.class);
+        AudioDeviceAttributes mockInputDevice2 = mock(AudioDeviceAttributes.class);
+        mTestAudioZone.addInputAudioDevice(mockInputDevice1);
+        mTestAudioZone.addInputAudioDevice(mockInputDevice2);
+
+        expectWithMessage("Input devices").that(mTestAudioZone.getInputAudioDevices())
+                .containsExactly(mockInputDevice1, mockInputDevice2);
     }
 
     @Test
@@ -239,6 +505,113 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 .that(activeAttributes).isEmpty();
     }
 
+    @Test
+    public void getCurrentAudioDeviceInfos() {
+        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
+        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
+        when(mMockZoneConfig0.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo0));
+        when(mMockZoneConfig1.getAudioDeviceInfos()).thenReturn(List.of(audioDeviceInfo1));
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current device infos")
+                .that(mTestAudioZone.getCurrentAudioDeviceInfos())
+                .containsExactly(audioDeviceInfo0);
+    }
+
+    @Test
+    public void getCurrentAudioDeviceInfosSupportingDynamicMix() {
+        AudioDeviceInfo audioDeviceInfo0 = mock(AudioDeviceInfo.class);
+        AudioDeviceInfo audioDeviceInfo1 = mock(AudioDeviceInfo.class);
+        when(mMockZoneConfig0.getAudioDeviceInfosSupportingDynamicMix())
+                .thenReturn(List.of(audioDeviceInfo0));
+        when(mMockZoneConfig1.getAudioDeviceInfosSupportingDynamicMix())
+                .thenReturn(List.of(audioDeviceInfo1));
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Current device infos supporting dynamic mix")
+                .that(mTestAudioZone.getCurrentAudioDeviceInfosSupportingDynamicMix())
+                .containsExactly(audioDeviceInfo0);
+    }
+
+    @Test
+    public void isAudioDeviceInfoValidForZone() {
+        AudioDeviceInfo audioDeviceInfo = mock(AudioDeviceInfo.class);
+        when(mMockZoneConfig0.isAudioDeviceInfoValidForZone(audioDeviceInfo)).thenReturn(false);
+        when(mMockZoneConfig1.isAudioDeviceInfoValidForZone(audioDeviceInfo)).thenReturn(true);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        expectWithMessage("Invalid device for current zone configuration")
+                .that(mTestAudioZone.isAudioDeviceInfoValidForZone(audioDeviceInfo)).isFalse();
+    }
+
+    @Test
+    public void onAudioGainChanged_withDeviceAddressesInZone() {
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        AudioGainConfigInfo musicGainInfo = new AudioGainConfigInfo();
+        musicGainInfo.zoneId = TEST_ZONE_ID;
+        musicGainInfo.devicePortAddress = CONFIG_1_ALL_ADDRESS;
+        musicGainInfo.volumeIndex = 666;
+        CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
+        AudioGainConfigInfo navGainInfo = new AudioGainConfigInfo();
+        navGainInfo.zoneId = TEST_ZONE_ID;
+        navGainInfo.devicePortAddress = NAV_ADDRESS;
+        navGainInfo.volumeIndex = 999;
+        CarAudioGainConfigInfo carNavGainInfo = new CarAudioGainConfigInfo(navGainInfo);
+        List<CarAudioGainConfigInfo> carGains = List.of(carMusicGainInfo, carNavGainInfo);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+
+        mTestAudioZone.onAudioGainChanged(reasons, carGains);
+
+        verify(mMockMusicGroup0, never()).onAudioGainChanged(any(), any());
+        verify(mMockNavGroup0).onAudioGainChanged(any(), any());
+        verify(mMockVoiceGroup0, never()).onAudioGainChanged(any(), any());
+        verify(mMockGroup1).onAudioGainChanged(any(), any());
+    }
+
+    @Test
+    public void onAudioGainChanged_withoutAnyDeviceAddressInZone() {
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        AudioGainConfigInfo navGainInfo = new AudioGainConfigInfo();
+        navGainInfo.zoneId = TEST_ZONE_ID;
+        navGainInfo.devicePortAddress = NAV_ADDRESS;
+        navGainInfo.volumeIndex = 999;
+        CarAudioGainConfigInfo carNavGainInfo = new CarAudioGainConfigInfo(navGainInfo);
+        CarAudioZoneConfig zoneConfig = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                TEST_ZONE_CONFIG_ID_0, "zone config test").setIsDefault(true)
+                .addVolumeGroup(mMockMusicGroup0).build();
+        mTestAudioZone.addZoneConfig(zoneConfig);
+
+        mTestAudioZone.onAudioGainChanged(reasons, List.of(carNavGainInfo));
+
+        verify(mMockMusicGroup0, never()).onAudioGainChanged(any(), any());
+        verify(mMockNavGroup0, never()).onAudioGainChanged(any(), any());
+        verify(mMockVoiceGroup0, never()).onAudioGainChanged(any(), any());
+    }
+
+    @Test
+    public void getCarAudioContext() {
+        expectWithMessage("Audio context in audio zone")
+                .that(mTestAudioZone.getCarAudioContext()).isEqualTo(TEST_CAR_AUDIO_CONTEXT);
+    }
+
+    private CarAudioZoneConfigInfo getNonCurrentZoneConfigInfo() {
+        CarAudioZoneConfigInfo currentZoneConfigInfo = mTestAudioZone
+                .getCurrentCarAudioZoneConfig().getCarAudioZoneConfigInfo();
+        List<CarAudioZoneConfigInfo> zoneConfigInfoList = mTestAudioZone
+                .getCarAudioZoneConfigInfos();
+        for (int index = 0; index < zoneConfigInfoList.size(); index++) {
+            CarAudioZoneConfigInfo zoneConfigInfo = zoneConfigInfoList.get(index);
+            if (!currentZoneConfigInfo.equals(zoneConfigInfo)) {
+                return zoneConfigInfo;
+            }
+        }
+        return null;
+    }
+
     private static final class AudioPlaybackConfigurationBuilder {
         @AudioAttributes.AttributeUsage private int mUsage = USAGE_MEDIA;
         private boolean mIsActive = true;
@@ -280,11 +653,13 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
         private List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();
         int mConfigId;
         int mZoneId;
+        String mName;
         boolean mIsDefault;
 
-        TestCarAudioZoneConfigBuilder(int zoneId, int configId) {
+        TestCarAudioZoneConfigBuilder(int zoneId, int configId, String name) {
             mZoneId = zoneId;
             mConfigId = configId;
+            mName = name;
         }
 
         TestCarAudioZoneConfigBuilder setIsDefault(boolean isDefault) {
@@ -301,15 +676,32 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
             CarAudioZoneConfig zoneConfig = mock(CarAudioZoneConfig.class);
             when(zoneConfig.getZoneConfigId()).thenReturn(mConfigId);
             when(zoneConfig.getZoneId()).thenReturn(mZoneId);
+            when(zoneConfig.getName()).thenReturn(mName);
             when(zoneConfig.isDefault()).thenReturn(mIsDefault);
             for (int groupIndex = 0; groupIndex < mCarVolumeGroups.size(); groupIndex++) {
                 when(zoneConfig.getVolumeGroup(groupIndex))
                         .thenReturn(mCarVolumeGroups.get(groupIndex));
             }
+            when(zoneConfig.getVolumeGroupCount()).thenReturn(mCarVolumeGroups.size());
             when(zoneConfig.getVolumeGroups())
                     .thenReturn(mCarVolumeGroups.toArray(new CarVolumeGroup[0]));
             when(zoneConfig.validateVolumeGroups(eq(TEST_CAR_AUDIO_CONTEXT), anyBoolean()))
                     .thenReturn(true);
+            doAnswer(invocation -> {
+                List<Integer> halReasons = (List<Integer>) invocation.getArguments()[0];
+                CarAudioGainConfigInfo gainInfo =
+                        (CarAudioGainConfigInfo) invocation.getArguments()[1];
+                for (int groupIndex = 0; groupIndex < mCarVolumeGroups.size(); groupIndex++) {
+                    CarVolumeGroup group = mCarVolumeGroups.get(groupIndex);
+                    if (group.getAddresses().contains(gainInfo.getDeviceAddress())) {
+                        group.onAudioGainChanged(halReasons, gainInfo);
+                        return true;
+                    }
+                }
+                return false;
+            }).when(zoneConfig).onAudioGainChanged(anyList(), any(CarAudioGainConfigInfo.class));
+            when(zoneConfig.getCarAudioZoneConfigInfo())
+                    .thenReturn(new CarAudioZoneConfigInfo(mName, mZoneId, mConfigId));
             return zoneConfig;
         }
     }
