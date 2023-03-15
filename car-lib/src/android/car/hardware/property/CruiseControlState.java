@@ -25,7 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Cruise Control (CC).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#CRUISE_CONTROL_STATE}.
  *
  * <p>This enum could be extended in future releases to include additional feature states.
  * @hide
@@ -88,7 +89,7 @@ public class CruiseControlState {
     private CruiseControlState() {}
 
     /**
-     * Gets a user-friendly representation of an {@code CruiseControlState}.
+     * Returns a user-friendly representation of a {@code CruiseControlState}.
      */
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

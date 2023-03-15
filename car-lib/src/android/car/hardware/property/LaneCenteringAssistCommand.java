@@ -25,24 +25,22 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used by Lane Centering Assist (LCA) to enumerate commands.
+ * Used by {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_COMMAND} to enumerate
+ * commands.
  *
  * @hide
  */
 @SystemApi
 public final class LaneCenteringAssistCommand {
-
     /**
      * When {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} = {@link
-     * android.car.hardware.property.LaneCenteringAssistState#ENABLED}, this command sends a request
-     * to activate steering control that keeps the vehicle centered in its lane. While waiting for
-     * the LCA System to take control of the vehicle, {@link
-     * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} will be in the {@link
-     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATION_REQUESTED} state. Once the
-     * vehicle takes control of steering, then {@link
-     * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} will be in the {@link
-     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATED} state. Otherwise, an error
-     * can be communicated through an {@link android.car.hardware.property.ErrorState} value.
+     * LaneCenteringAssistState#ENABLED}, this command sends a request to activate steering control
+     * that keeps the vehicle centered in its lane. While waiting for the LCA System to take control
+     * of the vehicle, {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} will be in
+     * the {@link LaneCenteringAssistState#ACTIVATION_REQUESTED} state. Once the vehicle takes
+     * control of steering, then {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE}
+     * will be in the {@link LaneCenteringAssistState#ACTIVATED} state. Otherwise, an error
+     * can be communicated through an {@link ErrorState} value.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -50,11 +48,11 @@ public final class LaneCenteringAssistCommand {
 
     /**
      * When {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} is set to {@link
-     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATION_REQUESTED} or {@link
-     * android.car.hardware.property.LaneCenteringAssistState#ACTIVATED}, this
-     * command deactivates steering control and the driver should take full control of the vehicle.
-     * If this command succeeds, {@link android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE}
-     * will be updated to {@link android.car.hardware.property.LaneCenteringAssistState#ENABLED}
+     * LaneCenteringAssistState#ACTIVATION_REQUESTED} or {@link LaneCenteringAssistState#ACTIVATED},
+     * this command deactivates steering control and the driver should take full control of the
+     * vehicle. If this command succeeds, {@link
+     * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE} will be updated to {@link
+     * LaneCenteringAssistState#ENABLED}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
