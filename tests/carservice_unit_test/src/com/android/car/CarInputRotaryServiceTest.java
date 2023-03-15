@@ -303,7 +303,7 @@ public class CarInputRotaryServiceTest {
                 mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
                 mSystemInterface, mHandler, mTelecomManager, mDefaultKeyEventMainListener,
                 mDefaultMotionEventMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, userManager);
         mCarInputService.init();
     }
 
