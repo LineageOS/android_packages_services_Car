@@ -455,8 +455,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             try {
                 mService.registerReceiver(mPackageName, receiverEndpointId, mBinderPayloadCallback);
                 // Save the callback only after the remote call succeeded.
-                mReceiverPayloadCallbackMap.put(
-                        receiverEndpointId, new Pair<>(callback, executor));
+                mReceiverPayloadCallbackMap.put(receiverEndpointId, new Pair<>(callback, executor));
             } catch (RemoteException e) {
                 Slog.e(TAG, "Failed to register receiver: " + receiverEndpointId);
                 handleRemoteExceptionFromCarService(e);
@@ -480,7 +479,16 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void unregisterReceiver(@NonNull String receiverEndpointId) {
         Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
-        // TODO(b/257117236): implement this method.
+        synchronized (mLock) {
+            try {
+                mService.unregisterReceiver(mPackageName, receiverEndpointId);
+                // Remove the callback after the remote call succeeded.
+                mReceiverPayloadCallbackMap.remove(receiverEndpointId);
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to unregister receiver: " + receiverEndpointId);
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
     }
 
     /**

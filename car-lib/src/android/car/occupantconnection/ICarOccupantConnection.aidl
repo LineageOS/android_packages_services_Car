@@ -43,7 +43,7 @@ interface ICarOccupantConnection {
     // The following callbacks are used by CarOccupantConnectionManager.
     void registerReceiver(String packageName, in String receiverEndpointId,
             in IPayloadCallback callback);
-    void unregisterReceiver(in String receiverEndpointId);
+    void unregisterReceiver(String packageName, in String receiverEndpointId);
 
     void requestConnection(String packageName,
             in CarOccupantZoneManager.OccupantZoneInfo receiverZone,

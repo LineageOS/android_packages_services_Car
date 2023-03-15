@@ -195,7 +195,7 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
-    public void testRegisterReceiverWithNullParameters() {
+    public void testRegisterReceiverWithNullParameters_throwsException() {
         assertThrows(NullPointerException.class,
                 () -> mOccupantConnectionManager.registerReceiver(
                         /* receiverEndpointId= */ null, mCallbackExecutor, mPayloadCallback));
@@ -208,7 +208,8 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
-    public void testRegisterReceiverWithDuplicateReceiverId() throws RemoteException {
+    public void testRegisterReceiverWithDuplicateReceiverId_throwsException()
+            throws RemoteException {
         // The first registerReceiver() call should run normally, while the second
         // registerReceiver() call should throw an exception because the same ID has been
         // registered.
@@ -261,5 +262,20 @@ public final class CarOccupantConnectionManagerUnitTest {
             verify(mPayloadCallback, timeout(TIMEOUT_MS)).onPayloadReceived(senderZone, payload);
         }, mPayloadCallback);
         binderCallback[0].onPayloadReceived(senderZone, RECEIVER_ENDPOINT_ID, payload);
+    }
+
+    @Test
+    public void testUnregisterReceiverWithNullParameter_throwsException() throws RemoteException {
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.unregisterReceiver(
+                        /* receiverEndpointId= */ null));
+
+    }
+
+    @Test
+    public void testUnregisterReceiver() throws RemoteException {
+        mOccupantConnectionManager.unregisterReceiver(RECEIVER_ENDPOINT_ID);
+
+        verify(mService).unregisterReceiver(eq(PACKAGE_NAME), eq(RECEIVER_ENDPOINT_ID));
     }
 }

@@ -484,9 +484,33 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void unregisterReceiver(String receiverEndpointId) {
+    public void unregisterReceiver(String packageName, String receiverEndpointId) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
+        assertPackageName(mContext, packageName);
+
+        ClientId receiverClient = getCallingClientId(packageName);
+        ReceiverEndpointId receiverEndpoint =
+                new ReceiverEndpointId(receiverClient, receiverEndpointId);
+        IBackendReceiver receiverService;
+        synchronized (mLock) {
+            assertHasReceiverEndpointLocked(receiverEndpoint);
+            receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+            if (receiverService == null) {
+                // This could happen when unregisterReceiver() is called immediately after
+                // registerReceiver(). In this case, the receiver service is not connected yet.
+                Slogf.d(TAG, "The receiver service in " + receiverClient + " is being bound");
+                mPreregisteredReceiverEndpointMap.remove(receiverEndpoint);
+                maybeUnbindReceiverServiceLocked(receiverClient);
+                return;
+            }
+            try {
+                receiverService.unregisterReceiver(receiverEndpointId);
+                mRegisteredReceiverEndpointMap.remove(receiverEndpoint);
+                maybeUnbindReceiverServiceLocked(receiverClient);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed the unregister the receiver " + receiverEndpoint + e);
+            }
+        }
     }
 
     @Override
@@ -594,6 +618,14 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @GuardedBy("mLock")
+    private void assertHasReceiverEndpointLocked(ReceiverEndpointId receiverEndpoint) {
+        if (!hasReceiverEndpointLocked(receiverEndpoint)) {
+            throw new IllegalStateException("The receiver endpoint was not registered before: "
+                    + receiverEndpoint);
+        }
+    }
+
+    @GuardedBy("mLock")
     private boolean hasReceiverEndpointLocked(ReceiverEndpointId receiverEndpoint) {
         return mPreregisteredReceiverEndpointMap.containsKey(receiverEndpoint)
                 || mRegisteredReceiverEndpointMap.containsKey(receiverEndpoint);
@@ -636,6 +668,63 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         mContext.bindServiceAsUser(intent, connection,
                 Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT, userHandle);
         mReceiverServiceConnectionMap.put(receiverClient, connection);
+    }
+
+    /**
+     * Unbinds the receiver service in {@code receiverClient} if there is no
+     * preregistered/registered receiver endpoint in {@code receiverClient}, and no
+     * pending/established connection to {@code receiverClient}.
+     */
+    @GuardedBy("mLock")
+    private void maybeUnbindReceiverServiceLocked(ClientId receiverClient) {
+        for (int i = 0; i < mRegisteredReceiverEndpointMap.size(); i++) {
+            ReceiverEndpointId receiverEndpoint = mRegisteredReceiverEndpointMap.keyAt(i);
+            if (receiverEndpoint.clientId.equals(receiverClient)) {
+                Slogf.i(TAG, "Don't unbind the receiver service because it has a receiver"
+                        + "endpoint registered: " + receiverEndpoint);
+                return;
+            }
+        }
+        for (int i = 0; i < mPreregisteredReceiverEndpointMap.size(); i++) {
+            ReceiverEndpointId receiverEndpoint = mPreregisteredReceiverEndpointMap.keyAt(i);
+            if (receiverEndpoint.clientId.equals(receiverClient)) {
+                Slogf.i(TAG, "Don't unbind the receiver service because it has a receiver"
+                        + "endpoint pending registered " + receiverEndpoint);
+                return;
+            }
+        }
+        for (int i = 0; i < mAcceptedConnectionRequestMap.size(); i++) {
+            ConnectionId connectionId = mAcceptedConnectionRequestMap.keyAt(i);
+            if (connectionId.receiverClient.equals(receiverClient)) {
+                Slogf.i(TAG, "Don't unbind the receiver service because there is a connection"
+                        + " to it:" + connectionId);
+                return;
+            }
+        }
+        for (int i = 0; i < mPendingConnectionRequestMap.size(); i++) {
+            ConnectionId connectionId = mPendingConnectionRequestMap.keyAt(i);
+            if (connectionId.receiverClient.equals(receiverClient)) {
+                Slogf.i(TAG, "Don't unbind because there is a sender endpoint connecting"
+                        + "to it:" + connectionId);
+                return;
+            }
+        }
+
+        unbindReceiverServiceLocked(receiverClient);
+        mConnectingReceiverServices.remove(receiverClient);
+        mConnectedReceiverServiceMap.remove(receiverClient);
+    }
+
+    @GuardedBy("mLock")
+    private void unbindReceiverServiceLocked(ClientId receiverClient) {
+        ServiceConnection connection = mReceiverServiceConnectionMap.get(receiverClient);
+        if (connection == null) {
+            Slogf.w(TAG, "Failed to unbind to the receiver service in " + receiverClient
+                    + " because it was not bound");
+            return;
+        }
+        mContext.unbindService(connection);
+        mReceiverServiceConnectionMap.remove(receiverClient);
     }
 
     @GuardedBy("mLock")
