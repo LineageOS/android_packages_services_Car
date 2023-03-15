@@ -60,6 +60,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.view.Display;
@@ -108,6 +109,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock SystemInterface mSystemInterface;
     @Mock CarAudioService mCarAudioService;
     @Mock CarMediaService mCarMediaService;
+    @Mock UserManager mUserManager;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Mock private Resources mMockResources;
@@ -139,7 +141,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
                 mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
                 mSystemInterface, mHandler, mTelecomManager, mDefaultKeyEventMainListener,
                 mDefaultMotionEventMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mUserManager);
 
         mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
 
@@ -1007,14 +1009,30 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartHome() {
+    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartSecondaryHome() {
         doAnswer((invocation) -> null).when(() -> CarServiceUtils.startHomeForUserAndDisplay(
                 any(Context.class), anyInt(), anyInt()));
 
+        // TODO(b/266473227): add to AbstractExtendedMockitoTestCase.
+        when(mUserManager.isVisibleBackgroundUsersOnDefaultDisplaySupported()).thenReturn(false);
+
         send(Key.UP, KeyEvent.KEYCODE_HOME, Display.MAIN, PASSENGER_SEAT);
 
-        verify(() -> CarServiceUtils.startHomeForUserAndDisplay(eq(mContext), eq(PASSENGER_USER_ID),
-                eq(PASSENGER_DISPLAY_ID)));
+        verify(() -> CarServiceUtils.startHomeForUserAndDisplay(mContext, PASSENGER_USER_ID,
+                PASSENGER_DISPLAY_ID));
+    }
+
+    @Test
+    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartSecondaryHome_noDriver() {
+        doAnswer((invocation) -> null).when(
+                () -> CarServiceUtils.startSecondaryHomeForUserAndDisplay(
+                        any(Context.class), anyInt(), anyInt()));
+        when(mUserManager.isVisibleBackgroundUsersOnDefaultDisplaySupported()).thenReturn(true);
+
+        send(Key.UP, KeyEvent.KEYCODE_HOME, Display.MAIN, PASSENGER_SEAT);
+
+        verify(() -> CarServiceUtils.startSecondaryHomeForUserAndDisplay(
+                mContext, PASSENGER_USER_ID, PASSENGER_DISPLAY_ID));
     }
 
     @Test
