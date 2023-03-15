@@ -82,14 +82,8 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     public static final int TEST_ANNOUNCEMENT_CONTEXT_ID = TEST_CAR_AUDIO_CONTEXT
             .getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
-    private List<CarAudioDeviceInfo> mCarAudioOutputDeviceInfos;
-    private AudioDeviceInfo[] mInputAudioDeviceInfos;
-    private InputStream mInputStream;
-    private Context mContext;
-    private CarAudioSettings mCarAudioSettings;
-    @Mock
-    private AudioManager mAudioManager;
-
+    private static final String BUS_MIRROR_DEVICE_1 = "mirror_bus_device_1";
+    private static final String BUS_MIRROR_DEVICE_2 = "mirror_bus_device_2";
     private static final String PRIMARY_ZONE_NAME = "primary zone";
     private static final String PRIMARY_ZONE_CONFIG_NAME = "primary zone config 1";
     private static final String REAR_ZONE_CONFIG_NAME_1 = "rear seat zone config 1";
@@ -109,6 +103,18 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     private static final int PRIMARY_OCCUPANT_ID = 1;
     private static final int SECONDARY_ZONE_ID = 2;
+    private List<CarAudioDeviceInfo> mCarAudioOutputDeviceInfos;
+    private AudioDeviceInfo[] mInputAudioDeviceInfos;
+    private InputStream mInputStream;
+    private Context mContext;
+    private CarAudioSettings mCarAudioSettings;
+    @Mock
+    private AudioManager mAudioManager;
+
+    @Mock
+    private CarAudioDeviceInfo mTestCarMirrorDeviceOne;
+    @Mock
+    private CarAudioDeviceInfo mTestCarMirrorDeviceTwo;
 
     public CarAudioZonesHelperTest() {
         super(TAG);
@@ -138,6 +144,8 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     private List<CarAudioDeviceInfo> generateCarDeviceInfos() {
+        mTestCarMirrorDeviceOne = generateCarAudioDeviceInfo(BUS_MIRROR_DEVICE_1);
+        mTestCarMirrorDeviceTwo = generateCarAudioDeviceInfo(BUS_MIRROR_DEVICE_2);
         return ImmutableList.of(
                 generateCarAudioDeviceInfo(BUS_0_ADDRESS),
                 generateCarAudioDeviceInfo(BUS_1_ADDRESS),
@@ -147,7 +155,9 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 generateCarAudioDeviceInfo(""),
                 generateCarAudioDeviceInfo(""),
                 generateCarAudioDeviceInfo(null),
-                generateCarAudioDeviceInfo(null)
+                generateCarAudioDeviceInfo(null),
+                mTestCarMirrorDeviceOne,
+                mTestCarMirrorDeviceTwo
         );
     }
 
@@ -1082,6 +1092,70 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
             expectWithMessage("Exception thrown when OEM audio contexts was defined after zones")
                     .that(thrown).hasMessageThat().matches("Car audio context .* is invalid");
+        }
+    }
+
+    @Test
+    public void getMirrorDeviceInfos() throws Exception {
+        CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                /* useCoreAudioRouting= */ false);
+        cazh.loadAudioZones();
+
+        expectWithMessage("Mirror devices").that(cazh.getMirrorDeviceInfos())
+                .containsExactly(mTestCarMirrorDeviceOne, mTestCarMirrorDeviceTwo);
+    }
+
+    @Test
+    public void getMirrorDeviceInfos_withOutMirroringDevices() throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_without_mirroring)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ false, /* useCoreAudioRouting= */ false);
+            cazh.loadAudioZones();
+
+            expectWithMessage("Mirror devices for empty configuration")
+                    .that(cazh.getMirrorDeviceInfos()).isEmpty();
+        }
+    }
+
+    @Test
+    public void loadAudioZones_failsOnMirroringDevicesInV2() throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_with_mirroring_V2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                    () -> cazh.loadAudioZones());
+
+            expectWithMessage("Mirror devices in v2 configuration exception")
+                    .that(thrown).hasMessageThat().contains("mirroringDevices");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_failsOnDuplicateMirroringDevices() throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_duplicate_mirror_devices)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ false,
+                    /* useCoreAudioRouting= */ false);
+
+            IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                    () -> cazh.loadAudioZones());
+
+            expectWithMessage("Duplicates mirror devices in configuration exception")
+                    .that(thrown).hasMessageThat().contains("can not repeat");
         }
     }
 

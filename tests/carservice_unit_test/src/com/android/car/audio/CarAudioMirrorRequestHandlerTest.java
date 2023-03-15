@@ -20,35 +20,50 @@ import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
 import android.car.media.IAudioZonesMirrorStatusCallback;
 import android.car.test.AbstractExpectableTestCase;
+import android.media.AudioDeviceInfo;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTestCase {
 
-    private static final String TEST_MIRROR_DEVICE_ADDRESS = "bus_666_mirror_device";
     private static final int TEST_ZONE_1 = PRIMARY_AUDIO_ZONE + 1;
     private static final int TEST_ZONE_2 = PRIMARY_AUDIO_ZONE + 2;
     private static final int TEST_ZONE_3 = PRIMARY_AUDIO_ZONE + 3;
     public static final int[] TEST_ZONE_IDS = new int[]{TEST_ZONE_1, TEST_ZONE_2};
     private CarAudioMirrorRequestHandler mCarAudioMirrorRequestHandler;
     private TestAudioZonesMirrorStatusCallbackCallback mTestCallback;
+    @Mock
+    private CarAudioDeviceInfo mCarAudioDeviceInfoOne;
+    @Mock
+    private AudioDeviceInfo mAudioDeviceInfoOne;
+    @Mock
+    private CarAudioDeviceInfo mCarAudioDeviceInfoTwo;
+    @Mock
+    private AudioDeviceInfo mAudioDeviceInfoTwo;
+    private List<CarAudioDeviceInfo> mTestCarAudioDeviceInfos;
 
     @Before
     public void setUp() {
         mCarAudioMirrorRequestHandler = new CarAudioMirrorRequestHandler();
-        mCarAudioMirrorRequestHandler.setMirrorDeviceAddress(TEST_MIRROR_DEVICE_ADDRESS);
         mTestCallback = new TestAudioZonesMirrorStatusCallbackCallback();
+        mTestCarAudioDeviceInfos = List.of(mCarAudioDeviceInfoOne, mCarAudioDeviceInfoTwo);
+        mCarAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
+        when(mCarAudioDeviceInfoOne.getAudioDeviceInfo()).thenReturn(mAudioDeviceInfoOne);
+        when(mCarAudioDeviceInfoTwo.getAudioDeviceInfo()).thenReturn(mAudioDeviceInfoTwo);
     }
 
     @Test
@@ -158,27 +173,69 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     }
 
     @Test
-    public void setMirrorDeviceAddress_withNullMirrorDeviceAddress() {
+    public void setMirrorDeviceInfos_withNullMirrorDeviceAddress() {
         CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
                 new CarAudioMirrorRequestHandler();
 
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            carAudioMirrorRequestHandler.setMirrorDeviceAddress(/* deviceAddress= */ null);
+            carAudioMirrorRequestHandler.setMirrorDeviceInfos(/* deviceAddress= */ null);
         });
 
-        expectWithMessage("Null mirror device address exception")
-                .that(thrown).hasMessageThat().contains("Mirror device address");
+        expectWithMessage("Null mirror device infos exception")
+                .that(thrown).hasMessageThat().contains("Mirror devices");
     }
 
     @Test
-    public void setMirrorDeviceAddress() {
+    public void setMirrorDeviceInfos() {
         CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
                 new CarAudioMirrorRequestHandler();
 
-        carAudioMirrorRequestHandler.setMirrorDeviceAddress(TEST_MIRROR_DEVICE_ADDRESS);
+        carAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
 
         expectWithMessage("Audio mirror enabled status")
                 .that(carAudioMirrorRequestHandler.isMirrorAudioEnabled()).isTrue();
+    }
+
+    @Test
+    public void getMirroringDeviceInfos() {
+        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
+                new CarAudioMirrorRequestHandler();
+        carAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
+
+        expectWithMessage("Audio mirror device infos")
+                .that(carAudioMirrorRequestHandler.getMirroringDeviceInfos())
+                .containsExactlyElementsIn(mTestCarAudioDeviceInfos);
+    }
+
+    @Test
+    public void getMirroringDeviceInfos_withEmptyDeviceInfos() {
+        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
+                new CarAudioMirrorRequestHandler();
+        carAudioMirrorRequestHandler.setMirrorDeviceInfos(List.of());
+
+        expectWithMessage("Empty audio mirror device infos")
+                .that(carAudioMirrorRequestHandler.getMirroringDeviceInfos()).isEmpty();
+    }
+
+    @Test
+    public void getAudioDeviceInfo() {
+        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
+                new CarAudioMirrorRequestHandler();
+        carAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
+
+        expectWithMessage("Audio mirror device info")
+                .that(carAudioMirrorRequestHandler.getAudioDeviceInfo())
+                .isEqualTo(mAudioDeviceInfoOne);
+    }
+
+    @Test
+    public void getAudioDeviceInfo_withEmptyDeviceInfos() {
+        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
+                new CarAudioMirrorRequestHandler();
+        carAudioMirrorRequestHandler.setMirrorDeviceInfos(List.of());
+
+        expectWithMessage("Null audio mirror device info")
+                .that(carAudioMirrorRequestHandler.getAudioDeviceInfo()).isNull();
     }
 
     @Test
