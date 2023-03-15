@@ -25,17 +25,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Automatic Emergency Braking (AEB).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#AUTOMATIC_EMERGENCY_BRAKING_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
  * @hide
  */
 @SystemApi
 public final class AutomaticEmergencyBrakingState {
-
     /**
-     * This state is used as an alternative to any {@code AutomaticEmergencyBrakingState} value that
-     * is not defined in the platform. Ideally, implementations of {@link
+     * This state is used as an alternative for any {@code AutomaticEmergencyBrakingState} value
+     * that is not defined in the platform. Ideally, implementations of {@link
      * android.car.VehiclePropertyIds#AUTOMATIC_EMERGENCY_BRAKING_STATE} should not use this state.
      * The framework can use this field to remain backwards compatible if {@code
      * AutomaticEmergencyBrakingState} is extended to include additional states.

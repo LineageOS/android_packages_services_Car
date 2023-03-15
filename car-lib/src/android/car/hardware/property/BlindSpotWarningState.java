@@ -25,16 +25,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Blind Spot Warning (BSW).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#BLIND_SPOT_WARNING_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
  * @hide
  */
 @SystemApi
 public final class BlindSpotWarningState {
-
     /**
-     * This state is used as an alternative to any {@code BlindSpotWarningState} value that
+     * This state is used as an alternative for any {@code BlindSpotWarningState} value that
      * is not defined in the platform. Ideally, implementations of {@link
      * android.car.VehiclePropertyIds#BLIND_SPOT_WARNING_STATE} should not use this state.
      * The framework can use this field to remain backwards compatible if {@code

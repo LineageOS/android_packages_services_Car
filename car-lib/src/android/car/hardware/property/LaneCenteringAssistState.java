@@ -25,14 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Lane Centering Assist (LCA).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
  * @hide
  */
 @SystemApi
 public final class LaneCenteringAssistState {
-
     /**
      * This state is used as an alternative for any {@code LaneCenteringAssistState} value that is
      * not defined in the platform. Ideally, implementations of {@link
@@ -46,8 +46,8 @@ public final class LaneCenteringAssistState {
 
     /**
      * LCA is enabled but the ADAS system has not received an activation signal from the driver.
-     * Therefore, LCA is not steering the car and waits for the driver to send an
-     * {@link android.car.hardware.property.LaneCenteringAssistCommand#ACTIVATE} command.
+     * Therefore, LCA is not steering the car and waits for the driver to send an {@link
+     * LaneCenteringAssistCommand#ACTIVATE} command.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -60,8 +60,8 @@ public final class LaneCenteringAssistState {
      * android.car.VehiclePropertyIds#LANE_CENTERING_ASSIST_COMMAND} vehicle property or through a
      * system external to Android. Once LCA is actively steering the vehicle, the state will be
      * updated to {@link #ACTIVATED}. If the feature is not able to activate, then the cause can be
-     * communicated through the {@link android.car.hardware.property.ErrorState} values and then
-     * return to the {@link #ENABLED} state.
+     * communicated through the {@link ErrorState} values and then return to the {@link #ENABLED}
+     * state.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
