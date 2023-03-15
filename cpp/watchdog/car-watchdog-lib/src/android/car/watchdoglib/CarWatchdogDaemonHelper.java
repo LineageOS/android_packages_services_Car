@@ -326,6 +326,19 @@ public final class CarWatchdogDaemonHelper {
         return resultValues;
     }
 
+    /**
+     * Updates the daemon with the AIDL VHAL pid.
+     *
+     * This call is a response to the {@link ICarWatchdogServiceForSystem.Stub.requestAidlVhalPid}
+     * call.
+     *
+     * @param pid The AIDL VHAL process ID.
+     */
+    public void onAidlVhalPidFetched(int pid) throws RemoteException {
+        invokeDaemonMethodForVersionAtLeast(
+                (daemon) -> daemon.onAidlVhalPidFetched(pid), /* expectedDaemonVersion= */ 3);
+    }
+
     private void invokeDaemonMethod(Invokable r) throws RemoteException {
         invokeDaemonMethodForVersionAtLeast(r, /* expectedDaemonVersion= */ -1);
     }

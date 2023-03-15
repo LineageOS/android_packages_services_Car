@@ -92,4 +92,11 @@ interface ICarServiceHelper {
 
     /** Check {@link android.os.Process#setProcessProfile(int, int, String)}. */
     void setProcessProfile(int pid, int uid, in String profile) = 12;
+
+    /**
+     * Returns the PID for the AIDL VHAL service.
+     *
+     * On error, returns {@link com.android.car.internal.common.CommonConstants#INVALID_PID}.
+     */
+    int fetchAidlVhalPid() = 13;
 }
