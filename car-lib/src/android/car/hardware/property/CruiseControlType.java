@@ -25,7 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current type of Cruise Control (CC).
+ * Used to enumerate the current type of {@link
+ * android.car.VehiclePropertyIds#CRUISE_CONTROL_TYPE}.
  *
  * <p>This enum could be extended in future releases to include additional feature states.
  * @hide
@@ -70,7 +71,7 @@ public class CruiseControlType {
     private CruiseControlType() {}
 
     /**
-     * Gets a user-friendly representation of an {@code CruiseControlType}.
+     * Returns a user-friendly representation of a {@code CruiseControlType}.
      */
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

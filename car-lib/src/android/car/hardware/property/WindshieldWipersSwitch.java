@@ -33,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SystemApi
 public final class WindshieldWipersSwitch {
-
     /**
      * This value is used as an alternative for any {@code WindshieldWipersSwitch} value that is not
      * defined in the platform. Ideally, implementations of {@link

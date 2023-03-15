@@ -25,7 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used by emergency lane keep assist to enumerate state.
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#EMERGENCY_LANE_KEEP_ASSIST_STATE}.
  *
  * <p>This enum could be extended in future releases to include additional feature states.
  * @hide
@@ -92,7 +93,7 @@ public class EmergencyLaneKeepAssistState {
     private EmergencyLaneKeepAssistState() {}
 
     /**
-     * Gets a user-friendly representation of an {@code EmergencyLaneKeepAssistState}.
+     * Returns a user-friendly representation of an {@code EmergencyLaneKeepAssistState}.
      */
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

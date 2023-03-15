@@ -25,7 +25,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the Cruise Control (CC) commands.
+ * Used by {@link android.car.VehiclePropertyIds#CRUISE_CONTROL_COMMAND} to enumerate commands.
  *
  * <p>This enum could be extended in future releases to include additional feature states.
  * @hide
@@ -86,7 +86,7 @@ public class CruiseControlCommand {
     private CruiseControlCommand() {}
 
     /**
-     * Gets a user-friendly representation of an {@code CruiseControlCommand}.
+     * Returns a user-friendly representation of a {@code CruiseControlCommand}.
      */
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

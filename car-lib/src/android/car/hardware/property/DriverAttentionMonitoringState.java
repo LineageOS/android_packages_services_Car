@@ -25,7 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current driver state of Driver Attention Monitoring.
+ * Used to enumerate the current driver state of {@link
+ * android.car.VehiclePropertyIds#DRIVER_ATTENTION_MONITORING_STATE}.
  *
  * <p>This enum could be extended in future releases to include additional feature states.
  * @hide
