@@ -398,7 +398,6 @@
         C. enumerate items of "packageName/activityName" - prefer source for the specified ones.
     -->
     <string-array translatable="false" name="config_sourcePreferredComponents">
-        <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
     </string-array>
 
     <!-- Specifies notice UI that will be launched when user starts a car or do user
