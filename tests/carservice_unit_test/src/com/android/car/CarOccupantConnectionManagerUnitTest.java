@@ -206,7 +206,7 @@ public final class CarOccupantConnectionManagerUnitTest {
     public void testCancelConnection() throws RemoteException {
         mOccupantConnectionManager.cancelConnection(mReceiverZone);
 
-        verify(mService).cancelConnection(eq(PACKAGE_NAME), eq(mReceiverZone));
+        verify(mService).cancelConnection(PACKAGE_NAME, mReceiverZone);
     }
 
     @Test
@@ -291,7 +291,7 @@ public final class CarOccupantConnectionManagerUnitTest {
     public void testUnregisterReceiver() throws RemoteException {
         mOccupantConnectionManager.unregisterReceiver(RECEIVER_ENDPOINT_ID);
 
-        verify(mService).unregisterReceiver(eq(PACKAGE_NAME), eq(RECEIVER_ENDPOINT_ID));
+        verify(mService).unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID);
     }
 
     @Test
@@ -318,7 +318,7 @@ public final class CarOccupantConnectionManagerUnitTest {
         Payload payload = mock(Payload.class);
         mOccupantConnectionManager.sendPayload(mReceiverZone, payload);
 
-        verify(mService).sendPayload(eq(PACKAGE_NAME), eq(mReceiverZone), eq(payload));
+        verify(mService).sendPayload(PACKAGE_NAME, mReceiverZone, payload);
     }
 
     @Test
@@ -332,7 +332,20 @@ public final class CarOccupantConnectionManagerUnitTest {
         when(mService.isConnected(PACKAGE_NAME, mReceiverZone)).thenReturn(true);
         boolean isConnected = mOccupantConnectionManager.isConnected(mReceiverZone);
 
-        verify(mService).isConnected(eq(PACKAGE_NAME), eq(mReceiverZone));
+        verify(mService).isConnected(PACKAGE_NAME, mReceiverZone);
         assertThat(isConnected).isTrue();
+    }
+
+    @Test
+    public void testDisconnectWithNullParameters_throwsException() {
+        assertThrows(NullPointerException.class,
+                () -> mOccupantConnectionManager.disconnect(/* receiverZone= */ null));
+    }
+
+    @Test
+    public void testDisconnect() throws RemoteException {
+        mOccupantConnectionManager.disconnect(mReceiverZone);
+
+        verify(mService).disconnect(PACKAGE_NAME, mReceiverZone);
     }
 }
