@@ -74,6 +74,10 @@ interface ICarWatchdogServiceForSystem {
    */
   oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
 
+  // TODO(b/273354756): This method was replaced by an async request/response pattern Android U.
+  // Requests for the I/O stats are made through the requestTodayIoUsageStats method. And responses
+  // are received by the carwatchdog daemon via ICarWatchdog#onTodayIoUsageStats. Deprecate method
+  // in Android W.
   /**
    * Fetches current UTC calendar day's I/O usage stats for all packages collected during the
    * previous boot.
@@ -98,4 +102,11 @@ interface ICarWatchdogServiceForSystem {
    * This is a time consuming operation and cannot be performed on the same binder call.
    */
   oneway void requestAidlVhalPid();
+
+  /**
+   * Requests current UTC calendar day's I/O usage stats for all packages collected during the
+   * previous boot. Stats are sent by CarWatchdogService through the
+   * ICarWatchdog#onTodayIoUsageStats method once it receives the request.
+   */
+  oneway void requestTodayIoUsageStats();
 }

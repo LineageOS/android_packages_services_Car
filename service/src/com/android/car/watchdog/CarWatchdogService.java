@@ -917,6 +917,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             service.mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(packageNames));
         }
 
+        // TODO(b/273354756): This method was replaced by an async request/response pattern
+        // Android U. Requests for the I/O stats are received through the requestTodayIoUsageStats
+        // method. And responses are sent through the carwatchdog daemon via
+        // ICarWatchdog#onTodayIoUsageStats. Make method no-op in Android W (N+2 releases).
         @Override
         public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
             CarWatchdogService service = mService.get();
@@ -930,6 +934,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void requestAidlVhalPid() {
             // TODO(b/259086896): Implement async AIDL VHAL pid retrieval logic.
+        }
+
+        @Override
+        public void requestTodayIoUsageStats() {
+          // TODO(b/262605181): Retrieve I/O usage stats from DB and send stats to the
+          // carwatchdog daemon via CarWatchdogDaemonHelper. These operations need to be
+          // done in the service handler thread.
         }
 
         @Override

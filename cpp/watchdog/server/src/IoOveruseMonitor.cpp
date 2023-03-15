@@ -286,6 +286,10 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             cachedUsage->second += curUsage;
             dailyIoUsage = &cachedUsage->second;
         } else {
+            // TODO(b/262605181): Check if mPrevBootIoUsageStatsById has any ids pending even if
+            // they are already present in mUserPackageDailyIoUsageById. With the new async pattern,
+            // it is possible for the prev boot I/O stats to be sent after the first periodic
+            // collection has been processed.
             if (auto prevBootStats = mPrevBootIoUsageStatsById.find(curUsage.id());
                 prevBootStats != mPrevBootIoUsageStatsById.end()) {
                 curUsage += prevBootStats->second;
@@ -464,6 +468,8 @@ bool IoOveruseMonitor::dumpHelpText(int fd) const {
                            fd);
 }
 
+// TODO(b/262605181): Refactor method to receive today's I/O usage stats. Before syncing acquire
+// lock and check if mDidReadTodayPrevBootStats is not set.
 void IoOveruseMonitor::syncTodayIoUsageStatsLocked() {
     std::vector<UserPackageIoUsageStats> userPackageIoUsageStats;
     if (const auto status = mWatchdogServiceHelper->getTodayIoUsageStats(&userPackageIoUsageStats);

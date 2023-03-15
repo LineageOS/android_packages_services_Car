@@ -31,6 +31,7 @@
 #include <aidl/android/automotive/watchdog/internal/ProcessIdentifier.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <aidl/android/automotive/watchdog/internal/StateType.h>
+#include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android/binder_auto_utils.h>
 #include <gtest/gtest_prod.h>
@@ -118,6 +119,10 @@ public:
             aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority*
                     threadPolicyWithPriority) override;
     ndk::ScopedAStatus onAidlVhalPidFetched(int pid) override;
+    ndk::ScopedAStatus onTodayIoUsageStatsFetched(
+            const std::vector<
+                    aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&
+                    userPackageIoUsageStats) override;
 
     void terminate() override {
         mWatchdogServiceHelper.clear();
