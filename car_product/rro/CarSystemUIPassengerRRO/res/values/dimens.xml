@@ -48,4 +48,6 @@
     <dimen name="car_body1_size">32sp</dimen>
     <dimen name="system_bar_user_icon_drawing_size">36dp</dimen>
     <dimen name="user_icon_background_size">128dp</dimen>
+    <dimen name="system_bar_button_size">76dp</dimen>
+    <dimen name="system_bar_button_padding">16dp</dimen>
 </resources>
