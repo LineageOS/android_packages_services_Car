@@ -1810,7 +1810,7 @@ public final class VehiclePropertyIds {
      *
      * <p>This parameter selects the memory preset to use to select the seat
      * position. The minValue is always 0, and the maxValue determines the
-     * number of seat positions available.
+     * number of seat positions available (i.e. numSeatPresets - 1).
      *
      * <p>The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_SEATS.
