@@ -43,6 +43,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.occupantconnection.IBackendReceiver;
 import android.car.occupantconnection.IConnectionRequestCallback;
 import android.car.occupantconnection.IPayloadCallback;
+import android.car.occupantconnection.Payload;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -814,6 +815,87 @@ public final class CarOccupantConnectionServiceTest {
         verify(mConnectionRequestCallback).onFailed(receiverClient.occupantZone,
                 CONNECTION_ERROR_UNKNOWN);
         verify(callback2).onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+    }
+
+    @Test
+    public void testSendPayloadWithoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+    }
+
+    @Test
+    public void testSendPayloadWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.sendPayload(FAKE_PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+    }
+
+    @Test
+    public void testSendPayloadWithoutConnection_throwsException() {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+
+        assertThrows(IllegalStateException.class,
+                () -> mService.sendPayload(PACKAGE_NAME, mReceiverZone, any(Payload.class)));
+    }
+
+    @Test
+    public void testSendPayloadSucceed() throws RemoteException {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+        ConnectionRecord connectionRecord =
+                new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
+
+        // It is connected.
+        mEstablishConnections.add(connectionRecord);
+
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+
+        // And the receiver service is bound already.
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+
+        Payload payload = mock(Payload.class);
+        mService.sendPayload(PACKAGE_NAME, mReceiverZone, payload);
+
+        // The receiver service should be notified for the payload.
+        verify(receiverService).onPayloadReceived(mSenderZone, payload);
+    }
+
+    @Test
+    public void testIsConnectedWithoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.isConnected(PACKAGE_NAME, any(OccupantZoneInfo.class)));
+    }
+
+    @Test
+    public void testIsConnectedWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.isConnected(FAKE_PACKAGE_NAME, any(OccupantZoneInfo.class)));
+    }
+
+    @Test
+    public void testIsConnected() {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+
+        assertThat(mService.isConnected(PACKAGE_NAME, mReceiverZone)).isFalse();
+
+        ConnectionRecord connectionRecord =
+                new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
+        mEstablishConnections.add(connectionRecord);
+
+        assertThat(mService.isConnected(PACKAGE_NAME, mReceiverZone)).isTrue();
     }
 
     private void mockPackageName() throws PackageManager.NameNotFoundException {
