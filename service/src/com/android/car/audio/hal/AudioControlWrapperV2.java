@@ -164,6 +164,18 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
+    public void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
+        throw new UnsupportedOperationException("Module change callback is unsupported for"
+                + " IAudioControl@2.0");
+    }
+
+    @Override
+    public void clearModuleChangeCallback() {
+        throw new UnsupportedOperationException("Module change callback is unsupported for"
+                + " IAudioControl@2.0");
+    }
+
+    @Override
     public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
         try {
             mAudioControlV2.linkToDeath(this::serviceDied, 0);

@@ -34,6 +34,7 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -678,5 +679,31 @@ import java.util.Objects;
      */
     public @VolumeEventFlags int onAudioVolumeGroupChanged(int flags) {
         return CarVolumeEventFlag.FLAG_EVENT_VOLUME_NONE;
+    }
+
+    /**
+     * Updates car audio device info with the hal audio device info
+     */
+    void updateAudioDeviceInfo(HalAudioDeviceInfo halDeviceInfo) {
+        synchronized (mLock) {
+            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(halDeviceInfo.getAddress());
+            if (info == null) {
+                Slogf.w(CarLog.TAG_AUDIO, "No matching car audio device info found for address: %s",
+                        halDeviceInfo.getAddress());
+                return;
+            }
+            info.updateAudioDeviceInfo(halDeviceInfo);
+        }
+    }
+
+    /**
+     * Calculates the new gain stages from list of assigned audio device infos
+     *
+     * <p>Used to update audio device gain stages dynamically.
+     *
+     * @return  one or more of {@link EventTypeEnum}. Or 0 if dynamic updates are not supported
+     */
+    int calculateNewGainStageFromDeviceInfos() {
+        return 0;
     }
 }

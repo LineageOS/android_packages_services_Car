@@ -205,7 +205,8 @@ public:
 
     android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onWakeUpCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -214,7 +215,8 @@ public:
     android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onUserSwitchCollection(
             time_t time, userid_t from, userid_t to,
@@ -225,7 +227,8 @@ public:
             time_t time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
+            const android::wp<ProcStatCollectorInterface>& procStatCollector,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats) override;
 
     android::base::Result<void> onPeriodicMonitor(
             [[maybe_unused]] time_t time,
@@ -233,6 +236,12 @@ public:
                     procDiskStatsCollector,
             [[maybe_unused]] const std::function<void()>& alertHandler) override {
         // No monitoring done here as this DataProcessor only collects I/O performance records.
+        return {};
+    }
+
+    android::base::Result<void> onResourceStatsSent([[maybe_unused]] bool successful) override {
+        // TODO(b/244458187): Handle caches after resource usage stats are sent to the car watchdog
+        //  service.
         return {};
     }
 

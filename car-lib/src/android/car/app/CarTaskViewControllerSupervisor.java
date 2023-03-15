@@ -88,7 +88,14 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
                     + "activity. Cannot create another one.");
         }
         // Setting as trusted overlay to let touches pass through.
-        WindowManagerHelper.setTrustedOverlay(hostActivity.getWindow().getAttributes());
+        if (hostActivity.getWindow() != null) {
+            WindowManagerHelper.setTrustedOverlay(hostActivity.getWindow().getAttributes());
+        } else {
+            // The activity is not visible yet. This can only happen in tests if activity is mocked
+            // and should not happen in the real case.
+            Slogf.w(TAG, "Failed to set the trusted overlay as the host activity is not "
+                    + "attached to a window.");
+        }
         hostActivity.registerActivityLifecycleCallbacks(this);
         ActivityHolder activityHolder = new ActivityHolder(hostActivity, callbackExecutor,
                 carTaskViewControllerCallback);

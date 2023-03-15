@@ -111,6 +111,10 @@ ExecutorRegistration: android.car.watchdog.CarWatchdogManager#tellClientAlive(an
     Registration methods should have overload that accepts delivery Executor: `tellClientAlive`
 
 
+GenericException: android.car.view.MirroredSurfaceView#finalize():
+    Methods must not throw generic exceptions (`java.lang.Throwable`)
+
+
 HiddenSuperclass: android.car.CarAppFocusManager:
     Public class android.car.CarAppFocusManager stripped of unavailable superclass android.car.CarManagerBase
 HiddenSuperclass: android.car.CarInfoManager:
@@ -695,14 +699,14 @@ MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.o
     Missing nullability on parameter `out` in method `writeToParcel`
 
 
-NotCloseable: android.car.app.CarTaskViewController:
-    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewController
-NotCloseable: android.car.app.CarTaskViewHost:
-    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewHost
 MutableBareField: android.car.occupantconnection.Payload#bytes:
     Bare field bytes must be marked final, or moved behind accessors if mutable
 
 
+NotCloseable: android.car.app.CarTaskViewController:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewController
+NotCloseable: android.car.app.CarTaskViewHost:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewHost
 NotCloseable: android.car.occupantconnection.CarOccupantConnectionManager:
     Classes that release resources (disconnect()) should implement AutoCloseable and CloseGuard: class android.car.occupantconnection.CarOccupantConnectionManager
 NotCloseable: android.car.oem.OemCarServiceComponent:

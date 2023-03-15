@@ -100,7 +100,7 @@ public final class CarPropertyServiceUnitTest {
     private static final int WRITE_ONLY_FLOAT_PROPERTY_ID = 32345;
     private static final int WRITE_ONLY_ENUM_PROPERTY_ID = 112345;
     private static final int WRITE_ONLY_OTHER_ENUM_PROPERTY_ID =
-            VehiclePropertyIds.EV_STOPPING_MODE;
+            VehiclePropertyIds.CRUISE_CONTROL_TYPE;
 
     private static final int ON_CHANGE_READ_WRITE_PROPERTY_ID = 1111;
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
@@ -308,7 +308,7 @@ public final class CarPropertyServiceUnitTest {
         when(mMockHandler1.asBinder()).thenReturn(mBinder1);
         when(mMockHandler2.asBinder()).thenReturn(mBinder2);
         // Initially SPEED_ID is not subscribed, so should return -1.
-        when(mHalService.getSampleRate(SPEED_ID)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(-1f);
         CarPropertyValue mValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(mValue);
 
@@ -323,7 +323,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Clean up invocation state.
         clearInvocations(mHalService);
-        when(mHalService.getSampleRate(SPEED_ID)).thenReturn(10f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(10f);
 
         // Register the second listener.
         mService.registerListener(SPEED_ID, /* rate= */ 20, mMockHandler2);
@@ -336,7 +336,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Clean up invocation state.
         clearInvocations(mHalService);
-        when(mHalService.getSampleRate(SPEED_ID)).thenReturn(20f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(20f);
 
         // Unregister the second listener, the first listener must still be registered.
         mService.unregisterListener(SPEED_ID, mMockHandler2);
@@ -345,7 +345,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mHalService, never()).unsubscribeProperty(anyInt());
         // The subscription rate must be updated.
         verify(mHalService).subscribeProperty(SPEED_ID, 10f);
-        when(mHalService.getSampleRate(SPEED_ID)).thenReturn(10f);
+        when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(10f);
 
         // Unregister the first listener. We have no more listeners, must cause unsubscription.
         mService.unregisterListener(SPEED_ID, mMockHandler1);
@@ -363,7 +363,7 @@ public final class CarPropertyServiceUnitTest {
         when(mMockHandler1.asBinder()).thenReturn(mBinder1);
         when(mMockHandler2.asBinder()).thenReturn(mBinder2);
         // Initially HVAC_TEMP is not subscribed, so should return -1.
-        when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP)).thenReturn(-1f);
         CarPropertyValue mValue = mock(CarPropertyValue.class);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(mValue);
 
@@ -378,7 +378,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Clean up invocation state.
         clearInvocations(mHalService);
-        when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(0f);
+        when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP)).thenReturn(0f);
 
         // Register the second listener.
         mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, mMockHandler2);
@@ -457,7 +457,7 @@ public final class CarPropertyServiceUnitTest {
         mService.init();
 
         // Initially HVAC_TEMP is not subscribed, so should return -1.
-        when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP)).thenReturn(-1f);
         CarPropertyValue<Float> value = new CarPropertyValue<Float>(HVAC_TEMP, 0, 1.0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
         EventListener listener = new EventListener(mService);
@@ -713,7 +713,8 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void registerListener_updatesRateForNonContinuousProperty() {
-        when(mHalService.getSampleRate(ON_CHANGE_READ_WRITE_PROPERTY_ID)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(ON_CHANGE_READ_WRITE_PROPERTY_ID))
+                .thenReturn(-1f);
         mService.registerListener(ON_CHANGE_READ_WRITE_PROPERTY_ID,
                 CarPropertyManager.SENSOR_RATE_FAST, mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(ON_CHANGE_READ_WRITE_PROPERTY_ID,
@@ -722,7 +723,8 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void registerListener_updatesRateToMinForContinuousProperty() {
-        when(mHalService.getSampleRate(CONTINUOUS_READ_ONLY_PROPERTY_ID)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(CONTINUOUS_READ_ONLY_PROPERTY_ID))
+                .thenReturn(-1f);
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE - 1,
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(CONTINUOUS_READ_ONLY_PROPERTY_ID, MIN_SAMPLE_RATE);
@@ -730,7 +732,8 @@ public final class CarPropertyServiceUnitTest {
 
     @Test
     public void registerListener_updatesRateToMaxForContinuousProperty() {
-        when(mHalService.getSampleRate(CONTINUOUS_READ_ONLY_PROPERTY_ID)).thenReturn(-1f);
+        when(mHalService.getSubscribedUpdateRateHz(CONTINUOUS_READ_ONLY_PROPERTY_ID))
+                .thenReturn(-1f);
         mService.registerListener(CONTINUOUS_READ_ONLY_PROPERTY_ID, MAX_SAMPLE_RATE + 1,
                 mICarPropertyEventListener);
         verify(mHalService).subscribeProperty(CONTINUOUS_READ_ONLY_PROPERTY_ID, MAX_SAMPLE_RATE);

@@ -15,6 +15,10 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.util.ArrayMap;
@@ -33,10 +37,15 @@ import com.android.internal.util.Preconditions;
  * supported in a car.
  */
 final class CarAudioVolumeGroup extends CarVolumeGroup {
-    private final int mDefaultGain;
-    private final int mMaxGain;
-    private final int mMinGain;
-    private final int mStepSize;
+    private static final int UNSET_STEP_SIZE = -1;
+    @GuardedBy("mLock")
+    private int mDefaultGain = Integer.MAX_VALUE;
+    @GuardedBy("mLock")
+    private int mMaxGain = Integer.MIN_VALUE;
+    @GuardedBy("mLock")
+    private int mMinGain = Integer.MAX_VALUE;
+    @GuardedBy("mLock")
+    private int mStepSize = UNSET_STEP_SIZE;
 
     CarAudioVolumeGroup(CarAudioContext carAudioContext,
             CarAudioSettings settingsManager,
@@ -111,5 +120,80 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
     @GuardedBy("mLock")
     private int getIndexForGainLocked(int gainInMillibel) {
         return (gainInMillibel - mMinGain) / mStepSize;
+    }
+
+    @Override
+    int calculateNewGainStageFromDeviceInfos() {
+        int minGain = Integer.MAX_VALUE;
+        int maxGain = Integer.MIN_VALUE;
+        int defaultGain = Integer.MAX_VALUE;
+        int stepSize = UNSET_STEP_SIZE;
+
+        // compute the new volume group gain stage from scratch
+        for (int index = 0; index < mAddressToCarAudioDeviceInfo.size(); index++) {
+            CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.valueAt(index);
+            if (stepSize == UNSET_STEP_SIZE) {
+                stepSize = info.getStepValue();
+            } else {
+                Preconditions.checkArgument(
+                        info.getStepValue() == stepSize,
+                        "Gain stages within one group must have same step value");
+            }
+            if (info.getDefaultGain() < defaultGain) {
+                // We're arbitrarily selecting the lowest
+                // device default gain as the group's default.
+                defaultGain = info.getDefaultGain();
+            }
+            if (info.getMaxGain() > maxGain) {
+                maxGain = info.getMaxGain();
+            }
+            if (info.getMinGain() < minGain) {
+                minGain = info.getMinGain();
+            }
+        }
+
+        // update the new gain stage and return event types so that callback can be triggered.
+        int eventType = 0;
+        synchronized (mLock) {
+            // get the curret gain in mb before updating the volume bounds
+            int extrapolateGainInMb = getGainForIndexLocked(getCurrentGainIndexLocked());
+
+            if (minGain != mMinGain) {
+                mMinGain = minGain;
+                eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
+                        | EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED);
+            }
+            if (maxGain != mMaxGain) {
+                mMaxGain = maxGain;
+                eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
+                        | EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED);
+            }
+            if (defaultGain != mDefaultGain) {
+                mDefaultGain = defaultGain;
+                // if only default gain changes, no impact to volume gain stages (i.e. no event).
+            }
+            if (stepSize != mStepSize) {
+                mStepSize = stepSize;
+                eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
+                        | EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED);
+            }
+
+
+            if ((eventType & EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED)
+                    == EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED)  {
+                // if min/max/step values change, we shall try to maintain the same volume level
+                // through simple extrapolation i.e. the new  gain index is calculated from the
+                // previous 'current gain in millibels'
+                // caution: before updating, check if the previous gain is out of bound in the
+                //          new gain stage. If yes, use the safe value (i.e default gain)
+                //          provided by the hal implementations.
+                if (extrapolateGainInMb < mMinGain || extrapolateGainInMb > mMaxGain) {
+                    setCurrentGainIndexLocked(getIndexForGainLocked(mDefaultGain));
+                } else {
+                    setCurrentGainIndexLocked(getIndexForGainLocked(extrapolateGainInMb));
+                }
+            }
+        }
+        return eventType;
     }
 }
