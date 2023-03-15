@@ -16,9 +16,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- IME should not hide nav bar -->
-    <bool name="config_hideNavBarForKeyboard">false</bool>
-
     <!-- Uses customized system bar controls -->
     <bool name="config_remoteInsetsControllerControlsSystemBars">true</bool>
 
