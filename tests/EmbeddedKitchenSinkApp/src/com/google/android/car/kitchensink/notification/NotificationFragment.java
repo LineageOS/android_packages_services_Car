@@ -1,5 +1,7 @@
 package com.google.android.car.kitchensink.notification;
 
+import static android.app.Notification.FLAG_FOREGROUND_SERVICE;
+
 import android.annotation.Nullable;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -16,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
+import androidx.annotation.DrawableRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationCompat.Action;
 import androidx.core.app.NotificationCompat.MessagingStyle;
@@ -92,6 +95,7 @@ public class NotificationFragment extends Fragment {
         initImportanceLowButton(view);
         initImportanceMinButton(view);
 
+        initIncomingButton(view);
         initOngoingButton(view);
         initMessagingStyleButtonForDiffPerson(view);
         initMessagingStyleButtonForSamePerson(view);
@@ -242,6 +246,59 @@ public class NotificationFragment extends Fragment {
                     .setContentText("No heads-up; Below Importance Low; Groups")
                     .setSmallIcon(R.drawable.car_ic_mode)
                     .build();
+            mManager.notify(mCurrentNotificationId++, notification);
+        });
+    }
+
+    private Notification.Action getAction(String text, @DrawableRes int actionIcon) {
+        Icon icon = Icon.createWithResource(mContext, actionIcon);
+        Intent intent = new Intent(mContext, KitchenSinkActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                mContext,
+                /* requestCode= */ 0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        return new Notification.Action.Builder(icon, text, pendingIntent).build();
+    }
+
+    private void initIncomingButton(View view) {
+        view.findViewById(R.id.incoming_notificationbuilder_button).setOnClickListener(v -> {
+            Notification notification = new Notification.Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setContentTitle("Unknown number")
+                    .setContentText("Incoming call")
+                    .setOngoing(true)
+                    .setActions(
+                            getAction("Answer", R.drawable.ic_answer_icon),
+                            getAction("Decline", R.drawable.ic_decline_icon))
+                    .build();
+
+            mManager.notify(mCurrentNotificationId++, notification);
+        });
+
+        view.findViewById(R.id.incoming_forIncomingCall_button).setOnClickListener(v -> {
+
+            android.app.Person caller = new android.app.Person.Builder()
+                    .setName("Chuck Norris")
+                    .setImportant(true)
+                    .build();
+            // Creating the call notification style
+            int declineId = mCurrentNotificationId++;
+            int answerId = mCurrentNotificationId++;
+            PendingIntent declineIntent = createServiceIntent(declineId, "Decline");
+            PendingIntent answerIntent = createServiceIntent(answerId, "Answer");
+            Notification.CallStyle notificationStyle =
+                    Notification.CallStyle.forIncomingCall(caller, declineIntent, answerIntent);
+
+            Notification notification = new Notification.Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setContentTitle("Incoming call")
+                    .setContentText("Incoming call from Chuck Norris")
+                    .setStyle(notificationStyle)
+                    .setOngoing(true)
+                    .setCategory(Notification.CATEGORY_CALL)
+                    .build();
+            notification.flags = notification.flags | FLAG_FOREGROUND_SERVICE;
             mManager.notify(mCurrentNotificationId++, notification);
         });
     }
