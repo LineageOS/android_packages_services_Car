@@ -29,6 +29,7 @@ import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
+import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.os.IBinder;
@@ -139,13 +140,17 @@ public final class CarRemoteAccessManagerUnitTest {
         RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
         ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
         String serviceId = "serviceId_testing";
-        String deviceId = "deviceId_testing";
+        String vehicleId = "vehicleId_testing";
+        String processorId = "processorId_testing";
         String clientId = "clientId_testing";
 
-        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+        internalCallback.onClientRegistrationUpdated(
+                new RemoteTaskClientRegistrationInfo(serviceId, vehicleId, processorId, clientId));
 
         assertWithMessage("Service ID").that(remoteTaskClient.getServiceId()).isEqualTo(serviceId);
-        assertWithMessage("Device ID").that(remoteTaskClient.getDeviceId()).isEqualTo(deviceId);
+        assertWithMessage("Vehicle ID").that(remoteTaskClient.getVehicleId()).isEqualTo(vehicleId);
+        assertWithMessage("Processor ID").that(remoteTaskClient.getProcessorId())
+                .isEqualTo(processorId);
         assertWithMessage("Client ID").that(remoteTaskClient.getClientId()).isEqualTo(clientId);
     }
 
@@ -188,13 +193,15 @@ public final class CarRemoteAccessManagerUnitTest {
         RemoteTaskClient remoteTaskClient = new RemoteTaskClient(/* expectedCallbackCount= */ 1);
         ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
         String serviceId = "serviceId_testing";
-        String deviceId = "deviceId_testing";
+        String vehicleId = "vehicleId_testing";
+        String processorId = "processorId_testing";
         String clientId = "clientId_testing";
         String misMatchedClientId = "clientId_mismatch";
         String taskId = "taskId_testing";
         byte[] data = new byte[]{1, 2, 3, 4};
 
-        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+        internalCallback.onClientRegistrationUpdated(
+                new RemoteTaskClientRegistrationInfo(serviceId, vehicleId, processorId, clientId));
         internalCallback.onRemoteTaskRequested(misMatchedClientId, taskId, data,
                 /* taskMaximumDurationInSec= */ 10);
 
@@ -262,9 +269,11 @@ public final class CarRemoteAccessManagerUnitTest {
             String taskId, byte[] data) throws Exception {
         ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(client);
         String serviceId = "serviceId_testing";
-        String deviceId = "deviceId_testing";
+        String vehicleId = "vehicleId_testing";
+        String processorId = "processorId_testing";
 
-        internalCallback.onClientRegistrationUpdated(serviceId, deviceId, clientId);
+        internalCallback.onClientRegistrationUpdated(
+                new RemoteTaskClientRegistrationInfo(serviceId, vehicleId, processorId, clientId));
         internalCallback.onRemoteTaskRequested(clientId, taskId, data,
                 /* taskMaximumDurationInSec= */ 10);
     }
@@ -275,7 +284,8 @@ public final class CarRemoteAccessManagerUnitTest {
 
         private final CountDownLatch mLatch;
         private String mServiceId;
-        private String mDeviceId;
+        private String mVehicleId;
+        private String mProcessorId;
         private String mClientId;
         private String mTaskId;
         private boolean mRegistrationFailed;
@@ -286,10 +296,11 @@ public final class CarRemoteAccessManagerUnitTest {
         }
 
         @Override
-        public void onRegistrationUpdated(String serviceId, String deviceId, String clientId) {
-            mServiceId = serviceId;
-            mDeviceId = deviceId;
-            mClientId = clientId;
+        public void onRegistrationUpdated(RemoteTaskClientRegistrationInfo info) {
+            mServiceId = info.getServiceId();
+            mVehicleId = info.getVehicleId();
+            mProcessorId = info.getProcessorId();
+            mClientId = info.getClientId();
             mLatch.countDown();
         }
 
@@ -316,9 +327,14 @@ public final class CarRemoteAccessManagerUnitTest {
             return mServiceId;
         }
 
-        public String getDeviceId() throws Exception {
+        public String getVehicleId() throws Exception {
             JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
-            return mDeviceId;
+            return mVehicleId;
+        }
+
+        public String getProcessorId() throws Exception {
+            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            return mProcessorId;
         }
 
         public String getClientId() throws Exception {

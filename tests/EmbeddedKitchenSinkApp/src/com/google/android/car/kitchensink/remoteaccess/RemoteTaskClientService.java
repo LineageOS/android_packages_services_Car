@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.remoteaccess;
 import android.app.Service;
 import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
+import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
@@ -76,9 +77,10 @@ public final class RemoteTaskClientService extends Service {
             implements CarRemoteAccessManager.RemoteTaskClientCallback {
 
         @Override
-        public void onRegistrationUpdated(String serviceId, String deviceId, String clientId) {
-            Log.i(TAG, "Registration information updated: serviceId=" + serviceId + ", deviceId="
-                    + deviceId + ", clientId=" + clientId);
+        public void onRegistrationUpdated(RemoteTaskClientRegistrationInfo info) {
+            Log.i(TAG, "Registration information updated: serviceId=" + info.getServiceId()
+                    + ", vehicleId=" + info.getVehicleId() + ", processorId="
+                    + info.getProcessorId() + ", clientId=" + info.getClientId());
         }
 
         @Override
