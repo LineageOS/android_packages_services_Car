@@ -33,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SystemApi
 public final class WindshieldWipersState {
-
     /**
      * This state is used as an alternative for any {@code WindshieldWipersState} value that is not
      * defined in the platform. Ideally, implementations of {@link
@@ -48,9 +47,8 @@ public final class WindshieldWipersState {
     /**
      * This state indicates windshield wipers are currently off. If {@link
      * android.car.VehiclePropertyIds#WINDSHIELD_WIPERS_SWITCH} is implemented, then it may be set
-     * to any of the following modes: {@link
-     * android.car.hardware.property.WindshieldWipersSwitch#OFF} or {@link
-     * android.car.hardware.property.WindshieldWipersSwitch#AUTO}.
+     * to any of the following modes: {@link WindshieldWipersSwitch#OFF} or {@link
+     * WindshieldWipersSwitch#AUTO}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -59,10 +57,8 @@ public final class WindshieldWipersState {
     /**
      * This state indicates windshield wipers are currently on. If {@link
      * android.car.VehiclePropertyIds#WINDSHIELD_WIPERS_SWITCH} is implemented, then it may be set
-     * to any of the following modes: {@link
-     * android.car.hardware.property.WindshieldWipersSwitch#MIST}, {@code INTERMITTENT_LEVEL_*},
-     * {@code CONTINUOUS_LEVEL_*}, or {@link
-     * android.car.hardware.property.WindshieldWipersSwitch#AUTO}.
+     * to any of the following modes: {@link WindshieldWipersSwitch#MIST}, {@code
+     * INTERMITTENT_LEVEL_*}, {@code CONTINUOUS_LEVEL_*}, or {@link WindshieldWipersSwitch#AUTO}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

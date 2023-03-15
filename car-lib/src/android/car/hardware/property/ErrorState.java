@@ -34,9 +34,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 @SystemApi
 public final class ErrorState {
-
     /**
-     * This state is used as an alternative to any {@code ErrorState} value that is not defined in
+     * This state is used as an alternative for any {@code ErrorState} value that is not defined in
      * the platform. Ideally, implementations of vehicle properties should not use this state. The
      * framework can use this field to remain backwards compatible if this enum is extended to
      * include additional states.
