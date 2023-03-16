@@ -20,4 +20,5 @@
          to enable Talkback for accessibility. -->
     <string name="system_bar_passenger_home_label">Passenger Home Screen</string>
     <string name="qc_icon_tag" translatable="false">TAG_QC_ICON</string>
+    <string name="system_bar_control_center_label">Control Center</string>
 </resources>
