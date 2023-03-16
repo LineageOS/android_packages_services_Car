@@ -100,7 +100,8 @@ public final class CarRemoteAccessServiceUnitTest {
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_ONE,
                     CLASS_NAME_ONE, /* permissionGranted= */ true),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
-                    CLASS_NAME_TWO, /* permissionGranted= */ true)
+                    CLASS_NAME_TWO, /* permissionGranted= */ true),
+            createPackagePrepForTest("com.abc.xyz", CLASS_NAME_ONE, /* permissionGranted= */ true)
     );
     private static final List<ClientIdEntry> PERSISTENT_CLIENTS = List.of(
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
