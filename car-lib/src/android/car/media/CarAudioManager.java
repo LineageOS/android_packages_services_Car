@@ -894,6 +894,10 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Switches the car audio zone configuration
      *
+     * <p>To receive the volume group change after configuration is changed, a
+     * {@link CarVolumeGroupEventCallback} must be registered through
+     * {@link #registerCarVolumeGroupEventCallback(Executor, CarVolumeGroupEventCallback)} first.
+     *
      * @param zoneConfig Audio zone configuration to switch to
      * @param executor Executor on which callback will be invoked
      * @param callback Callback that will report the result of switching car audio zone

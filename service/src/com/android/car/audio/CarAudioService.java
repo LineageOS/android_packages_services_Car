@@ -276,8 +276,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     };
 
     private AudioPolicy mAudioPolicy;
-    @GuardedBy("mImplLock")
-    private CarAudioDeviceInfo mCarAudioMirrorDeviceInfo;
     private CarZonesAudioFocus mFocusHandler;
     private String mCarAudioConfigurationPath;
     private SparseIntArray mAudioZoneIdToOccupantZoneIdMapping;
@@ -1275,7 +1273,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             int userId = getUserIdForZone(zoneId);
             CarAudioZone audioZone = getCarAudioZone(zoneId);
             boolean enabled = setupMirrorDeviceForUserIdLocked(userId, audioZone,
-                    mCarAudioMirrorDeviceInfo.getAudioDeviceInfo());
+                    mCarAudioMirrorRequestHandler.getAudioDeviceInfo());
             if (!enabled) {
                 succeeded = false;
                 Slogf.w(TAG, "setupAudioRoutingForUserInMirrorDeviceLocked failed for zone "
@@ -1334,11 +1332,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             SparseArray<CarAudioZone> zones = zonesHelper.loadAudioZones();
-            mCarAudioMirrorDeviceInfo = zonesHelper.getMirrorDeviceInfo();
-            if (mCarAudioMirrorDeviceInfo != null) {
-                mCarAudioMirrorRequestHandler.setMirrorDeviceAddress(
-                        mCarAudioMirrorDeviceInfo.getAddress());
-            }
+            mCarAudioMirrorRequestHandler.setMirrorDeviceInfos(zonesHelper.getMirrorDeviceInfos());
             mCarAudioContext = zonesHelper.getCarAudioContext();
             return zones;
         } catch (IOException | XmlPullParserException e) {
@@ -1470,12 +1464,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
     @GuardedBy("mImplLock")
     private void setupMirrorDevicePolicyLocked(AudioPolicy.Builder mirrorPolicyBuilder) {
-        if (mCarAudioMirrorDeviceInfo == null) {
+        if (mCarAudioMirrorRequestHandler.isMirrorAudioEnabled()) {
+            Slogf.i(TAG, "setupMirrorDevicePolicyLocked Audio mirroring is not enabled");
             return;
         }
 
         CarAudioDynamicRouting.setupAudioDynamicRoutingForMirrorDevice(mirrorPolicyBuilder,
-                mCarAudioMirrorDeviceInfo);
+                mCarAudioMirrorRequestHandler.getMirroringDeviceInfos());
     }
 
     @GuardedBy("mImplLock")

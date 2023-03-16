@@ -39,6 +39,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * Class to encapsulate car volume group event information.
@@ -116,6 +117,20 @@ public final class CarVolumeGroupEvent implements Parcelable {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int EVENT_TYPE_ATTENUATION_CHANGED = 1 << 5;
 
+    /**
+     * This event type indicates that the car audio zone configuration of the volume group has
+     * switched by {@link CarAudioManager#switchAudioZoneToConfig(CarAudioZoneConfigInfo, Executor,
+     * SwitchAudioZoneConfigCallback)}. The new audio attributes can be queried through
+     * {@link android.car.media.CarVolumeGroupInfo#getAudioAttributes()} on the
+     * list of {@link android.car.media.CarVolumeGroupInfo} received here.
+     *
+     * <p><b> Note: </b> When the car audio zone configuration is switched, the volume groups
+     * received here are completely new.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int EVENT_TYPE_ZONE_CONFIGURATION_CHANGED = 1 << 6;
+
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = true, prefix = "EVENT_TYPE", value = {
@@ -125,6 +140,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
             EVENT_TYPE_MUTE_CHANGED,
             EVENT_TYPE_VOLUME_BLOCKED_CHANGED,
             EVENT_TYPE_ATTENUATION_CHANGED,
+            EVENT_TYPE_ZONE_CONFIGURATION_CHANGED,
     })
     public @interface EventTypeEnum {}
 
@@ -305,6 +321,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      *         {@link #EVENT_TYPE_MUTE_CHANGED},
      *         {@link #EVENT_TYPE_VOLUME_BLOCKED_CHANGED},
      *         {@link #EVENT_TYPE_ATTENUATION_CHANGED}
+     *         {@link #EVENT_TYPE_ZONE_CONFIGURATION_CHANGED}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
@@ -438,6 +455,8 @@ public final class CarVolumeGroupEvent implements Parcelable {
                 "EVENT_TYPE_VOLUME_BLOCKED_CHANGED");
         EVENT_TYPE_NAMES.put(EVENT_TYPE_ATTENUATION_CHANGED,
                 "EVENT_TYPE_ATTENUATION_CHANGED");
+        EVENT_TYPE_NAMES.put(EVENT_TYPE_ZONE_CONFIGURATION_CHANGED,
+                "EVENT_TYPE_ZONE_CONFIGURATION_CHANGED");
     }
 
     /**

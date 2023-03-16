@@ -34,6 +34,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -410,6 +411,131 @@ public final class CarOccupantConnectionServiceTest {
 
         assertThat(mConnectingReceiverServices.size()).isEqualTo(0);
         assertThat(mConnectedReceiverServiceMap.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void testUnregisterReceiverWithoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID));
+    }
+
+    @Test
+    public void testUnregisterReceiverWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.unregisterReceiver(FAKE_PACKAGE_NAME, RECEIVER_ENDPOINT_ID));
+    }
+
+    @Test
+    public void testUnregisterNonexistentReceiver_throwsException() {
+        UserHandle receiverUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(receiverUserHandle))
+                .thenReturn(mReceiverZone);
+
+        assertThrows(IllegalStateException.class,
+                () -> mService.unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID));
+    }
+
+    @Test
+    public void testUnregisterReceiverWithReceiverServiceBound() throws RemoteException {
+        UserHandle receiverUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(receiverUserHandle))
+                .thenReturn(mReceiverZone);
+        ClientId receiverClient = mService.getCallingClientId(PACKAGE_NAME);
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+        // The receiver service is connected already.
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+
+        mService.registerReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID, mPayloadCallback);
+        ReceiverEndpointId receiverEndpoint =
+                new ReceiverEndpointId(receiverClient, RECEIVER_ENDPOINT_ID);
+
+        assertThat(mRegisteredReceiverEndpointMap.get(receiverEndpoint))
+                .isEqualTo(mPayloadCallback);
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(0);
+
+        mService.unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID);
+
+        // The receiver endpoint should be unregistered.
+        assertThat(mRegisteredReceiverEndpointMap.size()).isEqualTo(0);
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(0);
+
+        // The receiver service should be unbound since there is no receiver endpoint, no
+        // established connection, and no pending connection request.
+        // TODO(b/272196149): utilize assertWithMessage to incorporate the scenarios
+        // described in the comments.
+        assertThat(mConnectedReceiverServiceMap.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+
+        verify(receiverService).unregisterReceiver(eq(RECEIVER_ENDPOINT_ID));
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testUnregisterReceiverWithoutReceiverServiceBound() {
+        UserHandle receiverUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(receiverUserHandle))
+                .thenReturn(mReceiverZone);
+        mService.registerReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID, mPayloadCallback);
+
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(1);
+        assertThat(mConnectingReceiverServices.size()).isEqualTo(1);
+
+        ClientId receiverClient = mService.getCallingClientId(PACKAGE_NAME);
+        ServiceConnection serviceConnection = mReceiverServiceConnectionMap.get(receiverClient);
+        assertThat(serviceConnection).isNotNull();
+
+        mService.unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID);
+
+        // The receiver endpoint should be unregistered.
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(0);
+
+        // The receiver service should be unbound since there is no receiver endpoint, no
+        // established connection, and no pending connection request.
+        assertThat(mConnectingReceiverServices.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testUnregisterReceiverWithOtherReceiversLeft() {
+        UserHandle receiverUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(receiverUserHandle))
+                .thenReturn(mReceiverZone);
+        // Register the first receiver endpoint.
+        mService.registerReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID, mPayloadCallback);
+
+        // Register the second receiver endpoint.
+        String receiverEndpointId2 = "another_endpoint";
+        IPayloadCallback payloadCallback2 = mock(IPayloadCallback.class);
+        IBinder binder2 = mock(IBinder.class);
+        when(payloadCallback2.asBinder()).thenReturn(binder2);
+        mService.registerReceiver(PACKAGE_NAME, receiverEndpointId2, payloadCallback2);
+
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(2);
+
+        // Unregister the first receiver endpoint.
+        mService.unregisterReceiver(PACKAGE_NAME, RECEIVER_ENDPOINT_ID);
+
+        // The first receiver endpoint should be unregistered.
+        assertThat(mPreregisteredReceiverEndpointMap.size()).isEqualTo(1);
+        ClientId receiverClient = mService.getCallingClientId(PACKAGE_NAME);
+        ReceiverEndpointId receiverEndpoint2 =
+                new ReceiverEndpointId(receiverClient, receiverEndpointId2);
+        assertThat(mPreregisteredReceiverEndpointMap.get(receiverEndpoint2))
+                .isEqualTo(payloadCallback2);
+
+        // The receiver service should not be unbound since there is another receiver endpoint
+        // registered.
+        assertThat(mConnectingReceiverServices.size()).isEqualTo(1);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(1);
+        verify(mContext, never()).unbindService(any());
     }
 
     @Test

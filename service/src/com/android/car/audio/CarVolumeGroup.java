@@ -657,7 +657,7 @@ import java.util.Objects;
         return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
                 .setVolumeGainIndex(gainIndex).setMaxVolumeGainIndex(getMaxGainIndex())
                 .setMinVolumeGainIndex(getMinGainIndex()).setMuted(isMuted).setBlocked(isBlocked)
-                .setAttenuated(isAttenuated).build();
+                .setAttenuated(isAttenuated).setAudioAttributes(getAudioAttributes()).build();
     }
 
     List<AudioAttributes> getAudioAttributes() {

@@ -295,16 +295,31 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int TEST_FRONT_PASSEGNER_USER_ID = 13;
     private static final int TEST_GAIN_INDEX = 4;
 
+    private static final List<AudioAttributes> TEST_PRIMARY_AUDIO_ATTRIBUTES = List.of(
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_UNKNOWN),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION_EVENT),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_ANNOUNCEMENT));
+
+    private static final List<AudioAttributes> TEST_SECONDARY_AUDIO_ATTRIBUTES = List.of(
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_ACCESSIBILITY),
+            CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANT));
+
     private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_PRIMARY_GROUP, PRIMARY_AUDIO_ZONE,
                     TEST_PRIMARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
-                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE)
+                    .setAudioAttributes(TEST_PRIMARY_AUDIO_ATTRIBUTES).build();
 
     private static final CarVolumeGroupInfo TEST_SECONDARY_VOLUME_INFO =
             new CarVolumeGroupInfo.Builder("group id " + TEST_SECONDARY_GROUP, PRIMARY_AUDIO_ZONE,
                     TEST_SECONDARY_GROUP).setMuted(true).setMinVolumeGainIndex(0)
                     .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setAudioAttributes(TEST_SECONDARY_AUDIO_ATTRIBUTES)
                     .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
 
     private static final AudioDeviceInfo MICROPHONE_TEST_DEVICE =
@@ -379,6 +394,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationUsingCoreAudioFile;
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private TemporaryFile mTemporaryAudioConfigurationWithoutZoneMappingFile;
+    private TemporaryFile mTemporaryAudioConfigurationWithoutMirroringFile;
     private Context mContext;
     private AudioDeviceInfo mMicrophoneInputDevice;
     private AudioDeviceInfo mFmTunerInputDevice;
@@ -431,6 +447,15 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                     .write(new String(configurationStream.readAllBytes()));
             Log.i(TAG, "Temporary Car Audio Configuration using Core Audio File Location: "
                     + mTemporaryAudioConfigurationUsingCoreAudioFile.getPath());
+        }
+
+        try (InputStream configurationStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_without_mirroring)) {
+            mTemporaryAudioConfigurationWithoutMirroringFile = new TemporaryFile("xml");
+            mTemporaryAudioConfigurationWithoutMirroringFile
+                    .write(new String(configurationStream.readAllBytes()));
+            Log.i(TAG, "Temporary Car Audio Configuration Without Mirroring File Location: "
+                    + mTemporaryAudioConfigurationWithoutMirroringFile.getPath());
         }
 
         mockCoreAudioRoutingAndVolume();
@@ -3872,11 +3897,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private CarAudioService getCarAudioServiceWithoutMirroring() {
-        AudioDeviceInfo[] outputDevices = getOutputDevicesWithNoMirrorDevice();
+        AudioDeviceInfo[] outputDevices = generateOutputDeviceInfos();
         when(mAudioManager.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).thenReturn(outputDevices);
         CarAudioService carAudioService =
-                new CarAudioService(mMockContext, mTemporaryAudioConfigurationFile.getFile()
-                        .getAbsolutePath(), mCarVolumeCallbackHandler);
+                new CarAudioService(mMockContext, mTemporaryAudioConfigurationWithoutMirroringFile
+                        .getFile().getAbsolutePath(), mCarVolumeCallbackHandler);
         carAudioService.init();
         return carAudioService;
     }
@@ -3921,68 +3946,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .setIsSource(true)
                 .build();
         return new AudioDeviceInfo[]{mMicrophoneInputDevice, mFmTunerInputDevice};
-    }
-
-    private AudioDeviceInfo[] getOutputDevicesWithNoMirrorDevice() {
-        return new AudioDeviceInfo[] {
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(MEDIA_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(NAVIGATION_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(CALL_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SYSTEM_BUS_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(NOTIFICATION_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(VOICE_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(RING_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(ALARM_TEST_DEVICE)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SECONDARY_TEST_DEVICE_1)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(SECONDARY_TEST_DEVICE_2)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE_1)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(TERTIARY_TEST_DEVICE_2)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(QUATERNARY_TEST_DEVICE_1)
-                        .build(),
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(OEM_TEST_DEVICE)
-                        .build(),
-
-        };
     }
 
     private AudioDeviceInfo[] generateOutputDeviceInfos() {

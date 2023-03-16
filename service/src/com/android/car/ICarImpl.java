@@ -264,12 +264,12 @@ public class ICarImpl extends ICar.Stub {
         mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
                 () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
                         mCarActivityService, mCarOccupantZoneService), allServices);
+        UserManager userManager = serviceContext.getSystemService(UserManager.class);
         if (carUserService != null) {
             mCarUserService = carUserService;
             CarLocalServices.addService(CarUserService.class, carUserService);
             allServices.add(mCarUserService);
         } else {
-            UserManager userManager = serviceContext.getSystemService(UserManager.class);
             int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(serviceContext);
             mCarUserService = constructWithTrace(t, CarUserService.class,
                     () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
@@ -281,7 +281,7 @@ public class ICarImpl extends ICar.Stub {
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
                     () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
-                            serviceContext.getSystemService(UserManager.class)), allServices);
+                            userManager), allServices);
         } else {
             mExperimentalCarUserService = null;
         }
@@ -314,8 +314,7 @@ public class ICarImpl extends ICar.Stub {
         mCarInputService = constructWithTrace(t, CarInputService.class,
                 () -> new CarInputService(serviceContext, mHal.getInputHal(), mCarUserService,
                         mCarOccupantZoneService, mCarBluetoothService, mCarPowerManagementService,
-                        mSystemInterface),
-                        allServices);
+                        mSystemInterface, userManager), allServices);
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
                 () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
                         mCarBluetoothService), allServices);
