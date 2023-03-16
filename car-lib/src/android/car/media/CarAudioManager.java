@@ -138,13 +138,14 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * This is used to determine if audio mirroring is supported via
-     * {@link #isAudioFeatureEnabled()}
+     * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, audio mirroring can be managed by using the following APIs:
      * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
-     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #enableMirrorForAudioZones(List)},
-     * {@link #extendAudioMirrorRequest(List, long)},{@link #disableAudioMirrorForZone(int)},
-     * {@link #disableAudioMirror(long)}, {@link #getMirrorAudioZonesForAudioZone(int)},
+     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #canEnableAudioMirror()},
+     * {@link #enableMirrorForAudioZones(List)}, {@link #extendAudioMirrorRequest(long, List)},
+     * {@link #disableAudioMirrorForZone(int)}, {@link #disableAudioMirror(long)},
+     * {@link #getMirrorAudioZonesForAudioZone(int)},
      * {@link #getMirrorAudioZonesForMirrorRequest(long)}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -255,6 +256,49 @@ public final class CarAudioManager extends CarManagerBase {
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface MediaAudioRequestStatus {}
+
+    /**
+     * This will be returned by {@link #canEnableAudioMirror()} in case there is an error when
+     * calling the car audio service
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_MIRROR_INTERNAL_ERROR = -1;
+
+    /**
+     * This will be returned by {@link #canEnableAudioMirror()} and determines that it is possible
+     * to enable audio mirroring using the {@link #enableMirrorForAudioZones(List)}
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_MIRROR_CAN_ENABLE = 1;
+
+    /**
+     * This will be returned by {@link #canEnableAudioMirror()} and determines that it is not
+     * possible to enable audio mirroring using the {@link #enableMirrorForAudioZones(List)}.
+     * This informs that there are no more audio mirror output devices available to route audio.
+     *
+     * @hide
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SystemApi
+    public static final int AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES = 2;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = "AUDIO_MIRROR_", value = {
+            AUDIO_MIRROR_INTERNAL_ERROR,
+            AUDIO_MIRROR_CAN_ENABLE,
+            AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AudioMirrorStatus {}
 
     private final ICarAudio mService;
     private final CopyOnWriteArrayList<CarVolumeCallback> mCarVolumeCallbacks;
@@ -1324,6 +1368,33 @@ public final class CarAudioManager extends CarManagerBase {
             mService.unregisterAudioZonesMirrorStatusCallback(wrapper);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Determines if it is possible to enable audio mirror
+     *
+     * @return returns status to determine if it is possible to enable audio mirror using the
+     * {@link #enableMirrorForAudioZones(List)} API, if audio mirror can be enabled this will
+     * return {@link #AUDIO_MIRROR_CAN_ENABLE}, or {@link #AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES} if
+     * there are no more output devices currently available to mirror.
+     * {@link #AUDIO_MIRROR_INTERNAL_ERROR} can also be returned in case there is an error when
+     * communicating with the car audio service
+     * @throws IllegalStateException if audio mirroring feature is disabled, which can be verified
+     * using {@link #isAudioFeatureEnabled(int)} with the {@link #AUDIO_FEATURE_AUDIO_MIRRORING}
+     * feature flag
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    public @AudioMirrorStatus int canEnableAudioMirror() {
+        try {
+            return mService.canEnableAudioMirror();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, AUDIO_MIRROR_INTERNAL_ERROR);
         }
     }
 
