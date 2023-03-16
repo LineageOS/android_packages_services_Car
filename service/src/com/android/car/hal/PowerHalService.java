@@ -18,6 +18,7 @@ package com.android.car.hal;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -30,6 +31,7 @@ import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReqIndex;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.os.ServiceSpecificException;
 import android.util.SparseArray;
 
@@ -57,7 +59,8 @@ public class PowerHalService extends HalServiceBase {
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             AP_POWER_STATE_REQ,
             AP_POWER_STATE_REPORT,
-            DISPLAY_BRIGHTNESS
+            DISPLAY_BRIGHTNESS,
+            VEHICLE_IN_USE,
     };
 
     @VisibleForTesting
@@ -456,6 +459,23 @@ public class PowerHalService extends HalServiceBase {
         synchronized (mLock) {
             return (mProperties.get(VehicleProperty.AP_POWER_STATE_REQ) != null)
                     && (mProperties.get(VehicleProperty.AP_POWER_STATE_REPORT) != null);
+        }
+    }
+
+    /**
+     * Returns if the vehicle is currently in use.
+     *
+     * In use means a human user is present in the vehicle and is currently using the vehicle or
+     * will use the vehicle soon.
+     */
+    public boolean isVehicleInUse() {
+        try {
+            HalPropValue value = mHal.get(VEHICLE_IN_USE);
+            return (value.getStatus() == VehiclePropertyStatus.AVAILABLE
+                    && value.getInt32ValuesSize() >= 1 && value.getInt32Value(0) != 0);
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
+            Slogf.w(CarLog.TAG_POWER, "Failed to get VEHICLE_IN_USE value", e);
+            return false;
         }
     }
 
