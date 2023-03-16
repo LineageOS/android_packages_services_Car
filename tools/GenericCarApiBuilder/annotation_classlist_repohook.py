@@ -123,9 +123,9 @@ hidden_apis_previous_releases_paths = [
     "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.1.txt"
 ]
 
-previous_hidden_apis = []
+previous_hidden_apis = set()
 with open(previous_hidden_apis_path) as f:
-    previous_hidden_apis.extend(f.read().splitlines())
+    previous_hidden_apis = set(f.read().splitlines())
 
 hidden_apis_previous_releases = set()
 for path in hidden_apis_previous_releases_paths:
@@ -143,10 +143,10 @@ hidden_apis_previous_releases = hidden_apis_previous_releases - excluded_removed
 
 # All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
-modified_or_added_hidden_api = []
-for api in new_hidden_apis:
-    if api not in previous_hidden_apis:
-        modified_or_added_hidden_api.append(api)
+new_hidden_apis = set(new_hidden_apis)
+modified_or_added_hidden_api = new_hidden_apis - previous_hidden_apis
+
+upgraded_hidden_apis = previous_hidden_apis - new_hidden_apis
 
 # TODO(b/266849922): Add a pre-submit test to also check for added or modified hidden apis,
 # since one could also bypass the repohook tool using --no-verify.
@@ -170,6 +170,19 @@ removed_hidden_api = []
 for api in hidden_apis_previous_releases:
     if strip_param_names(api) not in all_apis:
         removed_hidden_api.append(api)
+
+# If a hidden API was upgraded to system or public API, the car_hidden_apis.txt should be updated to reflect its upgrade.
+upgraded_hidden_apis = upgraded_hidden_apis - set(removed_hidden_api)
+if len(upgraded_hidden_apis) > 0:
+    print("\nThe following hidden APIs were upgraded to either system or public APIs.")
+    print("\n".join(upgraded_hidden_apis))
+    print("\nPlease run the following command to update: ")
+    print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
+          "--update-hidden-api-for-test")
+    print("\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
+          "upgrading hidden APIs. Visit go/upgrade-hidden-api for more info.")
+    print("\n\n")
+    sys.exit(1)
 
 if len(removed_hidden_api) > 0:
     print("\nHidden APIs cannot be removed as the Car stack is now a mainline module. The following Hidden APIs were removed:")
