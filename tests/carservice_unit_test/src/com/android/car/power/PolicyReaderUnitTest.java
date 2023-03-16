@@ -71,8 +71,8 @@ public final class PolicyReaderUnitTest {
     private static final String INITIAL_ON_POLICY_ID = "system_power_policy_initial_on";
     private static final String POLICY_ID_CUSTOM_OTHER_OFF = "policy_id_custom_other_off";
     private static final int CUSTOM_COMPONENT_1000 = 1000;
-    private static final int CUSTOM_COMPONENT_1002 = 1002;
-    private static final int CUSTOM_COMPONENT_1003 = 1003;
+    private static final int CUSTOM_COMPONENT_AUX_INPUT = 1002;
+    private static final int CUSTOM_COMPONENT_SPECIAL_SENSOR = 1003;
 
     private static final CarPowerPolicy POLICY_OTHER_OFF = new CarPowerPolicy(POLICY_ID_OTHER_OFF,
             new int[]{WIFI},
@@ -111,14 +111,33 @@ public final class PolicyReaderUnitTest {
             new int[]{BLUETOOTH, WIFI, CELLULAR, ETHERNET, NFC, CPU},
             new int[]{AUDIO, MEDIA, DISPLAY, PROJECTION, INPUT, VOICE_INTERACTION,
                     VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE,
-                    CUSTOM_COMPONENT_1003});
+                    CUSTOM_COMPONENT_SPECIAL_SENSOR});
 
     private static final CarPowerPolicy POLICY_CUSTOM_OTHER_OFF = new CarPowerPolicy(
             POLICY_ID_CUSTOM_OTHER_OFF,
             new int[]{WIFI, CUSTOM_COMPONENT_1000},
             new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, CELLULAR, ETHERNET, PROJECTION, NFC, INPUT,
                     VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION,
-                    MICROPHONE, CPU, CUSTOM_COMPONENT_1002, CUSTOM_COMPONENT_1003});
+                    MICROPHONE, CPU, CUSTOM_COMPONENT_SPECIAL_SENSOR, CUSTOM_COMPONENT_AUX_INPUT});
+    private static final CarPowerPolicy POLICY_OTHER_OFF_WITH_OEM_COMPONENTS = new CarPowerPolicy(
+            POLICY_ID_OTHER_OFF,
+            new int[]{WIFI, CUSTOM_COMPONENT_AUX_INPUT},
+            new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, CELLULAR, ETHERNET, PROJECTION, NFC, INPUT,
+                    VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION,
+                    MICROPHONE, CPU, CUSTOM_COMPONENT_1000, CUSTOM_COMPONENT_SPECIAL_SENSOR});
+    private static final CarPowerPolicy POLICY_OTHER_ON_WITH_OEM_COMPONENTS = new CarPowerPolicy(
+            POLICY_ID_OTHER_ON,
+            new int[]{MEDIA, DISPLAY, BLUETOOTH, WIFI, CELLULAR, ETHERNET, PROJECTION, NFC, INPUT,
+                    LOCATION, MICROPHONE, CPU, CUSTOM_COMPONENT_1000,
+                    CUSTOM_COMPONENT_SPECIAL_SENSOR},
+            new int[]{AUDIO, VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION,
+                    CUSTOM_COMPONENT_AUX_INPUT});
+    private static final CarPowerPolicy POLICY_OTHER_UNTOUCHED_WITH_OEM_COMPONENTS =
+            new CarPowerPolicy(POLICY_ID_OTHER_UNTOUCHED,
+                    new int[]{AUDIO, DISPLAY, BLUETOOTH, WIFI, VOICE_INTERACTION,
+                            VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION,
+                            CUSTOM_COMPONENT_AUX_INPUT},
+                    new int[]{});
 
     private final Resources mResources =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
@@ -258,10 +277,9 @@ public final class PolicyReaderUnitTest {
     public void testValidXml_CustomComponents() throws Exception {
         readPowerPolicyXml(R.raw.valid_power_policy_custom_components);
 
-        assertValidPolicyPart();
+        assertValidPolicyPart_withCustomComponents();
         checkPolicy(POLICY_ID_CUSTOM_OTHER_OFF, POLICY_CUSTOM_OTHER_OFF);
 
-        assertValidPolicyPart();
         assertSystemPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
                 SYSTEM_POWER_POLICY_CUSTOM_COMPONENTS);
     }
@@ -279,6 +297,14 @@ public final class PolicyReaderUnitTest {
         checkPolicy(POLICY_ID_OTHER_OFF, POLICY_OTHER_OFF);
         checkPolicy(POLICY_ID_OTHER_UNTOUCHED, POLICY_OTHER_UNTOUCHED);
         checkPolicy(POLICY_ID_OTHER_ON, POLICY_OTHER_ON);
+        checkPolicy(POLICY_ID_OTHER_NONE, POLICY_OTHER_NONE);
+    }
+
+    private void assertValidPolicyPart_withCustomComponents() throws Exception {
+        assertThat(mPolicyReader.getPowerPolicy(POLICY_ID_NOT_EXIST)).isNull();
+        checkPolicy(POLICY_ID_OTHER_OFF, POLICY_OTHER_OFF_WITH_OEM_COMPONENTS);
+        checkPolicy(POLICY_ID_OTHER_UNTOUCHED, POLICY_OTHER_UNTOUCHED_WITH_OEM_COMPONENTS);
+        checkPolicy(POLICY_ID_OTHER_ON, POLICY_OTHER_ON_WITH_OEM_COMPONENTS);
         checkPolicy(POLICY_ID_OTHER_NONE, POLICY_OTHER_NONE);
     }
 
