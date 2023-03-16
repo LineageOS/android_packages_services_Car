@@ -575,10 +575,27 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void sendPayload(OccupantZoneInfo receiverZone,
-            Payload payload) {
+    public void sendPayload(String packageName, OccupantZoneInfo receiverZone, Payload payload) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
+        assertPackageName(mContext, packageName);
+
+        ClientId senderClient = getCallingClientId(packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        IBackendReceiver receiverService;
+        synchronized (mLock) {
+            assertConnectedLocked(packageName, senderClient.occupantZone, receiverZone);
+            receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+        }
+        if (receiverService == null) {
+            // receiverService can't be null since it is connected, but let's be cautious.
+            throw new IllegalStateException("The receiver service in " + receiverClient
+                    + "is not bound yet");
+        }
+        try {
+            receiverService.onPayloadReceived(senderClient.occupantZone, payload);
+        } catch (RemoteException e) {
+            throw new IllegalStateException("The receiver client is dead " + receiverClient, e);
+        }
     }
 
     @Override
@@ -588,10 +605,15 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public boolean isConnected(OccupantZoneInfo receiverZone) {
+    public boolean isConnected(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
-        return false;
+        assertPackageName(mContext, packageName);
+
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        OccupantZoneInfo senderZone = mOccupantZoneService.getOccupantZoneForUser(senderUserHandle);
+        synchronized (mLock) {
+            return isConnectedLocked(packageName, senderZone, receiverZone);
+        }
     }
 
     @GuardedBy("mLock")
@@ -792,13 +814,21 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     /**
      * Returns whether the sender client is connected to the receiver client.
      */
-    // TODO(b/257117236): call this method in isConnected() and sendPayload().
     @GuardedBy("mLock")
     private boolean isConnectedLocked(String packageName, OccupantZoneInfo senderZone,
             OccupantZoneInfo receiverZone) {
         ConnectionRecord expectedConnection =
                 new ConnectionRecord(packageName, senderZone.zoneId, receiverZone.zoneId);
         return mEstablishedConnections.contains(expectedConnection);
+    }
+
+    @GuardedBy("mLock")
+    private void assertConnectedLocked(String packageName, OccupantZoneInfo senderZone,
+            OccupantZoneInfo receiverZone) {
+        if (!isConnectedLocked(packageName, senderZone, receiverZone)) {
+            throw new IllegalStateException("The client " + packageName + " in " + senderZone
+                    + " is not connected to " + receiverZone);
+        }
     }
 
     @GuardedBy("mLock")
