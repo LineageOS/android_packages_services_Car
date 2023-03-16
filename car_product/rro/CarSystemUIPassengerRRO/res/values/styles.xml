@@ -18,6 +18,7 @@
     <style name="SystemBarButton">
         <item name="android:layout_height">75dp</item>
         <item name="android:layout_width">75dp</item>
+        <item name="android:layout_marginEnd">30dp</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
@@ -33,5 +34,13 @@
         parent="@*android:style/TextAppearance.StatusBar.Icon">
         <item name="android:textSize">@dimen/car_body1_size</item>
         <item name="android:textColor">@color/system_bar_text_color_with_selection</item>
+    </style>
+
+    <style name="ControlCenterSystemBarButton">
+        <item name="android:layout_height">@dimen/system_bar_button_size</item>
+        <item name="android:layout_width">@dimen/system_bar_button_size</item>
+        <item name="android:padding">@dimen/system_bar_button_padding</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 </resources>

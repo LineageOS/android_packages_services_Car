@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="36dp"
+    android:height="30dp"
+    android:viewportWidth="36"
+    android:viewportHeight="30"
+    android:tint="?attr/colorControlNormal">
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="evenOdd"
+        android:pathData="M32.2237 9.97828H11.7773C11.2864 9.97828 10.8884 10.3763 10.8884 10.8673V25.9798C10.8884 26.4707 11.2864 26.8687 11.7773 26.8687H32.2237C32.7146 26.8687 33.1126 26.4707 33.1126 25.9798V10.8673C33.1126 10.3763 32.7146 9.97828 32.2237 9.97828ZM11.7773 7.31137C9.81347 7.31137 8.22144 8.90339 8.22144 10.8673V25.9798C8.22144 27.9436 9.81347 29.5356 11.7773 29.5356H32.2237C34.1875 29.5356 35.7795 27.9436 35.7795 25.9798V10.8673C35.7795 8.90339 34.1875 7.31137 32.2237 7.31137H11.7773Z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="evenOdd"
+        android:pathData="M3.77659 3.41691H24.3844C24.8754 3.41691 25.2734 3.81492 25.2734 4.30588V9.27923H27.9403V4.30588C27.9403 2.34202 26.3483 0.75 24.3844 0.75H3.77659C1.81273 0.75 0.220703 2.34202 0.220703 4.30588V19.583C0.220703 21.5469 1.81273 23.1389 3.77659 23.1389H10.8822V20.472H3.77659C3.28562 20.472 2.88762 20.074 2.88762 19.583V4.30588C2.88762 3.81492 3.28562 3.41691 3.77659 3.41691Z" />
+</vector>
