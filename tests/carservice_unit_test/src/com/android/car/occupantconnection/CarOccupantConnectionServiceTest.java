@@ -91,6 +91,7 @@ public final class CarOccupantConnectionServiceTest {
     @Mock
     private IBinder mConnectionRequestCallbackBinder;
 
+    // TODO(b/272196149): make zone IDs constant.
     private final OccupantZoneInfo mReceiverZone =
             new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
     private final OccupantZoneInfo mSenderZone =
@@ -109,7 +110,7 @@ public final class CarOccupantConnectionServiceTest {
             mPendingConnectionRequestMap = new BinderKeyValueContainer<>();
     private final BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
             mAcceptedConnectionRequestMap = new BinderKeyValueContainer<>();
-    private final ArraySet<ConnectionRecord> mEstablishConnections = new ArraySet<>();
+    private final ArraySet<ConnectionRecord> mEstablishedConnections = new ArraySet<>();
 
     private CarOccupantConnectionService mService;
 
@@ -132,7 +133,7 @@ public final class CarOccupantConnectionServiceTest {
                 mRegisteredReceiverEndpointMap,
                 mPendingConnectionRequestMap,
                 mAcceptedConnectionRequestMap,
-                mEstablishConnections);
+                mEstablishedConnections);
         mService.init();
         when(mPayloadCallback.asBinder()).thenReturn(mPayloadCallbackBinder);
         when(mConnectionRequestCallback.asBinder()).thenReturn(mConnectionRequestCallbackBinder);
@@ -675,6 +676,87 @@ public final class CarOccupantConnectionServiceTest {
     }
 
     @Test
+    public void testCancelConnectionWithoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.cancelConnection(PACKAGE_NAME, any(OccupantZoneInfo.class)));
+    }
+
+    @Test
+    public void testCancelConnectionWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.cancelConnection(FAKE_PACKAGE_NAME, any(OccupantZoneInfo.class)));
+    }
+
+    @Test
+    public void testCancelConnection() throws RemoteException {
+        // TODO(b/272196149): make receiverUserId constant.
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
+                .thenReturn(mSenderZone);
+        ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
+
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        mPendingConnectionRequestMap.put(connectionId, mConnectionRequestCallback);
+
+        IConnectionRequestCallback connectionRequestCallback2 =
+                mock(IConnectionRequestCallback.class);
+        IBinder connectionRequestCallbackBinder2 = mock(IBinder.class);
+        when(connectionRequestCallback2.asBinder()).thenReturn(connectionRequestCallbackBinder2);
+        mPendingConnectionRequestMap.put(connectionId, connectionRequestCallback2);
+
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+
+        mService.cancelConnection(PACKAGE_NAME, mReceiverZone);
+
+        // All pending connection requests should be canceled.
+        assertThat(mPendingConnectionRequestMap.size()).isEqualTo(0);
+
+        // The receiver service should be notified of the cancellation, and should be unbound.
+        verify(receiverService).onConnectionCanceled(mSenderZone);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testCancelConnectionWithoutPendingConnectionRequest_throwsException() {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
+                .thenReturn(mSenderZone);
+
+        // There is no pending connection request to cancel, so it should throw an
+        // IllegalStateException.
+        assertThrows(IllegalStateException.class,
+                () -> mService.cancelConnection(PACKAGE_NAME, mReceiverZone));
+    }
+
+    @Test
+    public void testCancelConnectionWithEstablishedConnection_throwsException() {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
+                .thenReturn(mSenderZone);
+        ConnectionRecord connectionRecord =
+                new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
+        mEstablishedConnections.add(connectionRecord);
+
+        // The connection is established already, so canceling it should throw an
+        // IllegalStateException.
+        assertThrows(IllegalStateException.class,
+                () -> mService.cancelConnection(PACKAGE_NAME, mReceiverZone));
+    }
+
+    @Test
     public void testReceiverServiceDisconnected() throws RemoteException {
         ServiceConnection[] connection = new ServiceConnection[1];
         doAnswer((invocation) -> {
@@ -716,7 +798,7 @@ public final class CarOccupantConnectionServiceTest {
         when(callback2.asBinder()).thenReturn(binder2);
         mAcceptedConnectionRequestMap.put(connectionId, callback2);
 
-        mEstablishConnections.add(connectionRecord);
+        mEstablishedConnections.add(connectionRecord);
 
         connection[0].onServiceDisconnected(mock(ComponentName.class));
 
@@ -727,7 +809,7 @@ public final class CarOccupantConnectionServiceTest {
         assertThat(mRegisteredReceiverEndpointMap.size()).isEqualTo(0);
         assertThat(mPendingConnectionRequestMap.size()).isEqualTo(0);
         assertThat(mAcceptedConnectionRequestMap.size()).isEqualTo(0);
-        assertThat(mEstablishConnections.isEmpty()).isTrue();
+        assertThat(mEstablishedConnections.isEmpty()).isTrue();
 
         verify(mConnectionRequestCallback).onFailed(receiverClient.occupantZone,
                 CONNECTION_ERROR_UNKNOWN);

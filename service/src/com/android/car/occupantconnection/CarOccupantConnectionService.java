@@ -150,7 +150,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     // TODO(b/257117236): update this map when the sender dies.
     /** A set of established connection records. */
     @GuardedBy("mLock")
-    private final ArraySet<ConnectionRecord> mEstablishConnections;
+    private final ArraySet<ConnectionRecord> mEstablishedConnections;
 
     /**
      * A class to handle the connection to {@link
@@ -192,7 +192,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                             mReceiverService.onConnected(senderZone);
 
                             mAcceptedConnectionRequestMap.put(connectionId, callback);
-                            mEstablishConnections.add(new ConnectionRecord(
+                            mEstablishedConnections.add(new ConnectionRecord(
                                     receiverClient.packageName,
                                     senderZone.zoneId,
                                     receiverClient.occupantZone.zoneId));
@@ -277,12 +277,12 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 notifySenderOfReceiverServiceDisconnect(mAcceptedConnectionRequestMap,
                         mReceiverClient);
 
-                for (int i = mEstablishConnections.size() - 1; i >= 0; i--) {
-                    ConnectionRecord connectionRecord = mEstablishConnections.valueAt(i);
+                for (int i = mEstablishedConnections.size() - 1; i >= 0; i--) {
+                    ConnectionRecord connectionRecord = mEstablishedConnections.valueAt(i);
                     if (connectionRecord.packageName.equals(mReceiverClient.packageName)
                             && connectionRecord.receiverZoneId
                             == mReceiverClient.occupantZone.zoneId) {
-                        mEstablishConnections.removeAt(i);
+                        mEstablishedConnections.removeAt(i);
                     }
                 }
             }
@@ -320,7 +320,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                     pendingConnectionRequestMap,
             BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
                     acceptedConnectionRequestMap,
-            ArraySet<ConnectionRecord> establishConnections) {
+            ArraySet<ConnectionRecord> establishedConnections) {
         mContext = context;
         mOccupantZoneService = occupantZoneService;
         mPowerManagementService = powerManagementService;
@@ -331,7 +331,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         mRegisteredReceiverEndpointMap = registeredReceiverEndpointMap;
         mPendingConnectionRequestMap = pendingConnectionRequestMap;
         mAcceptedConnectionRequestMap = acceptedConnectionRequestMap;
-        mEstablishConnections = establishConnections;
+        mEstablishedConnections = establishedConnections;
     }
 
     @Override
@@ -391,8 +391,8 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 writer.printf("%s%s, callback:%s\n", INDENTATION_4, id, callback);
             }
             writer.printf("%smEstablishConnections:\n", INDENTATION_2);
-            for (int i = 0; i < mEstablishConnections.size(); i++) {
-                writer.printf("%s%s\n", INDENTATION_4, mEstablishConnections.valueAt(i));
+            for (int i = 0; i < mEstablishedConnections.size(); i++) {
+                writer.printf("%s%s\n", INDENTATION_4, mEstablishedConnections.valueAt(i));
             }
         }
     }
@@ -546,9 +546,32 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void cancelConnection(OccupantZoneInfo receiverZone) {
+    public void cancelConnection(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
+        assertPackageName(mContext, packageName);
+
+        ClientId senderClient = getCallingClientId(packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        ConnectionId connectionToCancel = new ConnectionId(senderClient, receiverClient);
+        synchronized (mLock) {
+            assertHasPendingConnectionRequestLocked(connectionToCancel);
+            mPendingConnectionRequestMap.remove(connectionToCancel);
+
+            // If the AbstractReceiverService of the receiver app is bound, notify it of the
+            // cancellation now.
+            IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+            if (receiverService != null) {
+                try {
+                    receiverService.onConnectionCanceled(senderClient.occupantZone);
+                } catch (RemoteException e) {
+                    // There is no need to propagate the Exception to the sender client because
+                    // the connection was canceled successfully anyway.
+                    Slogf.e(TAG, "Failed to notify the receiver of connection cancellation", e);
+                }
+            }
+
+            maybeUnbindReceiverServiceLocked(receiverClient);
+        }
     }
 
     @Override
@@ -740,6 +763,14 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         }
     }
 
+    @GuardedBy("mLock")
+    private void assertHasPendingConnectionRequestLocked(ConnectionId connectionId) {
+        if (!mPendingConnectionRequestMap.containsKey(connectionId)) {
+            throw new IllegalStateException("The client " + connectionId.senderClient
+                    + " has no pending connection request to " + connectionId.receiverClient);
+        }
+    }
+
     private void notifySenderOfReceiverServiceDisconnect(
             BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
                     connectionRequestMap, ClientId receiverClient) {
@@ -767,7 +798,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             OccupantZoneInfo receiverZone) {
         ConnectionRecord expectedConnection =
                 new ConnectionRecord(packageName, senderZone.zoneId, receiverZone.zoneId);
-        return mEstablishConnections.contains(expectedConnection);
+        return mEstablishedConnections.contains(expectedConnection);
     }
 
     @GuardedBy("mLock")
