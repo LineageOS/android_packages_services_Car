@@ -849,7 +849,7 @@ public final class CarOccupantConnectionServiceTest {
                 new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
 
         // It is connected.
-        mEstablishConnections.add(connectionRecord);
+        mEstablishedConnections.add(connectionRecord);
 
         int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
@@ -893,7 +893,7 @@ public final class CarOccupantConnectionServiceTest {
 
         ConnectionRecord connectionRecord =
                 new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
-        mEstablishConnections.add(connectionRecord);
+        mEstablishedConnections.add(connectionRecord);
 
         assertThat(mService.isConnected(PACKAGE_NAME, mReceiverZone)).isTrue();
     }
