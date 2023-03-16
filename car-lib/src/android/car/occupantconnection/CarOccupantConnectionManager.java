@@ -559,7 +559,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
-            mService.cancelConnection(receiverZone);
+            mService.cancelConnection(mPackageName, receiverZone);
         } catch (RemoteException e) {
             Slog.e(TAG, "Failed to cancel connection");
             handleRemoteExceptionFromCarService(e);
