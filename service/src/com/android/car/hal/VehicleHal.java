@@ -353,6 +353,9 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @Override
     public void init() {
         // nothing to init as everything was done on priorityInit
+
+        // TODO(b/273370593): remove following once tests are stable
+        priorityInit();
     }
 
     /**
