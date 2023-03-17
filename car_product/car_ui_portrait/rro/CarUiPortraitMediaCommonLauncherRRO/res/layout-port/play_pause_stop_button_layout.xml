@@ -22,7 +22,7 @@
     android:focusable="false">
     <com.android.car.media.common.PlayPauseStopImageView
         android:id="@+id/play_pause_stop"
-        android:src="@drawable/ic_play_pause_stop_animated"
+        android:src="@drawable/play_pause_stop"
         android:background="@drawable/play_pause_stop_animated_background"
         style="@style/PlayPauseButtonStyle"/>
     <ProgressBar
