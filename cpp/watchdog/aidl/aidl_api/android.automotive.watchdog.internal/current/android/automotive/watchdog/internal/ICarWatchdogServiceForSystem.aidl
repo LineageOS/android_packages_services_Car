@@ -34,11 +34,12 @@
 package android.automotive.watchdog.internal;
 /* @hide */
 interface ICarWatchdogServiceForSystem {
-  oneway void checkIfAlive(in int sessionId, in android.automotive.watchdog.internal.TimeoutLength timeout);
+  oneway void checkIfAlive(int sessionId, in android.automotive.watchdog.internal.TimeoutLength timeout);
   oneway void prepareProcessTermination();
   List<android.automotive.watchdog.internal.PackageInfo> getPackageInfosForUids(in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
   oneway void latestIoOveruseStats(in List<android.automotive.watchdog.internal.PackageIoOveruseStats> packageIoOveruseStats);
   oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
   List<android.automotive.watchdog.internal.UserPackageIoUsageStats> getTodayIoUsageStats();
   oneway void onLatestResourceStats(in android.automotive.watchdog.internal.ResourceStats resourceStats);
+  oneway void requestAidlVhalPid();
 }
