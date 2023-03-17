@@ -22,6 +22,12 @@
         android:animateLayoutChanges="false">
         <include layout="@layout/car_ui_portrait_grip_bar"/>
 
+        <com.android.car.portraitlauncher.panel.BackgroundSurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/grip_bar"/>
+
         <FrameLayout
             android:id="@+id/task_view_container"
             android:layout_width="match_parent"
