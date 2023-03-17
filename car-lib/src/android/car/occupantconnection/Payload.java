@@ -43,14 +43,11 @@ import java.util.Objects;
  */
 @SystemApi
 public final class Payload extends LargeParcelableBase {
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
 
     @Nullable
     private byte[] mBytes;
 
     public Payload(@NonNull byte[] bytes) {
-        super();
         Objects.requireNonNull(bytes, "bytes cannot be null");
         this.mBytes = bytes.clone();
     }
@@ -60,6 +57,8 @@ public final class Payload extends LargeParcelableBase {
     }
 
     /** Returns a reference to the byte array of the payload. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public byte[] getBytes() {
         return mBytes;
