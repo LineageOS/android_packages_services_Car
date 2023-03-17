@@ -81,10 +81,7 @@
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="android:TextAppearance.Material.Widget.Button">
-        <item name="android:fontFamily">@string/config_headlineFontFamilyMedium</item>
-        <item name="android:textAllCaps">@*android:bool/config_buttonTextAllCaps</item>
-        <item name="android:textSize">@*android:dimen/car_action1_size</item>
+    <style name="TextAppearance.DeviceDefault.Widget.Button" parent="TextAppearance.Car.Button.Medium">
         <item name="android:textColor">@color/car_on_primary</item>
     </style>
 
@@ -103,6 +100,7 @@
         <item name="android:background">@*android:drawable/car_button_background</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
+        <item name="android:paddingVertical">@dimen/car_button_vertical_padding</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textColor">@color/car_on_primary</item>
