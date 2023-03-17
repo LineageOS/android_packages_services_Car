@@ -67,16 +67,17 @@ public:
     virtual ndk::ScopedAStatus prepareProcessTermination(const ndk::SpAIBinder& who) = 0;
     virtual ndk::ScopedAStatus getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
-            std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>*
-                    packageInfos) = 0;
+            std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>* packageInfos)
+            const = 0;
     virtual ndk::ScopedAStatus resetResourceOveruseStats(
-            const std::vector<std::string>& packageNames) = 0;
+            const std::vector<std::string>& packageNames) const = 0;
     virtual ndk::ScopedAStatus getTodayIoUsageStats(
             std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
-                    userPackageIoUsageStats) = 0;
+                    userPackageIoUsageStats) const = 0;
     virtual ndk::ScopedAStatus onLatestResourceStats(
             const aidl::android::automotive::watchdog::internal::ResourceStats& resourceStats)
             const = 0;
+    virtual ndk::ScopedAStatus requestAidlVhalPid() const = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -116,15 +117,16 @@ public:
     ndk::ScopedAStatus getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>* packageInfos)
-            override;
+            const override;
     ndk::ScopedAStatus resetResourceOveruseStats(
-            const std::vector<std::string>& packageNames) override;
+            const std::vector<std::string>& packageNames) const override;
     ndk::ScopedAStatus getTodayIoUsageStats(
             std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
-                    userPackageIoUsageStats) override;
+                    userPackageIoUsageStats) const override;
     ndk::ScopedAStatus onLatestResourceStats(
             const aidl::android::automotive::watchdog::internal::ResourceStats& resourceStats)
             const override;
+    ndk::ScopedAStatus requestAidlVhalPid() const override;
 
 protected:
     android::base::Result<void> init(

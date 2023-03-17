@@ -54,6 +54,8 @@ public final class CommonConstants {
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
 
+    public static final int INVALID_PID = -1;
+
     @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
             USER_LIFECYCLE_EVENT_TYPE_STARTING,
             USER_LIFECYCLE_EVENT_TYPE_SWITCHING,

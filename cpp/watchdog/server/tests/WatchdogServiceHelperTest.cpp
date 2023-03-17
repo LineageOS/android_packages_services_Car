@@ -594,6 +594,35 @@ TEST_F(WatchdogServiceHelperTest,
             << "onLatestResourceStats " << kFailOnCarWatchdogServiceErrMessage;
 }
 
+TEST_F(WatchdogServiceHelperTest, TestRequestAidlVhalPid) {
+    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestAidlVhalPid())
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
+    auto status = mWatchdogServiceHelper->requestAidlVhalPid();
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogServiceHelperTest, TestRequestAidlVhalPidWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestAidlVhalPid()).Times(0);
+
+    ASSERT_FALSE(mWatchdogServiceHelper->requestAidlVhalPid().isOk())
+            << "requestAidlVhalPid " << kFailOnNoCarWatchdogServiceMessage;
+}
+
+TEST_F(WatchdogServiceHelperTest, TestRequestAidlVhalPidWithErrorStatusFromCarWatchdogService) {
+    ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestAidlVhalPid())
+            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                                                "Illegal state"))));
+
+    ASSERT_FALSE(mWatchdogServiceHelper->requestAidlVhalPid().isOk())
+            << "requestAidlVhalPid " << kFailOnCarWatchdogServiceErrMessage;
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android

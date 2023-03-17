@@ -99,6 +99,7 @@ public:
                     processIdentifier) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
     virtual void onUserStateChange(userid_t userId, bool isStarted) = 0;
+    virtual void onAidlVhalPidFetched(int32_t) = 0;
 };
 
 class WatchdogProcessService final : public WatchdogProcessServiceInterface {
@@ -146,6 +147,9 @@ public:
                     processIdentifier) override;
     void setEnabled(bool isEnabled) override;
     void onUserStateChange(userid_t userId, bool isStarted) override;
+    void onAidlVhalPidFetched(int32_t) override {
+        // TODO(b/259086896): Cache AIDL VHAL pid.
+    }
 
 private:
     enum ClientType {

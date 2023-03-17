@@ -117,6 +117,7 @@ public:
             int pid, int tid, int uid,
             aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority*
                     threadPolicyWithPriority) override;
+    ndk::ScopedAStatus onAidlVhalPidFetched(int pid) override;
 
     void terminate() override {
         mWatchdogServiceHelper.clear();
