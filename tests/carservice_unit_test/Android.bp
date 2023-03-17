@@ -21,7 +21,16 @@ package {
 android_test {
     name: "CarServiceUnitTest",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+            "src/**/*.java",
+            "src/**/*.aidl",
+        ],
+
+    aidl: {
+            include_dirs: [
+                "packages/services/Car/car-lib/src",
+            ],
+    },
 
     aaptflags: [
         "--extra-packages com.android.car",
