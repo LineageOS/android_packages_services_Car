@@ -248,6 +248,10 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
     }
     ClientInfo clientInfo(helper, binder, callingPid, callingUid,
                           mGetStartTimeForPidFunc(callingPid), *this);
+
+    // TODO(b/259086896): On registering CarWatchdogService, request AIDL VHAL pid from CarService
+    // via an asynchronous call by posting a message on the looper.
+
     return registerClient(clientInfo, TimeoutLength::TIMEOUT_CRITICAL);
 }
 

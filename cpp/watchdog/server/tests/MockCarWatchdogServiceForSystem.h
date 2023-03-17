@@ -50,6 +50,7 @@ public:
             (override));
     MOCK_METHOD(ndk::ScopedAStatus, onLatestResourceStats,
                 (const aidl::android::automotive::watchdog::internal::ResourceStats&), (override));
+    MOCK_METHOD(ndk::ScopedAStatus, requestAidlVhalPid, (), (override));
 };
 
 }  // namespace watchdog

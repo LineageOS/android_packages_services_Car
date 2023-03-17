@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -126,5 +127,12 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         Log.d(TAG, "setProcessProfile(" + pid + "," + uid + "," + profile + ")");
 
         return;
+    }
+
+    @Override
+    public int fetchAidlVhalPid() {
+        Log.d(TAG, "fetchAidlVhalPid()");
+
+        return INVALID_PID;
     }
 }

@@ -713,6 +713,24 @@ TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriority) {
     EXPECT_EQ(actual.priority, expectedPriority);
 }
 
+TEST_F(WatchdogInternalHandlerTest, TestOnAidlVhalPidFetched) {
+    setSystemCallingUid();
+
+    int vhalPid = 56423;
+    EXPECT_CALL(*mMockWatchdogProcessService, onAidlVhalPidFetched(vhalPid)).Times(1);
+
+    auto status = mWatchdogInternalHandler->onAidlVhalPidFetched(vhalPid);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestErrorOnOnAidlVhalPidFetchedWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockWatchdogProcessService, onAidlVhalPidFetched(_)).Times(0);
+
+    ASSERT_FALSE(mWatchdogInternalHandler->onAidlVhalPidFetched(56423).isOk())
+            << "onAidlVhalPidFetched " << kFailOnNonSystemCallingUidMessage;
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
