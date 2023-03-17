@@ -698,11 +698,6 @@ MissingNullability: android.car.vms.VmsSubscriptionState#CREATOR:
 MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `out` in method `writeToParcel`
 
-
-MutableBareField: android.car.occupantconnection.Payload#bytes:
-    Bare field bytes must be marked final, or moved behind accessors if mutable
-
-
 NotCloseable: android.car.app.CarTaskViewController:
     Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewController
 NotCloseable: android.car.app.CarTaskViewHost:
