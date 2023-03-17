@@ -22,6 +22,8 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockForceStopUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockForceStopUserThrows;
 import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLocking;
 import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLockingThrows;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
@@ -747,7 +749,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStopUserSynchronous_success() throws Exception {
+    public void testStopUser_withDelayedLocking_success() throws Exception {
         mockStopUserWithDelayedLocking(TEST_USER_ID, ActivityManager.USER_OP_SUCCESS);
 
         UserStopRequest request =
@@ -759,13 +761,51 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStopUserSynchronous_permissionDenied() throws Exception {
+    public void testStopUser_withDelayedLocking_permissionDenied() throws Exception {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
         mockInteractAcrossUsersPermission(false);
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
         assertThrows(SecurityException.class, () -> mCarUserService.stopUser(request));
+    }
+
+    @Test
+    public void testStopUser_withDelayedLocking_fail() throws Exception {
+        mockStopUserWithDelayedLockingThrows(TEST_USER_ID, new IllegalStateException());
+
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
+        UserStopResponse result = mCarUserService.stopUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
+        assertThat(result.isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopUser_withoutDelayedLocking_success() throws Exception {
+        mockForceStopUser(TEST_USER_ID, ActivityManager.USER_OP_SUCCESS);
+
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID))
+                        .setForce().withDelayedLocking(false).build();
+        UserStopResponse result = mCarUserService.stopUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
+        assertThat(result.isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testStopUser_withoutDelayedLocking_fail() throws Exception {
+        mockForceStopUserThrows(TEST_USER_ID, new IllegalStateException());
+
+        UserStopRequest request =
+                new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID))
+                        .setForce().withDelayedLocking(false).build();
+        UserStopResponse result = mCarUserService.stopUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
+        assertThat(result.isSuccess()).isFalse();
     }
 
     @Test

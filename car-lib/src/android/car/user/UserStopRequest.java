@@ -37,11 +37,14 @@ import com.android.car.internal.util.DataClass;
 public final class UserStopRequest implements Parcelable {
 
     private final @NonNull UserHandle mUserHandle;
+    private final boolean mWithDelayedLocking;
     private final boolean mForce;
 
     /** Builder for {@link UserStopRequest}. */
     public static final class Builder {
         private final @NonNull UserHandle mUserHandle;
+        // withDelayedLocking is true by default, as it is the most common use case.
+        private boolean mWithDelayedLocking = true;
         private boolean mForce;
 
         public Builder(@NonNull UserHandle userHandle) {
@@ -50,7 +53,23 @@ public final class UserStopRequest implements Parcelable {
             mUserHandle = userHandle;
         }
 
-        /** Set the flag to force-stop the user. */
+        /**
+         * Sets the flag to stop the user with delayed locking.
+         *
+         * <p>The flag is {@code true} by default.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        public @NonNull Builder withDelayedLocking(boolean value) {
+            mWithDelayedLocking = value;
+            return this;
+        }
+
+        /**
+         * Sets the flag to force-stop the user.
+         *
+         * <p>The flag is {@code false} by default.
+         */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull Builder setForce() {
@@ -68,6 +87,7 @@ public final class UserStopRequest implements Parcelable {
 
     private UserStopRequest(Builder builder) {
         mUserHandle = builder.mUserHandle;
+        mWithDelayedLocking = builder.mWithDelayedLocking;
         mForce = builder.mForce;
     }
 
@@ -96,6 +116,13 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public boolean isWithDelayedLocking() {
+        return mWithDelayedLocking;
+    }
+
+    @DataClass.Generated.Member
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isForce() {
         return mForce;
     }
@@ -109,7 +136,8 @@ public final class UserStopRequest implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         byte flg = 0;
-        if (mForce) flg |= 0x2;
+        if (mWithDelayedLocking) flg |= 0x2;
+        if (mForce) flg |= 0x4;
         dest.writeByte(flg);
         dest.writeTypedObject(mUserHandle, flags);
     }
@@ -128,12 +156,14 @@ public final class UserStopRequest implements Parcelable {
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
         byte flg = in.readByte();
-        boolean force = (flg & 0x2) != 0;
+        boolean withDelayedLocking = (flg & 0x2) != 0;
+        boolean force = (flg & 0x4) != 0;
         UserHandle userHandle = (UserHandle) in.readTypedObject(UserHandle.CREATOR);
 
         this.mUserHandle = userHandle;
         com.android.car.internal.util.AnnotationValidations.validate(
                 NonNull.class, null, mUserHandle);
+        this.mWithDelayedLocking = withDelayedLocking;
         this.mForce = force;
 
         // onConstructed(); // You can define this method to get a callback
@@ -156,10 +186,10 @@ public final class UserStopRequest implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1676439014258L,
+            time = 1679068284217L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserStopRequest.java",
-            inputSignatures = "private final @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate final  boolean mForce\nclass UserStopRequest extends java.lang.Object implements [android.os.Parcelable]\nprivate final @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate  boolean mForce\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserStopRequest.Builder force()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserStopRequest build()\nclass Builder extends java.lang.Object implements []\n@com.android.car.internal.util.DataClass(genParcelable=true, genConstructor=false, genAidl=true)")
+            inputSignatures = "private final @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate final  boolean mWithDelayedLocking\nprivate final  boolean mForce\nclass UserStopRequest extends java.lang.Object implements [android.os.Parcelable]\nprivate final @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate  boolean mWithDelayedLocking\nprivate  boolean mForce\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserStopRequest.Builder withDelayedLocking()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserStopRequest.Builder setForce()\npublic @android.car.annotation.ApiRequirements @android.annotation.NonNull android.car.user.UserStopRequest build()\nclass Builder extends java.lang.Object implements []\n@com.android.car.internal.util.DataClass(genParcelable=true, genConstructor=false, genAidl=true)")
     @Deprecated
     private void __metadata() {}
 

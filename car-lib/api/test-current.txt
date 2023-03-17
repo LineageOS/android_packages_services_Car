@@ -2407,6 +2407,7 @@ package android.car.user {
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public int describeContents();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.os.UserHandle getUserHandle();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public boolean isForce();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public boolean isWithDelayedLocking();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public void writeToParcel(@NonNull android.os.Parcel, int);
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserStopRequest> CREATOR;
   }
@@ -2415,6 +2416,7 @@ package android.car.user {
     ctor public UserStopRequest.Builder(@NonNull android.os.UserHandle);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.car.user.UserStopRequest build();
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.car.user.UserStopRequest.Builder setForce();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.car.user.UserStopRequest.Builder withDelayedLocking(boolean);
   }
 
   public final class UserStopResponse implements android.os.Parcelable {
