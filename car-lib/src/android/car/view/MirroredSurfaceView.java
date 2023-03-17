@@ -247,12 +247,16 @@ public final class MirroredSurfaceView extends SurfaceView {
         }
     };
 
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mTouchableInsetsProvider.addToViewTreeObserver();
     }
 
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     protected void onDetachedFromWindow() {
         mTouchableInsetsProvider.removeFromViewTreeObserver();
