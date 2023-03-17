@@ -17,8 +17,8 @@
 package com.android.car.portraitlauncher.panel;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -26,11 +26,20 @@ import android.view.SurfaceView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.android.car.portraitlauncher.R;
+
 /**
  * A {@link SurfaceView} that acts as a solid black background of {@link TaskViewPanel}. It
  * avoids user to see the background app when an activity in RootTaskView fades out.
  */
 public class BackgroundSurfaceView extends SurfaceView {
+
+    // Whether the panel should use a fixed color.
+    private boolean mUseFixedColor;
+
+    // The color used in the surface view.
+    private int mColor;
+
     public BackgroundSurfaceView(Context context) {
         this(context, null);
     }
@@ -57,6 +66,8 @@ public class BackgroundSurfaceView extends SurfaceView {
     }
 
     private void setupSurfaceView() {
+        mColor = getResources().getColor(R.color.car_background, getContext().getTheme());
+
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
@@ -78,7 +89,25 @@ public class BackgroundSurfaceView extends SurfaceView {
 
     private void drawColorOnSurface(SurfaceHolder holder) {
         Canvas canvas = holder.lockCanvas();
-        canvas.drawColor(Color.BLACK);
+        if (canvas == null) {
+            return;
+        }
+        canvas.drawColor(mColor);
         holder.unlockCanvasAndPost(canvas);
+    }
+
+    /** Sets the fixed color on the surface view */
+    public void setFixedColor(int color) {
+        mColor = color;
+        mUseFixedColor = true;
+        drawColorOnSurface(getHolder());
+    }
+
+    /** refreshes the color of the surface view if needed. */
+    public void refresh(Resources.Theme theme) {
+        if (!mUseFixedColor) {
+            mColor = getResources().getColor(R.color.car_background, theme);
+            drawColorOnSurface(getHolder());
+        }
     }
 }
