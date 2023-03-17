@@ -37,7 +37,8 @@ oneway interface IBackendReceiver {
     void onPayloadReceived(in CarOccupantZoneManager.OccupantZoneInfo senderZone,
         in Payload payload);
 
-    void onConnectionInitiated(in CarOccupantZoneManager.OccupantZoneInfo senderZone);
+    void onConnectionInitiated(in CarOccupantZoneManager.OccupantZoneInfo senderZone,
+        int senderAppState);
 
     void onConnected(in CarOccupantZoneManager.OccupantZoneInfo senderZone);
 
