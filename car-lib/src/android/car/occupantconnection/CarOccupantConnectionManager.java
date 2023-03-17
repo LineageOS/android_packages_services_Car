@@ -492,15 +492,24 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Sends a request to connect to the peer client in {@code receiverZone}. The {@link
-     * AbstractReceiverService} in the peer client will be started and bound automatically if it
+     * Sends a request to connect to the receiver client in {@code receiverZone}. The {@link
+     * AbstractReceiverService} in the receiver client will be started and bound automatically if it
      * was not started yet.
      * <p>
-     * This method should only be called when the state of the {@code receiverZone} is
+     * This method should only be called when the state of the {@code receiverZone} contains
      * {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_CONNECTION_READY} (and
      * {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED} and {@link
      * android.car.CarRemoteDeviceManager#FLAG_CLIENT_IN_FOREGROUND} if UI is needed to
      * establish the connection). Otherwise, errors may occur.
+     * <p>
+     * For security, it is highly recommended that the sender not request a connection to the
+     * receiver client if the state of the receiver client doesn't contain
+     * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_VERSION} or
+     * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_SIGNATURE}. If the sender still
+     * wants to request the connection in the case above, it should call
+     * {@link android.car.CarRemoteDeviceManager#getEndpointPackageInfo} to get the receiver's
+     * {@link android.content.pm.PackageInfo} and check if it's valid before requesting the
+     * connection.
      * <p>
      * The caller may call {@link #cancelConnection} to cancel the request.
      * <p>
