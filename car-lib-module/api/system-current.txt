@@ -1694,7 +1694,7 @@ package android.car.occupantconnection {
     method @Nullable public final android.os.IBinder onBind(@NonNull android.content.Intent);
     method public abstract void onConnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method public abstract void onConnectionCanceled(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
-    method public abstract void onConnectionInitiated(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public abstract void onConnectionInitiated(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
     method public abstract void onDisconnected(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @Nullable public android.os.IBinder onLocalServiceBind(@NonNull android.content.Intent);
     method public abstract void onPayloadReceived(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.car.occupantconnection.Payload);
