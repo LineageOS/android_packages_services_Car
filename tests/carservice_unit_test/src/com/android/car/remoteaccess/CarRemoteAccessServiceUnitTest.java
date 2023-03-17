@@ -35,7 +35,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
@@ -48,7 +47,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.Log;
@@ -56,9 +54,9 @@ import android.util.Log;
 import androidx.test.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
-import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.hal.PowerHalService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.RemoteAccessStorage.ClientIdEntry;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
@@ -100,20 +98,17 @@ public final class CarRemoteAccessServiceUnitTest {
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_ONE,
                     CLASS_NAME_ONE, /* permissionGranted= */ true),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
-                    CLASS_NAME_TWO, /* permissionGranted= */ true)
+                    CLASS_NAME_TWO, /* permissionGranted= */ true),
+            createPackagePrepForTest("com.abc.xyz", CLASS_NAME_ONE, /* permissionGranted= */ true)
     );
     private static final List<ClientIdEntry> PERSISTENT_CLIENTS = List.of(
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
             new ClientIdEntry("98765", System.currentTimeMillis(), "android.automotive.os")
     );
-    private static final CarPropertyValue<Boolean> PROP_VEHICLE_IN_USE =
-            new CarPropertyValue<>(VehicleProperty.VEHICLE_IN_USE, /* areadId= */ 0,
-                    CarPropertyValue.STATUS_AVAILABLE, /* timestampNanos= */ 0, new Boolean(true));
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
     private CarPowerManagementService mOldCarPowerManagementService;
-    private CarPropertyService mOldCarPropertyService;
     private File mDatabaseFile;
     private Context mContext;
     private RemoteAccessStorage mRemoteAccessStorage;
@@ -123,13 +118,10 @@ public final class CarRemoteAccessServiceUnitTest {
     @Mock private RemoteAccessHalWrapper mRemoteAccessHal;
     @Mock private SystemInterface mSystemInterface;
     @Mock private CarPowerManagementService mCarPowerManagementService;
-    @Mock private CarPropertyService mCarPropertyService;
+    @Mock private PowerHalService mPowerHalService;
 
     @Before
     public void setUp() {
-        mOldCarPropertyService = CarLocalServices.getService(CarPropertyService.class);
-        CarLocalServices.removeServiceForTest(CarPropertyService.class);
-        CarLocalServices.addService(CarPropertyService.class, mCarPropertyService);
         mOldCarPowerManagementService = CarLocalServices.getService(
                 CarPowerManagementService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
@@ -154,8 +146,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
-        mService = new CarRemoteAccessService(mContext, mSystemInterface, mRemoteAccessHal,
-                mRemoteAccessStorage, ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+        mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService,
+                mRemoteAccessHal, mRemoteAccessStorage, ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
     }
 
     @After
@@ -165,8 +157,6 @@ public final class CarRemoteAccessServiceUnitTest {
 
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class, mOldCarPowerManagementService);
-        CarLocalServices.removeServiceForTest(CarPropertyService.class);
-        CarLocalServices.addService(CarPropertyService.class, mOldCarPropertyService);
 
         if (!mDatabaseFile.delete()) {
             Log.e(TAG, "Failed to delete the database file: " + mDatabaseFile.getAbsolutePath());
@@ -581,11 +571,7 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     private void setVehicleInUse(boolean inUse) {
-        CarPropertyValue<Boolean> propVehicleInUse =
-                new CarPropertyValue<>(VehicleProperty.VEHICLE_IN_USE, /* areadId= */ 0,
-                        CarPropertyValue.STATUS_AVAILABLE, /* timestampNanos= */ 0, inUse);
-        when(mCarPropertyService.getPropertySafe(VehicleProperty.VEHICLE_IN_USE, 0))
-                .thenReturn(propVehicleInUse);
+        when(mPowerHalService.isVehicleInUse()).thenReturn(inUse);
     }
 
     private void setupDatabase() {

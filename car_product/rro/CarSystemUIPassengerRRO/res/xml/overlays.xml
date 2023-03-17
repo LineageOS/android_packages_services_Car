@@ -59,6 +59,11 @@
     <item target="id/hvac_temperature_text" value="@id/hvac_temperature_text"/>
     <item target="id/hvac_increase_button" value="@id/hvac_increase_button"/>
     <item target="id/qc_entry_points_container" value="@id/qc_entry_points_container"/>
+    <item target="id/control_center_nav" value="@id/control_center_nav"/>
+    <item target="string/system_bar_control_center_label" value="@string/system_bar_control_center_label"/>
+    <item target="dimen/system_bar_button_size" value="@dimen/system_bar_button_size"/>
+    <item target="dimen/system_bar_button_padding" value="@dimen/system_bar_button_padding"/>
+    <item target="style/ControlCenterSystemBarButton" value="@style/ControlCenterSystemBarButton"/>
 
     <item target="id/mic_privacy_chip" value="@id/mic_privacy_chip"/>
     <item target="id/camera_privacy_chip" value="@id/camera_privacy_chip"/>

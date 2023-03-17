@@ -559,7 +559,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
-            mService.cancelConnection(receiverZone);
+            mService.cancelConnection(mPackageName, receiverZone);
         } catch (RemoteException e) {
             Slog.e(TAG, "Failed to cancel connection");
             handleRemoteExceptionFromCarService(e);
@@ -585,9 +585,12 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         Objects.requireNonNull(payload, "payload cannot be null");
         try {
-            mService.sendPayload(receiverZone, payload);
+            mService.sendPayload(mPackageName, receiverZone, payload);
+        } catch (IllegalStateException e) {
+            Slog.e(TAG, "Failed to send Payload to " + receiverZone);
+            throw new PayloadTransferException();
         } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to send Payload");
+            Slog.e(TAG, "Failed to send Payload to " + receiverZone);
             handleRemoteExceptionFromCarService(e);
         }
     }
@@ -621,7 +624,11 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * @return whether it is connected to its peer client in {@code receiverZone}.
+     * Returns whether it is connected to its peer client in {@code receiverZone}. When it is
+     * connected, it can send {@link Payload} to the peer client.
+     * <p>
+     * Note: the connection is one-way. The peer client can not send {@link Payload} to this client
+     * unless the peer client is also connected to this client.
      */
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -630,7 +637,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public boolean isConnected(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
-            return mService.isConnected(receiverZone);
+            return mService.isConnected(mPackageName, receiverZone);
         } catch (RemoteException e) {
             Slog.e(TAG, "Failed to get connection state");
             return handleRemoteExceptionFromCarService(e, false);

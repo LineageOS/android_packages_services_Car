@@ -25,14 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Lane Departure Warning (LDW).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#LANE_DEPARTURE_WARNING_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
  * @hide
  */
 @SystemApi
 public final class LaneDepartureWarningState {
-
     /**
      * This state is used as an alternative for any {@code LaneDepartureWarningState} value that
      * is not defined in the platform. Ideally, implementations of {@link

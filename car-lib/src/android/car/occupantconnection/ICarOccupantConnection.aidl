@@ -48,12 +48,15 @@ interface ICarOccupantConnection {
     void requestConnection(String packageName,
             in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
             in IConnectionRequestCallback callback);
-    void cancelConnection(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
+    void cancelConnection(String packageName,
+            in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
-    void sendPayload(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
+    void sendPayload(String packageName,
+        in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         in Payload payload);
 
     void disconnect(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
-    boolean isConnected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
+    boolean isConnected(String packageName,
+        in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 }

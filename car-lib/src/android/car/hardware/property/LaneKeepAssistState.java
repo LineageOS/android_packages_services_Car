@@ -25,14 +25,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used to enumerate the current state of Lane Keep Assist (LKA).
+ * Used to enumerate the current state of {@link
+ * android.car.VehiclePropertyIds#LANE_KEEP_ASSIST_STATE}.
  *
  * <p>This list of states may be extended in future releases to include additional states.
  * @hide
  */
 @SystemApi
 public final class LaneKeepAssistState {
-
     /**
      * This state is used as an alternative for any {@code LaneKeepAssistState} value that is not
      * defined in the platform. Ideally, implementations of {@link

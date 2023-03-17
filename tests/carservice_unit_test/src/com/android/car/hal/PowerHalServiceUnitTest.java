@@ -29,11 +29,13 @@ import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownPar
 import static android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY;
 import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
 import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.VEHICLE_IN_USE;
 
 import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
 import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION;
 import static com.android.car.hal.PowerHalService.PowerState.SHUTDOWN_TYPE_POWER_OFF;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.Mockito.anyInt;
@@ -310,6 +312,36 @@ public final class PowerHalServiceUnitTest {
         mPowerHalService.requestShutdownAp(/* powerState= */ 99999, /* runGarageMode= */ true);
 
         verify(propValueSetter, never()).to(anyInt());
+    }
+
+    @Test
+    public void testVehicleInUse_true() {
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(
+                mPropValueBuilder.build(VEHICLE_IN_USE, VehicleHal.NO_AREA, new int[]{1}));
+
+        assertThat(mPowerHalService.isVehicleInUse()).isTrue();
+    }
+
+    @Test
+    public void testVehicleInUse_false() {
+        when(mHal.get(VEHICLE_IN_USE)).thenReturn(
+                mPropValueBuilder.build(VEHICLE_IN_USE, VehicleHal.NO_AREA, new int[]{0}));
+
+        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+    }
+
+    @Test
+    public void testVehicleInUse_serviceSpecificException() {
+        when(mHal.get(VEHICLE_IN_USE)).thenThrow(new ServiceSpecificException(0));
+
+        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
+    }
+
+    @Test
+    public void testVehicleInUse_illegalArgumentException() {
+        when(mHal.get(VEHICLE_IN_USE)).thenThrow(new IllegalArgumentException());
+
+        assertThat(mPowerHalService.isVehicleInUse()).isFalse();
     }
 
     private PowerHalService.PowerState createShutdownPrepare(int flag) {
