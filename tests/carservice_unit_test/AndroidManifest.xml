@@ -51,5 +51,8 @@
 
         <service android:name="android.car.cluster.renderer.InstrumentClusterRenderingServiceTest$TestableInstrumentClusterRenderingService"/>
 
+        <service android:name="android.car.occupantconnection.PayloadTestBinderService"
+                 android:exported="true"/>
+
     </application>
 </manifest>
