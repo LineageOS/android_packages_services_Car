@@ -46,4 +46,5 @@ interface ICarWatchdog {
   void setThreadPriority(int pid, int tid, int uid, int policy, int priority);
   android.automotive.watchdog.internal.ThreadPolicyWithPriority getThreadPriority(int pid, int tid, int uid);
   void onAidlVhalPidFetched(int pid);
+  void onTodayIoUsageStatsFetched(in List<android.automotive.watchdog.internal.UserPackageIoUsageStats> userPackageIoUsageStats);
 }
