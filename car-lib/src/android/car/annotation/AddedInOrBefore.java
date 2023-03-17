@@ -43,4 +43,21 @@ import java.lang.annotation.Target;
 public @interface AddedInOrBefore {
     int majorVersion();
     int minorVersion() default 0;
+
+    /**
+     * Indicates the Android version in which this deprecated annotated API will be soft removed.
+     * <p>Soft removal means the API will now be marked as {@code @Removed} but its
+     * implementation remains.
+     *
+     * <p>Only used for APIs that have been marked for removal.
+     */
+    int softRemovalVersion() default -1;
+
+    /**
+     * Indicates the Android version in which this deprecated annotated API will be hard removed.
+     * <p>Hard removal means removing the entire implementation of the API.
+     *
+     * <p>Only used for APIs that have been marked for removal.
+     */
+    int hardRemovalVersion() default -1;
 }
