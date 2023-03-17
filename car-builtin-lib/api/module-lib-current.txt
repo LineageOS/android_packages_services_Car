@@ -41,6 +41,7 @@ package android.car.builtin.app {
     method public static boolean startUserInBackgroundVisibleOnDisplay(int, int);
     method public static boolean startUserInForeground(int);
     method public static void stopAllTasksForUser(int);
+    method public static int stopUser(int, boolean);
     method public static int stopUserWithDelayedLocking(int, boolean);
     method public static boolean unlockUser(int);
     method public static void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);

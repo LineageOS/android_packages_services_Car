@@ -2153,9 +2153,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     + INTERACT_ACROSS_USERS);
         }
         int userId = request.getUserHandle().getIdentifier();
+        boolean withDelayedLocking = request.isWithDelayedLocking();
         boolean forceStop = request.isForce();
         EventLogHelper.writeCarUserServiceStopUserReq(userId);
-        int result = stopBackgroundUserInternal(userId, forceStop);
+        int result = stopBackgroundUserInternal(userId, forceStop, withDelayedLocking);
         EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
 
         return new UserStopResponse(result);
@@ -2164,7 +2165,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleStopUser(
             @UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
         @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId,
-                /* forceStop= */ true);
+                /* forceStop= */ true, /* withDelayedLocking= */ true);
         sendUserStopResult(userId, userStopStatus, receiver);
     }
 
@@ -2175,10 +2176,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId,
-            boolean forceStop) {
+            boolean forceStop, boolean withDelayedLocking) {
         int r;
         try {
-            r = ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop);
+            r = withDelayedLocking
+                    ? ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop)
+                    : ActivityManagerHelper.stopUser(userId, forceStop);
         } catch (RuntimeException e) {
             Slogf.e(TAG, e, "Exception calling am.stopUserWithDelayedLocking(%d, true)", userId);
             return UserStopResult.STATUS_ANDROID_FAILURE;
@@ -2225,7 +2228,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId,
-                /* forceStop= */ true);
+                /* forceStop= */ true, /* withDelayedLocking= */ true);
         if (UserStopResult.isSuccess(userStopStatus)) {
             // Remove the stopped user from the mBackgroundUserRestartedHere list.
             synchronized (mLockUser) {

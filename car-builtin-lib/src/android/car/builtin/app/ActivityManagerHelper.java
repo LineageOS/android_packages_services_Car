@@ -103,6 +103,18 @@ public final class ActivityManagerHelper {
     }
 
     /**
+     * See {@code android.app.IActivityManager.stopUser}.
+     *
+     * @throws IllegalStateException if ActivityManager binder throws RemoteException
+     */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static int stopUser(@UserIdInt int userId, boolean force) {
+        return runRemotely(
+                () -> getActivityManager().stopUser(userId, force, /* callback= */ null),
+                "error while stopUser userId:%d force:%b", userId, force);
+    }
+
+    /**
      * See {@code android.app.IActivityManager.stopUserWithDelayedLocking}.
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
@@ -112,7 +124,7 @@ public final class ActivityManagerHelper {
         return runRemotely(
                 () -> getActivityManager().stopUserWithDelayedLocking(
                         userId, force, /* callback= */ null),
-                "error while stopUserWithDelayedLocking %d", userId);
+                "error while stopUserWithDelayedLocking userId:%d force:%b", userId, force);
     }
 
     /**
