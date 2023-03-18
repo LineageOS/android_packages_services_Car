@@ -23,6 +23,7 @@ import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 
 /**
  * ICarWatchdog is an interface implemented by the watchdog server. This interface is used only by
@@ -183,4 +184,12 @@ interface ICarWatchdog {
    * @param pid The AIDL VHAL process ID. On error, the pid will be {@code -1}.
    */
    void onAidlVhalPidFetched(int pid);
+
+   /**
+    * Handles the current UTC calendar day's I/O usage stats for all packages collected during
+    * the previous boot. The I/O usage stats are provided by the CarWatchdogService.
+    *
+    * @param userPackageIoUsageStats I/O usage stats for all packages.
+    */
+   void onTodayIoUsageStatsFetched(in List<UserPackageIoUsageStats> userPackageIoUsageStats);
 }
