@@ -315,7 +315,9 @@ java_library {
     installable: false,
     dist: {
         targets: ["dist_files"],
-    }
+    },
+    // TODO(b/271433506): Remove java_version once completing test case migration to JDK17
+    java_version: "11",
 }
 
 java_library {
@@ -344,7 +346,9 @@ java_library {
     installable: false,
     dist: {
         targets: ["dist_files"],
-    }
+    },
+    // TODO(b/271433506): Remove java_version once completing test case migration to JDK17
+    java_version: "11",
 }
 
 java_library {
