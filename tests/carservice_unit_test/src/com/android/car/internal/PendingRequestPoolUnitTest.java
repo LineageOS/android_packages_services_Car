@@ -135,26 +135,31 @@ public final class PendingRequestPoolUnitTest {
     public void testRequestTimeout() throws Exception {
         long testRequestId1 = 123;
         long testRequestId2 = 234;
+        long testRequestId3 = 345;
         LongTestRequest request1 = new LongTestRequest(testRequestId1,
                 SystemClock.uptimeMillis() + 100);
         LongTestRequest request2 = new LongTestRequest(testRequestId2,
+                SystemClock.uptimeMillis() + 200);
+        LongTestRequest request3 = new LongTestRequest(testRequestId3,
                 SystemClock.uptimeMillis() + 1000);
 
-        mLongPendingRequestPool.addPendingRequests(List.of(request1, request2));
+        mLongPendingRequestPool.addPendingRequests(List.of(request1, request2, request3));
 
         // No requests should timeout yet.
         assertThat(mLongTestTimeoutCallback.countTimeoutRequestIds()).isEqualTo(0);
 
-        // Mark request 2 as finihsed.
-        mLongPendingRequestPool.removeRequest(testRequestId2);
+        // Mark request 3 as finished.
+        mLongPendingRequestPool.removeRequest(testRequestId3);
 
         List<Long> timeoutRequestIds = mLongTestTimeoutCallback.waitForTimeoutRequestIds(
-                /* count= */ 1, /* waitTimeoutMs= */ 1000);
+                /* count= */ 2, /* waitTimeoutMs= */ 1000);
 
-        assertThat(timeoutRequestIds).hasSize(1);
-        assertThat(timeoutRequestIds.get(0)).isEqualTo(testRequestId1);
+        assertThat(timeoutRequestIds).hasSize(2);
+        assertThat(timeoutRequestIds).containsExactlyElementsIn(
+                new Long[]{testRequestId1, testRequestId2});
 
         // Must remove the timeout request explicitly.
         mLongPendingRequestPool.removeRequest(testRequestId1);
+        mLongPendingRequestPool.removeRequest(testRequestId2);
     }
 }
