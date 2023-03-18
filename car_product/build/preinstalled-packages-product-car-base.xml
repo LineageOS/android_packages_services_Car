@@ -438,6 +438,10 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <!-- Mainline module -->
+    <install-in-user-type package="com.android.health.connect.backuprestore">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <!-- Mainline module -->
     <install-in-user-type package="com.android.federatedcompute.services">
         <install-in user-type="FULL" />
     </install-in-user-type>
