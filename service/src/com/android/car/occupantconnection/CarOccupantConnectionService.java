@@ -175,6 +175,11 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 public void acceptConnection(OccupantZoneInfo senderZone) {
                     ClientId senderClient = getClientIdInOccupantZone(senderZone,
                             receiverClient.packageName);
+                    if (senderClient == null) {
+                        // senderClient can't be null because it requested a connection, but let's
+                        // be cautious.
+                        return;
+                    }
                     ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
                     synchronized (mLock) {
                         IConnectionRequestCallback callback =
@@ -526,6 +531,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        if (receiverClient == null) {
+            throw new IllegalStateException("Don't connect to the receiver zone because it is not "
+                    + " ready for connection: " + receiverZone);
+        }
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         synchronized (mLock) {
             assertNoDuplicateConnectionRequestLocked(connectionId);
@@ -567,6 +576,11 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        if (receiverClient == null) {
+            // receiverClient can't be null (because the sender requested a connection to it, and
+            // it didn't throw an exception), but let's be cautious.
+            return;
+        }
         ConnectionId connectionToCancel = new ConnectionId(senderClient, receiverClient);
         synchronized (mLock) {
             assertHasPendingConnectionRequestLocked(connectionToCancel);
@@ -599,6 +613,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         IBackendReceiver receiverService;
         synchronized (mLock) {
             assertConnectedLocked(packageName, senderClient.occupantZone, receiverZone);
+            // receiverClient can't be null because the sender is connected to it now.
             receiverService = mConnectedReceiverServiceMap.get(receiverClient);
         }
         if (receiverService == null) {
@@ -614,9 +629,43 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @Override
-    public void disconnect(OccupantZoneInfo receiverZone) {
+    public void disconnect(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        // TODO(b/257117236): implement this method.
+        assertPackageName(mContext, packageName);
+
+        ClientId senderClient = getCallingClientId(packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        synchronized (mLock) {
+            assertConnectedLocked(packageName, senderClient.occupantZone, receiverZone);
+
+            // Remove the connection callback.
+            // receiverClient can't be null because the sender is connected to it now.
+            ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+            mAcceptedConnectionRequestMap.remove(connectionId);
+
+            // Remove the connection record.
+            ConnectionRecord connectionRecord = new ConnectionRecord(packageName,
+                    senderClient.occupantZone.zoneId, receiverZone.zoneId);
+            mEstablishedConnections.remove(connectionRecord);
+
+            // Notify the receiver service.
+            IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
+            if (receiverService == null) {
+                // receiverService can't be null since it is connected, but let's be cautious.
+                Slogf.e(TAG, "The receiver service in " + receiverClient + " is not bound yet");
+                return;
+            }
+            try {
+                receiverService.onDisconnected(senderClient.occupantZone);
+            } catch (RemoteException e) {
+                // There is no need to propagate the Exception to the sender client because
+                // the connection was terminated successfully anyway.
+                Slogf.e(TAG, "Failed to notify the receiver service of disconnection! "
+                        + "senderClient:%s, receiverClient:", senderClient, receiverClient, e);
+            }
+
+            maybeUnbindReceiverServiceLocked(receiverClient);
+        }
     }
 
     @Override
@@ -663,9 +712,14 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         return new ClientId(occupantZone, callingUserId, packageName);
     }
 
+    @Nullable
     private ClientId getClientIdInOccupantZone(OccupantZoneInfo occupantZone,
             String packageName) {
         int userId = mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
+        if (userId == INVALID_USER_ID) {
+            Slogf.e(TAG, "The user in %s is not assigned yet", occupantZone);
+            return null;
+        }
         return new ClientId(occupantZone, userId, packageName);
     }
 
@@ -850,6 +904,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     private IConnectionRequestCallback extractRequestCallbackToNotifyLocked(
             OccupantZoneInfo senderZone, ClientId receiverClient) {
         ClientId senderClient = getClientIdInOccupantZone(senderZone, receiverClient.packageName);
+        if (senderClient == null) {
+            // senderClient can't be null because it requested a connection, but let's be cautious.
+            return null;
+        }
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         IConnectionRequestCallback pendingCallback = mPendingConnectionRequestMap.get(connectionId);
         if (pendingCallback == null) {

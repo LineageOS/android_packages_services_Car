@@ -55,7 +55,7 @@ interface ICarOccupantConnection {
         in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         in Payload payload);
 
-    void disconnect(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
+    void disconnect(String packageName, in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
     boolean isConnected(String packageName,
         in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
