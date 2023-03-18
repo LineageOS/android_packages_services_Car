@@ -16,6 +16,12 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Phone -->
+
+    <style name="AddFavoriteButtonStyle" parent="TextAppearance.Car.Button.Medium">
+        <item name="android:textColor">@color/car_on_primary</item>
+        <item name="android:tint">@color/car_on_primary</item>
+    </style>
+
     <style name="KeypadButtonStyle">
         <item name="android:clickable">true</item>
         <item name="android:layout_width">@dimen/dialer_keypad_button_width</item>
