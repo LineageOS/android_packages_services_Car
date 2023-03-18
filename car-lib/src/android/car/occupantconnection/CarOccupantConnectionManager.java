@@ -525,7 +525,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * @param receiverZone the occupant zone to connect to
      * @param executor     the Executor to run the callback
      * @param callback     the callback notified for the request result
-     * @throws IllegalStateException if there is an established connection or pending connection to
+     * @throws IllegalStateException if the {@code receiverZone} is not ready for connection, or
+     *                               there is an established connection or pending connection to
      *                               {@code receiverZone}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -582,6 +583,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * sender endpoints need to differentiate themselves, they can put the identity info into the
      * payload.
      *
+     * @throws IllegalStateException    if it was not connected to the peer client in
+     *                                  {@code receiverZone}
      * @throws PayloadTransferException if the payload was not sent. For example, this method is
      *                                  called when the connection is not established or has been
      *                                  terminated, or an internal error occurred.
@@ -605,8 +608,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     }
 
     /**
-     * Disconnects from the peer client in {@code receiverZone}. No operation if it was not
-     * connected to the peer client.
+     * Disconnects from the peer client in {@code receiverZone}.
      * <p>
      * This method can be called as soon as the caller app no longer needs to send {@link Payload}
      * to {@code receiverZone}. If there are multiple sender endpoints in the client app reuse the
@@ -616,7 +618,8 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * This method must be called before the caller is destroyed. Failing to call this method might
      * cause the {@link AbstractReceiverService} in the peer client to persist.
      *
-     * @throws IllegalStateException if it was not connected to {@code receiverZone}
+     * @throws IllegalStateException if it was not connected to the peer client in
+     *                               {@code receiverZone}
      */
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -625,7 +628,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void disconnect(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
-            mService.disconnect(receiverZone);
+            mService.disconnect(mPackageName, receiverZone);
         } catch (RemoteException e) {
             Slog.e(TAG, "Failed to disconnect");
             handleRemoteExceptionFromCarService(e);
