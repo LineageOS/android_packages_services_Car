@@ -1011,6 +1011,16 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
     }
 
+    protected void sendUserStartingEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(/* fromUserId= */ 0, userId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING);
+    }
+
+    protected void sendUserVisibleEvent(@UserIdInt int userId) {
+        sendUserLifecycleEvent(/* fromUserId= */ 0, userId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
+    }
+
     protected void sendUserInvisibleEvent(@UserIdInt int userId) {
         sendUserLifecycleEvent(/* fromUserId= */ 0, userId,
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE);
