@@ -81,6 +81,10 @@ public:
                  aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority*),
                 (override));
     MOCK_METHOD(ndk::ScopedAStatus, onAidlVhalPidFetched, (int32_t), (override));
+    MOCK_METHOD(ndk::ScopedAStatus, onTodayIoUsageStatsFetched,
+                (const std::vector<
+                        aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&),
+                (override));
     MOCK_METHOD(void, terminate, (), (override));
 };
 
