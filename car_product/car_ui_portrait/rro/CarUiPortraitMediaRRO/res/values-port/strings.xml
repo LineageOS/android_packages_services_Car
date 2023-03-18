@@ -17,4 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Title of the sound settings menu item. Will be displayed if the button is in the overflow menu. [CHAR_LIMIT=50] -->
     <string name="menu_item_sound_settings_title">Sound Settings</string>
+
+    <!-- Title of the app selector menu item. Will be displayed if the button is in the overflow menu. [CHAR_LIMIT=50] -->
+    <string name="menu_item_app_selector_title">App Selector</string>
 </resources>
