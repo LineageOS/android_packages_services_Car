@@ -110,6 +110,16 @@ public final class UserCreationRequest implements Parcelable {
         }
     }
 
+    @Override
+    public String toString() {
+        return "UserCreationRequest { "
+                + "name = " + mName + ", "
+                + "admin = " + mAdmin + ", "
+                + "guest = " + mGuest + ", "
+                + "ephemeral = " + mEphemeral + ", "
+                + " }";
+    }
+
 
 
 
