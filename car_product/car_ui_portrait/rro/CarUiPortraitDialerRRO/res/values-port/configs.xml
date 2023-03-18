@@ -28,4 +28,7 @@
     <bool name="config_show_settings_in_menu_items">false</bool>
     <!-- A config determines whether to show toolbar in the contact details page.-->
     <bool name="config_show_toolbar_with_contact_details">true</bool>
+    <!-- A config to determine how add favorite button should be in recycler view. If false
+    it takes up entire row. -->
+    <bool name="config_add_favorite_button_span_size_one">false</bool>
 </resources>
