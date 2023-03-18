@@ -18,6 +18,11 @@ package com.android.car.occupantconnection;
 
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
 
 import static com.android.car.CarServiceUtils.assertPackageName;
@@ -534,7 +539,17 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
             if (receiverService != null) {
                 try {
-                    receiverService.onConnectionInitiated(senderClient.occupantZone);
+                    // Since the sender client is requesting connection, it must be running in the
+                    // foreground.
+                    // TODO(b/257118072): maybe we should evaluate it before setting
+                    //  FLAG_CLIENT_IN_FOREGROUND.
+                    // In single-SoC model, the sender client is guaranteed to have the same
+                    // signing info and long version code.
+                    // TODO(b/257118327): support multiple-SoC.
+                    receiverService.onConnectionInitiated(senderClient.occupantZone,
+                            FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
+                                    | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
+                                    | FLAG_CLIENT_IN_FOREGROUND);
                 } catch (RemoteException e) {
                     Slogf.e(TAG, "Failed to notify the receiver for connection request", e);
                 }
@@ -856,7 +871,15 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             if (connectionId.receiverClient.equals(receiverClient)
                     && !notifiedSenderClients.contains(connectionId.senderClient)) {
                 try {
-                    receiverService.onConnectionInitiated(connectionId.senderClient.occupantZone);
+                    // Since the sender client is requesting connection, it must be running in the
+                    // foreground.
+                    // In single-SoC model, the sender client is guaranteed to have the same
+                    // signing info and long version code.
+                    // TODO(b/257118327): support multiple-SoC.
+                    receiverService.onConnectionInitiated(connectionId.senderClient.occupantZone,
+                            FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
+                                    | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
+                                    | FLAG_CLIENT_IN_FOREGROUND);
                     notifiedSenderClients.add(connectionId.senderClient);
                 } catch (RemoteException e) {
                     Slogf.e(TAG, "Failed to notify the receiver for connection request", e);

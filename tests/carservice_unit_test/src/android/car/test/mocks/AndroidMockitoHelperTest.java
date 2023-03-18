@@ -28,8 +28,12 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallin
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockForceStopUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockForceStopUserThrows;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockSmGetService;
+import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLocking;
+import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLockingThrows;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
@@ -48,6 +52,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 
 import android.app.ActivityManager;
@@ -156,6 +161,39 @@ public final class AndroidMockitoHelperTest {
         assertThat(ActivityManagerHelper
                 .startUserInBackgroundVisibleOnDisplay(TEST_USER_ID, TEST_DISPLAY_ID))
                 .isFalse();
+    }
+
+    @Test
+    public void testMockForceStopUser() throws Exception {
+        mockForceStopUser(TEST_USER_ID, 42);
+
+        assertThat(ActivityManagerHelper.stopUser(TEST_USER_ID, /* force= */ true)).isEqualTo(42);
+    }
+
+    @Test
+    public void testMockForceStopUserThrows() throws Exception {
+        mockForceStopUserThrows(TEST_USER_ID, new IllegalStateException());
+
+        assertThrows(IllegalStateException.class,
+                () -> ActivityManagerHelper.stopUser(TEST_USER_ID, /* force= */ true));
+    }
+
+    @Test
+    public void testMockStopUserWithDelayedLocking() throws Exception {
+        mockStopUserWithDelayedLocking(TEST_USER_ID, 42);
+
+        assertThat(ActivityManagerHelper
+                .stopUserWithDelayedLocking(TEST_USER_ID, /* force= */ true))
+                .isEqualTo(42);
+    }
+
+    @Test
+    public void testMockStopUserWithDelayedLockingThrows() throws Exception {
+        mockStopUserWithDelayedLockingThrows(TEST_USER_ID, new IllegalStateException());
+
+        assertThrows(IllegalStateException.class,
+                () -> ActivityManagerHelper
+                        .stopUserWithDelayedLocking(TEST_USER_ID, /* force= */ true));
     }
 
     @Test

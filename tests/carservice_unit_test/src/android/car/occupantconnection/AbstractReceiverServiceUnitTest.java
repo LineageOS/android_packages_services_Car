@@ -113,7 +113,7 @@ public final class AbstractReceiverServiceUnitTest {
 
     @Test
     public void testOnConnectionInitiated() throws RemoteException {
-        mBackendReceiver.onConnectionInitiated(mSenderZone);
+        mBackendReceiver.onConnectionInitiated(mSenderZone, /* senderAppState= */ 0);
 
         assertThat(mService.onConnectionInitiatedInvokedRecords.contains(mSenderZone)).isTrue();
     }
