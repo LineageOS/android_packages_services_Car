@@ -25,6 +25,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
@@ -69,6 +70,28 @@ public final class PayloadUnitTest {
     public void testRemoteSerializeByteArray() throws RemoteException {
         doTestRemoteSerializationDeserializationByteArray(ARRAY_LENGTH_SMALL);
         doTestRemoteSerializationDeserializationByteArray(ARRAY_LENGTH_BIG);
+    }
+
+    @Test
+    public void testLocalSerializeBinder() {
+        IBinder origBinder = new Binder();
+        Payload origPayload = new Payload(origBinder);
+        Parcel dest = Parcel.obtain();
+
+        origPayload.writeToParcel(dest, 0);
+        dest.setDataPosition(0);
+        Payload newPayload = Payload.CREATOR.createFromParcel(dest);
+
+        assertThat(newPayload.getBinder()).isEqualTo(origBinder);
+    }
+
+    @Test
+    public void testRemoteSerializeBinder() throws RemoteException {
+        IBinder origBinder = new Binder();
+        Payload origPayload = new Payload(origBinder);
+        Payload newPayload = mBinder.echoPayload(origPayload);
+
+        assertThat(newPayload.getBinder()).isEqualTo(origBinder);
     }
 
     private static void doTestLocalSerializationDeserializationByteArray(int payloadSize) {

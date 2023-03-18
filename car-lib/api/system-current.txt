@@ -1736,9 +1736,11 @@ package android.car.occupantconnection {
 
   public final class Payload implements java.io.Closeable android.os.Parcelable {
     ctor public Payload(@NonNull byte[]);
+    ctor public Payload(@NonNull android.os.IBinder);
     method public void close();
     method public int describeContents();
     method public void deserialize(@NonNull android.os.Parcel);
+    method @Nullable public android.os.IBinder getBinder();
     method @Nullable public byte[] getBytes();
     method public void serialize(@NonNull android.os.Parcel, int);
     method public void serializeNullPayload(@NonNull android.os.Parcel);
