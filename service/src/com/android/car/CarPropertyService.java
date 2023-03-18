@@ -62,6 +62,7 @@ import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -129,6 +130,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES);
     }
 
+    private final Formatter mFormatter = new Formatter();
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -680,10 +682,8 @@ public class CarPropertyService extends ICarProperty.Stub
     public void setProperty(CarPropertyValue carPropertyValue,
             ICarPropertyEventListener iCarPropertyEventListener)
             throws IllegalArgumentException, ServiceSpecificException {
-        requireNonNull(carPropertyValue);
         requireNonNull(iCarPropertyEventListener);
-        validateSetParameters(carPropertyValue.getPropertyId(), carPropertyValue.getAreaId(),
-                carPropertyValue.getValue());
+        validateSetParameters(carPropertyValue);
 
         runSyncOperationCheckLimit(() -> {
             mPropertyHalService.setProperty(carPropertyValue);
@@ -817,17 +817,22 @@ public class CarPropertyService extends ICarProperty.Stub
         }
     }
 
+    private static void validateGetSetAsyncParameters(List<AsyncPropertyServiceRequest> requests,
+            IAsyncPropertyResultCallback asyncPropertyResultCallback,
+            long timeoutInMs) throws IllegalArgumentException {
+        requireNonNull(requests);
+        requireNonNull(asyncPropertyResultCallback);
+        Preconditions.checkArgument(timeoutInMs > 0, "timeoutInMs must be a positive number");
+    }
+
     /**
      * Gets CarPropertyValues asynchronously.
      */
     public void getPropertiesAsync(List<AsyncPropertyServiceRequest> getPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
-        requireNonNull(getPropertyServiceRequests);
-        requireNonNull(asyncPropertyResultCallback);
-        if (timeoutInMs <= 0) {
-            throw new IllegalArgumentException("timeoutInMs must be a positive number");
-        }
+        validateGetSetAsyncParameters(getPropertyServiceRequests, asyncPropertyResultCallback,
+                timeoutInMs);
         for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
             validateGetParameters(getPropertyServiceRequests.get(i).getPropertyId(),
                     getPropertyServiceRequests.get(i).getAreaId());
@@ -842,7 +847,27 @@ public class CarPropertyService extends ICarProperty.Stub
     public void setPropertiesAsync(List<AsyncPropertyServiceRequest> setPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
-       // TODO(b/264719384): Implement this.
+        validateGetSetAsyncParameters(setPropertyServiceRequests, asyncPropertyResultCallback,
+                timeoutInMs);
+        for (int i = 0; i < setPropertyServiceRequests.size(); i++) {
+            AsyncPropertyServiceRequest request = setPropertyServiceRequests.get(i);
+            CarPropertyValue carPropertyValueToSet = request.getCarPropertyValue();
+            if (carPropertyValueToSet.getPropertyId() != request.getPropertyId()) {
+                throw new IllegalArgumentException(mFormatter.format(
+                        "Property ID in request and CarPropertyValue mismatch: %d vs %d",
+                        carPropertyValueToSet.getPropertyId(), request.getPropertyId()).toString());
+            }
+            if (carPropertyValueToSet.getAreaId() != request.getAreaId()) {
+                throw new IllegalArgumentException(mFormatter.format(
+                        "Area ID in request and CarPropertyValue mismatch: %d vs %d",
+                        carPropertyValueToSet.getAreaId(), request.getAreaId()).toString());
+            }
+            validateSetParameters(carPropertyValueToSet);
+            // TODO(b/273345604): validateGetParameters for properties that have
+            // waitForPropertyUpdate set.
+        }
+        mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequests,
+                asyncPropertyResultCallback, timeoutInMs);
     }
 
     /**
@@ -916,7 +941,11 @@ public class CarPropertyService extends ICarProperty.Stub
         assertAreaIdIsSupported(areaId, carPropertyConfig);
     }
 
-    private <T> void validateSetParameters(int propertyId, int areaId, T valueToSet) {
+    private void validateSetParameters(CarPropertyValue<?> carPropertyValue) {
+        requireNonNull(carPropertyValue);
+        int propertyId = carPropertyValue.getPropertyId();
+        int areaId = carPropertyValue.getAreaId();
+        Object valueToSet = carPropertyValue.getValue();
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         assertConfigIsNotNull(propertyId, carPropertyConfig);
 
