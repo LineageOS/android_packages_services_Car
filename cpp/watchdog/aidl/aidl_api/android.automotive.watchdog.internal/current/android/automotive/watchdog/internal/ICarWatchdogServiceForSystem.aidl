@@ -42,4 +42,5 @@ interface ICarWatchdogServiceForSystem {
   List<android.automotive.watchdog.internal.UserPackageIoUsageStats> getTodayIoUsageStats();
   oneway void onLatestResourceStats(in android.automotive.watchdog.internal.ResourceStats resourceStats);
   oneway void requestAidlVhalPid();
+  oneway void requestTodayIoUsageStats();
 }

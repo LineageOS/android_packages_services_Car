@@ -257,6 +257,10 @@ ScopedAStatus WatchdogServiceHelper::resetResourceOveruseStats(
     return service->resetResourceOveruseStats(packageNames);
 }
 
+// TODO(b/273354756): This method was replaced by an async request/response pattern Android U.
+// Requests for the I/O stats are made through the requestTodayIoUsageStats method. And responses
+// are received by the carwatchdog daemon via ICarWatchdog#onTodayIoUsageStats. Delete method once
+// implementation of request/response pattern is complete.
 ScopedAStatus WatchdogServiceHelper::getTodayIoUsageStats(
         std::vector<UserPackageIoUsageStats>* userPackageIoUsageStats) const {
     std::shared_ptr<ICarWatchdogServiceForSystem> service;
