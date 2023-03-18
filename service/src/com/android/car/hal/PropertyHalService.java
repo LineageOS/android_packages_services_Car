@@ -74,6 +74,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * Common interface for HAL services that send Vehicle Properties back and forth via ICarProperty.
@@ -190,8 +191,15 @@ public class PropertyHalService extends HalServiceBase {
             mUpdateTimestampNanos = updateTimestampNanos;
         }
 
+        boolean isWaitForPropertyUpdate() {
+            return mPropMgrRequest.isWaitForPropertyUpdate();
+        }
+
         boolean success() {
-            return mValueUpdated && mSetRequestSent;
+            // If the set request is sent and either we don't wait for property update or the
+            // property update happened (which includes the initial value is already the target
+            // value)
+            return mSetRequestSent && (!isWaitForPropertyUpdate() || mValueUpdated);
         }
 
         void setAssocSetValueRequestInfo(AsyncPropRequestInfo requestInfo) {
@@ -318,7 +326,7 @@ public class PropertyHalService extends HalServiceBase {
     // A map to store pending async set request info that are currently waiting for property update
     // events.
     @GuardedBy("mLock")
-    private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitForUpdateRequests =
+    private final SparseArray<List<AsyncPropRequestInfo>> mHalPropIdToWaitForUpdateRequestInfo =
             new SparseArray<>();
 
     private class AsyncRequestTimeoutCallback implements TimeoutCallback {
@@ -628,8 +636,14 @@ public class PropertyHalService extends HalServiceBase {
                         // value is already the target value. Mark the request as complete.
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
                                 updatedHalPropIds);
+                         // If we don't wait for property update event, then we don't know when
+                        // the property is updated to the target value. We set it to the
+                        // current timestamp.
+                        long updateTimestampNanos = clientRequestInfo.isWaitForPropertyUpdate()
+                                ? clientRequestInfo.getUpdateTimestampNanos() :
+                                SystemClock.elapsedRealtimeNanos();
                         setValueResults.add(clientRequestInfo.toSetValueResult(
-                                clientRequestInfo.getUpdateTimestampNanos()));
+                                updateTimestampNanos));
                     }
                 }
                 updateSubscriptionRateLocked(updatedHalPropIds);
@@ -810,7 +824,7 @@ public class PropertyHalService extends HalServiceBase {
      * Remove the pending async request from the pool.
      *
      * If the request to remove is an async set request, also remove it from the
-     * {@code mHalPropIdToWaitForUpdateRequests} map. This will cause the subscription rate to
+     * {@code mHalPropIdToWaitForUpdateRequestInfo} map. This will cause the subscription rate to
      * be updated for the specific property because we no longer need to monitor this property
      * any more internally.
      *
@@ -831,6 +845,9 @@ public class PropertyHalService extends HalServiceBase {
     private void cleanupPendingAsyncSetRequestLocked(
             AsyncPropRequestInfo pendingRequest, Set<Integer> updatedHalPropIds) {
         int halPropId = managerToHalPropId(pendingRequest.getPropertyId());
+        if (!pendingRequest.isWaitForPropertyUpdate()) {
+            return;
+        }
         if (pendingRequest.getAssocGetInitValueRequestInfo() == null) {
             Slogf.e(TAG, "The pending async set value request: " + pendingRequest
                     + " does not have an associated get initial value request, must not happen");
@@ -848,14 +865,14 @@ public class PropertyHalService extends HalServiceBase {
             // Use a separate runnable to do this outside lock.
             mHandler.post(() -> mVehicleHal.cancelRequests(List.of(assocInitValueRequestId)));
         }
-        if (!mHalPropIdToWaitForUpdateRequests.contains(halPropId)) {
+        if (!mHalPropIdToWaitForUpdateRequestInfo.contains(halPropId)) {
             return;
         }
-        if (!mHalPropIdToWaitForUpdateRequests.get(halPropId).remove(pendingRequest)) {
+        if (!mHalPropIdToWaitForUpdateRequestInfo.get(halPropId).remove(pendingRequest)) {
             return;
         }
-        if (mHalPropIdToWaitForUpdateRequests.get(halPropId).isEmpty()) {
-            mHalPropIdToWaitForUpdateRequests.remove(halPropId);
+        if (mHalPropIdToWaitForUpdateRequestInfo.get(halPropId).isEmpty()) {
+            mHalPropIdToWaitForUpdateRequestInfo.remove(halPropId);
         }
         updatedHalPropIds.add(halPropId);
     }
@@ -1141,7 +1158,7 @@ public class PropertyHalService extends HalServiceBase {
             CarPropertyValue<?> updatedValue,
             Map<VehicleStubCallback, List<GetSetValueResult>> callbackToSetValueResults,
             Set<Integer> updatedHalPropIds) {
-        List<AsyncPropRequestInfo> pendingSetRequests = mHalPropIdToWaitForUpdateRequests.get(
+        List<AsyncPropRequestInfo> pendingSetRequests = mHalPropIdToWaitForUpdateRequestInfo.get(
                 halPropId);
         if (pendingSetRequests == null) {
             return;
@@ -1212,7 +1229,7 @@ public class PropertyHalService extends HalServiceBase {
         // lock because we need to keep the subscription status consistent. If we do not use lock
         // here, the following situation might happen:
         // 1. Lock is obtained by thread 1.
-        // 2. mHalPropIdToWaitForUpdateRequests is updated by one thread to state 1.
+        // 2. mHalPropIdToWaitForUpdateRequestInfo is updated by one thread to state 1.
         // 3. New update rate (local variable) is calculated based on state 1.
         // 4. Lock is released by thread 1..
         // 5. Lock is obtained by thread 2.
@@ -1331,8 +1348,8 @@ public class PropertyHalService extends HalServiceBase {
             List<AsyncPropertyServiceRequest> serviceRequests,
             long timeoutInMs,
             VehicleStubCallback vehicleStubCallback,
-            @Nullable List<AsyncPropRequestInfo> assocSetValueRequests,
-            @Nullable List<AsyncPropRequestInfo> outPendingRequests) {
+            @Nullable List<AsyncPropRequestInfo> assocSetValueRequestInfo,
+            @Nullable List<AsyncPropRequestInfo> outRequestInfo) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
         List<AsyncGetSetRequest> vehicleStubRequests = new ArrayList<>();
@@ -1343,17 +1360,17 @@ public class PropertyHalService extends HalServiceBase {
                 AsyncPropertyServiceRequest serviceRequest = serviceRequests.get(i);
                 AsyncPropRequestInfo pendingRequest = new AsyncPropRequestInfo(requestType,
                         serviceRequest, nowUptimeMs + timeoutInMs, vehicleStubCallback);
-                if (assocSetValueRequests != null) {
+                if (assocSetValueRequestInfo != null) {
                     // Link the async set value request and the get init value request together.
-                    pendingRequest.setAssocSetValueRequestInfo(assocSetValueRequests.get(i));
-                    assocSetValueRequests.get(i).setAssocGetInitValueRequestInfo(pendingRequest);
+                    pendingRequest.setAssocSetValueRequestInfo(assocSetValueRequestInfo.get(i));
+                    assocSetValueRequestInfo.get(i).setAssocGetInitValueRequestInfo(pendingRequest);
                 }
                 AsyncGetSetRequest vehicleStubRequest = generateVehicleStubAsyncRequestLocked(
                         pendingRequest);
                 vehicleStubRequests.add(vehicleStubRequest);
                 pendingRequestInfo.add(pendingRequest);
-                if (outPendingRequests != null) {
-                    outPendingRequests.add(pendingRequest);
+                if (outRequestInfo != null) {
+                    outRequestInfo.add(pendingRequest);
                 }
             }
             mPendingAsyncRequests.addPendingRequests(pendingRequestInfo);
@@ -1404,12 +1421,11 @@ public class PropertyHalService extends HalServiceBase {
             List<AsyncPropertyServiceRequest> serviceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
-        List<AsyncPropRequestInfo> pendingGetRequests = new ArrayList<>();
         VehicleStubCallback vehicleStubCallback = createVehicleStubCallback(
                 asyncPropertyResultCallback);
         List<AsyncGetSetRequest> vehicleStubRequests = prepareVehicleStubRequests(
                 GET, serviceRequests, timeoutInMs, vehicleStubCallback,
-                /* assocSetValueRequests= */ null, pendingGetRequests);
+                /* assocSetValueRequestInfo= */ null, /* outRequestInfo= */ null);
         sendVehicleStubRequests(GET, vehicleStubRequests, vehicleStubCallback);
     }
 
@@ -1430,7 +1446,7 @@ public class PropertyHalService extends HalServiceBase {
     @Nullable
     private Float calcNewUpdateRateHzLocked(int halPropId) {
         Float maxUpdateRateHz = null;
-        List<AsyncPropRequestInfo> requests = mHalPropIdToWaitForUpdateRequests.get(halPropId);
+        List<AsyncPropRequestInfo> requests = mHalPropIdToWaitForUpdateRequestInfo.get(halPropId);
         if (requests != null) {
             for (int i = 0; i < requests.size(); i++) {
                 float currentUpdateRateHz = requests.get(i).getUpdateRateHz();
@@ -1447,6 +1463,57 @@ public class PropertyHalService extends HalServiceBase {
         return maxUpdateRateHz;
     }
 
+    private <T> List<T> filterWaitForUpdateRequests(List<T> requests,
+            Function<T, Boolean> isWaitForPropertyUpdate) {
+        List<T> waitForUpdateSetRequests = new ArrayList<>();
+        for (int i = 0; i < requests.size(); i++) {
+            if (isWaitForPropertyUpdate.apply(requests.get(i))) {
+                waitForUpdateSetRequests.add(requests.get(i));
+            }
+        }
+        return waitForUpdateSetRequests;
+    }
+
+    /**
+     * For every pending async set request that needs to wait for property update, generates an
+     * async get initial value request and subscribes to the property update event.
+     */
+    private void sendGetInitialValueAndSubscribeUpdateEvent(
+            List<AsyncPropertyServiceRequest> serviceRequests,
+            VehicleStubCallback vehicleStubCallback, long timeoutInMs,
+            List<AsyncPropRequestInfo> waitForUpdateSetRequestInfo) {
+        // Stores a list of async GET_INITIAL_VALUE request to be sent.
+        List<AsyncGetSetRequest> getInitValueRequests = prepareVehicleStubRequests(
+                GET_INITIAL_VALUE_FOR_SET, serviceRequests, timeoutInMs,
+                vehicleStubCallback, /* assocSetValueRequestInfo= */ waitForUpdateSetRequestInfo,
+                /* outRequestInfo= */ null);
+        Set<Integer> updatedHalPropIds = new ArraySet<>();
+
+        // Subscribe to the property's change events before setting the property.
+        synchronized (mLock) {
+            for (AsyncPropRequestInfo setRequestInfo : waitForUpdateSetRequestInfo) {
+                int halPropId = managerToHalPropId(setRequestInfo.getPropertyId());
+                // We already checked in {@code carPropertyValueToHalPropValueLocked} inside
+                // {@code prepareVehicleStubRequests}, this is guaranteed not to be null.
+                HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
+
+                setRequestInfo.parseClientUpdateRateHz(halPropConfig);
+
+                if (mHalPropIdToWaitForUpdateRequestInfo.get(halPropId) == null) {
+                    mHalPropIdToWaitForUpdateRequestInfo.put(halPropId, new ArrayList<>());
+                }
+
+                mHalPropIdToWaitForUpdateRequestInfo.get(halPropId).add(setRequestInfo);
+
+                updatedHalPropIds.add(halPropId);
+            }
+            updateSubscriptionRateLocked(updatedHalPropIds);
+        }
+
+        sendVehicleStubRequests(GET_INITIAL_VALUE_FOR_SET, getInitValueRequests,
+                vehicleStubCallback);
+    }
+
     /**
      * Sets car property values asynchronously.
      */
@@ -1454,44 +1521,23 @@ public class PropertyHalService extends HalServiceBase {
             List<AsyncPropertyServiceRequest> serviceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
-        List<AsyncPropRequestInfo> pendingSetRequests = new ArrayList<>();
-        List<AsyncPropRequestInfo> pendingGetRequests = new ArrayList<>();
+        List<AsyncPropRequestInfo> pendingSetRequestInfo = new ArrayList<>();
         VehicleStubCallback vehicleStubCallback = createVehicleStubCallback(
                 asyncPropertyResultCallback);
         List<AsyncGetSetRequest> setValueRequests = prepareVehicleStubRequests(
                 SET, serviceRequests, timeoutInMs, vehicleStubCallback,
-                /* assocSetValueRequests= */ null, pendingSetRequests);
-        // TODO(b/271031523): Do not send this for WRITE_ONLY property.
-        List<AsyncGetSetRequest> getInitValueRequests = prepareVehicleStubRequests(
-                GET_INITIAL_VALUE_FOR_SET, serviceRequests, timeoutInMs,
-                vehicleStubCallback, pendingSetRequests, pendingGetRequests);
-        Set<Integer> updatedHalPropIds = new ArraySet<>();
+                 /* assocSetValueRequestInfo= */ null, /* outRequestInfo= */ pendingSetRequestInfo);
+        List<AsyncPropRequestInfo> waitForUpdateSetRequestInfo = filterWaitForUpdateRequests(
+                pendingSetRequestInfo, (request) -> request.isWaitForPropertyUpdate());
 
-        // Subscribe to the property's change events before setting the property.
-        synchronized (mLock) {
-            for (AsyncPropRequestInfo pendingSetRequest : pendingSetRequests) {
-                int halPropId = managerToHalPropId(pendingSetRequest.getPropertyId());
-                // We already checked in {@code carPropertyValueToHalPropValueLocked} inside
-                // {@code prepareVehicleStubRequests}, this is guaranteed not to be null.
-                HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
-
-                pendingSetRequest.parseClientUpdateRateHz(halPropConfig);
-
-                if (mHalPropIdToWaitForUpdateRequests.get(halPropId) == null) {
-                    mHalPropIdToWaitForUpdateRequests.put(halPropId, new ArrayList<>());
-                }
-
-                mHalPropIdToWaitForUpdateRequests.get(halPropId).add(pendingSetRequest);
-
-                updatedHalPropIds.add(halPropId);
-            }
-            // TODO(b/264719384): Add timeout logic to setValueRequests and unsubscribe after
-            // timeout.
-            updateSubscriptionRateLocked(updatedHalPropIds);
+        if (waitForUpdateSetRequestInfo.size() != 0) {
+            List<AsyncPropertyServiceRequest> waitForUpdateServiceRequests =
+                    filterWaitForUpdateRequests(serviceRequests,
+                            (request) -> request.isWaitForPropertyUpdate());
+            sendGetInitialValueAndSubscribeUpdateEvent(waitForUpdateServiceRequests,
+                    vehicleStubCallback, timeoutInMs, waitForUpdateSetRequestInfo);
         }
 
-        sendVehicleStubRequests(GET_INITIAL_VALUE_FOR_SET, getInitValueRequests,
-                vehicleStubCallback);
         sendVehicleStubRequests(SET, setValueRequests, vehicleStubCallback);
     }
 
@@ -1589,7 +1635,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public int countHalPropIdToWaitForUpdateRequests() {
         synchronized (mLock) {
-            return mHalPropIdToWaitForUpdateRequests.size();
+            return mHalPropIdToWaitForUpdateRequestInfo.size();
         }
     }
 }

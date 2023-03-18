@@ -863,6 +863,8 @@ public class CarPropertyService extends ICarProperty.Stub
                         carPropertyValueToSet.getAreaId(), request.getAreaId()).toString());
             }
             validateSetParameters(carPropertyValueToSet);
+            // TODO(b/273345604): validateGetParameters for properties that have
+            // waitForPropertyUpdate set.
         }
         mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequests,
                 asyncPropertyResultCallback, timeoutInMs);
