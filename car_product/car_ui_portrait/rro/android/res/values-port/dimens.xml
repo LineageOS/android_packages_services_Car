@@ -58,10 +58,12 @@
     <dimen name="car_button_height">88dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
     <dimen name="car_button_horizontal_padding">48dp</dimen>
+    <dimen name="car_button_vertical_padding">24dp</dimen>
     <dimen name="car_borderless_button_horizontal_padding">0dp</dimen>
     <dimen name="car_button_radius">44dp</dimen>
     <dimen name="car_pill_button_size">88dp</dimen>
     <dimen name="car_touch_target_size">76dp</dimen>
+    <dimen name="car_action1_size">32sp</dimen>
 
     <!-- ****** Checkbox dimens ***** -->
     <dimen name="car_checkbox_focus_ring_width">@dimen/car_focus_ring_width</dimen>
