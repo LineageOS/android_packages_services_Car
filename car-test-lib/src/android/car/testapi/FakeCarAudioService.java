@@ -16,6 +16,7 @@
 
 package android.car.testapi;
 
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
 import static android.service.autofill.FillRequest.INVALID_REQUEST_ID;
 
 import android.car.CarOccupantZoneManager;
@@ -194,6 +195,14 @@ final class FakeCarAudioService extends ICarAudio.Stub {
      */
     @Override
     public void unregisterAudioZonesMirrorStatusCallback(IAudioZonesMirrorStatusCallback callback) {
+    }
+
+    /**
+     * {@link CarAudioManager#canEnableAudioMirror()}
+     */
+    @Override
+    public int canEnableAudioMirror()  {
+        return AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
     }
 
     /**

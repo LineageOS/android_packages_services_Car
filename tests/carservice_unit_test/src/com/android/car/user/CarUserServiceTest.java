@@ -111,6 +111,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -370,6 +371,115 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mockListener1, never()).onEvent(any(UserLifecycleEvent.class));
         verify(mockListener2, times(1)).onEvent(any(UserLifecycleEvent.class));
         verify(mockListener3, times(2)).onEvent(any(UserLifecycleEvent.class));
+    }
+
+    @Test
+    public void testOnUserStarting_systemUser_noop() throws Exception {
+        // Arrange.
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserStartingEvent(UserHandle.SYSTEM.getIdentifier());
+
+        // Verify.
+        verify(mCarOccupantZoneService, never()).assignVisibleUserToOccupantZone(anyInt(),
+                any(UserHandle.class));
+    }
+
+    @Test
+    public void testOnUserStarting_afterUserVisible_occupantZoneAssignment() throws Exception {
+        // Arrange.
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
+        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        mockUmIsUserVisible(mMockedUserManager, true);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
+
+        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+
+        List<CarOccupantZoneManager.OccupantZoneInfo> infos = new ArrayList<>();
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                        VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+        infos.add(zoneInfo);
+        when(mCarOccupantZoneService.getAllOccupantZones()).thenReturn(infos);
+
+        int[] displayIds = new int[] { TEST_DISPLAY_ID };
+        when(mCarOccupantZoneService.getAllDisplaysForOccupantZone(TEST_OCCUPANT_ZONE_ID))
+                .thenReturn(displayIds);
+
+        when(mCarOccupantZoneService.assignVisibleUserToOccupantZone(
+                TEST_OCCUPANT_ZONE_ID, UserHandle.of(TEST_USER_ID)))
+                    .thenReturn(CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserVisibleEvent(TEST_USER_ID);
+        sendUserStartingEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mCarOccupantZoneService).assignVisibleUserToOccupantZone(
+                TEST_OCCUPANT_ZONE_ID, UserHandle.of(TEST_USER_ID));
+    }
+
+    @Test
+    public void testOnUserVisible_afterUserStarting_occupantZoneAssignment() throws Exception {
+        // Arrange.
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
+        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        mockUmIsUserVisible(mMockedUserManager, false);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
+
+        mockCarServiceHelperGetDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+
+        List<CarOccupantZoneManager.OccupantZoneInfo> infos = new ArrayList<>();
+        CarOccupantZoneManager.OccupantZoneInfo zoneInfo =
+                new CarOccupantZoneManager.OccupantZoneInfo(
+                        TEST_OCCUPANT_ZONE_ID, CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                        VehicleAreaSeat.SEAT_ROW_1_RIGHT);
+        infos.add(zoneInfo);
+        when(mCarOccupantZoneService.getAllOccupantZones()).thenReturn(infos);
+
+        int[] displayIds = new int[] { TEST_DISPLAY_ID };
+        when(mCarOccupantZoneService.getAllDisplaysForOccupantZone(TEST_OCCUPANT_ZONE_ID))
+                .thenReturn(displayIds);
+
+        when(mCarOccupantZoneService.assignVisibleUserToOccupantZone(
+                TEST_OCCUPANT_ZONE_ID, UserHandle.of(TEST_USER_ID)))
+                    .thenReturn(CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
+
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserStartingEvent(TEST_USER_ID);
+        sendUserVisibleEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mCarOccupantZoneService).assignVisibleUserToOccupantZone(
+                TEST_OCCUPANT_ZONE_ID, UserHandle.of(TEST_USER_ID));
+    }
+
+    // This simulates the case that this user started, but never became visible,
+    // then stopped in the past before becoming visible and starting again.
+    @Test
+    public void testOnUserVisible_afterPastUserStartingNotVisible_noOccupantZoneAssignment()
+            throws Exception {
+        // Arrange.
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
+        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
+        mockUmIsUserVisible(mMockedUserManager, false);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
+
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserStartingEvent(TEST_USER_ID);
+        sendUserVisibleEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mCarOccupantZoneService, never()).assignVisibleUserToOccupantZone(anyInt(),
+                any(UserHandle.class));
     }
 
     @Test

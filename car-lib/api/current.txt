@@ -849,7 +849,9 @@ package android.car.hardware.property {
     method public int getRequestId();
     method public float getUpdateRateHz();
     method public T getValue();
+    method public boolean isWaitForPropertyUpdate();
     method public void setUpdateRateHz(float);
+    method public void setWaitForPropertyUpdate(boolean);
   }
 
   public static final class CarPropertyManager.SetPropertyResult {

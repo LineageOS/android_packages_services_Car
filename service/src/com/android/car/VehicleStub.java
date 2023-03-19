@@ -87,7 +87,7 @@ public abstract class VehicleStub {
     public static class AsyncGetSetRequest {
         private final int mServiceRequestId;
         private final HalPropValue mHalPropValue;
-        private final long mTimeoutInMs;
+        private final long mTimeoutUptimeMs;
 
         public int getServiceRequestId() {
             return mServiceRequestId;
@@ -97,18 +97,18 @@ public abstract class VehicleStub {
             return mHalPropValue;
         }
 
-        public long getTimeoutInMs() {
-            return mTimeoutInMs;
+        public long getTimeoutUptimeMs() {
+            return mTimeoutUptimeMs;
         }
 
         /**
          * Get an instance for AsyncGetSetRequest.
          */
         public AsyncGetSetRequest(int serviceRequestId, HalPropValue halPropValue,
-                long timeoutInMs) {
+                long timeoutUptimeMs) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = halPropValue;
-            mTimeoutInMs = timeoutInMs;
+            mTimeoutUptimeMs = timeoutUptimeMs;
         }
     }
 

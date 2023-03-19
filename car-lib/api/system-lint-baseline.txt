@@ -698,10 +698,8 @@ MissingNullability: android.car.vms.VmsSubscriptionState#CREATOR:
 MissingNullability: android.car.vms.VmsSubscriptionState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `out` in method `writeToParcel`
 
-
 MutableBareField: android.car.occupantconnection.Payload#bytes:
     Bare field bytes must be marked final, or moved behind accessors if mutable
-
 
 NotCloseable: android.car.app.CarTaskViewController:
     Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.car.app.CarTaskViewController
@@ -779,6 +777,8 @@ ParcelConstructor: android.car.content.pm.CarAppBlockingPolicy#CarAppBlockingPol
     Parcelable inflation is exposed through CREATOR, not raw constructors, in android.car.content.pm.CarAppBlockingPolicy
 ParcelConstructor: android.car.diagnostic.CarDiagnosticEvent#CarDiagnosticEvent(android.os.Parcel):
     Parcelable inflation is exposed through CREATOR, not raw constructors, in android.car.diagnostic.CarDiagnosticEvent
+ParcelConstructor: android.car.occupantconnection.Payload#Payload(android.os.Parcel):
+    Parcelable inflation is exposed through CREATOR, not raw constructors, in android.car.occupantconnection.Payload
 ParcelConstructor: android.car.storagemonitoring.IoStats#IoStats(android.os.Parcel):
     Parcelable inflation is exposed through CREATOR, not raw constructors, in android.car.storagemonitoring.IoStats
 ParcelConstructor: android.car.storagemonitoring.IoStatsEntry#IoStatsEntry(android.os.Parcel):

@@ -62,6 +62,7 @@ import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.hal.HalPropConfig;
@@ -128,7 +129,8 @@ public final class AidlVehicleStubUnitTest {
     }
 
     private AsyncGetSetRequest defaultVehicleStubAsyncRequest(HalPropValue value) {
-        return new AsyncGetSetRequest(/* serviceRequestId=*/ 0, value, /* timeoutInMs= */ 1000);
+        return new AsyncGetSetRequest(/* serviceRequestId=*/ 0, value,
+                /* timeoutUptimeMs= */ SystemClock.uptimeMillis() + 1000);
     }
 
     @Before
@@ -709,10 +711,11 @@ public final class AidlVehicleStubUnitTest {
 
         HalPropValue value = HVAC_PROP_VALUE;
 
+        long now = SystemClock.uptimeMillis();
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
+                /* serviceRequestId= */ 0, value, /* timeoutUptimeMs= */ now);
         AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 10);
+                /* serviceRequestId= */ 1, value, /* timeoutUptimeMs= */ now);
 
         // Send the getAsync request.
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
@@ -747,10 +750,11 @@ public final class AidlVehicleStubUnitTest {
 
         HalPropValue value = HVAC_PROP_VALUE;
 
+        long timeoutUptimeMs = SystemClock.uptimeMillis() + 100;
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 100);
+                /* serviceRequestId= */ 0, value, timeoutUptimeMs);
         AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 100);
+                /* serviceRequestId= */ 1, value, timeoutUptimeMs);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
                 mAsyncCallback);
@@ -780,10 +784,11 @@ public final class AidlVehicleStubUnitTest {
 
         HalPropValue value = HVAC_PROP_VALUE;
 
+        long timeoutUptimeMs = SystemClock.uptimeMillis() + 10;
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 10);
+                /* serviceRequestId= */ 0, value, timeoutUptimeMs);
         AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 10);
+                /* serviceRequestId= */ 1, value, timeoutUptimeMs);
 
         // Send the getAsync request.
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),
@@ -808,10 +813,11 @@ public final class AidlVehicleStubUnitTest {
 
         HalPropValue value = HVAC_PROP_VALUE;
 
+        long timeoutUptimeMs = SystemClock.uptimeMillis() + 1000;
         AsyncGetSetRequest getVehicleStubAsyncRequest1 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 0, value, /* timeoutInMs= */ 1000);
+                /* serviceRequestId= */ 0, value, timeoutUptimeMs);
         AsyncGetSetRequest getVehicleStubAsyncRequest2 = new AsyncGetSetRequest(
-                /* serviceRequestId= */ 1, value, /* timeoutInMs= */ 1000);
+                /* serviceRequestId= */ 1, value, timeoutUptimeMs);
 
         // Send the getAsync request.
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest1, getVehicleStubAsyncRequest2),

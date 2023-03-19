@@ -21,6 +21,8 @@ import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
 import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
+import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -42,16 +44,43 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
     // The update rate in HZ for listening to new property update event for async set. Ignored for
     // get request.
     private float mUpdateRateHz;
+    // Whether to listen for property update event before calling success callback for async set.
+    // Ignored for get request.
+    private boolean mWaitForPropertyUpdate;
 
     /**
      * Creates an async get request.
+     */
+    public static AsyncPropertyServiceRequest newGetAsyncRequest(
+            GetPropertyRequest getPropertyRequest) {
+        return new AsyncPropertyServiceRequest(getPropertyRequest.getRequestId(),
+                getPropertyRequest.getPropertyId(), getPropertyRequest.getAreaId());
+    }
+
+    /**
+     * Creates an async set request.
+     */
+    public static AsyncPropertyServiceRequest newSetAsyncRequest(
+            SetPropertyRequest setPropertyRequest) {
+        int propertyId = setPropertyRequest.getPropertyId();
+        int areaId = setPropertyRequest.getAreaId();
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                setPropertyRequest.getRequestId(), propertyId, areaId,
+                new CarPropertyValue(propertyId, areaId, setPropertyRequest.getValue()));
+        request.setUpdateRateHz(setPropertyRequest.getUpdateRateHz());
+        request.setWaitForPropertyUpdate(setPropertyRequest.isWaitForPropertyUpdate());
+        return request;
+    }
+
+    /**
+     * Creates an async get request, for test only.
      */
     public AsyncPropertyServiceRequest(int requestId, int propertyId, int areaId) {
         this(requestId, propertyId, areaId, /* carPropertyValue= */ null);
     }
 
     /**
-     * Creates an async set request.
+     * Creates an async set request, for test only.
      */
     public AsyncPropertyServiceRequest(int requestId, int propertyId, int areaId,
             @Nullable CarPropertyValue carPropertyValue) {
@@ -59,6 +88,7 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         mPropertyId = propertyId;
         mAreaId = areaId;
         mCarPropertyValue = carPropertyValue;
+        mWaitForPropertyUpdate = true;
     }
 
     /**
@@ -66,6 +96,13 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
      */
     public void setUpdateRateHz(float updateRateHz) {
         mUpdateRateHz = updateRateHz;
+    }
+
+    /**
+     * Sets whether to wait for property update before calling async set's success callback.
+     */
+    public void setWaitForPropertyUpdate(boolean waitForPropertyUpdate) {
+        mWaitForPropertyUpdate = waitForPropertyUpdate;
     }
 
 
@@ -77,12 +114,10 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
     //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/com/android/car/internal/property/AsyncPropertyServiceRequest.java
-    // Added AddedInOrBefore or ApiRequirement Annotation manually
     //
     // To exclude the generated code from IntelliJ auto-formatting enable (one-time):
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
-
 
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion = PlatformVersion.TIRAMISU_0)
@@ -121,6 +156,13 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
 
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @DataClass.Generated.Member
+    public boolean isWaitForPropertyUpdate() {
+        return mWaitForPropertyUpdate;
+    }
+
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -128,6 +170,7 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         byte flg = 0;
+        if (mWaitForPropertyUpdate) flg |= 0x20;
         if (mCarPropertyValue != null) flg |= 0x8;
         dest.writeByte(flg);
         dest.writeInt(mRequestId);
@@ -151,6 +194,7 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
         byte flg = in.readByte();
+        boolean waitForPropertyUpdate = (flg & 0x20) != 0;
         int requestId = in.readInt();
         int propertyId = in.readInt();
         int areaId = in.readInt();
@@ -162,6 +206,7 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
         this.mAreaId = areaId;
         this.mCarPropertyValue = carPropertyValue;
         this.mUpdateRateHz = updateRateHz;
+        this.mWaitForPropertyUpdate = waitForPropertyUpdate;
 
         // onConstructed(); // You can define this method to get a callback
     }
@@ -183,10 +228,10 @@ public final class AsyncPropertyServiceRequest implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1676332121004L,
+            time = 1678739854323L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/com/android/car/internal/property/AsyncPropertyServiceRequest.java",
-            inputSignatures = "private final  int mRequestId\nprivate final  int mPropertyId\nprivate final  int mAreaId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate  float mUpdateRateHz\npublic  void setUpdateRateHz(float)\nclass AsyncPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final  int mPropertyId\nprivate final  int mAreaId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate  float mUpdateRateHz\nprivate  boolean mWaitForPropertyUpdate\npublic static  com.android.car.internal.property.AsyncPropertyServiceRequest newGetAsyncRequest(android.car.hardware.Property.GetPropertyRequest)\npublic static  com.android.car.internal.property.AsyncPropertyServiceRequest newSetAsyncRequest(setPropertyRequest)\npublic  void setUpdateRateHz(float)\npublic  void setWaitForPropertyUpdate(boolean)\nclass AsyncPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

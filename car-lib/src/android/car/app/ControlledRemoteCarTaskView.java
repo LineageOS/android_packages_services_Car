@@ -170,7 +170,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
         super.onTaskVanished(taskInfo);
-        if (mConfig.mShouldAutoRestartOnCrash && mCarTaskViewController.isHostVisible()) {
+        if (mConfig.mShouldAutoRestartOnTaskRemoval && mCarTaskViewController.isHostVisible()) {
             // onTaskVanished can be called when the host is in the background. In this case
             // embedded activity should not be started.
             Slogf.i(TAG, "Restarting task " + taskInfo.baseActivity

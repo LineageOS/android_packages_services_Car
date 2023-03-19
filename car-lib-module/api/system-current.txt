@@ -457,7 +457,7 @@ package android.car.app {
     ctor public ControlledRemoteCarTaskViewConfig.Builder();
     method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig build();
     method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setActivityIntent(@NonNull android.content.Intent);
-    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldAutoRestartOnCrash(boolean);
+    method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldAutoRestartOnTaskRemoval(boolean);
     method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldCaptureGestures(boolean);
     method @NonNull public android.car.app.ControlledRemoteCarTaskViewConfig.Builder setShouldCaptureLongPress(boolean);
   }
@@ -1474,6 +1474,7 @@ package android.car.media {
 
   public final class CarAudioManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean allowMediaAudioOnPrimaryZone(long, boolean);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int canEnableAudioMirror();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public boolean cancelMediaAudioOnPrimaryZone(long);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearAudioZonesMirrorStatusCallback();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void clearPrimaryZoneMediaAudioRequestCallback();
@@ -1522,6 +1523,9 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void switchAudioZoneToConfig(@NonNull android.car.media.CarAudioZoneConfigInfo, @NonNull java.util.concurrent.Executor, @NonNull android.car.media.SwitchAudioZoneConfigCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public void unregisterCarVolumeGroupEventCallback(@NonNull android.car.media.CarVolumeGroupEventCallback);
     field public static final String AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS = "android.car.media.AUDIOFOCUS_EXTRA_RECEIVE_DUCKING_EVENTS";
+    field public static final int AUDIO_MIRROR_CAN_ENABLE = 1; // 0x1
+    field public static final int AUDIO_MIRROR_INTERNAL_ERROR = -1; // 0xffffffff
+    field public static final int AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES = 2; // 0x2
     field public static final int AUDIO_REQUEST_STATUS_APPROVED = 1; // 0x1
     field public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3; // 0x3
     field public static final int AUDIO_REQUEST_STATUS_REJECTED = 2; // 0x2
@@ -1732,9 +1736,11 @@ package android.car.occupantconnection {
 
   public final class Payload implements java.io.Closeable android.os.Parcelable {
     ctor public Payload(@NonNull byte[]);
+    ctor public Payload(@NonNull android.os.IBinder);
     method public void close();
     method public int describeContents();
     method public void deserialize(@NonNull android.os.Parcel);
+    method @Nullable public android.os.IBinder getBinder();
     method @Nullable public byte[] getBytes();
     method public void serialize(@NonNull android.os.Parcel, int);
     method public void serializeNullPayload(@NonNull android.os.Parcel);

@@ -85,6 +85,7 @@
     <item target="bool/config_show_settings_as_toolbar_tab" value="@bool/config_show_settings_as_toolbar_tab" />
     <item target="bool/config_show_settings_in_menu_items" value="@bool/config_show_settings_in_menu_items" />
     <item target="bool/config_show_toolbar_with_contact_details" value="@bool/config_show_toolbar_with_contact_details" />
+    <item target="bool/config_add_favorite_button_span_size_one" value="@bool/config_add_favorite_button_span_size_one" />
 
     <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
     <item target="integer/favorite_fragment_grid_column" value="@integer/favorite_fragment_grid_column" />
@@ -99,6 +100,7 @@
     <item target="dimen/list_item_height" value="@dimen/list_item_height" />
     <item target="dimen/vertical_divider_inset" value="@dimen/vertical_divider_inset" />
 
+    <item target="layout/add_favorite_list_item" value="@layout/add_favorite_list_item"/>
     <item target="layout/contact_details_address" value="@layout/contact_details_address"/>
     <item target="layout/contact_details_number" value="@layout/contact_details_number"/>
     <item target="layout/contact_user_profile" value="@layout/contact_user_profile"/>
