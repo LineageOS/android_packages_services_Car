@@ -46,7 +46,11 @@ import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.car.oem.AudioFocusEntry;
+import android.car.oem.OemCarAudioFocusEvaluationRequest;
+import android.car.oem.OemCarAudioFocusResult;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -58,6 +62,7 @@ import android.os.Build;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.CarLocalServices;
+import com.android.car.oem.CarOemAudioFocusProxyService;
 import com.android.car.oem.CarOemProxyService;
 
 import org.junit.After;
@@ -86,6 +91,8 @@ public class CarAudioFocusUnitTest {
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo());
 
+    private static final int TEST_VOLUME_GROUP = 5;
+
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
     @Mock
@@ -100,6 +107,8 @@ public class CarAudioFocusUnitTest {
     private CarVolumeInfoWrapper mMockCarVolumeInfoWrapper;
     @Mock
     private CarOemProxyService mMockCarOemProxyService;
+    @Mock
+    private CarOemAudioFocusProxyService mMockAudioFocusProxyService;
 
     private FocusInteraction mFocusInteraction;
 
@@ -1195,6 +1204,49 @@ public class CarAudioFocusUnitTest {
 
         verify(mMockAudioManager).setFocusRequestResult(mediaInfo, AUDIOFOCUS_REQUEST_GRANTED,
                 mAudioPolicy);
+    }
+
+    @Test
+    public void onAudioFocusRequest_withOemServiceEnabled_capturesFocusRequest() {
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.isOemServiceReady()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService())
+                .thenReturn(mMockAudioFocusProxyService);
+        AudioFocusInfo audioFocusInfo = getInfo(USAGE_MEDIA, SECOND_CLIENT_ID, AUDIOFOCUS_GAIN,
+                /* acceptsDelayedFocus= */ false);
+        AudioAttributes mediaAudioAttribute =
+                new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+        AudioFocusEntry mediaEntry = new AudioFocusEntry.Builder(audioFocusInfo,
+                TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(mediaAudioAttribute),
+                TEST_VOLUME_GROUP, AUDIOFOCUS_GAIN).build();
+        OemCarAudioFocusResult mediaResults = getAudioFocusResults(mediaEntry,
+                AUDIOFOCUS_REQUEST_GRANTED);
+        when(mMockAudioFocusProxyService.evaluateAudioFocusRequest(any())).thenReturn(mediaResults);
+        when(mMockCarVolumeInfoWrapper.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                mediaAudioAttribute)).thenReturn(TEST_VOLUME_GROUP);
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+
+        carAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        AudioFocusEntry entry = captureOemServiceAudioFocusEntry();
+        assertWithMessage("Media focus entry info").that(entry
+                .getAudioFocusInfo()).isEqualTo(audioFocusInfo);
+        assertWithMessage("Media focus entry volume group").that(entry
+                .getAudioVolumeGroupId()).isEqualTo(TEST_VOLUME_GROUP);
+    }
+
+    private AudioFocusEntry captureOemServiceAudioFocusEntry() {
+        ArgumentCaptor<OemCarAudioFocusEvaluationRequest> captor = ArgumentCaptor
+                .forClass(OemCarAudioFocusEvaluationRequest.class);
+        verify(mMockAudioFocusProxyService).evaluateAudioFocusRequest(captor.capture());
+        OemCarAudioFocusEvaluationRequest request = captor.getValue();
+        AudioFocusEntry entry = request.getAudioFocusRequest();
+        return entry;
+    }
+
+    protected OemCarAudioFocusResult getAudioFocusResults(AudioFocusEntry entry, int results) {
+        return new OemCarAudioFocusResult.Builder(/* lostEntries= */ List.of(),
+                /* blockedEntries= */ List.of(), results).setAudioFocusEntry(entry).build();
     }
 
     private List<Integer> getFocusChanges(AudioFocusInfo info) {

@@ -1147,6 +1147,40 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void getVolumeGroupIdForAudioAttribute() {
+        mCarAudioService.init();
+
+        assertWithMessage("Volume group ID for primary audio zone")
+                .that(mCarAudioService.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA)))
+                .isEqualTo(TEST_PRIMARY_GROUP_INDEX);
+    }
+
+    @Test
+    public void getVolumeGroupIdForAudioAttribute_withNullAttribute_fails() {
+        mCarAudioService.init();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioService.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                /* attribute= */ null));
+
+        assertWithMessage("Null audio attribute exception").that(thrown).hasMessageThat()
+                .contains("Audio attributes");
+    }
+
+    @Test
+    public void getVolumeGroupIdForAudioAttribute_withInvalidZoneId_fails() {
+        mCarAudioService.init();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mCarAudioService.getVolumeGroupIdForAudioAttribute(INVALID_AUDIO_ZONE,
+                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA)));
+
+        assertWithMessage("Invalid audio zone exception").that(thrown).hasMessageThat()
+                .contains("Invalid audio zone Id");
+    }
+
+    @Test
     public void getExternalSources_forSingleDevice() {
         mCarAudioService.init();
         AudioDeviceInfo[] inputDevices = generateInputDeviceInfos();
