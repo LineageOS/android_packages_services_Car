@@ -245,9 +245,10 @@ final class ScreenOffHandler {
                     info.setMode(DISPLAY_POWER_MODE_ALWAYS_ON);
                     sb.append(DISPLAY_POWER_MODE_ALWAYS_ON);
                 } else {
+                    // TODO(b/274050716): Restore passenger displays to ON.
                     // for passenger display
-                    info.setMode(DISPLAY_POWER_MODE_ON);
-                    sb.append(DISPLAY_POWER_MODE_ON);
+                    info.setMode(DISPLAY_POWER_MODE_ALWAYS_ON);
+                    sb.append(DISPLAY_POWER_MODE_ALWAYS_ON);
                 }
             }
         }
