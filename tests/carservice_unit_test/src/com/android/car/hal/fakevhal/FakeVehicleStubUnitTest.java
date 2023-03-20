@@ -664,7 +664,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_OFF + "]}";
         List<File> customFileList = createFilenameList(jsonString);
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
-                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ SEAT_1_LEFT);
         AsyncGetSetRequest getRequest = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
                 requestPropValue, DEFAULT_TIMEOUT);
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
