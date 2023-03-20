@@ -553,7 +553,7 @@ public final class CarUserManager extends CarManagerBase {
             throw e;
         } catch (RemoteException | RuntimeException e) {
             AsyncFuture<UserSwitchResult> future =
-                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+                    newSwitchResultForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
             return handleExceptionFromCarService(e, future);
         }
     }
@@ -588,12 +588,12 @@ public final class CarUserManager extends CarManagerBase {
             throw e;
         } catch (RemoteException | RuntimeException e) {
             AsyncFuture<UserSwitchResult> future =
-                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+                    newSwitchResultForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
             return handleExceptionFromCarService(e, future);
         }
     }
 
-    private AndroidAsyncFuture<UserSwitchResult> newSwitchResuiltForFailure(
+    private AndroidAsyncFuture<UserSwitchResult> newSwitchResultForFailure(
             @UserSwitchResult.Status int status) {
         AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
         future.complete(new UserSwitchResult(status, null));
