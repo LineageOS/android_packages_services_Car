@@ -734,6 +734,7 @@ package android.car.hardware.power {
     field public static final int LOCATION = 14; // 0xe
     field public static final int MEDIA = 2; // 0x2
     field public static final int MICROPHONE = 15; // 0xf
+    field public static final int MINIMUM_CUSTOM_COMPONENT_VALUE = 1000; // 0x3e8
     field public static final int NFC = 9; // 0x9
     field public static final int PROJECTION = 8; // 0x8
     field public static final int TRUSTED_DEVICE_DETECTION = 13; // 0xd
