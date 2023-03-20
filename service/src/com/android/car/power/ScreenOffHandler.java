@@ -206,6 +206,18 @@ final class ScreenOffHandler {
         }
     }
 
+    @VisibleForTesting
+    boolean canTurnOffDisplay(int displayId) {
+        synchronized (mLock) {
+            DisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
+            if (info == null) {
+                Slogf.w(TAG, "display(%d) power info is not ready yet.", displayId);
+                return false;
+            }
+            return info.getMode() == DISPLAY_POWER_MODE_ON;
+        }
+    }
+
     @GuardedBy("mLock")
     private boolean canTurnOnDisplayLocked(int displayId) {
         DisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
