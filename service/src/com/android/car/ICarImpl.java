@@ -163,6 +163,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarActivityService mCarActivityService;
     private final CarOccupantConnectionService mCarOccupantConnectionService;
     private final CarRemoteAccessService mCarRemoteAccessService;
+    private final CarRemoteDeviceService mCarRemoteDeviceService;
 
     private final CarSystemService[] mAllServices;
 
@@ -213,7 +214,7 @@ public class ICarImpl extends ICar.Stub {
 
         mCarServiceHelperWrapper = CarServiceHelperWrapper.create();
 
-        // Currently there are ~35 services, hence using 40 as the initial capacity.
+        // Currently there are ~36 services, hence using 40 as the initial capacity.
         List<CarSystemService> allServices = new ArrayList<>(40);
         mCarOemService = constructWithTrace(t, CarOemProxyService.class,
                 () -> new CarOemProxyService(serviceContext), allServices);
@@ -463,11 +464,16 @@ public class ICarImpl extends ICar.Stub {
                 || mFeatureController.isFeatureEnabled(Car.CAR_REMOTE_DEVICE_SERVICE)) {
             mCarOccupantConnectionService = constructWithTrace(
                     t, CarOccupantConnectionService.class,
-                    () -> new CarOccupantConnectionService(serviceContext, mCarOccupantZoneService,
-                            mCarPowerManagementService),
+                    () -> new CarOccupantConnectionService(serviceContext, mCarOccupantZoneService),
+                    allServices);
+            mCarRemoteDeviceService = constructWithTrace(
+                    t, CarRemoteDeviceService.class,
+                    () -> new CarRemoteDeviceService(serviceContext, mCarOccupantZoneService,
+                            mCarPowerManagementService, mSystemActivityMonitoringService),
                     allServices);
         } else {
             mCarOccupantConnectionService = null;
+            mCarRemoteDeviceService = null;
         }
 
         mAllServices = allServices.toArray(new CarSystemService[allServices.size()]);
@@ -665,12 +671,10 @@ public class ICarImpl extends ICar.Stub {
                 return mCarTelemetryService;
             case Car.CAR_ACTIVITY_SERVICE:
                 return mCarActivityService;
-            // Both CarOccupantConnectionManager and CarRemoteDeviceManager are implemented by the
-            // same service CarOccupantConnectionService.
             case Car.CAR_OCCUPANT_CONNECTION_SERVICE:
                 return mCarOccupantConnectionService;
             case Car.CAR_REMOTE_DEVICE_SERVICE:
-                return mCarOccupantConnectionService;
+                return mCarRemoteDeviceService;
             case Car.CAR_REMOTE_ACCESS_SERVICE:
                 return mCarRemoteAccessService;
             default:

@@ -34,7 +34,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager;
 import android.car.CarRemoteDeviceManager.StateCallback;
-import android.car.occupantconnection.ICarOccupantConnection;
+import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -60,7 +60,7 @@ public final class CarRemoteDeviceManagerUnitTest {
     @Mock
     private IBinder mBinder;
     @Mock
-    private ICarOccupantConnection mService;
+    private ICarRemoteDevice mService;
     @Mock
     private Context mContext;
     @Mock

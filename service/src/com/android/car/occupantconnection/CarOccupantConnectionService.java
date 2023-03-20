@@ -38,14 +38,11 @@ import android.car.occupantconnection.IBackendReceiver;
 import android.car.occupantconnection.ICarOccupantConnection;
 import android.car.occupantconnection.IConnectionRequestCallback;
 import android.car.occupantconnection.IPayloadCallback;
-import android.car.occupantconnection.IStateCallback;
 import android.car.occupantconnection.Payload;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -58,7 +55,6 @@ import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.BinderKeyValueContainer;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -66,8 +62,7 @@ import java.util.Set;
 
 /**
  * Service to implement API defined in
- * {@link android.car.occupantconnection.CarOccupantConnectionManager} and
- * {@link android.car.CarRemoteDeviceManager}.
+ * {@link android.car.occupantconnection.CarOccupantConnectionManager}.
  */
 public class CarOccupantConnectionService extends ICarOccupantConnection.Stub implements
         CarServiceBase {
@@ -79,7 +74,6 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     private final Context mContext;
     private final Object mLock = new Object();
     private final CarOccupantZoneService mOccupantZoneService;
-    private final CarPowerManagementService mPowerManagementService;
 
     /**
      * A set of receiver services that this service has requested to bind but has not connected
@@ -300,11 +294,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     public CarOccupantConnectionService(Context context,
-            CarOccupantZoneService occupantZoneService,
-            CarPowerManagementService powerManagementService) {
+            CarOccupantZoneService occupantZoneService) {
         this(context,
                 occupantZoneService,
-                powerManagementService,
                 /* connectingReceiverServices= */ new ArraySet<>(),
                 /* connectedReceiverServiceMap= */ new BinderKeyValueContainer<>(),
                 /* receiverServiceConnectionMap= */ new ArrayMap<>(),
@@ -318,7 +310,6 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @VisibleForTesting
     CarOccupantConnectionService(Context context,
             CarOccupantZoneService occupantZoneService,
-            CarPowerManagementService powerManagementService,
             ArraySet<ClientId> connectingReceiverServices,
             BinderKeyValueContainer<ClientId, IBackendReceiver> connectedReceiverServiceMap,
             ArrayMap<ClientId, ServiceConnection> receiverServiceConnectionMap,
@@ -333,7 +324,6 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             ArraySet<ConnectionRecord> establishedConnections) {
         mContext = context;
         mOccupantZoneService = occupantZoneService;
-        mPowerManagementService = powerManagementService;
         mConnectingReceiverServices = connectingReceiverServices;
         mConnectedReceiverServiceMap = connectedReceiverServiceMap;
         mReceiverServiceConnectionMap = receiverServiceConnectionMap;
@@ -405,64 +395,6 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 writer.printf("%s%s\n", INDENTATION_4, mEstablishedConnections.valueAt(i));
             }
         }
-    }
-
-    @Override
-    public void registerStateCallback(String packageName, IStateCallback callback) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        // TODO(b/257117236): implement this method.
-    }
-
-    @Override
-    public void unregisterStateCallback(String packageName) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        // TODO(b/257117236): implement this method.
-    }
-
-    @Override
-    public PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        checkCalledByPackage(mContext, packageName);
-
-        // PackageManager#getPackageInfoAsUser() can do this with few lines, but it's hidden API.
-        int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
-        if (userId == INVALID_USER_ID) {
-            Slogf.e(TAG, "Invalid user ID for occupant zone " + occupantZoneId);
-            return null;
-        }
-        UserHandle userHandle = UserHandle.of(userId);
-        Context userContext = mContext.createContextAsUser(userHandle, /* flags= */ 0);
-        PackageManager pm = userContext.getPackageManager();
-        if (pm == null) {
-            Slogf.e(TAG, "Failed to get PackageManager as user " + userId);
-            return null;
-        }
-        PackageInfo packageInfo = null;
-        try {
-            packageInfo = pm.getPackageInfo(packageName,
-                    PackageManager.PackageInfoFlags.of(/* value= */ 0));
-        } catch (PackageManager.NameNotFoundException e) {
-            // The client app should be installed in all occupant zones, so log an error.
-            Slogf.e(TAG, "Didn't find " + packageName + " in occupant zone " + occupantZoneId);
-        }
-        return packageInfo;
-    }
-
-    @Override
-    public void setOccupantZonePower(OccupantZoneInfo occupantZone, boolean powerOn) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-
-        int[] displayIds = mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZone.zoneId);
-        for (int id : displayIds) {
-            mPowerManagementService.setDisplayPowerState(id, powerOn);
-        }
-    }
-
-    @Override
-    public boolean isOccupantZonePowerOn(OccupantZoneInfo occupantZone) {
-        assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-
-        return mOccupantZoneService.areDisplaysOnForOccupantZone(occupantZone.zoneId);
     }
 
     @Override
