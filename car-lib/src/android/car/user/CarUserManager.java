@@ -491,6 +491,7 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/235991826): Add CTS test.
     /**
      * Switches the foreground user to the given user.
      *
@@ -505,7 +506,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    // TODO(b/235991826): Add CTS test.
     public void switchUser(@NonNull UserSwitchRequest userSwitchRequest,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserSwitchResult> callback) {
@@ -521,12 +521,12 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/235991826): Deprecate this call.
     /**
      * Switches the foreground user to the given target user.
      *
      * @hide
      */
-    // TODO(b/235991826): Deprecate this call.
     @TestApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
@@ -657,6 +657,7 @@ public final class CarUserManager extends CarManagerBase {
         return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
     }
 
+    // TODO(b/235994008): Add CTS test.
     /**
      * Creates a new Android user.
      *
@@ -670,7 +671,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    // TODO(b/235994008): Add CTS test.
     public void createUser(@NonNull UserCreationRequest userCreationRequest,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserCreationResult> callback) {
@@ -739,6 +739,7 @@ public final class CarUserManager extends CarManagerBase {
     }
 
 
+    // TODO(b/235994391): Add CTS test.
     /**
      * Removes the given user.
      *
@@ -753,7 +754,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    // TODO(b/235994391): Add CTS test.
     public void removeUser(@NonNull UserRemovalRequest userRemovalRequest,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserRemovalResult> callback) {
@@ -1093,10 +1093,10 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    // TODO(b/154958003): use mReceiver instead as now there are two binder objects
     /**
      * {@code ICarResultReceiver} used to receive user switch UI Callback.
      */
-    // TODO(b/154958003): use mReceiver instead as now there are two binder objects
     private final class UserSwitchUiCallbackReceiver extends ICarResultReceiver.Stub {
 
         private final UserHandleSwitchUiCallback mUserHandleSwitchUiCallback;
