@@ -176,6 +176,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     // This sends a focus loss message to the targeted requester.
+    @GuardedBy("mLock")
     private void sendFocusLossLocked(AudioFocusInfo loser, int lossType) {
         int result = mAudioManager.dispatchAudioFocusChange(loser, lossType,
                 mAudioPolicy);
@@ -679,6 +680,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param afi Audio Focus Info to remove
      * @return Removed Focus Entry
      */
+    @GuardedBy("mLock")
     private FocusEntry removeFocusEntryLocked(AudioFocusInfo afi) {
         Slogf.i(TAG, "removeFocusEntry " + afi.getClientId());
 
@@ -687,7 +689,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         if (deadEntry == null) {
             deadEntry = mFocusLosers.remove(afi.getClientId());
             if (deadEntry == null) {
-                // Caller is providing an unrecognzied clientId!?
+                // Caller is providing an unrecognized clientId!?
                 Slogf.w(TAG, "Audio focus abandoned by unrecognized client id: "
                         + afi.getClientId());
                 // This probably means an app double released focused for some reason.  One
@@ -746,6 +748,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     /**
      * Removes the dead entry from blocked waiters but does not send focus gain signal
      */
+    @GuardedBy("mLock")
     private void removeBlockerFromBlockedFocusLosersLocked(FocusEntry deadEntry) {
         // Remove this entry from the blocking list of any pending requests
         Iterator<FocusEntry> it = mFocusLosers.values().iterator();
@@ -759,6 +762,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     /**
      * Removes the dead entry from blocked waiters and sends focus gain signal
      */
+    @GuardedBy("mLock")
     private void removeBlockerAndRestoreUnblockedFocusLosersLocked(FocusEntry deadEntry) {
         // Remove this entry from the blocking list of any pending requests
         Iterator<FocusEntry> it = mFocusLosers.values().iterator();
