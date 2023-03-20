@@ -2853,6 +2853,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         return activeAudioAttributes;
     }
 
+    int getVolumeGroupIdForAudioAttribute(int audioZoneId, AudioAttributes attributes) {
+        Objects.requireNonNull(attributes, "Audio attributes can not be null");
+        checkAudioZoneId(audioZoneId);
+        synchronized (mImplLock) {
+            return getVolumeGroupIdForAudioAttributeLocked(audioZoneId, attributes);
+        }
+    }
+
     static final class SystemClockWrapper {
         public long uptimeMillis() {
             return SystemClock.uptimeMillis();
