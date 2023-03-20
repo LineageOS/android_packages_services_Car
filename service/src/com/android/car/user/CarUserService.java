@@ -248,6 +248,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private final ArrayList<Integer> mBackgroundUsersRestartedHere = new ArrayList<>();
 
+    /**
+     * The list of users that are starting but not visible at the time of starting excluding system
+     * user or current user.
+     *
+     * <p>Only applicable to devices that support
+     * {@link UserManager#isVisibleBackgroundUsersSupported()} background users on secondary
+     * displays.
+     *
+     * <p>Users will be added to this list if they are not visible at the time of starting.
+     * Users in this list will be removed the first time they become visible since starting.
+     */
+    @GuardedBy("mLockUser")
+    private final ArrayList<Integer> mNotVisibleAtStartingUsers = new ArrayList<>();
+
     private final UserHalService mHal;
 
     private final HandlerThread mHandlerThread = getHandlerThread(HANDLER_THREAD_NAME);
@@ -472,6 +486,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.printf("Start Background Users On Garage Mode=%s\n",
                     mStartBackgroundUsersOnGarageMode);
             writer.printf("Initial user: %s\n", mInitialUser);
+            writer.println("Users not visible at starting: " + mNotVisibleAtStartingUsers);
         }
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
         writer.printf("PreCreateUserStages: %s\n", preCreationStageToString(mPreCreationStage));
@@ -1915,19 +1930,129 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         startUsersOrHomeOnSecondaryDisplays(userId);
     }
 
+    private void onUserStarting(@UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "onUserStarting: user %d", userId);
+        }
+
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)
+                || isSystemUserInHeadlessSystemUserMode(userId)) {
+            return;
+        }
+
+        // Non-current user only
+        // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
+        if (userId == ActivityManager.getCurrentUser()) {
+            if (DBG) {
+                Slogf.d(TAG, "onUserStarting: user %d is the current user, skipping", userId);
+            }
+            return;
+        }
+
+        // TODO(b/273015292): Handling both "user visible" before "user starting" and
+        // "user starting" before "user visible" for now because
+        // UserController / UserVisibilityMediator don't sync the callbacks.
+        if (isUserVisible(userId)) {
+            if (DBG) {
+                Slogf.d(TAG, "onUserStarting: user %d is already visible", userId);
+            }
+
+            // If the user is already visible, do zone assignment and start SysUi.
+            // This addresses the most common scenario that "user starting" event occurs after
+            // "user visible" event.
+            assignVisibleUserToZone(userId);
+            startSystemUiForUser(mContext, userId);
+        } else {
+            // If the user is not visible at this point, they might become visible at a later point.
+            // So we save this user in 'mNotVisibleAtStartingUsers' for them to be checked in
+            // onUserVisible.
+            // This is the first half of addressing the scenario that "user visible" event occurs
+            // after "user starting" event.
+            if (DBG) {
+                Slogf.d(TAG, "onUserStarting: user %d is not visible, "
+                        + "adding to starting user queue", userId);
+            }
+            synchronized (mLockUser) {
+                if (!mNotVisibleAtStartingUsers.contains(userId)) {
+                    mNotVisibleAtStartingUsers.add(userId);
+                } else {
+                    // This is likely the case that this user started, but never became visible,
+                    // then stopped in the past before starting again and becoming visible.
+                    Slogf.i(TAG, "onUserStarting: user %d might start and stop in the past before "
+                            + "starting again, reusing the user", userId);
+                }
+            }
+        }
+    }
 
     private void onUserVisible(@UserIdInt int userId) {
-        assignVisibleUserToZone(userId);
-        startSystemUiForVisibleUser(userId);
+        if (DBG) {
+            Slogf.d(TAG, "onUserVisible: user %d", userId);
+        }
+
+        // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)
+                || isSystemUserInHeadlessSystemUserMode(userId)) {
+            return;
+        }
+
+        // Non-current user only
+        // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
+        if (userId == ActivityManager.getCurrentUser()) {
+            if (DBG) {
+                Slogf.d(TAG, "onUserVisible: user %d is the current user, skipping", userId);
+            }
+            return;
+        }
+
+        boolean isUserRunning = mUserManager.isUserRunning(UserHandle.of(userId));
+        // If the user is found in 'mNotVisibleAtStartingUsers' and is running,
+        // do occupant zone assignment and start SysUi.
+        // Then remove the user from the 'mNotVisibleAtStartingUsers'.
+        // This is the second half of addressing the scenario that "user visible" event occurs after
+        // "user starting" event.
+        synchronized (mLockUser) {
+            if (mNotVisibleAtStartingUsers.contains(userId)) {
+                if (DBG) {
+                    Slogf.d(TAG, "onUserVisible: found user %d in the list of users not visible at"
+                            + " starting", userId);
+                }
+                if (!isUserRunning) {
+                    if (DBG) {
+                        Slogf.d(TAG, "onUserVisible: user %d is not running", userId);
+                    }
+                    // If the user found in 'mNotVisibleAtStartingUsers' is not running,
+                    // this is likely the case that this user started, but never became visible,
+                    // then stopped in the past before becoming visible and starting again.
+                    // Take this opportunity to clean this user up.
+                    mNotVisibleAtStartingUsers.remove(Integer.valueOf(userId));
+                    return;
+                }
+
+                // If the user found in 'mNotVisibleAtStartingUsers' is running, this is the case
+                // that user starting occurred earlier than user visible.
+                if (DBG) {
+                    Slogf.d(TAG, "onUserVisible: assigning user %d to occupant zone and starting "
+                            + "SysUi.", userId);
+                }
+                assignVisibleUserToZone(userId);
+                startSystemUiForUser(mContext, userId);
+                // The user will be cleared from 'mNotVisibleAtStartingUsers' the first time it
+                // becomes visible since starting.
+                mNotVisibleAtStartingUsers.remove(Integer.valueOf(userId));
+            }
+        }
     }
 
     private void onUserInvisible(@UserIdInt int userId) {
         if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             return;
         }
-        if (userId == UserHandle.SYSTEM.getIdentifier()) {
+
+        if (isSystemUserInHeadlessSystemUserMode(userId)) {
             return;
         }
+
         stopSystemUiForUser(mContext, userId);
         unassignInvisibleUserFromZone(userId);
     }
@@ -2269,6 +2394,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED:
                 onUserRemoved(UserHandle.of(userId));
                 break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING:
+                onUserStarting(userId);
+                break;
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_VISIBLE:
                 onUserVisible(userId);
                 break;
@@ -2381,18 +2509,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     // Assigns the non-current visible user to the occupant zone that has the display the user is
     // on.
     private void assignVisibleUserToZone(@UserIdInt int userId) {
-        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
-            return;
-        }
-        if (isSystemUserInHeadlessSystemUserMode(userId)) {
-            return;
-        }
-
-        // non-current user only
-        // TODO(b/270719791): Keep track of the current user to avoid IPC to AM.
-        if (userId == ActivityManager.getCurrentUser()) {
-            return;
-        }
 
         int displayId = getDisplayAssignedToUser(userId);
         if (displayId == Display.INVALID_DISPLAY) {
@@ -2466,18 +2582,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     userId, displayId);
             stopUser(userId, new AndroidFuture<UserStopResult>());
         }
-    }
-
-    private void startSystemUiForVisibleUser(@UserIdInt int userId) {
-        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
-            return;
-        }
-        if (userId == UserHandle.SYSTEM.getIdentifier()
-                || userId == ActivityManager.getCurrentUser()) {
-            return;
-        }
-
-        startSystemUiForUser(mContext, userId);
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
