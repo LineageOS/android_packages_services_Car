@@ -859,7 +859,7 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         return {};
     }
 
-    auto status = mWatchdogServiceHelper->onLatestResourceStats(resourceStats);
+    auto status = mWatchdogServiceHelper->onLatestResourceStats({resourceStats});
     if (!status.isOk()) {
         ALOGW("Failed to push the latest resource stats to watchdog service: %s",
               status.getDescription().c_str());

@@ -887,11 +887,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
 
         @Override
-        public void onLatestResourceStats(ResourceStats resourceStats) {
+        public void onLatestResourceStats(List<ResourceStats> resourceStats) {
             // TODO(b/266008146): Handle the resourceUsageStats.
-            if (resourceStats.resourceOveruseStats == null
-                    || resourceStats.resourceOveruseStats.packageIoOveruseStats.isEmpty()) {
-                Slogf.w(TAG, "Latest I/O overuse stats is empty");
+            if (resourceStats.isEmpty()) {
+                Slogf.w(TAG, "Latest resource stats is empty");
                 return;
             }
             CarWatchdogService service = mService.get();
@@ -899,8 +898,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 Slogf.w(TAG, "CarWatchdogService is not available");
                 return;
             }
-            service.mWatchdogPerfHandler.latestIoOveruseStats(
-                    resourceStats.resourceOveruseStats.packageIoOveruseStats);
+            for (int i = 0; i < resourceStats.size(); i++) {
+                ResourceStats stats = resourceStats.get(i);
+                if (stats.resourceOveruseStats == null
+                        || stats.resourceOveruseStats.packageIoOveruseStats.isEmpty()) {
+                    Slogf.w(TAG, "Received latest I/O overuse stats is empty");
+                    continue;
+                }
+                service.mWatchdogPerfHandler.latestIoOveruseStats(
+                        stats.resourceOveruseStats.packageIoOveruseStats);
+            }
         }
 
         @Override

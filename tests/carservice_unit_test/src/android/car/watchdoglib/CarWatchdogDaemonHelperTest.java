@@ -387,7 +387,7 @@ public class CarWatchdogDaemonHelperTest {
         }
 
         @Override
-        public void onLatestResourceStats(ResourceStats resourceStats) {}
+        public void onLatestResourceStats(List<ResourceStats> resourceStats) {}
 
         @Override
         public void requestAidlVhalPid() {}
