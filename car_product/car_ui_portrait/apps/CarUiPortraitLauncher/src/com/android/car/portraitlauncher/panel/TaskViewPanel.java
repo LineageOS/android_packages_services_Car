@@ -157,6 +157,8 @@ public class TaskViewPanel extends RelativeLayout {
     /** The last reported window bounds of the task view. */
     private Rect mTaskViewWindowBounds;
 
+    /** The surface view showed on the back of the panel. */
+    private BackgroundSurfaceView mBackgroundSurfaceView;
 
     public TaskViewPanel(Context context) {
         this(context, null);
@@ -191,6 +193,7 @@ public class TaskViewPanel extends RelativeLayout {
         mGripBar = findViewById(R.id.grip_bar);
         mTaskViewContainer = findViewById(R.id.task_view_container);
         mTaskViewOverlay = findViewById(R.id.task_view_overlay);
+        mBackgroundSurfaceView = findViewById(R.id.surface_view);
         setupGrabBar();
         setActiveState(mCloseState, /* animator = */ null);
     }
@@ -296,6 +299,7 @@ public class TaskViewPanel extends RelativeLayout {
         mTaskViewContainer.setBackgroundColor(backgroundColor);
         mTaskViewOverlay.setBackgroundColor(backgroundColor);
         mGripBar.refresh(theme);
+        mBackgroundSurfaceView.refresh(theme);
     }
 
 
@@ -372,6 +376,11 @@ public class TaskViewPanel extends RelativeLayout {
         recalculateBounds();
         updateBounds(mActiveState.mBounds);
         post(() -> mTaskView.onLocationChanged());
+    }
+
+    /** Sets a fixed background color for the task view. */
+    public void setTaskViewBackgroundColor(int color) {
+        mBackgroundSurfaceView.setFixedColor(color);
     }
 
     /** Should be called when the view is no longer in use. */

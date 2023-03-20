@@ -38,6 +38,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
@@ -694,6 +695,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void setUpRootTaskView() {
+        mRootTaskViewPanel.setTaskViewBackgroundColor(Color.BLACK);
         mRootTaskViewPanel.setOnStateChangeListener(new TaskViewPanel.OnStateChangeListener() {
             @Override
             public void onStateChangeStart(TaskViewPanel.State oldState,
