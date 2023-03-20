@@ -170,6 +170,12 @@ public class ICarImpl extends ICar.Stub {
 
     private final Object mLock = new Object();
 
+    // This flag indicates whether priorityInit() should be called in the constructor or
+    // will be deferred to CarImpl.init(). With the new boot user code flow, the boot user is set
+    // in initialUserSetter as early as possible. The earliest it can be done is in the ICarImpl
+    // constructor. In priorityInit() HAL and UserService are initialized which sets boot user.
+    private final boolean mDoPriorityInitInConstruction;
+
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("mLock")
     private CarTestService mCarTestService;
@@ -187,7 +193,8 @@ public class ICarImpl extends ICar.Stub {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
                 /* carPerformanceService= */ null, /* garageModeService= */ null,
-                /* powerPolicyDaemon= */ null, /*carTelemetryService= */ null);
+                /* powerPolicyDaemon= */ null, /*carTelemetryService= */
+                null, /* doPriorityInitInConstruction= */ true);
     }
 
     @VisibleForTesting
@@ -198,11 +205,14 @@ public class ICarImpl extends ICar.Stub {
             @Nullable CarPerformanceService carPerformanceService,
             @Nullable GarageModeService garageModeService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon,
-            @Nullable CarTelemetryService carTelemetryService) {
+            @Nullable CarTelemetryService carTelemetryService,
+            boolean doPriorityInitInConstruction) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
+
+        mDoPriorityInitInConstruction = doPriorityInitInConstruction;
 
         mContext = serviceContext;
         if (builtinContext == null) {
@@ -224,11 +234,14 @@ public class ICarImpl extends ICar.Stub {
         mHal = constructWithTrace(t, VehicleHal.class,
                 () -> new VehicleHal(serviceContext, vehicle), allServices);
 
-        t.traceBegin("VHAL.earlyInit");
-        mHal.priorityInit();
+        if (mDoPriorityInitInConstruction) {
+            t.traceBegin("VHAL.earlyInit");
+            Slogf.i(TAG, "VHAL Priority Init Enabled");
+            mHal.priorityInit();
+            t.traceEnd();
+        }
         HalPropValue disabledOptionalFeatureValue = mHal.getIfSupportedOrFailForEarlyStage(
                 VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
-        t.traceEnd();
 
         String[] disabledFeaturesFromVhal = null;
         if (disabledOptionalFeatureValue != null) {
@@ -276,7 +289,10 @@ public class ICarImpl extends ICar.Stub {
                             maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService),
                     allServices);
         }
-        mCarUserService.priorityInit();
+        if (mDoPriorityInitInConstruction) {
+            Slogf.i(TAG, "Car User Service Priority Init Enabled");
+            mCarUserService.priorityInit();
+        }
 
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
@@ -475,6 +491,10 @@ public class ICarImpl extends ICar.Stub {
                 TraceHelper.TRACE_TAG_CAR_SERVICE, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
 
         t.traceBegin("ICarImpl.init");
+        if (!mDoPriorityInitInConstruction) {
+            mHal.priorityInit();
+            mCarUserService.priorityInit();
+        }
 
         t.traceBegin("CarService.initAllServices");
         for (CarSystemService service : mAllServices) {
@@ -832,6 +852,7 @@ public class ICarImpl extends ICar.Stub {
         writer.println("Car API major: " + Car.API_VERSION_MAJOR_INT);
         writer.println("Car API minor: " + Car.API_VERSION_MINOR_INT);
         writer.println("Car Platform minor: " + Car.PLATFORM_VERSION_MINOR_INT);
+        writer.println("VHAL and Car User Service Priority Init: " + mDoPriorityInitInConstruction);
         writer.decreaseIndent();
     }
 
