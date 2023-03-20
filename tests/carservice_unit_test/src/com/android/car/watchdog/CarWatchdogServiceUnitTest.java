@@ -50,6 +50,7 @@ import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTIO
 import static com.android.car.internal.NotificationHelperBase.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
 import static com.android.car.internal.NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.internal.common.CommonConstants.INVALID_PID;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_OFF;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_GARAGE_MODE_ON;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
@@ -160,10 +161,12 @@ import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.admin.NotificationHelper;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
@@ -214,6 +217,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
     private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
+    private static final int CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC = 3;
 
     @Mock private Context mMockContext;
     @Mock private Context mMockBuiltinPackageContext;
@@ -229,6 +233,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private IBinder mMockBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private NotificationHelper mMockNotificationHelper;
+    @Mock private ICarServiceHelper.Stub mMockCarServiceHelper;
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -353,6 +358,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 () -> SystemProperties.getInt(PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL,
                         MISSING_INT_PROPERTY_VALUE));
 
+        CarServiceHelperWrapper wrapper = CarServiceHelperWrapper.create();
+        wrapper.setCarServiceHelper(mMockCarServiceHelper);
+
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
                         UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
@@ -396,6 +404,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         if (mTempSystemCarDir != null) {
             FileUtils.deleteContentsAndDir(mTempSystemCarDir);
         }
+        CarLocalServices.removeServiceForTest(CarServiceHelperWrapper.class);
     }
 
     @Test
@@ -441,6 +450,45 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testBadClientHealthCheck() throws Exception {
         testClientHealthCheck(new BadTestClient(), 1);
+    }
+
+    @Test
+    public void testRequestAidlVhalPid() throws Exception {
+        int vhalPid = 15687;
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
+    }
+
+    @Test
+    public void testRequestAidlVhalPidWithInvalidPid() throws Exception {
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(INVALID_PID);
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        // Shouldn't respond to car watchdog daemon when invalid pid is returned by
+        // the system_server.
+        verify(mMockCarWatchdogDaemon, never()).onAidlVhalPidFetched(INVALID_PID);
+    }
+
+    @Test
+    public void testRequestAidlVhalPidWithDaemonRemoteException() throws Exception {
+        int vhalPid = 15687;
+        when(mMockCarWatchdogDaemon.getInterfaceVersion())
+                .thenReturn(CARWATCHDOG_DAEMON_INTERFACE_VERSION_UDC);
+        when(mMockCarServiceHelper.fetchAidlVhalPid()).thenReturn(vhalPid);
+        doThrow(RemoteException.class).when(mMockCarWatchdogDaemon).onAidlVhalPidFetched(anyInt());
+
+        mWatchdogServiceForSystemImpl.requestAidlVhalPid();
+
+        verify(mMockCarServiceHelper, timeout(MAX_WAIT_TIME_MS)).fetchAidlVhalPid();
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).onAidlVhalPidFetched(vhalPid);
     }
 
     // TODO(b/262301082): Add a unit test to verify the race condition that caused watchdog to
