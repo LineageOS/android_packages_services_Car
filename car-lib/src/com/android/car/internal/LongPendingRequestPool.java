@@ -179,7 +179,8 @@ public final class LongPendingRequestPool<T extends LongRequestIdWithTimeout> {
             }
             if (requestIds.isEmpty()) {
                 mTimeoutUptimeMsToRequestIds.remove(timeoutUptimeMs);
-                mTimeoutHandler.removeMessages(0, requestIds);
+                mTimeoutHandler.removeMessages(REQUESTS_TIMEOUT_MESSAGE_TYPE,
+                        Long.valueOf(timeoutUptimeMs));
             }
         }
     }
