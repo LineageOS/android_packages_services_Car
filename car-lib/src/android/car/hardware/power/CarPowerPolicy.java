@@ -37,13 +37,13 @@ public final class CarPowerPolicy implements Parcelable {
     private final @NonNull String mPolicyId;
 
     /**
-     * List of enabled componentst. Components are one of
+     * List of enabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     private final @NonNull int[] mEnabledComponents;
 
     /**
-     * List of disabled componentst. Components are one of
+     * List of disabled components. Components are one of
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     private final @NonNull int[] mDisabledComponents;
