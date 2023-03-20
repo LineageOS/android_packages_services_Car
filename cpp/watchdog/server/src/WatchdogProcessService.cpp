@@ -113,6 +113,25 @@ constexpr const char kHidlVhalInterfaceName[] = "android.hardware.automotive.veh
 const std::function<sp<IServiceManager>()> kDefaultTryGetHidlServiceManager =
         []() -> sp<IServiceManager> { return IServiceManager::tryGetService(/*getStub=*/false); };
 
+enum RegistrationError {
+    ERR_ILLEGAL_STATE = 0,
+    ERR_DUPLICATE_REGISTRATION,
+};
+
+ScopedAStatus toScopedAStatus(Result<void> resultWithRegistrationError) {
+    if (resultWithRegistrationError.ok()) {
+        return ScopedAStatus::ok();
+    }
+    if (resultWithRegistrationError.error().code() ==
+        RegistrationError::ERR_DUPLICATE_REGISTRATION) {
+        return ScopedAStatus::ok();
+    }
+    return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                       resultWithRegistrationError.error()
+                                                               .message()
+                                                               .c_str());
+}
+
 std::string toPidString(const std::vector<ProcessIdentifier>& processIdentifiers) {
     size_t size = processIdentifiers.size();
     if (size == 0) {
@@ -189,7 +208,7 @@ WatchdogProcessService::WatchdogProcessService(
       kGetStartTimeForPidFunc(getStartTimeForPidFunc),
       kVhalPidCachingRetryDelayNs(vhalPidCachingRetryDelayNs),
       mHandlerLooper(handlerLooper),
-      mBinderDeathRecipient(
+      mClientBinderDeathRecipient(
               ScopedAIBinder_DeathRecipient(AIBinder_DeathRecipient_new(onBinderDied))),
       mLastSessionId(0),
       mServiceStarted(false),
@@ -197,7 +216,7 @@ WatchdogProcessService::WatchdogProcessService(
       mIsEnabled(true),
       mVhalService(nullptr),
       mTotalVhalPidCachingAttempts(0) {
-    mOnBinderDiedCallback =
+    mVhalBinderDiedCallback =
             std::make_shared<IVhalClient::OnBinderDiedCallbackFunc>([this] { handleVhalDeath(); });
     for (const auto& timeout : kTimeouts) {
         mClientsByTimeout.insert(std::make_pair(timeout, ClientInfoMap()));
@@ -233,7 +252,7 @@ ScopedAStatus WatchdogProcessService::registerClient(
 
     ClientInfo clientInfo(client, callingPid, callingUid, kGetStartTimeForPidFunc(callingPid),
                           *this);
-    return registerClient(clientInfo, timeout);
+    return toScopedAStatus(registerClient(clientInfo, timeout));
 }
 
 ScopedAStatus WatchdogProcessService::unregisterClient(
@@ -258,11 +277,9 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(
     }
     ClientInfo clientInfo(helper, binder, callingPid, callingUid,
                           kGetStartTimeForPidFunc(callingPid), *this);
-    if (auto status = registerClient(clientInfo, kCarWatchdogServiceTimeoutDelay); !status.isOk()) {
-        return status;
+    if (auto result = registerClient(clientInfo, kCarWatchdogServiceTimeoutDelay); !result.ok()) {
+        return toScopedAStatus(result);
     }
-    // TODO(b/259086896): On duplicate CarWatchdogService registration, do not post message to cache
-    // VHAL pid.
     Mutex::Autolock lock(mMutex);
     if (mNotSupportedVhalProperties.count(VehicleProperty::VHAL_HEARTBEAT) == 0 &&
         mVhalService != nullptr && mVhalService->isAidlVhal() &&
@@ -297,15 +314,16 @@ ScopedAStatus WatchdogProcessService::registerMonitor(
                 return ScopedAStatus::ok();
             }
             AIBinder* aiBinder = mMonitor->asBinder().get();
-            mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mBinderDeathRecipient.get(),
+            mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mClientBinderDeathRecipient.get(),
                                                      static_cast<void*>(aiBinder));
         }
         mMonitor = monitor;
     }
 
     AIBinder* aiBinder = binder.get();
-    auto status = mDeathRegistrationWrapper->linkToDeath(aiBinder, mBinderDeathRecipient.get(),
-                                                         static_cast<void*>(aiBinder));
+    auto status =
+            mDeathRegistrationWrapper->linkToDeath(aiBinder, mClientBinderDeathRecipient.get(),
+                                                   static_cast<void*>(aiBinder));
     if (!status.isOk()) {
         {
             Mutex::Autolock lock(mMutex);
@@ -337,7 +355,7 @@ ScopedAStatus WatchdogProcessService::unregisterMonitor(
                                                            "The monitor has not been registered.");
     }
     AIBinder* aiBinder = binder.get();
-    mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mBinderDeathRecipient.get(),
+    mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mClientBinderDeathRecipient.get(),
                                              static_cast<void*>(aiBinder));
     mMonitor.reset();
     if (DEBUG) {
@@ -521,7 +539,7 @@ void WatchdogProcessService::doHealthCheck(int what) {
         pingedClients = &mPingedClients[timeout];
         pingedClients->clear();
         for (auto& [_, clientInfo] : mClientsByTimeout[timeout]) {
-            if (mStoppedUserIds.count(clientInfo.userId) > 0) {
+            if (mStoppedUserIds.count(clientInfo.kUserId) > 0) {
                 continue;
             }
             int sessionId = getNewSessionId();
@@ -534,7 +552,7 @@ void WatchdogProcessService::doHealthCheck(int what) {
     for (const auto& clientInfo : clientsToCheck) {
         if (auto status = clientInfo.checkIfAlive(timeout); !status.isOk()) {
             if (DEBUG) {
-                ALOGW("Failed to send a ping message to client(pid: %d): %s", clientInfo.pid,
+                ALOGW("Failed to send a ping message to client(pid: %d): %s", clientInfo.kPid,
                       status.getMessage());
             }
             {
@@ -572,14 +590,14 @@ void WatchdogProcessService::terminate() {
         }
         for (auto& [_, clients] : mClientsByTimeout) {
             for (auto& [_, client] : clients) {
-                client.unlinkToDeath(mBinderDeathRecipient.get());
+                client.unlinkToDeath(mClientBinderDeathRecipient.get());
             }
             clients.clear();
         }
         mClientsByTimeout.clear();
         if (mMonitor != nullptr) {
             AIBinder* aiBinder = mMonitor->asBinder().get();
-            mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mBinderDeathRecipient.get(),
+            mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mClientBinderDeathRecipient.get(),
                                                      static_cast<void*>(aiBinder));
             mMonitor.reset();
         }
@@ -592,7 +610,7 @@ void WatchdogProcessService::terminate() {
             propertySubscriptionClient =
                     mVhalService->getSubscriptionClient(mPropertyChangeListener);
         }
-        mVhalService->removeOnBinderDiedCallback(mOnBinderDiedCallback);
+        mVhalService->removeOnBinderDiedCallback(mVhalBinderDiedCallback);
         resetVhalInfoLocked();
     }
     if (propertySubscriptionClient != nullptr) {
@@ -604,30 +622,29 @@ void WatchdogProcessService::terminate() {
     }
 }
 
-ScopedAStatus WatchdogProcessService::registerClient(const ClientInfo& clientInfo,
-                                                     TimeoutLength timeout) {
+Result<void> WatchdogProcessService::registerClient(const ClientInfo& clientInfo,
+                                                    TimeoutLength timeout) {
     uintptr_t cookieId = reinterpret_cast<uintptr_t>(clientInfo.getAIBinder());
     {
         Mutex::Autolock lock(mMutex);
         if (findClientAndProcessLocked(kTimeouts, clientInfo.getAIBinder(), nullptr)) {
-            ALOGW("Failed to register (%s) as it is already registered.",
-                  clientInfo.toString().c_str());
-            return ScopedAStatus::ok();
+            return Error(RegistrationError::ERR_DUPLICATE_REGISTRATION)
+                    << "Failed to register (" << clientInfo.toString()
+                    << ") as it is already registered";
         }
 
         ClientInfoMap& clients = mClientsByTimeout[timeout];
         clients.insert(std::make_pair(cookieId, clientInfo));
     }
-    if (auto status = clientInfo.linkToDeath(mBinderDeathRecipient.get()); !status.isOk()) {
+    if (auto status = clientInfo.linkToDeath(mClientBinderDeathRecipient.get()); !status.isOk()) {
         Mutex::Autolock lock(mMutex);
         if (auto it = mClientsByTimeout.find(timeout); it != mClientsByTimeout.end()) {
             if (const auto& clientIt = it->second.find(cookieId); clientIt != it->second.end()) {
                 it->second.erase(clientIt);
             }
         }
-        ALOGW("Failed to register (%s) as it is dead", clientInfo.toString().c_str());
-        std::string errorStr = StringPrintf("(%s) is dead", clientInfo.toString().c_str());
-        return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE, errorStr.c_str());
+        return Error(RegistrationError::ERR_ILLEGAL_STATE)
+                << "Failed to register (" << clientInfo.toString() << ") as it is dead";
     }
     if (DEBUG) {
         ALOGD("Car watchdog client (%s, timeout = %d) is registered", clientInfo.toString().c_str(),
@@ -639,20 +656,20 @@ ScopedAStatus WatchdogProcessService::registerClient(const ClientInfo& clientInf
         startHealthCheckingLocked(timeout);
         ALOGI("Starting health checking for timeout = %d", timeout);
     }
-    return ScopedAStatus::ok();
+    return {};
 }
 
 ScopedAStatus WatchdogProcessService::unregisterClientLocked(
         const std::vector<TimeoutLength>& timeouts, const SpAIBinder& binder,
         ClientType clientType) {
     const char* clientName = clientType == ClientType::Regular ? "client" : "service";
-    bool result =
-            findClientAndProcessLocked(timeouts, binder.get(),
-                                       [&](ClientInfoMap& clients,
-                                           ClientInfoMap::const_iterator it) {
-                                           it->second.unlinkToDeath(mBinderDeathRecipient.get());
-                                           clients.erase(it);
-                                       });
+    bool result = findClientAndProcessLocked(timeouts, binder.get(),
+                                             [&](ClientInfoMap& clients,
+                                                 ClientInfoMap::const_iterator it) {
+                                                 it->second.unlinkToDeath(
+                                                         mClientBinderDeathRecipient.get());
+                                                 clients.erase(it);
+                                             });
     if (!result) {
         std::string errorStr =
                 StringPrintf("The car watchdog %s has not been registered", clientName);
@@ -692,8 +709,6 @@ bool WatchdogProcessService::findClientAndProcessLocked(const std::vector<Timeou
                                                         uintptr_t binderPtrId,
                                                         const Processor& processor) {
     for (const auto& timeout : timeouts) {
-        ALOGW("Searching for client binder ptr id %" PRIxPTR " in timeout %d", binderPtrId,
-              timeout);
         auto clientsByIdIt = mClientsByTimeout.find(timeout);
         if (clientsByIdIt == mClientsByTimeout.end()) {
             continue;
@@ -735,10 +750,11 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                                        [&](ClientInfoMap& cachedClients,
                                            ClientInfoMap::const_iterator cachedClientsIt) {
                                            auto clientInfo = cachedClientsIt->second;
-                                           pid = clientInfo.pid;
-                                           startTimeMillis = clientInfo.startTimeMillis;
-                                           userId = clientInfo.userId;
-                                           clientInfo.unlinkToDeath(mBinderDeathRecipient.get());
+                                           pid = clientInfo.kPid;
+                                           startTimeMillis = clientInfo.kStartTimeMillis;
+                                           userId = clientInfo.kUserId;
+                                           clientInfo.unlinkToDeath(
+                                                   mClientBinderDeathRecipient.get());
                                            cachedClients.erase(cachedClientsIt);
                                        });
             if (pid != -1 && mStoppedUserIds.count(userId) == 0) {
@@ -808,7 +824,7 @@ void WatchdogProcessService::handleBinderDeath(void* cookie) {
 
     findClientAndProcessLocked(kTimeouts, cookieId,
                                [&](ClientInfoMap& clients, ClientInfoMap::const_iterator it) {
-                                   ALOGW("Client(pid: %d) died", it->second.pid);
+                                   ALOGW("Client(pid: %d) died", it->second.kPid);
                                    clients.erase(it);
                                });
 }
@@ -927,7 +943,7 @@ Result<void> WatchdogProcessService::connectToVhal() {
         if (mVhalService == nullptr) {
             return Error() << "Failed to connect to VHAL.";
         }
-        mVhalService->addOnBinderDiedCallback(mOnBinderDiedCallback);
+        mVhalService->addOnBinderDiedCallback(mVhalBinderDiedCallback);
     }
     queryVhalProperties();
     subscribeToVhalHeartBeat();
@@ -996,8 +1012,8 @@ void WatchdogProcessService::subscribeToVhalHeartBeat() {
 const sp<WatchdogServiceHelperInterface> WatchdogProcessService::getWatchdogServiceHelperLocked() {
     ClientInfoMap& clients = mClientsByTimeout[kCarWatchdogServiceTimeoutDelay];
     for (const auto& [_, clientInfo] : clients) {
-        if (clientInfo.type == ClientType::Service) {
-            return clientInfo.watchdogServiceHelper;
+        if (clientInfo.kType == ClientType::Service) {
+            return clientInfo.kWatchdogServiceHelper;
         }
     }
     return nullptr;
@@ -1178,24 +1194,24 @@ std::chrono::nanoseconds WatchdogProcessService::getTimeoutDurationNs(
 
 std::string WatchdogProcessService::ClientInfo::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "pid = %d, userId = %d, type = %s", pid, userId,
-                  type == ClientType::Regular ? "regular" : "watchdog service");
+    StringAppendF(&buffer, "pid = %d, userId = %d, type = %s", kPid, kUserId,
+                  kType == ClientType::Regular ? "regular" : "watchdog service");
     return buffer;
 }
 
 AIBinder* WatchdogProcessService::ClientInfo::getAIBinder() const {
-    if (type == ClientType::Regular) {
-        return client->asBinder().get();
+    if (kType == ClientType::Regular) {
+        return kClient->asBinder().get();
     }
-    return watchdogServiceBinder.get();
+    return kWatchdogServiceBinder.get();
 }
 
 ScopedAStatus WatchdogProcessService::ClientInfo::linkToDeath(
         AIBinder_DeathRecipient* recipient) const {
-    if (type == ClientType::Regular) {
+    if (kType == ClientType::Regular) {
         AIBinder* aiBinder = getAIBinder();
-        return service.mDeathRegistrationWrapper->linkToDeath(aiBinder, recipient,
-                                                              static_cast<void*>(aiBinder));
+        return kService.mDeathRegistrationWrapper->linkToDeath(aiBinder, recipient,
+                                                               static_cast<void*>(aiBinder));
     }
     // WatchdogServiceHelper is the binder death recipient for watchdog service, ergo
     // skip this step.
@@ -1204,10 +1220,10 @@ ScopedAStatus WatchdogProcessService::ClientInfo::linkToDeath(
 
 ScopedAStatus WatchdogProcessService::ClientInfo::unlinkToDeath(
         AIBinder_DeathRecipient* recipient) const {
-    if (type == ClientType::Regular) {
+    if (kType == ClientType::Regular) {
         AIBinder* aiBinder = getAIBinder();
-        return service.mDeathRegistrationWrapper->unlinkToDeath(aiBinder, recipient,
-                                                                static_cast<void*>(aiBinder));
+        return kService.mDeathRegistrationWrapper->unlinkToDeath(aiBinder, recipient,
+                                                                 static_cast<void*>(aiBinder));
     }
     // WatchdogServiceHelper is the binder death recipient for watchdog service, ergo
     // skip this step.
@@ -1215,22 +1231,18 @@ ScopedAStatus WatchdogProcessService::ClientInfo::unlinkToDeath(
 }
 
 ScopedAStatus WatchdogProcessService::ClientInfo::checkIfAlive(TimeoutLength timeout) const {
-    if (type == ClientType::Regular) {
-        return client->checkIfAlive(sessionId, timeout);
+    if (kType == ClientType::Regular) {
+        return kClient->checkIfAlive(sessionId, timeout);
     }
-    return watchdogServiceHelper->checkIfAlive(watchdogServiceBinder, sessionId, timeout);
+    return kWatchdogServiceHelper->checkIfAlive(kWatchdogServiceBinder, sessionId, timeout);
 }
 
 ScopedAStatus WatchdogProcessService::ClientInfo::prepareProcessTermination() const {
-    if (type == ClientType::Regular) {
-        return client->prepareProcessTermination();
+    if (kType == ClientType::Regular) {
+        return kClient->prepareProcessTermination();
     }
-    return watchdogServiceHelper->prepareProcessTermination(watchdogServiceBinder);
+    return kWatchdogServiceHelper->prepareProcessTermination(kWatchdogServiceBinder);
 }
-
-WatchdogProcessService::PropertyChangeListener::PropertyChangeListener(
-        const sp<WatchdogProcessService>& service) :
-      mService(service) {}
 
 void WatchdogProcessService::PropertyChangeListener::onPropertyEvent(
         const std::vector<std::unique_ptr<IHalPropValue>>& propValues) {
@@ -1239,7 +1251,7 @@ void WatchdogProcessService::PropertyChangeListener::onPropertyEvent(
             if (value->getInt64Values().size() < 1) {
                 ALOGE("Invalid VHAL_HEARTBEAT value, empty value");
             } else {
-                mService->updateVhalHeartBeat(value->getInt64Values()[0]);
+                kService->updateVhalHeartBeat(value->getInt64Values()[0]);
             }
             break;
         }
@@ -1258,25 +1270,21 @@ void WatchdogProcessService::PropertyChangeListener::onPropertySetError(
     }
 }
 
-WatchdogProcessService::MessageHandlerImpl::MessageHandlerImpl(
-        const sp<WatchdogProcessService>& service) :
-      mService(service) {}
-
 void WatchdogProcessService::MessageHandlerImpl::handleMessage(const Message& message) {
     switch (message.what) {
         case static_cast<int>(TimeoutLength::TIMEOUT_CRITICAL):
         case static_cast<int>(TimeoutLength::TIMEOUT_MODERATE):
         case static_cast<int>(TimeoutLength::TIMEOUT_NORMAL):
-            mService->doHealthCheck(message.what);
+            kService->doHealthCheck(message.what);
             break;
         case MSG_VHAL_WATCHDOG_ALIVE:
-            mService->reportWatchdogAliveToVhal();
+            kService->reportWatchdogAliveToVhal();
             break;
         case MSG_VHAL_HEALTH_CHECK:
-            mService->checkVhalHealth();
+            kService->checkVhalHealth();
             break;
         case MSG_CACHE_VHAL_PROCESS_IDENTIFIER:
-            mService->cacheVhalProcessIdentifier();
+            kService->cacheVhalProcessIdentifier();
             break;
         default:
             ALOGW("Unknown message: %d", message.what);
