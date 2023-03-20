@@ -20,6 +20,7 @@ import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_MODERATE;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
 
+import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -39,6 +40,7 @@ import android.os.SystemProperties;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.CarServiceHelperWrapper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -61,6 +63,8 @@ public final class WatchdogProcessHandler {
     private final ICarWatchdogServiceForSystem mWatchdogServiceForSystem;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mServiceHandler = new Handler(getHandlerThread(
+            CarWatchdogService.class.getSimpleName()).getLooper());
     private final Object mLock = new Object();
     /*
      * Keeps the list of car watchdog client according to timeout:
@@ -285,6 +289,28 @@ public final class WatchdogProcessHandler {
                 pingedClients.clear();
             }
         }
+    }
+
+    /**
+     * Asynchronously fetches the AIDL VHAL pid from SystemServer.
+     *
+     * On fetching the AIDL VHAL pid, car watchdog daemon is updated via an async callback.
+     */
+    public void asyncFetchAidlVhalPid() {
+        mServiceHandler.post(() -> {
+            int pid = CarServiceHelperWrapper.getInstance().fetchAidlVhalPid();
+            if (pid < 0) {
+                Slogf.e(CarWatchdogService.TAG, "Failed to fetch AIDL VHAL pid from"
+                        + " CarServiceHelperService");
+                return;
+            }
+            try {
+                mCarWatchdogDaemonHelper.onAidlVhalPidFetched(pid);
+            } catch (RemoteException e) {
+                Slogf.e(CarWatchdogService.TAG,
+                        "Failed to notify car watchdog daemon of the AIDL VHAL pid");
+            }
+        });
     }
 
     /** Enables/disables the watchdog daemon client health check process. */
