@@ -100,6 +100,10 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     // Example justification for a NonApiTest.
     private static final String NON_API_TEST_JUSTIFICATION = "METRIC";
 
+    // Example removal version annotations.
+    private static final int SOFT_REMOVAL_VERSION = 35;
+    private static final int HARD_REMOVAL_VERSION = 37;
+
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
 
     @Override
@@ -126,7 +130,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
                 new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
                 CddTestAnnotation.forRequirement("Boot in 1s"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -201,7 +206,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
                 new IgnoreInvalidApiAnnotation("I validate, therefore am!"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
 
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -240,7 +246,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(new ApiTestAnnotation(
                 VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
@@ -322,7 +329,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(
                 new NonApiTestAnnotation(new ReasonType[]{}, NON_API_TEST_JUSTIFICATION),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
 
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -335,7 +343,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     public void passWhenTestMethodHasValidCddTestAnnotation() throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
@@ -806,7 +815,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
             throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
@@ -834,7 +844,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
             throws Throwable {
         Description testMethod = newTestMethod(CddTestAnnotation.forRequirements("Boot in 10m"),
                 new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
-                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+                        ApiRequirements.PlatformVersion.TIRAMISU_1, SOFT_REMOVAL_VERSION,
+                        HARD_REMOVAL_VERSION));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         CarVersion carVersion = CarVersion.VERSION_CODES.TIRAMISU_1;
         PlatformVersion platformVersion = PlatformVersion.VERSION_CODES.TIRAMISU_0;
@@ -1067,10 +1078,15 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         private final CarVersion mCarVersion;
         private final PlatformVersion mPlatformVersion;
+        private final int mSoftRemovalVersion;
+        private final int mHardRemovalVersion;
 
-        ApiRequirementsAnnotation(CarVersion carVersion, PlatformVersion platformVersion) {
+        ApiRequirementsAnnotation(CarVersion carVersion, PlatformVersion platformVersion,
+                int softRemovalVersion, int hardRemovalVersion) {
             mCarVersion = Objects.requireNonNull(carVersion);
             mPlatformVersion = Objects.requireNonNull(platformVersion);
+            mSoftRemovalVersion = softRemovalVersion;
+            mHardRemovalVersion = hardRemovalVersion;
         }
 
         @Override
@@ -1089,9 +1105,16 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         }
 
         @Override
+        public int softRemovalVersion() { return mSoftRemovalVersion; }
+
+        @Override
+        public int hardRemovalVersion() { return mHardRemovalVersion; }
+
+        @Override
         public String toString() {
-            return "@ApiRequirementsAnnotation(carVersion=" + mCarVersion + ", platformVersion"
-                    + mPlatformVersion + ")";
+            return "@ApiRequirementsAnnotation(carVersion=" + mCarVersion + ", platformVersion="
+                    + mPlatformVersion + ", softRemovalVersion=" + mSoftRemovalVersion
+                    + ", hardRemovalVersion= " + mHardRemovalVersion + ")";
         }
     }
 
