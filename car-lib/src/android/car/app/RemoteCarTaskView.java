@@ -36,7 +36,6 @@ import android.graphics.Region;
 import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.SurfaceControl;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -184,33 +183,27 @@ abstract class RemoteCarTaskView extends SurfaceView {
     }
 
     /**
-     * Adds the given {@code insets} on the Task.
+     * Adds the given insets on the Task.
      *
-     * The given rectangles for every given insets type are applied to the underlying task right
-     * away.
+     * The given frame for the insets type are applied to the underlying task right away.
      * If a rectangle for an insets type was added previously, it will be replaced with the
      * new value.
      * If a rectangle for a insets type was already added, but is not specified currently in
      * {@code insets}, it will remain applied to the task. Clients should explicitly call
-     * {@link #removeInsets(int[])} to remove the rectangle for that insets type from the
-     * underlying task.
+     * {@link #removeInsets(int, int)} to remove the rectangle for that insets type from
+     * the underlying task.
      *
-     * @param insets A map of {@link android.view.InsetsState.InternalInsetsType} to the frame that
-     *               provides the insets.
+     * @param index An owner might add multiple insets sources with the same type.
+     *              This identifies them.
+     * @param type  The insets type of the insets source.
+     * @param frame The rectangle area of the insets source.
      */
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public void addInsets(@NonNull SparseArray<Rect> insets) {
-        int numInsets = insets.size();
-        int[] insetsTypes = new int[numInsets];
-        Rect[] insetsProviderRects = new Rect[numInsets];
-        for (int i = 0; i < insets.size(); i++) {
-            insetsTypes[i] = insets.keyAt(i);
-            insetsProviderRects[i] = insets.valueAt(i);
-        }
+    public void addInsets(int index, int type, @NonNull Rect frame) {
         try {
-            mICarTaskViewHost.addInsets(insetsTypes, insetsProviderRects);
+            mICarTaskViewHost.addInsets(index, type, frame);
         } catch (RemoteException e) {
             Log.e(TAG, "exception in addInsets", e);
         }
@@ -219,16 +212,19 @@ abstract class RemoteCarTaskView extends SurfaceView {
     /**
      * Removes the given insets from the Task.
      *
-     * Note: This will only remove the insets that were set using {@link #addInsets(SparseArray)}
+     * Note: This will only remove the insets that were added using
+     * {@link #addInsets(int, int, Rect)}
      *
-     * @param insetsTypes the {@link android.view.InsetsState.InternalInsetsType}s to be removed
+     * @param index An owner might add multiple insets sources with the same type.
+     *              This identifies them.
+     * @param type  The insets type of the insets source. This doesn't accept the composite types.
      */
     @RequiresPermission(Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public void removeInsets(@NonNull int[] insetsTypes) {
+    public void removeInsets(int index, int type) {
         try {
-            mICarTaskViewHost.removeInsets(insetsTypes);
+            mICarTaskViewHost.removeInsets(index, type);
         } catch (RemoteException e) {
             Log.e(TAG, "exception in removeInsets", e);
         }
