@@ -12,8 +12,6 @@ android.car ApiVersion T readFromParcel(Parcel source, ApiVersionFactory<T> fact
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
-android.car Car String CAR_OCCUPANT_CONNECTION_SERVICE
-android.car Car String CAR_REMOTE_DEVICE_SERVICE
 android.car Car String EXPERIMENTAL_CAR_USER_SERVICE
 android.car Car String CAR_INSTRUMENT_CLUSTER_SERVICE
 android.car Car String CLUSTER_HOME_SERVICE
@@ -598,7 +596,6 @@ android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOW
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER
-android.car.user CarUserManager AsyncFuture<UserSwitchResult> switchUser(int targetUserId)
 android.car.user CarUserManager AsyncFuture<UserSwitchResult> logoutUser()
 android.car.user CarUserManager AsyncFuture<UserCreationResult> createGuest(String name)
 android.car.user CarUserManager AsyncFuture<UserCreationResult> createUser(String name, int flags)

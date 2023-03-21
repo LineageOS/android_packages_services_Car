@@ -32,11 +32,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <FrameLayout
-            android:id="@+id/position_indicator_container"
+            android:id="@+id/page_indicator_container"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/position_indicator_height">
-            <com.android.car.carlauncher.AppGridPositionIndicator
-                android:id="@+id/position_indicator"
+            android:layout_height="@dimen/page_indicator_height">
+            <com.android.car.carlauncher.PageIndicator
+                android:id="@+id/page_indicator"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
         </FrameLayout>

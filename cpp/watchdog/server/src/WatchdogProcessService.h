@@ -105,6 +105,15 @@ public:
 class WatchdogProcessService final : public WatchdogProcessServiceInterface {
 public:
     explicit WatchdogProcessService(const android::sp<Looper>& handlerLooper);
+    WatchdogProcessService(
+            const std::function<std::shared_ptr<
+                    android::frameworks::automotive::vhal::IVhalClient>()>& tryCreateVhalClientFunc,
+            const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>&
+                    tryGetHidlServiceManagerFunc,
+            const std::function<int64_t(pid_t)>& getStartTimeForPidFunc,
+            const std::chrono::nanoseconds& vhalPidCachingRetryDelayNs,
+            const sp<Looper>& handlerLooper,
+            const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper);
     ~WatchdogProcessService() { terminate(); }
 
     android::base::Result<void> start() override;
@@ -147,9 +156,7 @@ public:
                     processIdentifier) override;
     void setEnabled(bool isEnabled) override;
     void onUserStateChange(userid_t userId, bool isStarted) override;
-    void onAidlVhalPidFetched(int32_t) override {
-        // TODO(b/259086896): Cache AIDL VHAL pid.
-    }
+    void onAidlVhalPidFetched(int32_t) override;
 
 private:
     enum ClientType {
@@ -163,22 +170,22 @@ private:
                            client,
                    pid_t pid, userid_t userId, uint64_t startTimeMillis,
                    const WatchdogProcessService& service) :
-              pid(pid),
-              userId(userId),
-              startTimeMillis(startTimeMillis),
-              service(service),
-              type(ClientType::Regular),
-              client(client) {}
+              kPid(pid),
+              kUserId(userId),
+              kStartTimeMillis(startTimeMillis),
+              kType(ClientType::Regular),
+              kService(service),
+              kClient(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
                    const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
                    uint64_t startTimeMillis, const WatchdogProcessService& service) :
-              pid(pid),
-              userId(userId),
-              startTimeMillis(startTimeMillis),
-              service(service),
-              type(ClientType::Service),
-              watchdogServiceHelper(helper),
-              watchdogServiceBinder(binder) {}
+              kPid(pid),
+              kUserId(userId),
+              kStartTimeMillis(startTimeMillis),
+              kType(ClientType::Service),
+              kService(service),
+              kWatchdogServiceHelper(helper),
+              kWatchdogServiceBinder(binder) {}
 
         std::string toString() const;
         AIBinder* getAIBinder() const;
@@ -188,17 +195,16 @@ private:
                 aidl::android::automotive::watchdog::TimeoutLength timeout) const;
         ndk::ScopedAStatus prepareProcessTermination() const;
 
-        pid_t pid;
-        userid_t userId;
-        int64_t startTimeMillis;
-        int sessionId;
+        const pid_t kPid;
+        const userid_t kUserId;
+        const int64_t kStartTimeMillis;
+        const ClientType kType;
+        const WatchdogProcessService& kService;
+        const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient> kClient;
+        const android::sp<WatchdogServiceHelperInterface> kWatchdogServiceHelper;
+        const ndk::SpAIBinder kWatchdogServiceBinder;
 
-    private:
-        const WatchdogProcessService& service;
-        ClientType type;
-        std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient> client = nullptr;
-        android::sp<WatchdogServiceHelperInterface> watchdogServiceHelper = nullptr;
-        ndk::SpAIBinder watchdogServiceBinder = nullptr;
+        int sessionId;
     };
 
     struct HeartBeat {
@@ -211,7 +217,8 @@ private:
     class PropertyChangeListener final :
           public android::frameworks::automotive::vhal::ISubscriptionCallback {
     public:
-        explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service);
+        explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service) :
+              kService(service) {}
 
         void onPropertyEvent(const std::vector<
                              std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>&
@@ -222,22 +229,24 @@ private:
                 override;
 
     private:
-        android::sp<WatchdogProcessService> mService;
+        const android::sp<WatchdogProcessService> kService;
     };
 
     class MessageHandlerImpl final : public MessageHandler {
     public:
-        explicit MessageHandlerImpl(const android::sp<WatchdogProcessService>& service);
+        explicit MessageHandlerImpl(const android::sp<WatchdogProcessService>& service) :
+              kService(service) {}
 
         void handleMessage(const Message& message) override;
 
     private:
-        android::sp<WatchdogProcessService> mService;
+        const android::sp<WatchdogProcessService> kService;
     };
 
 private:
-    ndk::ScopedAStatus registerClient(const ClientInfo& clientInfo,
-                                      aidl::android::automotive::watchdog::TimeoutLength timeout);
+    android::base::Result<void> registerClient(
+            const ClientInfo& clientInfo,
+            aidl::android::automotive::watchdog::TimeoutLength timeout);
     ndk::ScopedAStatus unregisterClientLocked(
             const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
             const ndk::SpAIBinder& binder, ClientType clientType);
@@ -255,8 +264,10 @@ private:
             const aidl::android::hardware::automotive::vehicle::VehiclePropValue& value);
     android::base::Result<void> connectToVhal();
     void subscribeToVhalHeartBeat();
-    std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
-    cacheVhalProcessIdentifier();
+    const sp<WatchdogServiceHelperInterface> getWatchdogServiceHelperLocked();
+    void cacheVhalProcessIdentifier();
+    void cacheVhalProcessIdentifierForPid(int32_t pid);
+    android::base::Result<void> requestAidlVhalPid();
     void reportWatchdogAliveToVhal();
     void reportTerminatedProcessToVhal(
             const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
@@ -266,6 +277,7 @@ private:
     void queryVhalProperties();
     void updateVhalHeartBeat(int64_t value);
     void checkVhalHealth();
+    void resetVhalInfoLocked();
     void terminateVhal();
 
     using ClientInfoMap = std::unordered_map<uintptr_t, ClientInfo>;
@@ -280,13 +292,16 @@ private:
             const aidl::android::automotive::watchdog::TimeoutLength& timeout);
 
 private:
-    // Used in unit testing to mock the HIDL service manager.
-    inline static android::sp<android::hidl::manager::V1_0::IServiceManager> sHidlServiceManager =
-            android::hidl::manager::V1_0::IServiceManager::getService();
+    const std::function<std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient>()>
+            kTryCreateVhalClientFunc;
+    const std::function<android::sp<android::hidl::manager::V1_0::IServiceManager>()>
+            kTryGetHidlServiceManagerFunc;
+    const std::function<int64_t(pid_t)> kGetStartTimeForPidFunc;
+    const std::chrono::nanoseconds kVhalPidCachingRetryDelayNs;
 
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
-    ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mClientBinderDeathRecipient;
     std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
             mNotSupportedVhalProperties;
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
@@ -296,8 +311,7 @@ private:
     std::chrono::milliseconds mVhalHealthCheckWindowMs;
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
-            mOnBinderDiedCallback;
-    std::function<int64_t(pid_t)> mGetStartTimeForPidFunc;
+            mVhalBinderDiedCallback;
     android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
 
     android::Mutex mMutex;
@@ -314,6 +328,7 @@ private:
             GUARDED_BY(mMutex);
     std::optional<aidl::android::automotive::watchdog::internal::ProcessIdentifier>
             mVhalProcessIdentifier GUARDED_BY(mMutex);
+    int32_t mTotalVhalPidCachingAttempts GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
 
     // For unit tests.

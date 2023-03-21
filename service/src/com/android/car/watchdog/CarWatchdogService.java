@@ -933,7 +933,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void requestAidlVhalPid() {
-            // TODO(b/259086896): Implement async AIDL VHAL pid retrieval logic.
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return;
+            }
+            service.mWatchdogProcessHandler.asyncFetchAidlVhalPid();
         }
 
         @Override
