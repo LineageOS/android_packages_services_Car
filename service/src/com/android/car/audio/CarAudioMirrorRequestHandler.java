@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -271,6 +273,13 @@ import java.util.Objects;
         synchronized (mLock) {
             Preconditions.checkArgument(mRequestIdToZones.indexOfKey(requestId) >= 0,
                     "Mirror request id " + requestId + " is not valid");
+        }
+    }
+
+    int canEnableAudioMirror() {
+        synchronized (mLock) {
+            return mRequestIdToMirrorDevice.size() < mMirrorDevices.size()
+                    ? AUDIO_MIRROR_CAN_ENABLE : AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
         }
     }
 
