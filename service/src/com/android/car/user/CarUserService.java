@@ -781,6 +781,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
         }
 
+        // TODO(b/273370593): remove following once tests are stable
+        priorityInit();
+
         if ((mPreCreationStage & PRE_CREATION_STAGE_ON_SYSTEM_START) != 0) {
             preCreateUsersInternal(mPreCreationDelayMs);
         }
