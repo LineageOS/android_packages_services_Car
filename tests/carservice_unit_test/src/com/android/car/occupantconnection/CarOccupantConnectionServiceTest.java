@@ -907,6 +907,65 @@ public final class CarOccupantConnectionServiceTest {
         assertThat(mService.isConnected(PACKAGE_NAME, mReceiverZone)).isTrue();
     }
 
+    @Test
+    public void testDisconnectWithoutPermission_throwsException() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mService.disconnect(PACKAGE_NAME, mReceiverZone));
+    }
+
+    @Test
+    public void testDisconnectWithFakePackageName_throwsException() {
+        assertThrows(SecurityException.class,
+                () -> mService.disconnect(FAKE_PACKAGE_NAME, mReceiverZone));
+    }
+
+    @Test
+    public void testDisconnect() throws RemoteException {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+        ConnectionRecord connectionRecord =
+                new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
+        mEstablishedConnections.add(connectionRecord);
+
+        ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        mAcceptedConnectionRequestMap.put(connectionId, mConnectionRequestCallback);
+
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+
+        mService.disconnect(PACKAGE_NAME, mReceiverZone);
+
+        assertThat(mEstablishedConnections.size()).isEqualTo(0);
+        assertThat(mAcceptedConnectionRequestMap.size()).isEqualTo(0);
+        assertThat(mConnectedReceiverServiceMap.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+        verify(receiverService).onDisconnected(mSenderZone);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testDisconnectWithoutEstablishedConnection_throwsException() {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+
+        // The connection is not established yet, so disconnecting should throw an
+        // IllegalStateException.
+        assertThrows(IllegalStateException.class,
+                () -> mService.disconnect(PACKAGE_NAME, mReceiverZone));
+    }
+
     private void mockPackageName() throws PackageManager.NameNotFoundException {
         PackageManager pm = mock(PackageManager.class);
         when(mContext.getPackageManager()).thenReturn(pm);
