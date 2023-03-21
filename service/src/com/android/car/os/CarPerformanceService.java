@@ -121,7 +121,8 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
             return new ThreadPolicyWithPriority(result[0], result[1]);
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException(
-                    "current scheduling policy doesn't support getting priority, error: ", e);
+                    "current scheduling policy doesn't support getting priority, cause: "
+                    + e.getCause(), e);
         }
     }
 }
