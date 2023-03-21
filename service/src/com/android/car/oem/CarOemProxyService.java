@@ -353,7 +353,7 @@ public final class CarOemProxyService implements CarServiceBase {
 
         waitForOemService();
 
-        // TODO(b/240615622): Domain owner to decide if retry or default or crash.
+        // Defaults to returning null service and try again next time the service is requested.
         IOemCarService oemCarService = getOemService();
         IOemCarAudioFocusService oemAudioFocusService = mHelper.doBinderTimedCallWithDefaultValue(
                 CALL_TAG, () -> oemCarService.getOemAudioFocusService(),
