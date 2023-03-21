@@ -225,11 +225,7 @@ public class ICarImpl extends ICar.Stub {
                 () -> new VehicleHal(serviceContext, vehicle), allServices);
 
         t.traceBegin("VHAL.earlyInit");
-        if (false) {
-            // TODO(b/273370593): Disabled to stablize tests
-            mHal.priorityInit();
-        }
-
+        mHal.priorityInit();
         HalPropValue disabledOptionalFeatureValue = mHal.getIfSupportedOrFailForEarlyStage(
                 VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
         t.traceEnd();
@@ -280,11 +276,7 @@ public class ICarImpl extends ICar.Stub {
                             maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService),
                     allServices);
         }
-
-        if (false) {
-            // TODO(b/273370593): Disabled to stablize tests
-            mCarUserService.priorityInit();
-        }
+        mCarUserService.priorityInit();
 
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
