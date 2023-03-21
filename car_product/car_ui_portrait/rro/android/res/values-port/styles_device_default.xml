@@ -61,10 +61,6 @@
         <item name="android:fontFamily">@string/config_bodyFontFamily</item>
     </style>
 
-    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
-           parent="android:TextAppearance.DeviceDefault.Widget.Button">
-    </style>
-
     <style name="DialogWindowTitle.DeviceDefault" parent="*android:DialogWindowTitle.Material">
         <item name="android:textAppearance">@*android:style/TextAppearance.DeviceDefault.DialogWindowTitle</item>
     </style>
@@ -83,6 +79,11 @@
 
     <style name="TextAppearance.DeviceDefault.Widget.Button" parent="TextAppearance.Car.Button.Medium">
         <item name="android:textColor">@color/car_on_primary</item>
+    </style>
+
+    <style name="TextAppearance.DeviceDefault.Widget.Button.Borderless.Colored"
+        parent="android:TextAppearance.DeviceDefault.Widget.Button">
+        <item name="android:textColor">@color/car_primary</item>
     </style>
 
     <style name="Widget.DeviceDefault.TextView" parent="android:Widget.Material.TextView">
