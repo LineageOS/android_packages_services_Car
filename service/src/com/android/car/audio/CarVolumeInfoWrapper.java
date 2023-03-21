@@ -77,6 +77,10 @@ final class CarVolumeInfoWrapper {
         return mCarAudioService.getVolumeGroupInfo(zoneId, groupId);
     }
 
+    public int getVolumeGroupIdForAudioAttribute(int audioZoneId, AudioAttributes attributes) {
+        return mCarAudioService.getVolumeGroupIdForAudioAttribute(audioZoneId, attributes);
+    }
+
     public List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId) {
         return mCarAudioService.getVolumeGroupInfosForZone(zoneId);
     }
