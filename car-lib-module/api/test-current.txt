@@ -57,8 +57,10 @@ package android.car.admin {
 package android.car.annotation {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD}) public @interface ApiRequirements {
+    method public abstract int hardRemovalVersion() default -1;
     method public abstract android.car.annotation.ApiRequirements.CarVersion minCarVersion();
     method public abstract android.car.annotation.ApiRequirements.PlatformVersion minPlatformVersion();
+    method public abstract int softRemovalVersion() default -1;
   }
 
   public enum ApiRequirements.CarVersion {
