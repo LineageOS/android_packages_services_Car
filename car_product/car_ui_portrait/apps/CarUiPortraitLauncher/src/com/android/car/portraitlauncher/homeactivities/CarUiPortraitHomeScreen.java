@@ -747,6 +747,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         mTaskInfoCache.startCachedTasks();
                         logIfDebuggable("Foreground Task View is ready");
                         notifySystemUI(MSG_FG_TASK_VIEW_READY, boolToInt(true));
+                        // Launch the blank activity in the root task view to make sure we do not
+                        // present a dialog on top of empty space.
+                        startActivity(BlankActivity.createIntent(getApplicationContext()));
                     }
                 });
     }

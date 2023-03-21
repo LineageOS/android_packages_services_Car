@@ -53,7 +53,7 @@
         <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
     </style>
 
-    <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
+    <style name="Theme.DeviceDefault.Dialog" parent="*android:Theme.DeviceDefault.Dialog">
         <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
         <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
@@ -63,7 +63,7 @@
         <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
-        <item name="android:textAppearanceButton">@*android:style/Widget.DeviceDefault.Button</item>
+        <item name="android:textAppearanceButton">@*android:style/TextAppearance.DeviceDefault.Widget.Button</item>
         <item name="android:borderlessButtonStyle">@*android:style/Widget.DeviceDefault.Button.Borderless.Colored</item>
         <item name="android:buttonBarButtonStyle">@*android:style/Widget.DeviceDefault.Button.ButtonBar.AlertDialog</item>
         <item name="android:buttonStyle">@*android:style/Widget.DeviceDefault.Button</item>
@@ -71,7 +71,8 @@
         <item name="android:windowTitleStyle">?android:attr/textAppearanceLarge</item>
         <!-- Color palette -->
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackground">@color/car_surface</item>
+        <item name="android:colorBackgroundFloating">@color/car_surface</item>
     </style>
 
     <style name="Theme.DeviceDefault.Dialog.NoActionBar" parent="android:Theme.DeviceDefault.Dialog">
