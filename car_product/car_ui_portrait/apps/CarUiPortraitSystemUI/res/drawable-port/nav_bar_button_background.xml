@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -13,42 +14,32 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:aapt="http://schemas.android.com/aapt">
-    <item android:state_selected="true">
-        <layer-list>
-            <item>
-                <ripple android:color="@color/car_ui_ripple_color">
-                    <item>
-                        <shape android:shape="rectangle">
-                            <size android:width="@dimen/system_bar_button_size"
-                                  android:height="@dimen/system_bar_button_size"/>
-                            <corners
-                                android:radius="@dimen/system_bar_button_corner_radius_selected"/>
-                            <solid
-                                android:color="@color/car_nav_icon_background_color_selected"/>
-                        </shape>
-                    </item>
-                </ripple>
-            </item>
-        </layer-list>
+
+<animated-selector
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_bar_button_selected"
+        android:state_selected="true">
+        <ripple android:color="@color/car_ui_ripple_color">
+            <item android:drawable="@drawable/nav_bar_button_background_selected" />
+        </ripple>
     </item>
-    <item>
-        <layer-list>
-            <item>
-                <ripple android:color="@color/car_ui_ripple_color">
-                    <item>
-                        <shape android:shape="rectangle">
-                            <size android:width="@dimen/system_bar_button_size"
-                                  android:height="@dimen/system_bar_button_size"/>
-                            <corners
-                                android:radius="@dimen/system_bar_button_corner_radius"/>
-                            <solid
-                                android:color="@color/car_nav_icon_background_color"/>
-                        </shape>
-                    </item>
-                </ripple>
-            </item>
-        </layer-list>
+
+    <item
+        android:id="@+id/nav_bar_button_unselected">
+        <ripple android:color="@color/car_ui_ripple_color">
+            <item android:drawable="@drawable/nav_bar_button_background_unselected" />
+        </ripple>
     </item>
-</selector>
+
+    <transition
+        android:drawable="@drawable/nav_bar_button_background_unselected_to_selected_anim"
+        android:fromId="@id/nav_bar_button_unselected"
+        android:toId="@id/nav_bar_button_selected" />
+
+    <transition
+        android:drawable="@drawable/nav_bar_button_background_selected_to_unselected_anim"
+        android:fromId="@id/nav_bar_button_selected"
+        android:toId="@id/nav_bar_button_unselected" />
+</animated-selector>
