@@ -24,7 +24,6 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
-import static com.android.car.CarServiceUtils.assertPackageName;
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.CarServiceUtils.isEventOfType;
@@ -389,7 +388,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private void doSetAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy,
             int flags) {
         assertAppBlockingPermission();
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
         if (policy == null) {
             throw new IllegalArgumentException("policy cannot be null");
         }
