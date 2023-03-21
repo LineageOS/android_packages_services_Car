@@ -592,8 +592,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         // TODO(b/266129982): Query for all users.
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
-                new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE),
-                /* flags= */ 0, currentUser);
+                new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
+                currentUser);
         synchronized (mLock) {
             for (int i = 0; i < services.size(); i++) {
                 ServiceInfo info = services.get(i).serviceInfo;
@@ -611,6 +611,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 RemoteTaskClientServiceInfo serviceInfo =
                         new RemoteTaskClientServiceInfo(componentName);
                 mClientServiceInfoByPackage.put(info.packageName, serviceInfo);
+                if (DEBUG) {
+                    Slogf.d(TAG, "Package(%s) is found as a remote task client service",
+                            info.packageName);
+                }
                 servicesToStart.add(serviceInfo);
             }
         }
