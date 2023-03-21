@@ -545,7 +545,8 @@ public final class CarRemoteAccessServiceUnitTest {
             when(mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS, packageName))
                     .thenReturn(permission);
         }
-        when(mPackageManager.queryIntentServices(any(), any())).thenReturn(resolveInfos);
+        when(mPackageManager.queryIntentServicesAsUser(any(), anyInt(), anyInt()))
+                .thenReturn(resolveInfos);
         doAnswer(inv -> {
             Runnable runnable = inv.getArgument(0);
             runnable.run();
