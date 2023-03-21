@@ -266,7 +266,6 @@ public abstract class OemCarService extends Service {
      *
      * @return audio volume service if implemented by OEM service, else return {@code null}.
      */
-    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -283,7 +282,6 @@ public abstract class OemCarService extends Service {
      *
      * @return audio ducking service if implemented by OEM service, else return {@code null}.
      */
-    //TODO (b/240615622): Update API to TIRAMISU_3 when it is released
     @Nullable
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

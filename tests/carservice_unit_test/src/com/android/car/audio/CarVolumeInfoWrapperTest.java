@@ -83,6 +83,8 @@ public final class CarVolumeInfoWrapperTest {
                 .thenReturn(CALL);
         when(mMockCarAudioService.getVolumeGroupIdForAudioContext(PRIMARY_AUDIO_ZONE, CALL))
                 .thenReturn(TEST_GROUP_ID);
+        when(mMockCarAudioService.getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE,
+                TEST_MEDIA_AUDIO_ATTRIBUTE)).thenReturn(TEST_GROUP_ID);
         when(mMockCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
                 .thenReturn(TEST_GROUP_VOLUME);
         when(mMockCarAudioService.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_GROUP_ID))
@@ -128,6 +130,15 @@ public final class CarVolumeInfoWrapperTest {
                 .getVolumeGroupIdForAudioZone(PRIMARY_AUDIO_ZONE);
 
         assertWithMessage("Car Audio Group Id")
+                .that(groupId).isEqualTo(TEST_GROUP_ID);
+    }
+
+    @Test
+    public void getVolumeGroupIdForAudioAttribute_returnsGroupId() {
+        int groupId = mCarVolumeInfoWrapper
+                .getVolumeGroupIdForAudioAttribute(PRIMARY_AUDIO_ZONE, TEST_MEDIA_AUDIO_ATTRIBUTE);
+
+        assertWithMessage("Car Audio Group Id for Media Audio Attribute")
                 .that(groupId).isEqualTo(TEST_GROUP_ID);
     }
 
