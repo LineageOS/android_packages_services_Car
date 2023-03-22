@@ -23,6 +23,8 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_EVENTS;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
@@ -3434,6 +3436,41 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Audio mirror for out of mirror devices exception")
                 .that(thrown).hasMessageThat().contains("available mirror output devices");
+    }
+
+    @Test
+    public void canEnableAudioMirror_withOutOfMirroringDevices() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+
+        expectWithMessage("Can audio mirror status").that(mCarAudioService
+                        .canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+    }
+
+    @Test
+    public void canEnableAudioMirror_withAudioMirrorEnabledAndNoPendingRequests() {
+        mCarAudioService.init();
+
+        expectWithMessage("Can audio mirror status before audio mirror request")
+                .that(mCarAudioService.canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_CAN_ENABLE);
+    }
+
+    @Test
+    public void canEnableAudioMirror_withMirroringDisabled() {
+        CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
+        carAudioService.init();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                        mCarAudioService.canEnableAudioMirror());
+
+        expectWithMessage("Can enable audio mirror exception")
+                .that(thrown).hasMessageThat().contains("Audio zones mirroring is required");
     }
 
     @Test
