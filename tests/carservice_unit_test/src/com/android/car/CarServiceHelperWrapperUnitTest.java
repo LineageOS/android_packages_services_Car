@@ -86,7 +86,7 @@ public final class CarServiceHelperWrapperUnitTest extends AbstractExtendedMocki
         // Check exception when not connected. All arguments do not matter.
         assertThrows(IllegalStateException.class,
                 () -> wrapper.createUserEvenWhenDisallowed("", "", 0));
-        assertThrows(IllegalStateException.class, () -> wrapper.getDisplayAssignedToUser(0));
+        assertThrows(IllegalStateException.class, () -> wrapper.getMainDisplayAssignedToUser(0));
         assertThrows(IllegalStateException.class, () -> wrapper.getProcessGroup(0));
         assertThrows(IllegalStateException.class, () -> wrapper.getUserAssignedToDisplay(0));
         assertThrows(IllegalStateException.class,
