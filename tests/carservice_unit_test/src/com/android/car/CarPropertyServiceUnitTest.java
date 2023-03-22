@@ -99,6 +99,7 @@ public final class CarPropertyServiceUnitTest {
     private static final int WRITE_ONLY_ENUM_PROPERTY_ID = 112345;
     private static final int WRITE_ONLY_OTHER_ENUM_PROPERTY_ID =
             VehiclePropertyIds.CRUISE_CONTROL_TYPE;
+    private static final int READ_WRITE_INT_PROPERTY_ID = 42345;
 
     private static final int ON_CHANGE_READ_WRITE_PROPERTY_ID = 1111;
     private static final int NO_PERMISSION_PROPERTY_ID = 13292;
@@ -121,7 +122,7 @@ public final class CarPropertyServiceUnitTest {
     private static final Integer SUPPORTED_OTHER_STATE_ENUM_VALUE = 0;
     private static final int TEST_VALUE = 18;
     private static final CarPropertyValue TEST_PROPERTY_VALUE = new CarPropertyValue(
-            WRITE_ONLY_INT_PROPERTY_ID, /* areaId= */ 0, TEST_VALUE);
+            READ_WRITE_INT_PROPERTY_ID, /* areaId= */ 0, TEST_VALUE);
 
     @Before
     public void setUp() {
@@ -204,6 +205,15 @@ public final class CarPropertyServiceUnitTest {
         configs.put(NO_PERMISSION_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
                 NO_PERMISSION_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
                 1).addAreaConfig(GLOBAL_AREA_ID, null, null).setAccess(
+                CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
+
+        when(mHalService.getWritePermission(READ_WRITE_INT_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        when(mHalService.getReadPermission(READ_WRITE_INT_PROPERTY_ID)).thenReturn(
+                GRANTED_PERMISSION);
+        configs.put(READ_WRITE_INT_PROPERTY_ID, CarPropertyConfig.newBuilder(Integer.class,
+                READ_WRITE_INT_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                1).addAreaConfig(GLOBAL_AREA_ID, MIN_INT_VALUE, MAX_INT_VALUE).setAccess(
                 CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE).build());
         when(mHalService.getPropertyList()).thenReturn(configs);
 
@@ -296,7 +306,20 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+                0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+        List<AsyncPropertyServiceRequest> requests = List.of(request);
+
+        mService.setPropertiesAsync(requests, mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+
+        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
+    }
+
+    @Test
+    public void testSetPropertiesAsync_noWaitForPropertyUpdate() {
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID,
+                        /* areaId= */ 0, /* value= */ 13));
+        request.setWaitForPropertyUpdate(false);
         List<AsyncPropertyServiceRequest> requests = List.of(request);
 
         mService.setPropertiesAsync(requests, mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
@@ -320,7 +343,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_mismatchPropertyId() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(SPEED_ID, 0, 1));
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(SPEED_ID, 0, 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
                 List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
@@ -329,8 +352,8 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_mismatchAreaId() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(
-                        WRITE_ONLY_INT_PROPERTY_ID, /* areaId= */ 1, 1));
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(
+                        READ_WRITE_INT_PROPERTY_ID, /* areaId= */ 1, 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
                 List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
@@ -339,7 +362,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_nullPropertyValueToSet() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, /* carPropertyValue= */ null);
+                0, READ_WRITE_INT_PROPERTY_ID, 0, /* carPropertyValue= */ null);
 
         assertThrows(NullPointerException.class, () -> mService.setPropertiesAsync(
                 List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
@@ -348,7 +371,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_nullValueToSet() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID,
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, /* value= */ null));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
@@ -358,7 +381,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_mismatchPropertyType() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID,
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, Float.valueOf(1.1f)));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
@@ -368,7 +391,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_valueLargerThanMaxValue() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID,
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, MAX_INT_VALUE + 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
@@ -378,7 +401,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_valueSmallerThanMinValue() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, new CarPropertyValue(WRITE_ONLY_INT_PROPERTY_ID,
+                0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(READ_WRITE_INT_PROPERTY_ID,
                         0, MIN_INT_VALUE - 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
@@ -398,8 +421,8 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_noWritePermission() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
-        when(mHalService.getWritePermission(WRITE_ONLY_INT_PROPERTY_ID)).thenReturn(
+                0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+        when(mHalService.getWritePermission(READ_WRITE_INT_PROPERTY_ID)).thenReturn(
                 DENIED_PERMISSION);
 
         assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
@@ -415,10 +438,32 @@ public final class CarPropertyServiceUnitTest {
                 List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
+    // By default waitForPropertyUpdate is true, which requires the read permisison as well.
+    @Test
+    public void testSetPropertiesAsync_noReadPermission() {
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
+                0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+        when(mHalService.getReadPermission(READ_WRITE_INT_PROPERTY_ID)).thenReturn(
+                DENIED_PERMISSION);
+
+        assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
+                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+    }
+
+    // By default waitForPropertyUpdate is true, which requires the read permisison as well.
+    @Test
+    public void testSetPropertiesAsync_propertyNotReadable() {
+        AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(0,
+                WRITE_ONLY_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+
+        assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
+                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+    }
+
     @Test
     public void testSetPropertiesAsync_areaIdNotSupported() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, NOT_SUPPORTED_AREA_ID, TEST_PROPERTY_VALUE);
+                0, READ_WRITE_INT_PROPERTY_ID, NOT_SUPPORTED_AREA_ID, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
                 List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
@@ -427,7 +472,7 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_timeoutNotPositiveNumber() {
         AsyncPropertyServiceRequest request = new AsyncPropertyServiceRequest(
-                0, WRITE_ONLY_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
+                0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
                 List.of(request), mAsyncPropertyResultCallback, /* timeoutInMs= */ 0));
