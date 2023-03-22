@@ -39,6 +39,7 @@ import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
+import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -86,7 +87,8 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final long WAIT_TIMEOUT_MS = 5000;
     private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 2000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
-    private static final String TEST_DEVICE_ID = "test_vehicle";
+    private static final String TEST_VEHICLE_ID = "test_vehicle";
+    private static final String TEST_PROCESSOR_ID = "test_processor";
     private static final String PERMISSION_NOT_GRANTED_PACKAGE = "life.is.beautiful";
     private static final String PERMISSION_GRANTED_PACKAGE_ONE = "we.are.the.world";
     private static final String PERMISSION_GRANTED_PACKAGE_TWO = "android.automotive.os";
@@ -137,7 +139,8 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
                 .thenReturn(300);
         when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
-        when(mRemoteAccessHal.getDeviceId()).thenReturn(TEST_DEVICE_ID);
+        when(mRemoteAccessHal.getVehicleId()).thenReturn(TEST_VEHICLE_ID);
+        when(mRemoteAccessHal.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
         when(mSystemInterface.getSystemCarDir()).thenReturn(mDatabaseFile.getParentFile());
@@ -204,7 +207,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
         PollingCheck.check("onClientRegistrationUpdated should be called", WAIT_TIMEOUT_MS,
                 () -> Objects.equals(mRemoteAccessCallback.getServiceName(), WAKEUP_SERVICE_NAME)
-                        && Objects.equals(mRemoteAccessCallback.getDeviceId(), TEST_DEVICE_ID)
+                        && Objects.equals(mRemoteAccessCallback.getVehicleId(), TEST_VEHICLE_ID)
+                        && Objects.equals(mRemoteAccessCallback.getProcessorId(), TEST_PROCESSOR_ID)
                         && mRemoteAccessCallback.getClientId() != null);
     }
 
@@ -220,7 +224,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
         PollingCheck.check("onClientRegistrationUpdated should be called", WAIT_TIMEOUT_MS,
                 () -> Objects.equals(secondCallback.getServiceName(), WAKEUP_SERVICE_NAME)
-                        && Objects.equals(secondCallback.getDeviceId(), TEST_DEVICE_ID)
+                        && Objects.equals(secondCallback.getVehicleId(), TEST_VEHICLE_ID)
+                        && Objects.equals(secondCallback.getProcessorId(), TEST_PROCESSOR_ID)
                         && secondCallback.getClientId() != null);
     }
 
@@ -256,7 +261,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
         PollingCheck.check("onClientRegistrationUpdated should be called", WAIT_TIMEOUT_MS,
                 () -> Objects.equals(mRemoteAccessCallback.getServiceName(), WAKEUP_SERVICE_NAME)
-                        && Objects.equals(mRemoteAccessCallback.getDeviceId(), TEST_DEVICE_ID)
+                        && Objects.equals(mRemoteAccessCallback.getVehicleId(), TEST_VEHICLE_ID)
+                        && Objects.equals(mRemoteAccessCallback.getProcessorId(), TEST_PROCESSOR_ID)
                         && Objects.equals(mRemoteAccessCallback.getClientId(), expectedClientId));
     }
 
@@ -584,18 +590,19 @@ public final class CarRemoteAccessServiceUnitTest {
 
     private static final class ICarRemoteAccessCallbackImpl extends ICarRemoteAccessCallback.Stub {
         private String mServiceName;
-        private String mDeviceId;
+        private String mVehicleId;
+        private String mProcessorId;
         private String mClientId;
         private String mTaskId;
         private byte[] mData;
         private boolean mShutdownStarted;
 
         @Override
-        public void onClientRegistrationUpdated(String serviceId, String deviceId,
-                String clientId) {
-            mServiceName = serviceId;
-            mDeviceId = deviceId;
-            mClientId = clientId;
+        public void onClientRegistrationUpdated(RemoteTaskClientRegistrationInfo info) {
+            mServiceName = info.getServiceId();
+            mVehicleId = info.getVehicleId();
+            mProcessorId = info.getProcessorId();
+            mClientId = info.getClientId();
         }
 
         @Override
@@ -619,8 +626,12 @@ public final class CarRemoteAccessServiceUnitTest {
             return mServiceName;
         }
 
-        public String getDeviceId() {
-            return mDeviceId;
+        public String getVehicleId() {
+            return mVehicleId;
+        }
+
+        public String getProcessorId() {
+            return mProcessorId;
         }
 
         public String getClientId() {
