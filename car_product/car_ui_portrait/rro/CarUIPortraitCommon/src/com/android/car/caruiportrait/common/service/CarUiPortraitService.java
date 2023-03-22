@@ -26,6 +26,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -116,6 +117,7 @@ public class CarUiPortraitService extends Service {
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
+            Log.d(TAG, "Received message: " + msg.what);
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
@@ -173,6 +175,7 @@ public class CarUiPortraitService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(REQUEST_FROM_SYSTEM_UI);
         registerReceiver(immersiveModeChangeReceiver, filter);
+        Log.d(TAG, "Portrait service is created");
     }
 
     @Override

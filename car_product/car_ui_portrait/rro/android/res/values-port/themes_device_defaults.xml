@@ -41,6 +41,7 @@
         <item name="android:colorBackgroundFloating">@color/floating_background_color</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:colorButtonNormal">@color/btn_device_default</item>
+        <item name="android:colorAccent">@color/car_primary</item>
         <item name="android:colorActivatedHighlight">@color/car_control_highlight</item>
         <item name="android:colorBackground">@color/car_background</item>
         <item name="android:colorControlHighlight">@color/car_control_highlight</item>
@@ -48,6 +49,8 @@
         <item name="android:colorFocusedHighlight">@color/car_control_highlight</item>
         <item name="android:textColorPrimary">@color/car_on_background</item>
         <item name="android:textColorPrimaryInverse">@color/car_background</item>
+        <item name="android:textColorSecondary">@color/car_secondary</item>
+        <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
 
         <item name="android:listDivider">@color/list_divider_color</item>
         <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
