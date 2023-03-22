@@ -24,7 +24,9 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,6 +55,7 @@ import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.AsyncGetSetRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
+import com.android.car.VehicleStub.SetVehicleStubAsyncResult;
 import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.hal.AidlHalPropConfig;
@@ -60,6 +63,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.VehicleHalCallback;
+import com.android.car.internal.property.CarPropertyHelper;
 
 import com.google.common.truth.Expect;
 
@@ -68,6 +72,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -132,6 +137,10 @@ public class FakeVehicleStubUnitTest {
             + "\"minInt32Value\": 1,"
             + "\"maxInt32Value\": 7}]}";
     private static final int DEFAULT_TIMEOUT = 1000;
+    @Captor
+    private ArgumentCaptor<List<GetVehicleStubAsyncResult>> mGetVehicleStubAsyncResultCaptor;
+    @Captor
+    private ArgumentCaptor<List<SetVehicleStubAsyncResult>> mSetVehicleStubAsyncResultCaptor;
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -972,6 +981,135 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
+    public void testSetAsyncForSingleProp() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
+                + "\"defaultValue\": {\"floatValues\": [100.0]},"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.floatValues = new float[]{10};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
+                requestPropValue, DEFAULT_TIMEOUT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        fakeVehicleStub.getAsync(List.of(request), mCallback);
+        List<GetVehicleStubAsyncResult> getOldAsyncResult = captureOnGetAsyncResults();
+        HalPropValue oldPropValue = getOldAsyncResult.get(0).getHalPropValue();
+        reset(mCallback);
+
+        fakeVehicleStub.setAsync(List.of(request), mCallback);
+        List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
+
+        reset(mCallback);
+        fakeVehicleStub.getAsync(List.of(request), mCallback);
+        List<GetVehicleStubAsyncResult> getNewAsyncResult = captureOnGetAsyncResults();
+        GetVehicleStubAsyncResult newAsyncGetResult = getNewAsyncResult.get(0);
+        SetVehicleStubAsyncResult setVehicleStubAsyncResult = setAsyncResult.get(0);
+        HalPropValue updatedPropValue = newAsyncGetResult.getHalPropValue();
+        expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
+        expect.that(setVehicleStubAsyncResult.getServiceRequestId())
+                .isEqualTo(newAsyncGetResult.getServiceRequestId());
+        expect.that(setVehicleStubAsyncResult.getErrorCode())
+                .isEqualTo(CarPropertyHelper.STATUS_OK);
+        expect.that(updatedPropValue.getFloatValue(0)).isEqualTo(10.0f);
+        expect.that(updatedPropValue.getFloatValue(0)).isNotEqualTo(oldPropValue.getFloatValue(0));
+        expect.that(updatedPropValue.getTimestamp()).isNotEqualTo(oldPropValue.getTimestamp());
+    }
+
+    @Test
+    public void testSetAsyncGlobalPropWithAreaIdSetValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 0, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{105};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
+                requestPropValue, DEFAULT_TIMEOUT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        fakeVehicleStub.setAsync(List.of(request), mCallback);
+
+        List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
+        SetVehicleStubAsyncResult setVehicleStubAsyncResult = setAsyncResult.get(0);
+        expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
+        expect.that(setVehicleStubAsyncResult.getErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testSetAsyncForSpecialPropRemoteException() throws Exception {
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.floatValues = new float[]{10};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        doThrow(new RemoteException()).when(mMockRealVehicleStub).set(requestPropValue);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+        AsyncGetSetRequest request = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
+                requestPropValue, DEFAULT_TIMEOUT);
+
+        fakeVehicleStub.setAsync(List.of(request), mCallback);
+
+        List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
+        SetVehicleStubAsyncResult setVehicleStubAsyncResult = setAsyncResult.get(0);
+        expect.that(setVehicleStubAsyncResult.getServiceRequestId()).isEqualTo(0);
+        expect.that(setVehicleStubAsyncResult.getErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        verify(mMockRealVehicleStub).set(requestPropValue);
+    }
+
+    @Test
+    public void testSetAsyncOnMultipleRequests() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 0, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        RawPropValues rawPropValues1 = new RawPropValues();
+        rawPropValues1.floatValues = new float[]{10};
+        HalPropValue requestPropValue1 = buildHalPropValue(
+                /* propId= */ VehicleProperty.SWITCH_USER, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues1);
+        doThrow(new RemoteException()).when(mMockRealVehicleStub).set(requestPropValue1);
+        AsyncGetSetRequest request1 = new AsyncGetSetRequest(/* serviceRequestId= */ 0,
+                requestPropValue1, DEFAULT_TIMEOUT);
+        RawPropValues rawPropValues2 = new RawPropValues();
+        rawPropValues2.int32Values = new int[]{105};
+        HalPropValue requestPropValue2 = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues2);
+        AsyncGetSetRequest request2 = new AsyncGetSetRequest(/* serviceRequestId= */ 1,
+                requestPropValue2, DEFAULT_TIMEOUT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        fakeVehicleStub.setAsync(List.of(request1, request2), mCallback);
+        List<SetVehicleStubAsyncResult> setAsyncResult = captureOnSetAsyncResults();
+        SetVehicleStubAsyncResult setVehicleStubAsyncResult1 = setAsyncResult.get(0);
+        expect.that(setVehicleStubAsyncResult1.getServiceRequestId()).isEqualTo(0);
+        expect.that(setVehicleStubAsyncResult1.getErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        verify(mMockRealVehicleStub).set(requestPropValue1);
+        SetVehicleStubAsyncResult setVehicleStubAsyncResult2 = setAsyncResult.get(1);
+        expect.that(setVehicleStubAsyncResult2.getServiceRequestId()).isEqualTo(1);
+        expect.that(setVehicleStubAsyncResult2.getErrorCode())
+                .isEqualTo(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
     public void testSubscribeOnChangePropOneClientSubscribeOnePropManyTime() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_ON_CHANGE + "]}";
@@ -1611,9 +1749,14 @@ public class FakeVehicleStubUnitTest {
     }
 
     private List<GetVehicleStubAsyncResult> captureOnGetAsyncResults() {
-        ArgumentCaptor<List<GetVehicleStubAsyncResult>> captor =
-                ArgumentCaptor.forClass(List.class);
-        verify(mCallback, timeout(DEFAULT_TIMEOUT)).onGetAsyncResults(captor.capture());
-        return captor.getValue();
+        verify(mCallback, timeout(DEFAULT_TIMEOUT)).onGetAsyncResults(
+                mGetVehicleStubAsyncResultCaptor.capture());
+        return mGetVehicleStubAsyncResultCaptor.getValue();
+    }
+
+    private List<SetVehicleStubAsyncResult> captureOnSetAsyncResults() {
+        verify(mCallback, timeout(DEFAULT_TIMEOUT)).onSetAsyncResults(
+                mSetVehicleStubAsyncResultCaptor.capture());
+        return mSetVehicleStubAsyncResultCaptor.getValue();
     }
 }
