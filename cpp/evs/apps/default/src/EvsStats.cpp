@@ -134,6 +134,11 @@ std::shared_ptr<ICarTelemetry> EvsStats::getCarTelemetry(bool waitIfNotReady) {
 
     const std::scoped_lock<std::mutex> lock(mMutex);  // locks until the end of the method
     mCarTelemetry = ICarTelemetry::fromBinder(ndk::SpAIBinder(binder));
+    if (!mCarTelemetry) {
+        LOG(WARNING) << "CarTelemetry service is not available.";
+        return nullptr;
+    }
+
     auto status = ndk::ScopedAStatus::fromStatus(
             ::AIBinder_linkToDeath(mCarTelemetry->asBinder().get(), mBinderDeathRecipient.get(),
                                    this));
