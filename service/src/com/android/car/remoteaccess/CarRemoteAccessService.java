@@ -29,6 +29,7 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
+import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -246,7 +247,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final long mAllowedSystemUptimeMs;
 
     private String mWakeupServiceName = "";
-    private String mDeviceId = "";
+    private String mVehicleId = "";
+    private String mProcessorId = "";
     @GuardedBy("mLock")
     private int mNextPowerState;
     @GuardedBy("mLock")
@@ -287,9 +289,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mRemoteAccessHal.init();
         try {
             mWakeupServiceName = mRemoteAccessHal.getWakeupServiceName();
-            mDeviceId = mRemoteAccessHal.getDeviceId();
+            mVehicleId = mRemoteAccessHal.getVehicleId();
+            mProcessorId = mRemoteAccessHal.getProcessorId();
         } catch (IllegalStateException e) {
-            Slogf.e(TAG, e, "Cannot get device/service information from remote access HAL");
+            Slogf.e(TAG, e, "Cannot get vehicle/processor/service info from remote access HAL");
         }
         synchronized (mLock) {
             mNextPowerState = getLastShutdownState();
@@ -325,7 +328,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             writer.printf("mNextPowerState: %d\n", mNextPowerState);
             writer.printf("mRunGarageMode: %b\n", mRunGarageMode);
             writer.printf("mWakeupServiceName: %s\n", mWakeupServiceName);
-            writer.printf("mDeviceId: %s\n", mDeviceId);
+            writer.printf("mVehicleId: %s\n", mVehicleId);
+            writer.printf("mProcessorId: %s\n", mProcessorId);
             writer.println("mClientTokenByPackage:");
             writer.increaseIndent();
             for (int i = 0; i < mClientTokenByPackage.size(); i++) {
@@ -495,10 +499,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mHandler.post(() -> {
             try {
                 if (DEBUG) {
-                    Slogf.d(TAG, "Calling onClientRegistrationUpdated: serviceName=%s, deviceId=%s,"
-                            + " clientId=%s", mWakeupServiceName, mDeviceId, clientId);
+                    Slogf.d(TAG, "Calling onClientRegistrationUpdated: serviceName=%s, "
+                            + "vehicleId=%s, processorId=%s, clientId=%s", mWakeupServiceName,
+                            mVehicleId, mProcessorId, clientId);
                 }
-                callback.onClientRegistrationUpdated(mWakeupServiceName, mDeviceId, clientId);
+                callback.onClientRegistrationUpdated(new RemoteTaskClientRegistrationInfo(
+                        mWakeupServiceName, mVehicleId, mProcessorId, clientId));
             } catch (RemoteException e) {
                 Slogf.e(TAG, e, "Calling onClientRegistrationUpdated() failed: clientId = %s",
                         clientId);
