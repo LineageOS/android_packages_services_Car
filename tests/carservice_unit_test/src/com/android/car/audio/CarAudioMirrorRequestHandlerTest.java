@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_CAN_ENABLE;
+import static android.car.media.CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
@@ -488,6 +490,41 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
         expectWithMessage("Request id for not yet set audio zone")
                 .that(mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(TEST_ZONE_1))
                 .isEqualTo(INVALID_REQUEST_ID);
+    }
+
+    @Test
+    public void canEnableAudioMirror_withDefaultHandler() {
+        CarAudioMirrorRequestHandler audioMirrorRequestHandler = new CarAudioMirrorRequestHandler();
+
+        expectWithMessage("Default status for enabling mirroring")
+                .that(audioMirrorRequestHandler.canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+    }
+
+    @Test
+    public void canEnableAudioMirror() {
+        expectWithMessage("Status for enabling mirroring with audio mirroring enabled")
+                .that(mCarAudioMirrorRequestHandler.canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_CAN_ENABLE);
+    }
+
+    @Test
+    public void canEnableAudioMirror_withPendingRequest() {
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        expectWithMessage("Status for enabling mirroring with outstanding mirror request")
+                .that(mCarAudioMirrorRequestHandler.canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_CAN_ENABLE);
+    }
+
+    @Test
+    public void canEnableAudioMirror_withPendingRequestsAndOutOfDevices() {
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        expectWithMessage("Status for enabling mirroring with outstanding mirror request"
+                + " and out of devices").that(mCarAudioMirrorRequestHandler.canEnableAudioMirror())
+                .isEqualTo(AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
     }
 
     private static final class TestAudioZonesMirrorStatusCallbackCallback extends
