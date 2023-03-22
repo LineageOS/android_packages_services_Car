@@ -224,7 +224,26 @@ public final class FakeVehicleStub extends VehicleStub {
     @Override
     public void setAsync(List<AsyncGetSetRequest> setVehicleStubAsyncRequests,
             VehicleStubCallbackInterface setVehicleStubAsyncCallback) {
-        // TODO(b/251213448): Implement this.
+        List<SetVehicleStubAsyncResult> onSetAsyncResultsList = new ArrayList<>();
+        for (int i = 0; i < setVehicleStubAsyncRequests.size(); i++) {
+            AsyncGetSetRequest setRequest = setVehicleStubAsyncRequests.get(i);
+            int serviceRequestId = setRequest.getServiceRequestId();
+            SetVehicleStubAsyncResult result;
+            try {
+                set(setRequest.getHalPropValue());
+                result = new SetVehicleStubAsyncResult(serviceRequestId);
+            } catch (RemoteException e) {
+                result = new SetVehicleStubAsyncResult(serviceRequestId,
+                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+            } catch (ServiceSpecificException e) {
+                result = new SetVehicleStubAsyncResult(serviceRequestId,
+                                convertHalToCarPropertyManagerError(e.errorCode));
+            }
+            onSetAsyncResultsList.add(result);
+        }
+        mHandler.post(() -> {
+            setVehicleStubAsyncCallback.onSetAsyncResults(onSetAsyncResultsList);
+        });
     }
 
     /**
