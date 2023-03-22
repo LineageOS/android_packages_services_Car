@@ -18,11 +18,15 @@ package com.google.android.car.kitchensink.property;
 
 import static java.lang.Integer.toHexString;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.GetPropertyCallback;
+import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
+import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -62,6 +66,22 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private Spinner mPropertyId;
     private ScrollView mScrollView;
     private EditText mSetValue;
+    private GetPropertyCallback mGetPropertyCallback = new GetPropertyCallback() {
+        @Override
+        public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
+            int propId = getPropertyResult.getPropertyId();
+            long timestamp = getPropertyResult.getTimestampNanos();
+            setTextOnSuccess(propId, timestamp, getPropertyResult.getValue());
+        }
+
+        @Override
+        public void onFailure(@NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
+            Log.e(TAG, "Failed to get async VHAL property");
+            Toast.makeText(mActivity, "Failed to get async VHAL property with error code: "
+                    + propertyAsyncError.getErrorCode() + " and vendor error code: "
+                    + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
+        }
+    };
 
     @Nullable
     @Override
@@ -103,24 +123,29 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                 int propId = info.mConfig.getPropertyId();
                 int areaId = Integer.decode(mAreaId.getSelectedItem().toString());
                 CarPropertyValue value = mMgr.getProperty(propId, areaId);
-                if (propId == VehiclePropertyIds.WHEEL_TICK) {
-                    Object[] ticks = (Object[]) value.getValue();
-                    mGetValue.setText("Timestamp=" + value.getTimestamp()
-                            + "\nstatus=" + value.getStatus()
-                            + "\n[0]=" + (Long) ticks[0]
-                            + "\n[1]=" + (Long) ticks[1] + " [2]=" + (Long) ticks[2]
-                            + "\n[3]=" + (Long) ticks[3] + " [4]=" + (Long) ticks[4]);
-                } else {
-                    mGetValue.setText("Timestamp=" + value.getTimestamp()
-                            + "\nstatus=" + value.getStatus()
-                            + "\nvalue=" + value.getValue()
-                            + "\nread=" + mMgr.getReadPermission(propId)
-                            + "\nwrite=" + mMgr.getWritePermission(propId));
-                }
+                setTextOnSuccess(propId, value.getTimestamp(), value.getValue());
             } catch (Exception e) {
                 Log.e(TAG, "Failed to get VHAL property", e);
                 Toast.makeText(mActivity, "Failed to get VHAL property: " + e.getMessage(),
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        b = view.findViewById(R.id.getPropertyAsync);
+        b.setOnClickListener(v -> {
+            try {
+                PropertyInfo info = (PropertyInfo) mPropertyId.getSelectedItem();
+                int propId = info.mConfig.getPropertyId();
+                int areaId = Integer.decode(mAreaId.getSelectedItem().toString());
+                GetPropertyRequest getPropertyRequest = mMgr.generateGetPropertyRequest(propId,
+                        areaId);
+                mMgr.getPropertiesAsync(List.of(getPropertyRequest),
+                        /* cancellationSignal= */ null, /* callbackExecutor= */ null,
+                        mGetPropertyCallback);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to get async VHAL property", e);
+                Toast.makeText(mActivity, "Failed to get async VHAL property: "
+                                + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -200,5 +225,20 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
 
     public void onNothingSelected(AdapterView<?> parent) {
         // Another interface callback
+    }
+
+    private void setTextOnSuccess(int propId, long timestamp, Object value) {
+        if (propId == VehiclePropertyIds.WHEEL_TICK) {
+            Object[] ticks = (Object[]) value;
+            mGetValue.setText("Timestamp=" + timestamp
+                    + "\n[0]=" + (Long) ticks[0]
+                    + "\n[1]=" + (Long) ticks[1] + " [2]=" + (Long) ticks[2]
+                    + "\n[3]=" + (Long) ticks[3] + " [4]=" + (Long) ticks[4]);
+        } else {
+            mGetValue.setText("Timestamp=" + timestamp
+                    + "\nvalue=" + value
+                    + "\nread=" + mMgr.getReadPermission(propId)
+                    + "\nwrite=" + mMgr.getWritePermission(propId));
+        }
     }
 }
