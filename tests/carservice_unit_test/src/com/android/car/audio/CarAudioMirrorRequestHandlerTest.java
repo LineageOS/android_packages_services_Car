@@ -67,19 +67,42 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     }
 
     @Test
-    public void getUniqueRequestId() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+    public void getUniqueRequestIdAndAssignMirrorDevice() {
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         expectWithMessage("Unique request id").that(requestId).isEqualTo(0);
     }
-    @Test
-    public void getUniqueRequestId_multipleTimes() {
-        long requestIdOne = mCarAudioMirrorRequestHandler.getUniqueRequestId();
 
-        long requestIdTwo = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+    @Test
+    public void getUniqueRequestIdAndAssignMirrorDevice_multipleTimes() {
+        long requestIdOne = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        long requestIdTwo = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         expectWithMessage("Unique request id one").that(requestIdOne).isEqualTo(0);
         expectWithMessage("Unique request id two").that(requestIdTwo).isEqualTo(1);
+    }
+
+    @Test
+    public void getUniqueRequestIdAndAssignMirrorDevice_forOutOfAvailableDevices() {
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        long requestIdThree = mCarAudioMirrorRequestHandler
+                .getUniqueRequestIdAndAssignMirrorDevice();
+
+        expectWithMessage("Invalid request id for request with no more output devices")
+                .that(requestIdThree).isEqualTo(INVALID_REQUEST_ID);
+    }
+
+    @Test
+    public void getUniqueRequestIdAndAssignMirrorDevice_forEmptyMirrorDevices() {
+        CarAudioMirrorRequestHandler audioMirrorRequestHandler = new CarAudioMirrorRequestHandler();
+
+        long requestId = audioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        expectWithMessage("Invalid request id for request with no more output devices")
+                .that(requestId).isEqualTo(INVALID_REQUEST_ID);
     }
 
     @Test
@@ -219,23 +242,32 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void getAudioDeviceInfo() {
-        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
-                new CarAudioMirrorRequestHandler();
-        carAudioMirrorRequestHandler.setMirrorDeviceInfos(mTestCarAudioDeviceInfos);
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
-        expectWithMessage("Audio mirror device info")
-                .that(carAudioMirrorRequestHandler.getAudioDeviceInfo())
+        expectWithMessage("Audio mirror device info for request %s", requestId)
+                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId))
                 .isEqualTo(mAudioDeviceInfoOne);
     }
 
     @Test
-    public void getAudioDeviceInfo_withEmptyDeviceInfos() {
-        CarAudioMirrorRequestHandler carAudioMirrorRequestHandler =
-                new CarAudioMirrorRequestHandler();
-        carAudioMirrorRequestHandler.setMirrorDeviceInfos(List.of());
+    public void getAudioDeviceInfo_forMultipleRequests() {
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+        long requestIdTwo = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
-        expectWithMessage("Null audio mirror device info")
-                .that(carAudioMirrorRequestHandler.getAudioDeviceInfo()).isNull();
+        expectWithMessage("Audio mirror device info for second request %s", requestIdTwo)
+                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestIdTwo))
+                .isEqualTo(mAudioDeviceInfoTwo);
+    }
+
+    @Test
+    public void getAudioDeviceInfo_forInvalidRequestIdFails() {
+        mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mCarAudioMirrorRequestHandler.getAudioDeviceInfo(INVALID_REQUEST_ID));
+
+        expectWithMessage("Get mirror device with invalid request id exception")
+                .that(thrown).hasMessageThat().contains("Request id for device");
     }
 
     @Test
@@ -249,7 +281,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void enableMirrorForZones() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
 
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
 
@@ -265,7 +297,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void enableMirrorForZones_withNullZoneIds_fails() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             mCarAudioMirrorRequestHandler.enableMirrorForZones(/* audioZones= */ requestId, null);
         });
@@ -286,7 +318,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void enableMirrorForZones_afterRegisteringCallback() throws Exception {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.registerAudioZonesMirrorStatusCallback(mTestCallback);
 
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
@@ -313,20 +345,47 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void rejectMirrorForZones() throws Exception {
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.registerAudioZonesMirrorStatusCallback(mTestCallback);
 
-        mCarAudioMirrorRequestHandler.rejectMirrorForZones(TEST_ZONE_IDS);
+        mCarAudioMirrorRequestHandler.rejectMirrorForZones(requestId, TEST_ZONE_IDS);
 
         mTestCallback.waitForCallback();
         expectWithMessage("Audio mirror rejected status").that(mTestCallback.mStatus)
                 .isEqualTo(CarAudioManager.AUDIO_REQUEST_STATUS_REJECTED);
         expectWithMessage("Audio mirror rejected zones").that(mTestCallback.mZoneIds)
                 .asList().containsExactly(TEST_ZONE_1, TEST_ZONE_2);
+        expectWithMessage("Audio device info for rejected request")
+                .that(mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId)).isNull();
+    }
+
+    @Test
+    public void rejectMirrorForZones_withNullZones_fails() throws Exception {
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        NullPointerException thrown = assertThrows(NullPointerException.class,
+                () -> mCarAudioMirrorRequestHandler.rejectMirrorForZones(/* audioZones = */
+                        requestId, null
+                ));
+
+        expectWithMessage("Null zones to reject exception").that(thrown).hasMessageThat()
+                .contains("Rejected audio zones");
+    }
+
+    @Test
+    public void rejectMirrorForZones_withEmptyZones_fails() throws Exception {
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> mCarAudioMirrorRequestHandler.rejectMirrorForZones(requestId, new int[0]));
+
+        expectWithMessage("Empty zones to reject exception").that(thrown).hasMessageThat()
+                .contains("Rejected audio zones");
     }
 
     @Test
     public void updateMirrorConfigurationForZones() throws Exception {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.registerAudioZonesMirrorStatusCallback(mTestCallback);
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
         mTestCallback.waitForCallback();
@@ -347,7 +406,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
             throws Exception {
         int[] threeZoneConfig = new int[] {TEST_ZONE_1, TEST_ZONE_2, TEST_ZONE_3};
         mCarAudioMirrorRequestHandler.registerAudioZonesMirrorStatusCallback(mTestCallback);
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, threeZoneConfig);
         mTestCallback.waitForCallback();
         mTestCallback.reset();
@@ -367,7 +426,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
     @Test
     public void calculateAudioConfigurationAfterRemovingZonesFromRequestId() {
         int[] threeZoneConfig = new int[] {TEST_ZONE_1, TEST_ZONE_2, TEST_ZONE_3};
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, threeZoneConfig);
 
         int[] newConfig = mCarAudioMirrorRequestHandler
@@ -380,7 +439,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void calculateAudioConfigurationAfterRemovingZonesFromRequestId_withNotYetSetConfig() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         int[] newConfig = mCarAudioMirrorRequestHandler
                 .calculateAudioConfigurationAfterRemovingZonesFromRequestId(requestId, TEST_ZONE_IDS
                 );
@@ -391,7 +450,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void verifyValidRequestId_withNoLongerValidRequest() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
         mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(
                 /* newConfig= */ requestId, new int[0]);
@@ -416,7 +475,7 @@ public final class CarAudioMirrorRequestHandlerTest extends AbstractExpectableTe
 
     @Test
     public void getRequestIdForAudioZone() {
-        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestId();
+        long requestId = mCarAudioMirrorRequestHandler.getUniqueRequestIdAndAssignMirrorDevice();
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, TEST_ZONE_IDS);
 
         expectWithMessage("Request id for audio zone")

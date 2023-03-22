@@ -554,8 +554,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private int getVolumeGroupForAttribute(AudioAttributes attributes) {
-        //TODO(b/240615622): Get volume group info from service
-        return 0;
+        return mCarVolumeInfoWrapper.getVolumeGroupIdForAudioAttribute(mAudioZoneId, attributes);
     }
 
     @GuardedBy("mLock")

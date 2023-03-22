@@ -2592,7 +2592,7 @@ public final class Car {
     private void killClient(@Nullable String clientInfo) {
         Log.w(TAG_CAR, "**Car service has crashed. Client(" + clientInfo + ") is not handling it."
                         + " Client should use Car.createCar(..., CarServiceLifecycleListener, .."
-                        + ".) to handle it properly. Check pritned callstack to check where other "
+                        + ".) to handle it properly. Check printed callstack to check where other "
                         + "version of Car.createCar() was called. Killing the client process**",
                 mConstructionStack);
         Process.killProcess(Process.myPid());
