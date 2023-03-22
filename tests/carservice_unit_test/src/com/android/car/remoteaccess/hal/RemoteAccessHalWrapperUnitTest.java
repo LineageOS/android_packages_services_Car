@@ -45,7 +45,7 @@ import org.mockito.Mock;
  */
 public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockitoTestCase {
 
-    private static final String DEVICE_ID_FOR_TESTING = "deviceIdForTesting";
+    private static final String VEHICLE_ID_FOR_TESTING = "vehicleIdForTesting";
     private static final String SERVICE_NAME_FOR_TESTING = "serviceNameForTesting";
 
     @Mock private IBinder mBinder;
@@ -62,7 +62,7 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
     private void setUpNormalHalService() throws Exception {
         doReturn(mBinder).when(RemoteAccessHalWrapper::getRemoteAccessHalService);
         when(mBinder.queryLocalInterface(anyString())).thenReturn(mRemoteAccessHal);
-        when(mRemoteAccessHal.getDeviceId()).thenReturn(DEVICE_ID_FOR_TESTING);
+        when(mRemoteAccessHal.getVehicleId()).thenReturn(VEHICLE_ID_FOR_TESTING);
         when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(SERVICE_NAME_FOR_TESTING);
         mHalWrapper.init();
     }
@@ -104,18 +104,18 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
     }
 
     @Test
-    public void testGetDeviceId() throws Exception {
+    public void testGetVehicleId() throws Exception {
         setUpNormalHalService();
 
-        assertWithMessage("Device ID").that(mHalWrapper.getDeviceId())
-                .isEqualTo(DEVICE_ID_FOR_TESTING);
+        assertWithMessage("Vehicle ID").that(mHalWrapper.getVehicleId())
+                .isEqualTo(VEHICLE_ID_FOR_TESTING);
     }
 
     @Test
-    public void testGetDeviceId_noHalService() throws Exception {
+    public void testGetVehicleId_noHalService() throws Exception {
         setUpNoHalService();
 
-        assertThrows(IllegalStateException.class, () -> mHalWrapper.getDeviceId());
+        assertThrows(IllegalStateException.class, () -> mHalWrapper.getVehicleId());
     }
 
     @Test
@@ -161,10 +161,10 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
         setUpNormalHalService();
         IRemoteTaskCallback remoteTaskCallback = captureRemoteTaskCallback();
 
-        remoteTaskCallback.onRemoteTaskRequested(DEVICE_ID_FOR_TESTING, /* data= */ null);
+        remoteTaskCallback.onRemoteTaskRequested(VEHICLE_ID_FOR_TESTING, /* data= */ null);
 
         assertWithMessage("Client ID").that(mCallback.getClientId())
-                .isEqualTo(DEVICE_ID_FOR_TESTING);
+                .isEqualTo(VEHICLE_ID_FOR_TESTING);
         assertWithMessage("Data").that(mCallback.getData()).isNull();
     }
 
@@ -174,10 +174,10 @@ public final class RemoteAccessHalWrapperUnitTest extends AbstractExtendedMockit
         IRemoteTaskCallback remoteTaskCallback = captureRemoteTaskCallback();
         byte[] data = new byte[]{1, 0, 0, 4};
 
-        remoteTaskCallback.onRemoteTaskRequested(DEVICE_ID_FOR_TESTING, data);
+        remoteTaskCallback.onRemoteTaskRequested(VEHICLE_ID_FOR_TESTING, data);
 
         assertWithMessage("Client ID").that(mCallback.getClientId())
-                .isEqualTo(DEVICE_ID_FOR_TESTING);
+                .isEqualTo(VEHICLE_ID_FOR_TESTING);
         assertWithMessage("Data").that(mCallback.getData()).isEqualTo(new byte[]{1, 0, 0, 4});
     }
 
