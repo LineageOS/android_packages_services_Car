@@ -84,6 +84,11 @@ public class CarPropertyService extends ICarProperty.Stub
     // will cause all the pending sync operation to timeout because result cannot be delivered.
     private static final int SYNC_GET_SET_PROPERTY_OP_LIMIT = 16;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
+    // A list of properties that must not set waitForPropertyUpdate to {@code true} for set async.
+    private static final Set<Integer> NOT_ALLOWED_WAIT_FOR_UPDATE_PROPERTIES =
+            new HashSet<>(Arrays.asList(
+                VehiclePropertyIds.HVAC_TEMPERATURE_VALUE_SUGGESTION
+            ));
 
     private static final Set<Integer> ERROR_STATES =
             new HashSet<Integer>(Arrays.asList(
@@ -852,19 +857,29 @@ public class CarPropertyService extends ICarProperty.Stub
         for (int i = 0; i < setPropertyServiceRequests.size(); i++) {
             AsyncPropertyServiceRequest request = setPropertyServiceRequests.get(i);
             CarPropertyValue carPropertyValueToSet = request.getCarPropertyValue();
-            if (carPropertyValueToSet.getPropertyId() != request.getPropertyId()) {
+            int propertyId = request.getPropertyId();
+            int valuePropertyId = carPropertyValueToSet.getPropertyId();
+            int areaId = request.getAreaId();
+            int valueAreaId = carPropertyValueToSet.getAreaId();
+            String propertyName = VehiclePropertyIds.toString(propertyId);
+            if (valuePropertyId != propertyId) {
                 throw new IllegalArgumentException(mFormatter.format(
-                        "Property ID in request and CarPropertyValue mismatch: %d vs %d",
-                        carPropertyValueToSet.getPropertyId(), request.getPropertyId()).toString());
+                        "Property ID in request and CarPropertyValue mismatch: %s vs %s",
+                        VehiclePropertyIds.toString(valuePropertyId), propertyName).toString());
             }
-            if (carPropertyValueToSet.getAreaId() != request.getAreaId()) {
+            if (valueAreaId != areaId) {
                 throw new IllegalArgumentException(mFormatter.format(
-                        "Area ID in request and CarPropertyValue mismatch: %d vs %d",
-                        carPropertyValueToSet.getAreaId(), request.getAreaId()).toString());
+                        "For property: %s, area ID in request and CarPropertyValue mismatch: %d vs"
+                        + " %d", propertyName, valueAreaId, areaId).toString());
             }
             validateSetParameters(carPropertyValueToSet);
-            // TODO(b/273345604): validateGetParameters for properties that have
-            // waitForPropertyUpdate set.
+            if (request.isWaitForPropertyUpdate()) {
+                if (NOT_ALLOWED_WAIT_FOR_UPDATE_PROPERTIES.contains(propertyId)) {
+                    throw new IllegalArgumentException("Property: "
+                            + propertyName + " must set waitForPropertyUpdate to false");
+                }
+                validateGetParameters(propertyId, areaId);
+            }
         }
         mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequests,
                 asyncPropertyResultCallback, timeoutInMs);
