@@ -73,7 +73,7 @@ public class CarUxRestrictionsManagerTest {
         mCarUxRestrictionsController = fakeCar.getCarUxRestrictionController();
 
         when(mContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
-        when(mUserManager.getDisplayIdAssignedToUser()).thenReturn(Display.DEFAULT_DISPLAY);
+        when(mUserManager.getMainDisplayIdAssignedToUser()).thenReturn(Display.DEFAULT_DISPLAY);
     }
 
     @Test
