@@ -192,6 +192,7 @@ import org.mockito.Mock;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -3314,6 +3315,30 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void enableMirrorForAudioZones_sendsMirrorInfoToAudioHAL() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+
+        callback.waitForCallback();
+        String audioMirrorInfoCommand = captureAudioMirrorInfoCommand();
+        List<String> commands = Arrays.asList(audioMirrorInfoCommand.split(";"));
+        String sourceDeviceAddress = removeUpToEquals(commands.get(0));
+        expectWithMessage("Audio mirror source info").that(sourceDeviceAddress)
+                .isEqualTo(MIRROR_TEST_DEVICE);
+        String destinationsDevices = commands.get(1);
+        List<String> deviceAddresses = Arrays.asList(removeUpToEquals(destinationsDevices)
+                .split(","));
+        expectWithMessage("Audio mirror zone one info").that(deviceAddresses.get(0))
+                .isEqualTo(SECONDARY_TEST_DEVICE_1);
+        expectWithMessage("Audio mirror zone two info").that(deviceAddresses.get(1))
+                .isEqualTo(TERTIARY_TEST_DEVICE_1);
+    }
+
+    @Test
     public void enableMirrorForAudioZones_forPrimaryZone_fails() throws Exception {
         mCarAudioService.init();
         assignOccupantToAudioZones();
@@ -3901,6 +3926,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Media audio focus changes after disable audio"
                 + "mirror for zones config").that(focusChanges)
                 .containsExactly(AUDIOFOCUS_LOSS_TRANSIENT, AUDIOFOCUS_GAIN);
+    }
+
+    private String removeUpToEquals(String command) {
+        return command.replaceAll("^[^=]*=", "");
+    }
+
+    private String captureAudioMirrorInfoCommand() {
+        ArgumentCaptor<String> capture = ArgumentCaptor.forClass(String.class);
+        verify(mAudioManager).setParameters(capture.capture());
+        return capture.getValue();
     }
 
     private TestAudioZonesMirrorStatusCallbackCallback getAudioZonesMirrorStatusCallback() {
