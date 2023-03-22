@@ -1173,7 +1173,7 @@ public final class CarAudioManager extends CarManagerBase {
     public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull MediaAudioRequestStatusCallback callback) {
-        Objects.requireNonNull(executor, "Occupant zone info can not be null");
+        Objects.requireNonNull(info, "Occupant zone info can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Media audio request status callback can not be null");
 
