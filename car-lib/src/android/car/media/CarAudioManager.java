@@ -1160,7 +1160,9 @@ public final class CarAudioManager extends CarManagerBase {
      * @return returns a valid request id if successful or {@code INVALID_REQUEST_ID} otherwise
      * @throws NullPointerException if any of info, executor, or callback parameters are
      * {@code null}
-     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if dynamic audio routing is not enabled, or if audio mirroring
+     * is currently enabled for the audio zone owned by the occupant as configured by
+     * {@link #enableMirrorForAudioZones(List)}
      *
      * @hide
      */
@@ -1204,7 +1206,9 @@ public final class CarAudioManager extends CarManagerBase {
      * including the case when the request id is {@link #INVALID_REQUEST_ID}
      * @throws IllegalStateException if no {@code PrimaryZoneMediaAudioRequestCallback} is
      * registered prior to calling this method.
-     * @throws IllegalStateException if dynamic audio routing is not enabled
+     * @throws IllegalStateException if dynamic audio routing is not enabled, or if audio mirroring
+     * is currently enabled for the audio zone owned by the occupant as configured by
+     * {@link #enableMirrorForAudioZones(List)}
      *
      * @hide
      */
