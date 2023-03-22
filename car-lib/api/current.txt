@@ -1001,9 +1001,19 @@ package android.car.remoteaccess {
 
   public static interface CarRemoteAccessManager.RemoteTaskClientCallback {
     method public void onRegistrationFailed();
-    method public void onRegistrationUpdated(@NonNull String, @NonNull String, @NonNull String);
+    method public void onRegistrationUpdated(@NonNull android.car.remoteaccess.RemoteTaskClientRegistrationInfo);
     method public void onRemoteTaskRequested(@NonNull String, @Nullable byte[], int);
     method public void onShutdownStarting(@NonNull android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture);
+  }
+
+  public final class RemoteTaskClientRegistrationInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public String getClientId();
+    method @NonNull public String getProcessorId();
+    method @NonNull public String getServiceId();
+    method @NonNull public String getVehicleId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.remoteaccess.RemoteTaskClientRegistrationInfo> CREATOR;
   }
 
 }
