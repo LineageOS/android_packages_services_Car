@@ -343,15 +343,15 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         }
 
         void onDrivingStateChanged() {
-            if ((mImmersiveState != STATE_DEFAULT)
-                    && mCurrentDrivingState == DRIVING_STATE_MOVING) {
-                mImmersiveState = STATE_DEFAULT;
-                updateDisplayWindowRequestedVisibleTypes();
-                notifyOnImmersiveRequestedChanged(null, false);
-                // Show toast when drive state changes to driving while immersive mode is on.
-                Toast.makeText(mContext,
-                        R.string.car_ui_restricted_while_driving, Toast.LENGTH_LONG).show();
+            if (mImmersiveState == STATE_DEFAULT || mCurrentDrivingState != DRIVING_STATE_MOVING) {
+                return;
             }
+            mImmersiveState = STATE_DEFAULT;
+            updateDisplayWindowRequestedVisibleTypes();
+            notifyOnImmersiveRequestedChanged(null, false);
+            // Show toast when drive state changes to driving while immersive mode is on.
+            Toast.makeText(mContext,
+                    R.string.car_ui_restricted_while_driving, Toast.LENGTH_LONG).show();
         }
     }
 
