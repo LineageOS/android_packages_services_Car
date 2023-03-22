@@ -21,14 +21,19 @@ import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -47,6 +52,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
@@ -54,6 +60,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private static final String Car_AUDIO_MANAGER_TEST_THREAD_NAME = "CarAudioManagerUnitTest";
     private static final int TEST_REAR_LEFT_ZONE_ID = 1;
     private static final int TEST_REAR_RIGHT_ZONE_ID = 2;
+    private static final int TEST_FRONT_ZONE_ID = 3;
     private static final int TEST_VOLUME_GROUP_ID = 1;
     private static final int TEST_VOLUME_GROUP_INDEX = 10;
     private static final int TEST_FLAGS = 0;
@@ -64,6 +71,9 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_USAGE = USAGE_MEDIA;
     private static final int TEST_UID = 15;
     private static final long TEST_TIME_OUT_MS = 500;
+    private static final long TEST_REQUEST_ID = 1;
+
+    private static final Executor DIRECT_EXECUTOR = Runnable::run;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             Car_AUDIO_MANAGER_TEST_THREAD_NAME);
@@ -91,6 +101,14 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private CarAudioManager.CarVolumeCallback mVolumeCallbackMock1;
     @Mock
     private CarAudioManager.CarVolumeCallback mVolumeCallbackMock2;
+    @Mock
+    private OccupantZoneInfo mOccupantZoneInfoMock;
+    @Mock
+    private PrimaryZoneMediaAudioRequestCallback mPrimaryZoneMediaAudioRequestCallbackMock;
+    @Mock
+    private MediaAudioRequestStatusCallback mMediaAudioRequestStatusCallbackMock;
+    @Mock
+    private AudioZonesMirrorStatusCallback mAudioZonesMirrorStatusCallback;
 
     private CarAudioManager mCarAudioManager;
 
@@ -312,12 +330,12 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     @Test
     public void getAudioZoneIds() throws Exception {
         int[] expectedZoneIds = new int[]{PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
-                TEST_REAR_RIGHT_ZONE_ID};
+                TEST_REAR_RIGHT_ZONE_ID, TEST_FRONT_ZONE_ID};
         when(mServiceMock.getAudioZoneIds()).thenReturn(expectedZoneIds);
 
         expectWithMessage("Zone ids").that(mCarAudioManager.getAudioZoneIds())
                 .containsExactly(PRIMARY_AUDIO_ZONE, TEST_REAR_LEFT_ZONE_ID,
-                        TEST_REAR_RIGHT_ZONE_ID).inOrder();
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_FRONT_ZONE_ID).inOrder();
     }
 
     @Test
@@ -443,11 +461,449 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
                 TEST_REAR_LEFT_ZONE_ID, TEST_FLAGS);
     }
 
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback() throws Exception {
+        when(mServiceMock.registerPrimaryZoneMediaAudioRequestCallback(any())).thenReturn(true);
+
+        expectWithMessage("Status for setting primary zone media audio request callback")
+                .that(mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        mPrimaryZoneMediaAudioRequestCallbackMock)).isTrue();
+    }
+
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_fails() throws Exception {
+        when(mServiceMock.registerPrimaryZoneMediaAudioRequestCallback(any())).thenReturn(false);
+        mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                mPrimaryZoneMediaAudioRequestCallbackMock);
+
+        expectWithMessage("Failure for setting primary zone media audio request callback")
+                .that(mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        mPrimaryZoneMediaAudioRequestCallbackMock)).isFalse();
+    }
+
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_withNullExecutor_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(/* executor= */ null,
+                        mPrimaryZoneMediaAudioRequestCallbackMock));
+
+        expectWithMessage("Exception for setting primary zone media audio request callback with"
+                + "null executor").that(thrown).hasMessageThat()
+                .contains("Executor can not be null");
+    }
+
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_withNullCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        /* callback= */ null));
+
+        expectWithMessage("Exception for setting null primary zone media audio request callback")
+                .that(thrown).hasMessageThat()
+                .contains("Audio media request callback can not be null");
+    }
+
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_forMultipleTimes_fails() throws Exception {
+        when(mServiceMock.registerPrimaryZoneMediaAudioRequestCallback(any())).thenReturn(true);
+        mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                mPrimaryZoneMediaAudioRequestCallbackMock);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        mock(PrimaryZoneMediaAudioRequestCallback.class)));
+
+        expectWithMessage("Exception for setting primary zone media audio request callback"
+                + " for multiple times").that(thrown).hasMessageThat()
+                .contains("Primary zone media audio request is already set");
+    }
+
+    @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_afterClearingPreviousCallbacks()
+            throws Exception {
+        when(mServiceMock.registerPrimaryZoneMediaAudioRequestCallback(any())).thenReturn(true);
+        mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                mPrimaryZoneMediaAudioRequestCallbackMock);
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+
+        expectWithMessage("Status for setting primary zone media audio request callback"
+                + " again after clearing previous callbacks").that(mCarAudioManager
+                .setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        mock(PrimaryZoneMediaAudioRequestCallback.class))).isTrue();
+    }
+
+    @Test
+    public void clearPrimaryZoneMediaAudioRequestCallback() throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+
+        verify(mServiceMock).unregisterPrimaryZoneMediaAudioRequestCallback(serviceCallback);
+    }
+
+    @Test
+    public void onRequestMediaOnPrimaryZone_forIPrimaryZoneMediaAudioRequestCallback()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+
+        serviceCallback.onRequestMediaOnPrimaryZone(mOccupantZoneInfoMock, TEST_REQUEST_ID);
+
+        verify(mPrimaryZoneMediaAudioRequestCallbackMock).onRequestMediaOnPrimaryZone(
+                mOccupantZoneInfoMock, TEST_REQUEST_ID);
+    }
+
+    @Test
+    public void onMediaAudioRequestStatusChanged_forIPrimaryZoneMediaAudioRequestCallback()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+
+        serviceCallback.onMediaAudioRequestStatusChanged(mOccupantZoneInfoMock, TEST_REQUEST_ID,
+                CarAudioManager.AUDIO_REQUEST_STATUS_STOPPED);
+
+        verify(mPrimaryZoneMediaAudioRequestCallbackMock).onMediaAudioRequestStatusChanged(
+                mOccupantZoneInfoMock, TEST_REQUEST_ID,
+                CarAudioManager.AUDIO_REQUEST_STATUS_STOPPED);
+    }
+
+    @Test
+    public void requestMediaAudioOnPrimaryZone() throws Exception {
+        int expectedRequestStatus = CarAudioManager.AUDIO_REQUEST_STATUS_APPROVED;
+        doAnswer(invocation -> {
+            IMediaAudioRequestStatusCallback callback = invocation.getArgument(0);
+            OccupantZoneInfo info = invocation.getArgument(1);
+            callback.onMediaAudioRequestStatusChanged(info, TEST_REQUEST_ID, expectedRequestStatus);
+            return TEST_REQUEST_ID;
+        }).when(mServiceMock).requestMediaAudioOnPrimaryZone(any(
+                IMediaAudioRequestStatusCallback.class), any(OccupantZoneInfo.class));
+
+        long requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                DIRECT_EXECUTOR, mMediaAudioRequestStatusCallbackMock);
+
+        expectWithMessage("Request id for media audio on primary zone").that(requestId)
+                .isEqualTo(TEST_REQUEST_ID);
+        verify(mMediaAudioRequestStatusCallbackMock).onMediaAudioRequestStatusChanged(
+                mOccupantZoneInfoMock, TEST_REQUEST_ID, expectedRequestStatus);
+    }
+
+    @Test
+    public void requestMediaAudioOnPrimaryZone_withNullOccupantZoneInfo() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.requestMediaAudioOnPrimaryZone(/* info= */ null,
+                        DIRECT_EXECUTOR, mMediaAudioRequestStatusCallbackMock));
+
+        expectWithMessage("Exception for requesting media audio on primary zone with null info")
+                .that(thrown).hasMessageThat().contains("Occupant zone info can not be null");
+    }
+
+    @Test
+    public void requestMediaAudioOnPrimaryZone_withNullExecutor() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                        /* executor= */ null, mMediaAudioRequestStatusCallbackMock));
+
+        expectWithMessage("Exception for requesting media audio on primary zone with null executor")
+                .that(thrown).hasMessageThat().contains("Executor can not be null");
+    }
+
+    @Test
+    public void requestMediaAudioOnPrimaryZone_withNullCallback() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                        DIRECT_EXECUTOR, /* callback= */ null));
+
+        expectWithMessage("Exception for requesting media audio on primary zone with "
+                + "null callback").that(thrown).hasMessageThat()
+                .contains("Media audio request status callback can not be null");
+    }
+
+    @Test
+    public void cancelMediaAudioOnPrimaryZone() throws Exception {
+        when(mServiceMock.requestMediaAudioOnPrimaryZone(any(), any())).thenReturn(TEST_REQUEST_ID);
+        long requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                DIRECT_EXECUTOR, mMediaAudioRequestStatusCallbackMock);
+        when(mServiceMock.cancelMediaAudioOnPrimaryZone(requestId)).thenReturn(true);
+
+        expectWithMessage("Status for canceling pending media audio on primary zone")
+                .that(mCarAudioManager.cancelMediaAudioOnPrimaryZone(requestId)).isTrue();
+    }
+
+    @Test
+    public void cancelMediaAudioOnPrimaryZone_withInvalidId() throws Exception {
+        when(mServiceMock.requestMediaAudioOnPrimaryZone(any(), any()))
+                .thenReturn(CarAudioManager.INVALID_REQUEST_ID);
+        long requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                DIRECT_EXECUTOR, mMediaAudioRequestStatusCallbackMock);
+
+        expectWithMessage("Status for canceling media audio request with invalid id")
+                .that(mCarAudioManager.cancelMediaAudioOnPrimaryZone(requestId)).isTrue();
+        verify(mServiceMock, never()).cancelMediaAudioOnPrimaryZone(requestId);
+    }
+
+    @Test
+    public void allowMediaAudioOnPrimaryZone() throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+        when(mServiceMock.allowMediaAudioOnPrimaryZone(serviceCallback.asBinder(), TEST_REQUEST_ID,
+                /* allow= */ true)).thenReturn(true);
+
+        expectWithMessage("Status for allowing media audio on primary zone")
+                .that(mCarAudioManager.allowMediaAudioOnPrimaryZone(TEST_REQUEST_ID,
+                        /* allow= */ true)).isTrue();
+    }
+
+    @Test
+    public void allowMediaAudioOnPrimaryZone_beforeSettingCallback() {
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mCarAudioManager.allowMediaAudioOnPrimaryZone(TEST_REQUEST_ID, /* allow= */ true));
+
+        expectWithMessage("Exception for allowing media audio on primary zone before "
+                + "setting primary zone media audio request callback").that(thrown)
+                .hasMessageThat().contains("Primary zone media audio request callback");
+    }
+
+    @Test
+    public void resetMediaAudioOnPrimaryZone() throws Exception {
+        when(mServiceMock.resetMediaAudioOnPrimaryZone(mOccupantZoneInfoMock)).thenReturn(true);
+
+        expectWithMessage("Status for resetting media audio on primary zone")
+                .that(mCarAudioManager.resetMediaAudioOnPrimaryZone(mOccupantZoneInfoMock))
+                .isTrue();
+    }
+
+    @Test
+    public void isMediaAudioAllowedInPrimaryZone() throws Exception {
+        when(mServiceMock.isMediaAudioAllowedInPrimaryZone(mOccupantZoneInfoMock)).thenReturn(true);
+
+        expectWithMessage("Media audio allowed in primary zone").that(mCarAudioManager
+                .isMediaAudioAllowedInPrimaryZone(mOccupantZoneInfoMock)).isTrue();
+    }
+
+    @Test
+    public void setAudioZoneMirrorStatusCallback_succeeds() throws Exception {
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(true);
+
+        expectWithMessage("Status for setting audio zone mirror status callback")
+                .that(mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                        mAudioZonesMirrorStatusCallback)).isTrue();
+    }
+
+    @Test
+    public void setAudioZoneMirrorStatusCallback_withServiceReturnsFalse_fails() throws Exception {
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(false);
+
+        expectWithMessage("Status for setting audio zone mirror status callback")
+                .that(mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                        mAudioZonesMirrorStatusCallback)).isFalse();
+    }
+
+    @Test
+    public void setAudioZoneMirrorStatusCallback_forMultipleTimes_fails() throws Exception {
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(true);
+        mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                mAudioZonesMirrorStatusCallback);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                        mock(AudioZonesMirrorStatusCallback.class)));
+
+        expectWithMessage("Exception for setting audio zone mirror status callback multiple times")
+                .that(thrown).hasMessageThat().contains("callback is already set");
+    }
+
+    @Test
+    public void setAudioZoneMirrorStatusCallback_withNullExecutor() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setAudioZoneMirrorStatusCallback(/* executor= */ null,
+                        mAudioZonesMirrorStatusCallback));
+
+        expectWithMessage("Exception for setting audio zone mirror status callback with"
+                + " null executor").that(thrown).hasMessageThat()
+                .contains("Executor can not be null");
+    }
+
+    @Test
+    public void setAudioZoneMirrorStatusCallback_withNullCallback() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                        /* callback= */ null));
+
+        expectWithMessage("Exception for setting audio zone mirror status callback with "
+                + "null callback").that(thrown).hasMessageThat()
+                .contains("Audio zones mirror status callback can not be null");
+    }
+
+    @Test
+    public void clearAudioZonesMirrorStatusCallback() throws Exception {
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(true);
+        ArgumentCaptor<IAudioZonesMirrorStatusCallback> captor = ArgumentCaptor.forClass(
+                IAudioZonesMirrorStatusCallback.class);
+        mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                mAudioZonesMirrorStatusCallback);
+        verify(mServiceMock).registerAudioZonesMirrorStatusCallback(captor.capture());
+
+        mCarAudioManager.clearAudioZonesMirrorStatusCallback();
+
+        verify(mServiceMock).unregisterAudioZonesMirrorStatusCallback(captor.getValue());
+    }
+
+    @Test
+    public void clearAudioZonesMirrorStatusCallback_withoutCallbackSet() throws Exception {
+        mCarAudioManager.clearAudioZonesMirrorStatusCallback();
+
+        verify(mServiceMock, never()).unregisterAudioZonesMirrorStatusCallback(any());
+    }
+
+    @Test
+    public void canEnableAudioMirror() throws Exception {
+        when(mServiceMock.canEnableAudioMirror()).thenReturn(
+                CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+
+        expectWithMessage("Audio mirror status").that(mCarAudioManager.canEnableAudioMirror())
+                .isEqualTo(CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+    }
+
+    @Test
+    public void enableMirrorForAudioZones() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doAnswer(invocation -> {
+            int[] zones = invocation.getArgument(0);
+            callback.onAudioZonesMirrorStatusChanged(zones,
+                    CarAudioManager.AUDIO_REQUEST_STATUS_APPROVED);
+            return TEST_REQUEST_ID;
+        }).when(mServiceMock).enableMirrorForAudioZones(any(int[].class));
+
+        long requestId = mCarAudioManager.enableMirrorForAudioZones(zonesToMirrorList);
+
+        expectWithMessage("Request id for enabling mirror for audio zones").that(requestId)
+                .isEqualTo(TEST_REQUEST_ID);
+        verify(mAudioZonesMirrorStatusCallback).onAudioZonesMirrorStatusChanged(zonesToMirrorList,
+                CarAudioManager.AUDIO_REQUEST_STATUS_APPROVED);
+    }
+
+    @Test
+    public void enableMirrorForAudioZones_withNullZoneList_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.enableMirrorForAudioZones(/* audioZonesToMirror= */ null));
+
+        expectWithMessage("Exception for enabling mirror on null zone list").that(thrown)
+                .hasMessageThat().contains("Audio zones to mirror should not be null");
+    }
+
+    @Test
+    public void extendAudioMirrorRequest() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doAnswer(invocation -> {
+            int[] zones = invocation.getArgument(1);
+            callback.onAudioZonesMirrorStatusChanged(zones,
+                    CarAudioManager.AUDIO_REQUEST_STATUS_REJECTED);
+            return null;
+        }).when(mServiceMock).extendAudioMirrorRequest(eq(TEST_REQUEST_ID), any(int[].class));
+
+        mCarAudioManager.extendAudioMirrorRequest(TEST_REQUEST_ID, zonesToMirrorList);
+
+        verify(mAudioZonesMirrorStatusCallback).onAudioZonesMirrorStatusChanged(zonesToMirrorList,
+                CarAudioManager.AUDIO_REQUEST_STATUS_REJECTED);
+    }
+
+    @Test
+    public void extendAudioMirrorRequest_withNullZoneList_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.extendAudioMirrorRequest(TEST_REQUEST_ID,
+                        /* audioZonesToMirror= */ null));
+
+        expectWithMessage("Exception for extending mirror on null zone list").that(thrown)
+                .hasMessageThat().contains("Audio zones to mirror should not be null");
+    }
+
+    @Test
+    public void disableAudioMirror() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        long requestId = mCarAudioManager.enableMirrorForAudioZones(zonesToMirrorList);
+        doAnswer(invocation -> {
+            callback.onAudioZonesMirrorStatusChanged(new int[]{TEST_REAR_LEFT_ZONE_ID,
+                    TEST_REAR_RIGHT_ZONE_ID}, CarAudioManager.AUDIO_REQUEST_STATUS_CANCELLED);
+            return null;
+        }).when(mServiceMock).disableAudioMirror(requestId);
+
+        mCarAudioManager.disableAudioMirror(requestId);
+
+        verify(mAudioZonesMirrorStatusCallback).onAudioZonesMirrorStatusChanged(zonesToMirrorList,
+                CarAudioManager.AUDIO_REQUEST_STATUS_CANCELLED);
+    }
+
+    @Test
+    public void disableAudioMirrorForZone() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doAnswer(invocation -> {
+            callback.onAudioZonesMirrorStatusChanged(new int[]{TEST_REAR_LEFT_ZONE_ID,
+                    TEST_REAR_RIGHT_ZONE_ID}, CarAudioManager.AUDIO_REQUEST_STATUS_CANCELLED);
+            return null;
+        }).when(mServiceMock).disableAudioMirrorForZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        mCarAudioManager.disableAudioMirrorForZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        verify(mAudioZonesMirrorStatusCallback).onAudioZonesMirrorStatusChanged(zonesToMirrorList,
+                CarAudioManager.AUDIO_REQUEST_STATUS_CANCELLED);
+    }
+
+    @Test
+    public void getMirrorAudioZonesForAudioZone() throws Exception {
+        when(mServiceMock.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID)).thenReturn(
+                new int[]{TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID});
+
+        expectWithMessage("Mirror zones for rear right zone").that(mCarAudioManager
+                .getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID)).containsExactly(
+                TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID).inOrder();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForMirrorRequest() throws Exception {
+        when(mServiceMock.getMirrorAudioZonesForMirrorRequest(TEST_REQUEST_ID)).thenReturn(
+                new int[]{TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID});
+
+        expectWithMessage("Mirror zones for request id").that(mCarAudioManager
+                .getMirrorAudioZonesForMirrorRequest(TEST_REQUEST_ID)).containsExactly(
+                TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID).inOrder();
+    }
+
     private ICarVolumeCallback getCarVolumeCallbackImpl(CarAudioManager.CarVolumeCallback
             callbackMock) throws Exception {
         ArgumentCaptor<IBinder> captor = ArgumentCaptor.forClass(IBinder.class);
         mCarAudioManager.registerCarVolumeCallback(callbackMock);
         verify(mServiceMock).registerVolumeCallback(captor.capture());
         return ICarVolumeCallback.Stub.asInterface(captor.getValue());
+    }
+
+    private IPrimaryZoneMediaAudioRequestCallback getPrimaryZoneMediaAudioRequestCallbackImpl(
+            PrimaryZoneMediaAudioRequestCallback callbackMock) throws Exception {
+        when(mServiceMock.registerPrimaryZoneMediaAudioRequestCallback(any())).thenReturn(true);
+        ArgumentCaptor<IPrimaryZoneMediaAudioRequestCallback> captor = ArgumentCaptor.forClass(
+                IPrimaryZoneMediaAudioRequestCallback.class);
+        mCarAudioManager.setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR, callbackMock);
+        verify(mServiceMock).registerPrimaryZoneMediaAudioRequestCallback(captor.capture());
+        return captor.getValue();
+    }
+
+    private IAudioZonesMirrorStatusCallback getAudioZonesMirrorStatusCallbackWrapper()
+            throws Exception {
+        ArgumentCaptor<IAudioZonesMirrorStatusCallback> captor = ArgumentCaptor.forClass(
+                IAudioZonesMirrorStatusCallback.class);
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(
+                any(IAudioZonesMirrorStatusCallback.class))).thenReturn(true);
+        mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                mAudioZonesMirrorStatusCallback);
+        verify(mServiceMock).registerAudioZonesMirrorStatusCallback(captor.capture());
+        return captor.getValue();
     }
 }
