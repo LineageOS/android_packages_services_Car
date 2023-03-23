@@ -85,6 +85,16 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
 
         // DO NOT ADD minor UPSIDE_DOWN_CAKE version until lint tool is working. (b/275125924)
 
+        /**
+         * Helper object for main version of Android 15.
+         */
+        @ApiRequirements(minCarVersion = CarVersion.VANILLA_ICE_CREAM_0,
+                minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final PlatformVersion VANILLA_ICE_CREAM_0 =
+                new PlatformVersion("VANILLA_ICE_CREAM_0", Build.VERSION_CODES.VANILLA_ICE_CREAM,
+                        0);
+
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");
         }
