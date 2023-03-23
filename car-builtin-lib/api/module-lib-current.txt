@@ -494,6 +494,10 @@ package android.car.builtin.util {
     method public void traceEnd();
   }
 
+  public final class UsageStatsManagerHelper {
+    method public static void reportUserInteraction(@NonNull android.app.usage.UsageStatsManager, @NonNull String, int);
+  }
+
   public final class ValidationHelper {
     method public static boolean isAppIdValid(int);
     method public static boolean isUserIdValid(int);
