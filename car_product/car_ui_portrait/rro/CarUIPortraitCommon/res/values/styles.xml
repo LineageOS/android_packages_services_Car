@@ -16,8 +16,8 @@
 
 <resources>
 
-    <style name="TextAppearance.Car" parent="android:TextAppearance.DeviceDefault">
-            <item name="android:fontFamily">google-sans-text</item>
+    <style name="TextAppearance.Car" parent="android:TextAppearance">
+        <item name="android:fontFamily">google-sans-text</item>
     </style>
 
 

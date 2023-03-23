@@ -18,4 +18,14 @@
 
     <!-- ****** Seekbar colors ***** -->
     <color name="car_seekbar_primary_color">@color/car_on_primary_container</color>
+
+    <!-- ****** Toggle button colors ***** -->
+    <color name="car_button_toggle_background_checked">@color/car_primary</color>
+    <color name="car_button_toggle_background_unchecked">@color/car_secondary_container</color>
+    <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
+    <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary_container</color>
+
+    <!-- ****** Button colors ***** -->
+    <color name="car_button_background">@color/car_secondary_container</color>
+    <color name="car_button_foreground">@color/car_on_secondary_container</color>
 </resources>
