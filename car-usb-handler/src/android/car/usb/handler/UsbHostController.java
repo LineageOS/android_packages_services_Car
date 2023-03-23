@@ -31,7 +31,6 @@ import android.util.Log;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -338,17 +337,21 @@ public final class UsbHostController
             sendEmptyMessageDelayed(MSG_DEVICE_REMOVED, DEVICE_REMOVE_TIMEOUT_MS);
         }
 
-        private void onFailure() {
+        private void onFailure(UsbDevice failedDevice) {
             if (mStartAoapRetries == 0) {
                 Log.w(TAG, "Reached maximum retry count for startAoap. Giving up Aoa handshake.");
                 return;
             }
             mStartAoapRetries--;
 
+            UsbDeviceConnection connection = UsbUtil.openConnection(mUsbManager, failedDevice);
+            if (connection != null) {
+                Log.d(TAG, "Resetting USB device.");
+                connection.resetDevice();
+            }
+
             Log.d(TAG, "Restarting USB enumeration.");
-            Iterator<UsbDevice> deviceIterator = mUsbManager.getDeviceList().values().iterator();
-            while (deviceIterator.hasNext()) {
-                UsbDevice device = deviceIterator.next();
+            for (UsbDevice device : mUsbManager.getDeviceList().values()) {
                 if (mLastDeviceId == device.getDeviceId()) {
                     processDevice(device);
                     return;
