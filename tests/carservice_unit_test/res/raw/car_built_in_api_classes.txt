@@ -38,6 +38,7 @@ android.car.builtin.util.EventLogHelper
 android.car.builtin.util.Slogf
 android.car.builtin.util.TimeUtils
 android.car.builtin.util.TimingsTraceLog
+android.car.builtin.util.UsageStatsManagerHelper
 android.car.builtin.util.ValidationHelper
 android.car.builtin.view.DisplayHelper
 android.car.builtin.view.InputEventHelper
