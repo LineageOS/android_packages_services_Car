@@ -53,6 +53,7 @@ import android.util.SparseArray;
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.util.ArrayUtils;
@@ -521,7 +522,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 allPropId[i] = mPropertyIdToCarPropertyConfig.keyAt(i);
             }
         }
-        return getPropertyConfigList(allPropId);
+        return getPropertyConfigList(allPropId).getConfigs();
     }
 
     /**
@@ -530,12 +531,12 @@ public class CarPropertyService extends ICarProperty.Stub
      */
     @NonNull
     @Override
-    public List<CarPropertyConfig> getPropertyConfigList(int[] propIds) {
+    public CarPropertyConfigList getPropertyConfigList(int[] propIds) {
         // Cache the granted permissions
         Set<String> grantedPermission = new HashSet<>();
         List<CarPropertyConfig> availableProp = new ArrayList<>();
         if (propIds == null) {
-            return availableProp;
+            return new CarPropertyConfigList(availableProp);
         }
         for (int propId : propIds) {
             String readPermission = getReadPermission(propId);
@@ -558,7 +559,7 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Slogf.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
-        return availableProp;
+        return new CarPropertyConfigList(availableProp);
     }
 
     private boolean checkAndUpdateGrantedWritePermissionSet(Context context,

@@ -1110,7 +1110,7 @@ public class CarPropertyManager extends CarManagerBase {
             filteredPropertyIdsArray[i] = filteredPropertyIds.get(i);
         }
         try {
-            return mService.getPropertyConfigList(filteredPropertyIdsArray);
+            return mService.getPropertyConfigList(filteredPropertyIdsArray).getConfigs();
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             return handleRemoteExceptionFromCarService(e, new ArrayList<>());
@@ -1132,7 +1132,7 @@ public class CarPropertyManager extends CarManagerBase {
         }
         List<CarPropertyConfig> configs;
         try {
-            configs = mService.getPropertyConfigList(new int[] {propertyId});
+            configs = mService.getPropertyConfigList(new int[] {propertyId}).getConfigs();
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             return handleRemoteExceptionFromCarService(e, null);

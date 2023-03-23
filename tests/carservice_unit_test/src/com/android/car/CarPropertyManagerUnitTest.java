@@ -73,6 +73,7 @@ import android.os.ServiceSpecificException;
 import android.util.ArraySet;
 
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
@@ -182,11 +183,12 @@ public final class CarPropertyManagerUnitTest {
         when(mStaticCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC);
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_CONTINUOUS_PROPERTY})).thenReturn(
-                ImmutableList.of(mContinuousCarPropertyConfig));
+                new CarPropertyConfigList(
+                        ImmutableList.of(mContinuousCarPropertyConfig)));
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_ON_CHANGE_PROPERTY})).thenReturn(
-                ImmutableList.of(mOnChangeCarPropertyConfig));
+                new CarPropertyConfigList(ImmutableList.of(mOnChangeCarPropertyConfig)));
         when(mICarProperty.getPropertyConfigList(new int[]{VENDOR_STATIC_PROPERTY})).thenReturn(
-                ImmutableList.of(mStaticCarPropertyConfig));
+                new CarPropertyConfigList(ImmutableList.of(mStaticCarPropertyConfig)));
         mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
     }
 
@@ -1599,7 +1601,7 @@ public final class CarPropertyManagerUnitTest {
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
-                configs);
+                new CarPropertyConfigList(configs));
         ICarPropertyEventListener listener = getCarPropertyEventListener();
 
         listener.onEvent(eventList);
@@ -1616,7 +1618,7 @@ public final class CarPropertyManagerUnitTest {
                 CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(
-                configs);
+                new CarPropertyConfigList(configs));
         ICarPropertyEventListener listener = getCarPropertyEventListener();
         ArgumentCaptor<CarPropertyValue> value = ArgumentCaptor.forClass(CarPropertyValue.class);
 
@@ -1655,7 +1657,7 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyConfig> expectedConfigs = mock(List.class);
         ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
         when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
-                .thenReturn(expectedConfigs);
+                .thenReturn(new CarPropertyConfigList(expectedConfigs));
 
         assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
                 .isEqualTo(expectedConfigs);
@@ -1672,7 +1674,7 @@ public final class CarPropertyManagerUnitTest {
         List<CarPropertyConfig> expectedConfigs = mock(List.class);
         ArgumentCaptor<int[]> argumentCaptor = ArgumentCaptor.forClass(int[].class);
         when(mICarProperty.getPropertyConfigList(argumentCaptor.capture()))
-                .thenReturn(expectedConfigs);
+                .thenReturn(new CarPropertyConfigList(expectedConfigs));
 
         assertThat(mCarPropertyManager.getPropertyList(new ArraySet<Integer>(requestedPropertyIds)))
                 .isEqualTo(expectedConfigs);
@@ -1685,7 +1687,7 @@ public final class CarPropertyManagerUnitTest {
         CarPropertyConfig mockConfig = mock(CarPropertyConfig.class);
         List<CarPropertyConfig> expectedConfigs = List.of(mockConfig);
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
-                .thenReturn(expectedConfigs);
+                .thenReturn(new CarPropertyConfigList(expectedConfigs));
 
         assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET))
                 .isEqualTo(mockConfig);
@@ -1694,7 +1696,8 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testGetCarPropertyConfig_noConfigReturned() throws Exception {
         when(mICarProperty.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET}))
-                .thenReturn(new ArrayList<CarPropertyConfig>());
+                .thenReturn(new CarPropertyConfigList(
+                        new ArrayList<CarPropertyConfig>()));
 
         assertThat(mCarPropertyManager.getCarPropertyConfig(HVAC_TEMPERATURE_SET)).isNull();
     }

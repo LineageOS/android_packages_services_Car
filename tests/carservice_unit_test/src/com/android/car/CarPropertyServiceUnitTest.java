@@ -713,7 +713,7 @@ public final class CarPropertyServiceUnitTest {
         when(mContext.checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_DISPLAY_UNITS))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         List<CarPropertyConfig> configList = mService.getPropertyConfigList(
-                new int[] { ON_CHANGE_READ_WRITE_PROPERTY_ID });
+                new int[] { ON_CHANGE_READ_WRITE_PROPERTY_ID }).getConfigs();
         assertThat(configList).isEmpty();
     }
 
