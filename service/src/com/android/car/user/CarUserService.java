@@ -34,7 +34,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -415,7 +415,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void priorityInit() {
         // If platform is above U, then use new boot user flow and set the boot user ASAP.
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
         }
     }
@@ -777,7 +777,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // This check is to make sure that initBootUser is called only once during boot.
         // For U and above, different boot user flow is used and initBootUser is called in
         // priorityInit
-        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!isPlatformVersionAtLeastU()) {
             mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
         }
 
@@ -1313,7 +1313,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             UserManager currentUserManager = mContext.createContextAsUser(
                     UserHandle.of(userId), /* flags= */ 0).getSystemService(UserManager.class);
             return currentUserManager.isUserVisible();
