@@ -2350,6 +2350,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void requestMediaAudioOnPrimaryZone_withZoneMirroring_fails()
+            throws Exception {
+        mCarAudioService.init();
+        TestPrimaryZoneMediaAudioRequestCallback
+                requestToken = new TestPrimaryZoneMediaAudioRequestCallback();
+        TestMediaRequestStatusCallback requestCallback = new TestMediaRequestStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.registerPrimaryZoneMediaAudioRequestCallback(requestToken);
+        TestAudioZonesMirrorStatusCallbackCallback mirrorCallback =
+                getAudioZonesMirrorStatusCallback();
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        mirrorCallback.waitForCallback();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () ->
+                        mCarAudioService.requestMediaAudioOnPrimaryZone(requestCallback,
+                        TEST_REAR_RIGHT_PASSENGER_OCCUPANT));
+
+        expectWithMessage("Request audio share while mirroring exception").that(thrown)
+                .hasMessageThat().contains("Can not request audio share to primary zone");
+    }
+
+    @Test
     public void allowMediaAudioOnPrimaryZone_withAllowedRequest() throws Exception {
         mCarAudioService.init();
         TestPrimaryZoneMediaAudioRequestCallback
@@ -2365,6 +2387,36 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 /* allowed= */ true);
 
         expectWithMessage("Allowed audio playback").that(results).isTrue();
+    }
+
+    @Test
+    public void allowMediaAudioOnPrimaryZone_whileMirroring_fails() throws Exception {
+        mCarAudioService.init();
+        TestPrimaryZoneMediaAudioRequestCallback
+                requestToken = new TestPrimaryZoneMediaAudioRequestCallback();
+        TestMediaRequestStatusCallback requestCallback = new TestMediaRequestStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.registerPrimaryZoneMediaAudioRequestCallback(requestToken);
+        long shareId = mCarAudioService.requestMediaAudioOnPrimaryZone(requestCallback,
+                TEST_REAR_RIGHT_PASSENGER_OCCUPANT);
+        requestToken.waitForCallback();
+        TestAudioZonesMirrorStatusCallbackCallback mirrorCallback =
+                getAudioZonesMirrorStatusCallback();
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        mirrorCallback.waitForCallback();
+        requestCallback.waitForCallback();
+
+        IllegalStateException thrown =
+                assertThrows(IllegalStateException.class, () -> mCarAudioService
+                        .allowMediaAudioOnPrimaryZone(requestToken, shareId, /* allowed= */ true));
+
+        expectWithMessage("Allow audio share while mirroring exception").that(thrown)
+                .hasMessageThat().contains("Can not allow audio share to primary zone");
+        requestCallback.waitForCallback();
+        expectWithMessage("Rejected status due to mirroring").that(requestCallback.mStatus)
+                .isEqualTo(CarAudioManager.AUDIO_REQUEST_STATUS_REJECTED);
+        expectWithMessage("Rejected id with rejected due to mirroring")
+                .that(requestCallback.mRequestId).isEqualTo(shareId);
     }
 
     @Test
