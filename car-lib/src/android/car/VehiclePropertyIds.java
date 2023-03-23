@@ -4221,6 +4221,10 @@ public final class VehiclePropertyIds {
      * {@link android.car.hardware.CarPropertyConfig#getAreaIdConfig(int)} specifies which states
      * from {@link android.car.hardware.property.CruiseControlCommand} are supported.
      *
+     * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
+     * false), writing this property will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
@@ -4256,8 +4260,9 @@ public final class VehiclePropertyIds {
      * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue(int)} represents the upper
      * bound of the target speed.
      *
-     * <p>Reading when this property is unavailable (for example when {@link CRUISE_CONTROL_ENABLED}
-     * is false) will throw a {@link android.car.hardware.property.PropertyNotAvailableException}.
+     * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
+     * false), reading this property will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
      *
      * <p>Property Config:
      * <ul>
@@ -4295,7 +4300,8 @@ public final class VehiclePropertyIds {
      * configArray} in ascending order. All values must be positive. If the property is writable,
      * all values must be writable.
      *
-     * <p>Writing when this property is unavailable will throw a {@link
+     * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
+     * false), reading or writing this property will throw a {@link
      * android.car.hardware.property.PropertyNotAvailableException}.
      *
      * <p>Property Config:
@@ -4336,6 +4342,10 @@ public final class VehiclePropertyIds {
      *
      * <p>When no lead vehicle is detected (that is, when there is no leading vehicle or the leading
      * vehicle is too far away for the sensor to detect), this property will throw a {@link
+     * android.car.hardware.property.PropertyNotAvailableException}.
+     *
+     * <p>When this property is unavailable (for example when {@link #CRUISE_CONTROL_ENABLED} is
+     * false), reading this property will throw a {@link
      * android.car.hardware.property.PropertyNotAvailableException}.
      *
      * <p>Property Config:
