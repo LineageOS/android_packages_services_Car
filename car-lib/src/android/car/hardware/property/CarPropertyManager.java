@@ -16,6 +16,7 @@
 
 package android.car.hardware.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
 
@@ -48,6 +49,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.CarPropertyEventCallbackController;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
@@ -129,6 +131,12 @@ public class CarPropertyManager extends CarManagerBase {
                     }
                 }
             };
+
+    private final GetPropertyResultCallback mGetPropertyResultCallback =
+            new GetPropertyResultCallback();
+
+    private final SetPropertyResultCallback mSetPropertyResultCallback =
+            new SetPropertyResultCallback();
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -554,6 +562,26 @@ public class CarPropertyManager extends CarManagerBase {
             mErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
             mVendorErrorCode = errorCode >>> VENDOR_ERROR_CODE_SHIFT;
         }
+
+        /**
+         * Prints out debug message.
+         */
+        @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        public String toString() {
+            return new StringBuilder()
+                    .append("PropertyAsyncError{request ID: ")
+                    .append(mRequestId)
+                    .append(", property: ")
+                    .append(VehiclePropertyIds.toString(mPropertyId))
+                    .append(", areaId: ")
+                    .append(mAreaId)
+                    .append(", error code: ")
+                    .append(mErrorCode)
+                    .append(", vendor error code: ")
+                    .append(mVendorErrorCode)
+                    .append("}").toString();
+        }
     }
 
     /**
@@ -628,6 +656,28 @@ public class CarPropertyManager extends CarManagerBase {
             mTimestampNanos = timestampNanos;
             mValue = value;
         }
+
+        /**
+         * Prints out debug message.
+         */
+        @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        public String toString() {
+            return new StringBuilder()
+                    .append("GetPropertyResult{type: ")
+                    .append(mValue.getClass())
+                    .append(", request ID: ")
+                    .append(mRequestId)
+                    .append(", property: ")
+                    .append(VehiclePropertyIds.toString(mPropertyId))
+                    .append(", areaId: ")
+                    .append(mAreaId)
+                    .append(", value: ")
+                    .append(mValue)
+                    .append(", timestamp: ")
+                    .append(mTimestampNanos).append("ns")
+                    .append("}").toString();
+        }
     }
 
     /**
@@ -688,17 +738,89 @@ public class CarPropertyManager extends CarManagerBase {
             return mUpdateTimestampNanos;
         }
 
-        SetPropertyResult(int requestId, int propertyId, int areaId, int updateTimestampNanos) {
+        SetPropertyResult(int requestId, int propertyId, int areaId, long updateTimestampNanos) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
             mUpdateTimestampNanos = updateTimestampNanos;
         }
+
+        /**
+         * Prints out debug message.
+         */
+        @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+        public String toString() {
+            return new StringBuilder()
+                    .append("SetPropertyResult{request ID: ")
+                    .append(mRequestId)
+                    .append(", property: ")
+                    .append(VehiclePropertyIds.toString(mPropertyId))
+                    .append(", areaId: ")
+                    .append(mAreaId)
+                    .append(", updated timestamp: ")
+                    .append(mUpdateTimestampNanos).append("ns")
+                    .append("}").toString();
+        }
     }
 
     /**
-     * A class for delivering {@link GetPropertyCallback} client callback when
-     * {@link IAsyncPropertyResultCallback} returns a result.
+     * An abstract interface for converting async get/set result and calling client callbacks.
+     */
+    private interface PropertyResultCallback<CallbackType, ResultType> {
+        ResultType build(int requestId, int propertyId, int areaId, long timestampNanos,
+                @Nullable Object value);
+        void onSuccess(CallbackType callback, ResultType result);
+        void onFailure(CallbackType callback, PropertyAsyncError error);
+    }
+
+    /**
+     * Class to hide implementation detail for get/set callbacks.
+     */
+    private static final class GetPropertyResultCallback implements
+            PropertyResultCallback<GetPropertyCallback, GetPropertyResult> {
+        public GetPropertyResult build(int requestId, int propertyId, int areaId,
+                long timestampNanos, @Nullable Object value) {
+            return new GetPropertyResult(requestId, propertyId, areaId, timestampNanos, value);
+        }
+
+        public void onSuccess(GetPropertyCallback callback, GetPropertyResult result) {
+            if (DBG) {
+                Log.d(TAG, "delivering success get property result: " + result);
+            }
+            callback.onSuccess(result);
+        }
+
+        public void onFailure(GetPropertyCallback callback, PropertyAsyncError error) {
+            if (DBG) {
+                Log.d(TAG, "delivering error get property result: " + error);
+            }
+            callback.onFailure(error);
+        }
+    }
+
+    /**
+     * Class to hide implementation detail for get/set callbacks.
+     */
+    private static final class SetPropertyResultCallback implements
+            PropertyResultCallback<SetPropertyCallback, SetPropertyResult> {
+        public  SetPropertyResult build(int requestId, int propertyId, int areaId,
+                long timestampNanos, @Nullable Object value) {
+            return new SetPropertyResult(requestId, propertyId, areaId, timestampNanos);
+        }
+
+        public void onSuccess(SetPropertyCallback callback, SetPropertyResult result) {
+            callback.onSuccess(result);
+        }
+
+        public void onFailure(SetPropertyCallback callback, PropertyAsyncError error) {
+            callback.onFailure(error);
+        }
+    }
+
+    /**
+     * A class for delivering {@link GetPropertyCallback} or {@link SetPropertyCallback} client
+     * callback when {@link IAsyncPropertyResultCallback} returns results.
      */
     private class AsyncPropertyResultCallback extends IAsyncPropertyResultCallback.Stub {
 
@@ -709,51 +831,78 @@ public class CarPropertyManager extends CarManagerBase {
 
         @Override
         public void onGetValueResults(List<GetSetValueResult> getValueResults) {
-            for (int i = 0; i < getValueResults.size(); i++) {
-                GetSetValueResult getValueResult = getValueResults.get(i);
-                int requestId = getValueResult.getRequestId();
-                AsyncPropertyRequestInfo<GetPropertyRequest, GetPropertyCallback> requestInfo;
+            this.<GetPropertyRequest, GetPropertyCallback, GetPropertyResult>onResults(
+                    getValueResults, mGetPropertyResultCallback);
+        }
+
+        @Override
+        public void onSetValueResults(List<GetSetValueResult> setValueResults) {
+            this.<SetPropertyRequest<?>, SetPropertyCallback, SetPropertyResult>onResults(
+                    setValueResults, mSetPropertyResultCallback);
+        }
+
+        private <RequestType extends AsyncPropertyRequest, CallbackType, ResultType> void onResults(
+                List<GetSetValueResult> results,
+                PropertyResultCallback<CallbackType, ResultType> propertyResultCallback) {
+            for (int i = 0; i < results.size(); i++) {
+                GetSetValueResult result = results.get(i);
+                int requestId = result.getRequestId();
+                AsyncPropertyRequestInfo<RequestType, CallbackType> requestInfo;
                 synchronized (mLock) {
                     requestInfo =
-                            (AsyncPropertyRequestInfo<GetPropertyRequest, GetPropertyCallback>)
+                            (AsyncPropertyRequestInfo<RequestType, CallbackType>)
                             mRequestIdToAsyncRequestInfo.get(requestId);
                     mRequestIdToAsyncRequestInfo.remove(requestId);
                 }
                 if (requestInfo == null) {
-                    Log.w(TAG, "onGetValueResult: Request ID: " + requestId
+                    Log.w(TAG, "onResults: Request ID: " + requestId
                             + " might have been completed, cancelled or an exception might have "
                             + "been thrown");
                     continue;
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
-                GetPropertyCallback getPropertyCallback = requestInfo.getCallback();
-                int errorCode = getValueResult.getErrorCode();
+                CallbackType clientCallback = requestInfo.getCallback();
+                int errorCode = result.getErrorCode();
                 @CarPropertyAsyncErrorCode
                 int asyncErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
+                int propertyId = requestInfo.getRequest().getPropertyId();
+                String propertyName = VehiclePropertyIds.toString(propertyId);
+                int areaId = requestInfo.getRequest().getAreaId();
                 if (asyncErrorCode == STATUS_OK) {
-                    CarPropertyValue<?> carPropertyValue = getValueResult.getCarPropertyValue();
-                    int propertyId = carPropertyValue.getPropertyId();
-                    int areaId = carPropertyValue.getAreaId();
+                    CarPropertyValue<?> carPropertyValue = result.getCarPropertyValue();
+                    long timestampNanos;
+                    if (carPropertyValue != null) {
+                        // This is a get result.
+                        int valuePropertyId = carPropertyValue.getPropertyId();
+                        if (propertyId  != valuePropertyId) {
+                            Log.e(TAG, "onResults: Request ID: " + requestId + " received get "
+                                    + "property value result, but has mismatch property ID, "
+                                    + " expect: " + propertyName + ", got: "
+                                    + VehiclePropertyIds.toString(valuePropertyId));
+                        }
+                        int valueAreaId = carPropertyValue.getAreaId();
+                        if (areaId  != valueAreaId) {
+                            Log.e(TAG, "onResults: Property: " + propertyName + " Request ID: "
+                                    + requestId + " received get property value result, but has "
+                                    + "mismatch area ID, expect: " + areaId + ", got: "
+                                    + valueAreaId);
+                        }
+                        timestampNanos = carPropertyValue.getTimestamp();
+                    } else {
+                        // This is a set result.
+                        timestampNanos = result.getUpdateTimestampNanos();
+                    }
 
-                    long timestampNanos = carPropertyValue.getTimestamp();
-                    callbackExecutor.execute(() -> getPropertyCallback.onSuccess(
-                            new GetPropertyResult(requestId, propertyId, areaId,
-                                    timestampNanos, carPropertyValue.getValue())));
+                    ResultType clientResult = propertyResultCallback.build(
+                            requestId, propertyId, areaId, timestampNanos,
+                            carPropertyValue == null ? null : carPropertyValue.getValue());
+                    callbackExecutor.execute(() -> propertyResultCallback.onSuccess(
+                            clientCallback, clientResult));
                 } else {
-                    // We are not receiving property Id and areaId from the result, so we use
-                    // the ones from the request.
-                    int propertyId = requestInfo.getRequest()
-                            .getPropertyId();
-                    int areaId = requestInfo.getRequest().getAreaId();
-                    callbackExecutor.execute(() -> getPropertyCallback.onFailure(
+                    callbackExecutor.execute(() -> propertyResultCallback.onFailure(clientCallback,
                             new PropertyAsyncError(requestId, propertyId, areaId, errorCode)));
                 }
             }
-        }
-
-        @Override
-        public void onSetValueResults(List<GetSetValueResult> getValueResults) {
-            // TODO(b/264719384): Implement this.
         }
     }
 
