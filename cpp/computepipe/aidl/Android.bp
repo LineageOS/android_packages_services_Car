@@ -16,6 +16,7 @@ aidl_interface {
     // Automotive has different platform schedule. We shouldn't need to
     // freeze Auto interfaces when the mainline Android launches.
     owner: "automotive",
+    frozen: false,
     backend: {
         java: {
             enabled: false,
@@ -24,7 +25,12 @@ aidl_interface {
             enabled: false,
         },
     },
-    versions: ["1"],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.hardware.graphics.common-V1"],
+        }
+    ],
 }
 
 aidl_interface {
@@ -39,6 +45,7 @@ aidl_interface {
     // Automotive has different platform schedule. We shouldn't need to
     // freeze Auto interfaces when the mainline Android launches.
     owner: "automotive",
+    frozen: false,
     backend: {
         java: {
             enabled: false,
@@ -47,5 +54,10 @@ aidl_interface {
             enabled: false,
         },
     },
-    versions: ["1"],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.automotive.computepipe.runner-V1"],
+        }
+    ],
 }
