@@ -54,6 +54,7 @@ allow carservice_app {
     timedetector_service
     timezonedetector_service
     uimode_service
+    usagestats_service
     voiceinteraction_service
     wifi_service
     wifiscanner_service
