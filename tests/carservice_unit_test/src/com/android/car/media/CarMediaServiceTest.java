@@ -43,6 +43,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
+import android.app.usage.UsageStatsManager;
 import android.car.Car;
 import android.car.media.ICarMediaSourceListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -119,6 +120,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserHandleHelper mUserHandleHelper;
     @Mock private SharedPreferences mMockSharedPreferences;
     @Mock private SharedPreferences.Editor mMockSharedPreferencesEditor;
+    @Mock private UsageStatsManager mMockUsageStatsManager;
 
     private CarMediaService mCarMediaService;
 
@@ -162,7 +164,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         mockGetCallingUserHandle(TEST_USER_ID);
         when(mUserHandleHelper.isEphemeralUser(UserHandle.of(TEST_USER_ID))).thenReturn(false);
         doReturn(mMediaSessionManager).when(mContext).getSystemService(MediaSessionManager.class);
-
+        doReturn(mMockUsageStatsManager).when(mContext).getSystemService(UsageStatsManager.class);
         mCarMediaService = new CarMediaService(mContext, mMockOccupantZoneService, mUserService,
                 mUserHandleHelper);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
