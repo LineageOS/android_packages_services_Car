@@ -810,9 +810,9 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         when(mCarOccupantZoneService.getUserForDisplayId(displayId)).thenReturn(userId);
     }
 
-    protected void mockCarServiceHelperGetDisplayAssignedToUser(@UserIdInt int userId,
+    protected void mockCarServiceHelperGetMainDisplayAssignedToUser(@UserIdInt int userId,
             int displayId) throws Exception {
-        when(mICarServiceHelper.getDisplayAssignedToUser(userId)).thenReturn(displayId);
+        when(mICarServiceHelper.getMainDisplayAssignedToUser(userId)).thenReturn(displayId);
     }
 
     protected void mockUserHalSupported(boolean result) {
