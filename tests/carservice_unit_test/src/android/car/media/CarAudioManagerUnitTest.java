@@ -18,8 +18,11 @@ package android.car.media;
 
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
+import static android.media.AudioDeviceInfo.TYPE_BUILTIN_MIC;
+import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,12 +40,15 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
+import android.media.AudioDeviceAttributes;
+import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 
 import com.android.car.CarServiceUtils;
+import com.android.car.audio.AudioDeviceInfoBuilder;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +64,10 @@ import java.util.concurrent.Executor;
 public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     private static final String Car_AUDIO_MANAGER_TEST_THREAD_NAME = "CarAudioManagerUnitTest";
+    private static final String MICROPHONE_ADDRESS = "Built-In Mic";
+    private static final String FM_TUNER_ADDRESS = "FM Tuner";
+    private static final String MEDIA_TEST_DEVICE = "media_bus_device";
+    private static final String NAVIGATION_TEST_DEVICE = "navigation_bus_device";
     private static final int TEST_REAR_LEFT_ZONE_ID = 1;
     private static final int TEST_REAR_RIGHT_ZONE_ID = 2;
     private static final int TEST_FRONT_ZONE_ID = 3;
@@ -72,6 +82,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_UID = 15;
     private static final long TEST_TIME_OUT_MS = 500;
     private static final long TEST_REQUEST_ID = 1;
+
+    private static final AudioDeviceInfo  TEST_MICROPHONE_INPUT_DEVICE = new
+            AudioDeviceInfoBuilder().setAddressName(MICROPHONE_ADDRESS)
+            .setType(TYPE_BUILTIN_MIC).setIsSource(true).build();
+    private static final AudioDeviceInfo TEST_TUNER_INPUT_DEVICE = new AudioDeviceInfoBuilder()
+                .setAddressName(FM_TUNER_ADDRESS).setType(TYPE_FM_TUNER).setIsSource(true).build();
+    private static final AudioDeviceInfo TEST_MEDIA_OUTPUT_DEVICE = new AudioDeviceInfoBuilder()
+            .setAddressName(MEDIA_TEST_DEVICE).build();
+    private static final AudioDeviceInfo TEST_NAV_OUTPUT_DEVICE = new AudioDeviceInfoBuilder()
+            .setAddressName(NAVIGATION_TEST_DEVICE).build();
 
     private static final Executor DIRECT_EXECUTOR = Runnable::run;
 
@@ -102,7 +122,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     @Mock
     private CarAudioManager.CarVolumeCallback mVolumeCallbackMock2;
     @Mock
+    private CarAudioZoneConfigInfo mZoneConfigInfoMock1;
+    @Mock
+    private CarAudioZoneConfigInfo mZoneConfigInfoMock2;
+    @Mock
     private OccupantZoneInfo mOccupantZoneInfoMock;
+    @Mock
+    private SwitchAudioZoneConfigCallback mSwitchCallbackMock;
+    @Mock
+    private CarVolumeGroupEventCallback mVolumeGroupEventCallbackMock1;
+    @Mock
+    private CarVolumeGroupEventCallback mVolumeGroupEventCallbackMock2;
     @Mock
     private PrimaryZoneMediaAudioRequestCallback mPrimaryZoneMediaAudioRequestCallbackMock;
     @Mock
@@ -363,6 +393,147 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void registerCarVolumeGroupEventCallback() throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+
+        expectWithMessage("Status for registering car volume group event callback")
+                .that(mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                        mVolumeGroupEventCallbackMock1)).isTrue();
+    }
+
+    @Test
+    public void registerCarVolumeGroupEventCallback_withMultipleCallbacks() throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                mVolumeGroupEventCallbackMock1);
+        verify(mServiceMock).registerCarVolumeEventCallback(any());
+
+        expectWithMessage("Status for registering second car volume group event callback")
+                .that(mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                        mVolumeGroupEventCallbackMock2)).isTrue();
+        verify(mServiceMock).registerCarVolumeEventCallback(any());
+    }
+
+    @Test
+    public void registerCarVolumeGroupEventCallback_withServiceReturnsFalse_returnsFalse()
+            throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(false);
+
+        expectWithMessage("Failure for registering car volume group event callback")
+                .that(mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                        mVolumeGroupEventCallbackMock1)).isFalse();
+    }
+
+    @Test
+    public void registerCarVolumeGroupEventCallback_withSameCallbackforMultipleTimes_returnsFalse()
+            throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                mVolumeGroupEventCallbackMock1);
+
+        expectWithMessage("Failure for registering car volume group event callback "
+                + "for multiple times").that(mCarAudioManager.registerCarVolumeGroupEventCallback(
+                        DIRECT_EXECUTOR, mVolumeGroupEventCallbackMock1)).isFalse();
+    }
+
+    @Test
+    public void registerCarVolumeGroupEventCallback_withNullExecutor_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.registerCarVolumeGroupEventCallback(/* executor= */ null,
+                        mVolumeGroupEventCallbackMock1));
+
+        expectWithMessage("Exception for registering car volume group event callback with "
+                + "null executor").that(thrown).hasMessageThat()
+                .contains("Executor can not be null");
+    }
+
+    @Test
+    public void registerCarVolumeGroupEventCallback_withNullCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                        /* callback= */ null));
+
+        expectWithMessage("Exception for registering null car volume group event callback")
+                .that(thrown).hasMessageThat()
+                .contains("Car volume event callback can not be null");
+    }
+
+    @Test
+    public void unregisterCarVolumeGroupEventCallback_withPartOfCallbacks() throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                mVolumeGroupEventCallbackMock2);
+
+        mCarAudioManager.unregisterCarVolumeGroupEventCallback(mVolumeGroupEventCallbackMock1);
+
+        verify(mServiceMock, never()).unregisterCarVolumeEventCallback(serviceCallback);
+    }
+
+    @Test
+    public void unregisterCarVolumeGroupEventCallback_withAllCallbacks() throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                mVolumeGroupEventCallbackMock2);
+        mCarAudioManager.unregisterCarVolumeGroupEventCallback(mVolumeGroupEventCallbackMock1);
+        verify(mServiceMock, never()).unregisterCarVolumeEventCallback(serviceCallback);
+
+        mCarAudioManager.unregisterCarVolumeGroupEventCallback(mVolumeGroupEventCallbackMock2);
+
+        verify(mServiceMock).unregisterCarVolumeEventCallback(serviceCallback);
+    }
+
+    @Test
+    public void unregisterCarVolumeGroupEventCallback_withNullCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.unregisterCarVolumeGroupEventCallback(/* callback= */ null));
+
+        expectWithMessage("Exception for unregistering null car volume group event callback")
+                .that(thrown).hasMessageThat()
+                .contains("Car volume event callback can not be null");
+    }
+
+    @Test
+    public void onVolumeGroupEvent_forICarVolumeEventCallback() throws Exception {
+        List<CarVolumeGroupEvent> groupEvents = List.of(new CarVolumeGroupEvent.Builder(
+                List.of(mCarVolumeGroupInfoMock1), CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED)
+                        .build(), new CarVolumeGroupEvent.Builder(
+                List.of(mCarVolumeGroupInfoMock2),
+                CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED).build());
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                mVolumeGroupEventCallbackMock2);
+
+        serviceCallback.onVolumeGroupEvent(groupEvents);
+
+        verify(mVolumeGroupEventCallbackMock1, timeout(TEST_TIME_OUT_MS)).onVolumeGroupEvent(
+                groupEvents);
+        verify(mVolumeGroupEventCallbackMock2, timeout(TEST_TIME_OUT_MS)).onVolumeGroupEvent(
+                groupEvents);
+    }
+
+    @Test
+    public void onMasterMuteChanged_forICarVolumeEventCallback() throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock1);
+        mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock2);
+        ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
+
+        serviceCallback.onMasterMuteChanged(TEST_REAR_RIGHT_ZONE_ID, TEST_FLAGS);
+
+        verify(mVolumeCallbackMock1, timeout(TEST_TIME_OUT_MS)).onMasterMuteChanged(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_FLAGS);
+        verify(mVolumeCallbackMock2, timeout(TEST_TIME_OUT_MS)).onMasterMuteChanged(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_FLAGS);
+    }
+
+    @Test
     public void isVolumeGroupMuted() throws Exception {
         when(mServiceMock.isVolumeGroupMuted(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID))
                 .thenReturn(true);
@@ -459,6 +630,78 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
         verify(mVolumeCallbackMock1, timeout(TEST_TIME_OUT_MS)).onMasterMuteChanged(
                 TEST_REAR_LEFT_ZONE_ID, TEST_FLAGS);
+    }
+
+    @Test
+    public void getAudioZoneConfigInfos() throws Exception {
+        List<CarAudioZoneConfigInfo> zoneConfigInfos = List.of(mZoneConfigInfoMock1,
+                mZoneConfigInfoMock2);
+        when(mServiceMock.getAudioZoneConfigInfos(TEST_REAR_RIGHT_ZONE_ID))
+                .thenReturn(zoneConfigInfos);
+
+        expectWithMessage("All configuration infos for rear right zone")
+                .that(mCarAudioManager.getAudioZoneConfigInfos(TEST_REAR_RIGHT_ZONE_ID))
+                .isEqualTo(zoneConfigInfos);
+    }
+
+    @Test
+    public void getCurrentAudioZoneConfigInfo() throws Exception {
+        when(mServiceMock.getCurrentAudioZoneConfigInfo(TEST_REAR_RIGHT_ZONE_ID))
+                .thenReturn(mZoneConfigInfoMock1);
+
+        expectWithMessage("Current configuration info for rear right zone")
+                .that(mCarAudioManager.getCurrentAudioZoneConfigInfo(TEST_REAR_RIGHT_ZONE_ID))
+                .isEqualTo(mZoneConfigInfoMock1);
+    }
+
+    @Test
+    public void switchAudioZoneToConfig() throws Exception {
+        doAnswer(invocation -> {
+            CarAudioZoneConfigInfo configInfoToSwitch = invocation.getArgument(0);
+            ISwitchAudioZoneConfigCallback serviceCallback = invocation.getArgument(1);
+            serviceCallback.onAudioZoneConfigSwitched(configInfoToSwitch, /* isSuccessful= */ true);
+            return null;
+        }).when(mServiceMock).switchZoneToConfig(any(CarAudioZoneConfigInfo.class),
+                any(ISwitchAudioZoneConfigCallback.class));
+
+        mCarAudioManager.switchAudioZoneToConfig(mZoneConfigInfoMock1, DIRECT_EXECUTOR,
+                mSwitchCallbackMock);
+
+        verify(mSwitchCallbackMock).onAudioZoneConfigSwitched(mZoneConfigInfoMock1,
+                /* isSuccessful= */ true);
+    }
+
+    @Test
+    public void switchAudioZoneToConfig_withNullConfig_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.switchAudioZoneToConfig(/* zoneConfig= */ null, DIRECT_EXECUTOR,
+                        mSwitchCallbackMock));
+
+        expectWithMessage("Exception for switching zone configuration with null executor")
+                .that(thrown).hasMessageThat()
+                .contains("Audio zone configuration can not be null");
+    }
+
+    @Test
+    public void switchAudioZoneToConfig_withNullExecutor_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.switchAudioZoneToConfig(mZoneConfigInfoMock1, /* executor= */ null,
+                        mSwitchCallbackMock));
+
+        expectWithMessage("Exception for switching zone configuration with null executor")
+                .that(thrown).hasMessageThat()
+                .contains("Executor can not be null");
+    }
+
+    @Test
+    public void switchAudioZoneToConfig_withNullCallback_fails() {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () ->
+                mCarAudioManager.switchAudioZoneToConfig(mZoneConfigInfoMock1, DIRECT_EXECUTOR,
+                        /* callback= */ null));
+
+        expectWithMessage("Exception for switching zone configuration with null callback")
+                .that(thrown).hasMessageThat()
+                .contains("Switching audio zone configuration result callback can not be null");
     }
 
     @Test
@@ -877,12 +1120,79 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
                 TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID).inOrder();
     }
 
+    @Test
+    public void getOutputDeviceForUsage() throws Exception {
+        when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).thenReturn(
+                new AudioDeviceInfo[]{TEST_MEDIA_OUTPUT_DEVICE, TEST_NAV_OUTPUT_DEVICE});
+        when(mServiceMock.getOutputDeviceAddressForUsage(PRIMARY_AUDIO_ZONE,
+                USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)).thenReturn(NAVIGATION_TEST_DEVICE);
+
+        AudioDeviceInfo outputDevice = mCarAudioManager.getOutputDeviceForUsage(PRIMARY_AUDIO_ZONE,
+                USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+
+        expectWithMessage("Navigation output device").that(outputDevice)
+                .isEqualTo(TEST_NAV_OUTPUT_DEVICE);
+    }
+
+    @Test
+    public void getOutputDeviceForUsage_withDeviceAddressNotFound_returnsNull() throws Exception {
+        String invalidDeviceAddress = "invalid_bus";
+        when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_OUTPUTS)).thenReturn(
+                new AudioDeviceInfo[]{TEST_MEDIA_OUTPUT_DEVICE, TEST_NAV_OUTPUT_DEVICE});
+        when(mServiceMock.getOutputDeviceAddressForUsage(PRIMARY_AUDIO_ZONE,
+                USAGE_GAME)).thenReturn(invalidDeviceAddress);
+
+        expectWithMessage("Null output device").that(mCarAudioManager.getOutputDeviceForUsage(
+                PRIMARY_AUDIO_ZONE, USAGE_GAME)).isNull();
+    }
+
+    @Test
+    public void getInputDevicesForZoneId() throws Exception {
+        List<AudioDeviceAttributes> inputDevicesFromService = List.of(
+                new AudioDeviceAttributes(TEST_MICROPHONE_INPUT_DEVICE), new AudioDeviceAttributes(
+                        TEST_TUNER_INPUT_DEVICE));
+        when(mServiceMock.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).thenReturn(
+                inputDevicesFromService);
+        when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_INPUTS)).thenReturn(
+                new AudioDeviceInfo[]{TEST_MICROPHONE_INPUT_DEVICE, TEST_TUNER_INPUT_DEVICE});
+
+        List<AudioDeviceInfo> inputDevices = mCarAudioManager.getInputDevicesForZoneId(
+                PRIMARY_AUDIO_ZONE);
+
+        expectWithMessage("Input devices for primary zone").that(inputDevices)
+                .containsExactly(TEST_MICROPHONE_INPUT_DEVICE, TEST_TUNER_INPUT_DEVICE);
+    }
+
+    @Test
+    public void getInputDevicesForZoneId_withInvalidDevicesInAudioManager() throws Exception {
+        List<AudioDeviceAttributes> inputDevicesFromService = List.of(new AudioDeviceAttributes(
+                TEST_MICROPHONE_INPUT_DEVICE));
+        when(mServiceMock.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).thenReturn(
+                inputDevicesFromService);
+        when(mAudioManagerMock.getDevices(AudioManager.GET_DEVICES_INPUTS)).thenReturn(
+                new AudioDeviceInfo[]{TEST_MEDIA_OUTPUT_DEVICE, TEST_TUNER_INPUT_DEVICE});
+
+        List<AudioDeviceInfo> inputDevices = mCarAudioManager.getInputDevicesForZoneId(
+                PRIMARY_AUDIO_ZONE);
+
+        expectWithMessage("No input devices found for primary zone").that(inputDevices).isEmpty();
+    }
+
     private ICarVolumeCallback getCarVolumeCallbackImpl(CarAudioManager.CarVolumeCallback
             callbackMock) throws Exception {
         ArgumentCaptor<IBinder> captor = ArgumentCaptor.forClass(IBinder.class);
         mCarAudioManager.registerCarVolumeCallback(callbackMock);
         verify(mServiceMock).registerVolumeCallback(captor.capture());
         return ICarVolumeCallback.Stub.asInterface(captor.getValue());
+    }
+
+    private ICarVolumeEventCallback getCarVolumeEventCallbackImpl(CarVolumeGroupEventCallback
+            callbackMock) throws Exception {
+        mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR, callbackMock);
+        ArgumentCaptor<ICarVolumeEventCallback> captor = ArgumentCaptor.forClass(
+                ICarVolumeEventCallback.class);
+        verify(mServiceMock).registerCarVolumeEventCallback(captor.capture());
+        return captor.getValue();
     }
 
     private IPrimaryZoneMediaAudioRequestCallback getPrimaryZoneMediaAudioRequestCallbackImpl(
