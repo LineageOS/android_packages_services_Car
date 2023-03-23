@@ -1234,7 +1234,7 @@ public class CarPropertyManager extends CarManagerBase {
     public List<CarPropertyConfig> getPropertyList() {
         List<CarPropertyConfig> configs;
         try {
-            configs = mService.getPropertyList();
+            configs = mService.getPropertyList().getConfigs();
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             return handleRemoteExceptionFromCarService(e, new ArrayList<>());

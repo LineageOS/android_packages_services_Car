@@ -33,7 +33,7 @@ interface ICarProperty {
 
     void unregisterListener(int propId, in ICarPropertyEventListener callback) = 1;
 
-    List<CarPropertyConfig> getPropertyList() = 2;
+    CarPropertyConfigList getPropertyList() = 2;
 
     CarPropertyValue getProperty(int prop, int zone) = 3;
 
