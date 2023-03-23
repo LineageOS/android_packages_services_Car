@@ -23,6 +23,7 @@ import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.UserManager;
 import android.security.AttestedKeyPair;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -68,6 +69,11 @@ final class KitchenSinkShellCommand {
     private static final String CMD_POST_NOTIFICATION = "post-notification";
     private static final String CMD_POST_TOAST = "post-toast";
     private static final String CMD_SET_DRIVE_MODE_SWITCH= "set-drive-mode-switch";
+
+    private static final String ARG_VERBOSE = "-v";
+    private static final String ARG_VERBOSE_FULL = "--verbose";
+    private static final String ARG_USES_APP_CONTEXT = "--app-context";
+    private static final String ARG_LONG_TOAST = "--long-toast";
 
     private final Context mContext;
     private final @Nullable DevicePolicyManager mDpm;
@@ -144,8 +150,10 @@ final class KitchenSinkShellCommand {
                 CMD_GENERATE_DEVICE_ATTESTATION_KEY_PAIR, "<ALIAS>", "[FLAGS]");
         showCommandHelp("Post Notification.",
                 CMD_POST_NOTIFICATION, "<MESSAGE>");
-        showCommandHelp("Post Toast.",
-                CMD_POST_TOAST, "<MESSAGE>");
+        showCommandHelp("Post a Toast with the given message and options.",
+                CMD_POST_TOAST, "[" + ARG_VERBOSE + "|" + ARG_VERBOSE_FULL + "]",
+                "[" + ARG_USES_APP_CONTEXT + "]", "[" + ARG_LONG_TOAST + "]",
+                "<MESSAGE>");
         showCommandHelp("Enables / Disables the DriveMode Switch in the System UI.",
                 CMD_SET_DRIVE_MODE_SWITCH, "<true|false>");
         mWriter.decreaseIndent();
@@ -230,9 +238,48 @@ final class KitchenSinkShellCommand {
     }
 
     private void postToast() {
-        String message = getNextArg();
-        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-        Log.i(TAG, "Post Toast: " + message);
+        boolean verbose = false;
+        boolean usesAppContext = false;
+        boolean longToast = false;
+        String messageArg = null;
+        String nextArg = null;
+
+        while ((nextArg = getNextOptioanlArg()) != null) {
+            switch (nextArg) {
+                case ARG_VERBOSE:
+                case ARG_VERBOSE_FULL:
+                    verbose = true;
+                    break;
+                case ARG_USES_APP_CONTEXT:
+                    usesAppContext = true;
+                    break;
+                case ARG_LONG_TOAST:
+                    longToast = true;
+                    break;
+                default:
+                    messageArg = nextArg;
+            }
+        }
+        if (messageArg == null) {
+            mWriter.println("Message is required");
+            return;
+        }
+
+        StringBuilder messageBuilder = new StringBuilder();
+        Context context = usesAppContext ? mContext.getApplicationContext() : mContext;
+        if (verbose) {
+            messageBuilder.append("user=").append(context.getUserId())
+                    .append(", context=").append(context.getClass().getSimpleName())
+                    .append(", contextDisplay=").append(context.getDisplayId())
+                    .append(", userDisplay=").append(context.getSystemService(UserManager.class)
+                            .getMainDisplayIdAssignedToUser())
+                    .append(", length=").append(longToast ? "long" : "short")
+                    .append(", message=");
+
+        }
+        String message = messageBuilder.append(messageArg).toString();
+        Log.i(TAG, "Posting toast: " + message);
+        Toast.makeText(context, message, longToast ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
     }
 
     private void setDriveModeSwitch() {
@@ -271,10 +318,20 @@ final class KitchenSinkShellCommand {
         return mArgs[++mNextArgIndex];
     }
 
+    @Nullable
+    private String getNextOptioanlArg() {
+        if (++mNextArgIndex >= mArgs.length) {
+            return null;
+        }
+        return mArgs[mNextArgIndex];
+    }
+
+
     private String getNextArg() {
         try {
             return getNextArgAndIncrementCounter();
         } catch (Exception e) {
+            Log.e(TAG, "getNextArg() failed", e);
             mWriter.println("Error: missing argument");
             mWriter.flush();
             throw new IllegalArgumentException(
