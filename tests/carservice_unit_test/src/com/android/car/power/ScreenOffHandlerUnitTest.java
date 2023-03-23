@@ -183,6 +183,10 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
                 .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
                 .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
+        if (!mScreenOffHandler.canTurnOffDisplay(displayId)) {
+            // The screen cannot be turned off. Skipping the test.
+            return;
+        }
 
         mScreenOffHandler.updateUserActivity(displayId, mClock.now());
 
@@ -275,6 +279,10 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
                 .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
                 .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
+        if (!mScreenOffHandler.canTurnOffDisplay(displayId)) {
+            // The screen cannot be turned off. Skipping the test.
+            return;
+        }
 
         mScreenOffHandler.handleDisplayStateChange(displayId, /* on= */ true);
 

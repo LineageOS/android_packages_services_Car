@@ -247,26 +247,38 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
 
     @Override
     public void setModuleChangeCallback(HalAudioModuleChangeCallback moduleChangeCallback) {
+        Objects.requireNonNull(moduleChangeCallback, "Module change callback can not be null");
+
         IModuleChangeCallback callback = new ModuleChangeCallbackWrapper(moduleChangeCallback);
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
                     mAudioControl.setModuleChangeCallback(callback);
+                    mModuleChangeCallbackRegistered = true;
                 } catch (RemoteException e) {
-                    // maybe hal already has a callback, lets clear it and try again one more time.
+                    throw new IllegalStateException(
+                            "IAudioControl#setModuleChangeCallback failed", e);
+                } catch (UnsupportedOperationException e) {
+                    Slogf.w(TAG, "Failed to set module change callback, feature not supported");
+                } catch (IllegalStateException e) {
+                    // we hit this if car service crashed and restarted. lets clear callbacks and
+                    // try again one more time.
+                    Slogf.w(TAG, "Module change callback already set, retry after clearing");
                     try {
                         mAudioControl.clearModuleChangeCallback();
                         mAudioControl.setModuleChangeCallback(callback);
+                        mModuleChangeCallbackRegistered = true;
                     } catch (RemoteException ex) {
-                        Slogf.e(TAG, ex, "Failed to set module change callback");
                         throw new IllegalStateException(
-                                "IAudioControl#setModuleChangeCallback failed", ex);
+                                "IAudioControl#setModuleChangeCallback failed (after retry)", ex);
+                    } catch (IllegalStateException ex) {
+                        Slogf.e(TAG, ex, "Failed to set module change callback (after retry)");
+                        // lets  not throw any exception since it may lead to car service failure
                     }
                 }
             }
         });
-        mModuleChangeCallbackRegistered = true;
     }
 
     @Override
@@ -276,14 +288,15 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
             public void run() {
                 try {
                     mAudioControl.clearModuleChangeCallback();
+                    mModuleChangeCallbackRegistered = false;
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, e, "Failed to clear module change callback");
                     throw new IllegalStateException(
                             "IAudioControl#clearModuleChangeCallback failed", e);
+                } catch (UnsupportedOperationException e) {
+                    Slogf.w(TAG, "Failed to clear module change callback, feature not supported");
                 }
             }
         });
-        mModuleChangeCallbackRegistered = false;
     }
 
     @Override

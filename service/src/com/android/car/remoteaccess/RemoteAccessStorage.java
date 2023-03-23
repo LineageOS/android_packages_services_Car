@@ -142,8 +142,9 @@ final class RemoteAccessStorage {
                     .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL")
                     .append(")");
             db.execSQL(createCommand.toString());
-            Slogf.i("%s table is successfully created in the %s database (version %d)", TABLE_NAME,
-                    RemoteAccessDbHelper.DATABASE_NAME, RemoteAccessDbHelper.DATABASE_VERSION);
+            Slogf.i(TAG, "%s table is successfully created in the %s database (version %d)",
+                    TABLE_NAME, RemoteAccessDbHelper.DATABASE_NAME,
+                    RemoteAccessDbHelper.DATABASE_VERSION);
         }
 
         // Returns ClientIdEntry for the given client ID.

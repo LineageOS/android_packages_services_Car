@@ -596,6 +596,7 @@ android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOW
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER
 android.car.user CarUserManager int USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER
+android.car.user CarUserManager AsyncFuture<UserSwitchResult> switchUser(int targetUserId)
 android.car.user CarUserManager AsyncFuture<UserSwitchResult> logoutUser()
 android.car.user CarUserManager AsyncFuture<UserCreationResult> createGuest(String name)
 android.car.user CarUserManager AsyncFuture<UserCreationResult> createUser(String name, int flags)

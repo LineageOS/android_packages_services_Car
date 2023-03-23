@@ -98,11 +98,11 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
         }
     }
 
-    /** Check {@link IRemoteAccess#getDeviceId()}. */
-    public String getDeviceId() {
+    /** Check {@link IRemoteAccess#getVehicleId()}. */
+    public String getVehicleId() {
         IRemoteAccess remoteAccessHal = getRemoteAccessHal();
         try {
-            return remoteAccessHal.getDeviceId();
+            return remoteAccessHal.getVehicleId();
         } catch (RemoteException | RuntimeException e) {
             throw new IllegalStateException("Failed to get device ID", e);
         }
@@ -115,6 +115,16 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
             return remoteAccessHal.getWakeupServiceName();
         } catch (RemoteException | RuntimeException e) {
             throw new IllegalStateException("Failed to get wakeup service name", e);
+        }
+    }
+
+    /** Check {@link IRemoteAccess#getProcessorId()}. */
+    public String getProcessorId() {
+        IRemoteAccess remoteAccessHal = getRemoteAccessHal();
+        try {
+            return remoteAccessHal.getProcessorId();
+        } catch (RemoteException | RuntimeException e) {
+            throw new IllegalStateException("Failed to get processor ID", e);
         }
     }
 

@@ -16,17 +16,18 @@
 
 package android.car.remoteaccess;
 
+import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+
 /** @hide */
 oneway interface ICarRemoteAccessCallback {
     /**
      * Called when the remote task client is successfully registered or the client ID is
      * updated by CarRemoteAccessService.
      *
-     * @param serviceId Globally unique identifier to specify the wake-up service.
-     * @param deviceId Globally unique identifier to specify the vehicle.
-     * @param clientId Locally unique identifier to specify the remote task client.
+     * @param info {@code RemoteTaskClientRegistrationInfo} instance which contains service ID,
+     *             vehicle ID, processor ID and client ID.
      */
-     void onClientRegistrationUpdated(in String serviceId, in String deviceId, in String clientId);
+     void onClientRegistrationUpdated(in RemoteTaskClientRegistrationInfo info);
 
     /**
      * Called when registering the remote task client fails.
