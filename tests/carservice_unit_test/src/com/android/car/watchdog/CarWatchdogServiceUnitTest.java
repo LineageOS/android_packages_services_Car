@@ -4620,7 +4620,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new android.automotive.watchdog.internal.ResourceOveruseStats();
         resourceStats.resourceOveruseStats.packageIoOveruseStats = packageIoOveruseStats;
 
-        mWatchdogServiceForSystemImpl.onLatestResourceStats(resourceStats);
+        mWatchdogServiceForSystemImpl.onLatestResourceStats(List.of(resourceStats));
 
         // Handling latest I/O overuse stats is done on the CarWatchdogService service handler
         // thread. Wait until the below message is processed before returning, so the
