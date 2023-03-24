@@ -37,7 +37,7 @@ import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
-import android.car.user.UserRemovalResult;
+import android.car.user.UserRemovalRequest;
 import android.car.user.UserStartRequest;
 import android.car.user.UserStopRequest;
 import android.car.user.UserSwitchResult;
@@ -331,13 +331,16 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         Log.d(TAG, "User switch complete. User id: " + userId);
     }
 
-    protected void removeUser(@UserIdInt int userId) {
+    protected void removeUser(@UserIdInt int userId) throws Exception {
         Log.d(TAG, "Removing user " + userId);
 
-        UserRemovalResult result = mCarUserManager.removeUser(userId);
-        Log.d(TAG, "result: " + result);
-        assertWithMessage("User %s removed. Result: %s", userId, result)
-                .that(result.isSuccess()).isTrue();
+        mCarUserManager.removeUser(new UserRemovalRequest.Builder(
+                UserHandle.of(userId)).build(), Runnable::run, response -> {
+                    Log.d(TAG, "result: " + response);
+                    assertWithMessage("User %s removed. Result: %s", userId, response)
+                            .that(response.isSuccess()).isTrue();
+                }
+        );
     }
 
     protected void startUserInBackgroundOnSecondaryDisplay(@UserIdInt int userId, int displayId)
