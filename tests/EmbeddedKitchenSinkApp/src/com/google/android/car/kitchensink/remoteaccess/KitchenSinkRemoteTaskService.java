@@ -26,9 +26,9 @@ import android.util.Log;
 
 import java.util.concurrent.Executor;
 
-public final class RemoteTaskClientService extends Service {
+public final class KitchenSinkRemoteTaskService extends Service {
 
-    private static final String TAG = RemoteTaskClientService.class.getSimpleName();
+    private static final String TAG = KitchenSinkRemoteTaskService.class.getSimpleName();
 
     private final RemoteTaskClient mRemoteTaskClient = new RemoteTaskClient();
 
