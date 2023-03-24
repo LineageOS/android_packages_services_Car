@@ -726,12 +726,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private class MediaControllerCallback extends MediaController.Callback {
 
         private final MediaController mMediaController;
-        private int mPreviousPlaybackState;
+        private PlaybackState mPreviousPlaybackState;
 
         private MediaControllerCallback(MediaController mediaController) {
             mMediaController = mediaController;
-            PlaybackState state = mediaController.getPlaybackState();
-            mPreviousPlaybackState = (state == null) ? PlaybackState.STATE_NONE : state.getState();
         }
 
         private void register() {
@@ -744,8 +742,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         @Override
         public void onPlaybackStateChanged(@Nullable PlaybackState state) {
-            if (state.getState() == PlaybackState.STATE_PLAYING
-                    && state.getState() != mPreviousPlaybackState) {
+            if (state != null && state.isActive()
+                    && (mPreviousPlaybackState == null || !mPreviousPlaybackState.isActive())) {
                 ComponentName mediaSource = getMediaSource(mMediaController.getPackageName(),
                         getClassName(mMediaController));
                 if (mediaSource != null && Slogf.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
@@ -760,7 +758,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 }
                 setPrimaryMediaSource(mediaSource, MEDIA_SOURCE_MODE_PLAYBACK);
             }
-            mPreviousPlaybackState = state.getState();
+            mPreviousPlaybackState = state;
         }
     }
 
@@ -928,8 +926,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     private void updatePrimaryMediaSourceWithCurrentlyPlaying(
             List<MediaController> controllers) {
         for (MediaController controller : controllers) {
-            if (controller.getPlaybackState() != null
-                    && controller.getPlaybackState().getState() == PlaybackState.STATE_PLAYING) {
+            PlaybackState playbackState = controller.getPlaybackState();
+            if (playbackState != null && playbackState.isActive()) {
                 String newPackageName = controller.getPackageName();
                 String newClassName = getClassName(controller);
                 if (!matchPrimaryMediaSource(newPackageName, newClassName,
