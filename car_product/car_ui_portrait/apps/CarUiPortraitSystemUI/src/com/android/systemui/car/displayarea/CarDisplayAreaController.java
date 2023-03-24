@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.UserHandle;
@@ -132,14 +133,16 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         Resources resources = applicationContext.getResources();
         mNotificationCenterComponent = ComponentName.unflattenFromString(resources.getString(
                 R.string.config_notificationCenterActivity));
-
         mCarUiDisplaySystemBarsController = carUiPortraitDisplaySystemBarsController;
         mCarDeviceProvisionedController = deviceProvisionedController;
-        mCarUiDisplaySystemBarsController.registerCallback(mApplicationContext.getDisplayId(),
-                mCarUiPortraitDisplaySystemBarsControllerCallback);
         mCarFullScreenTouchHandler = new CarFullScreenTouchHandler(mShellExecutor);
 
-        commandQueue.addCallback(this);
+        if (applicationContext.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_PORTRAIT) {
+            mCarUiDisplaySystemBarsController.registerCallback(mApplicationContext.getDisplayId(),
+                    mCarUiPortraitDisplaySystemBarsControllerCallback);
+            commandQueue.addCallback(this);
+        }
     }
 
     @Override
