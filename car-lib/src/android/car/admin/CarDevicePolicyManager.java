@@ -22,10 +22,12 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
+import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.SyncResultCallback;
 import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.util.EventLogHelper;
 import android.car.user.UserCreationResult;
@@ -36,7 +38,9 @@ import android.car.util.concurrent.AndroidFuture;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.Log;
 
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
@@ -102,6 +106,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
 
     private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS =
             CarSystemProperties.getDevicePolicyManagerTimeout().orElse(60_000);
+    private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
     /** @hide */
     @IntDef(prefix = PREFIX_USER_TYPE, value = {
@@ -146,29 +151,38 @@ public final class CarDevicePolicyManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
+    @SuppressLint("VisibleForTests")
     public RemoveUserResult removeUser(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
 
         int userId = user.getIdentifier();
         int uid = myUid();
         EventLogHelper.writeCarDevicePolicyManagerRemoveUserReq(uid, userId);
-        int status = RemoveUserResult.STATUS_FAILURE_GENERIC;
         try {
-            AndroidFuture<UserRemovalResult> future = new AndroidFuture<UserRemovalResult>();
-            mService.removeUser(userId, future);
-            UserRemovalResult result = future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS,
-                    TimeUnit.MILLISECONDS);
-            status = result.getStatus();
-            return new RemoveUserResult(status);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return new RemoveUserResult(status);
-        } catch (ExecutionException | TimeoutException e) {
-            return new RemoveUserResult(status);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new RemoveUserResult(status));
+            SyncResultCallback<UserRemovalResult> userRemovalResultCallback =
+                    new SyncResultCallback<>();
+            ResultCallbackImpl<UserRemovalResult> resultCallbackImpl = new ResultCallbackImpl<>(
+                    Runnable::run, userRemovalResultCallback);
+            mService.removeUser(user.getIdentifier(), resultCallbackImpl);
+
+            UserRemovalResult userRemovalResult = new UserRemovalResult(
+                    UserRemovalResult.STATUS_ANDROID_FAILURE);
+            try {
+                userRemovalResult = userRemovalResultCallback.get(REMOVE_USER_CALL_TIMEOUT_MS,
+                        TimeUnit.MILLISECONDS);
+            } catch (TimeoutException e) {
+                Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+            }
+            return new RemoveUserResult(userRemovalResult.getStatus());
+        } catch (RemoteException | RuntimeException e) {
+            return handleExceptionFromCarService(e,
+                    new RemoveUserResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
         } finally {
-            EventLogHelper.writeCarDevicePolicyManagerRemoveUserResp(uid, status);
+            EventLogHelper.writeCarDevicePolicyManagerRemoveUserResp(uid,
+                    UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
     }
 
