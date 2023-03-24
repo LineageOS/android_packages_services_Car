@@ -351,7 +351,7 @@
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CAR_POWER"
-         android:protectionLevel="signature|privileged"
+         android:protectionLevel="signature|privileged|vendorPrivileged"
          android:label="@string/car_permission_label_car_power"
          android:description="@string/car_permission_desc_car_power"/>
 
@@ -924,7 +924,7 @@
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY"
-                android:protectionLevel="signature|privileged"
+                android:protectionLevel="signature|privileged|vendorPrivileged"
                 android:label="@string/car_permission_label_control_car_power_policy"
                 android:description="@string/car_permission_desc_control_car_power_policy"/>
 
@@ -932,7 +932,7 @@
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"
-                android:protectionLevel="signature|privileged"
+                android:protectionLevel="signature|privileged|vendorPrivileged"
                 android:label="@string/car_permission_label_adjust_shutdown_process"
                 android:description="@string/car_permission_desc_adjust_shutdown_process"/>
 
