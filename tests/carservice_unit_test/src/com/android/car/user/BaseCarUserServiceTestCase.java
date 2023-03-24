@@ -189,7 +189,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
     protected final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
-    protected final AndroidFuture<UserRemovalResult> mUserRemovalFuture = new AndroidFuture<>();
     protected final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
             new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>());
     protected final AndroidFuture<UserIdentificationAssociationResponse>
@@ -456,8 +455,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void removeUser(@UserIdInt int userId, boolean hasCallerRestrictions,
-            @NonNull AndroidFuture<UserRemovalResult> userRemovalFuture) {
-        mCarUserService.removeUser(userId, hasCallerRestrictions, userRemovalFuture);
+            @NonNull ResultCallbackImpl<UserRemovalResult> resultCallbackImpl) {
+        mCarUserService.removeUser(userId, hasCallerRestrictions, resultCallbackImpl);
         waitForHandlerThreadToFinish();
     }
 
@@ -498,11 +497,18 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     /**
-     * Gets the result of a user removal call that was made using {@link #mUserRemovalFuture}.
+     * Gets the result of a user removal call that was made using
+     * {@link #mUserRemovalResultCallbackImpl}.
      */
     @NonNull
     protected UserRemovalResult getUserRemovalResult(int userId) throws Exception {
-        return getResult(mUserRemovalFuture, "result of removing user %d", userId);
+        AndroidFuture<UserRemovalResult> future = new AndroidFuture<>() {
+            @Override
+            protected void onCompleted(UserRemovalResult result, Throwable err) {
+                mUserRemovalResultCallbackImpl.complete(result);
+            }
+        };
+        return getResult(future, "result of removing user %d", userId);
     }
 
     /**

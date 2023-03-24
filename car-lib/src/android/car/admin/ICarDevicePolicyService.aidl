@@ -22,9 +22,11 @@ import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
 import android.car.util.concurrent.AndroidFuture;
 
+import com.android.car.internal.ResultCallbackImpl;
+
 /** @hide */
 interface ICarDevicePolicyService {
-    void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
+    void removeUser(int userId, in ResultCallbackImpl<UserRemovalResult> callback);
     void createUser(String name, int flags, in AndroidFuture<UserCreationResult> receiver);
     void startUserInBackground(int userId, in AndroidFuture<UserStartResult> receiver);
     void stopUser(int userId, in AndroidFuture<UserStopResult> receiver);
