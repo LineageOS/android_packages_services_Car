@@ -560,11 +560,12 @@ TEST_F(WatchdogServiceHelperTest, TestOnLatestResourceStats) {
     stats.shouldNotify = true;
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
 
-    ResourceStats expectedResourceStats = {
+    std::vector<ResourceStats> expectedResourceStats;
+    expectedResourceStats.push_back({
             .resourceOveruseStats = std::make_optional<ResourceOveruseStats>({
                     .packageIoOveruseStats = expectedIoOveruseStats,
             }),
-    };
+    });
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, onLatestResourceStats(expectedResourceStats))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
