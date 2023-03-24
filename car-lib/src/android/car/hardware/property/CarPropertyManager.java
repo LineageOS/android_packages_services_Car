@@ -27,6 +27,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
@@ -75,8 +76,6 @@ public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
-    private static final int SYSTEM_ERROR_CODE_MASK = 0Xffff;
-    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
     private static final int SYNC_OP_RETRY_SLEEP_IN_MS = 10;
     private static final int SYNC_OP_RETRY_MAX_COUNT = 10;
     /**
@@ -557,12 +556,14 @@ public class CarPropertyManager extends CarManagerBase {
          * @param areaId the area ID for the property in the request
          * @param errorCode the code indicating the error
          */
-        PropertyAsyncError(int requestId, int propertyId, int areaId, int errorCode) {
+        PropertyAsyncError(int requestId, int propertyId, int areaId,
+                @CarPropertyAsyncErrorCode int errorCode,
+                int vendorErrorCode) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
-            mErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
-            mVendorErrorCode = errorCode >>> VENDOR_ERROR_CODE_SHIFT;
+            mErrorCode = errorCode;
+            mVendorErrorCode = vendorErrorCode;
         }
 
         /**
@@ -849,6 +850,7 @@ public class CarPropertyManager extends CarManagerBase {
                     setValueResults, mSetPropertyResultCallback);
         }
 
+        @SuppressLint("WrongConstant")
         private <RequestType extends AsyncPropertyRequest, CallbackType, ResultType> void onResults(
                 List<GetSetValueResult> results,
                 PropertyResultCallback<CallbackType, ResultType> propertyResultCallback) {
@@ -870,13 +872,11 @@ public class CarPropertyManager extends CarManagerBase {
                 }
                 Executor callbackExecutor = requestInfo.getCallbackExecutor();
                 CallbackType clientCallback = requestInfo.getCallback();
-                int errorCode = result.getErrorCode();
-                @CarPropertyAsyncErrorCode
-                int asyncErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
+                @CarPropertyAsyncErrorCode int errorCode = result.getErrorCode();
                 int propertyId = requestInfo.getRequest().getPropertyId();
                 String propertyName = VehiclePropertyIds.toString(propertyId);
                 int areaId = requestInfo.getRequest().getAreaId();
-                if (asyncErrorCode == STATUS_OK) {
+                if (errorCode == STATUS_OK) {
                     CarPropertyValue<?> carPropertyValue = result.getCarPropertyValue();
                     long timestampNanos;
                     if (carPropertyValue != null) {
@@ -908,7 +908,8 @@ public class CarPropertyManager extends CarManagerBase {
                             clientCallback, clientResult));
                 } else {
                     callbackExecutor.execute(() -> propertyResultCallback.onFailure(clientCallback,
-                            new PropertyAsyncError(requestId, propertyId, areaId, errorCode)));
+                            new PropertyAsyncError(requestId, propertyId, areaId, errorCode,
+                                    result.getVendorErrorCode())));
                 }
             }
         }
@@ -1866,8 +1867,8 @@ public class CarPropertyManager extends CarManagerBase {
             ServiceSpecificException e, int propertyId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
-        int errorCode = e.errorCode & SYSTEM_ERROR_CODE_MASK;
-        int vendorErrorCode = e.errorCode >>> VENDOR_ERROR_CODE_SHIFT;
+        int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
+        int vendorErrorCode = CarPropertyHelper.getVhalVendorErrorCode(e.errorCode);
 
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:

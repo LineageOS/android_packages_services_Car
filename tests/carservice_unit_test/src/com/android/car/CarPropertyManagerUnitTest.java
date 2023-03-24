@@ -876,7 +876,7 @@ public final class CarPropertyManagerUnitTest {
 
         // Call the manager callback after the request is already cancelled.
         GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
-                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
         assertThat(callbackWrapper.size()).isEqualTo(1);
         callbackWrapper.get(0).onGetValueResults(List.of(getValueResult));
 
@@ -978,8 +978,7 @@ public final class CarPropertyManagerUnitTest {
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
-                    VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
-                            | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE);
 
             getAsyncPropertyResultCallback.onGetValueResults(List.of(getValueResult));
             return null;
@@ -1455,8 +1454,7 @@ public final class CarPropertyManagerUnitTest {
             assertThat(setPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
             GetSetValueResult setValueResult = GetSetValueResult.newErrorSetValueResult(0,
-                    VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
-                            | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE);
 
             setAsyncPropertyResultCallback.onSetValueResults(List.of(setValueResult));
             return null;
