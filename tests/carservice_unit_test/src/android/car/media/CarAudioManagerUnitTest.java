@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -46,6 +47,7 @@ import android.media.AudioManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.audio.AudioDeviceInfoBuilder;
@@ -98,6 +100,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             Car_AUDIO_MANAGER_TEST_THREAD_NAME);
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    private final RemoteException mRemoteException = new RemoteException();
 
     @Mock
     private Car mCar;
@@ -149,6 +152,8 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         when(mCar.getEventHandler()).thenReturn(mHandler);
         when(mContextMock.getSystemService(AudioManager.class)).thenReturn(mAudioManagerMock);
         mCarAudioManager = new CarAudioManager(mCar, mBinderMock);
+        doAnswer(invocation -> invocation.getArgument(1)).when(mCar)
+                .handleRemoteExceptionFromCarService(any(RemoteException.class), any());
     }
 
     @Test
@@ -158,6 +163,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Dynamic audio routing enabled")
                 .that(mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
                 .isTrue();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_withServiceRemoteException_returnsFalse() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).isAudioFeatureEnabled(
+                AUDIO_FEATURE_DYNAMIC_ROUTING);
+
+        expectWithMessage("Dynamic audio routing disabled when service throws remote exception")
+                .that(mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING))
+                .isFalse();
     }
 
     @Test
@@ -175,6 +190,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
         verify(mServiceMock).setGroupVolume(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
                 TEST_VOLUME_GROUP_INDEX, TEST_FLAGS);
+    }
+
+    @Test
+    public void setGroupVolume_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).setGroupVolume(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_VOLUME_GROUP_ID, TEST_VOLUME_GROUP_INDEX, TEST_FLAGS);
+
+        mCarAudioManager.setGroupVolume(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
+                TEST_VOLUME_GROUP_INDEX, TEST_FLAGS);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -198,6 +224,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getGroupMaxVolume_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getGroupMaxVolume(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Rear right zone max volume when service throws remote exception")
+                .that(mCarAudioManager.getGroupMaxVolume(TEST_REAR_RIGHT_ZONE_ID,
+                        TEST_VOLUME_GROUP_ID)).isEqualTo(0);
+    }
+
+    @Test
     public void getGroupMinVolume_withoutZoneId() throws Exception {
         when(mServiceMock.getGroupMinVolume(PRIMARY_AUDIO_ZONE, TEST_VOLUME_GROUP_ID))
                 .thenReturn(TEST_GAIN_MIN_VALUE);
@@ -215,6 +251,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Rear right zone min volume").that(mCarAudioManager
                 .getGroupMinVolume(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID))
                 .isEqualTo(TEST_GAIN_MIN_VALUE);
+    }
+
+    @Test
+    public void getGroupMinVolume_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getGroupMinVolume(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Rear right zone min volume when service throws remote exception")
+                .that(mCarAudioManager.getGroupMaxVolume(TEST_REAR_RIGHT_ZONE_ID,
+                        TEST_VOLUME_GROUP_ID)).isEqualTo(0);
     }
 
     @Test
@@ -237,6 +283,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getGroupVolume_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getGroupVolume(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Rear right zone volume when service throws remote exception")
+                .that(mCarAudioManager.getGroupVolume(TEST_REAR_RIGHT_ZONE_ID,
+                        TEST_VOLUME_GROUP_ID)).isEqualTo(0);
+    }
+
+    @Test
     public void setFadeTowardFront() throws Exception {
         float value = 0.3f;
 
@@ -246,12 +302,32 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void setFadeTowardFront_withServiceRemoteException() throws Exception {
+        float value = 0.3f;
+        doThrow(mRemoteException).when(mServiceMock).setFadeTowardFront(value);
+
+        mCarAudioManager.setFadeTowardFront(value);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
     public void setBalanceTowardRight() throws Exception {
         float value = 0.4f;
 
         mCarAudioManager.setBalanceTowardRight(value);
 
         verify(mServiceMock).setBalanceTowardRight(value);
+    }
+
+    @Test
+    public void setBalanceTowardRight_withServiceRemoteException() throws Exception {
+        float value = 0.4f;
+        doThrow(mRemoteException).when(mServiceMock).setBalanceTowardRight(value);
+
+        mCarAudioManager.setBalanceTowardRight(value);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -274,6 +350,15 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getVolumeGroupCount_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getVolumeGroupCount(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Rear right zone volume group count when service throws remote exception")
+                .that(mCarAudioManager.getVolumeGroupCount(TEST_REAR_RIGHT_ZONE_ID)).isEqualTo(0);
+    }
+
+    @Test
     public void getVolumeGroupIdForUsage_withoutZoneId() throws Exception {
         when(mServiceMock.getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, TEST_USAGE))
                 .thenReturn(TEST_VOLUME_GROUP_ID);
@@ -291,6 +376,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Volume group id for media usage in rear right zone")
                 .that(mCarAudioManager.getVolumeGroupIdForUsage(TEST_REAR_RIGHT_ZONE_ID,
                         TEST_USAGE)).isEqualTo(TEST_VOLUME_GROUP_ID);
+    }
+
+    @Test
+    public void getVolumeGroupIdForUsage_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getVolumeGroupIdForUsage(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_USAGE);
+
+        expectWithMessage("Volume group id for media usage in rear right zone when service "
+                + "throws remote exception").that(mCarAudioManager.getVolumeGroupIdForUsage(
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_USAGE)).isEqualTo(0);
     }
 
     @Test
@@ -316,6 +411,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getUsagesForVolumeGroupId_withServiceRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getUsagesForVolumeGroupId(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Group %s usages in rear right zone when service throws remote exception",
+                TEST_VOLUME_GROUP_ID).that(mCarAudioManager.getUsagesForVolumeGroupId(
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID)).asList().isEmpty();
+    }
+
+    @Test
     public void getVolumeGroupInfo() throws Exception {
         when(mServiceMock.getVolumeGroupInfo(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID))
                 .thenReturn(mCarVolumeGroupInfoMock1);
@@ -326,6 +432,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getVolumeGroupInfo_withServiceRemoteException_returnsNull() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getVolumeGroupInfo(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Volume group info with id %s in rear right zone when service throws "
+                + "remote exception").that(mCarAudioManager.getVolumeGroupInfo(
+                        TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID)).isNull();
+    }
+
+    @Test
     public void getVolumeGroupInfosForZone() throws Exception {
         when(mServiceMock.getVolumeGroupInfosForZone(TEST_REAR_RIGHT_ZONE_ID))
                 .thenReturn(List.of(mCarVolumeGroupInfoMock1, mCarVolumeGroupInfoMock2));
@@ -333,6 +449,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Volume group infos in rear right zone")
                 .that(mCarAudioManager.getVolumeGroupInfosForZone(TEST_REAR_RIGHT_ZONE_ID))
                 .containsExactly(mCarVolumeGroupInfoMock1, mCarVolumeGroupInfoMock2);
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone_withServiceRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getVolumeGroupInfosForZone(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Volume group infos in rear right zone when service throws remote "
+                + "exception").that(mCarAudioManager.getVolumeGroupInfosForZone(
+                        TEST_REAR_RIGHT_ZONE_ID)).isEmpty();
     }
 
     @Test
@@ -348,6 +475,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getAudioAttributesForVolumeGroup_withServiceRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getAudioAttributesForVolumeGroup(
+                mCarVolumeGroupInfoMock1);
+
+        expectWithMessage("Audio attributes for volume group when service throws remote exception")
+                .that(mCarAudioManager.getAudioAttributesForVolumeGroup(mCarVolumeGroupInfoMock1))
+                .isEmpty();
+    }
+
+    @Test
     public void isPlaybackOnVolumeGroupActive() throws Exception {
         when(mServiceMock.isPlaybackOnVolumeGroupActive(TEST_REAR_RIGHT_ZONE_ID,
                 TEST_VOLUME_GROUP_ID)).thenReturn(true);
@@ -355,6 +493,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Enabled playback on volume group %s in rear right zone",
                 TEST_VOLUME_GROUP_ID).that(mCarAudioManager.isPlaybackOnVolumeGroupActive(
                 TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID)).isTrue();
+    }
+
+    @Test
+    public void isPlaybackOnVolumeGroupActive_withServiceRemoteException_returnsFalse()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).isPlaybackOnVolumeGroupActive(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Enabled playback on volume group %s in rear right zone when service "
+                        + "throws remote exception", TEST_VOLUME_GROUP_ID).that(mCarAudioManager
+                .isPlaybackOnVolumeGroupActive(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID))
+                .isFalse();
     }
 
     @Test
@@ -369,11 +519,27 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getAudioZoneIds_withServiceRemoteException_returnsEmptyList() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getAudioZoneIds();
+
+        expectWithMessage("Zone ids when service throws remote exception")
+                .that(mCarAudioManager.getAudioZoneIds()).isEmpty();
+    }
+
+    @Test
     public void getZoneIdForUid() throws Exception {
         when(mServiceMock.getZoneIdForUid(TEST_UID)).thenReturn(TEST_REAR_LEFT_ZONE_ID);
 
         expectWithMessage("Zone id for uid %s", TEST_UID).that(mCarAudioManager
                 .getZoneIdForUid(TEST_UID)).isEqualTo(TEST_REAR_LEFT_ZONE_ID);
+    }
+
+    @Test
+    public void getZoneIdForUid_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getZoneIdForUid(TEST_UID);
+
+        expectWithMessage("Zone id for uid %s when service throws remote exception", TEST_UID)
+                .that(mCarAudioManager.getZoneIdForUid(TEST_UID)).isEqualTo(0);
     }
 
     @Test
@@ -385,11 +551,29 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void setZoneIdForUid_withServiceRemoteException_returnsFalse() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).setZoneIdForUid(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_UID);
+
+        expectWithMessage("Status for setting uid %s to rear right zone when service throws "
+                + "remote exception").that(mCarAudioManager.setZoneIdForUid(TEST_REAR_RIGHT_ZONE_ID,
+                TEST_UID)).isFalse();
+    }
+
+    @Test
     public void clearZoneIdForUid() throws Exception {
         when(mServiceMock.clearZoneIdForUid(TEST_UID)).thenReturn(true);
 
         expectWithMessage("Status for clearing zone id for uid %s", TEST_UID)
                 .that(mCarAudioManager.clearZoneIdForUid(TEST_UID)).isTrue();
+    }
+
+    @Test
+    public void clearZoneIdForUid_withServiceRemoteException_returnsFalse() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).clearZoneIdForUid(TEST_UID);
+
+        expectWithMessage("Status for clearing zone id for uid when service throws remote "
+                + "exception").that(mCarAudioManager.clearZoneIdForUid(TEST_UID)).isFalse();
     }
 
     @Test
@@ -459,6 +643,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void registerCarVolumeGroupEventCallback_withServiceRemoteException_returnsFalse()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).registerCarVolumeEventCallback(any());
+
+        expectWithMessage("Failure for registering car volume group event callback when service "
+                + "throws remote exception").that(mCarAudioManager
+                .registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
+                        mVolumeGroupEventCallbackMock1)).isFalse();
+    }
+
+    @Test
     public void unregisterCarVolumeGroupEventCallback_withPartOfCallbacks() throws Exception {
         when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
         ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
@@ -494,6 +689,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Exception for unregistering null car volume group event callback")
                 .that(thrown).hasMessageThat()
                 .contains("Car volume event callback can not be null");
+    }
+
+    @Test
+    public void unregisterCarVolumeGroupEventCallback_withServiceRemoteException()
+            throws Exception {
+        when(mServiceMock.registerCarVolumeEventCallback(any())).thenReturn(true);
+        ICarVolumeEventCallback serviceCallback = getCarVolumeEventCallbackImpl(
+                mVolumeGroupEventCallbackMock1);
+        doThrow(mRemoteException).when(mServiceMock).unregisterCarVolumeEventCallback(
+                serviceCallback);
+
+        mCarAudioManager.unregisterCarVolumeGroupEventCallback(mVolumeGroupEventCallbackMock1);
     }
 
     @Test
@@ -543,12 +750,33 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void isVolumeGroupMuted_withServiceRemoteException_returnsFalse() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).isVolumeGroupMuted(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID);
+
+        expectWithMessage("Muted volume group when service throws remote exception")
+                .that(mCarAudioManager.isVolumeGroupMuted(TEST_REAR_RIGHT_ZONE_ID,
+                        TEST_VOLUME_GROUP_ID)).isFalse();
+    }
+
+    @Test
     public void setVolumeGroupMute() throws Exception {
         mCarAudioManager.setVolumeGroupMute(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
                 /* mute= */ true, TEST_FLAGS);
 
         verify(mServiceMock).setVolumeGroupMute(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
                 /* mute= */ true, TEST_FLAGS);
+    }
+
+    @Test
+    public void setVolumeGroupMute_withServiceRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).setVolumeGroupMute(
+                TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID, /* mute= */ true, TEST_FLAGS);
+
+        mCarAudioManager.setVolumeGroupMute(TEST_REAR_RIGHT_ZONE_ID, TEST_VOLUME_GROUP_ID,
+                /* mute= */ true, TEST_FLAGS);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -589,6 +817,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         mCarAudioManager.unregisterCarVolumeCallback(mVolumeCallbackMock2);
 
         verify(mServiceMock).unregisterVolumeCallback(captor.getValue());
+    }
+
+    @Test
+    public void unregisterCarVolumeCallback_withServiceRemoteException() throws Exception {
+        mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock1);
+        verify(mServiceMock).registerVolumeCallback(any());
+        doThrow(mRemoteException).when(mServiceMock).unregisterVolumeCallback(any());
+
+        mCarAudioManager.unregisterCarVolumeCallback(mVolumeCallbackMock1);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -645,6 +884,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getAudioZoneConfigInfos_withServiceRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getAudioZoneConfigInfos(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("All configuration infos for rear right zone when service throws"
+                + " remote exception").that(mCarAudioManager.getAudioZoneConfigInfos(
+                        TEST_REAR_RIGHT_ZONE_ID)).isEmpty();
+    }
+
+    @Test
     public void getCurrentAudioZoneConfigInfo() throws Exception {
         when(mServiceMock.getCurrentAudioZoneConfigInfo(TEST_REAR_RIGHT_ZONE_ID))
                 .thenReturn(mZoneConfigInfoMock1);
@@ -652,6 +902,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Current configuration info for rear right zone")
                 .that(mCarAudioManager.getCurrentAudioZoneConfigInfo(TEST_REAR_RIGHT_ZONE_ID))
                 .isEqualTo(mZoneConfigInfoMock1);
+    }
+
+    @Test
+    public void getCurrentAudioZoneConfigInfo_whenServiceThrowsRemoteException_returnsNull()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getCurrentAudioZoneConfigInfo(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Current configuration info for rear right zone when service throws "
+                + "remote exception").that(mCarAudioManager.getCurrentAudioZoneConfigInfo(
+                        TEST_REAR_RIGHT_ZONE_ID)).isNull();
     }
 
     @Test
@@ -702,6 +963,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Exception for switching zone configuration with null callback")
                 .that(thrown).hasMessageThat()
                 .contains("Switching audio zone configuration result callback can not be null");
+    }
+
+    @Test
+    public void switchAudioZoneToConfig_whenServiceThrowsRemoteException() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).switchZoneToConfig(any(
+                CarAudioZoneConfigInfo.class), any(ISwitchAudioZoneConfigCallback.class));
+
+        mCarAudioManager.switchAudioZoneToConfig(mZoneConfigInfoMock1, DIRECT_EXECUTOR,
+                mSwitchCallbackMock);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -1147,6 +1419,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getOutputDeviceForUsage_whenServiceThrowsRemoteException_returnsNull()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getOutputDeviceAddressForUsage(
+                PRIMARY_AUDIO_ZONE, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+
+        expectWithMessage("Navigation output device when service throws remote exception")
+                .that(mCarAudioManager.getOutputDeviceForUsage(PRIMARY_AUDIO_ZONE,
+                        USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)).isNull();
+    }
+
+    @Test
     public void getInputDevicesForZoneId() throws Exception {
         List<AudioDeviceAttributes> inputDevicesFromService = List.of(
                 new AudioDeviceAttributes(TEST_MICROPHONE_INPUT_DEVICE), new AudioDeviceAttributes(
@@ -1176,6 +1459,16 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
                 PRIMARY_AUDIO_ZONE);
 
         expectWithMessage("No input devices found for primary zone").that(inputDevices).isEmpty();
+    }
+
+    @Test
+    public void getInputDevicesForZoneId_whenServiceThrowsRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getInputDevicesForZoneId(
+                PRIMARY_AUDIO_ZONE);
+
+        expectWithMessage("Input devices for primary zone when service throws remote exception")
+                .that(mCarAudioManager.getInputDevicesForZoneId(PRIMARY_AUDIO_ZONE)).isEmpty();
     }
 
     private ICarVolumeCallback getCarVolumeCallbackImpl(CarAudioManager.CarVolumeCallback
