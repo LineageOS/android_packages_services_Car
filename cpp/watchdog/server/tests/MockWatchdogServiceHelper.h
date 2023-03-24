@@ -73,7 +73,7 @@ public:
             (std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*),
             (const, override));
     MOCK_METHOD(ndk::ScopedAStatus, onLatestResourceStats,
-                (const aidl::android::automotive::watchdog::internal::ResourceStats&),
+                (const std::vector<aidl::android::automotive::watchdog::internal::ResourceStats>&),
                 (const, override));
     MOCK_METHOD(ndk::ScopedAStatus, requestAidlVhalPid, (), (const, override));
     MOCK_METHOD(void, terminate, (), (override));
