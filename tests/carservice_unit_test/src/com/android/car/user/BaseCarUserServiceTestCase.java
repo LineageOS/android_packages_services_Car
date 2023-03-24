@@ -48,6 +48,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.ICarResultReceiver;
+import android.car.SyncResultCallback;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
@@ -104,6 +105,7 @@ import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.ICarServiceHelper;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
@@ -188,7 +190,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
     protected final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserRemovalResult> mUserRemovalFuture = new AndroidFuture<>();
-
+    protected final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>());
     protected final AndroidFuture<UserIdentificationAssociationResponse>
             mUserAssociationRespFuture = new AndroidFuture<>();
     protected final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
@@ -447,8 +450,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void removeUser(@UserIdInt int userId,
-            @NonNull AndroidFuture<UserRemovalResult> userRemovalFuture) {
-        mCarUserService.removeUser(userId, userRemovalFuture);
+            ResultCallbackImpl<UserRemovalResult> resultCallbackImpl) {
+        mCarUserService.removeUser(userId, resultCallbackImpl);
         waitForHandlerThreadToFinish();
     }
 
