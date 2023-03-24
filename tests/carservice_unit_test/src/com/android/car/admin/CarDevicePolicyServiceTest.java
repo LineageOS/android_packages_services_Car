@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
+import android.car.SyncResultCallback;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.UserCreationResult;
@@ -54,6 +55,7 @@ import android.os.UserManager;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.user.CarUserService;
 
 import org.junit.Before;
@@ -86,7 +88,8 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private CarDevicePolicyService mService;
 
-    private AndroidFuture<UserRemovalResult> mUserRemovalResult = new AndroidFuture<>();
+    private final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>());
 
     private AndroidFuture<UserCreationResult> mUserCreationResult = new AndroidFuture<>();
 
@@ -121,10 +124,10 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testRemoveUser() {
-        mService.removeUser(42, mUserRemovalResult);
+        mService.removeUser(42, mUserRemovalResultCallbackImpl);
 
         verify(mCarUserService).removeUser(eq(42), /* hasCallerRestrictions= */ eq(true),
-                eq(mUserRemovalResult));
+                eq(mUserRemovalResultCallbackImpl));
     }
 
     @Test
