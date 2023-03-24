@@ -1196,7 +1196,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         // events do not capture media app usage on AAOS because apps are hosted by a proxy such as
         // Media Center. Reporting a USER_INTERACTION event in setPrimaryMediaSource allows
         // attribution of non-foreground media app interactions to the app's package name
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0) && componentName != null) {
             UsageStatsManagerHelper.reportUserInteraction(mUsageStatsManager,
                     componentName.getPackageName(), userId);
         }
