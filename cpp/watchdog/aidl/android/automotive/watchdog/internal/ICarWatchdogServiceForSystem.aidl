@@ -90,7 +90,7 @@ interface ICarWatchdogServiceForSystem {
    * @param resourceStats  Latest resource stats, for the overall system and all packages, from
    * the recent collection.
    */
-  oneway void onLatestResourceStats(in ResourceStats resourceStats);
+  oneway void onLatestResourceStats(in List<ResourceStats> resourceStats);
 
   /**
    * Request watchdog service to fetch the AIDL VHAL pid.
