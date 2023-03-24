@@ -153,6 +153,10 @@ import java.util.concurrent.Executor;
 public final class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     static final String TAG = CarLog.TAG_AUDIO;
+    private static final String MIRROR_COMMAND_SEPARATOR = ";";
+    private static final String MIRROR_COMMAND_DESTINATION_SEPARATOR = ",";
+    public static final String MIRROR_COMMAND_SOURCE = "mirroring_src=";
+    public static final String MIRROR_COMMAND_DESTINATION = "mirroring_dst=";
 
     private static final String CAR_AUDIO_SERVICE_THREAD_NAME = "CarAudioService";
 
@@ -760,13 +764,15 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         Objects.requireNonNull(callback, "Media audio request callback can not be null");
         Objects.requireNonNull(info, "Occupant zone info can not be null");
 
-        synchronized (mImplLock) {
-            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
-            if (audioZoneId == PRIMARY_AUDIO_ZONE) {
-                throw new IllegalArgumentException("Occupant " + info
-                        + " already owns the primary audio zone");
-            }
+        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+        if (audioZoneId == PRIMARY_AUDIO_ZONE) {
+            throw new IllegalArgumentException("Occupant " + info
+                    + " already owns the primary audio zone");
+        }
 
+        verifyMirrorNotEnabledForZone(/* runIfFailed= */ null, "request",  audioZoneId);
+
+        synchronized (mImplLock) {
             int index = mAudioZoneIdToUserIdMapping.indexOfKey(audioZoneId);
             if (index < 0) {
                 Slogf.w(TAG, "Audio zone id %d is not mapped to any user id", audioZoneId);
@@ -775,6 +781,21 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
 
         return mMediaRequestHandler.requestMediaAudioOnPrimaryZone(callback, info);
+    }
+
+    private void verifyMirrorNotEnabledForZone(Runnable runIfFailed, String requestType,
+            int audioZoneId) {
+        if (mCarAudioMirrorRequestHandler.isMirrorEnabledForZone(audioZoneId)) {
+            long mirrorId = mCarAudioMirrorRequestHandler.getRequestIdForAudioZone(audioZoneId);
+            CarOccupantZoneManager.OccupantZoneInfo info =
+                    mOccupantZoneService.getOccupantForAudioZoneId(audioZoneId);
+            if (runIfFailed != null) {
+                runIfFailed.run();
+            }
+            throw new IllegalStateException("Can not " + requestType + " audio share to primary "
+                    + "zone for occupant " + info + ", as occupant is currently mirroring audio "
+                    + "in mirroring id " + mirrorId);
+        }
     }
 
     /**
@@ -791,8 +812,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         if (!allow || !canApprove) {
             if (!canApprove) {
                 Slogf.w(TAG, "allowMediaAudioOnPrimaryZone Request %d can not be approved by "
-                                + "token %s",
-                        requestId, token);
+                                + "token %s", requestId, token);
             }
             return mMediaRequestHandler.rejectMediaAudioRequest(requestId);
         }
@@ -806,9 +826,13 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             return false;
         }
 
+        int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
+
+        verifyMirrorNotEnabledForZone(() -> mMediaRequestHandler
+                .rejectMediaAudioRequest(requestId), "allow",  audioZoneId);
+
         synchronized (mImplLock) {
             int userId = mOccupantZoneService.getUserForOccupant(info.zoneId);
-            int audioZoneId = mOccupantZoneService.getAudioZoneIdForOccupant(info.zoneId);
             return handleAssignAudioFromUserIdToPrimaryAudioZoneLocked(token,
                     userId, audioZoneId, requestId);
         }
@@ -1179,8 +1203,34 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             t.traceEnd();
         }
         t.traceEnd();
-
+        sendMirrorInfoToAudioHal(mirrorDevice.getAddress(), audioZoneIdsToAdd);
         mCarAudioMirrorRequestHandler.enableMirrorForZones(requestId, audioZoneIdsToAdd);
+    }
+
+    private void sendMirrorInfoToAudioHal(String mirrorSource, int[] audioZoneIds) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(MIRROR_COMMAND_SOURCE);
+        builder.append(mirrorSource);
+        builder.append(MIRROR_COMMAND_SEPARATOR);
+
+        builder.append(MIRROR_COMMAND_DESTINATION);
+        for (int index = 0; index < audioZoneIds.length; index++) {
+            int zoneId = audioZoneIds[index];
+            String zoneMediaAddress = getOutputDeviceAddressForUsageInternal(zoneId, USAGE_MEDIA);
+            builder.append(zoneMediaAddress);
+            builder.append(index < audioZoneIds.length - 1
+                    ? MIRROR_COMMAND_DESTINATION_SEPARATOR : "");
+        }
+        builder.append(MIRROR_COMMAND_SEPARATOR);
+
+        Slogf.i(TAG, "Sending mirror command to audio HAL: %s", builder);
+        mAudioManager.setParameters(builder.toString());
+    }
+
+    private String getOutputDeviceAddressForUsageInternal(int zoneId, int usage) {
+        int contextForUsage = getCarAudioContext()
+                .getContextForAudioAttribute(CarAudioContext.getAudioAttributeFromUsage(usage));
+        return getCarAudioZone(zoneId).getAddressForContext(contextForUsage);
     }
 
     private void handleDisableAudioMirrorForZonesInConfig(int[] audioZoneIds, long requestId) {
@@ -2134,9 +2184,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
         CarAudioContext.checkAudioAttributeUsage(usage);
-        int contextForUsage = getCarAudioContext()
-                .getContextForAudioAttribute(CarAudioContext.getAudioAttributeFromUsage(usage));
-        return getCarAudioZone(zoneId).getAddressForContext(contextForUsage);
+        return getOutputDeviceAddressForUsageInternal(zoneId, usage);
     }
 
     /**

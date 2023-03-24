@@ -1323,10 +1323,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     // TODO(b/244370727): Remove once the lifecycle event callbacks provide the display id.
     /**
-     * Same as {@link UserManager#getDisplayAssignedToUser()}.
+     * Same as {@link UserManager#getMainDisplayIdAssignedToUser()}.
      */
-    public int getDisplayAssignedToUser(int userId) {
-        return CarServiceHelperWrapper.getInstance().getDisplayAssignedToUser(userId);
+    public int getMainDisplayAssignedToUser(int userId) {
+        return CarServiceHelperWrapper.getInstance().getMainDisplayAssignedToUser(userId);
     }
 
     @Override
@@ -2142,7 +2142,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return UserStartResponse.STATUS_DISPLAY_UNAVAILABLE;
         }
 
-        int curDisplayIdAssignedToUser = getDisplayAssignedToUser(userId);
+        int curDisplayIdAssignedToUser = getMainDisplayAssignedToUser(userId);
         if (curDisplayIdAssignedToUser == displayId) {
             // If the user is already visible on the display, do nothing and return success.
             return UserStartResponse.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
@@ -2513,7 +2513,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     // on.
     private void assignVisibleUserToZone(@UserIdInt int userId) {
 
-        int displayId = getDisplayAssignedToUser(userId);
+        int displayId = getMainDisplayAssignedToUser(userId);
         if (displayId == Display.INVALID_DISPLAY) {
             Slogf.w(TAG, "Cannot get display assigned to visible user %d", userId);
             return;
@@ -2570,7 +2570,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        int displayId = getDisplayAssignedToUser(userId);
+        int displayId = getMainDisplayAssignedToUser(userId);
         if (displayId == Display.INVALID_DISPLAY) {
             Slogf.w(TAG, "Cannot get display assigned to visible user %d", userId);
             return;
