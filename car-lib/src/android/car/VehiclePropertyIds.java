@@ -3110,7 +3110,15 @@ public final class VehiclePropertyIds {
      * android.location.LocationManager#GPS_PROVIDER}.
      *
      * <p>The value returned is a collection of bit flags. The bit flags are defined in {@link
-     * android.car.hardware.property.LocationCharacterization}.
+     * android.car.hardware.property.LocationCharacterization}. The value will also include exactly
+     * one of {@link android.car.hardware.property.LocationCharacterization#DEAD_RECKONED} or {@link
+     * android.car.hardware.property.LocationCharacterization#RAW_GNSS_ONLY} among its collection of
+     * bit flags.
+     *
+     * <p>When this property is not supported, it is assumed that no additional sensor inputs are
+     * fused into the GNSS updates provided through {@link
+     * android.location.LocationManager#GPS_PROVIDER}. That is unless otherwise specified through
+     * other {@link android.location.LocationManager} APIs.
      *
      * <p>Property Config:
      * <ul>
