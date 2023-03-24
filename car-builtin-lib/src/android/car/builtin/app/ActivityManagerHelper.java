@@ -18,6 +18,7 @@ package android.car.builtin.app;
 
 import android.Manifest;
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
@@ -31,6 +32,7 @@ import android.app.IProcessObserver;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.car.builtin.util.Slogf;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -80,6 +82,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean startUserInBackgroundVisibleOnDisplay(@UserIdInt int userId,
             int displayId) {
@@ -107,6 +110,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int stopUser(@UserIdInt int userId, boolean force) {
         return runRemotely(
@@ -282,6 +286,7 @@ public final class ActivityManagerHelper {
     }
 
     /** See {@link android.app.ActivityTaskManager#getTasks(int, boolean, boolean, int)} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static List<ActivityManager.RunningTaskInfo> getTasks(int maxNum,
             boolean filterOnlyVisibleRecents, boolean keepIntentExtra, int displayId) {
@@ -292,6 +297,7 @@ public final class ActivityManagerHelper {
     /**
      * Same as {@link ActivityManager#killAllBackgroundProcesses()}
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void killAllBackgroundProcesses() {
         try {
@@ -305,6 +311,7 @@ public final class ActivityManagerHelper {
     /**
      * Same as {@link ActivityManager#killUid()}
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void killUid(int appId, int userId, String reason) {
         try {
@@ -317,12 +324,14 @@ public final class ActivityManagerHelper {
     }
 
     /** See {@link Activity#getActivityToken()} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static IBinder getActivityToken(Activity activity) {
         return activity.getActivityToken();
     }
 
     /** See {@link Activity#isVisibleForAutofill()} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVisible(Activity activity) {
         return activity.isVisibleForAutofill();
@@ -335,6 +344,7 @@ public final class ActivityManagerHelper {
      * @param displayId the displayId to move the {@code RootTask} to
      */
     @RequiresPermission(Manifest.permission.INTERNAL_SYSTEM_WINDOW)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void moveRootTaskToDisplay(int taskId, int displayId) {
         try {

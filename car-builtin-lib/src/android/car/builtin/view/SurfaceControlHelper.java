@@ -18,9 +18,11 @@ package android.car.builtin.view;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.SurfaceControl;
@@ -42,6 +44,7 @@ public final class SurfaceControlHelper {
      *
      * <p>For the detail, see {@link SurfaceControl#mirrorSurface(SurfaceControl)}
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static SurfaceControl mirrorSurface(@NonNull SurfaceControl mirrorOf) {
@@ -51,6 +54,7 @@ public final class SurfaceControlHelper {
     /**
      * Creates a mirrored Surface for the given Display.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public static SurfaceControl mirrorDisplay(int displayId) {
