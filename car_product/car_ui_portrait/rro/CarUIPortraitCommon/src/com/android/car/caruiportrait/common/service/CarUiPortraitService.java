@@ -110,6 +110,7 @@ public class CarUiPortraitService extends Service {
 
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
+    private BroadcastReceiver mImmersiveModeChangeReceiver;
 
     /**
      * Handler of incoming messages from CarUiPortraitLauncher.
@@ -152,7 +153,7 @@ public class CarUiPortraitService extends Service {
 
     @Override
     public void onCreate() {
-        BroadcastReceiver immersiveModeChangeReceiver = new BroadcastReceiver() {
+        mImmersiveModeChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean isImmersive = intent.getBooleanExtra(
@@ -174,13 +175,19 @@ public class CarUiPortraitService extends Service {
         };
         IntentFilter filter = new IntentFilter();
         filter.addAction(REQUEST_FROM_SYSTEM_UI);
-        registerReceiver(immersiveModeChangeReceiver, filter);
+        registerReceiver(mImmersiveModeChangeReceiver, filter);
         Log.d(TAG, "Portrait service is created");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return mMessenger.getBinder();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mImmersiveModeChangeReceiver);
     }
 
     private void notifyClients(int key, int value) {
