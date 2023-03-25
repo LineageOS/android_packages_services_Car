@@ -284,7 +284,7 @@
          whether Wi-Fi configuration will persist reboots. By default new Wi-Fi credentials are
          created for every local-only hotspot (LOHS) instantiation, changing this flag to true
          will make LOHS credentials persistent. -->
-    <bool name="config_stableLocalOnlyHotspotConfig" translatable="false">false</bool>
+    <bool name="config_stableLocalOnlyHotspotConfig" translatable="false">true</bool>
 
     <!-- The package name of a service to be launched by CarService to bind to an active media
          service on the current  user.
