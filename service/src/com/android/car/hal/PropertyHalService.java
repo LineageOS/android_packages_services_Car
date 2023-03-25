@@ -15,8 +15,21 @@
  */
 package com.android.car.hal;
 
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_ACCESS_DENIED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INVALID_ARG;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
@@ -32,6 +45,8 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
+import android.car.hardware.property.CarPropertyManager.CarSetPropertyErrorCode;
+import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -905,7 +920,7 @@ public class PropertyHalService extends HalServiceBase {
          * This event is sent when the set property call fails
          */
         void onPropertySetError(int property, int area,
-                @CarPropertyManager.CarSetPropertyErrorCode int errorCode);
+                @CarSetPropertyErrorCode int errorCode);
 
     }
 
@@ -1338,6 +1353,27 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
+    private static @CarSetPropertyErrorCode int convertStatusCodeToCarSetPropertyErrorCode(
+            @VehicleHalStatusCodeInt int vhalStatusCode) {
+        switch (vhalStatusCode) {
+            case STATUS_TRY_AGAIN:
+                return CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+            case STATUS_INVALID_ARG:
+                return CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+            case STATUS_NOT_AVAILABLE: // fallthrough
+            case STATUS_NOT_AVAILABLE_DISABLED: // fallthrough
+            case STATUS_NOT_AVAILABLE_SPEED_LOW: // fallthrough
+            case STATUS_NOT_AVAILABLE_SPEED_HIGH: // fallthrough
+            case STATUS_NOT_AVAILABLE_POOR_VISIBILITY: // fallthrough
+            case STATUS_NOT_AVAILABLE_SAFETY:
+                return CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
+            case STATUS_ACCESS_DENIED:
+                return CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
+            default:
+                return CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN;
+        }
+    }
+
     @Override
     public void onPropertySetError(ArrayList<VehiclePropError> vehiclePropErrors) {
         PropertyHalListener propertyHalListener;
@@ -1345,11 +1381,55 @@ public class PropertyHalService extends HalServiceBase {
             propertyHalListener = mPropertyHalListener;
         }
         if (propertyHalListener != null) {
-            for (VehiclePropError vehiclePropError : vehiclePropErrors) {
+            for (int i = 0; i < vehiclePropErrors.size(); i++) {
+                VehiclePropError vehiclePropError = vehiclePropErrors.get(i);
                 int mgrPropId = halToManagerPropId(vehiclePropError.propId);
-                propertyHalListener.onPropertySetError(mgrPropId, vehiclePropError.areaId,
+                int vhalErrorCode = CarPropertyHelper.getVhalSystemErrorCode(
                         vehiclePropError.errorCode);
+                Slogf.w(TAG,
+                        "onPropertySetError for property: %s, area ID: %d, vhal error code: %d",
+                        VehiclePropertyIds.toString(mgrPropId), vehiclePropError.areaId,
+                        vhalErrorCode);
+                @CarSetPropertyErrorCode int carPropErrorCode =
+                        convertStatusCodeToCarSetPropertyErrorCode(vhalErrorCode);
+                propertyHalListener.onPropertySetError(mgrPropId, vehiclePropError.areaId,
+                        carPropErrorCode);
             }
+        }
+        Set<Integer> updatedHalPropIds = new ArraySet<>();
+        Map<VehicleStubCallback, List<GetSetValueResult>> callbackToSetValueResults =
+                new ArrayMap<>();
+        synchronized (mLock) {
+            for (int i = 0; i < vehiclePropErrors.size(); i++) {
+                VehiclePropError vehiclePropError = vehiclePropErrors.get(i);
+                // Fail all pending async set requests that are currently waiting for property
+                // update which has the same property ID and same area ID.
+                int halPropId = vehiclePropError.propId;
+                List<AsyncPropRequestInfo> pendingSetRequests =
+                        mHalPropIdToWaitingUpdateRequestInfo.get(halPropId);
+                if (pendingSetRequests == null) {
+                    continue;
+                }
+                for (int j = 0; j < pendingSetRequests.size(); j++) {
+                    AsyncPropRequestInfo pendingRequest = pendingSetRequests.get(j);
+                    if (pendingRequest.getAreaId() != vehiclePropError.areaId) {
+                        continue;
+                    }
+                    removePendingAsyncPropRequestInfoLocked(pendingRequest, updatedHalPropIds);
+                    int[] errorCodes = VehicleStub.convertHalToCarPropertyManagerError(
+                            vehiclePropError.errorCode);
+                    GetSetValueResult errorResult = pendingRequest.toErrorResult(
+                            errorCodes[0], errorCodes[1]);
+                    Slogf.w(TAG, "Pending async set request received property set error with "
+                            + "error: %d, vendor error code: %d, fail the pending request: %s",
+                            errorCodes[0], errorCodes[1], pendingRequest);
+                    storeResultForRequest(errorResult, pendingRequest, callbackToSetValueResults);
+                }
+            }
+            updateSubscriptionRateLocked(updatedHalPropIds);
+        }
+        for (VehicleStubCallback callback : callbackToSetValueResults.keySet()) {
+            callback.sendSetValueResults(callbackToSetValueResults.get(callback));
         }
     }
 
