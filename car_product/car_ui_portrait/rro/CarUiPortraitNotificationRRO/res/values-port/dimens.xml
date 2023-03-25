@@ -28,7 +28,6 @@
     <dimen name="card_header_margin_bottom">8dp</dimen>
     <dimen name="notification_card_radius">24dp</dimen>
     <dimen name="hun_card_radius">48dp</dimen>
-    <dimen name="headsup_notification_bottom_margin">160dp</dimen>
     <dimen name="notification_touch_target_size">80dp</dimen>
     <dimen name="notification_heads_up_icon_size">110dp</dimen>
     <dimen name="hun_body_content_margin_top">4dp</dimen>

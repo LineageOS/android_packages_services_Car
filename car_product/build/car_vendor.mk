@@ -26,3 +26,8 @@ BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 PRODUCT_PACKAGES += carwatchdog_testclient
 BOARD_SEPOLICY_DIRS += packages/services/Car/cpp/watchdog/testclient/sepolicy
 endif
+
+ifeq ($(ENABLE_EVS_SAMPLE), true)
+# Include the reference EVS HAL implementation.
+PRODUCT_PACKAGES += android.hardware.automotive.evs-default
+endif  # ENABLE_EVS_SAMPLE

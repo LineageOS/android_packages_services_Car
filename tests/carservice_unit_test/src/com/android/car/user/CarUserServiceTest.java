@@ -254,9 +254,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testRemoveUser_binderMethod() {
         CarUserService spy = spy(mCarUserService);
 
-        spy.removeUser(42, mUserRemovalFuture);
+        spy.removeUser(42, mUserRemovalResultCallbackImpl);
 
-        verify(spy).removeUser(42, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        verify(spy).removeUser(42, /* hasCallerRestrictions= */ false,
+                mUserRemovalResultCallbackImpl);
     }
 
     @Test
@@ -940,7 +941,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUserNoCallback(removeUser, UserManager.REMOVE_RESULT_DEFERRED);
 
-        removeUser(removedUserId, mUserRemovalFuture);
+        removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
@@ -955,7 +956,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUser(removeUser, UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED);
 
-        removeUser(removedUserId, mUserRemovalFuture);
+        removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
@@ -971,7 +972,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUserNoCallback(removeUser, UserManager.REMOVE_RESULT_DEFERRED);
 
-        removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL);
@@ -981,7 +982,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testRemoveUser_userNotExist() throws Exception {
         int removedUserId = 15;
-        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
@@ -996,7 +997,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(existingUsers, currentUser);
         mockRemoveUser(removeUser);
 
-        removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(mAdminUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
@@ -1013,7 +1014,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUser(removeUser);
 
-        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
@@ -1028,7 +1029,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = removeUser.getIdentifier();
         mockRemoveUser(removeUser);
 
-        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
         UserRemovalResult result = getUserRemovalResult(removedUserId);
 
         assertUserRemovalResultStatus(result, UserRemovalResult.STATUS_SUCCESSFUL);
@@ -1043,7 +1044,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUserHalSupported(false);
         mockRemoveUser(removeUser);
 
-        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
@@ -1056,7 +1057,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int targetUserId = mRegularUserId;
         mockRemoveUser(mRegularUser, UserManager.REMOVE_RESULT_ERROR_UNKNOWN);
 
-        removeUser(targetUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(targetUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(targetUserId),
                 UserRemovalResult.STATUS_ANDROID_FAILURE);
@@ -1072,7 +1073,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         assertThrows(SecurityException.class,
-                () -> removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture));
+                () -> removeUser(removedUserId, HAS_CALLER_RESTRICTIONS,
+                        mUserRemovalResultCallbackImpl));
     }
 
     @Test
@@ -1085,7 +1087,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         assertThrows(SecurityException.class,
-                () -> removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture));
+                () -> removeUser(removedUserId, HAS_CALLER_RESTRICTIONS,
+                        mUserRemovalResultCallbackImpl));
     }
 
     @Test
@@ -1098,7 +1101,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockRemoveUserNoCallback(removeUser, /* overrideDevicePolicy= */ true,
                 UserManager.REMOVE_RESULT_DEFERRED);
 
-        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
@@ -1114,7 +1117,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
-        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
@@ -1130,7 +1133,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
         mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
-        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL);
@@ -1147,7 +1150,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockRemoveUserNoCallback(removeUser, /* overrideDevicePolicy= */ true,
                 UserManager.REMOVE_RESULT_DEFERRED);
 
-        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
+        removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
         assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);

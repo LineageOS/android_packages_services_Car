@@ -64,6 +64,7 @@ import android.car.user.CarUserManager;
 import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserRemovalRequest;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
@@ -189,6 +190,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_HIBERNATE = "hibernate";
+    private static final String COMMAND_SET_DISPLAY_STATE = "set-display-state";
     private static final String PARAM_SIMULATE = "--simulate";
     private static final String PARAM_REAL = "--real";
     private static final String PARAM_AUTO = "--auto";
@@ -341,6 +343,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_HIBERNATE, PERMISSION_CAR_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_DISPLAY_STATE, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_POWER_OFF, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY, PERMISSION_CAR_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_POWER_POLICY,
@@ -641,6 +644,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PARAM_SKIP_GARAGEMODE);
         pw.println("\tresume");
         pw.println("\t  Wake the system up after a simulated suspension/hibernation.");
+        pw.println("\tset-display-state [displayId] [true|false]");
+        pw.println("\t  Turn on or off the individual display.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
                 + " wireless projection");
@@ -1213,6 +1218,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 // fall-through
             case COMMAND_HIBERNATE:
                 runSuspendCommand(args, writer);
+                break;
+            case COMMAND_SET_DISPLAY_STATE:
+                if (args.length != 3) {
+                    return showInvalidArguments(writer);
+                }
+                try {
+                    mCarPowerManagementService.setDisplayPowerState(
+                            Integer.valueOf(args[1]), Boolean.parseBoolean(args[2]));
+                } catch (Exception e) {
+                    Slogf.w(TAG, "Invalid argument: %s %s %s", COMMAND_SET_DISPLAY_STATE, args[1],
+                            args[2]);
+                    return showInvalidArguments(writer);
+                }
                 break;
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
@@ -2362,10 +2380,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
-        // TODO(b/235994391): Update this call with new removeUser call
-        UserRemovalResult result = carUserManager.removeUser(userId);
-        writer.printf("UserRemovalResult: status = %s\n",
-                UserRemovalResult.statusToString(result.getStatus()));
+        carUserManager.removeUser(new UserRemovalRequest.Builder(
+                        UserHandle.of(userId)).build(), Runnable::run,
+                response -> writer.printf("UserRemovalResult: status = %s\n",
+                        UserRemovalResult.statusToString(response.getStatus()))
+        );
     }
 
     private static <T> T waitForFuture(IndentingPrintWriter writer,
