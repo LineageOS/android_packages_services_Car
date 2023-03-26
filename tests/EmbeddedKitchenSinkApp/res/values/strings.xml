@@ -245,6 +245,7 @@
     <string name="property_get_async" translatable="false">Get Async</string>
     <string name="property_register" translatable="false">Register</string>
     <string name="property_set" translatable="false">Set</string>
+    <string name="property_set_async" translatable="false">Set Async</string>
     <string name="property_unregister" translatable="false">Unregister</string>
 
     <!-- radio test -->
