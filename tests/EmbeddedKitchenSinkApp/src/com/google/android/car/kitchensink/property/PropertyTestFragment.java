@@ -83,6 +83,22 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
         }
     };
 
+    private CarPropertyManager.SetPropertyCallback mSetPropertyCallback =
+            new CarPropertyManager.SetPropertyCallback() {
+        @Override
+        public void onSuccess(@NonNull CarPropertyManager.SetPropertyResult setPropertyResult) {
+            Toast.makeText(mActivity, "Success", Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onFailure(@NonNull CarPropertyManager.PropertyAsyncError propertyAsyncError) {
+            Log.e(TAG, "Failed to get async VHAL property");
+            Toast.makeText(mActivity, "Failed to set async VHAL property with error code: "
+                    + propertyAsyncError.getErrorCode() + " and vendor error code: "
+                    + propertyAsyncError.getVendorErrorCode(), Toast.LENGTH_SHORT).show();
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -183,6 +199,40 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
             }
         });
 
+        b = view.findViewById(R.id.SetPropertyAsync);
+        b.setOnClickListener(v -> {
+            try {
+                PropertyInfo info = (PropertyInfo) mPropertyId.getSelectedItem();
+                int propId = info.mConfig.getPropertyId();
+                int areaId = Integer.decode(mAreaId.getSelectedItem().toString());
+                String valueString = mSetValue.getText().toString();
+
+                switch (propId & VehiclePropertyType.MASK) {
+                    case VehiclePropertyType.BOOLEAN:
+                        Boolean boolVal = Boolean.parseBoolean(valueString);
+                        callSetPropertiesAsync(propId, areaId, boolVal);
+                        break;
+                    case VehiclePropertyType.FLOAT:
+                        Float floatVal = Float.parseFloat(valueString);
+                        callSetPropertiesAsync(propId, areaId, floatVal);
+                        break;
+                    case VehiclePropertyType.INT32:
+                        Integer intVal = Integer.parseInt(valueString);
+                        callSetPropertiesAsync(propId, areaId, intVal);
+                        break;
+                    default:
+                        Toast.makeText(mActivity, "PropertyType=0x" + toHexString(propId
+                                        & VehiclePropertyType.MASK) + " is not handled!",
+                                Toast.LENGTH_LONG).show();
+                        break;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to set VHAL property", e);
+                Toast.makeText(mActivity, "Failed to set async VHAL property: "
+                        + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+
         b = view.findViewById(R.id.bClearLog);
         b.setOnClickListener(v -> {
             mEventLog.setText("");
@@ -240,5 +290,12 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
                     + "\nread=" + mMgr.getReadPermission(propId)
                     + "\nwrite=" + mMgr.getWritePermission(propId));
         }
+    }
+
+    private <T> void callSetPropertiesAsync(int propId, int areaId, T request) {
+        mMgr.setPropertiesAsync(
+                List.of(mMgr.generateSetPropertyRequest(propId, areaId, request)),
+                /* cancellationSignal= */ null,
+                /* callbackExecutor= */ null, mSetPropertyCallback);
     }
 }
