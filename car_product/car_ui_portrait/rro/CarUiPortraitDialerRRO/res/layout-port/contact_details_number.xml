@@ -20,39 +20,44 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/contact_details_list_item_height"
     android:padding="@dimen/contact_details_list_item_padding">
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="@dimen/primary_icon_size"
-        android:layout_height="@dimen/primary_icon_size"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_phone"
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_marginEnd="@dimen/contact_details_icon_margin" />
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:id="@+id/call_action_id"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/icon"
-        style="@style/TextAppearance.ContactDetailsListTitle"/>
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/primary_icon_size"
+            android:layout_height="@dimen/primary_icon_size"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/contact_details_icon_margin"
+            android:src="@drawable/ic_phone" />
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_toEndOf="@id/icon"
-        android:singleLine="true"
-        style="@style/TextAppearance.ContactDetailsListSubtitle" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/icon"
+            style="@style/TextAppearance.ContactDetailsListTitle"/>
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_toEndOf="@id/icon"
+            android:singleLine="true"
+            style="@style/TextAppearance.ContactDetailsListSubtitle" />
+    </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/sms_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:layout_alignTop="@id/title"
         android:layout_alignBottom="@id/text"
-        android:layout_toStartOf="@id/call_action_id"
+        android:layout_toStartOf="@id/fav_container"
         android:layout_marginStart="@dimen/contact_details_icon_margin">
 
         <View
@@ -74,7 +79,7 @@
             android:layout_marginStart="@dimen/contact_details_icon_margin"/>
     </RelativeLayout>
     <RelativeLayout
-        android:id="@+id/call_action_id"
+        android:id="@+id/fav_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
