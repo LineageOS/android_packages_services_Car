@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -60,6 +61,7 @@ public final class CarDevicePolicyManagerPermissionTest {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserPermission() throws Exception {
         Exception e = assertThrows(SecurityException.class,
                 () -> mManager.removeUser(UserHandle.of(100)));
