@@ -16,11 +16,11 @@
 
 package android.car.app;
 
+import android.annotation.NonNull;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.SparseArray;
 import android.view.SurfaceControl;
 
 /**
@@ -28,7 +28,6 @@ import android.view.SurfaceControl;
  */
 final class CarTaskViewHostAidlToImplAdapter extends ICarTaskViewHost.Stub {
     private final CarTaskViewHost mCarTaskViewHost;
-    private final SparseArray<Rect> mTempInsets = new SparseArray<>();
 
     CarTaskViewHostAidlToImplAdapter(CarTaskViewHost carTaskViewHost) {
         mCarTaskViewHost = carTaskViewHost;
@@ -66,16 +65,12 @@ final class CarTaskViewHostAidlToImplAdapter extends ICarTaskViewHost.Stub {
     }
 
     @Override
-    public void addInsets(int[] insetsTypes, Rect[] insetsProviderRects) {
-        mTempInsets.clear();
-        for (int i = 0; i < insetsTypes.length; i++) {
-            mTempInsets.append(insetsTypes[i], insetsProviderRects[i]);
-        }
-        mCarTaskViewHost.addInsets(mTempInsets);
+    public void addInsets(int index, int type, @NonNull Rect frame) {
+        mCarTaskViewHost.addInsets(index, type, frame);
     }
 
     @Override
-    public void removeInsets(int[] insetTypesToRemove) {
-        mCarTaskViewHost.removeInsets(insetTypesToRemove);
+    public void removeInsets(int index, int type) {
+        mCarTaskViewHost.removeInsets(index, type);
     }
 }
