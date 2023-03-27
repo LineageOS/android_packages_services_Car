@@ -766,8 +766,8 @@ public final class CarUserManager extends CarManagerBase {
                     executor, callback);
             mService.removeUser(userRemovalRequest.getUserHandle().getIdentifier(),
                     resultCallbackImpl);
-        } catch (RemoteException | RuntimeException e) {
-            UserRemovalResult result = handleExceptionFromCarService(e,
+        } catch (RemoteException e) {
+            UserRemovalResult result = handleRemoteExceptionFromCarService(e,
                     new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
             callback.onResult(result);
         } finally {
