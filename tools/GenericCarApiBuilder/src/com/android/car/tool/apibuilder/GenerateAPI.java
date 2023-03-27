@@ -16,6 +16,8 @@
 
 package com.android.car.tool.apibuilder;
 
+import com.android.car.tool.data.ParsedData;
+
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.NodeList;
@@ -45,6 +47,8 @@ import java.util.List;
 public final class GenerateAPI {
 
     private static final boolean DBG = false;
+    private static final boolean USE_NEW_IMPLEMENTATION = false;
+
     private static final String ANDROID_BUILD_TOP = "ANDROID_BUILD_TOP";
     private static final String CAR_API_PATH =
             "/packages/services/Car/car-lib/src/android/car";
@@ -120,29 +124,48 @@ public final class GenerateAPI {
             List<File> allJavaFiles_carBuiltInLib = getAllFiles(
                     new File(rootDir + CAR_BUILT_IN_API_PATH));
 
+            ParsedData parsedDataCarLib = new ParsedData();
+            ParsedData parsedDataCarBuiltinLib = new ParsedData();
+
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_CLASSES_ONLY)) {
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    printOrUpdateAllClasses(allJavaFiles_carLib.get(i), true, null);
-                }
-                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
-                    printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), true, null);
+                if (USE_NEW_IMPLEMENTATION) {
+                    ParsedDataBuilder.populateParsedData(allJavaFiles_carLib, parsedDataCarLib);
+                    ParsedDataBuilder.populateParsedData(allJavaFiles_carBuiltInLib,
+                            parsedDataCarBuiltinLib);
+                    ParsedDataHelper.getClassNamesOnly(parsedDataCarLib)
+                            .forEach((string) -> System.out.println(string));
+                    ParsedDataHelper.getClassNamesOnly(parsedDataCarBuiltinLib)
+                            .forEach((string) -> System.out.println(string));
+                } else {
+                    for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                        printOrUpdateAllClasses(allJavaFiles_carLib.get(i), true, null);
+                    }
+                    for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
+                        printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), true, null);
+                    }
                 }
                 return;
             }
 
             if (args.length > 0 && args[0].equalsIgnoreCase(UPDATE_CLASSES_FOR_TEST)) {
-                List<String> api_list = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    printOrUpdateAllClasses(allJavaFiles_carLib.get(i), false, api_list);
-                }
-                writeListToFile(rootDir + CAR_API_ANNOTATION_TEST_FILE, api_list);
+                if (USE_NEW_IMPLEMENTATION) {
+                    writeListToFile(rootDir + CAR_API_ANNOTATION_TEST_FILE,
+                            ParsedDataHelper.getClassNamesOnly(parsedDataCarLib));
+                    writeListToFile(rootDir + CAR_API_ANNOTATION_TEST_FILE,
+                            ParsedDataHelper.getClassNamesOnly(parsedDataCarBuiltinLib));
+                } else {
+                    List<String> api_list = new ArrayList<>();
+                    for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                        printOrUpdateAllClasses(allJavaFiles_carLib.get(i), false, api_list);
+                    }
 
-                List<String> built_in_api_list = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
-                    printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), false,
-                            built_in_api_list);
+                    List<String> built_in_api_list = new ArrayList<>();
+                    for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
+                        printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), false,
+                                built_in_api_list);
+                    }
+                    writeListToFile(rootDir + CAR_BUILT_IN_ANNOTATION_TEST_FILE, built_in_api_list);
                 }
-                writeListToFile(rootDir + CAR_BUILT_IN_ANNOTATION_TEST_FILE, built_in_api_list);
                 return;
             }
 
