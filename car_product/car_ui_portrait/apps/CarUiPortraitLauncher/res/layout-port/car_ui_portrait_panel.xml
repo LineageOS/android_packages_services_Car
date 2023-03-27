@@ -20,7 +20,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:animateLayoutChanges="false">
-        <include layout="@layout/car_ui_portrait_grip_bar"/>
+
+        <include layout="@layout/car_ui_portrait_toolbar"/>
+
+        <include
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/panel_grip_bar_height"
+            android:layout_below="@id/toolbar"
+            layout="@layout/car_ui_portrait_grip_bar"/>
 
         <com.android.car.portraitlauncher.panel.BackgroundSurfaceView
             android:id="@+id/surface_view"

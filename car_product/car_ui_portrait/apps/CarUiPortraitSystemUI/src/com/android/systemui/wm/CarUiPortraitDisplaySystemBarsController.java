@@ -202,8 +202,10 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         CarUiPortraitPerDisplay(int displayId) {
             super(displayId);
 
-            mDelayedImmersiveModeWithNavBarRunnable = () -> setImmersiveMode(
-                    STATE_IMMERSIVE_WITHOUT_NAV_BAR);
+            mDelayedImmersiveModeWithNavBarRunnable = () -> {
+                setImmersiveMode(STATE_IMMERSIVE_WITHOUT_NAV_BAR);
+                notifyOnImmersiveStateChanged(/* hideNavBar = */ false);
+            };
         }
 
         @Override
@@ -274,12 +276,6 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             showInsets(barVisibilities[0], /* fromIme= */ false, /* statsToken= */ null);
             hideInsets(barVisibilities[1], /* fromIme= */ false, /* statsToken= */ null);
 
-            boolean immersiveState = (mImmersiveState != STATE_DEFAULT) || (
-                    (barVisibilities[1] & (WindowInsets.Type.statusBars()
-                            | WindowInsets.Type.navigationBars())) == (
-                            WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars()));
-            notifyOnImmersiveStateChanged(immersiveState);
-
             try {
                 mWmService.updateDisplayWindowRequestedVisibleTypes(mDisplayId,
                         mRequestedVisibleTypes);
@@ -324,9 +320,9 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             mCallbacks.remove(callback);
         }
 
-        void notifyOnImmersiveStateChanged(boolean immersive) {
+        void notifyOnImmersiveStateChanged(boolean hideNavBar) {
             for (Callback callback : mCallbacks) {
-                callback.onImmersiveStateChanged(immersive);
+                callback.onImmersiveStateChanged(hideNavBar);
             }
         }
 
@@ -366,8 +362,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         void onImmersiveRequestedChanged(ComponentName component, boolean requested);
 
         /**
-         * Callback triggered when the immersive override state changes.
+         * Callback triggered when the immersive state changes.
          */
-        void onImmersiveStateChanged(boolean immersive);
+        void onImmersiveStateChanged(boolean hideNavBar);
     }
 }

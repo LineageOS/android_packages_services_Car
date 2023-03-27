@@ -22,6 +22,7 @@ import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
@@ -74,6 +75,7 @@ import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -319,7 +321,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
                 logIfDebuggable("container height change from " + oldHeight + " to " + newHeight);
                 if (mIsSUWInProgress) {
-                    mRootTaskViewPanel.openFullScreenPanel(/* animate = */ false);
+                    mRootTaskViewPanel.openFullScreenPanel(/* animated = */ false,
+                            /* showToolBar = */ false);
                 }
             };
 
@@ -544,8 +547,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Rect rootPanelGripBarRect = new Rect();
         mRootTaskViewPanel.getGripBarBounds(rootPanelGripBarRect);
 
-        Rect navigationBarRect = new Rect(controlBarRect.right, controlBarRect.bottom,
-                controlBarRect.left, mContainer.getMeasuredHeight());
+        Rect navigationBarRect = new Rect(controlBarRect.left, controlBarRect.bottom,
+                controlBarRect.right, mContainer.getMeasuredHeight());
+
+        Rect statusBarRect = new Rect(controlBarRect.left, /* top= */ 0, controlBarRect.right,
+                mStatusBarHeight);
 
         Region obscuredTouchRegion = new Region();
         obscuredTouchRegion.union(controlBarRect);
@@ -555,6 +561,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mAppGridTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
         obscuredTouchRegion.union(appPanelGripBarRect);
         obscuredTouchRegion.union(rootPanelGripBarRect);
+        obscuredTouchRegion.union(statusBarRect);
         mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
         mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
     }
@@ -774,6 +781,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("Root Task View is created");
                         taskView.setZOrderMediaOverlay(true);
                         mRootTaskViewPanel.setTaskView(taskView);
+                        mRootTaskViewPanel.setToolBarCallback(() -> {
+                            // TODO(b/274838245): Use android api to send key event
+                            try {
+                                Runtime.getRuntime().exec("input keyevent 4");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                     }
 
                     @Override
@@ -823,7 +838,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("onImmersiveModeRequested = " + requested);
         if (requested && (!mCarUiPortraitDriveStateController.isDrivingStateMoving()
                 || mIsSUWInProgress)) {
-            mRootTaskViewPanel.openFullScreenPanel(animate);
+            mRootTaskViewPanel.openFullScreenPanel(animate, !mIsSUWInProgress);
         } else {
             if (mTaskViewManager.getRootTaskCount() > 0) {
                 mRootTaskViewPanel.openPanel(animate);
@@ -848,6 +863,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mIsSUWInProgress = intToBool(msg.arg1);
                     logIfDebuggable("Get intent about the SUW is " + mIsSUWInProgress);
                     onImmersiveModeRequested(mIsSUWInProgress, /* animate = */ false);
+                    break;
+                case MSG_IMMERSIVE_MODE_CHANGE:
+                    boolean hideNavBar = intToBool(msg.arg1);
+                    mRootTaskViewPanel.setToolBarViewVisibility(hideNavBar);
                     break;
                 default:
                     super.handleMessage(msg);

@@ -45,6 +45,9 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED =
             "INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED";
 
+    public static final String INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE =
+            "INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE";
+
     // action name for the intent when requested from CarUiPortraitLauncher
     public static final String REQUEST_FROM_LAUNCHER = "REQUEST_FROM_LAUNCHER";
 
@@ -108,6 +111,11 @@ public class CarUiPortraitService extends Service {
      */
     public static final int MSG_FG_TASK_VIEW_READY = 7;
 
+    /**
+     * Command to service to notify when immersive mode changes
+     */
+    public static final int MSG_IMMERSIVE_MODE_CHANGE = 8;
+
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
 
@@ -161,6 +169,12 @@ public class CarUiPortraitService extends Service {
                         && isImmersive != mIsSystemInImmersiveMode) {
                     mIsSystemInImmersiveMode = isImmersive;
                     notifyClients(MSG_IMMERSIVE_MODE_REQUESTED, boolToInt(isImmersive));
+                }
+
+                boolean isImmersiveState = intent.getBooleanExtra(
+                        INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE, false);
+                if (intent.hasExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE)) {
+                    notifyClients(MSG_IMMERSIVE_MODE_CHANGE, boolToInt(isImmersiveState));
                 }
 
                 boolean isSuwInProgress = intent.getBooleanExtra(
