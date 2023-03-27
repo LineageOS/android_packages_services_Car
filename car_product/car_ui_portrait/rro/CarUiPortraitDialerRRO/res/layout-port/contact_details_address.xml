@@ -20,40 +20,46 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="@dimen/contact_details_list_item_padding">
-
-    <ImageView
+    <RelativeLayout
         android:id="@+id/address_button"
-        android:layout_width="@dimen/primary_icon_size"
-        android:layout_height="@dimen/primary_icon_size"
-        android:layout_centerVertical="true"
-        android:src="@drawable/ic_place"
-        android:background="?android:attr/selectableItemBackground"
-        android:layout_marginEnd="@dimen/contact_details_icon_margin" />
-
-    <TextView
-        android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/address_button"
-        android:layout_toStartOf="@id/icon"
-        style="@style/TextAppearance.ContactDetailsListTitle"/>
+        android:layout_alignParentStart="true"
+        android:layout_toStartOf="@id/navigation_button_container"
+        android:background="?android:attr/selectableItemBackground">
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="@dimen/primary_icon_size"
+            android:layout_height="@dimen/primary_icon_size"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/contact_details_icon_margin"
+            android:src="@drawable/ic_place" />
 
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/title"
-        android:layout_toEndOf="@id/address_button"
-        android:singleLine="true"
-        style="@style/TextAppearance.ContactDetailsListSubtitle" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/icon"
+            android:layout_alignParentEnd="true"
+            style="@style/TextAppearance.ContactDetailsListTitle"/>
+
+        <TextView
+            android:id="@+id/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/title"
+            android:layout_toEndOf="@id/icon"
+            android:singleLine="true"
+            style="@style/TextAppearance.ContactDetailsListSubtitle" />
+    </RelativeLayout>
 
     <RelativeLayout
-        android:id="@+id/icon"
+        android:id="@+id/navigation_button_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:layout_alignTop="@id/title"
-        android:layout_alignBottom="@id/text"
+        android:layout_alignTop="@id/address_button"
+        android:layout_alignBottom="@id/address_button"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="@dimen/contact_details_icon_margin">
 
