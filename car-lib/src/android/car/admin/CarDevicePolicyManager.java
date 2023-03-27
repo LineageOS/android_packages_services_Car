@@ -158,6 +158,8 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         int userId = user.getIdentifier();
         int uid = myUid();
         EventLogHelper.writeCarDevicePolicyManagerRemoveUserReq(uid, userId);
+        UserRemovalResult userRemovalResult = new UserRemovalResult(
+                UserRemovalResult.STATUS_ANDROID_FAILURE);
         try {
             SyncResultCallback<UserRemovalResult> userRemovalResultCallback =
                     new SyncResultCallback<>();
@@ -165,25 +167,21 @@ public final class CarDevicePolicyManager extends CarManagerBase {
                     Runnable::run, userRemovalResultCallback);
             mService.removeUser(user.getIdentifier(), resultCallbackImpl);
 
-            UserRemovalResult userRemovalResult = new UserRemovalResult(
-                    UserRemovalResult.STATUS_ANDROID_FAILURE);
-            try {
-                userRemovalResult = userRemovalResultCallback.get(REMOVE_USER_CALL_TIMEOUT_MS,
-                        TimeUnit.MILLISECONDS);
-            } catch (TimeoutException e) {
-                Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
-            }
-            return new RemoveUserResult(userRemovalResult.getStatus());
-        } catch (RemoteException | RuntimeException e) {
-            return handleExceptionFromCarService(e,
+            userRemovalResult = userRemovalResultCallback.get(REMOVE_USER_CALL_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+        } catch (TimeoutException e) {
+            Log.e(TAG, "CarDevicePolicyManager removeUser(user): ", e);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e,
                     new RemoveUserResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
         } finally {
             EventLogHelper.writeCarDevicePolicyManagerRemoveUserResp(uid,
-                    UserRemovalResult.STATUS_ANDROID_FAILURE);
+                    userRemovalResult.getStatus());
         }
+        return new RemoveUserResult(userRemovalResult.getStatus());
     }
 
     /**
