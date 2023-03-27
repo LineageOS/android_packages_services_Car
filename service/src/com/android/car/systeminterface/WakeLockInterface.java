@@ -16,10 +16,14 @@
 
 package com.android.car.systeminterface;
 
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+
+import android.car.PlatformVersion;
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Pair;
@@ -73,6 +77,9 @@ public interface WakeLockInterface {
             for (Display display : displayManager.getDisplays()) {
                 int displayId = display.getDisplayId();
                 Pair<WakeLock, WakeLock> wakeLockPair = createWakeLockPair(displayId);
+                if (wakeLockPair == null) {
+                    continue;
+                }
                 synchronized (mLock) {
                     mPerDisplayWakeLocks.put(displayId, wakeLockPair);
                 }
@@ -144,22 +151,37 @@ public interface WakeLockInterface {
         }
 
         private Pair<WakeLock, WakeLock> createWakeLockPair(int displayId) {
-            StringBuilder tag = new StringBuilder(CarLog.TAG_POWER).append(":").append(displayId);
-            WakeLock fullWakeLock = PowerManagerHelper.newWakeLock(mContext,
-                    PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
-                    tag.toString(), displayId);
-            WakeLock partialWakeLock = PowerManagerHelper.newWakeLock(mContext,
-                    PowerManager.PARTIAL_WAKE_LOCK, tag.toString(), displayId);
-            Slogf.d(TAG, "createWakeLockPair displayId=%d", displayId);
-            return Pair.create(fullWakeLock, partialWakeLock);
+            if (isPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+                StringBuilder tag = new StringBuilder(CarLog.TAG_POWER).append(":")
+                        .append(displayId);
+                WakeLock fullWakeLock = PowerManagerHelper.newWakeLock(mContext,
+                        PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                        tag.toString(), displayId);
+                WakeLock partialWakeLock = PowerManagerHelper.newWakeLock(mContext,
+                        PowerManager.PARTIAL_WAKE_LOCK, tag.toString(), displayId);
+                Slogf.d(TAG, "createWakeLockPair displayId=%d", displayId);
+                return Pair.create(fullWakeLock, partialWakeLock);
+            }
+
+            Slogf.i(TAG, "WakeLocks is not supported on platform older than  %d. WakeLocks"
+                    + " is null for display %d.", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, displayId);
+            // TODO(b/275100799): Did as quick fix. Provide a proper solution.
+            // TODO(b/275100251): Did as quick fix. Provide a proper solution.
+            return null;
         }
 
         DisplayManager.DisplayListener mDisplayListener = new DisplayManager.DisplayListener() {
             @Override
             public void onDisplayAdded(int displayId) {
                 Slogf.d(TAG, "onDisplayAdded displayId=%d", displayId);
+                Pair<WakeLock, WakeLock> wakeLockPair = createWakeLockPair(displayId);
+
+                if (wakeLockPair == null) {
+                    return;
+                }
+
                 synchronized (mLock) {
-                    mPerDisplayWakeLocks.put(displayId, createWakeLockPair(displayId));
+                    mPerDisplayWakeLocks.put(displayId, wakeLockPair);
                 }
             }
 
