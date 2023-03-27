@@ -22,9 +22,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * OilLevel in the engine
+ * @deprecated This API is deprecated in favor of {@link
+ * android.car.hardware.property.VehicleOilLevel}. This API will be marked as {@code @removed} in
+ * the next API release and then fully removed in two API releases.
+ *
+ * <p>OilLevel in the engine
  * @hide
  */
+@Deprecated
 public final class VehicleOilLevel {
     /**
      * List of Oil Levels from VHAL
