@@ -103,6 +103,8 @@ import android.os.UserManager;
 import android.util.Log;
 import android.view.Display;
 
+import androidx.test.filters.FlakyTest;
+
 import com.android.car.hal.HalCallback;
 import com.android.car.internal.util.DebugUtils;
 
@@ -934,6 +936,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_currentUser_successSetEphemeral() throws Exception {
         UserHandle currentUser = mRegularUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
@@ -949,6 +952,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_alreadyBeingRemoved_success() throws Exception {
         UserHandle currentUser = mRegularUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
@@ -964,6 +968,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_currentLastAdmin_successSetEphemeral() throws Exception {
         UserHandle currentUser = mAdminUser;
         List<UserHandle> existingUsers = Arrays.asList(mAdminUser, mRegularUser);
@@ -980,6 +985,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_userNotExist() throws Exception {
         int removedUserId = 15;
         removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
@@ -989,6 +995,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_lastAdminUser_success() throws Exception {
         UserHandle currentUser = mRegularUser;
         UserHandle removeUser = mAdminUser;
@@ -1005,6 +1012,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_notLastAdminUser_success() throws Exception {
         UserHandle currentUser = mRegularUser;
         // Give admin rights to current user.
@@ -1022,6 +1030,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_success() throws Exception {
         UserHandle currentUser = mAdminUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
@@ -1037,6 +1046,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_halNotSupported() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         UserHandle removeUser = mRegularUser;
@@ -1052,6 +1062,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser_androidFailure() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         int targetUserId = mRegularUserId;
@@ -1064,6 +1075,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_nonAdminRemovingAdmin() throws Exception {
         UserHandle currentUser = mRegularUser;
         UserHandle removeUser = mAdminUser;
@@ -1078,6 +1090,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_nonAdminRemovingNonAdmin() throws Exception {
         UserHandle currentUser = mRegularUser;
         UserHandle removeUser = mAnotherRegularUser;
@@ -1092,6 +1105,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_nonAdminRemovingItself() throws Exception {
         UserHandle currentUser = mRegularUser;
         UserHandle removeUser = mRegularUser;
@@ -1109,6 +1123,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_adminRemovingAdmin() throws Exception {
         UserHandle currentUser = mAdminUser;
         UserHandle removeUser = mAnotherAdminUser;
@@ -1125,6 +1140,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_adminRemovingNonAdmin() throws Exception {
         UserHandle currentUser = mAdminUser;
         UserHandle removeUser = mRegularUser;
@@ -1141,6 +1157,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserWithRestriction_adminRemovingItself() throws Exception {
         UserHandle currentUser = mAdminUser;
         UserHandle removeUser = mAdminUser;
