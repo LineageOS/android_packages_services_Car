@@ -413,23 +413,23 @@ package android.car.app {
   }
 
   public interface CarTaskViewHost {
-    method public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
+    method public void addInsets(int, int, @NonNull android.graphics.Rect);
     method public void notifySurfaceCreated(@NonNull android.view.SurfaceControl);
     method public void notifySurfaceDestroyed();
     method public void release();
-    method public void removeInsets(@NonNull int[]);
+    method public void removeInsets(int, int);
     method public void setWindowBounds(@NonNull android.graphics.Rect);
     method public void showEmbeddedTask();
     method public void startActivity(@NonNull android.app.PendingIntent, @Nullable android.content.Intent, @NonNull android.os.Bundle, @Nullable android.graphics.Rect);
   }
 
   public final class ControlledRemoteCarTaskView extends android.view.SurfaceView {
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void addInsets(@NonNull android.util.SparseArray<android.graphics.Rect>);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void addInsets(int, int, @NonNull android.graphics.Rect);
     method @MainThread @Nullable public android.app.ActivityManager.RunningTaskInfo getTaskInfo();
     method @MainThread public boolean isInitialized();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void removeInsets(@NonNull int[]);
+    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void removeInsets(int, int);
     method @MainThread public void setObscuredTouchRect(@NonNull android.graphics.Rect);
     method @MainThread public void setObscuredTouchRegion(@NonNull android.graphics.Region);
     method @MainThread @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void showEmbeddedTask();
