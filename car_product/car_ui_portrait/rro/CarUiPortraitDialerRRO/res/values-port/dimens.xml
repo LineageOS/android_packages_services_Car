@@ -23,7 +23,7 @@
     <dimen name="list_item_avatar_size">88dp</dimen>
     <dimen name="list_item_icon_margin">24dp</dimen>
     <dimen name="list_divider_height">88dp</dimen>
-    <dimen name="list_divider_width">2dp</dimen>
+    <dimen name="list_divider_width">0dp</dimen>
     <dimen name="primary_icon_size">@dimen/car_ui_primary_icon_size</dimen>
     <dimen name="vertical_divider_inset">24dp</dimen>
     <!-- Add Favorite dimensions -->
