@@ -1533,8 +1533,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(anyOf = {Car.PERMISSION_READ_DISPLAY_UNITS,
             Car.PERMISSION_CONTROL_CAR_CLIMATE}))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE))
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270;
     /**
      * Actual fan speed.
