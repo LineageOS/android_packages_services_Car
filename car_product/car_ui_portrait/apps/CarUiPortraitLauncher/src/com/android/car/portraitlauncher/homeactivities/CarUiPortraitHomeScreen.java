@@ -16,8 +16,6 @@
 
 package com.android.car.portraitlauncher.homeactivities;
 
-import static android.view.InsetsState.ITYPE_BOTTOM_GENERIC_OVERLAY;
-import static android.view.InsetsState.ITYPE_TOP_GENERIC_OVERLAY;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
@@ -50,9 +48,9 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -582,12 +580,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         logIfDebuggable(
                 "Applying bottom insets: " + bottomInsets + " top insets: " + topInsets);
-        mBackgroundTaskView.setInsets(new SparseArray<>() {
-            {
-                append(ITYPE_BOTTOM_GENERIC_OVERLAY, bottomInsets);
-                append(ITYPE_TOP_GENERIC_OVERLAY, topInsets);
-            }
-        });
+        mBackgroundTaskView.addInsets(
+                0 /* index */, WindowInsets.Type.systemOverlays(), bottomInsets);
+        mBackgroundTaskView.addInsets(
+                1 /* index */, WindowInsets.Type.systemOverlays(), topInsets);
     }
 
     private void updateTaskViewInsets() {

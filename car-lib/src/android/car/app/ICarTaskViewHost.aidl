@@ -16,11 +16,11 @@
 package android.car.app;
 
 import android.app.ActivityManager.RunningTaskInfo;
-import android.view.SurfaceControl;
-import android.os.Bundle;
 import android.app.PendingIntent;
-import android.graphics.Rect;
 import android.car.app.ICarTaskViewClient;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.view.SurfaceControl;
 
 
 /**
@@ -35,6 +35,6 @@ oneway interface ICarTaskViewHost {
    void setWindowBounds(in Rect bounds);
    void notifySurfaceDestroyed();
    void showEmbeddedTask();
-   void addInsets(in int[] insetTypes, in Rect[] insetProviderRects);
-   void removeInsets(in int[] insetTypesToRemove);
+   void addInsets(int index, int type, in Rect frame);
+   void removeInsets(int index, int type);
 }
