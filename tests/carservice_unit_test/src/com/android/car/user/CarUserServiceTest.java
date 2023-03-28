@@ -946,7 +946,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
@@ -962,7 +962,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
     }
@@ -979,7 +979,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
@@ -990,7 +990,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int removedUserId = 15;
         removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
     }
 
@@ -1006,7 +1006,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(mAdminUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(mAdminUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED);
         assertHalRemove(currentUser, removeUser);
     }
@@ -1024,7 +1024,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
     }
@@ -1039,7 +1039,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockRemoveUser(removeUser);
 
         removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
-        UserRemovalResult result = getUserRemovalResult(removedUserId);
+        UserRemovalResult result = getUserRemovalResult();
 
         assertUserRemovalResultStatus(result, UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser);
@@ -1056,7 +1056,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL);
         assertNoHalUserRemoval();
     }
@@ -1070,7 +1070,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(targetUserId, NO_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(targetUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_ANDROID_FAILURE);
     }
 
@@ -1117,7 +1117,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
@@ -1134,7 +1134,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser, /* overrideDevicePolicy= */ true);
     }
@@ -1151,7 +1151,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL);
         assertHalRemove(currentUser, removeUser, /* overrideDevicePolicy= */ true);
     }
@@ -1169,7 +1169,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         removeUser(removedUserId, HAS_CALLER_RESTRICTIONS, mUserRemovalResultCallbackImpl);
 
-        assertUserRemovalResultStatus(getUserRemovalResult(removedUserId),
+        assertUserRemovalResultStatus(getUserRemovalResult(),
                 UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
         assertNoHalUserRemoval();
     }
