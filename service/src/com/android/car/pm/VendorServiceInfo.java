@@ -52,11 +52,13 @@ final class VendorServiceInfo {
     private static final int TRIGGER_ASAP = 0;
     private static final int TRIGGER_UNLOCKED = 1;
     private static final int TRIGGER_POST_UNLOCKED = 2;
+    private static final int TRIGGER_RESUME = 3;
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             TRIGGER_ASAP,
             TRIGGER_UNLOCKED,
             TRIGGER_POST_UNLOCKED,
+            TRIGGER_RESUME,
     })
     @interface Trigger {}
 
@@ -111,6 +113,10 @@ final class VendorServiceInfo {
 
     boolean shouldStartOnPostUnlock() {
         return mTrigger == TRIGGER_POST_UNLOCKED;
+    }
+
+    boolean shouldStartOnResume() {
+        return mTrigger == TRIGGER_RESUME;
     }
 
     boolean shouldStartAsap() {
@@ -207,6 +213,9 @@ final class VendorServiceInfo {
                             case "userPostUnlocked":
                                 trigger = TRIGGER_POST_UNLOCKED;
                                 break;
+                            case "resume":
+                                trigger = TRIGGER_RESUME;
+                                break;
                             default:
                                 throw new IllegalArgumentException("Unexpected trigger: " + val);
                         }
@@ -257,6 +266,8 @@ final class VendorServiceInfo {
                 return "UNLOCKED";
             case TRIGGER_POST_UNLOCKED:
                 return "POST_UNLOCKED";
+            case TRIGGER_RESUME:
+                return "RESUME";
             default:
                 return "INVALID-" + trigger;
         }
