@@ -23,10 +23,13 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
@@ -53,6 +56,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -60,6 +64,7 @@ import com.android.internal.util.Preconditions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -89,6 +94,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     private static final String SERVICE_BIND_FG_USER_UNLOCKED = "com.android.car/.ForegroundUsers";
     private static final String SERVICE_BIND_FG_USER_POST_UNLOCKED =
             "com.android.car/.ForegroundUsersPostUnlocked";
+    private static final String SERVICE_BIND_SYSTEM_USER_RESUME =
+            "com.android.car/.SystemUserBindOnResume";
     private static final String SERVICE_START_VISIBLE_USER_ASAP =
             "com.android.car/.VisibleUsersAsap";
     private static final String SERVICE_START_VISIBLE_USER_UNLOCKED =
@@ -101,6 +108,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             SERVICE_BIND_FG_USER_UNLOCKED + "#bind=bind,user=foreground,trigger=userUnlocked",
             SERVICE_BIND_FG_USER_POST_UNLOCKED
                     + "#bind=bind,user=foreground,trigger=userPostUnlocked",
+            SERVICE_BIND_SYSTEM_USER_RESUME + "#bind=bind,user=system,trigger=resume",
             SERVICE_START_VISIBLE_USER_ASAP + "#bind=start,user=visible,trigger=asap",
             SERVICE_START_VISIBLE_USER_UNLOCKED + "#bind=start,user=visible,trigger=userUnlocked",
             SERVICE_START_SYSTEM_UNLOCKED + "#bind=start,user=system,trigger=userUnlocked"
@@ -120,6 +128,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
     @Mock
     private CarPackageManagerService mCarPackageManagerService;
+
+    @Mock
+    private CarPowerManagementService mCarPowerManagementService;
 
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
@@ -141,7 +152,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
                 /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService);
         spyOn(mCarUserService);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class, mCarPowerManagementService);
         // No visible users by default.
         doReturn(false).when(mCarUserService).isUserVisible(anyInt());
 
@@ -157,6 +171,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }
 
     @Test
@@ -183,7 +198,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     public void systemUserUnlocked() throws Exception {
         mController.init();
         mContext.reset();
-        mContext.expectServices(SERVICE_START_SYSTEM_UNLOCKED);
+        mContext.expectServices(SERVICE_START_SYSTEM_UNLOCKED, SERVICE_BIND_SYSTEM_USER_RESUME);
 
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM);
@@ -191,6 +206,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
                 UserHandle.USER_SYSTEM);
 
         mContext.expectRecentStartedServices(SERVICE_START_SYSTEM_UNLOCKED);
+        // Note that user unlock also triggers `resume`.
+        mContext.expectRecentBoundServices(SERVICE_BIND_SYSTEM_USER_RESUME);
         mContext.expectNoMoreServiceLaunches();
     }
 
@@ -365,6 +382,34 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         mContext.expectServiceNotBound(SERVICE_BIND_FG_USER_POST_UNLOCKED);
         mContext.expectServiceNotBound(SERVICE_BIND_FG_USER_UNLOCKED);
+    }
+
+    @Test
+    public void powerStateResume_bindsSystemService() throws Exception {
+        mockGetCurrentUser(UserHandle.USER_SYSTEM);
+        mController.init();
+        ICarPowerStateListener listener = mockPowerStateListener();
+        mContext.reset();
+        mContext.expectServices(SERVICE_BIND_SYSTEM_USER_RESUME);
+
+        // Send power state resume event.
+        sendPowerStateChange(listener, CarPowerManager.STATE_SUSPEND_EXIT);
+
+        mContext.expectRecentBoundServices(SERVICE_BIND_SYSTEM_USER_RESUME);
+        mContext.expectNoMoreServiceLaunches();
+    }
+
+    /** Returns the power state listener captured during initialization. */
+    private ICarPowerStateListener mockPowerStateListener() {
+        ArgumentCaptor<ICarPowerStateListener> listenerCaptor =
+                ArgumentCaptor.forClass(ICarPowerStateListener.class);
+        verify(mCarPowerManagementService).registerListener(listenerCaptor.capture());
+        return listenerCaptor.getValue();
+    }
+
+    /** Sends the given power {@code state} to the {@code listener}. */
+    private void sendPowerStateChange(ICarPowerStateListener listener, int state) throws Exception {
+        listener.onStateChanged(state, /* expirationTimeMs= */ 3000L);
     }
 
     // TODO: Replace this with AndroidMockitoHelper#mockUmIsUserUnlockingOrUnlocked
