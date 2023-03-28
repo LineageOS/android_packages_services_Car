@@ -741,6 +741,27 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @Override
+    public OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
+        synchronized (mLock) {
+            DisplayConfig displayConfig = findDisplayConfigForDisplayIdLocked(displayId);
+            if (displayConfig == null) {
+                Slogf.w(TAG, "getOccupantZoneForDisplayId: Could not find DisplayConfig for "
+                        + "display Id %d", displayId);
+                return null;
+            }
+
+            int occupantZoneId = displayConfig.occupantZoneId;
+            if (occupantZoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
+                Slogf.w(TAG, "getOccupantZoneForDisplayId: Got invalid occupant zone id from "
+                        + "DisplayConfig: %s", displayConfig);
+                return null;
+            }
+
+            return mOccupantsConfig.get(occupantZoneId);
+        }
+    }
+
     /**
      * returns the current driver user id.
      */

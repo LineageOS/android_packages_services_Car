@@ -629,7 +629,46 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
-    public void testGetOccupantZone_invalidUser() {
+    public void testGetOccupantZoneForDisplayId_invalidDisplayId() {
+        mService.init();
+
+        OccupantZoneInfo occupantZoneInfo =
+                mService.getOccupantZoneForDisplayId(Display.INVALID_DISPLAY);
+
+        assertWithMessage("Occupant zone for invalid display id")
+                .that(occupantZoneInfo)
+                .isNull();
+    }
+
+    @Test
+    public void testGetOccupantZoneForDisplayId_displayIdForDriver() {
+        mService.init();
+
+        OccupantZoneInfo occupantZoneInfo =
+                mService.getOccupantZoneForDisplayId(Display.DEFAULT_DISPLAY);
+
+        assertWithMessage("Get occupant zone for display id (%s)", Display.DEFAULT_DISPLAY)
+                .that(occupantZoneInfo)
+                .isEqualTo(new OccupantZoneInfo(0, CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER,
+                          VehicleAreaSeat.SEAT_ROW_1_LEFT));
+    }
+
+    @Test
+    public void testGetOccupantZoneForDisplayId_displayIdForPassenger() {
+        mService.init();
+
+        OccupantZoneInfo occupantZoneInfo =
+                mService.getOccupantZoneForDisplayId(mDisplay2.getDisplayId());
+
+        assertWithMessage("Get occupant zone for display id (%s)", mDisplay2.getDisplayId())
+                .that(occupantZoneInfo)
+                .isEqualTo(new OccupantZoneInfo(1,
+                          CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
+                          VehicleAreaSeat.SEAT_ROW_1_RIGHT));
+    }
+
+    @Test
+    public void testGetOccupantZoneForUser_invalidUser() {
         mService.init();
         int invalidProfileUser = UserHandle.USER_NULL;
 
@@ -642,11 +681,10 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
-    public void testGetOccupantZone_validUser() {
+    public void testGetOccupantZoneForUser_validUser() {
         mService.init();
         SparseArray<CarOccupantZoneManager.OccupantZoneInfo> occupantZoneConfigs =
                 mService.getOccupantsConfig();
-        occupantZoneConfigs.get(PROFILE_USER1);
 
         OccupantZoneInfo occupantZoneInfo =
                 mService.getOccupantZoneForUser(UserHandle.of(PROFILE_USER1));
@@ -657,7 +695,7 @@ public class CarOccupantZoneServiceTest {
     }
 
     @Test
-    public void testGetOccupantZone_nullUser() {
+    public void testGetOccupantZoneForUser_nullUser() {
         mService.init();
 
         NullPointerException thrown = assertThrows(NullPointerException.class,
