@@ -810,10 +810,16 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         public void onSuccess(SetPropertyCallback callback, SetPropertyResult result) {
+            if (DBG) {
+                Log.d(TAG, "delivering success set property result: " + result);
+            }
             callback.onSuccess(result);
         }
 
         public void onFailure(SetPropertyCallback callback, PropertyAsyncError error) {
+            if (DBG) {
+                Log.d(TAG, "delivering error set property result: " + error);
+            }
             callback.onFailure(error);
         }
     }
