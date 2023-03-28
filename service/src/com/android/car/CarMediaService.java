@@ -17,7 +17,6 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.os.UserManagerHelper.getMaxRunningUsers;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
@@ -30,7 +29,7 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -1196,7 +1195,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         // events do not capture media app usage on AAOS because apps are hosted by a proxy such as
         // Media Center. Reporting a USER_INTERACTION event in setPrimaryMediaSource allows
         // attribution of non-foreground media app interactions to the app's package name
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0) && componentName != null) {
+        if (isPlatformVersionAtLeastU() && componentName != null) {
             UsageStatsManagerHelper.reportUserInteraction(mUsageStatsManager,
                     componentName.getPackageName(), userId);
         }

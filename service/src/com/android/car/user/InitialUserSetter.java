@@ -15,13 +15,11 @@
  */
 package com.android.car.user;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
-
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -344,7 +342,7 @@ final class InitialUserSetter {
     public void set(@NonNull InitialUserInfo info) {
         Preconditions.checkArgument(info != null, "info cannot be null");
 
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserInfo(info.type, info.replaceGuest, info.switchUserId,
                     info.newUserName, info.newUserFlags,
                     info.supportsOverrideUserIdProperty, info.userLocales);
@@ -456,7 +454,7 @@ final class InitialUserSetter {
             return;
         }
 
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserFallbackDefaultBehavior(reason);
         }
         Slogf.w(TAG, "Falling back to default behavior. Reason: " + reason);
@@ -492,7 +490,7 @@ final class InitialUserSetter {
         int actualUserId = actualUser.getIdentifier();
 
         // Keep the old boot user flow for platform before U
-        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!isPlatformVersionAtLeastU()) {
             unlockSystemUserIfNecessary(actualUserId);
         }
 
@@ -565,7 +563,7 @@ final class InitialUserSetter {
             return user;
         }
 
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserReplaceGuest(user.getIdentifier());
         }
         Slogf.i(TAG, "Replacing guest (" + user + ")");
@@ -683,7 +681,7 @@ final class InitialUserSetter {
 
     @VisibleForTesting
     void unlockSystemUser() {
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserUnlockSystemUser();
         }
         Slogf.i(TAG, "unlocking system user");
@@ -710,7 +708,7 @@ final class InitialUserSetter {
 
     @VisibleForTesting
     boolean startForegroundUser(InitialUserInfo info, @UserIdInt int userId) {
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserStartFgUser(userId);
         }
 
@@ -730,7 +728,7 @@ final class InitialUserSetter {
 
         // Keep the old boot user flow for platform before U
         if (info.requestType == InitialUserInfoRequestType.RESUME
-                || !isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+                || !isPlatformVersionAtLeastU()) {
             return ActivityManagerHelper.startUserInForeground(userId);
         } else {
             Slogf.i(TAG, "Setting boot user to: %d", userId);
@@ -759,7 +757,7 @@ final class InitialUserSetter {
      * Sets the last active user.
      */
     public void setLastActiveUser(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserSetLastActive(userId);
         }
 
@@ -933,7 +931,7 @@ final class InitialUserSetter {
     }
 
     private void resetUserIdGlobalProperty(@NonNull String name) {
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarInitialUserResetGlobalProperty(name);
         }
 
