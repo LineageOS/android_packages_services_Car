@@ -277,6 +277,8 @@
          trigger: indicates when the service needs to be started/bound
                asap - the service might be bound when user is not fully loaded, be careful with
                       this value, the service also needs to have directBootAware flag set to true
+               resume - start service when the device resumes from suspend (suspend-to-RAM, or
+                        suspend-to-disk).
                userUnlocked - start service when user unlocked the device
                userPostUnlocked - start service later after user unlocked. This is used when the
                                   service is not urgent and can wait to start.

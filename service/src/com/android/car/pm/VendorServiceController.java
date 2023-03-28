@@ -34,6 +34,8 @@ import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
@@ -59,6 +61,7 @@ import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -95,6 +98,7 @@ final class VendorServiceController implements UserLifecycleListener {
     private final UserManager mUserManager;
     private final Handler mHandler;
     private CarUserService mCarUserService;
+    private CarPowerManagementService mPowerManagementService;
 
     private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -135,6 +139,20 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     };
 
+    private final ICarPowerStateListener mCarPowerStateListener =
+            new ICarPowerStateListener.Stub() {
+                @Override
+                public void onStateChanged(int state, long expirationTimeMs) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Power state change received. State = %d", state);
+                    }
+                    if (state == CarPowerManager.STATE_HIBERNATION_EXIT
+                            || state == CarPowerManager.STATE_SUSPEND_EXIT) {
+                        onPowerResumed();
+                    }
+                }
+            };
+
     VendorServiceController(Context context, Looper looper) {
         mContext = context;
         mUserManager = context.getSystemService(UserManager.class);
@@ -146,6 +164,7 @@ final class VendorServiceController implements UserLifecycleListener {
             return;  // Nothing to do
         }
 
+        mPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
         mCarUserService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userLifecycleEventFilter =
                 new UserLifecycleEventFilter.Builder()
@@ -157,6 +176,7 @@ final class VendorServiceController implements UserLifecycleListener {
         mCarUserService.addUserLifecycleListener(userLifecycleEventFilter, this);
 
         startOrBindServicesIfNeeded();
+        mPowerManagementService.registerListener(mCarPowerStateListener);
         registerPackageChangeReceiver();
     }
 
@@ -170,6 +190,7 @@ final class VendorServiceController implements UserLifecycleListener {
             mCarUserService.removeUserLifecycleListener(this);
         }
         unregisterPackageChangeReceiver();
+        mPowerManagementService.unregisterListener(mCarPowerStateListener);
         for (ConnectionKey key : mConnections.keySet()) {
             stopOrUnbindService(key.mVendorServiceInfo, key.mUserHandle);
         }
@@ -226,6 +247,25 @@ final class VendorServiceController implements UserLifecycleListener {
             default:
                 // Shouldn't happen as listener was registered with filter
                 Slogf.wtf(TAG, "Invalid event: %s", event);
+        }
+    }
+
+    /** Handles power resume events, starting services with `trigger=resume`. */
+    private void onPowerResumed() {
+        if (DBG) {
+            Slogf.d(TAG, "onPowerResumed()");
+        }
+
+        int size = mVendorServiceInfos.size();
+        for (int i = 0; i < size; i++) {
+            VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
+            // RESUME events handle the system user only. Current or visible users are handled by
+            // user lifecycle events (unlock, visible, etc).
+            boolean isForSystemOrAllUsers = serviceInfo.isSystemUserService();
+            boolean isResumeTrigger = serviceInfo.shouldStartOnResume();
+            if (isForSystemOrAllUsers && isResumeTrigger) {
+                startOrBindService(serviceInfo, UserHandle.SYSTEM);
+            }
         }
     }
 
