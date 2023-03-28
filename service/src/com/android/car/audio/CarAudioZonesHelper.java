@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_EVENT;
 
@@ -38,6 +39,7 @@ import android.util.SparseIntArray;
 import android.util.Xml;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.internal.util.VersionUtils;
 import com.android.internal.util.Preconditions;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -368,6 +370,11 @@ import java.util.stream.Collectors;
 
     private void parseContentType(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
+        if (!VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            throw new IllegalArgumentException("car_audio_configuration.xml tag "
+                    + ATTR_CONTENT_TYPE + ", is only supported for release version "
+                    + UPSIDE_DOWN_CAKE_0 + " and higher");
+        }
         String contentTypeLiteral = parser.getAttributeValue(NAMESPACE, ATTR_CONTENT_TYPE);
         int contentType = AudioManagerHelper.xsdStringToContentType(contentTypeLiteral);
         builder.setContentType(contentType);
@@ -376,6 +383,11 @@ import java.util.stream.Collectors;
     private void parseTags(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
         String tagsLiteral = parser.getAttributeValue(NAMESPACE, ATTR_TAGS);
+        if (!VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+            throw new IllegalArgumentException("car_audio_configuration.xml tag " + ATTR_TAGS
+                    + ", is only supported for release version " + UPSIDE_DOWN_CAKE_0
+                    + " and higher");
+        }
         if (tagsLiteral != null) {
             AudioManagerHelper.addTagToAudioAttributes(builder, tagsLiteral);
         }
