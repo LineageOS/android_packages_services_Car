@@ -19,10 +19,10 @@ import android.car.annotation.AddedInOrBefore;
 
 /**
  * @deprecated This API is deprecated in favor of {@link
- * android.car.hardware.property.VehicleLightState}. This API will be marked as @removed in the next
- * API release and then fully removed in two API releases.
+ * android.car.hardware.property.VehicleLightState}. This API will be marked as {@code @removed} in
+ * the next API release and then fully removed in two API releases.
  *
- * Used by Lights state properties to enumerate the current state of the lights.
+ * <p>Used by Lights state properties to enumerate the current state of the lights.
  * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
  * set and get this VHAL property.
  * @hide

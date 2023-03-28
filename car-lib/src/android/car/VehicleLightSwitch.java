@@ -19,10 +19,10 @@ import android.car.annotation.AddedInOrBefore;
 
 /**
  * @deprecated This API is deprecated in favor of {@link
- * android.car.hardware.property.VehicleLightSwitch}. This API will be marked as @removed in the
- * next API release and then fully removed in two API releases.
+ * android.car.hardware.property.VehicleLightSwitch}. This API will be marked as {@code @removed} in
+ * the next API release and then fully removed in two API releases.
  *
- * Used by lights switch properties to enumerate user selected switch setting.
+ * <p>Used by lights switch properties to enumerate user selected switch setting.
  * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
  * set and get this VHAL property.
  * @hide
