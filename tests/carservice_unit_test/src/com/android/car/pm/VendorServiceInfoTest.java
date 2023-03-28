@@ -115,6 +115,13 @@ public class VendorServiceInfoTest {
     }
 
     @Test
+    public void triggerResume() {
+        VendorServiceInfo info = VendorServiceInfo.parse(SERVICE_NAME + "#trigger=resume");
+
+        assertThat(info.shouldStartOnResume()).isTrue();
+    }
+
+    @Test
     public void triggerUnknown() {
         assertThrows(IllegalArgumentException.class,
                 () -> VendorServiceInfo.parse(SERVICE_NAME + "#trigger=whenever"));
@@ -226,5 +233,16 @@ public class VendorServiceInfoTest {
         assertThat(result).contains("bind=START");
         assertThat(result).contains("userScope=VISIBLE");
         assertThat(result).contains("trigger=UNLOCKED");
+    }
+
+    @Test
+    public void testToString_startSystemUserResume() {
+        String result = VendorServiceInfo.parse(SERVICE_NAME
+                + "#bind=start,user=system,trigger=resume").toString();
+
+        assertThat(result).contains("component=" + SERVICE_NAME);
+        assertThat(result).contains("bind=START");
+        assertThat(result).contains("userScope=SYSTEM");
+        assertThat(result).contains("trigger=RESUME");
     }
 }
