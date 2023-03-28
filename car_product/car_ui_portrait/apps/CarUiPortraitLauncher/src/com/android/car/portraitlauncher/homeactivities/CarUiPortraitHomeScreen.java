@@ -428,6 +428,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // In this case, ABA is actually displayed inside launch-root-task. By closing the
         // root task view panel we make sure the app goes to the background.
         mRootTaskViewPanel.closePanel();
+        // Close app grid to account for home key event
+        mAppGridTaskViewPanel.closePanel();
     }
 
     private void initializeCards() {
