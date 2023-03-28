@@ -189,8 +189,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
     protected final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
+    protected final SyncResultCallback<UserRemovalResult> mSyncResultCallbackForRemoveUser =
+            new SyncResultCallback<UserRemovalResult>();
+
     protected final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
-            new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>());
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForRemoveUser);
     protected final AndroidFuture<UserIdentificationAssociationResponse>
             mUserAssociationRespFuture = new AndroidFuture<>();
     protected final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
@@ -501,14 +504,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
      * {@link #mUserRemovalResultCallbackImpl}.
      */
     @NonNull
-    protected UserRemovalResult getUserRemovalResult(int userId) throws Exception {
-        AndroidFuture<UserRemovalResult> future = new AndroidFuture<>() {
-            @Override
-            protected void onCompleted(UserRemovalResult result, Throwable err) {
-                mUserRemovalResultCallbackImpl.complete(result);
-            }
-        };
-        return getResult(future, "result of removing user %d", userId);
+    protected UserRemovalResult getUserRemovalResult() throws Exception {
+        return (UserRemovalResult) mSyncResultCallbackForRemoveUser.get();
     }
 
     /**
