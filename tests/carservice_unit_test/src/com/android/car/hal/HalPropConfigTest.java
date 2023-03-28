@@ -18,9 +18,9 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.car.VehicleOilLevel;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.AreaIdConfig;
+import android.car.hardware.property.VehicleOilLevel;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
@@ -383,8 +383,12 @@ public final class HalPropConfigTest {
 
         assertThat(halPropConfig.toCarPropertyConfig(GLOBAL_INTEGER_PROP_ID).getAreaIdConfig(
                 TEST_AREA_ID).getSupportedEnumValues()).containsExactlyElementsIn(
-                List.of(VehicleOilLevel.CRITICALLY_LOW, VehicleOilLevel.LOW, VehicleOilLevel.NORMAL,
-                        VehicleOilLevel.HIGH, VehicleOilLevel.ERROR));
+                        List.of(
+                                VehicleOilLevel.LEVEL_CRITICALLY_LOW,
+                                VehicleOilLevel.LEVEL_LOW,
+                                VehicleOilLevel.LEVEL_NORMAL,
+                                VehicleOilLevel.LEVEL_HIGH,
+                                VehicleOilLevel.LEVEL_ERROR));
     }
 
     @Test
