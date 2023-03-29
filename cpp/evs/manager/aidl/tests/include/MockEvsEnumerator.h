@@ -47,6 +47,8 @@ public:
                 (override));
     MOCK_METHOD(::ndk::ScopedAStatus, getDisplayIdList, (std::vector<uint8_t>*), (override));
     MOCK_METHOD(::ndk::ScopedAStatus, getDisplayState, (aidlevs::DisplayState*), (override));
+    MOCK_METHOD(::ndk::ScopedAStatus, getDisplayStateById, (int32_t, aidlevs::DisplayState*),
+                (override));
     MOCK_METHOD(::ndk::ScopedAStatus, registerStatusCallback,
                 (const std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>&), (override));
     MOCK_METHOD(::ndk::ScopedAStatus, openUltrasonicsArray,

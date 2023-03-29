@@ -27,7 +27,7 @@ cc_library_shared {
     ],
 
     shared_libs: [
-        "android.hardware.automotive.evs-V1-ndk",
+        "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libandroid",
         "libbase",
@@ -81,7 +81,7 @@ cc_test_library {
     ],
 
     static_libs: [
-        "android.hardware.automotive.evs-V1-ndk",
+        "android.hardware.automotive.evs-V2-ndk",
         "android.hardware.common-V2-ndk",
         "libaidlcommonsupport",
         "libcutils",
