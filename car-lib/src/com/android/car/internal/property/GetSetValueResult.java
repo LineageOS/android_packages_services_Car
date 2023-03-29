@@ -40,11 +40,10 @@ public final class GetSetValueResult implements Parcelable {
     private final CarPropertyValue mCarPropertyValue;
     // Only useful for setProperty, ignored for getProperty.
     private final long mUpdateTimestampNanos;
-    @CarPropertyAsyncErrorCode
     private final int mErrorCode;
 
     private GetSetValueResult(int requestId, @Nullable CarPropertyValue carPropertyValue,
-            @CarPropertyAsyncErrorCode int errorCode, long updateTimestampNanos) {
+            int errorCode, long updateTimestampNanos) {
         mRequestId = requestId;
         mCarPropertyValue = carPropertyValue;
         mErrorCode = errorCode;
@@ -61,10 +60,9 @@ public final class GetSetValueResult implements Parcelable {
     }
 
     /**
-     * Creates an async error get property result.
+     * Creates an async error property result.
      */
-    public static GetSetValueResult newErrorGetValueResult(int requestId,
-            @CarPropertyAsyncErrorCode int errorCode) {
+    public static GetSetValueResult newErrorResult(int requestId, int errorCode) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
                 errorCode, /* updateTimestampNanos= */ 0);
     }
@@ -81,8 +79,7 @@ public final class GetSetValueResult implements Parcelable {
     /**
      * Creates an async error set property result.
      */
-    public static GetSetValueResult newErrorSetValueResult(int requestId,
-            @CarPropertyAsyncErrorCode int errorCode) {
+    public static GetSetValueResult newErrorSetValueResult(int requestId, int errorCode) {
         return new GetSetValueResult(requestId, /* carPropertyValue= */ null,
                 errorCode, /* updateTimestampNanos= */ 0);
     }
@@ -196,7 +193,7 @@ public final class GetSetValueResult implements Parcelable {
             time = 1675218930169L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/property/GetSetValueResult.java",
-            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final  long mUpdateTimestampNanos\nprivate final @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int mErrorCode\npublic static  android.car.hardware.property.GetSetValueResult newGetValueResult(int,android.car.hardware.CarPropertyValue)\npublic static  android.car.hardware.property.GetSetValueResult newErrorGetValueResult(int,int)\npublic static  android.car.hardware.property.GetSetValueResult newSetValueResult(int,long)\npublic static  android.car.hardware.property.GetSetValueResult newErrorSetValueResult(int,int)\nclass GetSetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final  long mUpdateTimestampNanos\nprivate final @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int mErrorCode\npublic static  android.car.hardware.property.GetSetValueResult newGetValueResult(int,android.car.hardware.CarPropertyValue)\npublic static  android.car.hardware.property.GetSetValueResult newErrorResult(int,int)\npublic static  android.car.hardware.property.GetSetValueResult newSetValueResult(int,long)\npublic static  android.car.hardware.property.GetSetValueResult newErrorSetValueResult(int,int)\nclass GetSetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

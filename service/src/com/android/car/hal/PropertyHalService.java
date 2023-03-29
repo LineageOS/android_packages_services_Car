@@ -169,8 +169,8 @@ public class PropertyHalService extends HalServiceBase {
             return mPropMgrRequest;
         }
 
-        GetSetValueResult toErrorGetValueResult(@CarPropertyAsyncErrorCode int errorCode) {
-            return GetSetValueResult.newErrorGetValueResult(getManagerRequestId(), errorCode);
+        GetSetValueResult toErrorResult(@CarPropertyAsyncErrorCode int errorCode) {
+            return GetSetValueResult.newErrorResult(getManagerRequestId(), errorCode);
         }
 
         GetSetValueResult toGetValueResult(CarPropertyValue value) {
@@ -473,7 +473,7 @@ public class PropertyHalService extends HalServiceBase {
             int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
             if (vehicleStubErrorCode != STATUS_OK) {
                 // All other error results will be delivered back through callback.
-                return clientRequestInfo.toErrorGetValueResult(vehicleStubErrorCode);
+                return clientRequestInfo.toErrorResult(vehicleStubErrorCode);
             }
 
             // For okay status, convert the property value to the type the client expects.
@@ -486,14 +486,14 @@ public class PropertyHalService extends HalServiceBase {
             if (halPropConfig == null) {
                 Slogf.e(TAG, "No configuration found for property: %s, must not happen",
                         clientRequestInfo.getPropertyName());
-                return clientRequestInfo.toErrorGetValueResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
             }
             HalPropValue halPropValue = getVehicleStubAsyncResult.getHalPropValue();
             if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
-                return clientRequestInfo.toErrorGetValueResult(STATUS_NOT_AVAILABLE);
+                return clientRequestInfo.toErrorResult(STATUS_NOT_AVAILABLE);
             }
             if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
-                return clientRequestInfo.toErrorGetValueResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
             }
 
             try {
@@ -503,7 +503,7 @@ public class PropertyHalService extends HalServiceBase {
                 Slogf.e(TAG, e,
                         "Cannot convert halPropValue to carPropertyValue, property: %s, areaId: %d",
                         halPropIdToName(halPropValue.getPropId()), halPropValue.getAreaId());
-                return clientRequestInfo.toErrorGetValueResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
             }
         }
 
@@ -624,7 +624,7 @@ public class PropertyHalService extends HalServiceBase {
 
                     if (vehicleStubErrorCode != STATUS_OK) {
                         // All other error results will be delivered back through callback.
-                        setValueResults.add(clientRequestInfo.toErrorGetValueResult(
+                        setValueResults.add(clientRequestInfo.toErrorResult(
                                 vehicleStubErrorCode));
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
                                 updatedHalPropIds);
@@ -662,7 +662,7 @@ public class PropertyHalService extends HalServiceBase {
         private void generateTimeoutResult(AsyncPropRequestInfo requestInfo,
                 List<GetSetValueResult> timeoutGetResults,
                 List<GetSetValueResult> timeoutSetResults) {
-            GetSetValueResult timeoutResult =  requestInfo.toErrorGetValueResult(
+            GetSetValueResult timeoutResult =  requestInfo.toErrorResult(
                     CarPropertyManager.STATUS_ERROR_TIMEOUT);
             switch (requestInfo.getRequestType()) {
                 case GET:
