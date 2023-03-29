@@ -19,7 +19,6 @@ package com.android.car.user;
 import static android.Manifest.permission.CREATE_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_USERS;
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP;
 
@@ -2097,15 +2096,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int userId = request.getUserHandle().getIdentifier();
         int displayId = request.getDisplayId();
         int result;
+
         if (displayId == Display.INVALID_DISPLAY) {
             EventLogHelper.writeCarUserServiceStartUserInBackgroundReq(userId);
             result = startUserInBackgroundInternal(userId);
             EventLogHelper.writeCarUserServiceStartUserInBackgroundResp(userId, result);
-        } else {
+
+            return new UserStartResponse(result);
+        }
+
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
             result = startUserVisibleOnDisplayInternal(userId, displayId);
             EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId,
                     result);
+        } else {
+            Slogf.w(TAG, "The platform does not support startUser."
+                    + " Platform version: %s", Car.getPlatformVersion());
+            result = UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         return new UserStartResponse(result);
@@ -2116,13 +2124,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (displayId == Display.INVALID_DISPLAY) {
             Slogf.wtf(TAG, "startUserVisibleOnDisplay: Display ID must be valid.");
             return UserStartResponse.STATUS_DISPLAY_INVALID;
-        }
-
-        PlatformVersion platformVersion = Car.getPlatformVersion();
-        if (!platformVersion.isAtLeast(UPSIDE_DOWN_CAKE_0)) {
-            Slogf.w(TAG, "The platform does not support startUser."
-                    + " Platform version: %s", platformVersion);
-            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         // If the requested user is the system user.
@@ -2164,6 +2165,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // If the specified user is assigned to another display, the user has to be stopped
             // before it can start on another display.
             return UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
+        }
+
+        if (!isPlatformVersionAtLeastU()) {
+            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         return ActivityManagerHelper.startUserInBackgroundVisibleOnDisplay(userId, displayId)
@@ -2320,11 +2325,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             boolean forceStop, boolean withDelayedLocking) {
         int r;
         try {
-            r = withDelayedLocking
-                    ? ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop)
-                    : ActivityManagerHelper.stopUser(userId, forceStop);
+            if (withDelayedLocking) {
+                r =  ActivityManagerHelper.stopUserWithDelayedLocking(userId, forceStop);
+            } else if (isPlatformVersionAtLeastU()) {
+                r = ActivityManagerHelper.stopUser(userId, forceStop);
+            } else {
+                Slogf.w(TAG, "stopUser() without delayed locking is not supported "
+                        + " in older platform version");
+                return UserStopResult.STATUS_ANDROID_FAILURE;
+            }
         } catch (RuntimeException e) {
-            Slogf.e(TAG, e, "Exception calling am.stopUserWithDelayedLocking(%d, true)", userId);
+            Slogf.e(TAG, e, "Exception calling am.stopUser(%d, true)", userId);
             return UserStopResult.STATUS_ANDROID_FAILURE;
         }
         switch(r) {
