@@ -16,7 +16,6 @@
 
 package com.android.car.pm;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
@@ -27,7 +26,7 @@ import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
@@ -392,7 +391,7 @@ final class VendorServiceController implements UserLifecycleListener {
         // Start/bind service for system user.
         startOrBindServicesForUser(UserHandle.SYSTEM, /* forPostUnlock= */ null);
 
-        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!isPlatformVersionAtLeastU()) {
             // `user=visible` is not supported before U. Just need to handle the current user.
             startOrBindServicesForUser(UserHandle.of(ActivityManager.getCurrentUser()),
                     /* forPostUnlock= */ null);
@@ -461,8 +460,7 @@ final class VendorServiceController implements UserLifecycleListener {
             // `user=visible` and `user=backgroundVisible` are not supported before U.
             // Log an error and ignore the service.
             if ((service.isVisibleUserService() || service.isBackgroundVisibleUserService())
-                    && !service.isAllUserService()
-                    && !isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+                    && !service.isAllUserService() && !isPlatformVersionAtLeastU()) {
                 Slogf.e(TAG, "user=visible and user=backgroundVisible are not supported in "
                         + "this platform version. %s is ignored. Check your config.xml file.",
                         service.toShortString());
