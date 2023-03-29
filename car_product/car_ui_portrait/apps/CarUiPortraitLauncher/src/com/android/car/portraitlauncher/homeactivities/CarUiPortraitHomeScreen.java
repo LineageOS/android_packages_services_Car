@@ -528,6 +528,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mContainer.setLayoutParams(lp);
     }
 
+    // TODO(b/275633095): Add test to verify the region is set correctly in each mode
     private void updateObscuredTouchRegion() {
         if (mBackgroundTaskView == null) {
             return;
@@ -638,9 +639,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private void setControlBarVisibility(boolean isVisible, boolean animate) {
         float translationY = isVisible ? 0 : mContainer.getHeight() - mControlBarView.getTop();
         if (animate) {
-            mControlBarView.animate().translationY(translationY);
+            mControlBarView.animate().translationY(translationY).withEndAction(() -> {
+                updateObscuredTouchRegion();
+            });
         } else {
             mControlBarView.setTranslationY(translationY);
+            updateObscuredTouchRegion();
         }
 
     }
