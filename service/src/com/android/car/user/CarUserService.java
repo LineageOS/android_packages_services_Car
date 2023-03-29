@@ -35,7 +35,6 @@ import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
-import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -144,8 +143,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -230,7 +227,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final DevicePolicyManager mDpm;
     private final int mMaxRunningUsers;
     private final InitialUserSetter mInitialUserSetter;
-    private final UserPreCreator mUserPreCreator;
 
     private final Object mLockUser = new Object();
     @GuardedBy("mLockUser")
@@ -312,24 +308,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final CarPackageManagerService mCarPackageManagerService;
 
-    private static final int PRE_CREATION_STAGE_BEFORE_SUSPEND = 1;
-
-    private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
-
-    private static final int DEFAULT_PRE_CREATION_DELAY_MS = 0;
-
-    @IntDef(flag = true, prefix = { "PRE_CREATION_STAGE_" }, value = {
-            PRE_CREATION_STAGE_BEFORE_SUSPEND,
-            PRE_CREATION_STAGE_ON_SYSTEM_START,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface PreCreationStage { }
-
-    @PreCreationStage
-    private final int mPreCreationStage;
-
-    private final int mPreCreationDelayMs;
-
     /**
      * Whether some operations - like user switch - are restricted by driving safety constraints.
      */
@@ -367,8 +345,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         this(context, hal, userManager, new UserHandleHelper(context, userManager),
                 context.getSystemService(DevicePolicyManager.class),
                 context.getSystemService(ActivityManager.class), maxRunningUsers,
-                /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService,
-                null, carPackageManagerService);
+                /* initialUserSetter= */ null, uxRestrictionService, /* handler= */ null,
+                carPackageManagerService);
     }
 
     @VisibleForTesting
@@ -379,7 +357,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull ActivityManager am,
             int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
-            @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
             @Nullable Handler handler,
             @NonNull CarPackageManagerService carPackageManagerService) {
@@ -395,19 +372,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mInitialUserSetter =
                 initialUserSetter == null ? new InitialUserSetter(context, this,
                         (u) -> setInitialUser(u), mUserHandleHelper) : initialUserSetter;
-        mUserPreCreator = userPreCreator == null
-                ? new UserPreCreator(context, mUserManager) : userPreCreator;
         Resources resources = context.getResources();
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
         mCarUxRestrictionService = uxRestrictionService;
         mCarPackageManagerService = carPackageManagerService;
-        mPreCreationStage = resources.getInteger(R.integer.config_userPreCreationStage);
-        int preCreationDelayMs = resources
-                .getInteger(R.integer.config_userPreCreationDelay);
-        mPreCreationDelayMs = preCreationDelayMs < DEFAULT_PRE_CREATION_DELAY_MS
-                ? DEFAULT_PRE_CREATION_DELAY_MS
-                : preCreationDelayMs;
     }
 
     /**
@@ -490,8 +459,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.println("Users not visible at starting: " + mNotVisibleAtStartingUsers);
         }
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
-        writer.printf("PreCreateUserStages: %s\n", preCreationStageToString(mPreCreationStage));
-        writer.printf("PreCreationDelayMs: %s\n", mPreCreationDelayMs);
 
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         writer.printf("User HAL: supported=%b, timeout=%dms\n", isUserHalSupported(),
@@ -537,10 +504,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         }
         return null;
-    }
-
-    private static String preCreationStageToString(@PreCreationStage int stage) {
-        return DebugUtils.flagsToString(CarUserService.class, "PRE_CREATION_STAGE_", stage);
     }
 
     private void dumpGlobalProperty(IndentingPrintWriter writer, String property) {
@@ -750,10 +713,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (mSwitchGuestUserBeforeSleep) {
             initResumeReplaceGuest();
         }
-
-        if ((mPreCreationStage & PRE_CREATION_STAGE_BEFORE_SUSPEND) != 0) {
-            preCreateUsersInternal(/* waitTimeMs= */ DEFAULT_PRE_CREATION_DELAY_MS);
-        }
     }
 
     /**
@@ -784,10 +743,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         // TODO(b/273370593): remove following once tests are stable
         priorityInit();
-
-        if ((mPreCreationStage & PRE_CREATION_STAGE_ON_SYSTEM_START) != 0) {
-            preCreateUsersInternal(mPreCreationDelayMs);
-        }
     }
 
     private void initBootUser(int requestType) {
@@ -2526,7 +2481,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
             return;
         }
-
         if (isSystemUserInHeadlessSystemUserMode(currentUserId)
                 && !UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(
                         mUserManager)) {
@@ -2842,19 +2796,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkHasAtLeastOnePermissionGranted(mContext, message,
                 android.Manifest.permission.INTERACT_ACROSS_USERS,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
-    }
-
-    /**
-     * Manages the required number of pre-created users.
-     */
-    @Override
-    public void updatePreCreatedUsers() {
-        checkManageOrCreateUsersPermission("preCreateUsers");
-        preCreateUsersInternal(/* waitTimeMs= */ DEFAULT_PRE_CREATION_DELAY_MS);
-    }
-
-    private void preCreateUsersInternal(int waitTimeMs) {
-        mHandler.postDelayed(() -> mUserPreCreator.managePreCreatedUsers(), waitTimeMs);
     }
 
     // TODO(b/167698977): members below were copied from UserManagerService; it would be better to

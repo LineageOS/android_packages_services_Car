@@ -41,7 +41,6 @@ interface ICarUserService {
     // TODO(b/235994008): remove this call.
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
-    void updatePreCreatedUsers();
     UserStartResponse startUser(in UserStartRequest request);
     UserStopResponse stopUser(in UserStopRequest request);
     void removeUser(int userId, in ResultCallbackImpl<UserRemovalResult> callback);
