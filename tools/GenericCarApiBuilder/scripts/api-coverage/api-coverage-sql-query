@@ -1,0 +1,1 @@
+SELECT MethodName FROM kanant.CoverageData_temp WHERE Coverage = 0 AND Package LIKE "android.car%" ORDER BY MethodName;
