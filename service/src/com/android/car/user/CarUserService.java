@@ -98,6 +98,7 @@ import android.hardware.automotive.vehicle.UserInfo;
 import android.hardware.automotive.vehicle.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -150,6 +151,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -1316,10 +1318,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(@UserIdInt int userId) {
-        if (isPlatformVersionAtLeastU()) {
-            UserManager currentUserManager = mContext.createContextAsUser(
-                    UserHandle.of(userId), /* flags= */ 0).getSystemService(UserManager.class);
-            return currentUserManager.isUserVisible();
+        // TODO(b/274616353): Remove SDK_INT check when isPlatformVersionAtLeastU is support by lint
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
+                && isPlatformVersionAtLeastU()) {
+            Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+            return visibleUsers.contains(UserHandle.of(userId));
         }
         return false;
     }
