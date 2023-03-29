@@ -18,12 +18,14 @@ package android.car.builtin.os;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.Build;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -105,12 +107,14 @@ public final class UserManagerHelper {
     }
 
     /** Checks if the user is guest. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isGuestUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
         return userManager.isGuestUser(user.getIdentifier());
     }
 
     /** Checks if the user is a full user. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isFullUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
         UserInfo info = userManager.getUserInfo(user.getIdentifier());
@@ -198,12 +202,14 @@ public final class UserManagerHelper {
     }
 
     /** Check {@link UserManager#isVisibleBackgroundUsersSupported()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVisibleBackgroundUsersSupported(@NonNull UserManager userManager) {
         return userManager.isVisibleBackgroundUsersSupported();
     }
 
     /** Check {@link UserManager#isVisibleBackgroundUsersOnDefaultDisplaySupported()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
             @NonNull UserManager userManager) {
@@ -211,6 +217,7 @@ public final class UserManagerHelper {
     }
 
     /** Check {@link UserManager#getMaxSupportedUsers()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int getMaxSupportedUsers(@NonNull Context context) {
         return Math.max(1, SystemProperties.getInt("fw.max_users",
@@ -219,6 +226,7 @@ public final class UserManagerHelper {
     }
 
     /** Check {@link UserManager#getMainDisplayIdAssignedToUser()}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int getMainDisplayIdAssignedToUser(@NonNull UserManager userManager) {
         return userManager.getMainDisplayIdAssignedToUser();
