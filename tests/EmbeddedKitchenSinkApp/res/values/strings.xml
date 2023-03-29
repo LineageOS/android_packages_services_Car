@@ -169,6 +169,11 @@
     <string name="assign_audio_ask_user" translatable="false">Ask User To Accept/Reject</string>
     <string name="zone_configuration" translatable="false">Zone Configuration</string>
     <string name="switch_zone_configuration" translatable="false">Switch Configuration</string>
+    <string name="select_zone_title" translatable="false">Select Audio Zone to Mirror</string>
+    <string name="select_mirror_id_title" translatable="false">Select Mirror Id</string>
+    <string name="enable_audio_mirror" translatable="false">Enable Audio Mirror for Zones</string>
+    <string name="disable_audio_mirror" translatable="false">Disable Audio Mirror for Zones</string>
+    <string name="update_audio_zones" translatable="false">Updates Audio Zones</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
