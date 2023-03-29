@@ -873,7 +873,7 @@ public final class CarPropertyManagerUnitTest {
         verify(mICarProperty).cancelRequests(new int[]{0});
 
         // Call the manager callback after the request is already cancelled.
-        GetSetValueResult getValueResult = GetSetValueResult.newErrorGetValueResult(0,
+        GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         assertThat(callbackWrapper.size()).isEqualTo(1);
         callbackWrapper.get(0).onGetValueResults(List.of(getValueResult));
@@ -975,7 +975,7 @@ public final class CarPropertyManagerUnitTest {
             assertThat(getPropertyServiceRequest.getRequestId()).isEqualTo(0);
             assertThat(getPropertyServiceRequest.getPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
 
-            GetSetValueResult getValueResult = GetSetValueResult.newErrorGetValueResult(0,
+            GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
                     VENDOR_ERROR_CODE << VENDOR_ERROR_CODE_SHIFT
                             | CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
 
