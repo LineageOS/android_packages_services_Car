@@ -16,6 +16,9 @@
 
 package com.android.car;
 
+import static android.car.hardware.property.CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
+import static android.car.hardware.property.CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -32,6 +35,9 @@ import android.car.hardware.property.CarPropertyManager.GetPropertyCallback;
 import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
+import android.car.hardware.property.CarPropertyManager.SetPropertyCallback;
+import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
+import android.car.hardware.property.CarPropertyManager.SetPropertyResult;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
@@ -81,6 +87,16 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Test for {@link android.car.hardware.property.CarPropertyManager}
+ *
+ * Tests {@link android.car.hardware.property.CarPropertyManager} and the related car service
+ * logic. Uses {@link com.android.car.hal.test.AidlMockedVehicleHal} as the mocked vehicle HAL
+ * implementation.
+ *
+ * Caller should uses {@code addAidlProperty} in {@link #configureMockedHal} to configure the
+ * supported proeprties.
+ *
+ * Caller could also use {@link MockedCarTestBase#getAidlMockedVehicleHal} to further configure
+ * the vehicle HAL.
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -295,6 +311,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case PROP_WITH_WRITE_ONLY_PERMISSION:
                 case VehiclePropertyIds.INFO_VIN:
                 case VehiclePropertyIds.TIRE_PRESSURE:
+                case VehiclePropertyIds.FUEL_DOOR_OPEN:
+                case VehiclePropertyIds.EPOCH_TIME:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg);
@@ -1018,6 +1036,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         int resultCount = 3;
         int errorCount = 0;
 
+        int vendorErrorRequestId = 0;
+
         // A list of properties that will generate error results.
         for (int propId : List.of(
                 PROP_VALUE_STATUS_ERROR_INT_ARRAY,
@@ -1027,7 +1047,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
                 PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                 PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
-                PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE,
                 PROP_CAUSE_STATUS_CODE_INVALID_ARG
             )) {
             GetPropertyRequest errorRequest = mManager.generateGetPropertyRequest(
@@ -1035,6 +1055,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             getPropertyRequests.add(errorRequest);
             requestIds.add(errorRequest.getRequestId());
             errorCount++;
+            if (propId == PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR_WITH_VENDOR_CODE) {
+                vendorErrorRequestId = errorRequest.getRequestId();
+            }
         }
 
         GetPropertyRequest unavailableDriverRequest = mManager.generateGetPropertyRequest(
@@ -1049,19 +1072,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         requestIds.add(unavailablePsgRequest.getRequestId());
         errorCount++;
 
-        TestGetPropertyAsyncCallback getPropertyCallback = new TestGetPropertyAsyncCallback(
+        TestPropertyAsyncCallback callback = new TestPropertyAsyncCallback(
                 requestIds);
         mManager.getPropertiesAsync(getPropertyRequests, /* timeoutInMs= */ 1000,
-                /* cancellationSignal= */ null, callbackExecutor, getPropertyCallback);
+                /* cancellationSignal= */ null, callbackExecutor, callback);
 
         // Make the timeout longer than the timeout specified in getPropertiesAsync since the
         // error callback will be delivered after the request timed-out.
-        getPropertyCallback.waitAndFinish(/* timeoutInMs= */ 1500);
+        callback.waitAndFinish(/* timeoutInMs= */ 2000);
 
-        assertThat(getPropertyCallback.getTestErrors()).isEmpty();
-        List<GetPropertyResult<?>> results = getPropertyCallback.getResultList();
+        assertThat(callback.getTestErrors()).isEmpty();
+        List<GetPropertyResult<?>> results = callback.getGetResultList();
         assertThat(results.size()).isEqualTo(resultCount);
-        assertThat(getPropertyCallback.getErrorList().size()).isEqualTo(errorCount);
+        assertThat(callback.getErrorList().size()).isEqualTo(errorCount);
         for (GetPropertyResult<?> result : results) {
             int resultRequestId = result.getRequestId();
             if (resultRequestId == vinRequest.getRequestId()) {
@@ -1075,7 +1098,107 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 Assert.fail("unknown result request Id: " + resultRequestId);
             }
         }
+        for (PropertyAsyncError error : callback.getErrorList()) {
+            assertThat(error.getErrorCode()).isNotEqualTo(0);
+            if (error.getRequestId() == vendorErrorRequestId) {
+                assertThat(error.getErrorCode()).isEqualTo(STATUS_ERROR_INTERNAL_ERROR);
+                assertThat(error.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_INTERNAL_ERROR);
+            }
+        }
     }
+
+    @Test
+    public void testSetPropertiesAsync() throws Exception {
+        List<SetPropertyRequest<?>> setPropertyRequests = new ArrayList<>();
+        Executor callbackExecutor = new HandlerExecutor(mHandler);
+        Set<Integer> requestIds = new ArraySet();
+
+        // Global read-write property.
+        SetPropertyRequest<Boolean> fuelDoorOpenRequest = mManager.generateSetPropertyRequest(
+                VehiclePropertyIds.FUEL_DOOR_OPEN, 0, true);
+        // Seat area type read-write property.
+        float tempValue1 = 10.1f;
+        // This is less than minValue: 10, so it should be set to min value instead.
+        float tempValue2 = 9.9f;
+        SetPropertyRequest<Float> hvacTempDriverRequest = mManager.generateSetPropertyRequest(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET, DRIVER_SIDE_AREA_ID, tempValue1);
+        SetPropertyRequest<Float> hvacTempPsgRequest = mManager.generateSetPropertyRequest(
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET, PASSENGER_SIDE_AREA_ID, tempValue2);
+        SetPropertyRequest<Long> writeOnlyPropRequest = mManager.generateSetPropertyRequest(
+                VehiclePropertyIds.EPOCH_TIME, 0, /* value= */ 1L);
+        // Write only property with the default waitForProperty set to true should generate error.
+        writeOnlyPropRequest.setWaitForPropertyUpdate(false);
+
+        setPropertyRequests.add(fuelDoorOpenRequest);
+        setPropertyRequests.add(hvacTempDriverRequest);
+        setPropertyRequests.add(hvacTempPsgRequest);
+        setPropertyRequests.add(writeOnlyPropRequest);
+
+        requestIds.add(fuelDoorOpenRequest.getRequestId());
+        requestIds.add(hvacTempDriverRequest.getRequestId());
+        requestIds.add(hvacTempPsgRequest.getRequestId());
+        requestIds.add(writeOnlyPropRequest.getRequestId());
+
+        List<Integer> successPropIds = List.of(
+                VehiclePropertyIds.FUEL_DOOR_OPEN,
+                VehiclePropertyIds.HVAC_TEMPERATURE_SET,
+                VehiclePropertyIds.EPOCH_TIME);
+
+        int resultCount = requestIds.size();
+        int errorCount = 0;
+        int vendorErrorRequestId = 0;
+
+        // A list of properties that will generate error results.
+        List<Integer> errorPropIds = List.of(
+                PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
+                PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE,
+                PROP_CAUSE_STATUS_CODE_INVALID_ARG);
+        for (int propId : errorPropIds) {
+            SetPropertyRequest<Integer> errorRequest = mManager.generateSetPropertyRequest(
+                    propId, /* areaId= */ 0, /* value= */ 1);
+            setPropertyRequests.add(errorRequest);
+            requestIds.add(errorRequest.getRequestId());
+            errorCount++;
+            if (propId == PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE_WITH_VENDOR_CODE) {
+                vendorErrorRequestId = errorRequest.getRequestId();
+            }
+        }
+
+        long startTime = SystemClock.elapsedRealtimeNanos();
+        TestPropertyAsyncCallback callback = new TestPropertyAsyncCallback(requestIds);
+
+        mManager.setPropertiesAsync(setPropertyRequests, /* timeoutInMs= */ 1000,
+                /* cancellationSignal= */ null, callbackExecutor, callback);
+
+        // Make the timeout longer than the timeout specified in setPropertiesAsync since the
+        // error callback will be delivered after the request timed-out.
+        callback.waitAndFinish(/* timeoutInMs= */ 2000);
+
+        assertThat(callback.getTestErrors()).isEmpty();
+        List<SetPropertyResult> results = callback.getSetResultList();
+        assertThat(results.size()).isEqualTo(resultCount);
+        assertThat(callback.getErrorList().size()).isEqualTo(errorCount);
+        for (SetPropertyResult result : results) {
+            assertThat(result.getPropertyId()).isIn(successPropIds);
+            if (result.getPropertyId() == VehiclePropertyIds.HVAC_TEMPERATURE_SET) {
+                assertThat(result.getAreaId()).isIn(List.of(
+                        DRIVER_SIDE_AREA_ID, PASSENGER_SIDE_AREA_ID));
+            }
+            assertThat(result.getUpdateTimestampNanos()).isGreaterThan(startTime);
+        }
+        for (PropertyAsyncError error : callback.getErrorList()) {
+            assertThat(error.getPropertyId()).isIn(errorPropIds);
+            assertThat(error.getAreaId()).isEqualTo(0);
+            assertThat(error.getErrorCode()).isNotEqualTo(0);
+            if (error.getRequestId() == vendorErrorRequestId) {
+                assertThat(error.getErrorCode()).isEqualTo(STATUS_ERROR_NOT_AVAILABLE);
+                assertThat(error.getVendorErrorCode()).isEqualTo(VENDOR_CODE_FOR_NOT_AVAILABLE);
+            }
+        }
+    }
+
 
     @Test
     public void testGetVendorErrorCode_forGetProperty_throwsNotAvailable_EqualAfterR() {
@@ -1145,12 +1268,15 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         tempValue.value.floatValues = new float[]{INIT_TEMP_VALUE};
         tempValue.prop = VehicleProperty.HVAC_TEMPERATURE_SET;
         addAidlProperty(VehicleProperty.HVAC_TEMPERATURE_SET, tempValue)
-                .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
+                .addAreaConfig(DRIVER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20)
+                .addAreaConfig(PASSENGER_SIDE_AREA_ID, /* minValue = */ 10, /* maxValue = */ 20);
         VehiclePropValue vinValue = new VehiclePropValue();
         vinValue.value = new RawPropValues();
         vinValue.value.stringValue = TEST_VIN;
         vinValue.prop = VehicleProperty.INFO_VIN;
         addAidlProperty(VehicleProperty.INFO_VIN, vinValue);
+        addAidlProperty(VehicleProperty.FUEL_DOOR_OPEN);
+        addAidlProperty(VehicleProperty.ANDROID_EPOCH_TIME);
 
         addAidlProperty(PROP_VALUE_STATUS_ERROR_INT_ARRAY, handler);
         addAidlProperty(PROP_VALUE_STATUS_UNKNOWN_INT_ARRAY, handler);
@@ -1227,6 +1353,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
             VehiclePropValue returnValue = new VehiclePropValue();
             returnValue.prop = value.prop;
+            returnValue.areaId = value.areaId;
             returnValue.timestamp = SystemClock.elapsedRealtimeNanos();
             returnValue.value = new RawPropValues();
             int propertyStatus = mapPropertyToVehiclePropertyStatus(value.prop);
@@ -1433,7 +1560,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
-    private static final class TestGetPropertyAsyncCallback implements GetPropertyCallback {
+    private static final class TestPropertyAsyncCallback implements
+            GetPropertyCallback, SetPropertyCallback {
         private final CountDownLatch mCountDownLatch;
         private final Set<Integer> mPendingRequests;
         private final int mNumberOfRequests;
@@ -1441,14 +1569,31 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         @GuardedBy("mLock")
         private final List<String> mTestErrors = new ArrayList<>();
         @GuardedBy("mLock")
-        private final List<GetPropertyResult<?>> mResultList = new ArrayList<>();
+        private final List<GetPropertyResult<?>> mGetResultList = new ArrayList<>();
+        @GuardedBy("mLock")
+        private final List<SetPropertyResult> mSetResultList = new ArrayList<>();
         @GuardedBy("mLock")
         private final List<PropertyAsyncError> mErrorList = new ArrayList<>();
 
-        TestGetPropertyAsyncCallback(Set<Integer> pendingRequests) {
+        TestPropertyAsyncCallback(Set<Integer> pendingRequests) {
             mNumberOfRequests = pendingRequests.size();
             mCountDownLatch = new CountDownLatch(mNumberOfRequests);
             mPendingRequests = pendingRequests;
+        }
+
+        @Override
+        public void onSuccess(@NonNull SetPropertyResult setPropertyResult) {
+            int requestId = setPropertyResult.getRequestId();
+            synchronized (mLock) {
+                if (!mPendingRequests.contains(requestId)) {
+                    mTestErrors.add("Request ID: " + requestId + " not present");
+                    return;
+                } else {
+                    mSetResultList.add(setPropertyResult);
+                    mPendingRequests.remove(requestId);
+                }
+            }
+            mCountDownLatch.countDown();
         }
 
         @Override
@@ -1459,7 +1604,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                     mTestErrors.add("Request ID: " + requestId + " not present");
                     return;
                 } else {
-                    mResultList.add(getPropertyResult);
+                    mGetResultList.add(getPropertyResult);
                     mPendingRequests.remove(requestId);
                 }
             }
@@ -1487,7 +1632,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 if (!res) {
                     int gotRequestsCount = mNumberOfRequests - mPendingRequests.size();
                     mTestErrors.add(
-                            "Not enough responses received for getPropertiesAsync before timeout "
+                            "Not enough responses received before timeout "
                                     + "(" + timeoutInMs
                                     + "ms), expected " + mNumberOfRequests + " responses, got "
                                     + gotRequestsCount);
@@ -1503,10 +1648,18 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             return testErrors;
         }
 
-        public List<GetPropertyResult<?>> getResultList() {
+        public List<GetPropertyResult<?>> getGetResultList() {
             List<GetPropertyResult<?>> resultList;
             synchronized (mLock) {
-                resultList = new ArrayList<>(mResultList);
+                resultList = new ArrayList<>(mGetResultList);
+            }
+            return resultList;
+        }
+
+        public List<SetPropertyResult> getSetResultList() {
+            List<SetPropertyResult> resultList;
+            synchronized (mLock) {
+                resultList = new ArrayList<>(mSetResultList);
             }
             return resultList;
         }
