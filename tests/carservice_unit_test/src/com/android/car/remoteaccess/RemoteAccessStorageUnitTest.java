@@ -44,6 +44,8 @@ import java.util.List;
 public final class RemoteAccessStorageUnitTest {
 
     private static final String TAG = RemoteAccessStorageUnitTest.class.getSimpleName();
+    private static final String KEY_ALIAS_REMOTE_ACCESS_STORAGE_UNIT_TEST =
+            "KEY_ALIAS_REMOTE_ACCESS_STORAGE_UNIT_TEST";
 
     @Mock
     private SystemInterface mSystemInterface;
@@ -58,6 +60,7 @@ public final class RemoteAccessStorageUnitTest {
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
         when(mSystemInterface.getSystemCarDir()).thenReturn(mDatabaseFile.getParentFile());
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
+        RemoteAccessStorage.setKeyAlias(KEY_ALIAS_REMOTE_ACCESS_STORAGE_UNIT_TEST);
     }
 
     @After
@@ -78,11 +81,11 @@ public final class RemoteAccessStorageUnitTest {
     @Test
     public void testUpdateClientId_entryModified() {
         ClientIdEntry inputEntryOne = new ClientIdEntry("client_id", 1234, "we.are.the.world");
-        ClientIdEntry inputEntryTwo = new ClientIdEntry("client_id", 9876, "life.is.beautiful");
+        ClientIdEntry inputEntryTwo = new ClientIdEntry("new_client_id", 9876, "we.are.the.world");
         mRemoteAccessStorage.updateClientId(inputEntryOne);
         mRemoteAccessStorage.updateClientId(inputEntryTwo);
 
-        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("client_id");
+        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("we.are.the.world");
 
         assertWithMessage("Client ID entry").that(outputEntry).isEqualTo(inputEntryTwo);
     }
@@ -94,7 +97,7 @@ public final class RemoteAccessStorageUnitTest {
         mRemoteAccessStorage.updateClientId(inputEntryOne);
         mRemoteAccessStorage.updateClientId(inputEntryTwo);
 
-        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("client_id_1");
+        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("we.are.the.world");
 
         assertWithMessage("Client ID entry").that(outputEntry).isEqualTo(inputEntryOne);
     }
@@ -105,7 +108,7 @@ public final class RemoteAccessStorageUnitTest {
                 "we.are.the.world");
         mRemoteAccessStorage.updateClientId(inputEntry);
 
-        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("client_id");
+        ClientIdEntry outputEntry = mRemoteAccessStorage.getClientIdEntry("we.are.the.world");
 
         assertWithMessage("Client ID entry").that(outputEntry).isEqualTo(inputEntry);
     }
@@ -113,7 +116,7 @@ public final class RemoteAccessStorageUnitTest {
     @Test
     public void testGetClientIdEntry_noEntry() {
         assertWithMessage("Client ID entry")
-                .that(mRemoteAccessStorage.getClientIdEntry("client_id")).isNull();
+                .that(mRemoteAccessStorage.getClientIdEntry("we.are.the.world")).isNull();
     }
 
     @Test
