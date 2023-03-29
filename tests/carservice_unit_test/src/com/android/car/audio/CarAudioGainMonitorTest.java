@@ -19,6 +19,9 @@ package com.android.car.audio;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
+import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -35,6 +38,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.media.CarVolumeGroupEvent;
+import android.car.media.CarVolumeGroupInfo;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
@@ -65,6 +70,7 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     private static final String PRIMARY_NAVIGATION_ADDRESS = "primary_navigation_address";
     private static final String PRIMARY_CALL_ADDRESS = "primary_call_address";
     private static final String REAR_MEDIA_ADDRESS = "rear_media";
+    private static final int TEST_GROUP_ID = 0;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -77,11 +83,44 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
 
+    private static final CarVolumeGroupInfo TEST_PRIMARY_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PRIMARY_ZONE_ID,
+                    TEST_GROUP_ID).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+
+    private static final CarVolumeGroupInfo TEST_PASSENGER_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, PASSENGER_ZONE_ID,
+                    TEST_GROUP_ID).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+
+    private static final CarVolumeGroupInfo TEST_REAR_VOLUME_INFO =
+            new CarVolumeGroupInfo.Builder("group id " + TEST_GROUP_ID, REAR_ZONE_ID,
+                    TEST_GROUP_ID).setMinVolumeGainIndex(0)
+                    .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                    .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build();
+
+    private static final CarVolumeGroupEvent TEST_PRIMARY_VOLUME_GROUP_EVENT =
+            new CarVolumeGroupEvent.Builder(List.of(TEST_PRIMARY_VOLUME_INFO),
+                    CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED).build();
+
+    private static final CarVolumeGroupEvent TEST_PASSENGER_VOLUME_GROUP_EVENT =
+            new CarVolumeGroupEvent.Builder(List.of(TEST_PASSENGER_VOLUME_INFO),
+                    CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED).build();
+
+    private static final CarVolumeGroupEvent TEST_REAR_VOLUME_GROUP_EVENT =
+            new CarVolumeGroupEvent.Builder(List.of(TEST_REAR_VOLUME_INFO),
+                    CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED).build();
+
     private final SparseArray<CarAudioZone> mCarAudioZones = generateZoneMocks();
 
     @Mock private IBinder mBinder;
 
     @Mock private IAudioControl mAudioControl;
+
+    @Mock
+    CarVolumeInfoWrapper mMockVolumeInfoWrapper;
 
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
 
@@ -103,24 +142,36 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
-                                /* AudioControlWrapper= */ null, /* SparseArray<CarAudioZone>= */
-                                null));
+                                /* AudioControlWrapper= */ null, mMockVolumeInfoWrapper,
+                                /* SparseArray<CarAudioZone>= */ null));
 
         assertThrows(
                 NullPointerException.class,
                 () ->
                         new CarAudioGainMonitor(
-                                mAudioControlWrapperAidl, /* SparseArray<CarAudioZone>= */ null));
+                                mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                                /* SparseArray<CarAudioZone>= */ null));
 
         assertThrows(
                 NullPointerException.class,
-                () -> new CarAudioGainMonitor(/* AudioControlWrapper= */ null, mCarAudioZones));
+                () -> new CarAudioGainMonitor(/* AudioControlWrapper= */ null,
+                        mMockVolumeInfoWrapper, mCarAudioZones));
+    }
+
+    @Test
+    public void constructor_nullCarVolumeInfoWrapper_fails() {
+        Throwable thrown = assertThrows(NullPointerException.class, () -> new CarAudioGainMonitor(
+                mAudioControlWrapperAidl, /* CarVolumeInfoWrapper= */ null, mCarAudioZones));
+
+        expectWithMessage("Constructor exception")
+                .that(thrown).hasMessageThat().contains("Car volume info wrapper can not be null");
     }
 
     @Test
     public void constructor_succeeds() {
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
 
         expectWithMessage("carAudioGainMonitor").that(carAudioGainMonitor).isNotNull();
     }
@@ -128,7 +179,8 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     @Test
     public void registercallback_succeeds() {
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
 
         HalAudioGainCallback callback = mock(HalAudioGainCallback.class);
         carAudioGainMonitor.registerAudioGainListener(callback);
@@ -141,7 +193,8 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
     @Test
     public void registercallback_multipleTimes() {
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
         HalAudioGainCallback callback = mock(HalAudioGainCallback.class);
         carAudioGainMonitor.registerAudioGainListener(callback);
         verify(mAudioControlWrapperAidl).registerAudioGainCallback(eq(callback));
@@ -156,8 +209,15 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
 
     @Test
     public void handleAudioDeviceGainsChanged_validZones() {
+        List<CarVolumeGroupEvent> events =
+                List.of(
+                        TEST_PRIMARY_VOLUME_GROUP_EVENT,
+                        TEST_PASSENGER_VOLUME_GROUP_EVENT,
+                        TEST_REAR_VOLUME_GROUP_EVENT
+                );
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo primaryZoneGain = new AudioGainConfigInfo();
         primaryZoneGain.zoneId = PRIMARY_ZONE_ID;
@@ -199,12 +259,19 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
             List<CarAudioGainConfigInfo> gainsForZone = gainsForZones.get(carAudioZone.getId());
             verify(carAudioZone).onAudioGainChanged(eq(reasons), eq(gainsForZone));
         }
+        verify(mMockVolumeInfoWrapper).onVolumeGroupEvent(eq(events));
     }
 
     @Test
     public void handleAudioDeviceGainsChanged_validAndUnknownZones() {
+        List<CarVolumeGroupEvent> events =
+                List.of(
+                        TEST_PRIMARY_VOLUME_GROUP_EVENT,
+                        TEST_REAR_VOLUME_GROUP_EVENT
+                );
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo primaryZoneGain = new AudioGainConfigInfo();
         primaryZoneGain.zoneId = PRIMARY_ZONE_ID;
@@ -235,12 +302,14 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
             }
             verify(carAudioZone, never()).onAudioGainChanged(any(), any());
         }
+        verify(mMockVolumeInfoWrapper).onVolumeGroupEvent(eq(events));
     }
 
     @Test
     public void handleAudioDeviceGainsChanged_unknownZones() {
         CarAudioGainMonitor carAudioGainMonitor =
-                new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
+                new CarAudioGainMonitor(mAudioControlWrapperAidl, mMockVolumeInfoWrapper,
+                        mCarAudioZones);
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
 
         AudioGainConfigInfo unknownGain = new AudioGainConfigInfo();
@@ -257,6 +326,7 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
             CarAudioZone carAudioZone = mCarAudioZones.valueAt(index);
             verify(carAudioZone, never()).onAudioGainChanged(any(), any());
         }
+        verify(mMockVolumeInfoWrapper, never()).onVolumeGroupEvent(any());
     }
 
     @Test
@@ -410,6 +480,105 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 .isFalse();
     }
 
+    @Test
+    public void shouldMuteVolumeGroup_forEach_returnsTrue() {
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE, Reasons.REMOTE_MUTE);
+
+        for (int index = 0; index < muteReasons.size(); index++) {
+            List<Integer> reasons = Arrays.asList(muteReasons.get(index));
+            assertWithMessage("Mute volume group for reason")
+                    .that(CarAudioGainMonitor.shouldMuteVolumeGroup(reasons)).isTrue();
+        }
+    }
+
+    @Test
+    public void shouldMuteVolumeGroup_returnsTrue() {
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE, Reasons.REMOTE_MUTE);
+
+        assertWithMessage("Mute volume group for multiple reasons")
+                .that(CarAudioGainMonitor.shouldMuteVolumeGroup(muteReasons)).isTrue();
+    }
+
+    @Test
+    public void shouldMuteVolumeGroup_forEach_returnsFalse() {
+        List<Integer> nonMuteReasons = List.of(Reasons.FORCED_MASTER_MUTE, Reasons.ADAS_DUCKING);
+
+        for (int index = 0; index < nonMuteReasons.size(); index++) {
+            List<Integer> reasons = Arrays.asList(nonMuteReasons.get(index));
+            assertWithMessage("Mute volume group for reason")
+                    .that(CarAudioGainMonitor.shouldMuteVolumeGroup(reasons)).isFalse();
+        }
+    }
+
+    @Test
+    public void shouldMuteVolumeGroup_returnsFalse() {
+        List<Integer> nonMuteReasons = List.of(Reasons.FORCED_MASTER_MUTE, Reasons.ADAS_DUCKING);
+
+        assertWithMessage("Mute volume group for multiple reasons")
+                .that(CarAudioGainMonitor.shouldMuteVolumeGroup(nonMuteReasons)).isFalse();
+    }
+
+    @Test
+    public void shouldUpdateVolumeIndex_returnsTrue() {
+        List<Integer> reasons = List.of(Reasons.EXTERNAL_AMP_VOL_FEEDBACK, Reasons.TCU_MUTE);
+
+        assertWithMessage("Update volume index for reasons")
+                .that(CarAudioGainMonitor.shouldUpdateVolumeIndex(reasons)).isTrue();
+    }
+
+    @Test
+    public void shouldUpdateVolumeIndex_returnsFalse() {
+        List<Integer> reasons =
+                List.of(
+                        Reasons.THERMAL_LIMITATION,
+                        Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                        Reasons.FORCED_MASTER_MUTE,
+                        Reasons.TCU_MUTE,
+                        Reasons.REMOTE_MUTE);
+
+        assertWithMessage("Update volume index for reasons")
+                .that(CarAudioGainMonitor.shouldUpdateVolumeIndex(reasons)).isFalse();
+    }
+
+    @Test
+    public void convertReasonsToExtraInfo_supportedReasons_isEqualTo() {
+        List<Integer> reasons =
+                List.of(
+                        Reasons.REMOTE_MUTE,
+                        Reasons.THERMAL_LIMITATION,
+                        Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                        Reasons.TCU_MUTE,
+                        Reasons.FORCED_MASTER_MUTE,
+                        Reasons.ADAS_DUCKING,
+                        Reasons.NAV_DUCKING,
+                        Reasons.EXTERNAL_AMP_VOL_FEEDBACK,
+                        Reasons.PROJECTION_DUCKING);
+        List<Integer> extraInfos =
+                List.of(
+                        CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL,
+                        CarVolumeGroupEvent.EXTRA_INFO_ATTENUATION_ACTIVATION,
+                        CarVolumeGroupEvent.EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION,
+                        CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM,
+                        CarVolumeGroupEvent.EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION);
+
+        assertWithMessage("Convert reasons to extra infos")
+                .that(CarAudioGainMonitor.convertReasonsToExtraInfo(reasons)).isEqualTo(extraInfos);
+    }
+
+    @Test
+    public void convertReasonsToExtraInfo_unSupportedReasons_isEmpty() {
+        List<Integer> reasons =
+                List.of(
+                        Reasons.FORCED_MASTER_MUTE,
+                        Reasons.OTHER);
+
+        assertWithMessage("Convert reasons to extra infos")
+                .that(CarAudioGainMonitor.convertReasonsToExtraInfo(reasons).isEmpty()).isTrue();
+    }
+
     private static SparseArray<CarAudioZone> generateZoneMocks() {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         CarAudioZone primaryZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
@@ -418,16 +587,22 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
                 .thenReturn(PRIMARY_MEDIA_ADDRESS);
         when(primaryZone.getAddressForContext(TEST_NAVIGATION_AUDIO_CONTEXT))
                 .thenReturn(PRIMARY_NAVIGATION_ADDRESS);
+        when(primaryZone.onAudioGainChanged(any(), any()))
+                .thenReturn(List.of(TEST_PRIMARY_VOLUME_GROUP_EVENT));
         zones.append(PRIMARY_ZONE_ID, primaryZone);
 
         CarAudioZone passengerZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
         when(passengerZone.getId()).thenReturn(PASSENGER_ZONE_ID);
+        when(passengerZone.onAudioGainChanged(any(), any()))
+                .thenReturn(List.of(TEST_PASSENGER_VOLUME_GROUP_EVENT));
         zones.append(PASSENGER_ZONE_ID, passengerZone);
 
         CarAudioZone rearZone = mock(CarAudioZone.class, RETURNS_DEEP_STUBS);
         when(rearZone.getId()).thenReturn(REAR_ZONE_ID);
         when(rearZone.getAddressForContext(TEST_MEDIA_AUDIO_CONTEXT))
                 .thenReturn(REAR_MEDIA_ADDRESS);
+        when(rearZone.onAudioGainChanged(any(), any()))
+                .thenReturn(List.of(TEST_REAR_VOLUME_GROUP_EVENT));
         zones.append(REAR_ZONE_ID, rearZone);
 
         return zones;
