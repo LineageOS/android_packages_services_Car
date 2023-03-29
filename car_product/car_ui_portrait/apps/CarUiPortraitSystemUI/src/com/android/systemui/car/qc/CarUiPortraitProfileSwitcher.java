@@ -26,6 +26,7 @@ import android.graphics.drawable.Icon;
 import com.android.car.qc.QCItem;
 import com.android.car.qc.QCRow;
 import com.android.systemui.R;
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.settings.UserTracker;
 
 import javax.inject.Inject;
@@ -36,8 +37,9 @@ import javax.inject.Inject;
 public class CarUiPortraitProfileSwitcher extends ProfileSwitcher {
 
     @Inject
-    public CarUiPortraitProfileSwitcher(Context context, UserTracker userTracker) {
-        super(context, userTracker);
+    public CarUiPortraitProfileSwitcher(Context context, UserTracker userTracker,
+            CarServiceProvider carServiceProvider) {
+        super(context, userTracker, carServiceProvider);
 
     }
 
