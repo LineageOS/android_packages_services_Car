@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -193,9 +194,20 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testCarRemoteAccessServiceInit() throws Exception {
         mService.init();
 
-        verify(mRemoteAccessHal).notifyApStateChange(/* isReadyForRemoteTask= */ true,
-                /* isWakeupRequired= */ false);
+        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
     }
+
+    @Test
+    public void testCarRemoteAccessServiceInit_retryNotifyApState() throws Exception {
+        when(mRemoteAccessHal.notifyApStateChange(anyBoolean(), anyBoolean())).thenReturn(false);
+
+        mService.init();
+
+        verify(mRemoteAccessHal, timeout(1500).times(10)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+    }
+
 
     @Test
     public void testAddCarRemoteTaskClient() throws Exception {
@@ -453,11 +465,12 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_waitForVhal() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_WAIT_FOR_VHAL, 0);
         // notifyApStateChange is also called when initializaing CarRemoteAccessService.
-        verify(mRemoteAccessHal, times(2)).notifyApStateChange(/* isReadyForRemoteTask= */ true,
-                /* isWakeupRequired= */ false);
+        verify(mRemoteAccessHal, times(2)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
         verify(mCarPowerManagementService, never())
                 .finished(eq(CarPowerManager.STATE_WAIT_FOR_VHAL), any());
     }
@@ -466,6 +479,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_shutdownPrepare() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
         // TODO(b/268810241): Restore isWakeupRequired to false.
@@ -479,6 +493,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_postShutdownEnter() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_POST_SHUTDOWN_ENTER, 0);
         verify(mRemoteAccessHal).notifyApStateChange(/* isReadyForRemoteTask= */ false,
