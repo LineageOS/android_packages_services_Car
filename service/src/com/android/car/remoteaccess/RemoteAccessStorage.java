@@ -25,10 +25,14 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.android.car.CarServiceUtils;
+import com.android.car.CarServiceUtils.EncryptedData;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +40,9 @@ import java.util.Objects;
 final class RemoteAccessStorage {
 
     private static final String TAG = RemoteAccessStorage.class.getSimpleName();
+    private static final String REMOTE_ACCESS_KEY_ALIAS = "REMOTE_ACCESS_KEY_ALIAS";
+
+    private static String sKeyAlias = REMOTE_ACCESS_KEY_ALIAS;
 
     private final RemoteAccessDbHelper mDbHelper;
 
@@ -49,9 +56,9 @@ final class RemoteAccessStorage {
     }
 
     @Nullable
-    ClientIdEntry getClientIdEntry(String clientId) {
+    ClientIdEntry getClientIdEntry(String packageName) {
         try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return ClientIdTable.queryClientIdEntry(db, clientId);
+            return ClientIdTable.queryClientIdEntry(db, packageName);
         }
     }
 
@@ -82,6 +89,11 @@ final class RemoteAccessStorage {
     boolean deleteClientId(String clientId) {
         // TODO(b/260523566): Implement the logic.
         return false;
+    }
+
+    @VisibleForTesting
+    static void setKeyAlias(String keyAlias) {
+        sKeyAlias = keyAlias;
     }
 
     // Defines the client token entry stored in the ClientIdTable.
@@ -133,13 +145,17 @@ final class RemoteAccessStorage {
         public static final String COLUMN_CLIENT_ID = "client_id";
         public static final String COLUMN_CLIENT_ID_CREATION_TIME = "id_creation_time";
         public static final String COLUMN_PACKAGE_NAME = "package_name";
+        public static final String COLUMN_SECRET_KEY_IV = "secret_key_iv";
+
+        private static final String STRING_ENCODING = "UTF-8";
 
         public static void createDb(SQLiteDatabase db) {
             StringBuilder createCommand = new StringBuilder();
             createCommand.append("CREATE TABLE ").append(TABLE_NAME).append(" (")
-                    .append(COLUMN_CLIENT_ID).append(" TEXT NOT NULL PRIMARY KEY, ")
+                    .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL PRIMARY KEY, ")
+                    .append(COLUMN_CLIENT_ID).append(" BLOB NOT NULL, ")
                     .append(COLUMN_CLIENT_ID_CREATION_TIME).append(" BIGINT NOT NULL, ")
-                    .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL")
+                    .append(COLUMN_SECRET_KEY_IV).append(" BLOB NOT NULL")
                     .append(")");
             db.execSQL(createCommand.toString());
             Slogf.i(TAG, "%s table is successfully created in the %s database (version %d)",
@@ -147,56 +163,97 @@ final class RemoteAccessStorage {
                     RemoteAccessDbHelper.DATABASE_VERSION);
         }
 
-        // Returns ClientIdEntry for the given client ID.
+        // Returns ClientIdEntry for the given package name.
+        @SuppressWarnings("FormatString")
         @Nullable
-        public static ClientIdEntry queryClientIdEntry(SQLiteDatabase db, String clientId) {
-            String queryCommand = String.format("SELECT %s, %s, %s FROM %s WHERE %s = ?",
-                    COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME, COLUMN_PACKAGE_NAME,
-                    TABLE_NAME, COLUMN_CLIENT_ID);
-            String[] selectionArgs = new String[]{clientId};
+        public static ClientIdEntry queryClientIdEntry(SQLiteDatabase db, String packageName) {
+            String queryCommand = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
+                    COLUMN_PACKAGE_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
+                    COLUMN_SECRET_KEY_IV, TABLE_NAME, COLUMN_PACKAGE_NAME);
+            String[] selectionArgs = new String[]{packageName};
 
             try (Cursor cursor = db.rawQuery(queryCommand, selectionArgs)) {
                 while (cursor.moveToNext()) {
                     // Query by a primary key must return one result.
-                    return new ClientIdEntry(cursor.getString(0), cursor.getLong(1),
-                            cursor.getString(2));
+                    byte[] data = CarServiceUtils.decryptData(new EncryptedData(cursor.getBlob(1),
+                            cursor.getBlob(3)), sKeyAlias);
+                    if (data == null) {
+                        Slogf.e(TAG, "Failed to query package name(%s): cannot decrypt data",
+                                packageName);
+                        return null;
+                    }
+                    try {
+                        return new ClientIdEntry(new String(data, STRING_ENCODING),
+                                cursor.getLong(2), cursor.getString(0));
+                    } catch (UnsupportedEncodingException e) {
+                        Slogf.e(TAG, e, "Failed to query package name(%s)", packageName);
+                        return null;
+                    }
                 }
             }
+            Slogf.w(TAG, "No entry for package name(%s) is found", packageName);
             return null;
         }
 
         // Returns all client ID entries.
+        @SuppressWarnings("FormatString")
         @Nullable
         public static List<ClientIdEntry> queryClientIdEntries(SQLiteDatabase db) {
-            String queryCommand = String.format("SELECT %s, %s, %s FROM %s", COLUMN_CLIENT_ID,
-                    COLUMN_CLIENT_ID_CREATION_TIME, COLUMN_PACKAGE_NAME, TABLE_NAME);
+            String queryCommand = String.format("SELECT %s, %s, %s, %s FROM %s",
+                    COLUMN_PACKAGE_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
+                    COLUMN_SECRET_KEY_IV, TABLE_NAME);
 
             try (Cursor cursor = db.rawQuery(queryCommand, new String[]{})) {
                 int entryCount = cursor.getCount();
                 if (entryCount == 0) return null;
                 List<ClientIdEntry> entries = new ArrayList<>(entryCount);
                 while (cursor.moveToNext()) {
-                    entries.add(new ClientIdEntry(cursor.getString(0), cursor.getLong(1),
-                            cursor.getString(2)));
+                    byte[] data = CarServiceUtils.decryptData(new EncryptedData(cursor.getBlob(1),
+                            cursor.getBlob(3)), sKeyAlias);
+                    if (data == null) {
+                        Slogf.e(TAG, "Failed to query all client IDs: cannot decrypt data");
+                        return null;
+                    }
+                    try {
+                        entries.add(new ClientIdEntry(new String(data, STRING_ENCODING),
+                                cursor.getLong(2), cursor.getString(0)));
+                    } catch (UnsupportedEncodingException e) {
+                        Slogf.e(TAG, "Failed to query all client IDs", e);
+                        return null;
+                    }
                 }
                 return entries;
             }
         }
 
         public static boolean replaceEntry(SQLiteDatabase db, ClientIdEntry entry) {
+            EncryptedData data;
+            try {
+                data = CarServiceUtils.encryptData(entry.clientId.getBytes(STRING_ENCODING),
+                        sKeyAlias);
+            } catch (UnsupportedEncodingException e) {
+                Slogf.e(TAG, e, "Failed to replace %s entry[%s]", TABLE_NAME, entry);
+                return false;
+            }
+            if (data == null) {
+                Slogf.e(TAG, "Failed to replace %s entry[%s]: cannot encrypt client ID",
+                        TABLE_NAME, entry);
+                return false;
+            }
             ContentValues values = new ContentValues();
-            values.put(COLUMN_CLIENT_ID, entry.clientId);
-            values.put(COLUMN_CLIENT_ID_CREATION_TIME, entry.idCreationTime);
             values.put(COLUMN_PACKAGE_NAME, entry.packageName);
+            values.put(COLUMN_CLIENT_ID, data.getEncryptedData());
+            values.put(COLUMN_CLIENT_ID_CREATION_TIME, entry.idCreationTime);
+            values.put(COLUMN_SECRET_KEY_IV, data.getIv());
 
             try {
                 if (db.replaceOrThrow(ClientIdTable.TABLE_NAME, /* nullColumnHack= */ null,
                         values) == -1) {
-                    Slogf.e(TAG, "Failed to replace %s entry [%s]", TABLE_NAME, values);
+                    Slogf.e(TAG, "Failed to replace %s entry [%s]", TABLE_NAME, entry);
                     return false;
                 }
             } catch (SQLException e) {
-                Slogf.e(TAG, e, "Failed to replace %s entry [%s]", TABLE_NAME, values);
+                Slogf.e(TAG, e, "Failed to replace %s entry [%s]", TABLE_NAME, entry);
                 return false;
             }
             return true;

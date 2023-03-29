@@ -50,6 +50,8 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.view.Display;
@@ -63,12 +65,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.security.KeyStore;
+import java.security.KeyStore.SecretKeyEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.GCMParameterSpec;
 
 /** Utility class */
 public final class CarServiceUtils {
@@ -85,6 +95,9 @@ public final class CarServiceUtils {
             "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".getBytes();
 
     private static final String PACKAGE_NOT_FOUND = "Package not found:";
+    private static final String ANDROID_KEYSTORE_NAME = "AndroidKeyStore";
+    private static final String CIPHER_ALGORITHM = "AES/GCM/NoPadding";
+    private static final int GCM_TAG_LENGTH = 128;
 
     /** K: class name, V: HandlerThread */
     private static final ArrayMap<String, HandlerThread> sHandlerThreads = new ArrayMap<>();
@@ -852,5 +865,119 @@ public final class CarServiceUtils {
             sb.append(CHAR_POOL_FOR_RANDOM_STRING[ThreadLocalRandom.current().nextInt(poolSize)]);
         }
         return sb.toString();
+    }
+
+    /**
+     * Encrypts byte array with the keys stored in {@code keyAlias} using AES.
+     *
+     * @return Encrypted data and initialization vector in {@link EncryptedData}. {@code null} in
+     *         case of errors.
+     */
+    @Nullable
+    public static EncryptedData encryptData(byte[] data, String keyAlias) {
+        SecretKey secretKey = getOrCreateSecretKey(keyAlias);
+        if (secretKey == null) {
+            Slogf.e(TAG, "Failed to encrypt data: cannot get a secret key (keyAlias: %s)",
+                    keyAlias);
+            return null;
+        }
+        try {
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return new EncryptedData(cipher.doFinal(data), cipher.getIV());
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Failed to encrypt data: keyAlias=%s", keyAlias);
+            return null;
+        }
+    }
+
+    /**
+     * Decrypts byte array with the keys stored in {@code keyAlias} using AES.
+     *
+     * @return Decrypted data in byte array. {@code null} in case of errors.
+     */
+    @Nullable
+    public static byte[] decryptData(EncryptedData data, String keyAlias) {
+        SecretKey secretKey = getOrCreateSecretKey(keyAlias);
+        if (secretKey == null) {
+            Slogf.e(TAG, "Failed to decrypt data: cannot get a secret key (keyAlias: %s)",
+                    keyAlias);
+            return null;
+        }
+        try {
+            Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
+            GCMParameterSpec spec = new GCMParameterSpec(GCM_TAG_LENGTH, data.getIv());
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+            return cipher.doFinal(data.getEncryptedData());
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Failed to decrypt data: keyAlias=%s", keyAlias);
+            return null;
+        }
+    }
+
+    /**
+     * Class to hold encrypted data and its initialization vector.
+     */
+    public static final class EncryptedData {
+        private final byte[] mEncryptedData;
+        private final byte[] mIv;
+
+        public EncryptedData(byte[] encryptedData, byte[] iv) {
+            mEncryptedData = encryptedData;
+            mIv = iv;
+        }
+
+        public byte[] getEncryptedData() {
+            return mEncryptedData;
+        }
+
+        public byte[] getIv() {
+            return mIv;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof EncryptedData)) return false;
+            EncryptedData data = (EncryptedData) other;
+            return Arrays.equals(mEncryptedData, data.mEncryptedData)
+                    && Arrays.equals(mIv, data.mIv);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(Arrays.hashCode(mEncryptedData), Arrays.hashCode(mIv));
+        }
+    }
+
+    @Nullable
+    private static SecretKey getOrCreateSecretKey(String keyAlias) {
+        try {
+            KeyStore keyStore = KeyStore.getInstance(ANDROID_KEYSTORE_NAME);
+            keyStore.load(/* KeyStore.LoadStoreParameter= */ null);
+            if (keyStore.containsAlias(keyAlias)) {
+                SecretKeyEntry secretKeyEntry = (SecretKeyEntry) keyStore.getEntry(keyAlias,
+                        /* protParam= */ null);
+                if (secretKeyEntry != null) {
+                    return secretKeyEntry.getSecretKey();
+                }
+                Slogf.e(TAG, "Android key store contains the alias (%s) but the secret key "
+                        + "entry is null", keyAlias);
+                return null;
+            }
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE_NAME);
+            KeyGenParameterSpec keyGenParameterSpec =
+                    new KeyGenParameterSpec.Builder(keyAlias, KeyProperties.PURPOSE_ENCRYPT
+                            | KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .build();
+            keyGenerator.init(keyGenParameterSpec);
+            return keyGenerator.generateKey();
+        } catch (Exception e) {
+            Slogf.e(TAG, "Failed to get or create a secret key for the alias (%s)", keyAlias);
+            return null;
+        }
     }
 }
