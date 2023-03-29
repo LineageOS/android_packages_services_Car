@@ -352,19 +352,6 @@ public final class CarActivityService extends ICarActivityService.Stub
                     displayId);
             return;
         }
-        ComponentName pickerComponent = ComponentName.unflattenFromString(userPickerName);
-        // If it is already running, do not launch it again.
-        List<ActivityManager.RunningTaskInfo> tasks = ActivityManagerHelper.getTasks(
-                MAX_RUNNING_TASKS_TO_GET, /*filterOnlyVisibleRecents=*/ true,
-                /*keepIntentExtra=*/ false, /*displayId=*/ displayId);
-        for (ActivityManager.RunningTaskInfo task : tasks) {
-            if (displayId == TaskInfoHelper.getDisplayId(task) && TaskInfoHelper.isVisible(
-                    task) && pickerComponent.equals(task.topActivity)
-                    && TaskInfoHelper.getUserId(task) == UserHandle.SYSTEM.getIdentifier()) {
-                Slogf.i(TAG, "UserPicker already running in display %d", displayId);
-                return;
-            }
-        }
         CarServiceUtils.startUserPickerOnDisplay(mContext, displayId, userPickerName);
     }
 
