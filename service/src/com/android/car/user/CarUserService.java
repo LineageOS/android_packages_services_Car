@@ -910,29 +910,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
-            @NonNull AndroidFuture<UserSwitchResult> receiver) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
         EventLogHelper.writeCarUserServiceSwitchUserReq(targetUserId, timeoutMs);
         checkManageOrCreateUsersPermission("switchUser");
-        Objects.requireNonNull(receiver);
+        Objects.requireNonNull(callback);
         UserHandle targetUser = mUserHandleHelper.getExistingUserHandle(targetUserId);
         if (targetUser == null) {
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(callback, /* isLogout= */ false,
                     UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(callback, /* isLogout= */ false,
                     UserSwitchResult.STATUS_NOT_SWITCHABLE);
             return;
         }
-        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, receiver,
+        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
                 /* isLogout= */ false));
     }
 
     @Override
-    public void logoutUser(int timeoutMs, @NonNull AndroidFuture<UserSwitchResult> receiver) {
+    public void logoutUser(int timeoutMs, @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
         checkManageOrCreateUsersPermission("logoutUser");
-        Objects.requireNonNull(receiver);
+        Objects.requireNonNull(callback);
 
         UserHandle targetUser = mDpm.getLogoutUser();
         int logoutUserId = targetUser == null ? UserManagerHelper.USER_NULL
@@ -941,17 +941,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         if (targetUser == null) {
             Slogf.w(TAG, "logoutUser() called when current user is not logged in");
-            sendUserSwitchResult(receiver, /* isLogout= */ true,
+            sendUserSwitchResult(callback, /* isLogout= */ true,
                     UserSwitchResult.STATUS_NOT_LOGGED_IN);
             return;
         }
 
-        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, receiver,
+        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
                 /* isLogout= */ true));
     }
 
     private void handleSwitchUser(@NonNull UserHandle targetUser, int timeoutMs,
-            @NonNull AndroidFuture<UserSwitchResult> receiver, boolean isLogout) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback, boolean isLogout) {
         int currentUser = ActivityManager.getCurrentUser();
         int targetUserId = targetUser.getIdentifier();
         if (currentUser == targetUserId) {
@@ -959,12 +959,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Slogf.d(TAG, "Current user is same as requested target user: %d", targetUserId);
             }
             int resultStatus = UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND;
-            sendUserSwitchResult(receiver, isLogout, resultStatus);
+            sendUserSwitchResult(callback, isLogout, resultStatus);
             return;
         }
 
         if (isUxRestricted()) {
-            sendUserSwitchResult(receiver, isLogout,
+            sendUserSwitchResult(callback, isLogout,
                     UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
             return;
         }
@@ -973,10 +973,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (!isUserHalSupported()) {
             int result = switchOrLogoutUser(targetUser, isLogout);
             if (result == UserManager.USER_OPERATION_SUCCESS) {
-                sendUserSwitchResult(receiver, isLogout, UserSwitchResult.STATUS_SUCCESSFUL);
+                sendUserSwitchResult(callback, isLogout, UserSwitchResult.STATUS_SUCCESSFUL);
                 return;
             }
-            sendUserSwitchResult(receiver, isLogout, HalCallback.STATUS_INVALID,
+            sendUserSwitchResult(callback, isLogout, HalCallback.STATUS_INVALID,
                     UserSwitchResult.STATUS_ANDROID_FAILURE, result, /* errorMessage= */ null);
             return;
         }
@@ -997,7 +997,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Slogf.w(TAG, "switchUser(%s): another user switch request (id=%d) in process for "
                         + "that user", targetUser, mRequestIdForUserSwitchInProcess);
                 int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
-                sendUserSwitchResult(receiver, isLogout, resultStatus);
+                sendUserSwitchResult(callback, isLogout, resultStatus);
                 return;
             } else {
                 if (DBG) {
@@ -1028,7 +1028,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 if (halCallbackStatus != HalCallback.STATUS_OK || resp == null) {
                     Slogf.w(TAG, "invalid callback status (%s) or null response (%s)",
                             Integer.toString(halCallbackStatus), resp);
-                    sendUserSwitchResult(receiver, isLogout, resultStatus);
+                    sendUserSwitchResult(callback, isLogout, resultStatus);
                     mUserIdForUserSwitchInProcess = USER_NULL;
                     return;
                 }
@@ -1041,7 +1041,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             mUserIdForUserSwitchInProcess);
                     resultStatus =
                             UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST;
-                    sendUserSwitchResult(receiver, isLogout, resultStatus);
+                    sendUserSwitchResult(callback, isLogout, resultStatus);
                     mUserIdForUserSwitchInProcess = USER_NULL;
                     return;
                 }
@@ -1076,7 +1076,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mUserIdForUserSwitchInProcess = USER_NULL;
                 }
             }
-            sendUserSwitchResult(receiver, isLogout, halCallbackStatus, resultStatus,
+            sendUserSwitchResult(callback, isLogout, halCallbackStatus, resultStatus,
                     androidFailureStatus, resp.errorMessage);
         });
     }
@@ -1646,13 +1646,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return UserHalHelper.convertFlags(mUserHandleHelper, user);
     }
 
-    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull ResultCallbackImpl<UserSwitchResult> callback,
             boolean isLogout, @UserSwitchResult.Status int userSwitchStatus) {
-        sendUserSwitchResult(receiver, isLogout, HalCallback.STATUS_INVALID, userSwitchStatus,
+        sendUserSwitchResult(callback, isLogout, HalCallback.STATUS_INVALID, userSwitchStatus,
                 /* androidFailureStatus= */ null, /* errorMessage= */ null);
     }
 
-    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull ResultCallbackImpl<UserSwitchResult> callback,
             boolean isLogout, @HalCallback.HalCallbackStatus int halCallbackStatus,
             @UserSwitchResult.Status int userSwitchStatus, @Nullable Integer androidFailureStatus,
             @Nullable String errorMessage) {
@@ -1663,7 +1663,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             EventLogHelper.writeCarUserServiceSwitchUserResp(halCallbackStatus, userSwitchStatus,
                     errorMessage);
         }
-        receiver.complete(
+        callback.complete(
                 new UserSwitchResult(userSwitchStatus, androidFailureStatus, errorMessage));
     }
 
