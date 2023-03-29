@@ -1588,7 +1588,8 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             Slogf.d(CarLog.TAG_AUDIO, "HalAudioGainCallback is not supported on this device");
             return;
         }
-        mCarAudioGainMonitor = new CarAudioGainMonitor(mAudioControlWrapper, mCarAudioZones);
+        mCarAudioGainMonitor = new CarAudioGainMonitor(mAudioControlWrapper,
+                new CarVolumeInfoWrapper(this), mCarAudioZones);
         mCarAudioGainMonitor.registerAudioGainListener(mHalAudioGainCallback);
     }
 
