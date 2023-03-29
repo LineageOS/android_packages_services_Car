@@ -49,6 +49,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
     private static final HashSet<String> OEM_TAG_STRING_SET = new HashSet<>();
 
+    private static final int ZONE_CONFIG_ID = 0;
+
     private static final AudioAttributes MUSIC_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -190,7 +192,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         musicMap.put(MUSIC_DEVICE_ADDRESS, mOemInfoMock);
         mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, MUSIC_CONTEXT,
                 mSettingsMock, musicContextToAddress, musicMap,
-                PRIMARY_AUDIO_ZONE, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
 
         SparseArray<String> navContextToAddress = new SparseArray<>();
@@ -199,7 +201,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         navMap.put(NAV_DEVICE_ADDRESS, mNavInfoMock);
         mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, NAV_CONTEXT,
             mSettingsMock, navContextToAddress, navMap,
-            PRIMARY_AUDIO_ZONE, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
+            PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
             /* useCarVolumeGroupMute= */ false);
 
         SparseArray<String> oemContextToAddress = new SparseArray<>();
@@ -208,7 +210,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         oemMap.put(OEM_DEVICE_ADDRESS, mOemInfoMock);
         mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, OEM_CONTEXT,
                 mSettingsMock, oemContextToAddress, oemMap,
-                PRIMARY_AUDIO_ZONE, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
     }
 

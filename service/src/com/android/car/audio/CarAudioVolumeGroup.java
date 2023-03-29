@@ -50,11 +50,11 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
     CarAudioVolumeGroup(CarAudioContext carAudioContext,
             CarAudioSettings settingsManager,
             SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int volumeGroupId,
-            String name, int stepSize, int defaultGain, int minGain, int maxGain,
+            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
+            int volumeGroupId, String name, int stepSize, int defaultGain, int minGain, int maxGain,
             boolean useCarVolumeGroupMute) {
         super(carAudioContext, settingsManager, contextToAddress, addressToCarAudioDeviceInfo,
-                zoneId, volumeGroupId, name, useCarVolumeGroupMute);
+                zoneId, configId, volumeGroupId, name, useCarVolumeGroupMute);
         Preconditions.checkArgument(stepSize != 0, "Step Size must not be zero");
         mStepSize = stepSize;
         mDefaultGain = defaultGain;
