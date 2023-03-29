@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.Application;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
-import android.car.builtin.window.WindowManagerHelper;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -86,15 +85,6 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
         if (mActivityHolders.containsKey(getToken(hostActivity))) {
             throw new IllegalArgumentException("A CarTaskViewController already exists for this "
                     + "activity. Cannot create another one.");
-        }
-        // Setting as trusted overlay to let touches pass through.
-        if (hostActivity.getWindow() != null) {
-            WindowManagerHelper.setTrustedOverlay(hostActivity.getWindow().getAttributes());
-        } else {
-            // The activity is not visible yet. This can only happen in tests if activity is mocked
-            // and should not happen in the real case.
-            Slogf.w(TAG, "Failed to set the trusted overlay as the host activity is not "
-                    + "attached to a window.");
         }
         hostActivity.registerActivityLifecycleCallbacks(this);
         ActivityHolder activityHolder = new ActivityHolder(hostActivity, callbackExecutor,
@@ -231,18 +221,16 @@ final class CarTaskViewControllerSupervisor implements Application.ActivityLifec
         }
 
         private void onCarSystemUIDisconnected() {
-            dispatchOnDisconnected(mCarTaskViewController);
-            releaseController();
-        }
-
-        private void dispatchOnDisconnected(CarTaskViewController carTaskViewController) {
-            if (carTaskViewController == null) {
+            if (mCarTaskViewController == null) {
                 Slogf.w(TAG, "car task view controller not found, not dispatching onDisconnected");
                 return;
             }
             mCallbackExecutor.execute(() ->
-                    mCarTaskViewControllerCallback.onDisconnected(carTaskViewController)
+                    mCarTaskViewControllerCallback.onDisconnected(mCarTaskViewController)
             );
+            // Only release the taskviews and not the controller because the system ui might get
+            // connected while the activity is still visible.
+            mCarTaskViewController.releaseTaskViews();
         }
 
         private void onActivityDestroyed() {
