@@ -110,6 +110,7 @@
                     android:layout_width="@dimen/top_system_bar_icon_drawing_size"
                     android:layout_height="@dimen/top_system_bar_icon_drawing_size"
                     android:src="@drawable/car_ic_user_icon"
+                    android:tint="@color/system_bar_icon_color_with_selection"
                 />
             </com.android.systemui.car.systembar.CarTopSystemBarButton>
         </LinearLayout>
