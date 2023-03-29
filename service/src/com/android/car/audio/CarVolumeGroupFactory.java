@@ -32,6 +32,7 @@ final class CarVolumeGroupFactory {
     private final String mName;
     private final int mId;
     private final int mZoneId;
+    private final int mConfigId;
     private final boolean mUseCarVolumeGroupMute;
     private final CarAudioSettings mCarAudioSettings;
     private final SparseArray<String> mContextToAddress = new SparseArray<>();
@@ -46,14 +47,15 @@ final class CarVolumeGroupFactory {
     private int mMinGain = Integer.MAX_VALUE;
 
     CarVolumeGroupFactory(AudioManager audioManager, CarAudioSettings carAudioSettings,
-            CarAudioContext carAudioContext, int zoneId, int volumeGroupId, String name,
-            boolean useCarVolumeGroupMute) {
+            CarAudioContext carAudioContext, int zoneId, int configId, int volumeGroupId,
+            String name, boolean useCarVolumeGroupMute) {
         mAudioManager = audioManager;
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings,
                 "Car audio settings can not be null");
         mCarAudioContext = Objects.requireNonNull(carAudioContext,
                 "Car audio context can not be null");
         mZoneId = zoneId;
+        mConfigId = configId;
         mId = volumeGroupId;
         mName = Objects.requireNonNull(name, "Car Volume Group name can not be null");
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
@@ -66,10 +68,11 @@ final class CarVolumeGroupFactory {
         if (useCoreAudioVolume) {
             group = new CoreAudioVolumeGroup(mAudioManager,
                     mCarAudioContext, mCarAudioSettings, mContextToAddress,
-                    mAddressToCarAudioDeviceInfo, mZoneId, mId, mName, mUseCarVolumeGroupMute);
+                    mAddressToCarAudioDeviceInfo, mZoneId, mConfigId, mId, mName,
+                    mUseCarVolumeGroupMute);
         } else {
             group = new CarAudioVolumeGroup(mCarAudioContext, mCarAudioSettings,
-                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mId, mName,
+                    mContextToAddress, mAddressToCarAudioDeviceInfo, mZoneId, mConfigId, mId, mName,
                     mStepSize, mDefaultGain, mMinGain, mMaxGain, mUseCarVolumeGroupMute);
         }
         group.init();

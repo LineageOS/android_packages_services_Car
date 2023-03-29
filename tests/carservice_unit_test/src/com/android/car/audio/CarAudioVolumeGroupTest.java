@@ -49,6 +49,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioVolumeGroupTest {
     private static final int ZONE_ID = 0;
+    private static final int ZONE_CONFIG_ID = 1;
     private static final int GROUP_ID = 0;
     private static final int STEP_VALUE = 2;
     private static final int MIN_GAIN = 3;
@@ -147,32 +148,34 @@ public final class CarAudioVolumeGroupTest {
         CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
 
-        verify(mSettingsMock).storeVolumeGainIndexForUser(
-                anyInt(), eq(0), eq(0), eq(TEST_GAIN_INDEX));
+        verify(mSettingsMock).storeVolumeGainIndexForUser(anyInt(), eq(ZONE_ID), eq(ZONE_CONFIG_ID),
+                eq(GROUP_ID), eq(TEST_GAIN_INDEX));
     }
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForUser() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, ZONE_CONFIG_ID, GROUP_ID)
                 .setGainIndexForUser(TEST_USER_11).build();
         CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup(settings);
         carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_11);
 
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
 
-        verify(settings).storeVolumeGainIndexForUser(TEST_USER_11, 0, 0, MIN_GAIN);
+        verify(settings).storeVolumeGainIndexForUser(TEST_USER_11, ZONE_ID, ZONE_CONFIG_ID,
+                GROUP_ID, MIN_GAIN);
     }
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForDefaultUser() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, ZONE_CONFIG_ID, GROUP_ID)
                 .setGainIndexForUser(UserHandle.USER_CURRENT).build();
         CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup(settings);
 
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
 
         verify(settings)
-                .storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, 0, 0, MIN_GAIN);
+                .storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID, ZONE_CONFIG_ID,
+                        GROUP_ID, MIN_GAIN);
     }
 
     private CarAudioVolumeGroup testVolumeGroupSetup() {
@@ -193,8 +196,8 @@ public final class CarAudioVolumeGroupTest {
         contextToAddress.put(TEST_ALARM_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
         contextToAddress.put(TEST_NOTIFICATION_CONTEXT_ID, mNavigationDeviceInfo.getAddress());
 
-        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings,
-                contextToAddress, addressToCarAudioDeviceInfo, ZONE_ID, GROUP_ID, GROUP_NAME,
+        return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToAddress,
+                addressToCarAudioDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
                 STEP_VALUE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCoreAudioVolume= */ false);
     }
 
@@ -202,12 +205,14 @@ public final class CarAudioVolumeGroupTest {
         private final SparseIntArray mStoredGainIndexes = new SparseIntArray();
         private final SparseBooleanArray mStoreMuteStates = new SparseBooleanArray();
         private final int mZoneId;
+        private final int mConfigId;
         private final int mGroupId;
 
         private boolean mPersistMute;
 
-        SettingsBuilder(int zoneId, int groupId) {
+        SettingsBuilder(int zoneId, int configId, int groupId) {
             mZoneId = zoneId;
+            mConfigId = configId;
             mGroupId = groupId;
         }
 
@@ -221,14 +226,15 @@ public final class CarAudioVolumeGroupTest {
             for (int storeIndex = 0; storeIndex < mStoredGainIndexes.size(); storeIndex++) {
                 int gainUserId = mStoredGainIndexes.keyAt(storeIndex);
                 when(settingsMock
-                        .getStoredVolumeGainIndexForUser(gainUserId, mZoneId,
+                        .getStoredVolumeGainIndexForUser(gainUserId, mZoneId, mConfigId,
                                 mGroupId)).thenReturn(
                         mStoredGainIndexes.get(gainUserId, DEFAULT_GAIN));
             }
             for (int muteIndex = 0; muteIndex < mStoreMuteStates.size(); muteIndex++) {
                 int muteUserId = mStoreMuteStates.keyAt(muteIndex);
-                when(settingsMock.getVolumeGroupMuteForUser(muteUserId, mZoneId, mGroupId))
-                        .thenReturn(mStoreMuteStates.get(muteUserId, false));
+                when(settingsMock.getVolumeGroupMuteForUser(muteUserId, mZoneId, mConfigId,
+                        mGroupId)).thenReturn(mStoreMuteStates.get(muteUserId,
+                        /* valueIfKeyNotFound= */ false));
                 when(settingsMock.isPersistVolumeGroupMuteEnabled(muteUserId))
                         .thenReturn(mPersistMute);
             }

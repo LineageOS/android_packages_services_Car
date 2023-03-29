@@ -439,7 +439,7 @@ import java.util.stream.Collectors;
                 if (parser.getEventType() != XmlPullParser.START_TAG) continue;
                 // Expect at least one <volumeGroups> in one audio zone
                 if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
-                    parseVolumeGroups(parser, zoneConfigBuilder, audioZoneId);
+                    parseVolumeGroups(parser, zoneConfigBuilder);
                 } else if (TAG_INPUT_DEVICES.equals(parser.getName())) {
                     parseInputAudioDevices(parser, zone);
                 } else {
@@ -604,7 +604,7 @@ import java.util.stream.Collectors;
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             // Expect at least one <volumeGroups> in one audio zone config
             if (TAG_VOLUME_GROUPS.equals(parser.getName())) {
-                parseVolumeGroups(parser, zoneConfigBuilder, zone.getId());
+                parseVolumeGroups(parser, zoneConfigBuilder);
             } else {
                 skip(parser);
             }
@@ -626,7 +626,7 @@ import java.util.stream.Collectors;
     }
 
     private void parseVolumeGroups(XmlPullParser parser,
-            CarAudioZoneConfig.Builder zoneConfigBuilder, int audioZoneId)
+            CarAudioZoneConfig.Builder zoneConfigBuilder)
             throws XmlPullParserException, IOException {
         int groupId = 0;
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -637,10 +637,13 @@ import java.util.stream.Collectors;
                         "%s %s attribute can not be empty when relying on core volume groups",
                         TAG_VOLUME_GROUP, ATTR_NAME);
                 if (groupName == null) {
-                    groupName = String.valueOf(groupId);
+                    groupName = new StringBuilder().append("config ")
+                            .append(zoneConfigBuilder.getZoneConfigId()).append(" group ")
+                            .append(groupId).toString();
                 }
-                zoneConfigBuilder.addVolumeGroup(parseVolumeGroup(parser, audioZoneId, groupId,
-                        groupName));
+                zoneConfigBuilder.addVolumeGroup(parseVolumeGroup(parser,
+                        zoneConfigBuilder.getZoneId(), zoneConfigBuilder.getZoneConfigId(),
+                        groupId, groupName));
                 groupId++;
             } else {
                 skip(parser);
@@ -648,10 +651,10 @@ import java.util.stream.Collectors;
         }
     }
 
-    private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId,
-            String groupName) throws XmlPullParserException, IOException {
+    private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int configId,
+            int groupId, String groupName) throws XmlPullParserException, IOException {
         CarVolumeGroupFactory groupFactory = new CarVolumeGroupFactory(mAudioManager,
-                mCarAudioSettings, mCarAudioContext, zoneId, groupId, groupName,
+                mCarAudioSettings, mCarAudioContext, zoneId, configId, groupId, groupName,
                 mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;

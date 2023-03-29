@@ -429,6 +429,14 @@ final class CarAudioZoneConfig {
             return this;
         }
 
+        int getZoneId() {
+            return mZoneId;
+        }
+
+        int getZoneConfigId() {
+            return mZoneConfigId;
+        }
+
         CarAudioZoneConfig build() {
             return new CarAudioZoneConfig(mName, mZoneId, mZoneConfigId, mIsDefault, mVolumeGroups,
                     mDeviceAddressToGroupId, mGroupIdToNames);
