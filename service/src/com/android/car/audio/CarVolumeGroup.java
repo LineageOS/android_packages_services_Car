@@ -59,8 +59,8 @@ import java.util.Objects;
  * while the audioserver resource config_useFixedVolume is set.
  *
  * -volume groups relying on audioserver to control the volume and access using
- * {@link AudioManager#setVolumeIndexForAudioAttributes} and all other related volume
- * APIs.
+ * {@link AudioManager#setVolumeIndexForAttributes(AudioAttributes, int, int)} and all other
+ * related volume APIs.
  * Gain may either be controlled on hardware amplifier using Audio HAL setaudioPortConfig if the
  * correlated audio device port defines a gain controller with attribute name="useForVolume" set
  * or in software using the port id in Audio flinger.
@@ -77,6 +77,7 @@ import java.util.Objects;
     protected final int mId;
     private final String mName;
     protected final int mZoneId;
+    protected final int mConfigId;
     protected final SparseArray<String> mContextToAddress;
     protected final ArrayMap<String, CarAudioDeviceInfo> mAddressToCarAudioDeviceInfo;
 
@@ -142,13 +143,14 @@ import java.util.Objects;
 
     protected CarVolumeGroup(CarAudioContext carAudioContext, CarAudioSettings settingsManager,
             SparseArray<String> contextToAddress, ArrayMap<String,
-            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int volumeGroupId,
-            String name, boolean useCarVolumeGroupMute) {
+            CarAudioDeviceInfo> addressToCarAudioDeviceInfo, int zoneId, int configId,
+            int volumeGroupId, String name, boolean useCarVolumeGroupMute) {
         mSettingsManager = settingsManager;
         mContextToAddress = contextToAddress;
         mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
         mCarAudioContext = carAudioContext;
         mZoneId = zoneId;
+        mConfigId = configId;
         mId = volumeGroupId;
         mName = Objects.requireNonNull(name, "Volume group name cannot be null");
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
@@ -166,7 +168,7 @@ import java.util.Objects;
     void init() {
         synchronized (mLock) {
             mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(
-                    mUserId, mZoneId, mId);
+                    mUserId, mZoneId, mConfigId, mId);
             updateCurrentGainIndexLocked();
         }
     }
@@ -485,7 +487,8 @@ import java.util.Objects;
             writer.printf("CarVolumeGroup(%d)\n", mId);
             writer.increaseIndent();
             writer.printf("Name(%s)\n", mName);
-            writer.printf("Zone Id(%b)\n", mZoneId);
+            writer.printf("Zone Id(%d)\n", mZoneId);
+            writer.printf("Configuration Id(%d)\n", mConfigId);
             writer.printf("Is Muted(%b)\n", isMutedLocked());
             writer.printf("UserId(%d)\n", mUserId);
             writer.printf("Persist Volume Group Mute(%b)\n",
@@ -562,7 +565,7 @@ import java.util.Objects;
     protected void setMuteLocked(boolean mute) {
         mIsMuted = mute;
         if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
-            mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mId, mute);
+            mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mConfigId, mId, mute);
         }
     }
 
@@ -596,7 +599,7 @@ import java.util.Objects;
     @GuardedBy("mLock")
     private int getCurrentGainIndexForUserLocked() {
         int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
-                mId);
+                mConfigId, mId);
         Slogf.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
                 + " gainIndexForUser " + gainIndexForUser);
         return gainIndexForUser;
@@ -626,7 +629,7 @@ import java.util.Objects;
     @GuardedBy("mLock")
     private void storeGainIndexForUserLocked(int gainIndex, @UserIdInt int userId) {
         mSettingsManager.storeVolumeGainIndexForUser(userId,
-                mZoneId, mId, gainIndex);
+                mZoneId, mConfigId, mId, gainIndex);
     }
 
     @GuardedBy("mLock")
@@ -638,7 +641,7 @@ import java.util.Objects;
             mIsMuted = false;
             return;
         }
-        mIsMuted = mSettingsManager.getVolumeGroupMuteForUser(mUserId, mZoneId, mId);
+        mIsMuted = mSettingsManager.getVolumeGroupMuteForUser(mUserId, mZoneId, mConfigId, mId);
     }
 
     /**
