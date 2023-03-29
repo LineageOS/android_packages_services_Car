@@ -315,15 +315,18 @@ public class CarAudioZone {
         return getCurrentCarAudioZoneConfig().isAudioDeviceInfoValidForZone(info);
     }
 
-    void onAudioGainChanged(List<Integer> halReasons, List<CarAudioGainConfigInfo> gains) {
-        for (int gainIndex = 0; gainIndex < gains.size(); gainIndex++) {
-            CarAudioGainConfigInfo gainInfo = gains.get(gainIndex);
-            for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
-                if (mCarAudioZoneConfigs.valueAt(index).onAudioGainChanged(halReasons, gainInfo)) {
-                    break;
-                }
+    List<CarVolumeGroupEvent> onAudioGainChanged(List<Integer> halReasons,
+            List<CarAudioGainConfigInfo> gainInfos) {
+        List<CarVolumeGroupEvent> events = new ArrayList<>();
+        for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
+            List<CarVolumeGroupEvent> eventsForZoneConfig = mCarAudioZoneConfigs.valueAt(index)
+                    .onAudioGainChanged(halReasons, gainInfos);
+            // use events for callback only if current zone configuration
+            if (mCarAudioZoneConfigs.keyAt(index) == getCurrentConfigId()) {
+                events.addAll(eventsForZoneConfig);
             }
         }
+        return events;
     }
 
     List<CarVolumeGroupEvent> onAudioPortsChanged(List<HalAudioDeviceInfo> deviceInfos) {

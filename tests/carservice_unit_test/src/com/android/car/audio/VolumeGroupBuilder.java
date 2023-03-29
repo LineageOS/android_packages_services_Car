@@ -16,11 +16,16 @@
 
 package com.android.car.audio;
 
+import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.media.CarVolumeGroupInfo;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
@@ -40,6 +45,8 @@ public final class VolumeGroupBuilder {
     private ArrayMap<String, List<Integer>> mUsagesDeviceAddresses = new ArrayMap<>();
     private String mName;
     private boolean mIsMuted;
+    private int mZoneId;
+    private int mId;
 
     /**
      * Add name for volume group
@@ -85,6 +92,16 @@ public final class VolumeGroupBuilder {
         return this;
     }
 
+    public VolumeGroupBuilder setZoneId(int zoneId) {
+        mZoneId = zoneId;
+        return this;
+    }
+
+    public VolumeGroupBuilder setGroupId(int groupId) {
+        mId = groupId;
+        return this;
+    }
+
     /**
      * Builds car volume group
      */
@@ -127,6 +144,13 @@ public final class VolumeGroupBuilder {
             when(carVolumeGroup.getName()).thenReturn(mName);
         }
         when(carVolumeGroup.isMuted()).thenReturn(mIsMuted);
+
+        when(carVolumeGroup.getId()).thenReturn(mId);
+
+        when(carVolumeGroup.getCarVolumeGroupInfo()).thenReturn(new CarVolumeGroupInfo.Builder(
+                "Name: " + mName, mZoneId, mId).setMinVolumeGainIndex(0)
+                .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
+                .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build());
 
         return carVolumeGroup;
     }
