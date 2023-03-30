@@ -319,6 +319,7 @@ android.car.util.concurrent.AndroidFuture
 android.car.util.concurrent.AsyncFuture
 android.car.view.DisplayHelper
 android.car.view.MirroredSurfaceView
+android.car.view.WindowManagerHelper
 android.car.vms.VmsAssociatedLayer
 android.car.vms.VmsAvailableLayers
 android.car.vms.VmsClient

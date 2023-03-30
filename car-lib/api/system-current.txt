@@ -2406,6 +2406,10 @@ package android.car.view {
     method @MainThread public void setObscuredTouchRegion(@Nullable android.graphics.Region);
   }
 
+  public final class WindowManagerHelper {
+    method @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
+  }
+
 }
 
 package android.car.vms {
