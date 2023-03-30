@@ -555,6 +555,29 @@ public class CarOccupantZoneManager extends CarManagerBase {
     }
 
     /**
+     * Returns the info for the occupant zone that has the display identified by the given
+     * {@code displayId}.
+     *
+     * @param displayId Should be valid display id. Passing in invalid display id will lead into
+     *        getting {@code null} occupant zone info result.
+     * @return Occupant zone info or {@code null} if no occupant zone is found which has the given
+     * display.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
+        try {
+            return mService.getOccupantZoneForDisplayId(displayId);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
      * Assigns the given profile {@code userId} to the {@code occupantZone}. Returns true when the
      * request succeeds.
      *

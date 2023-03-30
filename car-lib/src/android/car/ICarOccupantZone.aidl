@@ -49,4 +49,5 @@ interface ICarOccupantZone {
     boolean hasPassengerZones();
     int getUserForDisplayId(int displayId);
     int[] getSupportedInputTypes(in int occupantZoneId, in int inputType);
+    CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForDisplayId(int displayId);
 }
