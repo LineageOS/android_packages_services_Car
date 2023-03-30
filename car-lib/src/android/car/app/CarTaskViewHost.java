@@ -40,7 +40,7 @@ public interface CarTaskViewHost {
     void release();
 
     /**
-     * See {@link com.android.wm.shell.TaskView#startActivity(PendingIntent, Intent,
+     * See {@link TaskView#startActivity(PendingIntent, Intent,
      * ActivityOptions, Rect)}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
