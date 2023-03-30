@@ -221,6 +221,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mInSimulatedDeepSleepMode;
     @GuardedBy("mSimulationWaitObject")
     private int mResumeDelayFromSimulatedSuspendSec = NO_WAKEUP_BY_TIMER;
+    @GuardedBy("mSimulationWaitObject")
+    private boolean mFreeMemoryBeforeSuspend;
 
     @GuardedBy("mLock")
     private CpmsState mCurrentState;
@@ -454,6 +456,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mSystemInterface.isSystemSupportingHibernation());
             writer.printf("mLastShutdownState: %d\n", mLastShutdownState);
         }
+
+        synchronized (mSimulationWaitObject) {
+            writer.printf("mWakeFromSimulatedSleep: %b\n", mWakeFromSimulatedSleep);
+            writer.printf("mInSimulatedDeepSleepMode: %b\n", mInSimulatedDeepSleepMode);
+            writer.printf("mResumeDelayFromSimulatedSuspendSec: %d\n",
+                    mResumeDelayFromSimulatedSuspendSec);
+            writer.printf("mFreeMemoryBeforeSuspend: %b\n", mFreeMemoryBeforeSuspend);
+        }
+
         mPolicyReader.dump(writer);
         mPowerComponentHandler.dump(writer);
         mSilentModeHandler.dump(writer);
@@ -2343,13 +2354,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
      * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
      */
+    // TODO(b/274895468): Add tests
     public void simulateSuspendAndMaybeReboot(@PowerState.ShutdownType int shutdownType,
-            boolean shouldReboot, boolean skipGarageMode, int wakeupAfter) {
+            boolean shouldReboot, boolean skipGarageMode, int wakeupAfter, boolean freeMemory) {
         boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
             mResumeDelayFromSimulatedSuspendSec = wakeupAfter;
+            mFreeMemoryBeforeSuspend = freeMemory;
         }
         synchronized (mLock) {
             mRebootAfterGarageMode = shouldReboot;
@@ -2674,6 +2687,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void simulateSleepByWaiting() {
         Slogf.i(TAG, "Starting to simulate Deep Sleep by waiting");
         synchronized (mSimulationWaitObject) {
+            if (mFreeMemoryBeforeSuspend) {
+                freeMemory();
+            }
             if (mResumeDelayFromSimulatedSuspendSec >= 0) {
                 Slogf.i(TAG, "Scheduling a wakeup after %d seconds",
                         mResumeDelayFromSimulatedSuspendSec);
