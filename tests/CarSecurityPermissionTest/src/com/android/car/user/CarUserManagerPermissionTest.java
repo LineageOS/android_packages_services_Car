@@ -69,20 +69,11 @@ public final class CarUserManagerPermissionTest {
         mContext = mInstrumentation.getTargetContext();
         Car car = Objects.requireNonNull(createCar(mContext, (Handler) null));
         mCarUserManager = (CarUserManager) car.getCarManager(CAR_USER_SERVICE);
-
     }
 
     @Test
     public void testSwitchUserPermission() throws Exception {
         Exception e = assertThrows(SecurityException.class, () -> mCarUserManager.switchUser(100));
-        assertThat(e).hasMessageThat().contains(CREATE_USERS);
-        assertThat(e).hasMessageThat().contains(MANAGE_USERS);
-    }
-
-    @Test
-    public void testUpdatePreCreatedUserPermission() throws Exception {
-        Exception e = assertThrows(SecurityException.class,
-                () -> mCarUserManager.updatePreCreatedUsers());
         assertThat(e).hasMessageThat().contains(CREATE_USERS);
         assertThat(e).hasMessageThat().contains(MANAGE_USERS);
     }
