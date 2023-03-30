@@ -16,10 +16,12 @@
 
 package android.car.builtin.power;
 
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
+import android.os.Build;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
@@ -88,6 +90,7 @@ public final class PowerManagerHelper {
      * @param upTime The time when the request was issued, in the {@link SystemClock#uptimeMillis}
      *               time base.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void goToSleep(Context context, int displayId, long upTime) {
         context.getSystemService(PowerManager.class).goToSleep(displayId, upTime,
@@ -127,6 +130,7 @@ public final class PowerManagerHelper {
      * @see PowerManager#ACQUIRE_CAUSES_WAKEUP
      * @see PowerManager#ON_AFTER_RELEASE
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static WakeLock newWakeLock(Context context, int levelAndFlags, String tag,
             int displayId) {

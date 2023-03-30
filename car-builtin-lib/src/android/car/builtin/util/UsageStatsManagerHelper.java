@@ -17,11 +17,13 @@
 package android.car.builtin.util;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.usage.UsageStatsManager;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.Objects;
@@ -50,6 +52,7 @@ public final class UsageStatsManagerHelper {
      * @param packageName       package name reported for the user interaction
      * @param userId            user id of the process
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void reportUserInteraction(@NonNull UsageStatsManager usageStatsManager,
             @NonNull String packageName, @UserIdInt int userId) {

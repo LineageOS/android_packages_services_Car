@@ -17,9 +17,11 @@
 package android.car.builtin.util;
 
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.util.EventLog;
 
 /**
@@ -303,6 +305,7 @@ public final class EventLogHelper {
     }
 
     /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ} event. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarUserServiceStartUserVisibleOnDisplayReq(int userId, int displayId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_REQ,
@@ -310,6 +313,7 @@ public final class EventLogHelper {
     }
 
     /** Logs a {@code EventLogTags.CAR_USER_SVC_START_USER_VISIBLE_ON_DISPLAY_RESP} event. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarUserServiceStartUserVisibleOnDisplayResp(
             int userId, int displayId, int result) {
@@ -346,11 +350,13 @@ public final class EventLogHelper {
                 action, userId, flags, safeName, userLocales);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserStartFgUser(int userId) {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_START_FG_USER, userId);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserInfo(int type, boolean replaceGuest,
             int switchUserId, @Nullable String newUserName, int newUserFlags,
@@ -360,26 +366,31 @@ public final class EventLogHelper {
                 newUserName, newUserFlags, supportsOverrideUserIdProperty ? 1 : 0, userLocales);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserFallbackDefaultBehavior(@Nullable String reason) {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_FALLBACK_DEFAULT_BEHAVIOR, reason);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserReplaceGuest(int userId) {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_REPLACE_GUEST, userId);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserUnlockSystemUser() {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_UNLOCK_SYSTEM_USER);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserSetLastActive(int userId) {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_SET_LAST_ACTIVE, userId);
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void writeCarInitialUserResetGlobalProperty(@Nullable String name) {
         EventLog.writeEvent(EventLogTags.CAR_INITIAL_USER_RESET_GLOBAL_PROPERTY, name);
