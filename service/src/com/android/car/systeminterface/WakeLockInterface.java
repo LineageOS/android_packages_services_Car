@@ -16,9 +16,8 @@
 
 package com.android.car.systeminterface;
 
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
-import android.car.PlatformVersion;
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
@@ -151,7 +150,7 @@ public interface WakeLockInterface {
         }
 
         private Pair<WakeLock, WakeLock> createWakeLockPair(int displayId) {
-            if (isPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            if (isPlatformVersionAtLeastU()) {
                 StringBuilder tag = new StringBuilder(CarLog.TAG_POWER).append(":")
                         .append(displayId);
                 WakeLock fullWakeLock = PowerManagerHelper.newWakeLock(mContext,
