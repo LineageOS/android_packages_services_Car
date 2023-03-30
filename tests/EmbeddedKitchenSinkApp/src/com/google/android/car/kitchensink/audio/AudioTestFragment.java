@@ -63,6 +63,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.media.AudioManager.OnAudioFocusChangeListener;
+import android.media.AudioRouting;
 import android.media.HwAudioSource;
 import android.os.Bundle;
 import android.os.Handler;
@@ -108,6 +109,7 @@ public class AudioTestFragment extends Fragment {
             "com.android.car.emulator.selected_zone";
 
     private static final Integer[] TONES = new Integer[] { 200, 400, 600, 800, 1_000, 1_200 };
+    public static final String DEVICE_SELECTED_NONE = "None";
 
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
@@ -165,6 +167,7 @@ public class AudioTestFragment extends Fragment {
     private AudioFocusRequest mDelayedFocusRequest;
     private OnAudioFocusChangeListener mMediaWithDelayedFocusListener;
     private TextView mDelayedStatusText;
+    private TextView mDelayedAudioDeviceText;
 
     private final OnAudioFocusChangeListener mNavFocusListener = (focusChange) -> {
         Log.i(TAG, "Nav focus change:" + focusChange);
@@ -374,6 +377,8 @@ public class AudioTestFragment extends Fragment {
                 .setOnClickListener(v -> stopAudioTrack());
 
         mDelayedStatusText = view.findViewById(R.id.media_delayed_player_status);
+        mDelayedAudioDeviceText = view.findViewById(R.id.media_delayed_player_device);
+        resetDeviceSelectedForDelayedMedia();
 
         mVolumeKeyEventHandler = new VolumeKeyEventsButtonManager(
                 mCar.getCarManager(CarOccupantZoneManager.class));
@@ -470,7 +475,8 @@ public class AudioTestFragment extends Fragment {
                 mMusicAudioAttribForDeviceAddress);
         mMusicPlayer = new AudioPlayer(mContext, well_worth_the_wait, mMusicAudioAttrib);
         mMusicPlayerWithDelayedFocus = new AudioPlayer(mContext, well_worth_the_wait,
-                mMusicAudioAttrib);
+                mMusicAudioAttrib, /* preferredDeviceInfo= */ null,
+                router -> setRoutedDeviceForDelayedPlayer(router));
         mMusicPlayerShort = new AudioPlayer(mContext, ring_classic_01, mMusicAudioAttrib);
         mNavGuidancePlayer = new AudioPlayer(mContext, turnright, mNavAudioAttrib);
         mPhoneAudioPlayer = new AudioPlayer(mContext, free_flight, mPhoneAudioAttrib);
@@ -496,6 +502,16 @@ public class AudioTestFragment extends Fragment {
         };
 
         mAudioTrackPlayer = new AudioTrackPlayer(getTone(0));
+    }
+
+    private void setRoutedDeviceForDelayedPlayer(AudioRouting router) {
+        Log.i(TAG, "setRoutedDeviceForDelayedPlayer: " + router);
+        String deviceAddress = "Does not exist";
+        if (router.getRoutedDevice() != null) {
+            deviceAddress = router.getRoutedDevice().getAddress();
+        }
+
+        mDelayedAudioDeviceText.setText(getString(R.string.audio_device_selected, deviceAddress));
     }
 
     private void setActivityCurrentZoneId(TextView currentZoneIdTextView) {
@@ -531,11 +547,13 @@ public class AudioTestFragment extends Fragment {
             if (delayedFocusRequestResults == AUDIOFOCUS_REQUEST_DELAYED) {
                 if (DBG) Log.d(TAG, "Media With Delayed Focus delayed focus granted");
                 mDelayedStatusText.setText(R.string.player_delayed);
+                resetDeviceSelectedForDelayedMedia();
                 return;
             }
             mMediaWithDelayedFocusListener = null;
             mDelayedFocusRequest = null;
             mDelayedStatusText.setText(R.string.player_not_started);
+            resetDeviceSelectedForDelayedMedia();
         }
         if (DBG) Log.d(TAG, "Media With Delayed Focus focus rejected");
     }
@@ -567,6 +585,7 @@ public class AudioTestFragment extends Fragment {
 
     private void stopDelayedMediaPlayerLocked() {
         mDelayedStatusText.setText(R.string.player_not_started);
+        resetDeviceSelectedForDelayedMedia();
         if (mMusicPlayerWithDelayedFocus.isPlaying()) {
             if (DBG) Log.d(TAG, "Media With Delayed Focus stopping player");
             mMusicPlayerWithDelayedFocus.stop();
@@ -577,6 +596,7 @@ public class AudioTestFragment extends Fragment {
 
     private void pauseDelayedMediaPlayerLocked() {
         mDelayedStatusText.setText(R.string.player_paused);
+        resetDeviceSelectedForDelayedMedia();
         if (mMusicPlayerWithDelayedFocus.isPlaying()) {
             if (DBG) Log.d(TAG, "Media With Delayed Focus pausing player");
             mMusicPlayerWithDelayedFocus.stop();
@@ -924,10 +944,9 @@ public class AudioTestFragment extends Fragment {
                 .addBundle(bundle)
                 .build();
 
-        mMusicPlayerForSelectedDeviceAddress = new AudioPlayer(mContext,
-                well_worth_the_wait,
-                mMusicAudioAttribForDeviceAddress,
-                carAudioZoneDeviceInfo.mDeviceInfo);
+        mMusicPlayerForSelectedDeviceAddress = new AudioPlayer(mContext, well_worth_the_wait,
+                mMusicAudioAttribForDeviceAddress, carAudioZoneDeviceInfo.mDeviceInfo,
+                /* routingListener= */ null);
     }
 
     private void startDeviceAudio() {
@@ -957,6 +976,10 @@ public class AudioTestFragment extends Fragment {
         Log.d(TAG, "setZoneToPlayOnSpeaker : " + zoneId);
     }
 
+    private void resetDeviceSelectedForDelayedMedia() {
+        mDelayedAudioDeviceText.setText(getString(R.string.audio_device_selected,
+                DEVICE_SELECTED_NONE));
+    }
 
     private class FocusHandler {
         private static final String AUDIO_FOCUS_STATE_GAIN = "gain";
