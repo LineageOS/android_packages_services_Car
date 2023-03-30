@@ -950,9 +950,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void requestTodayIoUsageStats() {
-          // TODO(b/262605181): Retrieve I/O usage stats from DB and send stats to the
-          // carwatchdog daemon via CarWatchdogDaemonHelper. These operations need to be
-          // done in the service handler thread.
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return;
+            }
+            service.mWatchdogPerfHandler.asyncFetchTodayIoUsageStats();
         }
 
         @Override
