@@ -89,7 +89,7 @@ final class CarTaskViewInputInterceptor {
     @MainThread
     void init() {
         if (mInitialized) {
-            Log.e(TAG, "Already initialized");
+            Log.w(TAG, "Already initialized");
             return;
         }
         mInitialized = true;
@@ -104,7 +104,7 @@ final class CarTaskViewInputInterceptor {
     @MainThread
     void release() {
         if (!mInitialized) {
-            Log.e(TAG, "Failed to release as it is not initialized");
+            Log.w(TAG, "Failed to release as it is not initialized");
             return;
         }
         mInitialized = false;
