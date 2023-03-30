@@ -22,6 +22,7 @@
     <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
     <dimen name="car_quick_controls_footer_button_radius">@dimen/car_portrait_ui_button_radius</dimen>
     <dimen name="car_quick_controls_entry_points_start_margin">24dp</dimen>
+    <dimen name="car_profile_switcher_padding_top">16dp</dimen>
 
     <dimen name="clock_elevation">5dp</dimen>
 
@@ -81,8 +82,7 @@
     <dimen name="top_system_bar_icon_horizontal_margin">20dp</dimen>
 
     <dimen name="car_status_icon_panel_border_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
-    <dimen name="car_status_icon_panel_padding_bottom">42dp</dimen>
-    <dimen name="car_status_icon_panel_padding_top">42dp</dimen>
+    <dimen name="car_status_icon_panel_padding_bottom">18dp</dimen>
 
     <dimen name="dialog_button_bar_top_padding">0dp</dimen>
 </resources>

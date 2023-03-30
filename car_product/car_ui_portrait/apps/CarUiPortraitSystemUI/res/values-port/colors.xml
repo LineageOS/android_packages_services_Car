@@ -29,9 +29,10 @@
 
     <color name="status_icon_not_highlighted_color">#202124</color>
     <color name="status_icon_selected_button_color">#6BF0FF</color>
-    <color name="status_icon_panel_bg_color">@color/car_surface_2</color>
+    <color name="status_icon_panel_bg_color">@android:color/transparent</color>
+    <color name="qc_panel_bg_color">@color/car_surface_2</color>
 
-    <color name="status_bar_background_color">#00000000</color>
+    <color name="status_bar_background_color">@android:color/transparent</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
 
     <color name="hvac_background_color">@color/car_background</color>
