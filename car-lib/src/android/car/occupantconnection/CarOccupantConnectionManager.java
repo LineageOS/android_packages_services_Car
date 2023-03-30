@@ -560,19 +560,24 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * In other words, this method should be called after {@link #requestConnection}, and before
      * any events in the {@link ConnectionRequestCallback} is triggered.
      *
-     * @throws IllegalStateException if there was no pending connection request to {@code
-     *                               receiverZone}
+     * @throws IllegalStateException if this {@link CarOccupantConnectionManager} has no pending
+     *                               connection request to {@code receiverZone}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
-        try {
-            mService.cancelConnection(mPackageName, receiverZone);
-        } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to cancel connection");
-            handleRemoteExceptionFromCarService(e);
+        synchronized (mLock) {
+            Preconditions.checkState(mConnectionRequestMap.contains(receiverZone.zoneId),
+                    "This manager instance has no connection request to " + receiverZone);
+            try {
+                mService.cancelConnection(mPackageName, receiverZone);
+                mConnectionRequestMap.remove(receiverZone.zoneId);
+            } catch (RemoteException e) {
+                Slog.e(TAG, "Failed to cancel connection");
+                handleRemoteExceptionFromCarService(e);
+            }
         }
     }
 
