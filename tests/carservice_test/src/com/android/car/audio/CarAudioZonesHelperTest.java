@@ -15,7 +15,10 @@
  */
 package com.android.car.audio;
 
+import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.media.AudioAttributes.USAGE_ANNOUNCEMENT;
 import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_SAFETY;
@@ -28,11 +31,13 @@ import static com.android.car.audio.CarAudioService.CAR_DEFAULT_AUDIO_ATTRIBUTE;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.media.AudioAttributes;
@@ -122,7 +127,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManager.class);
+        session.spyStatic(AudioManager.class).spyStatic(Car.class);
     }
 
     @Before
@@ -134,6 +139,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
         mContext = ApplicationProvider.getApplicationContext();
         mInputStream = mContext.getResources().openRawResource(R.raw.car_audio_configuration);
         mCarAudioSettings = mock(CarAudioSettings.class);
+        mockCarGetPlatformVersion(UPSIDE_DOWN_CAKE_0);
     }
 
     @After
@@ -1054,6 +1060,27 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
             assertThat(zones.size()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    public void loadAudioZones_usingCoreAudioVersionThree_failsOnReleaseLessThanU_fails()
+            throws Exception {
+        mockCarGetPlatformVersion(TIRAMISU_3);
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_routing_and_volume)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class,
+                            () -> cazh.loadAudioZones());
+
+            assertWithMessage("Invalid release version exception").that(thrown)
+                    .hasMessageThat().contains("is only supported for release version");
         }
     }
 

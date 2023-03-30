@@ -18,6 +18,8 @@ package com.android.car.audio;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
+import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_1;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_OEM_AUDIO_SERVICE;
@@ -29,6 +31,7 @@ import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
@@ -510,7 +513,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioControlWrapperAidl.class)
                 .spyStatic(AudioControlFactory.class)
                 .spyStatic(SystemProperties.class)
-                .spyStatic(ServiceManager.class);
+                .spyStatic(ServiceManager.class)
+                .spyStatic(Car.class);
     }
 
     @Before
@@ -551,6 +555,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
             Log.i(TAG, "Temporary Car Audio Configuration Without Mirroring File Location: "
                     + mTemporaryAudioConfigurationWithoutMirroringFile.getPath());
         }
+
+        mockCarGetPlatformVersion(UPSIDE_DOWN_CAKE_0);
 
         mockCoreAudioRoutingAndVolume();
         mockGrantCarControlAudioSettingsPermission();
@@ -1799,6 +1805,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Oem service enabled with enabled focus service")
                 .that(isEnabled).isTrue();
+    }
+
+    @Test
+    public void isAudioFeatureEnabled_withEnabledFocusServiceAndReleaseLessThanU() {
+        mockCarGetPlatformVersion(TIRAMISU_1);
+        CarOemAudioFocusProxyService service = mock(CarOemAudioFocusProxyService.class);
+        when(mMockCarOemProxyService.isOemServiceEnabled()).thenReturn(true);
+        when(mMockCarOemProxyService.getCarOemAudioFocusService()).thenReturn(service);
+        mCarAudioService.init();
+
+        boolean isEnabled =
+                mCarAudioService.isAudioFeatureEnabled(AUDIO_FEATURE_OEM_AUDIO_SERVICE);
+
+        expectWithMessage("Oem service enabled with release less than U")
+                .that(isEnabled).isFalse();
     }
 
     @Test
