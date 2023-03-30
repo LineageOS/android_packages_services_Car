@@ -96,6 +96,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private static final long ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS = 30_000;
     private static final long SHUTDOWN_WARNING_MARGIN_IN_MS = 5000;
     private static final long INVALID_ALLOWED_SYSTEM_UPTIME = -1;
+    private static final int NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
+    private static final int NOTIFY_AP_STATE_MAX_RETRY = 10;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -118,6 +120,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private final ArrayMap<String, RemoteTaskClientServiceInfo> mClientServiceInfoByPackage =
             new ArrayMap<>();
+    @GuardedBy("mLock")
+    private boolean mIsReadyForRemoteTask;
+    @GuardedBy("mLock")
+    private boolean mIsWakeupRequired;
+    @GuardedBy("mLock")
+    private int mNotifyApPowerStateRetryCount;
+
     private final RemoteAccessStorage mRemoteAccessStorage;
 
     private final ICarPowerStateListener mCarPowerStateListener =
@@ -157,10 +166,17 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     needsComplete = true;
                     break;
             }
-            if (apStateChangeRequired && !mRemoteAccessHal.notifyApStateChange(
-                    isReadyForRemoteTask, isWakeupRequired)) {
-                Slogf.e(TAG, "Cannot notify AP state change according to power state(%d)",
-                        state);
+            if (apStateChangeRequired) {
+                synchronized (mLock) {
+                    mIsReadyForRemoteTask = isReadyForRemoteTask;
+                    mIsWakeupRequired = isWakeupRequired;
+                }
+                mHandler.cancelNotifyApStateChange();
+                if (!mRemoteAccessHal.notifyApStateChange(
+                        isReadyForRemoteTask, isWakeupRequired)) {
+                    Slogf.e(TAG, "Cannot notify AP state change according to power state(%d)",
+                            state);
+                }
             }
             if (needsComplete) {
                 mPowerService.finished(state, this);
@@ -296,6 +312,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         synchronized (mLock) {
             mNextPowerState = getLastShutdownState();
+            mIsReadyForRemoteTask = true;
+            mIsWakeupRequired = false;
+            mNotifyApPowerStateRetryCount += 1;
         }
 
         mPowerService.registerListenerWithCompletion(mCarPowerStateListener);
@@ -305,11 +324,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             mHandler.postNotifyShutdownStarting(delayForShutdowWarningMs);
         }
         mHandler.postWrapUpRemoteAccessService(mAllowedSystemUptimeMs);
-
-        if (!mRemoteAccessHal.notifyApStateChange(/* isReadyForRemoteTask= */ true,
-                /* isWakeupRequired= */ false)) {
-            Slogf.e(TAG, "Cannot notify AP state change at init()");
-        }
+        mHandler.postNotifyApStateChange(0);
     }
 
     @Override
@@ -662,6 +677,23 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         Slogf.i(TAG, "Service(%s) is unbound from CarRemoteAccessService", serviceName);
     }
 
+    private void notifyApStateChange() {
+        boolean isReadyForRemoteTask;
+        boolean isWakeupRequired;
+        synchronized (mLock) {
+            isReadyForRemoteTask = mIsReadyForRemoteTask;
+            isWakeupRequired = mIsWakeupRequired;
+            if (mNotifyApPowerStateRetryCount == NOTIFY_AP_STATE_MAX_RETRY) {
+                return;
+            }
+        }
+        if (!mRemoteAccessHal.notifyApStateChange(isReadyForRemoteTask, isWakeupRequired)) {
+            Slogf.e(TAG, "Cannot notify AP state change, waiting for "
+                    + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
+            mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
+        }
+    }
+
     private void notifyShutdownStarting() {
         List<ICarRemoteAccessCallback> callbacks = new ArrayList<>();
         synchronized (mLock) {
@@ -1010,6 +1042,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private static final int MSG_UNBIND_SERVICE_AFTER_REGISTRATION = 1;
         private static final int MSG_WRAP_UP_REMOTE_ACCESS_SERVICE = 2;
         private static final int MSG_NOTIFY_SHUTDOWN_STARTING = 3;
+        private static final int MSG_NOTIFY_AP_STATE_CHANGE = 4;
 
         private final WeakReference<CarRemoteAccessService> mService;
 
@@ -1034,6 +1067,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             sendMessageDelayed(msg, delayMs);
         }
 
+        private void postNotifyApStateChange(long delayMs) {
+            removeMessages(MSG_NOTIFY_AP_STATE_CHANGE);
+            Message msg = obtainMessage(MSG_NOTIFY_AP_STATE_CHANGE);
+            sendMessageDelayed(msg, delayMs);
+        }
+
         private void cancelUnbindServiceAfterRegistration(
                 RemoteTaskClientServiceInfo serviceInfo) {
             removeMessages(MSG_UNBIND_SERVICE_AFTER_REGISTRATION, serviceInfo);
@@ -1049,6 +1088,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
         private void cancelWrapUpRemoteAccessService() {
             removeMessages(MSG_WRAP_UP_REMOTE_ACCESS_SERVICE);
+        }
+
+        private void cancelNotifyApStateChange() {
+            removeMessages(MSG_NOTIFY_AP_STATE_CHANGE);
         }
 
         private void cancelAll() {
@@ -1073,6 +1116,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     break;
                 case MSG_NOTIFY_SHUTDOWN_STARTING:
                     service.notifyShutdownStarting();
+                    break;
+                case MSG_NOTIFY_AP_STATE_CHANGE:
+                    service.notifyApStateChange();
                     break;
                 default:
                     Slogf.w(TAG, "Unknown(%d) message", msg.what);

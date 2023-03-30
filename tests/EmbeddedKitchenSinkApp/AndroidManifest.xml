@@ -416,7 +416,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".remoteaccess.RemoteTaskClientService"
+        <service android:name=".remoteaccess.KitchenSinkRemoteTaskService"
                  android:directBootAware="true"
                  android:exported="true">
             <intent-filter>
