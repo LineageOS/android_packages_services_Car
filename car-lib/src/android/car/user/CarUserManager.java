@@ -722,21 +722,18 @@ public final class CarUserManager extends CarManagerBase {
      * {@code CarProperties.number_pre_created_guests} and (@code
      * CarProperties.number_pre_created_users}.
      *
+     * @deprecated Pre-created users are no longer supported.
+     *             This method is no-op and will be removed soon.
+     *
      * @hide
      */
+    @Deprecated
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @AddedInOrBefore(majorVersion = 33)
     public void updatePreCreatedUsers() {
-        int uid = myUid();
-        EventLogHelper.writeCarUserManagerPreCreateUserReq(uid);
-        try {
-            mService.updatePreCreatedUsers();
-        } catch (SecurityException e) {
-            throw e;
-        } catch (RemoteException | RuntimeException e) {
-            handleExceptionFromCarService(e, null);
-        }
+        Log.w(TAG, "updatePreCreatedUsers(): This method should not be called."
+                + " Pre-created users are no longer supported.");
     }
 
 
