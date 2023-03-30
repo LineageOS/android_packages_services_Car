@@ -44,6 +44,9 @@ import java.util.List;
  * underlying IVehicle service is in.
  */
 public abstract class VehicleStub {
+    private static final int SYSTEM_ERROR_CODE_MASK = 0Xffff;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
+
     /**
      * SubscriptionClient represents a client that could subscribe/unsubscribe to properties.
      */
@@ -382,20 +385,27 @@ public abstract class VehicleStub {
     public void cancelRequests(List<Integer> requestIds) {}
 
     protected static int convertHalToCarPropertyManagerError(int errorCode) {
-        switch (errorCode) {
+        int systemErrorCode = errorCode & SYSTEM_ERROR_CODE_MASK;
+        int vendorErrorCode = errorCode >>> VENDOR_ERROR_CODE_SHIFT;
+        int carPropMgrErrorCode = 0;
+        switch (systemErrorCode) {
             case StatusCode.OK:
                 return STATUS_OK;
-            case StatusCode.NOT_AVAILABLE:
-            case StatusCode.NOT_AVAILABLE_DISABLED:
-            case StatusCode.NOT_AVAILABLE_SPEED_LOW:
-            case StatusCode.NOT_AVAILABLE_SPEED_HIGH:
-            case StatusCode.NOT_AVAILABLE_POOR_VISIBILITY:
+            case StatusCode.NOT_AVAILABLE: // Fallthrough
+            case StatusCode.NOT_AVAILABLE_DISABLED: // Fallthrough
+            case StatusCode.NOT_AVAILABLE_SPEED_LOW: // Fallthrough
+            case StatusCode.NOT_AVAILABLE_SPEED_HIGH: // Fallthrough
+            case StatusCode.NOT_AVAILABLE_POOR_VISIBILITY: // Fallthrough
             case StatusCode.NOT_AVAILABLE_SAFETY:
-                return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+                carPropMgrErrorCode = CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+                break;
             case StatusCode.TRY_AGAIN:
-                return STATUS_TRY_AGAIN;
+                carPropMgrErrorCode = STATUS_TRY_AGAIN;
+                break;
             default:
-                return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
+                carPropMgrErrorCode = CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
+                break;
         }
+        return carPropMgrErrorCode | (vendorErrorCode << VENDOR_ERROR_CODE_SHIFT);
     }
 }

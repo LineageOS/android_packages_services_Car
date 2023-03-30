@@ -16,7 +16,10 @@
 
 package com.android.car.audio;
 
+import static android.car.PlatformVersion.VERSION_CODES.TIRAMISU_3;
+import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -27,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.car.Car;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.media.AudioAttributes;
@@ -48,6 +52,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
     private static final String TAG = CoreAudioVolumeGroupTest.class.getSimpleName();
 
     private static final HashSet<String> OEM_TAG_STRING_SET = new HashSet<>();
+
+    private static final int ZONE_CONFIG_ID = 0;
 
     private static final AudioAttributes MUSIC_ATTRIBUTES = new AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_MEDIA)
@@ -135,8 +141,9 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(CoreAudioHelper.class);
-        session.spyStatic(AudioManagerHelper.class);
+        session.spyStatic(CoreAudioHelper.class)
+                .spyStatic(AudioManagerHelper.class)
+                .spyStatic(Car.class);
     }
     void setupMock() {
         doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID).when(() ->
@@ -178,6 +185,8 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
                         CoreAudioRoutingUtils.OEM_ATTRIBUTES));
         when(mMockAudioManager.getMaxVolumeIndexForAttributes(OEM_ATTRIBUTES))
                 .thenReturn(OEM_MAX_INDEX);
+
+        mockCarGetPlatformVersion(UPSIDE_DOWN_CAKE_0);
     }
 
     @Before
@@ -190,7 +199,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         musicMap.put(MUSIC_DEVICE_ADDRESS, mOemInfoMock);
         mMusicCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, MUSIC_CONTEXT,
                 mSettingsMock, musicContextToAddress, musicMap,
-                PRIMARY_AUDIO_ZONE, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, MUSIC_CAR_GROUP_ID, MUSIC_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
 
         SparseArray<String> navContextToAddress = new SparseArray<>();
@@ -199,7 +208,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         navMap.put(NAV_DEVICE_ADDRESS, mNavInfoMock);
         mNavCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, NAV_CONTEXT,
             mSettingsMock, navContextToAddress, navMap,
-            PRIMARY_AUDIO_ZONE, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
+            PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, NAV_CAR_GROUP_ID, NAV_GROUP_NAME,
             /* useCarVolumeGroupMute= */ false);
 
         SparseArray<String> oemContextToAddress = new SparseArray<>();
@@ -208,7 +217,7 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
         oemMap.put(OEM_DEVICE_ADDRESS, mOemInfoMock);
         mOemCoreAudioVolumeGroup = new CoreAudioVolumeGroup(mMockAudioManager, OEM_CONTEXT,
                 mSettingsMock, oemContextToAddress, oemMap,
-                PRIMARY_AUDIO_ZONE, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
+                PRIMARY_AUDIO_ZONE, ZONE_CONFIG_ID, OEM_CAR_GROUP_ID, OEM_GROUP_NAME,
                 /* useCarVolumeGroupMute= */ false);
     }
 
@@ -264,6 +273,15 @@ public final class CoreAudioVolumeGroupTest  extends AbstractExtendedMockitoTest
 
         verify(mMockAudioManager).setVolumeIndexForAttributes(eq(MUSIC_ATTRIBUTES), eq(index),
                 anyInt());
+    }
+
+    @Test
+    public void getAmLastAudibleIndex_witVersionLessThanU() {
+        mockCarGetPlatformVersion(TIRAMISU_3);
+
+        expectWithMessage("Initial am gain index when version is less than U")
+                .that(mMusicCoreAudioVolumeGroup.getAmLastAudibleIndex())
+                .isEqualTo(0);
     }
 
     @Test

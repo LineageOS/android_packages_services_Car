@@ -65,7 +65,7 @@
                 <zoneConfig  name="secondary zone config 1" isDefault="true">
                     <volumeGroups>
                         <group>
-                            <device address="secondary_zone_bus_1">
+                            <device address="secondary_zone_bus_100">
                                 <context context="music"/>
                                 <context context="navigation"/>
                                 <context context="voice_command"/>
@@ -85,15 +85,19 @@
                 <zoneConfig  name="secondary zone config 2">
                     <volumeGroups>
                         <group>
-                            <device address="secondary_zone_bus_2">
+                            <device address="secondary_zone_bus_200">
                                 <context context="music"/>
                                 <context context="navigation"/>
                                 <context context="voice_command"/>
                                 <context context="call_ring"/>
                                 <context context="call"/>
+                                <context context="notification"/>
+                            </device>
+                        </group>
+                        <group>
+                            <device address="secondary_zone_bus_201">
                                 <context context="alarm"/>
                                 <context context="system_sound"/>
-                                <context context="notification"/>
                                 <context context="emergency"/>
                                 <context context="safety"/>
                                 <context context="vehicle_status"/>

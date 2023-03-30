@@ -29,5 +29,7 @@
         style="@style/AddFavoriteButtonStyle"
         android:gravity="center"
         android:paddingHorizontal="80dp"
-        android:layout_gravity="center_horizontal|bottom"/>
+        android:layout_gravity="center_horizontal|bottom"
+        android:clickable="false"
+        android:focusable="false"/>
 </FrameLayout>

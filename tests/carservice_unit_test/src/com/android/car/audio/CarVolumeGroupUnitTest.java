@@ -16,6 +16,10 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_CALL_ASSISTANT;
@@ -62,6 +66,7 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int ZONE_ID = 0;
+    private static final int CONFIG_ID = 1;
     private static final int GROUP_ID = 0;
     private static final int STEP_VALUE = 2;
     private static final int MIN_GAIN = 3;
@@ -77,6 +82,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final String MEDIA_DEVICE_ADDRESS = "music";
     private static final String NAVIGATION_DEVICE_ADDRESS = "navigation";
     private static final String OTHER_ADDRESS = "other_address";
+    private static final int EVENT_TYPE_NONE = 0;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -166,28 +172,28 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void setMute_withMutedState_storesValueToSetting() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, CONFIG_ID, GROUP_ID)
                 .setMuteForUser10(false).setIsPersistVolumeGroupEnabled(true).build();
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, true);
         carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
 
         carVolumeGroup.setMute(true);
 
-        verify(settings)
-                .storeVolumeGroupMuteForUser(TEST_USER_10, 0, 0, true);
+        verify(settings).storeVolumeGroupMuteForUser(TEST_USER_10, ZONE_ID, CONFIG_ID, GROUP_ID,
+                /* isMuted= */ true);
     }
 
     @Test
     public void setMute_withUnMutedState_storesValueToSetting() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, CONFIG_ID, GROUP_ID)
                 .setMuteForUser10(false).setIsPersistVolumeGroupEnabled(true).build();
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, true);
         carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
 
         carVolumeGroup.setMute(false);
 
-        verify(settings)
-                .storeVolumeGroupMuteForUser(TEST_USER_10, 0, 0, false);
+        verify(settings).storeVolumeGroupMuteForUser(TEST_USER_10, ZONE_ID, CONFIG_ID, GROUP_ID,
+                /* isMuted= */ false);
     }
 
     @Test
@@ -279,26 +285,27 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForUser() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, CONFIG_ID, GROUP_ID)
                 .setGainIndexForUser(TEST_USER_11).build();
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, false);
         carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_11);
 
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
 
-        verify(settings).storeVolumeGainIndexForUser(TEST_USER_11, 0, 0, MIN_GAIN);
+        verify(settings).storeVolumeGainIndexForUser(TEST_USER_11, ZONE_ID, CONFIG_ID, GROUP_ID,
+                MIN_GAIN);
     }
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForDefaultUser() {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, CONFIG_ID, GROUP_ID)
                 .setGainIndexForUser(UserHandle.USER_CURRENT).build();
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, false);
 
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
 
-        verify(settings)
-                .storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, 0, 0, MIN_GAIN);
+        verify(settings).storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID, CONFIG_ID,
+                GROUP_ID, MIN_GAIN);
     }
 
     @Test
@@ -667,21 +674,19 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     public void onAudioGainChanged_withOverLimit_thenEndsAndRestoresVolume() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
-
         List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
-
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
         musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with over limit")
+                .that(carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Over limit gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(DEFAULT_GAIN_INDEX);
-
         expectWithMessage("Attenuated state after set limited")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after set limited")
@@ -690,10 +695,13 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(carVolumeGroup.isOverLimit()).isTrue();
         expectWithMessage("BLocked state after set limited")
                 .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Mute state after set limited")
+                .that(carVolumeGroup.isMuted()).isFalse();
 
         List<Integer> noReasons = new ArrayList<>(0);
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with over limit")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Attenuated state after reset limited")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset limited")
@@ -702,7 +710,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(carVolumeGroup.isOverLimit()).isFalse();
         expectWithMessage("BLocked state after reset limited")
                 .that(carVolumeGroup.isBlocked()).isFalse();
-
+        expectWithMessage("Mute state after reset limited")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Restored initial gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MAX_GAIN_INDEX);
@@ -712,42 +721,44 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     public void onAudioGainChanged_withUnderLimit_thenEndsWithVolumeUnchanged() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN_INDEX);
-
         List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
-
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
         musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with under limit")
+                .that(carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Under limit gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MIN_GAIN_INDEX);
-
         expectWithMessage("Attenuated state after set limited")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after set limited")
                 .that(carVolumeGroup.isLimited()).isTrue();
         expectWithMessage("Over limit state after set limited")
                 .that(carVolumeGroup.isOverLimit()).isFalse();
-        expectWithMessage("BLocked state after set limited")
+        expectWithMessage("Blocked state after set limited")
                 .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Mute state after set limited")
+                .that(carVolumeGroup.isMuted()).isFalse();
 
         List<Integer> noReasons = new ArrayList<>(0);
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with under limit")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Attenuated state after reset limited")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset limited")
                 .that(carVolumeGroup.isLimited()).isFalse();
         expectWithMessage("Over limit state after reset limited")
                 .that(carVolumeGroup.isOverLimit()).isFalse();
-        expectWithMessage("BLocked state after reset limited")
+        expectWithMessage("Blocked state after reset limited")
                 .that(carVolumeGroup.isBlocked()).isFalse();
-
+        expectWithMessage("Mute state after reset limited")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Unchanged gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MIN_GAIN_INDEX);
@@ -757,33 +768,34 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     public void onAudioGainChanged_withBlockedGain_thenEndsAndRestoresVolume() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
-
-        List<Integer> blockReasons = List.of(Reasons.TCU_MUTE);
-
+        List<Integer> blockReasons = List.of(Reasons.FORCED_MASTER_MUTE);
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
         musicGain.volumeIndex = MIN_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(blockReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with blocked")
+                .that(carVolumeGroup.onAudioGainChanged(blockReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
         expectWithMessage("Attenuated state after set blocked")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after set blocked")
                 .that(carVolumeGroup.isLimited()).isFalse();
         expectWithMessage("Over limit state after set blocked")
                 .that(carVolumeGroup.isOverLimit()).isFalse();
-        expectWithMessage("BLocked state after set blocked")
+        expectWithMessage("Blocked state after set blocked")
                 .that(carVolumeGroup.isBlocked()).isTrue();
-
+        expectWithMessage("Mute state after set blocked")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Blocked gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(MIN_GAIN_INDEX);
 
         List<Integer> noReasons = new ArrayList<>(0);
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with blocked")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
         expectWithMessage("Attenuated state after reset blocked")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset blocked")
@@ -792,7 +804,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(carVolumeGroup.isOverLimit()).isFalse();
         expectWithMessage("BLocked state after reset blocked")
                 .that(carVolumeGroup.isBlocked()).isFalse();
-
+        expectWithMessage("Mute state after reset blocked")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Restored initial gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(DEFAULT_GAIN_INDEX);
@@ -803,17 +816,16 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
         int attenuatedIndex = DEFAULT_GAIN_INDEX - 1;
-
         List<Integer> attenuateReasons = List.of(Reasons.ADAS_DUCKING);
-
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
         musicGain.volumeIndex = attenuatedIndex;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(attenuateReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with attenuated gain")
+                .that(carVolumeGroup.onAudioGainChanged(attenuateReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Attenuated state after set attenuated")
                 .that(carVolumeGroup.isAttenuated()).isTrue();
         expectWithMessage("Limit state after set attenuated")
@@ -822,14 +834,16 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(carVolumeGroup.isOverLimit()).isFalse();
         expectWithMessage("BLocked state after set attenuated")
                 .that(carVolumeGroup.isBlocked()).isFalse();
-
+        expectWithMessage("Mute state after set attenuated")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Attenuated gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(attenuatedIndex);
 
         List<Integer> noReasons = new ArrayList<>(0);
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
+        expectWithMessage("Audio gain changed with attenuated gain")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
         expectWithMessage("Attenuated state after reset attenuated")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset attenuated")
@@ -838,16 +852,91 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .that(carVolumeGroup.isOverLimit()).isFalse();
         expectWithMessage("BLocked state after reset attenuated")
                 .that(carVolumeGroup.isBlocked()).isFalse();
-
+        expectWithMessage("Mute state after reset attenuated")
+                .that(carVolumeGroup.isMuted()).isFalse();
         expectWithMessage("Restored initial gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(DEFAULT_GAIN_INDEX);
     }
 
     @Test
-    public void onAudioGainChanged_withBlockingLimitAndAttenuation() {
+    public void onAudioGainChanged_withMutedGain_thenEndsAndRestoresVolume() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
+        expectWithMessage("Audio gain changed with muted")
+                .that(carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Attenuated state after set muted")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limit state after set muted")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Over limit state after set muted")
+                .that(carVolumeGroup.isOverLimit()).isFalse();
+        expectWithMessage("Blocked state after set muted")
+                .that(carVolumeGroup.isBlocked()).isTrue();
+        expectWithMessage("Mute state after set muted")
+                .that(carVolumeGroup.isMuted()).isTrue();
+        expectWithMessage("Blocked gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_GAIN_INDEX);
+
+        List<Integer> noReasons = new ArrayList<>(0);
+        expectWithMessage("Audio gain changed with blocked")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Attenuated state after reset muted")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limit state after reset muted")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Over limit state after reset muted")
+                .that(carVolumeGroup.isOverLimit()).isFalse();
+        expectWithMessage("BLocked state after reset muted")
+                .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Mute state after reset muted")
+                .that(carVolumeGroup.isMuted()).isFalse();
+        expectWithMessage("Restored initial gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(DEFAULT_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioGainChanged_withVolumeFeedback() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        List<Integer> volFeedbackReasons = List.of(Reasons.EXTERNAL_AMP_VOL_FEEDBACK);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX - 1;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        expectWithMessage("Audio gain changed with external amp vol feedback")
+                .that(carVolumeGroup.onAudioGainChanged(volFeedbackReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
+        expectWithMessage("Updated gain index")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(musicGain.volumeIndex);
+        expectWithMessage("Attenuated state after external amp vol feedback")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limit state after external amp vol feedback")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Over limit state after external amp vol feedback")
+                .that(carVolumeGroup.isOverLimit()).isFalse();
+        expectWithMessage("Blocked state after external amp vol feedback")
+                .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Mute state after external amp vol feedback")
+                .that(carVolumeGroup.isMuted()).isFalse();
+    }
+
+    @Test
+    public void onAudioGainChanged_withBlockingLimitMuteAndAttenuation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         List<Integer> allReasons =
                 List.of(
                         -1,
@@ -867,42 +956,46 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain);
-
-        expectWithMessage("Attenuated state while blocked, limited, and attenuated")
+        expectWithMessage("Audio gain changed with blocked, limited, muted and attenuated")
+                .that(carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_BLOCKED_CHANGED
+                        | EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Attenuated state while blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isAttenuated()).isTrue();
-        expectWithMessage("Limit state while blocked, limited, and attenuated")
+        expectWithMessage("Limit state while blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isLimited()).isTrue();
-        expectWithMessage("Blocked state while blocked, limited, and attenuated")
+        expectWithMessage("Blocked state while blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isBlocked()).isTrue();
+        expectWithMessage("Mute state while blocked, limited, muted and attenuated")
+                .that(carVolumeGroup.isMuted()).isTrue();
     }
 
     @Test
-    public void onAudioGainChanged_resettingBlockingLimitAndAttenuation() {
+    public void onAudioGainChanged_resettingBlockingLimitMuteAndAttenuation() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
-
         List<Integer> noReasons = new ArrayList<>(0);
-
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
         musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
 
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
-        expectWithMessage("Attenuated state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Audio gain changed with no reasons")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_NONE);
+        expectWithMessage("Attenuated state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
-        expectWithMessage("Limit state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Limit state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isLimited()).isFalse();
-        expectWithMessage("Blocked state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Blocked state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Muted state after reset of blocked, limited, muted and attenuated")
+                .that(carVolumeGroup.isMuted()).isFalse();
     }
 
     @Test
-    public void onAudioGainChanged_setResettingBlockingLimitAndAttenuation() {
+    public void onAudioGainChanged_setResettingBlockingLimitMuteAndAttenuation() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
-
         List<Integer> allReasons =
                 List.of(
                         Reasons.FORCED_MASTER_MUTE,
@@ -918,25 +1011,27 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
         CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
         carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain);
-
-
         List<Integer> noReasons = new ArrayList<>(0);
 
-        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
-
-        expectWithMessage("Attenuated state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Audio gain changed with reset of blocked, limited, muted and attenuated")
+                .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_BLOCKED_CHANGED
+                        | EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Attenuated state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
-        expectWithMessage("Limit state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Limit state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isLimited()).isFalse();
-        expectWithMessage("Blocked state after reset of blocked, limited, and attenuated")
+        expectWithMessage("Blocked state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isBlocked()).isFalse();
+        expectWithMessage("Muted state after reset of blocked, limited, muted and attenuated")
+                .that(carVolumeGroup.isMuted()).isFalse();
     }
 
     @Test
     public void onAudioGainChanged_validGain() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
-        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        List<Integer> reasons = List.of(Reasons.FORCED_MASTER_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
         musicGain.zoneId = ZONE_ID;
         musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
@@ -963,7 +1058,6 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     @Test
     public void onAudioGainChanged_invalidGain() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
-
         List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
         AudioGainConfigInfo unknownGain = new AudioGainConfigInfo();
         unknownGain.zoneId = ZONE_ID;
@@ -971,8 +1065,9 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         unknownGain.volumeIndex = 666;
         CarAudioGainConfigInfo unknownCarGain = new CarAudioGainConfigInfo(unknownGain);
 
-        carVolumeGroup.onAudioGainChanged(reasons, unknownCarGain);
-
+        expectWithMessage("Audio gain changed with invalid gain")
+                .that(carVolumeGroup.onAudioGainChanged(reasons, unknownCarGain))
+                .isEqualTo(EVENT_TYPE_NONE);
         verify(mMediaDeviceInfo, never()).setCurrentGain(anyInt());
         verify(mNavigationDeviceInfo, never()).setCurrentGain(anyInt());
     }
@@ -1048,7 +1143,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private CarVolumeGroup getCarVolumeGroupWithNavigationBound(CarAudioSettings settings,
             boolean useCarVolumeGroupMute) {
         CarVolumeGroupFactory factory =  new CarVolumeGroupFactory(mAudioManagerMock, settings,
-                TEST_CAR_AUDIO_CONTEXT, /* zoneId= */ 0, /* id= */ 0, /* name= */ "0",
+                TEST_CAR_AUDIO_CONTEXT, ZONE_ID, CONFIG_ID, GROUP_ID, /* name= */ "0",
                 useCarVolumeGroupMute);
         factory.setDeviceInfoForContext(TEST_NAVIGATION_CONTEXT_ID, mNavigationDeviceInfo);
         return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
@@ -1056,7 +1151,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     CarVolumeGroup getVolumeGroupWithMuteAndNavBound(boolean isMuted, boolean persistMute,
             boolean useCarVolumeGroupMute) {
-        CarAudioSettings settings = new SettingsBuilder(0, 0)
+        CarAudioSettings settings = new SettingsBuilder(ZONE_ID, CONFIG_ID, GROUP_ID)
                 .setMuteForUser10(isMuted)
                 .setIsPersistVolumeGroupEnabled(persistMute)
                 .build();
@@ -1079,19 +1174,21 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     CarVolumeGroupFactory getFactory() {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
+                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
     }
 
     private static final class SettingsBuilder {
         private final SparseIntArray mStoredGainIndexes = new SparseIntArray();
         private final SparseBooleanArray mStoreMuteStates = new SparseBooleanArray();
         private final int mZoneId;
+        private final int mConfigId;
         private final int mGroupId;
 
         private boolean mPersistMute;
 
-        SettingsBuilder(int zoneId, int groupId) {
+        SettingsBuilder(int zoneId, int configId, int groupId) {
             mZoneId = zoneId;
+            mConfigId = configId;
             mGroupId = groupId;
         }
 
@@ -1115,14 +1212,15 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
             for (int storeIndex = 0; storeIndex < mStoredGainIndexes.size(); storeIndex++) {
                 int gainUserId = mStoredGainIndexes.keyAt(storeIndex);
                 when(settingsMock
-                        .getStoredVolumeGainIndexForUser(gainUserId, mZoneId,
+                        .getStoredVolumeGainIndexForUser(gainUserId, mZoneId, mConfigId,
                                 mGroupId)).thenReturn(
                         mStoredGainIndexes.get(gainUserId, DEFAULT_GAIN));
             }
             for (int muteIndex = 0; muteIndex < mStoreMuteStates.size(); muteIndex++) {
                 int muteUserId = mStoreMuteStates.keyAt(muteIndex);
-                when(settingsMock.getVolumeGroupMuteForUser(muteUserId, mZoneId, mGroupId))
-                        .thenReturn(mStoreMuteStates.get(muteUserId, false));
+                when(settingsMock.getVolumeGroupMuteForUser(muteUserId, mZoneId, mConfigId,
+                        mGroupId)).thenReturn(mStoreMuteStates.get(muteUserId,
+                        /* valueIfKeyNotFound= */ false));
                 when(settingsMock.isPersistVolumeGroupMuteEnabled(muteUserId))
                         .thenReturn(mPersistMute);
             }

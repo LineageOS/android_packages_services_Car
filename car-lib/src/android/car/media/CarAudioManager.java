@@ -15,6 +15,9 @@
  */
 package android.car.media;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -42,6 +45,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.internal.annotations.GuardedBy;
 
@@ -120,7 +124,7 @@ public final class CarAudioManager extends CarManagerBase {
      * <p>If enabled, car audio focus, car audio volume, and ducking control behaviour can change
      * as it can be OEM dependent.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int AUDIO_FEATURE_OEM_AUDIO_SERVICE = 3;
 
@@ -403,6 +407,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @TestApi
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public boolean isDynamicRoutingEnabled() {
         return isAudioFeatureEnabled(AUDIO_FEATURE_DYNAMIC_ROUTING);
@@ -621,6 +626,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public @NonNull String[] getExternalSources() {
         try {
@@ -655,6 +661,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public CarAudioPatchHandle createAudioPatch(String sourceAddress, @AttributeUsage int usage,
             int gainInMillibels) {
@@ -680,6 +687,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public void releaseAudioPatch(CarAudioPatchHandle patch) {
         try {
@@ -1173,7 +1181,7 @@ public final class CarAudioManager extends CarManagerBase {
     public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull MediaAudioRequestStatusCallback callback) {
-        Objects.requireNonNull(executor, "Occupant zone info can not be null");
+        Objects.requireNonNull(info, "Occupant zone info can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Media audio request status callback can not be null");
 
@@ -2012,6 +2020,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param groupId Id of the volume group that volume is changed
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @AddedInOrBefore(majorVersion = 33)
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {}
 
@@ -2027,6 +2036,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param zoneId Id of the audio zone that global mute state change happens
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @AddedInOrBefore(majorVersion = 33)
         public void onMasterMuteChanged(int zoneId, int flags) {}
 
@@ -2052,6 +2062,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param groupId Id of the volume group that volume is changed
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @AddedInOrBefore(majorVersion = 33)
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) {}
     }

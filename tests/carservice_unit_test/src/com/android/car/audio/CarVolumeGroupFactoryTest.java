@@ -38,6 +38,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public final class CarVolumeGroupFactoryTest {
     private static final int ZONE_ID = 0;
+    private static final int CONFIG_ID = 1;
     private static final int GROUP_ID = 0;
     private static final int STEP_VALUE = 2;
     private static final int MIN_GAIN = 3;
@@ -243,7 +244,7 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryBuild_withNoStoredGain_usesDefaultGain() {
         mFactory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
-                GROUP_ID)).thenReturn(-1);
+                CONFIG_ID, GROUP_ID)).thenReturn(-1);
 
 
         CarVolumeGroup carVolumeGroup = mFactory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
@@ -256,7 +257,7 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryBuild_withTooLargeStoredGain_usesDefaultGain() {
         mFactory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
-                GROUP_ID)).thenReturn(MAX_GAIN_INDEX + 1);
+                CONFIG_ID, GROUP_ID)).thenReturn(MAX_GAIN_INDEX + 1);
 
         CarVolumeGroup carVolumeGroup = mFactory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
 
@@ -268,7 +269,7 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryBuild_withTooSmallStoredGain_usesDefaultGain() {
         mFactory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
-                GROUP_ID)).thenReturn(MIN_GAIN_INDEX - 1);
+                CONFIG_ID, GROUP_ID)).thenReturn(MIN_GAIN_INDEX - 1);
 
         CarVolumeGroup carVolumeGroup = mFactory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
 
@@ -280,7 +281,7 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryBuild_withValidStoredGain_usesStoredGain() {
         mFactory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         when(mSettingsMock.getStoredVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID,
-                GROUP_ID)).thenReturn(MAX_GAIN_INDEX - 1);
+                CONFIG_ID, GROUP_ID)).thenReturn(MAX_GAIN_INDEX - 1);
 
         CarVolumeGroup carVolumeGroup = mFactory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
 
@@ -292,9 +293,8 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryConstructor_withNullCarAudioSettings_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarVolumeGroupFactory(/* audioManager= */ null,
-                        /* carAudioSettings= */ null,
-                        TEST_CAR_AUDIO_CONTEXT, ZONE_ID, GROUP_ID, GROUP_NAME,
-                        /* useCarVolumeGroupMute= */ true));
+                        /* carAudioSettings= */ null, TEST_CAR_AUDIO_CONTEXT, ZONE_ID,
+                        CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true));
 
         expect.withMessage("Constructor null car audio settings exception")
                 .that(thrown).hasMessageThat()
@@ -305,8 +305,8 @@ public final class CarVolumeGroupFactoryTest {
     public void factoryConstructor_withNullCarAudioContext_fails() {
         NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> new CarVolumeGroupFactory(/* audioManager= */ null, mSettingsMock,
-                        /* carAudioContext= */ null,
-                        ZONE_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true));
+                        /* carAudioContext= */ null, ZONE_ID, CONFIG_ID, GROUP_ID,
+                        GROUP_NAME, /* useCarVolumeGroupMute= */ true));
 
         expect.withMessage("Constructor null car audio context exception")
                 .that(thrown).hasMessageThat()
@@ -315,7 +315,7 @@ public final class CarVolumeGroupFactoryTest {
 
     CarVolumeGroupFactory getFactory() {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
+                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
     }
 
     private static final class InfoBuilder {

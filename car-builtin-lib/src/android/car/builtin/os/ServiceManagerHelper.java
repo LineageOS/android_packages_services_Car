@@ -18,9 +18,11 @@ package android.car.builtin.os;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.ServiceManager;
 
@@ -65,6 +67,7 @@ public final class ServiceManagerHelper {
 
     /** Check {@link ServiceManager#getDeclaredInstances(String)} */
     @Nullable
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static String[] getDeclaredInstances(@NonNull String iface) {
         return ServiceManager.getDeclaredInstances(iface);

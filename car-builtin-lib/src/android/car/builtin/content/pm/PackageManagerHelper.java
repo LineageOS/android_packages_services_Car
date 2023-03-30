@@ -18,6 +18,7 @@ package android.car.builtin.content.pm;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -31,6 +32,7 @@ import android.content.pm.ComponentInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.RemoteException;
 import android.text.TextUtils;
 
@@ -185,6 +187,7 @@ public final class PackageManagerHelper {
     }
 
     /** Check PackageManagerInternal#getSystemUiServiceComponent(). */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static ComponentName getSystemUiServiceComponent(@NonNull Context context) {
@@ -198,6 +201,7 @@ public final class PackageManagerHelper {
     }
 
     /** Check {@link ActivityManager#forceStopPackageAsUser}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void forceStopPackageAsUser(@NonNull Context context, @NonNull String packageName,
             @UserIdInt int userId) {

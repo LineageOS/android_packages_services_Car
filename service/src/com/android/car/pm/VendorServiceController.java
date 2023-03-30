@@ -16,7 +16,6 @@
 
 package com.android.car.pm;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
@@ -27,13 +26,15 @@ import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
@@ -59,6 +60,7 @@ import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -95,6 +97,7 @@ final class VendorServiceController implements UserLifecycleListener {
     private final UserManager mUserManager;
     private final Handler mHandler;
     private CarUserService mCarUserService;
+    private CarPowerManagementService mPowerManagementService;
 
     private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
         @Override
@@ -135,6 +138,20 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     };
 
+    private final ICarPowerStateListener mCarPowerStateListener =
+            new ICarPowerStateListener.Stub() {
+                @Override
+                public void onStateChanged(int state, long expirationTimeMs) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Power state change received. State = %d", state);
+                    }
+                    if (state == CarPowerManager.STATE_HIBERNATION_EXIT
+                            || state == CarPowerManager.STATE_SUSPEND_EXIT) {
+                        onPowerResumed();
+                    }
+                }
+            };
+
     VendorServiceController(Context context, Looper looper) {
         mContext = context;
         mUserManager = context.getSystemService(UserManager.class);
@@ -146,6 +163,7 @@ final class VendorServiceController implements UserLifecycleListener {
             return;  // Nothing to do
         }
 
+        mPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
         mCarUserService = CarLocalServices.getService(CarUserService.class);
         UserLifecycleEventFilter userLifecycleEventFilter =
                 new UserLifecycleEventFilter.Builder()
@@ -157,6 +175,7 @@ final class VendorServiceController implements UserLifecycleListener {
         mCarUserService.addUserLifecycleListener(userLifecycleEventFilter, this);
 
         startOrBindServicesIfNeeded();
+        mPowerManagementService.registerListener(mCarPowerStateListener);
         registerPackageChangeReceiver();
     }
 
@@ -170,6 +189,7 @@ final class VendorServiceController implements UserLifecycleListener {
             mCarUserService.removeUserLifecycleListener(this);
         }
         unregisterPackageChangeReceiver();
+        mPowerManagementService.unregisterListener(mCarPowerStateListener);
         for (ConnectionKey key : mConnections.keySet()) {
             stopOrUnbindService(key.mVendorServiceInfo, key.mUserHandle);
         }
@@ -226,6 +246,25 @@ final class VendorServiceController implements UserLifecycleListener {
             default:
                 // Shouldn't happen as listener was registered with filter
                 Slogf.wtf(TAG, "Invalid event: %s", event);
+        }
+    }
+
+    /** Handles power resume events, starting services with `trigger=resume`. */
+    private void onPowerResumed() {
+        if (DBG) {
+            Slogf.d(TAG, "onPowerResumed()");
+        }
+
+        int size = mVendorServiceInfos.size();
+        for (int i = 0; i < size; i++) {
+            VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
+            // RESUME events handle the system user only. Current or visible users are handled by
+            // user lifecycle events (unlock, visible, etc).
+            boolean isForSystemOrAllUsers = serviceInfo.isSystemUserService();
+            boolean isResumeTrigger = serviceInfo.shouldStartOnResume();
+            if (isForSystemOrAllUsers && isResumeTrigger) {
+                startOrBindService(serviceInfo, UserHandle.SYSTEM);
+            }
         }
     }
 
@@ -352,7 +391,7 @@ final class VendorServiceController implements UserLifecycleListener {
         // Start/bind service for system user.
         startOrBindServicesForUser(UserHandle.SYSTEM, /* forPostUnlock= */ null);
 
-        if (!isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!isPlatformVersionAtLeastU()) {
             // `user=visible` is not supported before U. Just need to handle the current user.
             startOrBindServicesForUser(UserHandle.of(ActivityManager.getCurrentUser()),
                     /* forPostUnlock= */ null);
@@ -421,8 +460,7 @@ final class VendorServiceController implements UserLifecycleListener {
             // `user=visible` and `user=backgroundVisible` are not supported before U.
             // Log an error and ignore the service.
             if ((service.isVisibleUserService() || service.isBackgroundVisibleUserService())
-                    && !service.isAllUserService()
-                    && !isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+                    && !service.isAllUserService() && !isPlatformVersionAtLeastU()) {
                 Slogf.e(TAG, "user=visible and user=backgroundVisible are not supported in "
                         + "this platform version. %s is ignored. Check your config.xml file.",
                         service.toShortString());

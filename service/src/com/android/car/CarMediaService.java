@@ -17,7 +17,6 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID;
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.os.UserManagerHelper.getMaxRunningUsers;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
@@ -30,7 +29,7 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -615,6 +614,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarMediaService*");
         writer.increaseIndent();
+        writer.printf("DEBUG=%b\n", DEBUG);
+        writer.printf("mPlayOnBootConfig=%d\n", mPlayOnMediaSourceChangedConfig);
+        writer.printf("mPlayOnMediaSourceChangedConfig=%d\n", mPlayOnMediaSourceChangedConfig);
+        writer.printf("mDefaultIndependentPlaybackConfig=%b\n", mDefaultIndependentPlaybackConfig);
+        writer.println();
 
         boolean hasSharedPrefs = mSharedPrefs != null;
         synchronized (mLock) {
@@ -649,6 +653,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                             userMediaContext.mWasPlayingBeforeDisabled ? "active" : "inactive");
                 }
                 if (hasSharedPrefs) {
+                    dumpLastUpdateTime(writer, userId);
                     dumpLastMediaSources(writer, "Playback", MEDIA_SOURCE_MODE_PLAYBACK, userId);
                     dumpLastMediaSources(writer, "Browse", MEDIA_SOURCE_MODE_BROWSE, userId);
                     dumpPlaybackState(writer, userId);
@@ -673,6 +678,14 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         ComponentName componentName = getPrimaryMediaComponentsForUserLocked(userId)[mode];
         writer.printf("For user %d, current %s media component: %s\n", userId,  name,
                 (componentName == null ? "-" : componentName.flattenToString()));
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpLastUpdateTime(IndentingPrintWriter writer, @UserIdInt int userId) {
+        long lastUpdate = mSharedPrefs.getLong(getLastUpdateKey(userId), -1);
+        writer.printf("For user %d, shared preference last updated on %d / ", userId, lastUpdate);
+        TimeUtils.dumpTime(writer, lastUpdate);
+        writer.println();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -704,11 +717,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpSharedPrefs(IndentingPrintWriter writer) {
         Map<String, ?> allPrefs = mSharedPrefs.getAll();
-        long lastUpdate = mSharedPrefs.getLong(LAST_UPDATE_KEY, -1);
-        writer.printf("%d shared preferences (saved on directory %s; last update on %d / ",
-                allPrefs.size(), mContext.getDataDir(), lastUpdate);
-        TimeUtils.dumpTime(writer, lastUpdate);
-        writer.print(')');
+        writer.printf("%d shared preferences (saved on directory %s)",
+                allPrefs.size(), mContext.getDataDir());
         if (!Slogf.isLoggable(TAG, Log.VERBOSE) || allPrefs.isEmpty()) {
             writer.println();
             return;
@@ -1196,7 +1206,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         // events do not capture media app usage on AAOS because apps are hosted by a proxy such as
         // Media Center. Reporting a USER_INTERACTION event in setPrimaryMediaSource allows
         // attribution of non-foreground media app interactions to the app's package name
-        if (isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0) && componentName != null) {
+        if (isPlatformVersionAtLeastU() && componentName != null) {
             UsageStatsManagerHelper.reportUserInteraction(mUsageStatsManager,
                     componentName.getPackageName(), userId);
         }
@@ -1405,7 +1415,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 Slogf.d(TAG, "saveLastMediaSource(%s, %s, %d): no value for key %s",
                         componentName, modeName, userId, key);
             }
-            getSharedPrefsForWriting().putString(key, componentName).apply();
+            getSharedPrefsForWriting(userId).putString(key, componentName).apply();
         } else {
             Deque<String> componentNames = new ArrayDeque<>(getComponentNameList(serialized));
             componentNames.remove(componentName);
@@ -1415,7 +1425,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 Slogf.d(TAG, "saveLastMediaSource(%s, %s, %d): updating %s from %s to %s",
                         componentName, modeName, userId, key, serialized, newSerialized);
             }
-            getSharedPrefsForWriting().putString(key, newSerialized).apply();
+            getSharedPrefsForWriting(userId).putString(key, newSerialized).apply();
         }
     }
 
@@ -1471,7 +1481,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         if (DEBUG) {
             Slogf.d(TAG, "savePlaybackState() for user %d: %s = %d)", userId, key, state);
         }
-        getSharedPrefsForWriting().putInt(key, state).apply();
+        getSharedPrefsForWriting(userId).putInt(key, state).apply();
     }
 
     /**
@@ -1492,6 +1502,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private String getMediaSourceKey(int mode, @UserIdInt int userId) {
         return SOURCE_KEY + mode + SOURCE_KEY_SEPARATOR + userId;
+    }
+
+    private String getLastUpdateKey(@UserIdInt int userId) {
+        return LAST_UPDATE_KEY + userId;
     }
 
     /**
@@ -1540,8 +1554,14 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 if (!sharedPrefsInitialized()) {
                     return false;
                 }
-                return mSharedPrefs.getInt(getPlaybackStateKey(userId), PlaybackState.STATE_NONE)
-                        == PlaybackState.STATE_PLAYING;
+                int savedState =
+                        mSharedPrefs.getInt(getPlaybackStateKey(userId), PlaybackState.STATE_NONE);
+                if (DEBUG) {
+                    Slogf.d(TAG, "Getting saved playback state %d for user %d. Last saved on %d",
+                            savedState, userId,
+                            mSharedPrefs.getLong(getLastUpdateKey(userId), -1));
+                }
+                return savedState == PlaybackState.STATE_PLAYING;
             case AUTOPLAY_CONFIG_RETAIN_PREVIOUS:
                 int currentPlaybackState;
                 synchronized (mLock) {
@@ -1558,10 +1578,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     /**
      * Gets the editor used to update shared preferences.
      */
-    private SharedPreferences.Editor getSharedPrefsForWriting() {
+    private SharedPreferences.Editor getSharedPrefsForWriting(@UserIdInt int userId) {
         long now = System.currentTimeMillis();
-        Slogf.i(TAG, "Updating %s to %d", LAST_UPDATE_KEY, now);
-        return mSharedPrefs.edit().putLong(LAST_UPDATE_KEY, now);
+        String lastUpdateKey = getLastUpdateKey(userId);
+        Slogf.i(TAG, "Updating %s to %d", lastUpdateKey, now);
+        return mSharedPrefs.edit().putLong(lastUpdateKey, now);
     }
 
     @NonNull

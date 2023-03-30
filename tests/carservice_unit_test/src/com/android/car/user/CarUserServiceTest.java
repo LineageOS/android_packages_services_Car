@@ -29,8 +29,10 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelaye
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetVisibleUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserVisible;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsVisibleBackgroundUsersSupported;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
@@ -392,9 +394,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testOnUserStarting_afterUserVisible_occupantZoneAssignment() throws Exception {
         // Arrange.
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
-        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
-        mockUmIsUserVisible(mMockedUserManager, true);
+        mockUmGetVisibleUsers(mMockedUserManager, TEST_USER_ID);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(false);
 
         mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
@@ -429,9 +429,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testOnUserVisible_afterUserStarting_occupantZoneAssignment() throws Exception {
         // Arrange.
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
-        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
-        mockUmIsUserVisible(mMockedUserManager, false);
+        mockUmGetVisibleUsers(mMockedUserManager);
         when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
 
         mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
@@ -2341,7 +2339,25 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testStartUser_withInvalidDisplayId_startsUserInBackground() throws Exception {
+    public void testStartUser_onDefaultDisplay_notPassengerOnly()
+            throws Exception {
+        mockCurrentUser(mRegularUser);
+        expectRegularUserExists(mMockedUserHandleHelper, TEST_USER_ID);
+        mockAmStartUserInBackground(TEST_USER_ID, true);
+        mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported(mMockedUserManager, false);
+
+        UserStartRequest request =
+                new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
+                    .setDisplayId(Display.DEFAULT_DISPLAY)
+                    .build();
+        UserStartResponse result = mCarUserService.startUser(request);
+
+        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_DISPLAY_INVALID);
+        assertThat(result.isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStartUser_withoutDisplayId_startsUserInBackground() throws Exception {
         mockCurrentUser(mRegularUser);
         expectRegularUserExists(mMockedUserHandleHelper, TEST_USER_ID);
         mockAmStartUserInBackground(TEST_USER_ID, true);
@@ -2694,39 +2710,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         }));
     }
 
-    @Test
-    public void testInitBootUser_preCreateUser() throws Exception {
-        mockUserPreCreationStage(PRE_CREATION_STAGE_ON_SYSTEM_START);
-
-        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
-
-        service.initBootUser();
-        waitForHandlerThreadToFinish();
-
-        verify(mUserPreCreator).managePreCreatedUsers();
-    }
-
-    @Test
-    public void testInitBootUser_noPreCreateUser() throws Exception {
-        mCarUserService.initBootUser();
-        waitForHandlerThreadToFinish();
-
-        verify(mUserPreCreator, never()).managePreCreatedUsers();
-    }
-
-    @Test
-    public void testUpdatePreCreatedUser_success() throws Exception {
-        mCarUserService.updatePreCreatedUsers();
-        waitForHandlerThreadToFinish();
-
-        verify(mUserPreCreator).managePreCreatedUsers();
-    }
 
     @Test
     public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
-        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
@@ -2735,40 +2723,17 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_REPLACE_GUEST;
         }));
-        verify(mUserPreCreator).managePreCreatedUsers();
     }
 
     @Test
     public void testOnSuspend_notReplace() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
-        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter, never()).set(any());
-        verify(mUserPreCreator).managePreCreatedUsers();
-    }
-
-    @Test
-    public void testOnSuspend_preCreateUser() throws Exception {
-        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
-
-        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
-
-        service.onSuspend();
-        waitForHandlerThreadToFinish();
-
-        verify(mUserPreCreator).managePreCreatedUsers();
-    }
-
-    @Test
-    public void testOnSuspend_noPreCreateUser() throws Exception {
-        mCarUserService.onSuspend();
-        waitForHandlerThreadToFinish();
-
-        verify(mUserPreCreator, never()).managePreCreatedUsers();
     }
 
     @Test
@@ -2877,7 +2842,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testIsUserVisible_platformVersionAtLeastUDC() throws Exception {
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
-        mockIsUserVisible(true);
+        mockUmGetVisibleUsers(mMockedUserManager, mContextUserId);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
@@ -2887,7 +2852,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testIsUserVisible_platformVersionNotAtLeastUDC() throws Exception {
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
-        mockIsUserVisible(true);
+        mockUmGetVisibleUsers(mMockedUserManager, mContextUserId);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
@@ -2896,7 +2861,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible() throws Exception {
-        mockIsUserVisible(true);
+        mockUmGetVisibleUsers(mMockedUserManager, mContextUserId);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
@@ -2905,19 +2870,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testIsUserVisible_nope() throws Exception {
-        mockIsUserVisible(false);
+        mockUmGetVisibleUsers(mMockedUserManager);
 
         boolean visible = mCarUserService.isUserVisible(mContextUserId);
 
         assertWithMessage("isUserVisible(%s)", mContextUserId).that(visible).isFalse();
     }
 
-
-    private void mockUserPreCreationStage(int stage) {
-        when(mMockedResources
-                .getInteger(com.android.car.R.integer.config_userPreCreationStage))
-                        .thenReturn(stage);
-    }
 
     private void assertUserSwitchResult(UserSwitchResult result, int expectedStatus) {
         assertUserSwitchResult(result.getStatus(), expectedStatus);
@@ -2989,12 +2948,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     private UserStopResult getUserStopResult(AndroidFuture<UserStopResult> future, int userId) {
         return getResult(future, "stopping user %d", userId);
-    }
-
-    private void mockIsUserVisible(boolean isVisible) {
-        mockContextCreateContextAsUser(mMockContext, mMockUserContext, mContextUserId);
-        when(mMockUserContext.getSystemService(UserManager.class)).thenReturn(mMockedUserManager);
-        mockUmIsUserVisible(mMockedUserManager, isVisible);
     }
 
     private void initUserAndDisplay(@UserIdInt int userId, int displayId) throws Exception {

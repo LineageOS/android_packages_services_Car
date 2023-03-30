@@ -16,9 +16,12 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
+
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
 
@@ -30,6 +33,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioZoneConfigInfo;
+import android.car.media.CarVolumeGroupEvent;
 import android.car.media.CarVolumeGroupInfo;
 import android.car.test.AbstractExpectableTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
@@ -58,6 +62,10 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
     private static final String TEST_MUSIC_GROUP_NAME = "Music group name";
     private static final String TEST_NAV_GROUP_NAME = "Nav group name";
     private static final String TEST_VOICE_GROUP_NAME = "Voice group name";
+    private static final int TEST_ZONE_ID = 0;
+    private static final int TEST_MUSIC_GROUP_ID = 0;
+    private static final int TEST_NAV_GROUP_ID = 20;
+    private static final int TEST_VOICE_GROUP_ID = 30;
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
@@ -94,13 +102,28 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
                 CarAudioManager.PRIMARY_AUDIO_ZONE, TEST_ZONE_CONFIG_ID, /* isDefault= */ true);
 
         mMockMusicGroup = new VolumeGroupBuilder().setName(TEST_MUSIC_GROUP_NAME)
-                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS).build();
+                .addDeviceAddressAndContexts(TEST_MEDIA_CONTEXT, MUSIC_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_MUSIC_GROUP_ID).build();
 
         mMockNavGroup = new VolumeGroupBuilder().setName(TEST_NAV_GROUP_NAME)
-                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS).build();
+                .addDeviceAddressAndContexts(TEST_NAVIGATION_CONTEXT, NAV_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_NAV_GROUP_ID).build();
 
         mMockVoiceGroup = new VolumeGroupBuilder().setName(TEST_VOICE_GROUP_NAME)
-                .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, VOICE_ADDRESS).build();
+                .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT, VOICE_ADDRESS)
+                .setZoneId(TEST_ZONE_ID).setGroupId(TEST_VOICE_GROUP_ID).build();
+    }
+
+    @Test
+    public void getZoneId_fromBuilder() {
+        expectWithMessage("Builder zone id").that(mTestAudioZoneConfigBuilder.getZoneId())
+                .isEqualTo(CarAudioManager.PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    public void getZoneConfigId_fromBuilder() {
+        expectWithMessage("Builder zone configuration id")
+                .that(mTestAudioZoneConfigBuilder.getZoneConfigId()).isEqualTo(TEST_ZONE_CONFIG_ID);
     }
 
     @Test
@@ -471,9 +494,16 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
         musicGainInfo.volumeIndex = 666;
         CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
+        when(mMockNavGroup.onAudioGainChanged(any(), any())).thenReturn(EVENT_TYPE_MUTE_CHANGED);
+        when(mMockMusicGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_ATTENUATION_CHANGED);
+        when(mMockVoiceGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_ATTENUATION_CHANGED);
 
-        expectWithMessage("Changed audio gain")
-                .that(zoneConfig.onAudioGainChanged(reasons, carMusicGainInfo)).isTrue();
+        List<CarVolumeGroupEvent> events = zoneConfig.onAudioGainChanged(reasons,
+                List.of(carMusicGainInfo));
+
+        expectWithMessage("Changed audio gain").that(events.isEmpty()).isFalse();
         verify(mMockMusicGroup).onAudioGainChanged(reasons, carMusicGainInfo);
         verify(mMockNavGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());
@@ -490,9 +520,16 @@ public final class CarAudioZoneConfigUnitTest extends AbstractExpectableTestCase
         musicGainInfo.devicePortAddress = MUSIC_ADDRESS;
         musicGainInfo.volumeIndex = 666;
         CarAudioGainConfigInfo carMusicGainInfo = new CarAudioGainConfigInfo(musicGainInfo);
+        when(mMockNavGroup.onAudioGainChanged(any(), any())).thenReturn(EVENT_TYPE_MUTE_CHANGED);
+        when(mMockMusicGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_ATTENUATION_CHANGED);
+        when(mMockVoiceGroup.onAudioGainChanged(any(), any()))
+                .thenReturn(EVENT_TYPE_ATTENUATION_CHANGED);
 
-        expectWithMessage("Unchanged audio gain")
-                .that(zoneConfig.onAudioGainChanged(reasons, carMusicGainInfo)).isFalse();
+        List<CarVolumeGroupEvent> events = zoneConfig.onAudioGainChanged(reasons,
+                List.of(carMusicGainInfo));
+
+        expectWithMessage("Changed audio gain").that(events.isEmpty()).isTrue();
         verify(mMockMusicGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockNavGroup, never()).onAudioGainChanged(any(), any());
         verify(mMockVoiceGroup, never()).onAudioGainChanged(any(), any());

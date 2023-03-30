@@ -60,6 +60,8 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     private static final int CURRENT_USER_ID = 1000;
     private static final int NON_CURRENT_USER_ID = 1001;
     private static final String TAG = CarServiceUtilsTest.class.getSimpleName();
+    private static final String KEY_ALIAS_CAR_SERVICE_UTILS_TEST =
+            "KEY_ALIAS_CAR_SERVICE_UTILS_TEST";
 
     private static final UserLifecycleEvent USER_STARTING_EVENT =
             new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, 111);
@@ -371,5 +373,76 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
         expectWithMessage("Null array exception").that(thrown).hasMessageThat()
                 .contains("Array to convert to list");
+    }
+
+    @Test
+    public void testEncryptDecryptData() {
+        String input = "test string";
+        byte[] inputBytes = input.getBytes();
+        CarServiceUtils.EncryptedData data = CarServiceUtils.encryptData(inputBytes,
+                KEY_ALIAS_CAR_SERVICE_UTILS_TEST);
+
+        expectWithMessage("Expected data").that(data).isNotNull();
+        expectWithMessage("Encrypted text").that(data.getEncryptedData()).isNotEqualTo(inputBytes);
+
+        byte[] decryptedData = CarServiceUtils.decryptData(data, KEY_ALIAS_CAR_SERVICE_UTILS_TEST);
+
+        expectWithMessage("Expected decrypted data").that(decryptedData).isNotNull();
+        expectWithMessage("Decrypted text").that(decryptedData).isEqualTo(inputBytes);
+    }
+
+    @Test
+    public void testEncryptData_sameDataDifferentIv() {
+        String input = "test string";
+        byte[] inputBytes = input.getBytes();
+
+        CarServiceUtils.EncryptedData dataOne = CarServiceUtils.encryptData(inputBytes,
+                KEY_ALIAS_CAR_SERVICE_UTILS_TEST);
+        CarServiceUtils.EncryptedData dataTwo = CarServiceUtils.encryptData(inputBytes,
+                KEY_ALIAS_CAR_SERVICE_UTILS_TEST);
+
+        expectWithMessage("Encrypted text").that(dataOne.getEncryptedData())
+                .isNotEqualTo(dataTwo.getEncryptedData());
+        expectWithMessage("Initialization vendor").that(dataOne.getIv())
+                .isNotEqualTo(dataTwo.getIv());
+    }
+
+    @Test
+    public void testEncryptedDataEquals() {
+        byte[] dataOne = new byte[]{'1', '2', '3', '4'};
+        byte[] dataTwo = new byte[]{'1', '2', '3', '4'};
+        byte[] ivOne = new byte[]{'9', '8', '7'};
+        byte[] ivTwo = new byte[]{'9', '8', '7'};
+
+        CarServiceUtils.EncryptedData one = new CarServiceUtils.EncryptedData(dataOne, ivOne);
+        CarServiceUtils.EncryptedData two = new CarServiceUtils.EncryptedData(dataTwo, ivTwo);
+
+        expectWithMessage("The same encrypted data").that(one).isEqualTo(two);
+    }
+
+    @Test
+    public void testEncryptedDataEquals_notEqualData() {
+        byte[] dataOne = new byte[]{'1', '2', '3', '4'};
+        byte[] dataTwo = new byte[]{'5', '6', '7', '8'};
+        byte[] ivOne = new byte[]{'9', '8', '7'};
+        byte[] ivTwo = new byte[]{'9', '8', '7'};
+
+        CarServiceUtils.EncryptedData one = new CarServiceUtils.EncryptedData(dataOne, ivOne);
+        CarServiceUtils.EncryptedData two = new CarServiceUtils.EncryptedData(dataTwo, ivTwo);
+
+        expectWithMessage("The same encrypted data").that(one).isNotEqualTo(two);
+    }
+
+    @Test
+    public void testEncryptedDataEquals_notEqualIv() {
+        byte[] dataOne = new byte[]{'1', '2', '3', '4'};
+        byte[] dataTwo = new byte[]{'1', '2', '3', '4'};
+        byte[] ivOne = new byte[]{'9', '8', '7'};
+        byte[] ivTwo = new byte[]{'0', 'A', 'V'};
+
+        CarServiceUtils.EncryptedData one = new CarServiceUtils.EncryptedData(dataOne, ivOne);
+        CarServiceUtils.EncryptedData two = new CarServiceUtils.EncryptedData(dataTwo, ivTwo);
+
+        expectWithMessage("The same encrypted data").that(one).isNotEqualTo(two);
     }
 }

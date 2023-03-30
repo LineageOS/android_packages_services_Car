@@ -15,9 +15,11 @@
  */
 package com.android.car.internal.util;
 
+import android.annotation.ChecksSdkIntAtLeast;
 import android.car.Car;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
+import android.os.Build;
 
 /**
  * Utility class for platform and car API version check.
@@ -41,10 +43,28 @@ public final class VersionUtils {
 
     /**
      * Checks if the current platform version is at least expected platform version.
+     *
+     * <p>{@link #isPlatformVersionAtLeast(PlatformVersion)} is a general call which can take any
+     * platform version object. Lint check needs in the annotation which version is supported.
+     * Example: {@code com.android.modules.utils.build.SdkLevel} class.
+     *
+     * @deprecated Use version specific call for example {@link #isPlatformVersionAtLeastU()}.
      */
+    @Deprecated
     public static boolean isPlatformVersionAtLeast(PlatformVersion expectedPlatformVersion) {
         PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
         return currentPlatformVersion.isAtLeast(expectedPlatformVersion);
+    }
+
+    /**
+     * Checks if the current platform version is at least {@code UPSIDE_DOWN_CAKE}.
+     *
+     * <p>The method will be used by the lint check to make sure that calls are properly version
+     * guarded.
+     */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codename = "UpsideDownCake")
+    public static boolean isPlatformVersionAtLeastU() {
+        return isPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
     }
 
     private VersionUtils() {
