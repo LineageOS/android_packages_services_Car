@@ -403,9 +403,9 @@ package android.car.app {
   }
 
   public final class CarTaskViewController {
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void release();
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void showEmbeddedTasks();
+    method @RequiresPermission(allOf={android.Manifest.permission.INJECT_EVENTS, android.Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional=true) public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
+    method public void release();
+    method public void showEmbeddedTasks();
   }
 
   public interface CarTaskViewControllerCallback {
