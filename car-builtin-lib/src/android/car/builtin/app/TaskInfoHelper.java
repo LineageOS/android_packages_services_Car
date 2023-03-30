@@ -18,11 +18,13 @@ package android.car.builtin.app;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.app.TaskInfo;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.graphics.Rect;
+import android.os.Build;
 
 /**
  * Provides the access to the hidden fields of {@code android.app.TaskInfo}.
@@ -69,6 +71,7 @@ public class TaskInfoHelper {
     }
 
     /** Returns the task bounds */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public static Rect getBounds(@NonNull TaskInfo task) {

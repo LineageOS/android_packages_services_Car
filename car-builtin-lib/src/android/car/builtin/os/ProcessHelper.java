@@ -16,9 +16,11 @@
 
 package android.car.builtin.os;
 
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.os.Process;
 
 /**
@@ -30,14 +32,17 @@ import android.os.Process;
 public final class ProcessHelper {
 
     /** See {@code Process.THREAD_GROUP_DEFAULT} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int THREAD_GROUP_DEFAULT = Process.THREAD_GROUP_DEFAULT;
 
     /** See {@code Process.THREAD_GROUP_FOREGROUND} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int THREAD_GROUP_FOREGROUND = 1;
 
     /** See {@code Process.THREAD_GROUP_TOP_APP} */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int THREAD_GROUP_TOP_APP = Process.THREAD_GROUP_TOP_APP;
 
