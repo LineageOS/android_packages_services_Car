@@ -507,7 +507,10 @@ public final class MultidisplayMediaFragment extends Fragment {
     private static Intent createPlayIntent(Uri uri) {
         return new Intent(Intent.ACTION_VIEW, uri)
                 .setClassName(YOUTUBE_PACKAGE, YOUTUBE_ACTIVITY_CLASS)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                // FLAG_ACTIVITY_CLEAR_TASK flag is added so that the video that the YouTube app
+                // first started with can be played again. Without the flag, the intent will be
+                // ignored if the uri is same as what the existing activity first started with.
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .putExtra(EXTRA_START_PLAYBACK, true)
                 .putExtra(FORCE_FULLSCREEN, false);
     }
