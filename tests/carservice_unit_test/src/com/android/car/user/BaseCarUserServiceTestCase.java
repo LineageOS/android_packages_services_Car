@@ -164,7 +164,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected Resources mMockedResources;
     @Mock protected Drawable mMockedDrawable;
     @Mock protected InitialUserSetter mInitialUserSetter;
-    @Mock protected UserPreCreator mUserPreCreator;
     @Mock protected ICarResultReceiver mSwitchUserUiReceiver;
     @Mock protected PackageManager mPackageManager;
     @Mock protected CarUxRestrictionsManagerService mCarUxRestrictionService;
@@ -540,7 +539,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 mMockedActivityManager,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
-                mUserPreCreator,
                 mCarUxRestrictionService,
                 mHandler,
                 mCarPackageManagerService);
