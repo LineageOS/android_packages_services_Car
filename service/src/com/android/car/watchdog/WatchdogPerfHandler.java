@@ -929,6 +929,21 @@ public final class WatchdogPerfHandler {
         });
     }
 
+    /**
+     * Asynchronously fetches today's I/O usage stats for all packages collected during the
+     * previous boot and sends them to the CarWatchdog daemon.
+     */
+    public void asyncFetchTodayIoUsageStats() {
+        mServiceHandler.post(() -> {
+            List<UserPackageIoUsageStats> todayIoUsageStats = getTodayIoUsageStats();
+            try {
+                mCarWatchdogDaemonHelper.onTodayIoUsageStatsFetched(todayIoUsageStats);
+            } catch (RemoteException e) {
+                Slogf.w(TAG, e, "Failed to send today's I/O usage stats to daemon.");
+            }
+        });
+    }
+
     /** Returns today's I/O usage stats for all packages collected during the previous boot. */
     public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
         List<UserPackageIoUsageStats> userPackageIoUsageStats = new ArrayList<>();
