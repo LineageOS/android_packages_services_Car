@@ -139,6 +139,7 @@ package android.car {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int getAudioZoneIdForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.ACCESS_PRIVATE_DISPLAY_ID) public int getDisplayIdForDriver(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int);
+    method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZoneForDisplayId(int);
     method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int unassignOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     field public static final int USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED = 1; // 0x1
     field public static final int USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE = 3; // 0x3
@@ -402,9 +403,9 @@ package android.car.app {
   }
 
   public final class CarTaskViewController {
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void release();
-    method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void showEmbeddedTasks();
+    method @RequiresPermission(allOf={android.Manifest.permission.INJECT_EVENTS, android.Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional=true) public void createControlledRemoteCarTaskView(@NonNull android.car.app.ControlledRemoteCarTaskViewConfig, @NonNull java.util.concurrent.Executor, @NonNull android.car.app.ControlledRemoteCarTaskViewCallback);
+    method public void release();
+    method public void showEmbeddedTasks();
   }
 
   public interface CarTaskViewControllerCallback {
