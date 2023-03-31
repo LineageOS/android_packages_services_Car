@@ -38,7 +38,6 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.usage.UsageStatsManager;
 import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimeUtils;
 import android.car.builtin.util.UsageStatsManagerHelper;
@@ -390,7 +389,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         UserLifecycleEventFilter.Builder userLifecycleEventFilterBuilder =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED);
-        if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             userLifecycleEventFilterBuilder.addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
                     .addEventType(USER_LIFECYCLE_EVENT_TYPE_VISIBLE);
         } else {

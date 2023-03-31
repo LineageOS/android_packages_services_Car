@@ -23,6 +23,7 @@ import static android.view.Display.STATE_ON;
 
 import static com.android.car.CarServiceUtils.getHandlerThread;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -1573,7 +1574,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @VisibleForTesting
     @SuppressLint("NewApi")
     public boolean isUserVisible(@NonNull UserHandle user) {
-        if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             // createContextAsUser throw exception if user does not exist. So it is not a reliable
             // way to query it from car service. We need to catch the exception.
             // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
