@@ -20,6 +20,7 @@ import static android.Manifest.permission.QUERY_ALL_PACKAGES;
 import static android.car.content.pm.CarPackageManager.ERROR_CODE_NO_PACKAGE;
 import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_VERSION;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+import static android.os.Process.INVALID_UID;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -31,7 +32,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -226,10 +226,10 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testGetTargetCarVersion_self_ok() {
+    public void testGetTargetCarVersion_self_ok() throws Exception {
         String pkgName = "dr.evil";
         int myUid = Process.myUid();
-        doReturn(new String[] { pkgName }).when(mSpiedPackageManager).getPackagesForUid(myUid);
+        doReturn(myUid).when(mSpiedPackageManager).getPackageUidAsUser(eq(pkgName), anyInt());
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)
@@ -242,9 +242,10 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testGetTargetCarVersion_self_wrongUid() {
+    public void testGetTargetCarVersion_self_wrongUid() throws Exception {
         int myUid = Process.myUid();
         String pkgName = "dr.evil";
+        doReturn(INVALID_UID).when(mSpiedPackageManager).getPackageUidAsUser(eq(pkgName), anyInt());
         CarVersion Version = CarVersion.forMajorAndMinorVersions(66, 6);
 
         doReturn(Version)

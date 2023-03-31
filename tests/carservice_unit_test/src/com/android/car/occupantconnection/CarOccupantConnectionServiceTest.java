@@ -53,7 +53,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -969,8 +968,6 @@ public final class CarOccupantConnectionServiceTest {
     private void mockPackageName() throws PackageManager.NameNotFoundException {
         PackageManager pm = mock(PackageManager.class);
         when(mContext.getPackageManager()).thenReturn(pm);
-        ApplicationInfo app = new ApplicationInfo();
-        app.uid = Binder.getCallingUid();
-        when(pm.getApplicationInfo(eq(PACKAGE_NAME), anyInt())).thenReturn(app);
+        when(pm.getPackageUidAsUser(eq(PACKAGE_NAME), anyInt())).thenReturn(Binder.getCallingUid());
     }
 }
