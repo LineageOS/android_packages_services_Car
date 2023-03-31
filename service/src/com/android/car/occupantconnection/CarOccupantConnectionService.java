@@ -25,8 +25,8 @@ import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
 
-import static com.android.car.CarServiceUtils.assertPackageName;
 import static com.android.car.CarServiceUtils.assertPermission;
+import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -422,7 +422,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public PackageInfo getEndpointPackageInfo(int occupantZoneId, String packageName) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_REMOTE_DEVICE);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         // PackageManager#getPackageInfoAsUser() can do this with few lines, but it's hidden API.
         int userId = mOccupantZoneService.getUserForOccupant(occupantZoneId);
@@ -469,7 +469,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     public void registerReceiver(String packageName, String receiverEndpointId,
             IPayloadCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId receiverClient = getCallingClientId(packageName);
         ReceiverEndpointId receiverEndpoint =
@@ -496,7 +496,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public void unregisterReceiver(String packageName, String receiverEndpointId) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId receiverClient = getCallingClientId(packageName);
         ReceiverEndpointId receiverEndpoint =
@@ -527,7 +527,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     public void requestConnection(String packageName, OccupantZoneInfo receiverZone,
             IConnectionRequestCallback callback) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
@@ -572,7 +572,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public void cancelConnection(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
@@ -606,7 +606,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public void sendPayload(String packageName, OccupantZoneInfo receiverZone, Payload payload) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
@@ -631,7 +631,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public void disconnect(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
         ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
@@ -671,7 +671,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @Override
     public boolean isConnected(String packageName, OccupantZoneInfo receiverZone) {
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
-        assertPackageName(mContext, packageName);
+        checkCalledByPackage(mContext, packageName);
 
         UserHandle senderUserHandle = Binder.getCallingUserHandle();
         OccupantZoneInfo senderZone = mOccupantZoneService.getOccupantZoneForUser(senderUserHandle);
