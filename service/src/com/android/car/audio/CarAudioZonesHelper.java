@@ -370,7 +370,7 @@ import java.util.stream.Collectors;
 
     private void parseContentType(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
-        if (!VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!VersionUtils.isPlatformVersionAtLeastU()) {
             throw new IllegalArgumentException("car_audio_configuration.xml tag "
                     + ATTR_CONTENT_TYPE + ", is only supported for release version "
                     + UPSIDE_DOWN_CAKE_0 + " and higher");
@@ -383,7 +383,7 @@ import java.util.stream.Collectors;
     private void parseTags(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
         String tagsLiteral = parser.getAttributeValue(NAMESPACE, ATTR_TAGS);
-        if (!VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!VersionUtils.isPlatformVersionAtLeastU()) {
             throw new IllegalArgumentException("car_audio_configuration.xml tag " + ATTR_TAGS
                     + ", is only supported for release version " + UPSIDE_DOWN_CAKE_0
                     + " and higher");

@@ -15,7 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE;
 import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
@@ -575,7 +574,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
             case AUDIO_FEATURE_VOLUME_GROUP_MUTING:
                 return mUseCarVolumeGroupMuting;
             case AUDIO_FEATURE_OEM_AUDIO_SERVICE:
-                return VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
+                return VersionUtils.isPlatformVersionAtLeastU()
                         ? isAnyOemFeatureEnabled() : false;
             case AUDIO_FEATURE_VOLUME_GROUP_EVENTS:
                 return mUseCarVolumeGroupEvents;
