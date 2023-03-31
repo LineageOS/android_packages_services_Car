@@ -4195,7 +4195,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         verify(mCarVolumeCallbackHandler)
                 .onVolumeGroupChange(PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID,
-                        FLAG_PLAY_SOUND);
+                        FLAG_SHOW_UI | FLAG_PLAY_SOUND);
     }
 
     @Test
@@ -4229,7 +4229,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 CoreAudioRoutingUtils.MUSIC_GROUP_NAME, /* flags= */ 0);
 
         verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
-                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, /* flags= */ 0);
+                CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID, FLAG_SHOW_UI);
     }
 
     private String removeUpToEquals(String command) {
