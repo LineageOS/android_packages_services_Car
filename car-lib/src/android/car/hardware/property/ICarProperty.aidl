@@ -22,6 +22,7 @@ import android.car.hardware.property.ICarPropertyEventListener;
 
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
+import com.android.car.internal.property.CarPropertyConfigList;
 
 /**
  * @hide
@@ -42,7 +43,7 @@ interface ICarProperty {
 
     String getWritePermission(int propId) = 6;
 
-    List<CarPropertyConfig> getPropertyConfigList(in int[] propIds) = 7;
+    CarPropertyConfigList getPropertyConfigList(in int[] propIds) = 7;
 
     /**
      * Gets CarPropertyValues asynchronously.

@@ -207,7 +207,7 @@ public final class BluetoothDeviceConnectionPolicy {
                 // {@code mConfigs.get(prop)} in {@link CarPropertyService#getProperty} and
                 // {@link CarPropertyService#getPropertyConfigList}
                 List<CarPropertyConfig> availableProp = mCarPropertyService.getPropertyConfigList(
-                        new int[]{VehiclePropertyIds.INFO_DRIVER_SEAT});
+                        new int[]{VehiclePropertyIds.INFO_DRIVER_SEAT}).getConfigs();
                 if (availableProp.isEmpty() || availableProp.get(0) == null) {
                     if (DBG) {
                         Slogf.d(TAG, "Driver seat location property is not in config list.");
