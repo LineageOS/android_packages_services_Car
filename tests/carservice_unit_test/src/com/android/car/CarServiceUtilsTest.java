@@ -21,15 +21,19 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateConte
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.os.Process.INVALID_UID;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.ComponentName;
@@ -80,7 +84,7 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(ActivityManager.class);
+        session.spyStatic(ActivityManager.class).spyStatic(PackageManagerHelper.class);
     }
 
     @Before
@@ -283,10 +287,10 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testCheckCalledByPackage_nullPackages() {
+    public void testCheckCalledByPackage_isNotOwner() throws Exception {
         String packageName = "Bond.James.Bond";
         int myUid = Process.myUid();
-        // Don't need to mock pm call, it will return null
+        when(mPm.getPackageUidAsUser(eq(packageName), anyInt())).thenReturn(INVALID_UID);
 
         SecurityException e = assertThrows(SecurityException.class,
                 () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
@@ -297,42 +301,10 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void testCheckCalledByPackage_emptyPackages() {
+    public void testCheckCalledByPackage_isOwner() throws Exception {
         String packageName = "Bond.James.Bond";
         int myUid = Process.myUid();
-        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {});
-
-        // Don't need to mock pm call, it will return null
-
-        SecurityException e = assertThrows(SecurityException.class,
-                () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
-
-        String msg = e.getMessage();
-        expectWithMessage("exception message (pkg)").that(msg).contains(packageName);
-        expectWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
-    }
-
-    @Test
-    public void testCheckCalledByPackage_wrongPackages() {
-        String packageName = "Bond.James.Bond";
-        int myUid = Process.myUid();
-        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {"Bond, James Bond"});
-
-        SecurityException e = assertThrows(SecurityException.class,
-                () -> CarServiceUtils.checkCalledByPackage(mContext, packageName));
-
-        String msg = e.getMessage();
-        expectWithMessage("exception message (pkg)").that(msg).contains(packageName);
-        expectWithMessage("exception message (uid)").that(msg).contains(String.valueOf(myUid));
-    }
-
-    @Test
-    public void testCheckCalledByPackage_ok() {
-        String packageName = "Bond.James.Bond";
-        int myUid = Process.myUid();
-        when(mPm.getPackagesForUid(myUid)).thenReturn(new String[] {
-                "Bond, James Bond", packageName, "gold.finger"
-        });
+        when(mPm.getPackageUidAsUser(eq(packageName), anyInt())).thenReturn(myUid);
 
         CarServiceUtils.checkCalledByPackage(mContext, packageName);
 
