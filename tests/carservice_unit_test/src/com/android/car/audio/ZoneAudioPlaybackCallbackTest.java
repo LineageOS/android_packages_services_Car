@@ -68,11 +68,16 @@ public final class ZoneAudioPlaybackCallbackTest {
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
                     /* useCoreAudioRouting= */ false);
 
-    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+    @CarAudioContext.AudioContext
+    private static final int TEST_MEDIA_AUDIO_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_AUDIO_ATTRIBUTE);
-    private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
+
+    @CarAudioContext.AudioContext
+    private static final int TEST_NAVIGATION_AUDIO_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_AUDIO_ATTRIBUTE);
-    private static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
+
+    @CarAudioContext.AudioContext
+    private static final int TEST_ASSISTANT_CONTEXT =
             TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
                     .getAudioAttributeFromUsage(USAGE_ASSISTANT));
 
@@ -206,18 +211,8 @@ public final class ZoneAudioPlaybackCallbackTest {
     @Test
     public void
             getAllActiveContextsForPrimaryZone_withNoActiveConfigurations_returnsEmptyContexts() {
-        List<AudioPlaybackConfiguration> activeConfigurations = ImmutableList.of(
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_MEDIA)
-                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
-                        .setInactive()
-                        .build(),
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
-                        .setInactive()
-                        .build()
-        );
+        List<AudioPlaybackConfiguration> activeConfigurations = getAudioPlaybackConfigurations(
+                PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
         ZoneAudioPlaybackCallback callback =
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
@@ -228,6 +223,22 @@ public final class ZoneAudioPlaybackCallbackTest {
                 callback.getAllActiveAudioAttributes();
 
         assertThat(activeAttributes).isEmpty();
+    }
+
+    private List<AudioPlaybackConfiguration> getAudioPlaybackConfigurations(
+            String primaryMediaAddress, String primaryNavigationAddress) {
+        return ImmutableList.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(primaryMediaAddress)
+                        .setInactive()
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setDeviceAddress(primaryNavigationAddress)
+                        .setInactive()
+                        .build()
+        );
     }
 
     @Test
@@ -287,18 +298,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_MEDIA)
-                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
-                        .setInactive()
-                        .build(),
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
-                        .setInactive()
-                        .build()
-        );
+        List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
+                PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
         ZoneAudioPlaybackCallback callback =
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
@@ -331,18 +332,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_MEDIA)
-                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
-                        .setInactive()
-                        .build(),
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
-                        .setInactive()
-                        .build()
-        );
+        List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
+                PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
         ZoneAudioPlaybackCallback callback =
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
@@ -415,18 +406,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_MEDIA)
-                        .setDeviceAddress(PRIMARY_MEDIA_ADDRESS)
-                        .setInactive()
-                        .build(),
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                        .setDeviceAddress(PRIMARY_NAVIGATION_ADDRESS)
-                        .setInactive()
-                        .build()
-        );
+        List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
+                PRIMARY_MEDIA_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
 
         ZoneAudioPlaybackCallback callback =
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
@@ -483,18 +464,8 @@ public final class ZoneAudioPlaybackCallbackTest {
                         .build()
         );
 
-        List<AudioPlaybackConfiguration> configurationsChanged = ImmutableList.of(
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_MEDIA)
-                        .setDeviceAddress(SECONDARY_MEDIA_ADDRESS)
-                        .setInactive()
-                        .build(),
-                new AudioPlaybackConfigurationBuilder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                        .setDeviceAddress(SECONDARY_NAVIGATION_ADDRESS)
-                        .setInactive()
-                        .build()
-        );
+        List<AudioPlaybackConfiguration> configurationsChanged = getAudioPlaybackConfigurations(
+                SECONDARY_MEDIA_ADDRESS, SECONDARY_NAVIGATION_ADDRESS);
 
         ZoneAudioPlaybackCallback callback =
                 new ZoneAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
