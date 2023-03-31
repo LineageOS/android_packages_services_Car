@@ -16,11 +16,13 @@
 
 <powerPolicy version="1.0">
 
-    <customComponents>
-          <customComponent value="1000">CUSTOM_COMPONENT_1000</customComponent>
+ <customComponents>
+        <customComponent value="1000">CUSTOM_COMPONENT_1</customComponent>
         <customComponent value="1003">CUSTOM_COMPONENT_SPECIAL_SENSOR</customComponent>
         <customComponent value="1002">CUSTOM_COMPONENT_AUX_INPUT</customComponent>
+        <customComponent value="500">INCORRECT_CUSTOM_COMPONENT</customComponent>
     </customComponents>
+
 
     <policyGroups>
         <policyGroup id="basic_policy_group">
@@ -41,22 +43,16 @@
         <policy id="expected_to_be_registered">
             <otherComponents behavior="on"/>
         </policy>
-        <policy id="policy_id_custom">
-            <otherComponents behavior="off"/>
-            <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY">off</component>
-            <component id="POWER_COMPONENT_WIFI">on</component>
-            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
-            <component id="CUSTOM_COMPONENT_1000">off</component>
-            <component id="CUSTOM_COMPONENT_SPECIAL_SENSOR">off</component>
-        </policy>
         <policy id="policy_id_other_off">
             <otherComponents behavior="off"/>
             <component id="POWER_COMPONENT_AUDIO">off</component>
             <component id="POWER_COMPONENT_DISPLAY">off</component>
             <component id="POWER_COMPONENT_WIFI">on</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
+            <component id="CUSTOM_COMPONENT_1">off</component>
+            <component id="CUSTOM_COMPONENT_SPECIAL_SENSOR">off</component>
             <component id="CUSTOM_COMPONENT_AUX_INPUT">on</component>
+            <component id="INCORRECT_CUSTOM_COMPONENT">on</component>
         </policy>
         <policy id="policy_id_other_untouched">
             <otherComponents behavior="untouched"/>
@@ -67,7 +63,6 @@
             <component id="POWER_COMPONENT_VOICE_INTERACTION">on</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">on</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">on</component>
-            <component id="CUSTOM_COMPONENT_AUX_INPUT">on</component>
         </policy>
         <policy id="policy_id_other_on">
             <otherComponents behavior="on"/>
@@ -75,7 +70,6 @@
             <component id="POWER_COMPONENT_VOICE_INTERACTION">off</component>
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
-            <component id="CUSTOM_COMPONENT_AUX_INPUT">off</component>
         </policy>
         <policy id="policy_id_other_none">
             <component id="POWER_COMPONENT_AUDIO">off</component>
@@ -84,25 +78,6 @@
             <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
         </policy>
-        <policy id="policy_id_custom">
-            <otherComponents behavior="off"/>
-            <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY">off</component>
-            <component id="POWER_COMPONENT_WIFI">on</component>
-            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
-            <component id="CUSTOM_COMPONENT_1000">on</component>
-            <component id="CUSTOM_COMPONENT_SPECIAL_SENSOR">off</component>
-        </policy>
-        <policy id="policy_id_custom_other_off">
-            <otherComponents behavior="off"/>
-            <component id="POWER_COMPONENT_AUDIO">off</component>
-            <component id="POWER_COMPONENT_DISPLAY">off</component>
-            <component id="POWER_COMPONENT_WIFI">on</component>
-            <component id="POWER_COMPONENT_VISUAL_INTERACTION">off</component>
-            <component id="CUSTOM_COMPONENT_1000">on</component>
-            <component id="CUSTOM_COMPONENT_SPECIAL_SENSOR">off</component>
-            <component id="CUSTOM_COMPONENT_AUX_INPUT">off</component>
-        </policy>
     </policies>
 
     <systemPolicyOverrides>
@@ -110,7 +85,6 @@
             <component id="POWER_COMPONENT_BLUETOOTH">on</component>
             <component id="POWER_COMPONENT_NFC">on</component>
             <component id="POWER_COMPONENT_TRUSTED_DEVICE_DETECTION">off</component>
-            <component id="CUSTOM_COMPONENT_SPECIAL_SENSOR">off</component>
         </policy>
     </systemPolicyOverrides>
 
