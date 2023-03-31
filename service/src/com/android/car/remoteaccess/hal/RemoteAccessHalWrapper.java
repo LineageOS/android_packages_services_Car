@@ -16,6 +16,10 @@
 
 package com.android.car.remoteaccess.hal;
 
+import static android.car.Car.getPlatformVersion;
+
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
+
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.TraceHelper;
@@ -219,6 +223,11 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
     @VisibleForTesting
     @Nullable
     public static IBinder getRemoteAccessHalService() {
+        if (!isPlatformVersionAtLeastU()) {
+            Slogf.w(TAG, "The platform does not support getRemoteAccessHalService."
+                    + " Platform version: %s", getPlatformVersion());
+            return null;
+        }
         String[] instances = ServiceManagerHelper.getDeclaredInstances(IRemoteAccess.DESCRIPTOR);
         if (instances == null || instances.length == 0) {
             Slogf.e(TAG, "No remote access HAL service found");
