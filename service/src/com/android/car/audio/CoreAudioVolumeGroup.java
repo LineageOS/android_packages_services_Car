@@ -15,8 +15,6 @@
  */
 package com.android.car.audio;
 
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
-
 import static com.android.car.CarLog.TAG_AUDIO;
 import static com.android.car.audio.CarVolumeEventFlag.VolumeEventFlags;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -97,7 +95,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     int getAmLastAudibleIndex() {
-        return VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
+        return VersionUtils.isPlatformVersionAtLeastU()
                 ? AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId) : 0;
     }
 
@@ -140,7 +138,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     @GuardedBy("mLock")
     @SuppressWarnings("GuardedBy")
     protected void setMuteLocked(boolean mute) {
-        if (!isMutable() || !VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (!isMutable() || !VersionUtils.isPlatformVersionAtLeastU()) {
             return;
         }
         if (mute) {
@@ -173,7 +171,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         int amCachedIndex = getAmCurrentGainIndexFromCache();
         int previousIndex = getCurrentGainIndex();
         synchronized (mLock) {
-            boolean isAmGroupMuted = VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
+            boolean isAmGroupMuted = VersionUtils.isPlatformVersionAtLeastU()
                     ? AudioManagerHelper.isVolumeGroupMuted(mAudioManager, mAmId) : false;
             // Update AM cached index
             mAmCurrentGainIndex = newAmIndex;
@@ -211,7 +209,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         int returnedFlags = 0;
         synchronized (mLock) {
             // Current Core volume group can only be muted by volume 0, or ackownlegdge our request
-            int lastIndex = VersionUtils.isPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0)
+            int lastIndex = VersionUtils.isPlatformVersionAtLeastU()
                     ? AudioManagerHelper.getLastAudibleVolumeGroupVolume(mAudioManager, mAmId) : 0;
             boolean isAmGroupMutedByZero = (newAmIndex == 0) && (lastIndex == 0);
             if (isMuted() != isAmGroupMuted) {

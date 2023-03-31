@@ -21,6 +21,7 @@ import static android.car.hardware.power.CarPowerManager.STATE_SHUTDOWN_PREPARE;
 import static android.net.ConnectivityManager.TETHERING_WIFI;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -2765,7 +2766,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     static void freeMemory() {
         PlatformVersion platformVersion = Car.getPlatformVersion();
-        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+        if (!isPlatformVersionAtLeastU()) {
             Slogf.w(TAG,
                     "MemoryCleanup is not available on this version of platform : current  %d.%d "
                             + "required %d.%d",

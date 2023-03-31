@@ -22,6 +22,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -30,7 +31,6 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -686,7 +686,7 @@ public final class CarServiceUtils {
      * displays.
      */
     public static boolean isMultipleUsersOnMultipleDisplaysSupported(UserManager userManager) {
-        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+        return isPlatformVersionAtLeastU()
                 && UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
     }
 
@@ -696,7 +696,7 @@ public final class CarServiceUtils {
      */
     public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
             UserManager userManager) {
-        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+        return isPlatformVersionAtLeastU()
                 && UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(userManager);
     }
 
