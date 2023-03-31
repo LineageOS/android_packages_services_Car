@@ -28,6 +28,8 @@
         android:focusable="false"
         android:layout_width="@dimen/app_icon_size"
         android:layout_height="@dimen/app_icon_size"
+        android:padding="@dimen/app_icon_background_padding"
+        android:background="@drawable/app_icon_background"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="@dimen/app_icon_description_margin"/>
 

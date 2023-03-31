@@ -60,7 +60,7 @@
     <dimen name="app_icon_background_padding">8dp</dimen>
     <dimen name="app_icon_description_margin">24dp</dimen>
     <dimen name="app_icon_margin_top">40dp</dimen>
-    <dimen name="app_icon_size">84dp</dimen>
+    <dimen name="app_icon_size">104dp</dimen>
     <dimen name="app_icon_scaled_size">100dp</dimen>
     <dimen name="app_item_margin_horizontal">12dp</dimen>
     <dimen name="app_item_highlight_corner_radius">18dp</dimen>
