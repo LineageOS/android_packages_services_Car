@@ -365,7 +365,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
+    @RequiresPermission(allOf = {Car.PERMISSION_CAR_POWER, Car.PERMISSION_MANAGE_REMOTE_DEVICE})
     public void setOccupantZonePower(@NonNull OccupantZoneInfo occupantZone, boolean powerOn) {
         Objects.requireNonNull(occupantZone, "occupantZone cannot be null");
         try {

@@ -542,8 +542,7 @@ public final class PolicyReader {
                     powerComponent = toCustomPowerComponentId(id);
                 }
                 if (powerComponent == INVALID_POWER_COMPONENT) {
-                    throw new PolicyXmlException(
-                            id + " is specified more than once in |" + TAG_COMPONENT + "| tag");
+                    throw new PolicyXmlException(" Unknown component id : " + id);
                 }
 
                 if (components.indexOfKey(powerComponent) >= 0) {
@@ -596,13 +595,14 @@ public final class PolicyReader {
                         + TAG_POLICY);
             }
         }
-        boolean enabled = false;
+        boolean enabled;
         boolean untouched = false;
         if (POWER_ONOFF_ON.equals(behavior)) {
             enabled = true;
         } else if (POWER_ONOFF_OFF.equals(behavior)) {
             enabled = false;
         } else {
+            enabled = false;
             untouched = true;
         }
         if (!untouched) {
@@ -611,6 +611,15 @@ public final class PolicyReader {
                 if (components.indexOfKey(component) >= 0) continue;
                 components.put(component, enabled);
             }
+            mCustomComponents.ifPresent(
+                    stringIntegerArrayMap -> {
+                        for (int i = 0; i < stringIntegerArrayMap.size(); ++i) {
+                            int componentId = stringIntegerArrayMap.valueAt(i);
+                            if (components.indexOfKey(componentId) < 0) { // key not found
+                                components.put(componentId, enabled);
+                            }
+                        }
+                    });
         }
         return new CarPowerPolicy(policyId, toIntArray(components, true),
                 toIntArray(components, false));

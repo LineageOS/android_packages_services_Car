@@ -205,7 +205,7 @@ package android.car {
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public android.content.pm.PackageInfo getEndpointPackageInfo(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public boolean isOccupantZonePowerOn(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void registerStateCallback(@NonNull java.util.concurrent.Executor, @NonNull android.car.CarRemoteDeviceManager.StateCallback);
-    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void setOccupantZonePower(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, boolean);
+    method @RequiresPermission(allOf={android.car.Car.PERMISSION_CAR_POWER, android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE}) public void setOccupantZonePower(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, boolean);
     method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_REMOTE_DEVICE) public void unregisterStateCallback();
     field public static final int FLAG_CLIENT_INSTALLED = 1; // 0x1
     field public static final int FLAG_CLIENT_IN_FOREGROUND = 16; // 0x10
@@ -1487,7 +1487,7 @@ package android.car.media {
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.media.AudioAttributes> getAudioAttributesForVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<android.car.media.CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getAudioZoneIds();
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int);
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int);
     method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public String[] getExternalSources();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int, int);

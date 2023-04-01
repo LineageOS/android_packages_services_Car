@@ -24,6 +24,7 @@ import static com.android.car.CarServiceUtils.getCommonHandlerThread;
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -547,7 +548,7 @@ public class CarInputService extends ICarInput.Stub
             @VehicleAreaSeat.Enum int seat) {
         int newDisplayId = getDisplayIdForSeat(targetDisplayType, seat);
 
-        if (Car.getPlatformVersion().isAtLeast(UPSIDE_DOWN_CAKE_0)) {
+        if (isPlatformVersionAtLeastU()) {
             InputEventHelper.setDisplayId(event, newDisplayId);
         } else if (event instanceof KeyEvent) {
             KeyEventHelper.setDisplayId((KeyEvent) event, newDisplayId);

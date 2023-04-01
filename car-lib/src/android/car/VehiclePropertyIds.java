@@ -50,7 +50,15 @@ public final class VehiclePropertyIds {
     /**
      * VIN of vehicle
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code String} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_IDENTIFICATION" to read
      *  property.
@@ -71,7 +79,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code String} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -91,7 +99,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code String} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -111,7 +119,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -131,7 +139,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -157,6 +165,7 @@ public final class VehiclePropertyIds {
      *  Integer[]} value. So {@code INFO_FUEL_TYPE} will be populated as such:
      *  { {@link FuelType#UNLEADED}, {@link FuelType#ELECTRIC} }.
      *
+     * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
@@ -164,7 +173,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer[]} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -190,7 +199,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -210,7 +219,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer[]} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -230,7 +239,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -250,7 +259,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -270,7 +279,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer[]} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -280,17 +289,20 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780;
     /**
-     * Driver's {@link VehicleAreaSeat} seat location.
+     * Driver's seat location.
+     *
+     * <p>The only area ID listed in {@link android.car.hardware.CarPropertyConfig#getAreaIds} for
+     * {@code INFO_DRIVER_SEAT} will be {@code 0}.
      *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -322,7 +334,7 @@ public final class VehiclePropertyIds {
      *  <li>Integer[7] = curb to curb turning radius
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -334,7 +346,15 @@ public final class VehiclePropertyIds {
     /**
      * Current odometer value of the vehicle in kilometers.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_MILEAGE" to read property.
      *  <li>Property is not writable.
@@ -360,7 +380,7 @@ public final class VehiclePropertyIds {
      * {@link VehicleGear#GEAR_NEUTRAL}, {@code PERF_VEHICLE_SPEED} is positive when the vehicle is
      * moving forward, negative when moving backward, and zero when not moving.
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_SPEED} to read property.
      *  <li>Property is not writable.
@@ -383,7 +403,7 @@ public final class VehiclePropertyIds {
      * <p>Some cars display a slightly slower speed than the actual speed. This is
      * usually displayed on the speedometer.
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_SPEED} to read property.
      *  <li>Property is not writable.
@@ -397,7 +417,15 @@ public final class VehiclePropertyIds {
      *
      * <p>Left is negative.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_STEERING" to read
      *  property.
@@ -412,7 +440,15 @@ public final class VehiclePropertyIds {
      *
      * <p>Left is negative.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_STEERING" to read
      *  property.
@@ -425,7 +461,15 @@ public final class VehiclePropertyIds {
     /**
      * Temperature of engine coolant in celsius.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_ENGINE_DETAILED" to read
      *  property.
@@ -449,7 +493,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_ENGINE_DETAILED" to read
      *  property.
@@ -462,7 +506,15 @@ public final class VehiclePropertyIds {
     /**
      * Temperature of engine oil in celsius.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_ENGINE_DETAILED" to read
      *  property.
@@ -475,7 +527,15 @@ public final class VehiclePropertyIds {
     /**
      * Engine rpm.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_ENGINE_DETAILED" to read
      *  property.
@@ -500,9 +560,9 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CAR_ENGINE_DETAILED} to read and
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CAR_ENGINE_DETAILED} to read and
      *  write property.
      * </ul>
      *
@@ -561,7 +621,7 @@ public final class VehiclePropertyIds {
      *
      * <p>NOTE:  If a wheel is not supported, its value is always 0.
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_SPEED} to read property.
      *  <li>Property is not writable.
@@ -581,7 +641,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_SPEED} to read property.
      *  <li>Property is not writable.
@@ -629,7 +689,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
@@ -699,7 +759,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_ENERGY_PORTS} to read property.
      *  <li>Property is not writable.
@@ -722,7 +782,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
@@ -765,7 +825,15 @@ public final class VehiclePropertyIds {
      * android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the OEM recommended tire
      * pressure range for that tire.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WHEEL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_TIRES" to read property.
      *  <li>Property is not writable.
@@ -782,7 +850,15 @@ public final class VehiclePropertyIds {
      * android.car.hardware.property.AreaIdConfig#getMinValue()} of {@link #TIRE_PRESSURE} for the
      * same area ID.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_WHEEL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_TIRES" to read property.
      *  <li>Property is not writable.
@@ -888,7 +964,7 @@ public final class VehiclePropertyIds {
      *  <li>...
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
@@ -911,7 +987,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
@@ -941,7 +1017,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
@@ -1031,7 +1107,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
@@ -1054,7 +1130,7 @@ public final class VehiclePropertyIds {
      * <p>True indicates that the night mode sensor has detected that the car cabin environment has
      * low light.
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} to read property.
      *  <li>Property is not writable.
@@ -1076,7 +1152,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_EXTERIOR_LIGHTS" to read
      *  property.
@@ -1099,7 +1175,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_POWERTRAIN} to read property.
      *  <li>Property is not writable.
@@ -1111,7 +1187,15 @@ public final class VehiclePropertyIds {
     /**
      * ABS is active.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_DYNAMICS_STATE" to read
      *  property.
@@ -1124,7 +1208,15 @@ public final class VehiclePropertyIds {
     /**
      * Traction Control is active.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_DYNAMICS_STATE" to read
      *  property.
@@ -1146,7 +1238,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1167,7 +1259,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1179,7 +1271,15 @@ public final class VehiclePropertyIds {
     /**
      * HVAC current temperature in celsius.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  property.
@@ -1234,7 +1334,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1292,7 +1392,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float[]} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1313,7 +1413,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1334,7 +1434,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1355,7 +1455,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1376,7 +1476,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1397,7 +1497,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1418,7 +1518,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1439,7 +1539,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1460,7 +1560,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1481,7 +1581,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1502,7 +1602,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1539,7 +1639,15 @@ public final class VehiclePropertyIds {
     /**
      * Actual fan speed.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  property.
@@ -1566,7 +1674,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1578,7 +1686,15 @@ public final class VehiclePropertyIds {
     /**
      * Fan Positions Available.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  property.
@@ -1600,7 +1716,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1621,7 +1737,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_CLIMATE" to read
      *  and write property.
@@ -1642,7 +1758,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_CLIMATE} to read
      *  and write property.
@@ -1864,7 +1980,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT} to read property.
      *  <li>Property is not writable.
@@ -1879,7 +1995,15 @@ public final class VehiclePropertyIds {
      * <p>It is assumed that AP's power state is controller by separate power
      * controller.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read property.
      *  <li>Property is not writable.
@@ -1894,7 +2018,15 @@ public final class VehiclePropertyIds {
      * <p>It is assumed that AP's power state is controller by separate power
      * controller.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
      *  property.
@@ -1910,7 +2042,15 @@ public final class VehiclePropertyIds {
      * example, even if user presses power on button after automatic power on with door unlock,
      * bootup reason must stay with {@code VehicleApPowerBootupReason#USER_UNLOCK}.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read property.
      *  <li>Property is not writable.
@@ -1929,7 +2069,15 @@ public final class VehiclePropertyIds {
      * <p>Only one of {@code DISPLAY_BRIGHTNESS} and {@link #PER_DISPLAY_BRIGHTNESS} should be
      * implemented. If both are available, {@link #PER_DISPLAY_BRIGHTNESS} is used by AAOS.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
      *  property.
@@ -1948,7 +2096,15 @@ public final class VehiclePropertyIds {
      * <p>Only one of {@link #DISPLAY_BRIGHTNESS} and {@code PER_DISPLAY_BRIGHTNESS} should be
      * implemented. If both are available, {@code PER_DISPLAY_BRIGHTNESS} is used by AAOS.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_POWER" to read and write
      *  property.
@@ -1960,6 +2116,14 @@ public final class VehiclePropertyIds {
     public static final int PER_DISPLAY_BRIGHTNESS = 289475076;
     /**
      * Property to feed H/W input events to android.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer[]} property type
+     * </ul>
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int HW_KEY_INPUT = 289475088;
@@ -1978,7 +2142,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_DOORS" to read and
      *  write property.
@@ -1999,7 +2163,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_DOORS" to read and
      *  write property.
@@ -2020,7 +2184,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_DOORS" to read and
      *  write property.
@@ -2069,7 +2233,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2090,7 +2254,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2111,7 +2275,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2132,7 +2296,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2153,7 +2317,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2174,7 +2338,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_MIRRORS" to read and
      *  write property.
@@ -2199,7 +2363,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_MIRRORS} to read and
      *  write property.
@@ -2227,7 +2391,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_MIRRORS} to read and
      *  write property.
@@ -2264,7 +2428,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_GLOVE_BOX} to read and
      *  write property.
@@ -2296,7 +2460,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_GLOVE_BOX} to read and
      *  write property.
@@ -2318,7 +2482,15 @@ public final class VehiclePropertyIds {
      * android.car.hardware.property.AreaIdConfig#getMaxValue()} determines the number of seat
      * positions available (i.e. numSeatPresets - 1).
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Property is not readable.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to write
@@ -2336,7 +2508,15 @@ public final class VehiclePropertyIds {
      * seat position must match the {@link android.car.hardware.property.AreaIdConfig#getMaxValue()}
      * for {@link #SEAT_MEMORY_SELECT}.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Property is not readable.
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to write
@@ -2360,7 +2540,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2381,7 +2561,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2402,7 +2582,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2423,7 +2603,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2444,7 +2624,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2465,7 +2645,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2488,7 +2668,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2509,7 +2689,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2530,7 +2710,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2551,7 +2731,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2572,7 +2752,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2593,7 +2773,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2614,7 +2794,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2635,7 +2815,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2656,7 +2836,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2677,7 +2857,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2698,7 +2878,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2719,7 +2899,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2740,7 +2920,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read and
      *  write property.
@@ -2942,7 +3122,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_INTERIOR_LIGHTS" to
      *  read property.
@@ -2980,7 +3160,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" to
      *  read and write property.
@@ -3006,7 +3186,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3036,7 +3216,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_AIRBAGS} to read and
      *  write property.
@@ -3068,7 +3248,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3101,7 +3281,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3132,7 +3312,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3165,7 +3345,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3199,7 +3379,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_CAR_SEATS} to read and
      *  write property.
@@ -3214,6 +3394,14 @@ public final class VehiclePropertyIds {
     public static final int SEAT_WALK_IN_POS = 356518819;
     /**
      * Seat Occupancy.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -3392,7 +3580,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permission:
+     * <p>Required Permissions:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_WINDSHIELD_WIPERS} to read
      *  property.
@@ -3627,6 +3815,14 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle Maps Service (VMS) message.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.VMS_PUBLISHER" or
@@ -3679,6 +3875,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Reports a snapshot of the current (live) values of the OBD2 sensors available.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
@@ -3695,6 +3899,14 @@ public final class VehiclePropertyIds {
      * <p>Reports a snapshot of the value of the OBD2 sensors available at the time that a fault
      * occurred and was detected.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_DIAGNOSTICS" to read
@@ -3707,6 +3919,14 @@ public final class VehiclePropertyIds {
     public static final int OBD2_FREEZE_FRAME = 299896065;
     /**
      * OBD2 Freeze Frame Information.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -3724,6 +3944,14 @@ public final class VehiclePropertyIds {
      * <p>This property allows deletion of any of the freeze frames stored in
      * vehicle memory, as described by {@link #OBD2_FREEZE_FRAME_INFO}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Property is not readable.
@@ -3737,6 +3965,14 @@ public final class VehiclePropertyIds {
     /**
      * Headlights State.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_EXTERIOR_LIGHTS" to read
@@ -3749,6 +3985,14 @@ public final class VehiclePropertyIds {
     public static final int HEADLIGHTS_STATE = 289410560;
     /**
      * High beam lights state.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -3784,6 +4028,14 @@ public final class VehiclePropertyIds {
      *  implemented in the car. The implemented property provides the state of the rear fog lights.
      * </ul>
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CAR_EXTERIOR_LIGHTS" to read
@@ -3796,6 +4048,14 @@ public final class VehiclePropertyIds {
     public static final int FOG_LIGHTS_STATE = 289410562;
     /**
      * Hazard light status.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -3917,6 +4177,14 @@ public final class VehiclePropertyIds {
     /**
      * Cabin lights.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
      * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.READ_CAR_INTERIOR_LIGHTS" to
@@ -3950,6 +4218,14 @@ public final class VehiclePropertyIds {
     public static final int CABIN_LIGHTS_SWITCH = 289410818;
     /**
      * Reading lights.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -4065,6 +4341,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4075,6 +4359,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
      *
      * @hide
      */
@@ -4087,6 +4379,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4097,6 +4397,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Object[]} property type
+     * </ul>
      *
      * @hide
      */
@@ -4109,6 +4417,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4119,6 +4435,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code String} property type
+     * </ul>
      *
      * @hide
      */
@@ -4131,6 +4455,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code String} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4141,6 +4473,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code String} property type
+     * </ul>
      *
      * @hide
      */
@@ -4153,6 +4493,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Long} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4163,6 +4511,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
      *
      * @hide
      */
@@ -4175,6 +4531,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Long} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4185,6 +4549,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * @hide
      */
@@ -4197,6 +4569,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4207,6 +4587,14 @@ public final class VehiclePropertyIds {
      *
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Object[]} property type
+     * </ul>
      *
      * @hide
      */
@@ -4219,6 +4607,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4230,6 +4626,14 @@ public final class VehiclePropertyIds {
      * <p>Doesn't require permission because it's not exposed through
      * {@link android.car.hardware.property.CarPropertyManager}.
      *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code bytes[]} property type
+     * </ul>
+     *
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -4239,6 +4643,14 @@ public final class VehiclePropertyIds {
      * Current date and time, encoded as Unix time.
      *
      * <p>This value denotes the number of milliseconds that have elapsed since 1/1/1970 UTC.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Long} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -4267,7 +4679,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -4293,7 +4705,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -4307,6 +4719,14 @@ public final class VehiclePropertyIds {
      * Front fog lights state.
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_STATE} for more information.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -4347,6 +4767,14 @@ public final class VehiclePropertyIds {
      * Rear fog lights state.
      *
      * <p>Please refer to the documentation on {@link #FOG_LIGHTS_STATE} for more information.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permission:
      * <ul>
@@ -4395,7 +4823,7 @@ public final class VehiclePropertyIds {
      *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
      *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Boolean} property type
+     *  <li>{@code Float} property type
      * </ul>
      *
      * <p>Required Permissions:
@@ -4461,9 +4889,8 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
-     *  <li>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
      * </ul>
@@ -4487,7 +4914,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Boolean} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_ENERGY" to read and
      *  write property.
@@ -4510,7 +4937,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
@@ -4536,7 +4963,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
      *  <li>Property is not writable.
@@ -4552,7 +4979,15 @@ public final class VehiclePropertyIds {
      * <p>Returns the vehicle's curb weight in kilograms. configArray[0] specifies the vehicle’s
      * gross weight in kilograms.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.PRIVILEGED_CAR_INFO" to read
      *  property.
@@ -4577,7 +5012,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission "android.car.permission.PRIVILEGED_CAR_INFO" to read
      *  property.
@@ -4594,7 +5029,15 @@ public final class VehiclePropertyIds {
      * <p>Returns whether general security regulation compliance is required, if
      * so, what type of requirement. See {@link GsrComplianceType} for possible enums.
      *
-     * <p>Required Permissions:
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permission:
      * <ul>
      *  <li>Normal permission {@link Car#PERMISSION_CAR_INFO} to read property.
      *  <li>Property is not writable.
@@ -4664,7 +5107,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -4735,7 +5178,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -4807,7 +5250,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -4879,7 +5322,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -4958,7 +5401,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5044,7 +5487,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Property is not readable.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
@@ -5083,7 +5526,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5158,7 +5601,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5196,9 +5639,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_SETTINGS} to read
      *  property.
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_SETTINGS} to write
      *  property.
      * </ul>
      *
@@ -5281,7 +5724,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5319,7 +5762,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Property is not readable.
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_CONTROL_ADAS_STATES} to write
@@ -5358,7 +5801,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Float} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5443,7 +5886,7 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
      *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_ADAS_STATES} to read
      *  property.
@@ -5480,9 +5923,9 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_SETTINGS}
      *  to read property.
-     *  <li> Signature|Privileged permission {@link
+     *  <li>Signature|Privileged permission {@link
      *  Car#PERMISSION_CONTROL_DRIVER_MONITORING_SETTINGS} to write property.
      * </ul>
      *
@@ -5524,11 +5967,11 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
      *  read property.
-     *  <li> Property is not writable.
+     *  <li>Property is not writable.
      * </ul>
      *
      * @hide
@@ -5564,11 +6007,11 @@ public final class VehiclePropertyIds {
      *  <li>{@code Integer} property type
      * </ul>
      *
-     * <p>Required Permissions:
+     * <p>Required Permission:
      * <ul>
-     *  <li> Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
+     *  <li>Signature|Privileged permission {@link Car#PERMISSION_READ_DRIVER_MONITORING_STATES} to
      *  read property.
-     *  <li> Property is not writable.
+     *  <li>Property is not writable.
      * </ul>
      *
      * @hide

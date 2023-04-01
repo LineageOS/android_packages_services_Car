@@ -98,6 +98,7 @@ private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mPreemptivePowerPolicies;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
     std::string mDefaultPolicyGroup;
+    std::unordered_map<std::string, int> mCustomComponents;
 
     // For unit tests.
     friend class internal::PolicyManagerPeer;

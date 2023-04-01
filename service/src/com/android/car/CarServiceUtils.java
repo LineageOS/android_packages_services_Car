@@ -19,8 +19,10 @@ package com.android.car;
 import static android.car.user.CarUserManager.lifecycleEventTypeToString;
 import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.os.Process.INVALID_UID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -29,7 +31,6 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.Car;
-import android.car.PlatformVersion;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -39,7 +40,6 @@ import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.Binder;
@@ -282,45 +282,18 @@ public final class CarServiceUtils {
     public static void checkCalledByPackage(Context context, String packageName) {
         int callingUid = Binder.getCallingUid();
         PackageManager pm = context.getPackageManager();
-        String[] packages = pm.getPackagesForUid(callingUid);
-        if (packages != null) {
-            for (String candidate: packages) {
-                if (candidate.equals(packageName)) {
-                    return;
-                }
-            }
-        }
-        throw new SecurityException(
-                "Package " + packageName + " is not associated to UID " + callingUid);
-    }
-
-    /**
-     * Check if package name passed belongs to UID for the current binder call.
-     * @param context
-     * @param packageName
-     */
-    public static void assertPackageName(Context context, String packageName)
-            throws IllegalArgumentException, SecurityException {
-        if (packageName == null) {
-            throw new IllegalArgumentException("Package name null");
-        }
-        ApplicationInfo appInfo = null;
+        int uidFromPm = INVALID_UID;
         try {
-            appInfo = context.getPackageManager().getApplicationInfo(packageName,
-                    0);
+            uidFromPm = PackageManagerHelper.getPackageUidAsUser(pm, packageName,
+                    UserManagerHelper.getUserId(callingUid));
         } catch (PackageManager.NameNotFoundException e) {
             String msg = PACKAGE_NOT_FOUND + packageName;
-            Slogf.w(CarLog.TAG_SERVICE,  msg, e);
             throw new SecurityException(msg, e);
         }
-        if (appInfo == null) {
-            throw new SecurityException(PACKAGE_NOT_FOUND + packageName);
-        }
-        int uid = Binder.getCallingUid();
-        if (uid != appInfo.uid) {
-            throw new SecurityException("Wrong package name:" + packageName
-                    + ", The package does not belong to caller's uid:" + uid + "package uid "
-                    + appInfo.uid);
+
+        if (uidFromPm != callingUid) {
+            throw new SecurityException(
+                    "Package " + packageName + " is not associated to UID " + callingUid);
         }
     }
 
@@ -713,7 +686,7 @@ public final class CarServiceUtils {
      * displays.
      */
     public static boolean isMultipleUsersOnMultipleDisplaysSupported(UserManager userManager) {
-        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+        return isPlatformVersionAtLeastU()
                 && UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
     }
 
@@ -723,7 +696,7 @@ public final class CarServiceUtils {
      */
     public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(
             UserManager userManager) {
-        return Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+        return isPlatformVersionAtLeastU()
                 && UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(userManager);
     }
 
