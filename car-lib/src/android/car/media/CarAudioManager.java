@@ -896,7 +896,8 @@ public final class CarAudioManager extends CarManagerBase {
      * configuration consisting current output devices for the zone is returned.
      *
      * @param zoneId Zone id for the configuration to query
-     * @return the current car audio zone configuration info
+     * @return the current car audio zone configuration info, or {@code null} if
+     *         {@link CarAudioService} throws {@link RemoteException}
      * @throws IllegalStateException if dynamic audio routing is not enabled
      * @throws IllegalArgumentException if the audio zone id is invalid
      *
@@ -906,7 +907,7 @@ public final class CarAudioManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    @NonNull
+    @Nullable
     public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
         try {
             return mService.getCurrentAudioZoneConfigInfo(zoneId);
