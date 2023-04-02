@@ -54,7 +54,7 @@ using android::frameworks::automotive::vhal::IVhalClient;
 using android::frameworks::automotive::vhal::VhalClientResult;
 
 bool isSfReady() {
-    return ndk::SpAIBinder(AServiceManager_getService("SurfaceFlinger")).get() != nullptr;
+    return ndk::SpAIBinder(AServiceManager_checkService("SurfaceFlinger")).get() != nullptr;
 }
 
 inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {

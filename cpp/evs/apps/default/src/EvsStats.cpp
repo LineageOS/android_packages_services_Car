@@ -83,8 +83,8 @@ void EvsStats::finishComputingFirstFrameLatency(int64_t finishTimeMillis) {
     EvsFirstFrameLatency latency;
     latency.set_start_timestamp_millis(mFirstFrameLatencyStartTimeMillis);
     latency.set_latency_millis(firstFrameLatencyMillis);
-    std::vector<uint8_t> bytes(latency.ByteSize());
-    latency.SerializeToArray(&bytes[0], latency.ByteSize());
+    std::vector<uint8_t> bytes(latency.ByteSizeLong());
+    latency.SerializeToArray(&bytes[0], latency.ByteSizeLong());
     CarData msg;
     msg.id = kEvsFirstFrameLatencyId;
     msg.content = std::move(bytes);
@@ -122,7 +122,7 @@ std::shared_ptr<ICarTelemetry> EvsStats::getCarTelemetry(bool waitIfNotReady) {
 
     AIBinder* binder;
     if (waitIfNotReady) {
-        binder = ::AServiceManager_getService(kCarTelemetryServiceName);
+        binder = ::AServiceManager_waitForService(kCarTelemetryServiceName);
     } else {
         binder = ::AServiceManager_checkService(kCarTelemetryServiceName);
     }
