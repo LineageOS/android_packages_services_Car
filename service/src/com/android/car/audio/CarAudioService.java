@@ -1958,7 +1958,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     /**
      * Gets the audio zone id currently mapped to uid,
      *
-     * <p><b>Note:</b> Will use uid mapping first, followed by uid's {@userId} mapping.
+     * <p><b>Note:</b> Will use uid mapping first, followed by uid's user id mapping.
      * defaults to PRIMARY_AUDIO_ZONE if no mapping exist
      *
      * @param uid The uid
