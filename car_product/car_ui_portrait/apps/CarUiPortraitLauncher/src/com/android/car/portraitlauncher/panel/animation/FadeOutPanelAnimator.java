@@ -69,30 +69,32 @@ public class FadeOutPanelAnimator extends PanelAnimator {
         mBackground.setVisibility(GONE);
         mOverlay.setVisibility(VISIBLE);
         mOverlay.setAlpha(FADE_OUT_ALPHA);
-        // First fade in the overlay and then fade-out the whole panel.
-        // This is necessary since we cannot fade the task views.
-        mOverlay.animate().alpha(FADE_IN_ALPHA).setDuration(OVERLAY_FADE_IN_DURATION)
-                .withEndAction(() -> {
-                    mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(PANEL_FADE_OUT_DURATION)
-                            .withEndAction(() -> {
-                                mBackground.setVisibility(VISIBLE);
-                                mOverlay.setVisibility(GONE);
-                                mTaskView.setVisibility(VISIBLE);
-                                mTaskView.setAlpha(FADE_IN_ALPHA);
-                                mTaskView.setScaleX(INITIAL_SCALE);
-                                mTaskView.setScaleY(INITIAL_SCALE);
-                                mPanel.setAlpha(FADE_IN_ALPHA);
-                                endAction.run();
-                            });
-                });
-        // Scale the task view and hide it at the end.
-        mTaskView.animate().scaleX(FINAL_SCALE).scaleY(FINAL_SCALE)
-                .setDuration(OVERLAY_FADE_IN_DURATION).setInterpolator(INTERPOLATOR)
-                .withEndAction(() -> {
-                    // Restore the initial scale
-                    mTaskView.setScaleX(INITIAL_SCALE);
-                    mTaskView.setScaleY(INITIAL_SCALE);
-                    mTaskView.setVisibility(GONE);
-                });
+        mOverlay.post(() -> {
+            // First fade in the overlay and then fade-out the whole panel.
+            // This is necessary since we cannot fade the task views.
+            mOverlay.animate().alpha(FADE_IN_ALPHA).setDuration(OVERLAY_FADE_IN_DURATION)
+                    .withEndAction(() -> {
+                        mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(PANEL_FADE_OUT_DURATION)
+                                .withEndAction(() -> {
+                                    mBackground.setVisibility(VISIBLE);
+                                    mOverlay.setVisibility(GONE);
+                                    mTaskView.setVisibility(VISIBLE);
+                                    mTaskView.setAlpha(FADE_IN_ALPHA);
+                                    mTaskView.setScaleX(INITIAL_SCALE);
+                                    mTaskView.setScaleY(INITIAL_SCALE);
+                                    mPanel.setAlpha(FADE_IN_ALPHA);
+                                    endAction.run();
+                                });
+                    });
+            // Scale the task view and hide it at the end.
+            mTaskView.animate().scaleX(FINAL_SCALE).scaleY(FINAL_SCALE)
+                    .setDuration(OVERLAY_FADE_IN_DURATION).setInterpolator(INTERPOLATOR)
+                    .withEndAction(() -> {
+                        // Restore the initial scale
+                        mTaskView.setScaleX(INITIAL_SCALE);
+                        mTaskView.setScaleY(INITIAL_SCALE);
+                        mTaskView.setVisibility(GONE);
+                    });
+        });
     }
 }
