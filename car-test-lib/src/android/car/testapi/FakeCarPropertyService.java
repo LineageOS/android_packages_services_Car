@@ -86,8 +86,8 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public List<CarPropertyConfig> getPropertyList() throws RemoteException {
-        return new ArrayList<>(mConfigs.values());
+    public CarPropertyConfigList getPropertyList() throws RemoteException {
+        return new CarPropertyConfigList(new ArrayList<>(mConfigs.values()));
     }
 
     @Override
