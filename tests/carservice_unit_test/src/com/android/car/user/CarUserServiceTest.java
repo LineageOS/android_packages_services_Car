@@ -116,6 +116,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Unit tests for the {@link CarUserService}.
@@ -2650,7 +2651,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
-                    && info.userLocales.equals("LOL");
+                    && Objects.equals(info.userLocales, "LOL");
         }));
     }
 
@@ -2746,7 +2747,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR && info.replaceGuest
-                    && info.userLocales.equals("LOL");
+                    && Objects.equals(info.userLocales, "LOL");
         }));
     }
 
