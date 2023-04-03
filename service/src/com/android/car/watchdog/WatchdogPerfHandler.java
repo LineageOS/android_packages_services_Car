@@ -2585,7 +2585,7 @@ public final class WatchdogPerfHandler {
     private static void checkResourceOveruseConfig(ResourceOveruseConfiguration config,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         int componentType = config.getComponentType();
-        if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
+        if (Objects.equals(toComponentTypeStr(componentType), "UNKNOWN")) {
             throw new IllegalArgumentException(
                     "Invalid component type in the configuration: " + componentType);
         }

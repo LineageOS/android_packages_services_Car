@@ -188,11 +188,12 @@ public class Obd2Connection {
                         "BUS ERROR",
                         "BUSERROR",
                         "STOPPED");
-        if (responseValue.equals("OK")) return new int[] {1};
-        if (responseValue.equals("?")) return new int[] {0};
-        if (responseValue.equals("NODATA")) return new int[] {};
-        if (responseValue.equals("UNABLETOCONNECT")) throw new IOException("connection failure");
-        if (responseValue.equals("CANERROR")) throw new IOException("CAN bus error");
+        if (Objects.equals(responseValue, "OK")) return new int[] {1};
+        if (Objects.equals(responseValue, "?")) return new int[] {0};
+        if (Objects.equals(responseValue, "NODATA")) return new int[] {};
+        if (Objects.equals(responseValue, "UNABLETOCONNECT")) throw new IOException(
+                "connection failure");
+        if (Objects.equals(responseValue, "CANERROR")) throw new IOException("CAN bus error");
         try {
             return toHexValues(responseValue);
         } catch (IllegalArgumentException e) {

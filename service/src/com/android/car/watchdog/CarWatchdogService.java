@@ -93,6 +93,7 @@ import java.lang.ref.WeakReference;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Service to implement CarWatchdogManager API.
@@ -152,7 +153,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 case ACTION_GARAGE_MODE_OFF:
                     int garageMode;
                     synchronized (mLock) {
-                        garageMode = mCurrentGarageMode = action.equals(ACTION_GARAGE_MODE_ON)
+                        garageMode = mCurrentGarageMode = Objects.equals(action,
+                                ACTION_GARAGE_MODE_ON)
                                 ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF;
                     }
                     mWatchdogPerfHandler.onGarageModeChange(garageMode);
