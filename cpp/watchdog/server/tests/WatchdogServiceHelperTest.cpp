@@ -64,21 +64,6 @@ constexpr const char kFailOnNoCarWatchdogServiceMessage[] =
 constexpr const char kFailOnCarWatchdogServiceErrMessage[] =
         "should fail when car watchdog service API return error";
 
-UserPackageIoUsageStats sampleUserPackageIoUsageStats(userid_t userId,
-                                                      const std::string& packageName) {
-    UserPackageIoUsageStats stats;
-    stats.userId = userId;
-    stats.packageName = packageName;
-    stats.ioUsageStats.writtenBytes.foregroundBytes = 100;
-    stats.ioUsageStats.writtenBytes.backgroundBytes = 200;
-    stats.ioUsageStats.writtenBytes.garageModeBytes = 300;
-    stats.ioUsageStats.forgivenWriteBytes.foregroundBytes = 1100;
-    stats.ioUsageStats.forgivenWriteBytes.backgroundBytes = 1200;
-    stats.ioUsageStats.forgivenWriteBytes.garageModeBytes = 1300;
-    stats.ioUsageStats.totalOveruses = 10;
-    return stats;
-}
-
 }  // namespace
 
 namespace internal {
@@ -505,47 +490,35 @@ TEST_F(WatchdogServiceHelperTest,
             << "resetResourceOveruseStats " << kFailOnCarWatchdogServiceErrMessage;
 }
 
-TEST_F(WatchdogServiceHelperTest, TestGetTodayIoUsageStats) {
+TEST_F(WatchdogServiceHelperTest, TestRequestTodayIoUsageStats) {
     ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
 
-    std::vector<UserPackageIoUsageStats>
-            expectedStats{sampleUserPackageIoUsageStats(10, "vendor.package"),
-                          sampleUserPackageIoUsageStats(11, "third_party.package")};
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats())
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getTodayIoUsageStats(_))
-            .WillOnce(DoAll(SetArgPointee<0>(expectedStats), Return(ByMove(ScopedAStatus::ok()))));
-
-    std::vector<UserPackageIoUsageStats> actualStats;
-    auto status = mWatchdogServiceHelper->getTodayIoUsageStats(&actualStats);
+    auto status = mWatchdogServiceHelper->requestTodayIoUsageStats();
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
-    EXPECT_THAT(actualStats, UnorderedElementsAreArray(expectedStats));
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnGetTodayIoUsageStatsWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getTodayIoUsageStats(_)).Times(0);
+       TestErrorOnRequestTodayIoUsageStatsWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats()).Times(0);
 
-    std::vector<UserPackageIoUsageStats> actualStats;
-
-    ASSERT_FALSE(mWatchdogServiceHelper->getTodayIoUsageStats(&actualStats).isOk())
-            << "getTodayIoUsageStats " << kFailOnNoCarWatchdogServiceMessage;
-    EXPECT_THAT(actualStats, IsEmpty());
+    ASSERT_FALSE(mWatchdogServiceHelper->requestTodayIoUsageStats().isOk())
+            << "requestTodayIoUsageStats " << kFailOnNoCarWatchdogServiceMessage;
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorOnGetTodayIoUsageStatsWithErrorStatusFromCarWatchdogService) {
+       TestErrorOnRequestTodayIoUsageStatsWithErrorStatusFromCarWatchdogService) {
     ASSERT_NO_FATAL_FAILURE(registerCarWatchdogService());
 
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getTodayIoUsageStats(_))
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, requestTodayIoUsageStats())
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                                                                 "Illegal state"))));
 
-    std::vector<UserPackageIoUsageStats> actualStats;
-
-    ASSERT_FALSE(mWatchdogServiceHelper->getTodayIoUsageStats(&actualStats).isOk())
-            << "getTodayIoUsageStats " << kFailOnCarWatchdogServiceErrMessage;
-    ASSERT_TRUE(actualStats.empty());
+    ASSERT_FALSE(mWatchdogServiceHelper->requestTodayIoUsageStats().isOk())
+            << "requestTodayIoUsageStats " << kFailOnCarWatchdogServiceErrMessage;
 }
 
 TEST_F(WatchdogServiceHelperTest, TestOnLatestResourceStats) {
