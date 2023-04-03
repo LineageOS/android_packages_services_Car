@@ -25,8 +25,9 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Used by Lights state vehicle properties to enumerate the current state of the lights.
- * Use getProperty and setProperty in {@link android.car.hardware.property.CarPropertyManager} to
- * set and get related vehicle properties.
+ * Use {@link android.car.hardware.property.CarPropertyManager#getProperty(int, int)} and {@link
+ * android.car.hardware.property.CarPropertyManager#setProperty(Class, int, int, java.lang.Object)}
+ * to set and get related vehicle properties.
  * @hide
  */
 @SystemApi

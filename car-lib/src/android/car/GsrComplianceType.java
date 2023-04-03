@@ -22,8 +22,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used by
- * {@link VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE} to
+ * Used by {@link VehiclePropertyIds#GENERAL_SAFETY_REGULATION_COMPLIANCE} to
  * indicate what kind of general safety regulation compliance requirement is
  * enforced.
  */
