@@ -235,6 +235,13 @@ void IoOveruseMonitor::terminate() {
     return;
 }
 
+void IoOveruseMonitor::onCarWatchdogServiceRegistered() {
+    std::unique_lock writeLock(mRwMutex);
+    if (!mDidReadTodayPrevBootStats) {
+        requestTodayIoUsageStatsLocked();
+    }
+}
+
 Result<void> IoOveruseMonitor::onPeriodicCollection(
         time_t time, SystemState systemState,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -247,7 +254,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 
     std::unique_lock writeLock(mRwMutex);
     if (!mDidReadTodayPrevBootStats) {
-        syncTodayIoUsageStatsLocked();
+        requestTodayIoUsageStatsLocked();
     }
     struct tm prevGmt, curGmt;
     gmtime_r(&mLastUserPackageIoMonitorTime, &prevGmt);
@@ -280,21 +287,20 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         }
         UserPackageIoUsage curUsage(curUidStats.packageInfo, curUidStats.ioStats,
                                     isGarageModeActive);
+
+        if (!mPrevBootIoUsageStatsById.empty()) {
+            if (auto prevBootStats = mPrevBootIoUsageStatsById.find(curUsage.id());
+                prevBootStats != mPrevBootIoUsageStatsById.end()) {
+                curUsage += prevBootStats->second;
+                mPrevBootIoUsageStatsById.erase(prevBootStats);
+            }
+        }
         UserPackageIoUsage* dailyIoUsage;
         if (auto cachedUsage = mUserPackageDailyIoUsageById.find(curUsage.id());
             cachedUsage != mUserPackageDailyIoUsageById.end()) {
             cachedUsage->second += curUsage;
             dailyIoUsage = &cachedUsage->second;
         } else {
-            // TODO(b/262605181): Check if mPrevBootIoUsageStatsById has any ids pending even if
-            // they are already present in mUserPackageDailyIoUsageById. With the new async pattern,
-            // it is possible for the prev boot I/O stats to be sent after the first periodic
-            // collection has been processed.
-            if (auto prevBootStats = mPrevBootIoUsageStatsById.find(curUsage.id());
-                prevBootStats != mPrevBootIoUsageStatsById.end()) {
-                curUsage += prevBootStats->second;
-                mPrevBootIoUsageStatsById.erase(prevBootStats);
-            }
             const auto& [it, wasInserted] = mUserPackageDailyIoUsageById.insert(
                     std::pair(curUsage.id(), std::move(curUsage)));
             dailyIoUsage = &it->second;
@@ -468,15 +474,24 @@ bool IoOveruseMonitor::dumpHelpText(int fd) const {
                            fd);
 }
 
-// TODO(b/262605181): Refactor method to receive today's I/O usage stats. Before syncing acquire
-// lock and check if mDidReadTodayPrevBootStats is not set.
-void IoOveruseMonitor::syncTodayIoUsageStatsLocked() {
-    std::vector<UserPackageIoUsageStats> userPackageIoUsageStats;
-    if (const auto status = mWatchdogServiceHelper->getTodayIoUsageStats(&userPackageIoUsageStats);
-        !status.isOk()) {
-        ALOGE("Failed to fetch today I/O usage stats collected during previous boot: %s",
+void IoOveruseMonitor::requestTodayIoUsageStatsLocked() {
+    if (const auto status = mWatchdogServiceHelper->requestTodayIoUsageStats(); !status.isOk()) {
+        // Request made only after CarWatchdogService connection is established. Logging the error
+        // is enough in this case.
+        ALOGE("Failed to request today I/O usage stats collected during previous boot: %s",
               status.getMessage());
         return;
+    }
+    if (DEBUG) {
+        ALOGD("Requested today's I/O usage stats collected during previous boot.");
+    }
+}
+
+Result<void> IoOveruseMonitor::onTodayIoUsageStatsFetched(
+        const std::vector<UserPackageIoUsageStats>& userPackageIoUsageStats) {
+    std::unique_lock writeLock(mRwMutex);
+    if (mDidReadTodayPrevBootStats) {
+        return {};
     }
     for (const auto& statsEntry : userPackageIoUsageStats) {
         std::string uniqueId = uniquePackageIdStr(statsEntry.packageName,
@@ -489,6 +504,7 @@ void IoOveruseMonitor::syncTodayIoUsageStatsLocked() {
         mPrevBootIoUsageStatsById.insert(std::pair(uniqueId, statsEntry.ioUsageStats));
     }
     mDidReadTodayPrevBootStats = true;
+    return {};
 }
 
 void IoOveruseMonitor::notifyNativePackagesLocked(

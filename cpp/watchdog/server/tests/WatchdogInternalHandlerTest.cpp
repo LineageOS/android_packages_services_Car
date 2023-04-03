@@ -26,6 +26,7 @@
 #include <aidl/android/automotive/watchdog/internal/BootPhase.h>
 #include <aidl/android/automotive/watchdog/internal/GarageMode.h>
 #include <aidl/android/automotive/watchdog/internal/PowerCycle.h>
+#include <aidl/android/automotive/watchdog/internal/UserPackageIoUsageStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>
 #include <binder/IPCThreadState.h>
@@ -53,6 +54,7 @@ using ::aidl::android::automotive::watchdog::internal::ProcessIdentifier;
 using ::aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::aidl::android::automotive::watchdog::internal::StateType;
 using ::aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority;
+using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
 using ::android::String16;
@@ -202,6 +204,7 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
 
     auto status = mWatchdogInternalHandler->registerCarWatchdogService(service);
 
@@ -729,6 +732,25 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnOnAidlVhalPidFetchedWithNonSystem
 
     ASSERT_FALSE(mWatchdogInternalHandler->onAidlVhalPidFetched(56423).isOk())
             << "onAidlVhalPidFetched " << kFailOnNonSystemCallingUidMessage;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestOnTodayIoUsageStatsFetched) {
+    setSystemCallingUid();
+
+    std::vector<UserPackageIoUsageStats> userPackageIoUsageStats = {};
+    EXPECT_CALL(*mMockIoOveruseMonitor, onTodayIoUsageStatsFetched(userPackageIoUsageStats))
+            .Times(1);
+
+    auto status = mWatchdogInternalHandler->onTodayIoUsageStatsFetched(userPackageIoUsageStats);
+
+    ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestErrorOnOnTodayIoUsageStatsFetchedWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, onTodayIoUsageStatsFetched(_)).Times(0);
+
+    ASSERT_FALSE(mWatchdogInternalHandler->onTodayIoUsageStatsFetched({}).isOk())
+            << "onTodayIoUsageStatsFetched " << kFailOnNonSystemCallingUidMessage;
 }
 
 }  // namespace watchdog
