@@ -24,6 +24,7 @@ import static android.media.AudioManager.MASTER_MUTE_CHANGED_ACTION;
 import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
@@ -44,6 +45,7 @@ import android.media.AudioPatch;
 import android.media.AudioPortConfig;
 import android.media.AudioSystem;
 import android.media.audiopolicy.AudioProductStrategy;
+import android.os.Build;
 import android.text.TextUtils;
 
 import com.android.internal.util.Preconditions;
@@ -64,6 +66,7 @@ public final class AudioManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static final int UNDEFINED_STREAM_TYPE = -1;
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final String AUDIO_ATTRIBUTE_TAG_SEPARATOR = ";";
 
@@ -523,6 +526,7 @@ public final class AudioManagerHelper {
      * @param builder {@link AudioAttributes.Builder} helper to build {@link AudioAttributes}
      * @param tag to be added to the {@link AudioAttributes} once built.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void addTagToAudioAttributes(@NonNull AudioAttributes.Builder builder,
             @NonNull String tag) {
@@ -536,6 +540,7 @@ public final class AudioManagerHelper {
      * @return the tags of the given {@link AudioAttributes} as a
      * {@link #AUDIO_ATTRIBUTE_TAG_SEPARATOR} separated string.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static String getFormattedTags(@NonNull AudioAttributes attributes) {
         Preconditions.checkNotNull(attributes, "Audio Attributes must not be null");
@@ -558,6 +563,7 @@ public final class AudioManagerHelper {
      * @return {@link AudioAttributes.ContentType} representation of xsd content type string if
      * found, {@code AudioAttributes.CONTENT_TYPE_UNKNOWN} otherwise.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int xsdStringToContentType(String xsdString) {
         if (XSD_STRING_TO_CONTENT_TYPE.containsKey(xsdString)) {
@@ -576,6 +582,7 @@ public final class AudioManagerHelper {
      * {@link AudioAttributes} and {@link AudioProductStrategy} if found,
      * {@link android.media.AudioVolumeGroup.DEFAULT_VOLUME_GROUP} otherwise.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int getVolumeGroupIdForAudioAttributes(
             @NonNull AudioProductStrategy strategy, @NonNull AudioAttributes attributes) {
@@ -595,6 +602,7 @@ public final class AudioManagerHelper {
      * @return the last audible volume of the {@link android.media.AudioVolumeGroup}
      * referred by its id if found, {@code 0} otherwise.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static int getLastAudibleVolumeGroupVolume(@NonNull AudioManager audioManager,
                                                      int amGroupId) {
@@ -611,6 +619,7 @@ public final class AudioManagerHelper {
      * @return true if the {@link android.media.AudioVolumeGroup} referred by its id is found and
      * muted, false otherwise.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isVolumeGroupMuted(@NonNull AudioManager audioManager, int amGroupId) {
         Objects.requireNonNull(audioManager, "Audio manager can not be null");
@@ -627,6 +636,7 @@ public final class AudioManagerHelper {
      * @param direction direction to adjust the volume, one of {@link AudioManager#VolumeAdjustment}
      * @param flags one ore more flags of {@link AudioManager#Flags}
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void adjustVolumeGroupVolume(@NonNull AudioManager audioManager,
             int amGroupId, int direction, @AudioManager.Flags int flags) {
