@@ -96,7 +96,6 @@ import android.hardware.automotive.vehicle.UserInfo;
 import android.hardware.automotive.vehicle.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -1272,9 +1271,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Same as {@link UserManager#isUserVisible()}, but passing the user id.
      */
     public boolean isUserVisible(@UserIdInt int userId) {
-        // TODO(b/274616353): Remove SDK_INT check when isPlatformVersionAtLeastU is support by lint
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
-                && isPlatformVersionAtLeastU()) {
+        if (isPlatformVersionAtLeastU()) {
             Set<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
             return visibleUsers.contains(UserHandle.of(userId));
         }
