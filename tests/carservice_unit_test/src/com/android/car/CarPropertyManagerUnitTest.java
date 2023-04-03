@@ -1766,7 +1766,8 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testGetPropertyList() throws Exception {
         List<CarPropertyConfig> expectedConfigs = mock(List.class);
-        when(mICarProperty.getPropertyList()).thenReturn(expectedConfigs);
+        when(mICarProperty.getPropertyList())
+                .thenReturn(new CarPropertyConfigList(expectedConfigs));
 
         assertThat(mCarPropertyManager.getPropertyList()).isEqualTo(expectedConfigs);
     }
