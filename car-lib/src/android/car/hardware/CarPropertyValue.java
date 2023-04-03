@@ -42,8 +42,9 @@ import java.util.Objects;
  * Client should use {@code android.car.*} types when dealing with property ID, area ID or property
  * value and MUST NOT use {@code android.hardware.automotive.vehicle.*} types directly.
  *
- * @param <T> refer to Parcel#writeValue(Object) to get a list of all supported types. The class
- *            should be visible to framework as default class loader is being used here.
+ * @param <T> refer to {@link Parcel#writeValue(java.lang.Object)} to get a list of all supported
+ *            types. The class should be visible to framework as default class loader is being used
+ *            here.
  */
 public final class CarPropertyValue<T> implements Parcelable {
     private static final Charset DEFAULT_CHARSET = StandardCharsets.UTF_8;
@@ -62,34 +63,34 @@ public final class CarPropertyValue<T> implements Parcelable {
     public @interface PropertyStatus {}
 
     /**
-     * CarPropertyValue is available.
+     * {@code CarPropertyValue} is available.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_AVAILABLE = 0;
 
     /**
-     * CarPropertyValue is unavailable.
+     * {@code CarPropertyValue} is unavailable.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_UNAVAILABLE = 1;
 
     /**
-     * CarPropertyVale has an error.
+     * {@code CarPropertyValue} has an error.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ERROR = 2;
 
     /**
-     * Creates an instance of CarPropertyValue.
+     * Creates an instance of {@code CarPropertyValue}.
      *
      * @param propertyId Property ID, must be one of enums in
      *   {@link android.car.VehiclePropertyIds}.
      * @param areaId Area ID of Property, must be one of enums in one of the following classes:
      *   <ul>
-     *     <li><{@link android.car.VehicleAreaWindow}</li>
-     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@code VehicleAreaWindow}</li>
+     *     <li><{@code VehicleAreaDoor}</li>
      *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@code VehicleAreaMirror}</li>
      *     <li><{@link android.car.VehicleAreaWheel}</li>
      *   </ul>
      *   or 0 for global property.
@@ -101,19 +102,19 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Creates an instance of CarPropertyValue. The {@code timestampNanos} is the time in
-     * nanoseconds at which the event happened. For a given car property, each new CarPropertyValue
-     * should be monotonically increasing using the same time base as
+     * Creates an instance of {@code CarPropertyValue}. The {@code timestampNanos} is the time in
+     * nanoseconds at which the event happened. For a given car property, each new {@code
+     * CarPropertyValue} should be monotonically increasing using the same time base as
      * {@link SystemClock#elapsedRealtimeNanos()}.
      *
      * @param propertyId Property ID, must be one of enums in
      *   {@link android.car.VehiclePropertyIds}.
      * @param areaId     Area ID of Property, must be one of enums in one of the following classes:
      *   <ul>
-     *     <li><{@link android.car.VehicleAreaWindow}</li>
-     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@code VehicleAreaWindow}</li>
+     *     <li><{@code VehicleAreaDoor}</li>
      *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@code VehicleAreaMirror}</li>
      *     <li><{@link android.car.VehicleAreaWheel}</li>
      *   </ul>
      *   or 0 for global property.
@@ -148,7 +149,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Creates an instance of CarPropertyValue.
+     * Creates an instance of {@code CarPropertyValue}.
      *
      * @param in Parcel to read
      * @hide
@@ -217,7 +218,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Property id of CarPropertyValue, must be one of enums in
+     * @return Property id of {@code CarPropertyValue}, must be one of enums in
      *   {@link android.car.VehiclePropertyIds}.
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -226,12 +227,13 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Area id of CarPropertyValue, must be one of enums in one of the following classes:
+     * @return Area id of {@code CarPropertyValue}, must be one of enums in one of the following
+     * classes:
      *   <ul>
-     *     <li><{@link android.car.VehicleAreaWindow}</li>
-     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@code VehicleAreaWindow}</li>
+     *     <li><{@code VehicleAreaDoor}</li>
      *     <li><{@link android.car.VehicleAreaSeat}</li>
-     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@code VehicleAreaMirror}</li>
      *     <li><{@link android.car.VehicleAreaWheel}</li>
      *   </ul>
      *   or 0 for global property.
@@ -242,9 +244,9 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Status of CarPropertyValue
+     * @return Status of {@code CarPropertyValue}
      *
-     * @deprecated This will always return {@link STATUS_AVAILABLE}.
+     * @deprecated This will always return {@link #STATUS_AVAILABLE}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public @PropertyStatus int getStatus() {
@@ -252,13 +254,12 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Returns the timestamp in nanoseconds at which the CarPropertyValue happened. For a given car
-     * property, each new CarPropertyValue should be monotonically increasing using the same time
-     * base as {@link android.os.SystemClock#elapsedRealtimeNanos()}.
+     * Returns the timestamp in nanoseconds at which the {@code CarPropertyValue} happened. For a
+     * given car property, each new {@code CarPropertyValue} should be monotonically increasing
+     * using the same time base as {@link android.os.SystemClock#elapsedRealtimeNanos()}.
      *
      * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
-     * {@link android.location.Location Location} and
-     * {@link android.hardware.SensorEvent SensorEvent} instances).
+     * {@link android.location.Location} and {@link android.hardware.SensorEvent} instances).
      * Ideally, timestamp synchronization error should be below 1 millisecond.
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -267,7 +268,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Value of CarPropertyValue
+     * @return Value of {@code CarPropertyValue}
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)

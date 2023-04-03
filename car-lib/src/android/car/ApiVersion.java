@@ -34,7 +34,7 @@ import java.util.Objects;
  *
  * <p>This class is needed because the standard Android SDK API versioning only supports major
  * releases, but {@code Car} APIs can now (starting on
- * {@link android.os.Build.Build.VERSION_CODES#TIRAMISU Android 13}) be updated on minor releases
+ * {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}) be updated on minor releases
  * as well.
  *
  * @param <T> implementation type

@@ -45,8 +45,8 @@ import java.util.List;
  * Represents general information about car property such as data type and min/max ranges for car
  * areas (if applicable). This class supposed to be immutable, parcelable and could be passed over.
  *
- * @param <T> refer to Parcel#writeValue(Object) to get a list of all supported types. The class
- * should be visible to framework as default class loader is being used here.
+ * @param <T> refer to {@link Parcel#writeValue(java.lang.Object)} to get a list of all supported
+ * types. The class should be visible to framework as default class loader is being used here.
  *
  */
 public final class CarPropertyConfig<T> implements Parcelable {
@@ -198,8 +198,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     /**
      *
-     * @return Max sample rate in Hz. Must be defined for VehiclePropertyChangeMode::CONTINUOUS
-     * return 0 if change mode is not continuous.
+     * @return Max sample rate in Hz. Must be defined for {@link
+     * #VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} return 0 if change mode is not continuous.
      */
     @AddedInOrBefore(majorVersion = 33)
     public float getMaxSampleRate() {
@@ -208,8 +208,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     /**
      *
-     * @return Min sample rate in Hz.Must be defined for VehiclePropertyChangeMode::CONTINUOUS
-     * return 0 if change mode is not continuous.
+     * @return Min sample rate in Hz.Must be defined for {@link
+     * #VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} return 0 if change mode is not continuous.
      */
     @AddedInOrBefore(majorVersion = 33)
     public float getMinSampleRate() {
@@ -333,7 +333,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     /**
      * @return  the first areaId.
-     * Throws {@link IllegalStateException} if supported area count not equals to one.
+     * Throws {@link java.lang.IllegalStateException} if supported area count not equals to one.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -567,7 +567,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * Prepare an instance of CarPropertyConfig
+     * Prepare an instance of {@link CarPropertyConfig}
      *
      * @return Builder<T>
      * @hide
@@ -581,7 +581,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
 
     /**
-     * Prepare an instance of CarPropertyConfig
+     * Prepare an instance of {@link CarPropertyConfig}
      *
      * @return Builder<T>
      * @hide
@@ -618,7 +618,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          *
-         * Add supported areas parameter to CarPropertyConfig
+         * Add supported areas parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -634,7 +634,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          *
-         * Add area to CarPropertyConfig
+         * Add {@code areaId} to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -648,7 +648,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         /**
          * @deprecated - use {@link #addAreaIdConfig(AreaIdConfig)} instead.
          *
-         * Add areaConfig to CarPropertyConfig
+         * Add {@code areaConfig} to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -661,7 +661,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Add {@link AreaIdConfig} to CarPropertyConfig.
+         * Add {@link AreaIdConfig} to {@link CarPropertyConfig}.
          *
          * @return Builder<T>
          */
@@ -675,7 +675,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
 
         /**
-         * Set access parameter to CarPropertyConfig
+         * Set {@code access} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -686,7 +686,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set changeMode parameter to CarPropertyConfig
+         * Set {@code changeMode} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -697,7 +697,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set configArray parameter to CarPropertyConfig
+         * Set {@code configArray} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -709,7 +709,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set configString parameter to CarPropertyConfig
+         * Set {@code configString} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -720,7 +720,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set maxSampleRate parameter to CarPropertyConfig
+         * Set {@code maxSampleRate} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */
@@ -731,7 +731,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
 
         /**
-         * Set minSampleRate parameter to CarPropertyConfig
+         * Set {@code minSampleRate} parameter to {@link CarPropertyConfig}
          *
          * @return Builder<T>
          */

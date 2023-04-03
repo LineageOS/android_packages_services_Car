@@ -25,7 +25,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Used by {@link EV_STOPPING_MODE} to enumerate the current state of the stopping mode.
+ * Used by {@link android.car.VehiclePropertyIds#EV_STOPPING_MODE} to enumerate the current state of
+ * the stopping mode.
  *
  * <p>This list of states may be extended to include more states in the future.
  * @hide

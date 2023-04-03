@@ -34,10 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public class CruiseControlState {
     /**
-     * This state is used as an alternative for any CruiseControlState value that is not defined in
-     * the platform. Ideally, implementations of {@link CRUISE_CONTROL_STATE} should not use this
-     * state. The framework can use this field to remain backwards compatible if CruiseControlState
-     * is extended to include additional states.
+     * This state is used as an alternative for any {@code CruiseControlState} value that is not
+     * defined in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#CRUISE_CONTROL_STATE} should not use this state. The framework
+     * can use this field to remain backwards compatible if {@code CruiseControlState} is extended
+     * to include additional states.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -66,17 +67,17 @@ public class CruiseControlState {
     public static final int USER_OVERRIDE = 3;
     /**
      * Suspended state indicates CC is enabled and was activated, but now is suspended. This could
-     * be caused by the user tapping the brakes while CC is ACTIVATED or the user using the {@link
-     * CRUISE_CONTROL_COMMAND} to suspend CC. Once CC is suspended, the CC system gives control of
-     * the vehicle back to the driver, but saves the target speed and/or target time gap settings in
-     * case CC is resumed. This state can also be used when adaptive/predictive CC slows to a stop
-     * and needs a user signal to start again.
+     * be caused by the user tapping the brakes while CC is {@link #ACTIVATED} or the user using the
+     * {@link android.car.VehiclePropertyIds#CRUISE_CONTROL_COMMAND} to suspend CC. Once CC is
+     * suspended, the CC system gives control of the vehicle back to the driver, but saves the
+     * target speed and/or target time gap settings in case CC is resumed. This state can also be
+     * used when adaptive/predictive CC slows to a stop and needs a user signal to start again.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int SUSPENDED = 4;
     /**
-     * When CC is in the {@link ACTIVATED} state but may potentially need to deactivate because of
+     * When CC is in the {@link #ACTIVATED} state but may potentially need to deactivate because of
      * external conditions (e.g. roads curvature is too extreme, the driver does not have their
      * hands on the steering wheel for a long period of time, or the driver is not paying
      * attention), then the ADAS system will notify the driver of a potential need to deactivate and

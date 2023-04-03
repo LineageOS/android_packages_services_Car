@@ -27,8 +27,9 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Possible vehicle light switch states.
  *
- * <p>Applications can use getProperty and SetProperty in
- * {@link android.car.hardware.property.CarPropertyManager}
+ * <p>Applications can use {@link
+ * android.car.hardware.property.CarPropertyManager#getProperty(int, int)} and {@link
+ * android.car.hardware.property.CarPropertyManager#setProperty(Class, int, int, java.lang.Object)}
  * to get and set the vehicle's light switch.
  *
  * @hide

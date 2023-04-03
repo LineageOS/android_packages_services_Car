@@ -222,8 +222,7 @@ public final class Car {
      * not usable in a specific car. This meta-data is not necessary for mandatory features.
      *
      * <p>For this meta-data, android:value should contain the feature name string defined by
-     * {@link android.car.annotation.OptionalFeature} or
-     * {@link android.car.annotation.ExperimentalFeature} annotations.
+     * {@code OptionalFeature} or {@code ExperimentalFeature} annotations.
      *
      * <p>Example usage:
      * <xml><meta-data android:name="requires-car-feature" android:value="diagnostic"/></xml>
@@ -262,7 +261,7 @@ public final class Car {
     @AddedInOrBefore(majorVersion = 33)
     public static final String AUDIO_SERVICE = "audio";
 
-    /** Service name for {@link CarNavigationStatusManager} */
+    /** Service name for {@code CarNavigationStatusManager} */
     @OptionalFeature
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
@@ -730,7 +729,7 @@ public final class Car {
             "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
 
     /**
-     * Permission necessary to use {@link CarNavigationStatusManager}.
+     * Permission necessary to use {@code CarNavigationStatusManager}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CAR_NAVIGATION_MANAGER =
@@ -2379,7 +2378,7 @@ public final class Car {
     /**
      * @return the type of currently connected car.
      *
-     * @deprecated connection type will be always {@link CONNECTION_TYPE_EMBEDDED}
+     * @deprecated connection type will be always {@link #CONNECTION_TYPE_EMBEDDED}
      */
     @ConnectionType
     @Deprecated
