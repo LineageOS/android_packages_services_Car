@@ -35,6 +35,7 @@ public:
     ~MockIoOveruseMonitor() {}
     MOCK_METHOD(bool, isInitialized, (), (const, override));
     MOCK_METHOD(bool, dumpHelpText, (int), (const, override));
+    MOCK_METHOD(void, onCarWatchdogServiceRegistered, (), (override));
     MOCK_METHOD(
             android::base::Result<void>, updateResourceOveruseConfigurations,
             (const std::vector<
@@ -45,6 +46,10 @@ public:
             (std::vector<
                     aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration>*),
             (const, override));
+    MOCK_METHOD(android::base::Result<void>, onTodayIoUsageStatsFetched,
+                (const std::vector<
+                        aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>&),
+                (override));
     MOCK_METHOD(
             android::base::Result<void>, addIoOveruseListener,
             (const std::shared_ptr<aidl::android::automotive::watchdog::IResourceOveruseListener>&),
