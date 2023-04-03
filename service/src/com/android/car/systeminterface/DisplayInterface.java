@@ -20,6 +20,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHIN
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
 import static com.android.car.CarServiceUtils.isEventOfType;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
@@ -311,7 +312,12 @@ public interface DisplayInterface {
             } else {
                 mWakeLockInterface.switchToPartialWakeLock(displayId);
                 Slogf.i(CarLog.TAG_POWER, "off display %d", displayId);
-                PowerManagerHelper.goToSleep(mContext, displayId, SystemClock.uptimeMillis());
+                if (isPlatformVersionAtLeastU()) {
+                    PowerManagerHelper.goToSleep(mContext, displayId, SystemClock.uptimeMillis());
+                } else {
+                    PowerManagerHelper.setDisplayState(mContext, /* on= */ false,
+                            SystemClock.uptimeMillis());
+                }
             }
             if (carPowerManagementService != null) {
                 carPowerManagementService.handleDisplayChanged(displayId, on);
