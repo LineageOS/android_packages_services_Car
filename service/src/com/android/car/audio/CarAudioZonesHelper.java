@@ -71,7 +71,6 @@ import java.util.stream.Collectors;
     private static final String ATTR_NAME = "name";
     private static final String ATTR_CONTENT_TYPE = "contentType";
     private static final String ATTR_USAGE = "usage";
-    private static final String ATTR_BUNDLE = "bundle";
     private static final String ATTR_TAGS = "tags";
 
     private static final String TAG_AUDIO_ZONES = "zones";

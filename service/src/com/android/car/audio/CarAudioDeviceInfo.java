@@ -149,10 +149,12 @@ import com.android.internal.annotations.GuardedBy;
     void setCurrentGain(int gainInMillibels) {
         int gain = gainInMillibels;
         // Clamp the incoming value to our valid range.  Out of range values ARE legal input
-        if (gain < mMinGain) {
-            gain = mMinGain;
-        } else if (gain > mMaxGain) {
-            gain = mMaxGain;
+        synchronized (mLock) {
+            if (gain < mMinGain) {
+                gain = mMinGain;
+            } else if (gain > mMaxGain) {
+                gain = mMaxGain;
+            }
         }
 
         if (AudioManagerHelper.setAudioDeviceGain(mAudioManager,
@@ -213,8 +215,8 @@ import com.android.internal.annotations.GuardedBy;
                 + " encodingFormat: " + getEncodingFormat()
                 + " channelCount: " + getChannelCount()
                 + " currentGain: " + mCurrentGain
-                + " maxGain: " + mMaxGain
-                + " minGain: " + mMinGain;
+                + " maxGain: " + getMaxGain()
+                + " minGain: " + getMinGain();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

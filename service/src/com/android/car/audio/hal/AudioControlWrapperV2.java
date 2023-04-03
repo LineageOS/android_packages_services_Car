@@ -204,7 +204,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         }
     }
 
-    private final class FocusListenerWrapper extends IFocusListener.Stub {
+    private static final class FocusListenerWrapper extends IFocusListener.Stub {
         private final HalFocusListener mListener;
 
         FocusListenerWrapper(HalFocusListener halFocusListener) {
