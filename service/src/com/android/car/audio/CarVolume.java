@@ -164,7 +164,7 @@ final class CarVolume {
     }
 
     /**
-     * @see {@link CarAudioService#resetSelectedVolumeContext()}
+     * @see CarAudioService#resetSelectedVolumeContext()
      */
     public void resetSelectedVolumeContext() {
         setAudioContextStillActive(CarAudioContext.getInvalidContext());
