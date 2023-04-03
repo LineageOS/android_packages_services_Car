@@ -199,7 +199,11 @@ ScopedAStatus WatchdogInternalHandler::registerCarWatchdogService(
      * overuse monitor on processing the request to register CarService.
      */
     checkAndRegisterIoOveruseMonitor();
-    return mWatchdogServiceHelper->registerService(service);
+    auto status = mWatchdogServiceHelper->registerService(service);
+    if (status.isOk()) {
+        mIoOveruseMonitor->onCarWatchdogServiceRegistered();
+    }
+    return status;
 }
 
 ScopedAStatus WatchdogInternalHandler::unregisterCarWatchdogService(
@@ -437,8 +441,15 @@ void WatchdogInternalHandler::setThreadPriorityController(
 }
 
 ScopedAStatus WatchdogInternalHandler::onTodayIoUsageStatsFetched(
-        [[maybe_unused]] const std::vector<UserPackageIoUsageStats>& userPackageIoUsageStats) {
-    // TODO(b/262605181): Send the I/O stats to the IoOveruseMonitor
+        const std::vector<UserPackageIoUsageStats>& userPackageIoUsageStats) {
+    if (auto status = checkSystemUser(/*methodName=*/"onTodayIoUsageStatsFetched");
+        !status.isOk()) {
+        return status;
+    }
+    if (auto result = mIoOveruseMonitor->onTodayIoUsageStatsFetched(userPackageIoUsageStats);
+        !result.ok()) {
+        return toScopedAStatus(result);
+    }
     return ScopedAStatus::ok();
 }
 
