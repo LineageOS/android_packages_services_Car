@@ -472,11 +472,11 @@ public final class CarWatchdogManager extends CarManagerBase {
          *
          * <p>The listener is called at the executor which is specified in {@link
          * CarWatchdogManager#addResourceOveruseListener} or
-         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
+         * {@code addResourceOveruseListenerForSystem}.
          *
          * <p>The listener is called only on overusing one of the resources specified at the
          * {@code resourceOveruseFlag} in {@link CarWatchdogManager#addResourceOveruseListener} or
-         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
+         * {@code addResourceOveruseListenerForSystem}.
          *
          * @param resourceOveruseStats Resource overuse stats containing stats only for resources
          *                             overuse types that are either overused or about to be

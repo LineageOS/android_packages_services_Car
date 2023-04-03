@@ -34,10 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public class EmergencyLaneKeepAssistState {
     /**
-     * This state is used as an alternative for any EmergencyLaneKeepAssistState value that is not
-     * defined in the platform. Ideally, implementations of {@link EMERGENCY_LANE_KEEP_ASSIST_STATE}
-     * should not use this state. The framework can use this field to remain backwards compatible if
-     * EmergencyLaneKeepAssistState is extended to include additional states.
+     * This state is used as an alternative for any {@code EmergencyLaneKeepAssistState} value that
+     * is not defined in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#EMERGENCY_LANE_KEEP_ASSIST_STATE} should not use this state.
+     * The framework can use this field to remain backwards compatible if {@code
+     * EmergencyLaneKeepAssistState} is extended to include additional states.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

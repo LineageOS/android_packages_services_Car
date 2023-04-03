@@ -130,7 +130,7 @@ public final class CarAudioManager extends CarManagerBase {
 
     /**
      * This is used to determine if volume group events is supported via
-     * {@link #isAudioFeatureEnabled()}
+     * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, the car volume group event callback can be used to receive event changes
      * to volume, mute, attenuation.
@@ -145,12 +145,12 @@ public final class CarAudioManager extends CarManagerBase {
      * {@link #isAudioFeatureEnabled(int)}
      *
      * <p>If enabled, audio mirroring can be managed by using the following APIs:
-     * {@link #setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
-     * {@link #clearAudioZonesMirrorStatusCallback()}, {@link #canEnableAudioMirror()},
-     * {@link #enableMirrorForAudioZones(List)}, {@link #extendAudioMirrorRequest(long, List)},
-     * {@link #disableAudioMirrorForZone(int)}, {@link #disableAudioMirror(long)},
-     * {@link #getMirrorAudioZonesForAudioZone(int)},
-     * {@link #getMirrorAudioZonesForMirrorRequest(long)}
+     * {@code setAudioZoneMirrorStatusCallback(Executor, AudioZonesMirrorStatusCallback)},
+     * {@code clearAudioZonesMirrorStatusCallback()}, {@code canEnableAudioMirror()},
+     * {@code enableMirrorForAudioZones(List)}, {@code extendAudioMirrorRequest(long, List)},
+     * {@code disableAudioMirrorForZone(int)}, {@code disableAudioMirror(long)},
+     * {@code getMirrorAudioZonesForAudioZone(int)},
+     * {@code getMirrorAudioZonesForMirrorRequest(long)}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
@@ -948,7 +948,7 @@ public final class CarAudioManager extends CarManagerBase {
      * Switches the car audio zone configuration
      *
      * <p>To receive the volume group change after configuration is changed, a
-     * {@link CarVolumeGroupEventCallback} must be registered through
+     * {@code CarVolumeGroupEventCallback} must be registered through
      * {@link #registerCarVolumeGroupEventCallback(Executor, CarVolumeGroupEventCallback)} first.
      *
      * @param zoneConfig Audio zone configuration to switch to
@@ -1732,7 +1732,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Registers a {@link CarVolumeGroupEventCallback} to receive volume group event callbacks
+     * Registers a {@code CarVolumeGroupEventCallback} to receive volume group event callbacks
      *
      * @param executor Executor on which callback will be invoked
      * @param callback Callback that will report volume group events
@@ -1777,7 +1777,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     /**
-     * Unregisters a {@link CarVolumeGroupEventCallback} registered via
+     * Unregisters a {@code CarVolumeGroupEventCallback} registered via
      * {@link #registerCarVolumeGroupEventCallback}
      *
      * @param callback The callback to be removed
@@ -2010,7 +2010,7 @@ public final class CarAudioManager extends CarManagerBase {
          *
          * <p><b>Notes:</b>
          * <ul>
-         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group index changes are <b>only</b>
          *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
@@ -2052,7 +2052,7 @@ public final class CarAudioManager extends CarManagerBase {
          *     <li>If {@link CarAudioManager#AUDIO_FEATURE_VOLUME_GROUP_MUTING} is enabled
          *     this will be triggered on mute changes. Otherwise, car audio mute changes will
          *     trigger {@link #onMasterMuteChanged(int, int)}</li>
-         *     <li>If both {@link CarVolumeCallback} and {@link CarVolumeGroupEventCallback}
+         *     <li>If both {@link CarVolumeCallback} and {@code CarVolumeGroupEventCallback}
          *     are registered by the same app, then volume group mute changes are <b>only</b>
          *     propagated through CarVolumeGroupEventCallback (until it is unregistered)</li>
          *     <li>Apps are encouraged to migrate to the new callback
