@@ -48,6 +48,7 @@ import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
+import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
@@ -150,7 +151,8 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     @Before
     public void setUp() throws Exception {
         when(mMockCarPropertyService.getPropertyList())
-                .thenReturn(Collections.singletonList(PROP_CONFIG));
+                .thenReturn(new CarPropertyConfigList(
+                        Collections.singletonList(PROP_CONFIG)));
         mockPackageManager();
 
         mFakeScriptExecutor = new FakeScriptExecutor();
