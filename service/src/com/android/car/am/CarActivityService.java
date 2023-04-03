@@ -20,12 +20,12 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.MANAGE_ACTIVITY_TASKS;
 import static android.car.Car.PERMISSION_MANAGE_CAR_SYSTEM_UI;
 import static android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY;
-import static android.car.PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.TaskInfo;
@@ -340,6 +340,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void startUserPickerOnDisplay(int displayId) {
         CarServiceUtils.assertAnyPermission(mContext, INTERACT_ACROSS_USERS);
         Preconditions.checkArgument(displayId != Display.INVALID_DISPLAY, "Invalid display");
+        if (!isPlatformVersionAtLeastU()) {
+            return;
+        }
         String userPickerName = mContext.getResources().getString(
                 R.string.config_userPickerActivity);
         if (userPickerName.isEmpty()) {
@@ -452,7 +455,11 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
+    @Nullable
     public SurfaceControl getMirroredSurface(IBinder token, Rect outBounds) {
+        if (!isPlatformVersionAtLeastU()) {
+            return null;
+        }
         return getMirroredSurfaceInternal(token, outBounds, MIRRORING_TOKEN_TIMEOUT_MS);
     }
 
@@ -561,7 +568,6 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @VisibleForTesting
     SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect outBounds, long tokenTimeoutMs) {
-        assertPlatformVersionAtLeast(UPSIDE_DOWN_CAKE_0);
         ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
         MirroringToken mirroringToken;
         try {
@@ -655,6 +661,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public void moveRootTaskToDisplay(int taskId, int displayId) {
         ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+        if (!isPlatformVersionAtLeastU()) {
+            return;
+        }
 
         // Calls moveRootTaskToDisplay() with the system uid.
         long identity = Binder.clearCallingIdentity();
