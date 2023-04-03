@@ -492,6 +492,8 @@ public final class AudioManagerHelper {
                     case MASTER_MUTE_CHANGED_ACTION:
                         onMuteChanged();
                         break;
+                    default:
+                        break;
                 }
             }
         };
