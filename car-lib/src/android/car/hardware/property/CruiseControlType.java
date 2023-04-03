@@ -34,10 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public class CruiseControlType {
     /**
-     * This state is used as an alternative for any CruiseControlType value that is not defined in
-     * the platform. Ideally, implementations of {@link CRUISE_CONTROL_TYPE} should not use this
-     * state. The framework can use this field to remain backwards compatible if CruiseControlType
-     * is extended to include additional types.
+     * This state is used as an alternative for any {@code CruiseControlType} value that is not
+     * defined in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#CRUISE_CONTROL_TYPE} should not use this state. The framework
+     * can use this field to remain backwards compatible if {@code CruiseControlType} is extended to
+     * include additional types.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

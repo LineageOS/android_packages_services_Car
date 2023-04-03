@@ -34,10 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public class HandsOnDetectionDriverState {
     /**
-     * This state is used as an alternative for any HandsOnDetectionDriverState value that is not
-     * defined in the platform. Ideally, implementations of {@link HANDS_ON_DETECTION_DRIVER_STATE}
-     * should not use this state. The framework can use this field to remain backwards compatible if
-     * HandsOnDetectionDriverState is extended to include additional states.
+     * This state is used as an alternative for any {@code HandsOnDetectionDriverState} value that
+     * is not defined in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#HANDS_ON_DETECTION_DRIVER_STATE} should not use this state.
+     * The framework can use this field to remain backwards compatible if {@code
+     * HandsOnDetectionDriverState} is extended to include additional states.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

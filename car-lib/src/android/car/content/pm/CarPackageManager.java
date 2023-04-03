@@ -175,14 +175,14 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * <p>Format is in the form {@code major:minor} or {@code major}.
      *
-     * <p>For example, for {@link Build.VERSION_CODES#TIRAMISU Android 13}, it would be:
+     * <p>For example, for {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}, it would be:
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33"/></code>
      *
      * <p>Or:
      *
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33:0"/></code>
      *
-     * <p>And for {@link Build.VERSION_CODES#TIRAMISU Android 13} first update:
+     * <p>And for {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13} first update:
      *
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33:1"/></code>
      */

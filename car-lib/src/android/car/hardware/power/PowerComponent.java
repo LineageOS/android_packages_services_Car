@@ -22,7 +22,7 @@ import android.car.annotation.ApiRequirements;
 /**
  * Copy from android.frameworks.automotive.powerpolicy-java-source/gen/android/frameworks/automotive
  * /powerpolicy/PowerComponent.java. Must be updated when power components are added to
- * {@link android.frameworks.hardware.automotivie.powerpolicy.PowerComponent}.
+ * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
  */
 public @interface PowerComponent {
     /**

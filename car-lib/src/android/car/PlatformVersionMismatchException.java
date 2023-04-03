@@ -29,7 +29,7 @@ import com.android.car.internal.util.DataClass;
 /**
  * Exception thrown when an App tries to calls an API not supported in the platform version.
  *
- * <p>Apps are expected to check the {@link ApiRequirements} for each API. If the API is
+ * <p>Apps are expected to check the {@code ApiRequirements} for each API. If the API is
  * not supported for the current platform, the API should not be called. Apps can use
  * {@link Car#getPlatformVersion()} to get the current platform version.
  */
