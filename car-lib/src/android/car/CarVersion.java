@@ -75,7 +75,7 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         /**
          * Helper object for main version of Android 14.
          */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final CarVersion UPSIDE_DOWN_CAKE_0 =
