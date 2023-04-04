@@ -310,7 +310,7 @@ public final class HalAudioFocus implements HalFocusListener {
                 zoneId, resultingFocusGain);
     }
 
-    private final class HalAudioFocusRequest {
+    private static final class HalAudioFocusRequest {
         final AudioFocusRequest mAudioFocusRequest;
 
         int mFocusStatus;

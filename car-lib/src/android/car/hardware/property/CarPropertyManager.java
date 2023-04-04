@@ -69,8 +69,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provides an application interface for interacting with the Vehicle specific properties.
- * For details about the individual properties, see the descriptions in
- * hardware/interfaces/automotive/vehicle/types.hal
+ * For details about the individual properties, see the descriptions in {@link VehiclePropertyIds}
  */
 public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
@@ -234,7 +233,7 @@ public class CarPropertyManager extends CarManagerBase {
          * <p>If only one requests is successfully processed by the vehicle bus, overwriting the
          * other request, then only one success callback would be called for one client. The other
          * client would get the failure callback with
-         * {@link CarPropertyManager#STATUS_ERROR_TIMEOUT) error code.
+         * {@link CarPropertyManager#STATUS_ERROR_TIMEOUT} error code.
          *
          * <p>If multiple clients set a property for the same area ID simultaneously with the same
          * value. The success callback for both clients would be called in an undefined order.
@@ -325,7 +324,8 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Internal use only. Users should use {@link generateGetPropertyRequest} instead.
+         * Internal use only. Users should use {@link #generateGetPropertyRequest(int, int)}
+         * instead.
          */
         private GetPropertyRequest(int requestId, int propertyId, int areaId) {
             mRequestId = requestId;
@@ -388,8 +388,8 @@ public class CarPropertyManager extends CarManagerBase {
          *
          * <ul>
          * <li>the set operation is successfully delivered to vehicle bus.
-         * <li>the {@link #mPropertyId}+{@link #mAreaId}'s value already equal to {@link #mValue} or
-         * is successfully updated to the {@link #mValue} through the set operation.
+         * <li>the {@code mPropertyId}+{@code mAreaId}'s value already equal to {@code mValue} or
+         * is successfully updated to the {@code mValue} through the set operation.
          * </ul>
          *
          * <p>Even if the target value is the same as the current value, we will still send the set
@@ -398,7 +398,8 @@ public class CarPropertyManager extends CarManagerBase {
          *
          * <p>If the first condition fails, the error callback will be called. If the second
          * condition fails, which means we don't see the property updated to the target value within
-         * a specified timeout, the error callback will be called with {@link STATUS_ERROR_TIMEOUT}.
+         * a specified timeout, the error callback will be called with {@link
+         * #STATUS_ERROR_TIMEOUT}.
          *
          * <p>If this is set to {@code false}, the success callback will be called after the
          * set operation is successfully delivered to vehicle bus.
@@ -486,7 +487,8 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Internal use only. Users should use {@link generateSetPropertyRequest} instead.
+         * Internal use only. Users should use {@link #generateSetPropertyRequest(int, int, T)}
+         * instead.
          */
         private SetPropertyRequest(int requestId, int propertyId, int areaId, T value) {
             mRequestId = requestId;
@@ -630,8 +632,8 @@ public class CarPropertyManager extends CarManagerBase {
          * increasing using the same time base as {@link SystemClock#elapsedRealtimeNanos()}.
          *
          * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
-         * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
-         * error should be below 1 millisecond.
+         * {@link android.location.Location} and {@link android.hardware.SensorEvent} instances).
+         * Ideally, timestamp synchronization error should be below 1 millisecond.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -729,8 +731,8 @@ public class CarPropertyManager extends CarManagerBase {
          * vehicle bus, not when the property is updated since we have no way of knowing that.
          *
          * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
-         * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
-         * error should be below 1 millisecond.
+         * {@link android.location.Location} and {@link android.hardware.SensorEvent} instances).
+         * Ideally, timestamp synchronization error should be below 1 millisecond.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -826,7 +828,7 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * A class for delivering {@link GetPropertyCallback} or {@link SetPropertyCallback} client
-     * callback when {@link IAsyncPropertyResultCallback} returns results.
+     * callback when {@code IAsyncPropertyResultCallback} returns results.
      */
     private class AsyncPropertyResultCallback extends IAsyncPropertyResultCallback.Stub {
 
@@ -1078,7 +1080,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Register {@link CarPropertyEventCallback} to get property updates. Multiple callbacks
      * can be registered for a single property or the same callback can be used for different
      * properties. If the same callback is registered again for the same property, it will be
-     * updated to new updateRateHz.
+     * updated to new {@code updateRateHz}.
      *
      * <p>Rate could be one of the following:
      * <ul>
@@ -1097,7 +1099,7 @@ public class CarPropertyManager extends CarManagerBase {
      * </ul>
      *
      * <p>
-     * <b>Note:</b>If listener registers a callback for updates for a property for the first time,
+     * <b>Note:</b> If listener registers a callback for updates for a property for the first time,
      * it will receive the property's current value via a change event upon registration if the
      * property is currently available for reading.
      *
@@ -1105,18 +1107,18 @@ public class CarPropertyManager extends CarManagerBase {
      * property change events containing the property's initial value will be generated once their
      * power state is on.
      *
-     * <p>If updateRateHz is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be
-     * registered with max sample updateRateHz.
+     * <p>If {@code updateRateHz} is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it
+     * will be registered with max sample {@code updateRateHz}.
      *
-     * <p>If updateRateHz is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be
-     * registered with min sample updateRateHz.
+     * <p>If {@code updateRateHz} is lower than {@link CarPropertyConfig#getMinSampleRate()}, it
+     * will be registered with min sample {@code updateRateHz}.
      *
      * <p>
-     * <b>Note:</b>A property change event will only happen when the property is available. Caller
+     * <b>Note:</b> A property change event will only happen when the property is available. Caller
      * must never depend on the change event to check property's availability. For properties that
      * might be unavailable because they depend on certain power state, caller should subscribe
-     * to the power state property (e.g. HVAC_POWER_ON for hvac dependant properties) to decide
-     * this property's availability.
+     * to the power state property (e.g. {@link VehiclePropertyIds#HVAC_POWER_ON} for hvac dependant
+     * properties) to decide this property's availability.
      *
      * @param carPropertyEventCallback the CarPropertyEventCallback to be registered
      * @param propertyId               the property ID to subscribe
@@ -1234,7 +1236,7 @@ public class CarPropertyManager extends CarManagerBase {
     public List<CarPropertyConfig> getPropertyList() {
         List<CarPropertyConfig> configs;
         try {
-            configs = mService.getPropertyList();
+            configs = mService.getPropertyList().getConfigs();
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
             return handleRemoteExceptionFromCarService(e, new ArrayList<>());
@@ -1273,7 +1275,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Get CarPropertyConfig by property ID.
+     * Get {@link CarPropertyConfig} by property ID.
      *
      * @param propertyId the property ID
      * @return the {@link CarPropertyConfig} for the selected property, {@code null} if the property
@@ -1302,7 +1304,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param area the area enum such as Enums in {@link android.car.VehicleAreaSeat}
      * @throws IllegalArgumentException if the property is not available in the vehicle for
      * the selected area
-     * @return the {@link AreaId} containing the selected area for the property
+     * @return the {@code AreaId} containing the selected area for the property
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaId(int propertyId, int area) {
@@ -1376,7 +1378,8 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @param propertyId the property ID
      * @param areaId the area ID
-     * @return {@code true} if STATUS_AVAILABLE, {@code false} otherwise (eg STATUS_UNAVAILABLE)
+     * @return {@code true} if {@link CarPropertyValue#STATUS_AVAILABLE}, {@code false} otherwise
+     * (eg {@link CarPropertyValue#STATUS_UNAVAILABLE})
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isPropertyAvailable(int propertyId, int areaId) {
@@ -1577,7 +1580,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Return CarPropertyValue
+     * Return {@link CarPropertyValue}
      *
      * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
@@ -1642,7 +1645,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Query CarPropertyValue with property id and areaId.
+     * Query {@link CarPropertyValue} with property id and areaId.
      *
      * <p>This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
@@ -1857,7 +1860,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     *  Handles ServiceSpecificException in CarService for R and later version.
+     *  Handles {@code ServiceSpecificException} in {@code CarService} for R and later version.
      */
     private void handleCarServiceSpecificException(
             ServiceSpecificException e, int propertyId, int areaId) {
@@ -1926,7 +1929,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Set an onCancelListener for the cancellation signal.
+     * Set an {@code onCancelListener} for the cancellation signal.
      *
      * <p>When the signal is cancelled, car service will remove the stored state for the specified
      * pending request IDs and ignore all the future results.
@@ -1982,7 +1985,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propertyId the property ID
      * @param areaId the area ID
      * @param value the value to set
-     * @return the SetPropertyRequest object
+     * @return the {@link SetPropertyRequest} object
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -2018,10 +2021,11 @@ public class CarPropertyManager extends CarManagerBase {
      * <p>If the operation is cancelled, it is guaranteed that no more callbacks will be called.
      *
      * <p>For one request, if the property's status is not available,
-     * {@code errorCallback.onFailure} will be called once with {@link STATUS_ERROR_NOT_AVAILABLE}.
+     * {@code errorCallback.onFailure} will be called once with {@link #STATUS_ERROR_NOT_AVAILABLE}.
      *
      * <p>For one request, if the property's status is error,
-     * {@code errorCallback.onFailure} will be called once with {@link STATUS_ERROR_INTERNAL_ERROR}.
+     * {@code errorCallback.onFailure} will be called once with {@link
+     * #STATUS_ERROR_INTERNAL_ERROR}.
      *
      * @param getPropertyRequests a list of properties to get
      * @param timeoutInMs the timeout for the operation, in milliseconds

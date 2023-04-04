@@ -34,10 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 @SystemApi
 public class HandsOnDetectionWarning {
     /**
-     * This state is used as an alternative for any HandsOnDetectionWarning value that is defined in
-     * the platform. Ideally, implementations of {@link HANDS_ON_DETECTION_WARNING} should not use
-     * this state. The framework can use this field to remain backwards compatible if
-     * HandsOnDetectionWarning is extended to include additional states.
+     * This state is used as an alternative for any {@code HandsOnDetectionWarning} value that is
+     * not defined in the platform. Ideally, implementations of {@link
+     * android.car.VehiclePropertyIds#HANDS_ON_DETECTION_WARNING} should not use this state. The
+     * framework can use this field to remain backwards compatible if {@code
+     * HandsOnDetectionWarning} is extended to include additional states.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

@@ -633,6 +633,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 + " resulted in " + focusRequestResponseToString(response));
     }
 
+    @GuardedBy("mLock")
     private void swapDelayedAudioFocusRequestLocked(AudioFocusInfo afi) {
         // If we are swapping to a different client then send the focus loss signal
         if (mDelayedRequest != null

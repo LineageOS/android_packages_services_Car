@@ -52,14 +52,14 @@ public final class WindshieldWipersSwitch {
     public static final int OFF = 1;
 
     /**
-     * MIST mode performs a single wipe, and then returns to the OFF position.
+     * {@code MIST} mode performs a single wipe, and then returns to the {@link #OFF} position.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int MIST = 2;
 
     /**
-     * INTERMITTENT_LEVEL_* modes performs intermittent wiping. As the level increases, the
+     * {@code INTERMITTENT_LEVEL_*} modes performs intermittent wiping. As the level increases, the
      * intermittent time period decreases.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -95,8 +95,8 @@ public final class WindshieldWipersSwitch {
     public static final int INTERMITTENT_LEVEL_5 = 7;
 
     /**
-     * CONTINUOUS_LEVEL_* modes performs continuous wiping. As the level increases the speed of the
-     * wiping increases as well.
+     * {@code CONTINUOUS_LEVEL_*} modes performs continuous wiping. As the level increases the speed
+     * of the wiping increases as well.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -131,8 +131,8 @@ public final class WindshieldWipersSwitch {
     public static final int CONTINUOUS_LEVEL_5 = 12;
 
     /**
-     * AUTO allows the vehicle to decide the required wiping level based on the exterior weather
-     * conditions.
+     * {@code AUTO} allows the vehicle to decide the required wiping level based on the exterior
+     * weather conditions.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

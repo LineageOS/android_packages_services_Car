@@ -71,13 +71,11 @@ public:
             const = 0;
     virtual ndk::ScopedAStatus resetResourceOveruseStats(
             const std::vector<std::string>& packageNames) const = 0;
-    virtual ndk::ScopedAStatus getTodayIoUsageStats(
-            std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
-                    userPackageIoUsageStats) const = 0;
     virtual ndk::ScopedAStatus onLatestResourceStats(
             const std::vector<aidl::android::automotive::watchdog::internal::ResourceStats>&
                     resourceStats) const = 0;
     virtual ndk::ScopedAStatus requestAidlVhalPid() const = 0;
+    virtual ndk::ScopedAStatus requestTodayIoUsageStats() const = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -120,13 +118,11 @@ public:
             const override;
     ndk::ScopedAStatus resetResourceOveruseStats(
             const std::vector<std::string>& packageNames) const override;
-    ndk::ScopedAStatus getTodayIoUsageStats(
-            std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*
-                    userPackageIoUsageStats) const override;
     ndk::ScopedAStatus onLatestResourceStats(
             const std::vector<aidl::android::automotive::watchdog::internal::ResourceStats>&
                     resourceStats) const override;
     ndk::ScopedAStatus requestAidlVhalPid() const override;
+    ndk::ScopedAStatus requestTodayIoUsageStats() const override;
 
 protected:
     android::base::Result<void> init(

@@ -48,9 +48,9 @@ import java.util.concurrent.Executor;
  * events. At {@link RemoteTaskClientCallback#onClientRegistered} it is required to share
  * {@code serviceId}, {@code deviceId} and {@code clientId} with the cloud service which will use
  * the IDs to wake the vehicle. At {@link RemoteTaskClientCallback#onRemoteTaskRequested}, it starts
- * executing the given task. It is supposed to call {@link reportRemoteTaskDone} when it finishes
- * the given task. Once the task completion is reported or the timeout expires, Android System goes
- * back to either the previous power state or the specified power state.
+ * executing the given task. It is supposed to call {@link #reportRemoteTaskDone(String)} when it
+ * finishes the given task. Once the task completion is reported or the timeout expires, Android
+ * System goes back to either the previous power state or the specified power state.
  */
 public final class CarRemoteAccessManager extends CarManagerBase {
 
@@ -297,7 +297,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     }
 
     /**
-     * Clears the remote task client previously set via {@link setRemoteTaskClient}.
+     * Clears the remote task client previously set via {@link #setRemoteTaskClient(Executor,
+     * RemoteTaskClientCallback)}.
      *
      * <p>After the remote task client is cleared, all tasks associated with the previous client
      * will not be delivered and the client must not call {@code reportRemoteTaskDone} with the

@@ -513,7 +513,7 @@ public class CarPropertyService extends ICarProperty.Stub
      */
     @NonNull
     @Override
-    public List<CarPropertyConfig> getPropertyList() {
+    public CarPropertyConfigList getPropertyList() {
         int[] allPropId;
         // Avoid permission checking under lock.
         synchronized (mLock) {
@@ -522,7 +522,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 allPropId[i] = mPropertyIdToCarPropertyConfig.keyAt(i);
             }
         }
-        return getPropertyConfigList(allPropId).getConfigs();
+        return getPropertyConfigList(allPropId);
     }
 
     /**
