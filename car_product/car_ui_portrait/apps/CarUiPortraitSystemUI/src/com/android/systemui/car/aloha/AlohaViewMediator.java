@@ -41,7 +41,6 @@ public class AlohaViewMediator implements OverlayViewMediator {
 
     @Override
     public void registerListeners() {
-        mAlohaViewController.start();
     }
 
     @Override
