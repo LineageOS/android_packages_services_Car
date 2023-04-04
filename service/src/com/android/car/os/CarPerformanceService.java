@@ -16,10 +16,7 @@
 
 package com.android.car.os;
 
-import static android.car.PlatformVersion.VERSION_CODES;
-
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
 
 import android.car.Car;
 import android.car.builtin.util.Slogf;
@@ -89,7 +86,6 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
     @Override
     public void setThreadPriority(int tid, ThreadPolicyWithPriority threadPolicyWithPriority)
             throws RemoteException {
-        assertPlatformVersionAtLeast(VERSION_CODES.TIRAMISU_1);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
 
         int pid = Binder.getCallingPid();
@@ -111,7 +107,6 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      */
     @Override
     public ThreadPolicyWithPriority getThreadPriority(int tid) throws RemoteException {
-        assertPlatformVersionAtLeast(VERSION_CODES.TIRAMISU_1);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
 
         int pid = Binder.getCallingPid();
