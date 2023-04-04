@@ -18,27 +18,29 @@
 <!-- Layout specifically for the media card, which uses media-specific playback_controls.xml -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
+    android:layout_height="@dimen/seekbar_with_times_height"
     android:layout_width="match_parent"
     android:layout_below="@id/content_container"
-    android:layout_marginEnd="@dimen/seekbar_marginHorizontal"
-    android:layout_marginTop="@dimen/seekbar_marginVertical"
+    android:layout_marginTop="@dimen/seekbar_with_times_margin_top"
+    android:layout_marginBottom="@dimen/seekbar_with_times_margin_bottom"
+    android:layout_marginHorizontal="@dimen/seekbar_marginHorizontal"
     android:orientation="horizontal"
     android:gravity="center_vertical">
     <!-- Support user interaction later and remove clickable false -->
     <LinearLayout
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_width="0dp"
         android:orientation="vertical"
         android:layout_weight="0.6"
-        android:gravity="center_vertical | start">
+        android:gravity="center_vertical | start"
+        android:layout_marginEnd="@dimen/seekbar_margin_end">
         <SeekBar
             android:id="@+id/optional_seek_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:splitTrack="false"
             android:progressTint="@color/seek_bar_color"
-            android:progressBackgroundTint="@color/car_secondary_container"
+            android:progressBackgroundTint="@color/seek_bar_background_tint_color"
             android:thumbOffset="@dimen/seekbar_thumb_offset"
             android:thumb="@drawable/seekbar_thumb"
             android:paddingStart="@dimen/seekbar_padding"
@@ -52,7 +54,7 @@
             style="@android:style/Widget.ProgressBar.Horizontal"
             android:splitTrack="false"
             android:progressTint="@color/seek_bar_color"
-            android:progressBackgroundTint="@color/car_secondary_container"
+            android:progressBackgroundTint="@color/seek_bar_background_tint_color"
             android:paddingStart="@dimen/seekbar_padding"
             android:paddingEnd="@dimen/seekbar_padding"
             android:max="@integer/optional_seekbar_max"/>
@@ -60,9 +62,8 @@
     <TextView
         android:id="@+id/optional_times"
         android:layout_width="@dimen/seekbar_times_width"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         style="@style/TextAppearance.Car.Sub.Medium"
-        android:layout_marginStart="@dimen/seekbar_times_margin_start"
         android:gravity="center_vertical | end"
         android:textColor="@color/car_on_surface_variant"/>
 </LinearLayout>
