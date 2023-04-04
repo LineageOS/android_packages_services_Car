@@ -322,7 +322,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 logIfDebuggable("container height change from " + oldHeight + " to " + newHeight);
                 if (mIsSUWInProgress) {
                     mRootTaskViewPanel.openFullScreenPanel(/* animated = */ false,
-                            /* showToolBar = */ false);
+                            /* showToolBar = */ false, /* bottomAdjustment= */ 0);
                 }
             };
 
@@ -371,7 +371,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
-        setHomeScreenBottomMargin(mNavBarHeight);
+        setHomeScreenBottomPadding(mNavBarHeight);
 
         mAppGridTaskViewPanel = findViewById(R.id.app_grid_panel);
 
@@ -527,10 +527,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private void setHomeScreenBottomMargin(int bottomMargin) {
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mContainer.getLayoutParams();
-        lp.bottomMargin = bottomMargin;
-        mContainer.setLayoutParams(lp);
+    private void setHomeScreenBottomPadding(int bottomPadding) {
+        // Set padding instead of margin so the bottom area shows background of
+        // car_ui_portrait_launcher during immersive mode without nav bar, and panel states are
+        // calculated correctly.
+        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */0 , bottomPadding);
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -592,8 +593,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void updateTaskViewInsets() {
-        Insets insets =
-                Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0, mControlBarView.getHeight());
+        Insets insets = Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0,
+                mControlBarView.getHeight() + mNavBarHeight);
+
         if (mRootTaskViewPanel != null) {
             mRootTaskViewPanel.setInsets(insets);
         }
@@ -736,7 +738,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isFullScreen = newState.isFullScreen();
                 if (isFullScreen) {
-                    setHomeScreenBottomMargin(mIsSUWInProgress ? 0 : mNavBarHeight);
+                    setHomeScreenBottomPadding(mIsSUWInProgress ? 0 : mNavBarHeight);
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isFullScreen));
                     }
@@ -756,7 +758,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     setControlBarVisibility(/* isVisible= */ false, animated);
                 } else {
                     // Adjust the bottom margin to count for the nav bar.
-                    setHomeScreenBottomMargin(mNavBarHeight);
+                    setHomeScreenBottomPadding(mNavBarHeight);
                     // Show the nav bar if not showing Setup Wizard
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE,
@@ -838,7 +840,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("onImmersiveModeRequested = " + requested);
         if (requested && (!mCarUiPortraitDriveStateController.isDrivingStateMoving()
                 || mIsSUWInProgress)) {
-            mRootTaskViewPanel.openFullScreenPanel(animate, !mIsSUWInProgress);
+            int bottomAdjustment = mIsSUWInProgress ? 0 : mNavBarHeight;
+            mRootTaskViewPanel.openFullScreenPanel(animate, !mIsSUWInProgress, bottomAdjustment);
         } else {
             if (mTaskViewManager.getRootTaskCount() > 0) {
                 mRootTaskViewPanel.openPanel(animate);

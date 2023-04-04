@@ -281,8 +281,9 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     /** Transitions the panel into the full screen state. */
-    public void openFullScreenPanel(boolean animated, boolean showToolBar) {
+    public void openFullScreenPanel(boolean animated, boolean showToolBar, int bottomAdjustment) {
         mFullScreenState.mHasToolBar = showToolBar;
+        mFullScreenState.mBounds.bottom = ((ViewGroup) getParent()).getHeight() - bottomAdjustment;
         setActiveState(mFullScreenState, animated ? createFullScreenPanelAnimator() : null);
     }
 
