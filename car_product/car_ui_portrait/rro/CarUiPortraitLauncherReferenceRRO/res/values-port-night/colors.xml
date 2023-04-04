@@ -16,5 +16,6 @@
   -->
 
 <resources>
+    <color name="seek_bar_background_tint_color">@color/car_secondary_30</color>
     <color name="seek_bar_color">@color/car_on_primary_container</color>
 </resources>
