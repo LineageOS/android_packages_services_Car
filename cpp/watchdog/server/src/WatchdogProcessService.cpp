@@ -850,8 +850,6 @@ void WatchdogProcessService::reportWatchdogAliveToVhal() {
     };
     const auto& ret = updateVhal(propValue);
     if (!ret.ok()) {
-        // TODO(b/271860495): Do not retry updating VHAL if VHAL doesn't support this property.
-        // Propagate the error code for not supporting this property and handle it here.
         ALOGW("Failed to update WATCHDOG_ALIVE VHAL property. Will try again in 3s, error: %s",
               ret.error().message().c_str());
     }
