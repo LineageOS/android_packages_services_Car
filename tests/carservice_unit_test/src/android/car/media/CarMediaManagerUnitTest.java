@@ -188,6 +188,16 @@ public final class CarMediaManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void testIsIndependentPlaybackConfig_whenServiceThrowsRemoteException_returnFalse()
+            throws RemoteException {
+        doThrow(mRemoteException).when(mServiceMock).isIndependentPlaybackConfig();
+
+        expectWithMessage("Independent playback config when service throws remote exception")
+                .that(mMediaManager.isIndependentPlaybackConfig()).isFalse();
+        verify(mCarMock).handleRemoteExceptionFromCarService(mRemoteException, false);
+    }
+
+    @Test
     public void testSetIndependentPlaybackConfig() throws
             RemoteException {
         mMediaManager.setIndependentPlaybackConfig(true);
