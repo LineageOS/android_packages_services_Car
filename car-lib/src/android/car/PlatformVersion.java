@@ -77,11 +77,13 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
         /**
          * Helper object for main version of Android 14.
          */
-        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+        @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final PlatformVersion UPSIDE_DOWN_CAKE_0 =
                 new PlatformVersion("UPSIDE_DOWN_CAKE_0", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
+
+        // DO NOT ADD minor UPSIDE_DOWN_CAKE version until lint tool is working. (b/275125924)
 
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");
