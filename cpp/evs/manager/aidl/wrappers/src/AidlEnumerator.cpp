@@ -206,6 +206,12 @@ ScopedAStatus AidlEnumerator::getDisplayState(DisplayState* _aidl_return) {
     return ScopedAStatus::ok();
 }
 
+ScopedAStatus AidlEnumerator::getDisplayStateById(int32_t /* displayId */,
+                                                  DisplayState* /* _aidl_return */) {
+    // No counterpart in the HIDL interfaces.
+    return Utils::buildScopedAStatusFromEvsResult(EvsResult::NOT_SUPPORTED);
+}
+
 ScopedAStatus AidlEnumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_return) {
     LOG(DEBUG) << __FUNCTION__;
     return mImpl->getDisplayIdList(_aidl_return);
