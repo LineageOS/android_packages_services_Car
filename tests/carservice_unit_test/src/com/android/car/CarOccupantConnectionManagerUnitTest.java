@@ -30,6 +30,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -196,17 +197,28 @@ public final class CarOccupantConnectionManagerUnitTest {
     }
 
     @Test
-    public void testCancelConnectionWithNullParameter_throwsException() throws RemoteException {
+    public void testCancelConnectionWithNullParameter_throwsException() {
         assertThrows(NullPointerException.class,
                 () -> mOccupantConnectionManager.cancelConnection(/* receiverZone= */ null));
 
     }
 
     @Test
+    public void testCancelConnectionWithoutConnectionRequest_throwsException() {
+        assertThrows(IllegalStateException.class,
+                () -> mOccupantConnectionManager.cancelConnection(mReceiverZone));
+    }
+
+    @Test
     public void testCancelConnection() throws RemoteException {
+        mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
+                mConnectionRequestCallback);
+        mOccupantConnectionManager.cancelConnection(mReceiverZone);
+        mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
+                mConnectionRequestCallback);
         mOccupantConnectionManager.cancelConnection(mReceiverZone);
 
-        verify(mService).cancelConnection(PACKAGE_NAME, mReceiverZone);
+        verify(mService, times(2)).cancelConnection(PACKAGE_NAME, mReceiverZone);
     }
 
     @Test
