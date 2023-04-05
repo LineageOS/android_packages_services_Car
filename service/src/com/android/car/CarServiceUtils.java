@@ -766,6 +766,9 @@ public final class CarServiceUtils {
      * SystemUI service component not being defined.
      */
     public static boolean startSystemUiForUser(Context context, @UserIdInt int userId) {
+        if (!isPlatformVersionAtLeastU()) {
+            return false;
+        }
         Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
                 "Cannot start SystemUI for the system user");
         Preconditions.checkArgument(userId != ActivityManager.getCurrentUser(),
@@ -790,6 +793,9 @@ public final class CarServiceUtils {
      * for the system user.
      */
     public static void stopSystemUiForUser(Context context, @UserIdInt int userId) {
+        if (!isPlatformVersionAtLeastU()) {
+            return;
+        }
         Preconditions.checkArgument(userId != UserHandle.SYSTEM.getIdentifier(),
                 "Cannot stop SystemUI for the system user");
         // TODO (b/261192740): add EventLog for SystemUI stopping
