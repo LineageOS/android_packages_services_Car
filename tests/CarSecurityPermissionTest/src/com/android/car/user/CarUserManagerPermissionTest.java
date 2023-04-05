@@ -44,7 +44,6 @@ import android.os.Handler;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -105,7 +104,6 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
-    @FlakyTest(detail = "b/275120030")
     public void testRemoveUser() throws Exception {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarUserManager.removeUser(
@@ -117,7 +115,6 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
-    @FlakyTest(detail = "b/275120030")
     public void testRemoveUserId() throws Exception {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarUserManager.removeUser(100));
