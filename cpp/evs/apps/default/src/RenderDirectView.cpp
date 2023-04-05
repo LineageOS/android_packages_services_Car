@@ -132,7 +132,7 @@ bool RenderDirectView::activate() {
                                       mConfig.getExternalMemoryFormat()));
     if (!mTexture) {
         LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.id;
-        // TODO(b/237904870): We may want to return false here.
+        return false;
     }
 
     return true;
