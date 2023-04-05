@@ -100,8 +100,6 @@
 
     <color name="car_toast_background">@color/car_inverse_surface</color>
 
-    <color name="car_button_text_color">@color/car_on_primary</color>
-
     <!-- Misc colors -->
     <color name="car_highlight_light">@color/car_primary</color>
     <color name="car_highlight_dark">@color/car_primary</color>

@@ -53,12 +53,12 @@ public class FadeInPanelAnimator extends PanelAnimator {
         updateBounds(mBounds);
         mTaskView.setScaleX(INITIAL_SCALE);
         mTaskView.setScaleY(INITIAL_SCALE);
-        mTaskView.animate()
+        mTaskView.post(() -> mTaskView.animate()
                 .scaleX(FINAL_SCALE)
                 .scaleY(FINAL_SCALE)
                 .setDuration(DURATION)
                 .setInterpolator(INTERPOLATOR)
                 .setStartDelay(DELAY)
-                .withEndAction(endAction);
+                .withEndAction(endAction));
     }
 }

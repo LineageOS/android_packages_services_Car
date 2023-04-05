@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2022 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,7 +15,11 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="seek_bar_background_tint_color">@color/car_secondary_30</color>
-    <color name="seek_bar_color">@color/car_on_primary_container</color>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="true"
+        android:color="@color/car_on_primary"/>
+
+    <item android:state_enabled="false"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_on_primary"/>
+</selector>

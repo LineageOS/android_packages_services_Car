@@ -23,6 +23,7 @@
         <!-- Text styles -->
         <!-- TODO clean up -->
 
+        <item name="android:textAppearanceButton">@style/TextAppearance.DeviceDefault.Widget.Button</item>
         <item name="android:textAppearanceListItem">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
@@ -51,6 +52,8 @@
         <item name="android:textColorPrimaryInverse">@color/car_background</item>
         <item name="android:textColorSecondary">@color/car_secondary</item>
         <item name="android:textColorSecondaryInverse">@color/car_on_secondary</item>
+        <item name="android:textColorTertiary">@color/car_secondary</item>
+        <item name="android:textColorTertiaryInverse">@color/car_on_secondary</item>
 
         <item name="android:listDivider">@color/list_divider_color</item>
         <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>

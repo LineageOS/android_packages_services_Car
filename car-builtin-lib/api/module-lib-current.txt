@@ -169,18 +169,18 @@ package android.car.builtin.job {
 package android.car.builtin.media {
 
   public final class AudioManagerHelper {
-    method public static void addTagToAudioAttributes(@NonNull android.media.AudioAttributes.Builder, @NonNull String);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void addTagToAudioAttributes(@NonNull android.media.AudioAttributes.Builder, @NonNull String);
     method public static String adjustToString(int);
-    method public static void adjustVolumeGroupVolume(@NonNull android.media.AudioManager, int, int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void adjustVolumeGroupVolume(@NonNull android.media.AudioManager, int, int, int);
     method public static android.car.builtin.media.AudioManagerHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
     method public static android.car.builtin.media.AudioManagerHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
-    method public static String getFormattedTags(@NonNull android.media.AudioAttributes);
-    method public static int getLastAudibleVolumeGroupVolume(@NonNull android.media.AudioManager, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static String getFormattedTags(@NonNull android.media.AudioAttributes);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int getLastAudibleVolumeGroupVolume(@NonNull android.media.AudioManager, int);
     method public static int getUsageVirtualSource();
-    method public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.audiopolicy.AudioProductStrategy, @NonNull android.media.AudioAttributes);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int getVolumeGroupIdForAudioAttributes(@NonNull android.media.audiopolicy.AudioProductStrategy, @NonNull android.media.AudioAttributes);
     method public static boolean isCallFocusRequestClientId(String);
     method public static boolean isMasterMute(@NonNull android.media.AudioManager);
-    method public static boolean isVolumeGroupMuted(@NonNull android.media.AudioManager, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isVolumeGroupMuted(@NonNull android.media.AudioManager, int);
     method public static void registerVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
     method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.media.AudioManagerHelper.AudioPatchInfo);
     method public static boolean setAudioDeviceGain(@NonNull android.media.AudioManager, @NonNull String, int, boolean);
@@ -188,9 +188,9 @@ package android.car.builtin.media {
     method public static void unregisterVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
     method public static String usageToString(int);
     method public static String usageToXsdString(int);
-    method public static int xsdStringToContentType(String);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static int xsdStringToContentType(String);
     method public static int xsdStringToUsage(String);
-    field public static final String AUDIO_ATTRIBUTE_TAG_SEPARATOR = ";";
+    field @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static final String AUDIO_ATTRIBUTE_TAG_SEPARATOR = ";";
     field public static final int UNDEFINED_STREAM_TYPE = -1; // 0xffffffff
   }
 

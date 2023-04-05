@@ -62,13 +62,13 @@ public class ExpandPanelAnimator extends PanelAnimator {
 
         mPanel.setTranslationX(mOrigin.x - mBounds.centerX());
         mPanel.setTranslationY(mOrigin.y - mBounds.centerY());
-        mPanel.animate()
+        mPanel.post(() -> mPanel.animate()
                 .scaleX(FINAL_SCALE)
                 .scaleY(FINAL_SCALE)
                 .translationX(/* value= */ 0)
                 .translationY(/* value= */ 0)
                 .setDuration(DURATION)
                 .setInterpolator(INTERPOLATOR)
-                .withEndAction(endAction);
+                .withEndAction(endAction));
     }
 }

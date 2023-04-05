@@ -18,19 +18,13 @@ package com.android.car.os;
 
 import static android.car.os.ThreadPolicyWithPriority.SCHED_FIFO;
 import static android.car.os.ThreadPolicyWithPriority.SCHED_RR;
-import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
-import android.car.PlatformVersion;
-import android.car.PlatformVersionMismatchException;
 import android.car.os.ThreadPolicyWithPriority;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -99,32 +93,5 @@ public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockito
 
         assertWithMessage("Thread policy").that(actual.getPolicy()).isEqualTo(SCHED_RR);
         assertWithMessage("Thread priority").that(actual.getPriority()).isEqualTo(30);
-    }
-
-    @Test
-    public void testFailsSetThreadPriorityOnIncorrectMajorVersion() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.forMajorVersion(/* majorVersion=*/ 32));
-
-        ThreadPolicyWithPriority policyWithPriority = new ThreadPolicyWithPriority(SCHED_FIFO, 10);
-
-        assertThrows(PlatformVersionMismatchException.class,
-                () -> mCarPerformanceService.setThreadPriority(/* tid= */234000,
-                        policyWithPriority));
-
-        verify(mMockCarWatchdogService, never()).setThreadPriority(anyInt(), anyInt(), anyInt(),
-                anyInt(), anyInt());
-    }
-
-    @Test
-    public void testFailsGetThreadPriorityOnIncorrectMajorVersion() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.forMajorVersion(/* majorVersion=*/ 32));
-
-        when(mMockCarWatchdogService.getThreadPriority(Binder.getCallingPid(),
-                /* tid= */234000, Binder.getCallingUid())).thenReturn(new int[] {SCHED_RR, 30});
-
-        assertThrows(PlatformVersionMismatchException.class,
-                () -> mCarPerformanceService.getThreadPriority(/* tid= */234000));
-
-        verify(mMockCarWatchdogService, never()).getThreadPriority(anyInt(), anyInt(), anyInt());
     }
 }
