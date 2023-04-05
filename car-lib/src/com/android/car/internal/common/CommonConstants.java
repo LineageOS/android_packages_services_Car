@@ -19,6 +19,7 @@ package com.android.car.internal.common;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.annotation.UserIdInt;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -54,7 +55,11 @@ public final class CommonConstants {
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
 
+    public static final int INVALID_GID = -1;
     public static final int INVALID_PID = -1;
+
+    // Represents an invalid user id. This must have the same value as UserHandle#USER_NULL.
+    public static final @UserIdInt int INVALID_USER_ID = -10000;
 
     @IntDef(prefix = { "USER_LIFECYCLE_EVENT_TYPE_" }, value = {
             USER_LIFECYCLE_EVENT_TYPE_STARTING,
