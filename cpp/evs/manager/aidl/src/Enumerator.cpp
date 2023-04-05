@@ -557,6 +557,15 @@ ScopedAStatus Enumerator::getDisplayState(DisplayState* _aidl_return) {
     }
 }
 
+ScopedAStatus Enumerator::getDisplayStateById(int32_t displayId, DisplayState* _aidl_return) {
+    LOG(DEBUG) << __FUNCTION__;
+    if (!checkPermission()) {
+        return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
+    }
+
+    return mHwEnumerator->getDisplayStateById(displayId, _aidl_return);
+}
+
 ScopedAStatus Enumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_return) {
     std::shared_lock lock(mLock);
     return mHwEnumerator->getDisplayIdList(_aidl_return);
