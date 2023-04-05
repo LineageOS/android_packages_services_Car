@@ -68,7 +68,7 @@ public final class CarPropertyConfigList extends LargeParcelableBase {
 
         @Override
         public CarPropertyConfigList[] newArray(int size) {
-            return new CarPropertyConfigList[0];
+            return new CarPropertyConfigList[size];
         }
     };
 }
