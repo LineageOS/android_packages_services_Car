@@ -148,7 +148,7 @@ bool RenderTopView::activate() {
         if (!cam.tex) {
             LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId << " ("
                        << cam.info.function << ")";
-            // TODO(b/237904870): We may want to return false here.
+            return false;
         }
     }
 
