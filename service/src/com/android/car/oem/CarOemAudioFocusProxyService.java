@@ -18,14 +18,19 @@ package com.android.car.oem;
 import static android.car.oem.OemCarAudioFocusResult.EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.oem.IOemCarAudioFocusService;
 import android.car.oem.OemCarAudioFocusEvaluationRequest;
 import android.car.oem.OemCarAudioFocusResult;
 import android.media.AudioFocusInfo;
 import android.os.RemoteException;
+import android.os.SystemClock;
+import android.util.Log;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.LocalLog;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -37,15 +42,22 @@ import java.util.Optional;
 public final class CarOemAudioFocusProxyService {
 
     private static final String TAG = CarLog.tagFor(CarOemAudioFocusProxyService.class);
+    private static final int QUEUE_SIZE = 10;
+
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final String CALLER_TAG = CarLog.tagFor(CarOemAudioFocusProxyService.class);
 
     private final CarOemProxyServiceHelper mHelper;
     private final IOemCarAudioFocusService mOemCarAudioFocusService;
+    @Nullable
+    private final LocalLog mLocalLog; // Is null if DBG is false. No logging will be produced.
+
 
     public CarOemAudioFocusProxyService(CarOemProxyServiceHelper helper,
             IOemCarAudioFocusService oemAudioFocusService) {
         mHelper = helper;
         mOemCarAudioFocusService = oemAudioFocusService;
+        mLocalLog = DBG ? new LocalLog(QUEUE_SIZE) : null;
     }
 
     /**
@@ -78,6 +90,12 @@ public final class CarOemAudioFocusProxyService {
             @NonNull OemCarAudioFocusEvaluationRequest request) {
         Preconditions.checkArgument(request != null,
                 "Audio focus evaluation request can not be null");
+
+        long startTime = 0;
+        if (mLocalLog != null) {
+            startTime = SystemClock.uptimeMillis();
+        }
+
         Optional<OemCarAudioFocusResult> result = mHelper.doBinderCallWithTimeoutCrash(CALLER_TAG,
                 () -> {
                     try {
@@ -92,6 +110,23 @@ public final class CarOemAudioFocusProxyService {
             return EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
         }
 
-        return result.get();
+        OemCarAudioFocusResult focusResult = result.get();
+
+        if (mLocalLog != null) {
+            mLocalLog.log(startTime + ", " + (SystemClock.uptimeMillis() - startTime));
+        }
+
+        return focusResult;
+    }
+
+    public void dump(IndentingPrintWriter writer) {
+        if (mLocalLog == null) {
+            return;
+        }
+        writer.println("** Dump for CarOemAudioFocusProxyService **");
+        mLocalLog.dump(writer);
+        // This print statement is used to indicate the end of a test. Do not change or remove
+        // this statement.
+        writer.println("Dump CarOemAudioFocusProxyService time log complete");
     }
 }
