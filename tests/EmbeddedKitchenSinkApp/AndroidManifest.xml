@@ -423,5 +423,17 @@
                 <action android:name="android.car.remoteaccess.RemoteTaskClientService" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".autofill.KitchenSinkAutofillService"
+            android:label="KS Autofill"
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService" />
+            </intent-filter>
+        </service>
+
     </application>
 </manifest>
