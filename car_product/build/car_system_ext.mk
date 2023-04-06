@@ -44,16 +44,6 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
 # the device.mk with the corresponding selinux policies
-PRODUCT_PACKAGES += evs_app
+PRODUCT_PACKAGES += evs_app cardisplayproxyd
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif  # ENABLE_EVS_SAMPLE
-
-ifeq ($(ENABLE_AIDL_DISPLAY_SERVICE), true)
-PRODUCT_PACKAGES += cardisplayproxyd
-else
-# TODO(b/276340636): Remove HIDL Automotive Display Service implementation when we stop supporting
-# HIDL EVS interface implementations.
-$(warning HIDL version of the Automotive Display Service is deprecated \
-          and will be replaced with cardisplayproxyd.)
-PRODUCT_PACKAGES += android.frameworks.automotive.display@1.0-service
-endif  # ENABLE_AIDL_DISPLAY_SERVICE
