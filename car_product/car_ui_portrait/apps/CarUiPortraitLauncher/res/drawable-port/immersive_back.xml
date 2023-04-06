@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2022 Google Inc.
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,13 +14,12 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <dimen name="panel_grip_bar_height">56dp</dimen>
-    <dimen name="grip_bar_height">6dp</dimen>
-    <dimen name="grip_bar_width">120dp</dimen>
-    <dimen name="corner_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
-    <dimen name="panel_default_top_margin">517dp</dimen>
-    <dimen name="panel_drag_threshold">375dp</dimen>
-    <dimen name="grip_bar_divider_height">1dp</dimen>
-    <dimen name="toolbar_back_button_start_margin">24dp</dimen>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="960"
+        android:viewportHeight="960">
+    <path
+        android:fillColor="@color/car_neutral_variant_100"
+        android:pathData="M480,800 L160,480l320,-320 42,42 -248,248h526v60L274,510l248,248 -42,42Z"/>
+</vector>
