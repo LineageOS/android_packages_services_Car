@@ -33,10 +33,10 @@ import com.android.car.ui.plugin.PluginContextWrapper;
 import com.android.car.ui.plugin.oemapis.FocusAreaOEMV1;
 import com.android.car.ui.plugin.oemapis.FocusParkingViewOEMV1;
 import com.android.car.ui.plugin.oemapis.InsetsOEMV1;
-import com.android.car.ui.plugin.oemapis.PluginFactoryOEMV5;
+import com.android.car.ui.plugin.oemapis.PluginFactoryOEMV6;
 import com.android.car.ui.plugin.oemapis.TextOEMV1;
 import com.android.car.ui.plugin.oemapis.appstyledview.AppStyledViewControllerOEMV3;
-import com.android.car.ui.plugin.oemapis.preference.PreferenceOEM1;
+import com.android.car.ui.plugin.oemapis.preference.PreferenceOEMV1;
 import com.android.car.ui.plugin.oemapis.recyclerview.AdapterOEMV1;
 import com.android.car.ui.plugin.oemapis.recyclerview.ContentListItemOEMV1;
 import com.android.car.ui.plugin.oemapis.recyclerview.HeaderListItemOEMV1;
@@ -70,7 +70,7 @@ import java.util.WeakHashMap;
  * without the need to target each app specifically. Note: it only applies to the components that
  * come through the plugin system.
  */
-public class PluginFactoryImpl implements PluginFactoryOEMV5 {
+public class PluginFactoryImpl implements PluginFactoryOEMV6 {
 
     private final Context mPluginContext;
     Map<Context, Context> mAppToPluginContextMap = new WeakHashMap<>();
@@ -103,7 +103,7 @@ public class PluginFactoryImpl implements PluginFactoryOEMV5 {
     }
 
     @Override
-    public PreferenceOEM1 createCarUiPreference(@NonNull Context sourceContext) {
+    public PreferenceOEMV1 createCarUiPreference(@NonNull Context sourceContext) {
         Context pluginContext = getPluginUiContext(sourceContext, mPluginContext);
         return new PreferenceAdapterProxy(pluginContext, sourceContext);
     }
