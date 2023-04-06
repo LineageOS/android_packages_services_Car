@@ -322,6 +322,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private boolean mStartBackgroundUsersOnGarageMode = true;
 
+    // Whether visible background users are supported on the default display, a.k.a. passenger only
+    // systems.
+    private final boolean mIsVisibleBackgroundUsersOnDefaultDisplaySupported;
+
     private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
             new ICarUxRestrictionsChangeListener.Stub() {
         @Override
@@ -376,6 +380,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 R.bool.config_switchGuestUserBeforeGoingSleep);
         mCarUxRestrictionService = uxRestrictionService;
         mCarPackageManagerService = carPackageManagerService;
+        mIsVisibleBackgroundUsersOnDefaultDisplaySupported =
+                isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager);
     }
 
     /**
@@ -749,10 +755,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 requestType == InitialUserInfoRequestType.RESUME && !mSwitchGuestUserBeforeSleep;
         checkManageUsersPermission("startInitialUser");
 
-        boolean isVisibleBackgroundUsersOnDefaultDisplaySupported =
-                UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager);
         // TODO(b/266473227): Fix isUserHalSupported() for Multi User No driver.
-        if (!isUserHalSupported() || isVisibleBackgroundUsersOnDefaultDisplaySupported) {
+        if (!isUserHalSupported() || mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
             fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest,
                     /* supportsOverrideUserIdProperty= */ true, requestType);
             EventLogHelper.writeCarUserServiceInitialUserInfoReqComplete(requestType);
@@ -2090,8 +2094,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // If the specified display is not a valid display for assigning user to.
         // Note: In passenger only system, users will be allowed on the DEFAULT_DISPLAY.
         if (displayId == Display.DEFAULT_DISPLAY) {
-            if (!UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(
-                    mUserManager)) {
+            if (!mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
                 return UserStartResponse.STATUS_DISPLAY_INVALID;
             } else {
                 if (DBG) {
@@ -2479,8 +2482,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
         if (isSystemUserInHeadlessSystemUserMode(currentUserId)
-                && !UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(
-                        mUserManager)) {
+                && !mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
             return;
         }
 
@@ -2554,7 +2556,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        boolean result = isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager)
+        boolean result = mIsVisibleBackgroundUsersOnDefaultDisplaySupported
                 ? startSecondaryHomeForUserAndDisplay(mContext, userId, displayId)
                 : startHomeForUserAndDisplay(mContext, userId, displayId);
         if (!result) {
