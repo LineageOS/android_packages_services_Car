@@ -29,6 +29,11 @@ import android.view.Display;
 @SystemApi
 public final class DisplayHelper {
 
+    /** The same value as {@code android.car.builtin.view.DisplayHelper.INVALID_PORT} */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int INVALID_PORT = -1;
+
     private DisplayHelper() {
         throw new UnsupportedOperationException();
     }
@@ -41,5 +46,14 @@ public final class DisplayHelper {
     @Nullable
     public static String getUniqueId(@NonNull Display display) {
         return android.car.builtin.view.DisplayHelper.getUniqueId(display);
+    }
+
+    /**
+     * @return the physical port of the given display.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static int getPhysicalPort(@NonNull Display display) {
+        return android.car.builtin.view.DisplayHelper.getPhysicalPort(display);
     }
 }
