@@ -16,6 +16,7 @@
 package com.android.car.user;
 
 import static com.android.car.CarServiceUtils.getContentResolverForUser;
+import static com.android.car.CarServiceUtils.isVisibleBackgroundUsersOnDefaultDisplaySupported;
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -135,6 +136,8 @@ final class InitialUserSetter {
 
     private final UserHandleHelper mUserHandleHelper;
 
+    private final boolean mIsVisibleBackgroundUsersOnDefaultDisplaySupported;
+
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
             @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper) {
         this(context, carUserService, listener, userHandleHelper,
@@ -160,6 +163,8 @@ final class InitialUserSetter {
         mUserHandleHelper = userHandleHelper;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
+        mIsVisibleBackgroundUsersOnDefaultDisplaySupported =
+                isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm);
     }
 
     /**
@@ -412,9 +417,7 @@ final class InitialUserSetter {
     }
 
     private void executeDefaultBehavior(@NonNull InitialUserInfo info, boolean fallback) {
-        boolean isVisibleBackgroundUsersOnDefaultDisplaySupported =
-                UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm);
-        if (isVisibleBackgroundUsersOnDefaultDisplaySupported) {
+        if (mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
             if (DBG) {
                 Slogf.d(TAG, "executeDefaultBehavior(): "
                         + "Multi User No Driver switching to system user");
@@ -501,9 +504,7 @@ final class InitialUserSetter {
                     currentUserId, actualUserId);
         }
         // TODO(b/266473227): Set isMdnd on InitialUserInfo.
-        boolean isVisibleBackgroundUsersOnDefaultDisplaySupported =
-                UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm);
-        if (actualUserId != currentUserId || isVisibleBackgroundUsersOnDefaultDisplaySupported) {
+        if (actualUserId != currentUserId || mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
             if (!startForegroundUser(info, actualUserId)) {
                 fallbackDefaultBehavior(info, fallback,
                         "am.switchUser(" + actualUserId + ") failed");
@@ -713,7 +714,7 @@ final class InitialUserSetter {
         }
 
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
-            if (!UserManagerHelper.isVisibleBackgroundUsersOnDefaultDisplaySupported(mUm)) {
+            if (!mIsVisibleBackgroundUsersOnDefaultDisplaySupported) {
                 // System User is not associated with real person, can not be switched to.
                 // But in Multi User No Driver mode, we'll need to put system user to foreground as
                 // this is exactly the user model.
