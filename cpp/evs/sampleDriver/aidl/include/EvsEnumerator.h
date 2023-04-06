@@ -56,6 +56,8 @@ public:
     ::ndk::ScopedAStatus closeDisplay(const std::shared_ptr<aidlevs::IEvsDisplay>& obj) override;
     ::ndk::ScopedAStatus getDisplayIdList(std::vector<uint8_t>* list) override;
     ::ndk::ScopedAStatus getDisplayState(aidlevs::DisplayState* state) override;
+    ::ndk::ScopedAStatus getDisplayStateById(int32_t displayId,
+                                             aidlevs::DisplayState* state) override;
     ::ndk::ScopedAStatus registerStatusCallback(
             const std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>& callback) override;
     ::ndk::ScopedAStatus openUltrasonicsArray(
@@ -113,6 +115,8 @@ private:
     bool checkPermission();
     void closeCamera_impl(const std::shared_ptr<aidlevs::IEvsCamera>& pCamera,
                           const std::string& cameraId);
+    ::ndk::ScopedAStatus getDisplayStateImpl(std::optional<int32_t> displayId,
+                                             aidlevs::DisplayState* state);
 
     static bool qualifyCaptureDevice(const char* deviceName);
     static CameraRecord* findCameraById(const std::string& cameraId);
