@@ -30,8 +30,4 @@ endif
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # Include the reference EVS HAL implementation.
 PRODUCT_PACKAGES += android.hardware.automotive.evs-default
-
-# A reference EVS HAL implementation requires AIDL version of the automotive
-# display service implementation.
-ENABLE_AIDL_DISPLAY_SERVICE := true
 endif  # ENABLE_EVS_SAMPLE
