@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
@@ -33,6 +34,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -438,6 +440,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread
