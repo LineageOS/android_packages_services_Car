@@ -113,8 +113,6 @@
           <item type="bool" name="config_preventTemplatedAppsFromShowingDialog"/>
           <item type="string" name="config_template_activity_class_name" translatable="false"/>
           <item type="bool" name="config_enableExternalCarTimeToExternalTimeSuggestion"/>
-          <item type="integer" name="config_userPreCreationStage"/>
-          <item type="integer" name="config_userPreCreationDelay"/>
           <item type="string" name="config_oemCarService" translatable="false"/>
           <item type="integer" name="config_oemCarService_connection_timeout_ms"/>
           <item type="integer" name="config_oemCarService_serviceReady_timeout_ms"/>
