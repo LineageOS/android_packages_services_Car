@@ -601,64 +601,56 @@ public final class CarUserManager extends CarManagerBase {
         return new AndroidAsyncFuture<>(future);
     }
 
-    private AsyncFuture<UserCreationResult> createUser(@Nullable String name,
-            @NonNull String userType, int flags) {
-        int uid = myUid();
-        try {
-            AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
-                @Override
-                protected void onCompleted(UserCreationResult result, Throwable err) {
-                    if (result != null) {
-                        EventLogHelper.writeCarUserManagerCreateUserResp(uid,
-                                result.getStatus(), result.getErrorMessage());
-                    } else {
-                        Log.w(TAG, "createUser(" + userType + "," + flags
-                                + ") failed: " + err);
-                    }
-                    super.onCompleted(result, err);
-                };
-            };
-            EventLogHelper.writeCarUserManagerCreateUserReq(uid,
-                    UserHelperLite.safeName(name), userType, flags);
-            mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
-            return new AndroidAsyncFuture<>(future);
-        } catch (SecurityException e) {
-            throw e;
-        } catch (RemoteException | RuntimeException e) {
-            AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
-            future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE));
-            return handleExceptionFromCarService(e, new AndroidAsyncFuture<>(future));
-        }
-    }
-
-    // TODO(b/235992856): Deprecate this call.
     /**
      * Creates a new guest Android user.
      *
      * @hide
+     * @deprecated Use {@link #createUser(UserCreationRequest, Executor, ResultCallback)} instead.
      */
+    @Deprecated
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
-    @AddedInOrBefore(majorVersion = 33)
+    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
-        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
+        UserCreationRequest.Builder userCreationRequestBuilder = new UserCreationRequest.Builder();
+        if (name != null) {
+            userCreationRequestBuilder.setName(name);
+        }
+        createUser(userCreationRequestBuilder.setGuest().build(), Runnable::run, future::complete);
+        return new AndroidAsyncFuture<>(future);
     }
 
-    // TODO(b/235994008): Deprecate this call.
     /**
      * Creates a new Android user.
      *
      * @hide
+     * @deprecated Use {@link #createUser(UserCreationRequest, Executor, ResultCallback)} instead.
      */
-    @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
+    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
             int flags) {
-        return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
+        UserCreationRequest.Builder userCreationRequestBuilder = new UserCreationRequest.Builder();
+        if (name != null) {
+            userCreationRequestBuilder.setName(name);
+        }
+
+        if ((flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
+            userCreationRequestBuilder.setAdmin();
+        }
+
+        if ((flags & UserManagerHelper.FLAG_EPHEMERAL) == UserManagerHelper.FLAG_EPHEMERAL) {
+            userCreationRequestBuilder.setEphemeral();
+        }
+
+        createUser(userCreationRequestBuilder.build(), Runnable::run, future::complete);
+        return new AndroidAsyncFuture<>(future);
     }
 
-    // TODO(b/235994008): Add CTS test.
     /**
      * Creates a new Android user.
      *
@@ -685,12 +677,10 @@ public final class CarUserManager extends CarManagerBase {
                     executor, callback) {
                 @Override
                 protected void onCompleted(UserCreationResult result) {
-                    if (result != null) {
-                        EventLogHelper.writeCarUserManagerCreateUserResp(uid,
-                                result.getStatus(), result.getErrorMessage());
-                    } else {
-                        Log.w(TAG, "createUser(" + userCreationRequest + ") failed.");
-                    }
+                    EventLogHelper.writeCarUserManagerCreateUserResp(uid,
+                            result != null ? result.getStatus()
+                                    : UserCreationResult.STATUS_ANDROID_FAILURE,
+                            result != null ? result.getErrorMessage() : null);
                     super.onCompleted(result);
                 }
             };
@@ -703,8 +693,7 @@ public final class CarUserManager extends CarManagerBase {
 
             EventLogHelper.writeCarUserManagerCreateUserReq(uid,
                     UserHelperLite.safeName(name), userType, flags);
-            // TODO(b/235994008): update this call once other CreateUser call is removed.
-            mService.createUser2(userCreationRequest, HAL_TIMEOUT_MS, resultCallbackImpl);
+            mService.createUser(userCreationRequest, HAL_TIMEOUT_MS, resultCallbackImpl);
             System.out.println("manager test API replied");
         } catch (SecurityException e) {
             throw e;
@@ -737,7 +726,6 @@ public final class CarUserManager extends CarManagerBase {
     }
 
 
-    // TODO(b/235994391): Add CTS test.
     /**
      * Removes the given user.
      *
