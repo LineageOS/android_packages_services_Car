@@ -22,6 +22,7 @@ import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
@@ -74,6 +75,7 @@ import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -319,7 +321,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
                 logIfDebuggable("container height change from " + oldHeight + " to " + newHeight);
                 if (mIsSUWInProgress) {
-                    mRootTaskViewPanel.openFullScreenPanel(/* animate = */ false);
+                    mRootTaskViewPanel.openFullScreenPanel(/* animated = */ false,
+                            /* showToolBar = */ false, /* bottomAdjustment= */ 0);
                 }
             };
 
@@ -368,7 +371,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("Navbar height: " + mNavBarHeight);
         mContainer = findViewById(R.id.container);
         mContainer.addOnLayoutChangeListener(mHomeScreenLayoutChangeListener);
-        setHomeScreenBottomMargin(mNavBarHeight);
+        setHomeScreenBottomPadding(mNavBarHeight);
 
         mAppGridTaskViewPanel = findViewById(R.id.app_grid_panel);
 
@@ -524,10 +527,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
     }
 
-    private void setHomeScreenBottomMargin(int bottomMargin) {
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mContainer.getLayoutParams();
-        lp.bottomMargin = bottomMargin;
-        mContainer.setLayoutParams(lp);
+    private void setHomeScreenBottomPadding(int bottomPadding) {
+        // Set padding instead of margin so the bottom area shows background of
+        // car_ui_portrait_launcher during immersive mode without nav bar, and panel states are
+        // calculated correctly.
+        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */0 , bottomPadding);
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -544,8 +548,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Rect rootPanelGripBarRect = new Rect();
         mRootTaskViewPanel.getGripBarBounds(rootPanelGripBarRect);
 
-        Rect navigationBarRect = new Rect(controlBarRect.right, controlBarRect.bottom,
-                controlBarRect.left, mContainer.getMeasuredHeight());
+        Rect navigationBarRect = new Rect(controlBarRect.left, controlBarRect.bottom,
+                controlBarRect.right, mContainer.getMeasuredHeight());
+
+        Rect statusBarRect = new Rect(controlBarRect.left, /* top= */ 0, controlBarRect.right,
+                mStatusBarHeight);
 
         Region obscuredTouchRegion = new Region();
         obscuredTouchRegion.union(controlBarRect);
@@ -555,6 +562,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mAppGridTaskViewPanel.setObscuredTouchRegion(obscuredTouchRegion);
         obscuredTouchRegion.union(appPanelGripBarRect);
         obscuredTouchRegion.union(rootPanelGripBarRect);
+        obscuredTouchRegion.union(statusBarRect);
         mBackgroundTaskView.setObscuredTouchRegion(obscuredTouchRegion);
         mFullScreenTaskView.setObscuredTouchRegion(obscuredTouchRegion);
     }
@@ -585,8 +593,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void updateTaskViewInsets() {
-        Insets insets =
-                Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0, mControlBarView.getHeight());
+        Insets insets = Insets.of(/* left= */ 0, /* top= */ 0, /* right= */ 0,
+                mControlBarView.getHeight() + mNavBarHeight);
+
         if (mRootTaskViewPanel != null) {
             mRootTaskViewPanel.setInsets(insets);
         }
@@ -729,7 +738,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isFullScreen = newState.isFullScreen();
                 if (isFullScreen) {
-                    setHomeScreenBottomMargin(mIsSUWInProgress ? 0 : mNavBarHeight);
+                    setHomeScreenBottomPadding(mIsSUWInProgress ? 0 : mNavBarHeight);
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(isFullScreen));
                     }
@@ -749,7 +758,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     setControlBarVisibility(/* isVisible= */ false, animated);
                 } else {
                     // Adjust the bottom margin to count for the nav bar.
-                    setHomeScreenBottomMargin(mNavBarHeight);
+                    setHomeScreenBottomPadding(mNavBarHeight);
                     // Show the nav bar if not showing Setup Wizard
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE,
@@ -774,6 +783,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("Root Task View is created");
                         taskView.setZOrderMediaOverlay(true);
                         mRootTaskViewPanel.setTaskView(taskView);
+                        mRootTaskViewPanel.setToolBarCallback(() -> {
+                            // TODO(b/274838245): Use android api to send key event
+                            try {
+                                Runtime.getRuntime().exec("input keyevent 4");
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                     }
 
                     @Override
@@ -823,7 +840,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         logIfDebuggable("onImmersiveModeRequested = " + requested);
         if (requested && (!mCarUiPortraitDriveStateController.isDrivingStateMoving()
                 || mIsSUWInProgress)) {
-            mRootTaskViewPanel.openFullScreenPanel(animate);
+            int bottomAdjustment = mIsSUWInProgress ? 0 : mNavBarHeight;
+            mRootTaskViewPanel.openFullScreenPanel(animate, !mIsSUWInProgress, bottomAdjustment);
         } else {
             if (mTaskViewManager.getRootTaskCount() > 0) {
                 mRootTaskViewPanel.openPanel(animate);
@@ -848,6 +866,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mIsSUWInProgress = intToBool(msg.arg1);
                     logIfDebuggable("Get intent about the SUW is " + mIsSUWInProgress);
                     onImmersiveModeRequested(mIsSUWInProgress, /* animate = */ false);
+                    break;
+                case MSG_IMMERSIVE_MODE_CHANGE:
+                    boolean hideNavBar = intToBool(msg.arg1);
+                    mRootTaskViewPanel.setToolBarViewVisibility(hideNavBar);
                     break;
                 default:
                     super.handleMessage(msg);
