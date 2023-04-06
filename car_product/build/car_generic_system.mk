@@ -78,6 +78,15 @@ PRODUCT_COPY_FILES += \
     packages/services/Car/cpp/evs/manager/aidl/init.evs.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/init.evs.rc
 endif
 
+ifeq ($(ENABLE_EVS_SAMPLE), true)
+# ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
+# the device.mk with the corresponding selinux policies
+PRODUCT_PACKAGES += evs_app \
+                    android.hardware.automotive.evs-default \
+                    cardisplayproxyd
+include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
+endif  # ENABLE_EVS_SAMPLE
+
 ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
 PRODUCT_PACKAGES += CarEvsCameraPreviewApp
 endif

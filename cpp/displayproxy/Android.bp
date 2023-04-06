@@ -45,5 +45,4 @@ cc_binary {
     static_libs: ["libaidlcommonsupport"],
     init_rc: ["cardisplayproxyd.rc"],
     vintf_fragments: ["manifest_cardisplayproxyd.xml"],
-    system_ext_specific: true,
 }
