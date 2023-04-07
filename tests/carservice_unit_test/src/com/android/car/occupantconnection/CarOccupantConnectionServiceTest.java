@@ -17,7 +17,6 @@
 package com.android.car.occupantconnection;
 
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
-import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
@@ -28,7 +27,6 @@ import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_RIGHT;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
-import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -53,7 +51,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.IBinder;
@@ -65,7 +62,6 @@ import android.util.ArraySet;
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.internal.util.BinderKeyValueContainer;
-import com.android.car.power.CarPowerManagementService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -85,8 +81,6 @@ public final class CarOccupantConnectionServiceTest {
     private Context mContext;
     @Mock
     private CarOccupantZoneService mOccupantZoneService;
-    @Mock
-    private CarPowerManagementService mPowerManagementService;
     @Mock
     private IPayloadCallback mPayloadCallback;
     @Mock
@@ -125,12 +119,9 @@ public final class CarOccupantConnectionServiceTest {
         // So just remove as safety guard.
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.addService(CarOccupantZoneService.class, mOccupantZoneService);
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class, mPowerManagementService);
 
         mService = new CarOccupantConnectionService(mContext,
                 mOccupantZoneService,
-                mPowerManagementService,
                 mConnectingReceiverServices,
                 mConnectedReceiverServiceMap,
                 mReceiverServiceConnectionMap,
@@ -148,104 +139,6 @@ public final class CarOccupantConnectionServiceTest {
     @After
     public void tearDown() {
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
-    }
-
-    @Test
-    public void testGetEndpointPackageInfoWithoutPermission_throwsException() {
-        int occupantZoneId = 0;
-        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_MANAGE_REMOTE_DEVICE)))
-                .thenReturn(PackageManager.PERMISSION_DENIED);
-
-        assertThrows(SecurityException.class,
-                () -> mService.getEndpointPackageInfo(occupantZoneId, PACKAGE_NAME));
-    }
-
-    @Test
-    public void testGetEndpointPackageInfoWithFakePackageName_throwsException() {
-        int occupantZoneId = 0;
-
-        assertThrows(SecurityException.class,
-                () -> mService.getEndpointPackageInfo(occupantZoneId, FAKE_PACKAGE_NAME));
-    }
-
-    @Test
-    public void testGetEndpointPackageInfoWithInvalidUserId() {
-        int occupantZoneId = 0;
-        when(mOccupantZoneService.getUserForOccupant(occupantZoneId)).thenReturn(
-                INVALID_USER_ID);
-
-        assertThat(mService.getEndpointPackageInfo(occupantZoneId, PACKAGE_NAME)).isNull();
-    }
-
-    @Test
-    public void testGetEndpointPackageInfo() throws PackageManager.NameNotFoundException {
-        int occupantZoneId = 0;
-        int userId = 123;
-        Context userContext = mock(Context.class);
-        PackageManager packageManager = mock(PackageManager.class);
-        PackageInfo packageInfo = mock(PackageInfo.class);
-
-        when(mOccupantZoneService.getUserForOccupant(occupantZoneId)).thenReturn(userId);
-        mockContextCreateContextAsUser(mContext, userContext, userId);
-        when(userContext.getPackageManager()).thenReturn(packageManager);
-        when(packageManager.getPackageInfo(eq(PACKAGE_NAME), any())).thenReturn(packageInfo);
-
-        assertThat(mService.getEndpointPackageInfo(occupantZoneId, PACKAGE_NAME))
-                .isEqualTo(packageInfo);
-    }
-
-    @Test
-    public void testChangePowerStateOn() {
-        mService.init();
-        int occupantZoneId = 0;
-        int displayId = 1;
-        OccupantZoneInfo occupantZoneInfo =
-                new OccupantZoneInfo(occupantZoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        int[] displays = {displayId};
-        when(mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZoneId))
-                .thenReturn(displays);
-
-        mService.setOccupantZonePower(occupantZoneInfo, true);
-        verify(mPowerManagementService).setDisplayPowerState(displayId, true);
-    }
-
-    @Test
-    public void testChangePowerStateOff() {
-        mService.init();
-        int occupantZoneId = 0;
-        int displayId = 1;
-        OccupantZoneInfo occupantZoneInfo =
-                new OccupantZoneInfo(occupantZoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        int[] displays = {displayId};
-        when(mOccupantZoneService.getAllDisplaysForOccupantZone(occupantZoneId))
-                .thenReturn(displays);
-
-        mService.setOccupantZonePower(occupantZoneInfo, false);
-        verify(mPowerManagementService).setDisplayPowerState(displayId, false);
-    }
-
-    @Test
-    public void testGetPowerStateOn() {
-        mService.init();
-        int occupantZoneId = 0;
-        OccupantZoneInfo occupantZoneInfo =
-                new OccupantZoneInfo(occupantZoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        when(mOccupantZoneService.areDisplaysOnForOccupantZone(occupantZoneId))
-                .thenReturn(true);
-
-        assertThat(mService.isOccupantZonePowerOn(occupantZoneInfo)).isTrue();
-    }
-
-    @Test
-    public void testGetPowerStateOff() {
-        mService.init();
-        int occupantZoneId = 0;
-        OccupantZoneInfo occupantZoneInfo =
-                new OccupantZoneInfo(occupantZoneId, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
-        when(mOccupantZoneService.areDisplaysOnForOccupantZone(occupantZoneId))
-                .thenReturn(false);
-
-        assertThat(mService.isOccupantZonePowerOn(occupantZoneInfo)).isFalse();
     }
 
     @Test
