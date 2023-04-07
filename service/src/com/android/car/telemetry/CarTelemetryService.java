@@ -260,6 +260,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
             mOnShutdownReboot = new OnShutdownReboot(mContext);
+            mOnShutdownReboot.init();
             mOnShutdownReboot.addAction((context, intent) -> release());
         });
     }
