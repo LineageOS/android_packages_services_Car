@@ -40,7 +40,9 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,6 +78,9 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     @GuardedBy("mLock")
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
+
+    @GuardedBy("mLock")
+    private final List<ProcessObserverCallback> mCustomProcessObservers = new ArrayList<>();
 
     @GuardedBy("mLock")
     private boolean mAssignPassengerActivityToFgGroup;
@@ -156,8 +161,26 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
+    /** Registers a callback to get notified when the running state of a process has changed. */
+    void registerProcessObserverCallback(ProcessObserverCallback callback) {
+        synchronized (mLock) {
+            mCustomProcessObservers.add(callback);
+        }
+    }
+
+    /** Unregisters the ProcessObserverCallback, if there is any. */
+    void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
+        synchronized (mLock) {
+            mCustomProcessObservers.remove(callback);
+        }
+    }
+
     private void handleForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
         synchronized (mLock) {
+            for (int i = 0; i < mCustomProcessObservers.size(); i++) {
+                ProcessObserverCallback callback = mCustomProcessObservers.get(i);
+                callback.onForegroundActivitiesChanged(pid, uid, foregroundActivities);
+            }
             if (foregroundActivities) {
                 Set<Integer> pids = mForegroundUidPids.get(uid);
                 if (pids == null) {
@@ -173,6 +196,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     private void handleProcessDied(int pid, int uid) {
         synchronized (mLock) {
+            for (int i = 0; i < mCustomProcessObservers.size(); i++) {
+                ProcessObserverCallback callback = mCustomProcessObservers.get(i);
+                callback.onProcessDied(pid, uid);
+            }
             doHandlePidGoneLocked(pid, uid);
         }
     }

@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -205,6 +206,66 @@ public class SystemActivityMonitoringServiceUnitTest extends AbstractExtendedMoc
     public void testIgnoreWithoutPassengerZone() throws Exception {
         doTestDisabledConfig(/*enableResource=*/ true, /*hasDriverZone=*/ true,
                 /*hasPassengerZones=*/ false);
+    }
+
+    @Test
+    public void testRegisterProcessRunningStateCallback() {
+        setUpAssignPassengerActivityToFgGroup(/*enableResource=*/ true, /*hasDriverZone=*/ true,
+                /*hasPassengerZone=*/ true);
+
+        mService.init();
+        ProcessObserverCallback customCallback = mock(ProcessObserverCallback.class);
+        mService.registerProcessObserverCallback(customCallback);
+
+        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
+
+        int processPid = 1;
+        // appId does not matter here but better to avoid 0.
+        int processUid = UserHandle.getUid(ActivityManager.getCurrentUser(), /*appId=*/ 1);
+
+        cb.onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ true);
+        // Double the waiting time so that we have enough delay
+        waitForHandlerThreadToComplete(2 * PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS);
+
+        verify(customCallback)
+                .onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ true);
+
+        cb.onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ false);
+        // Double the waiting time so that we have enough delay
+        waitForHandlerThreadToComplete(2 * PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS);
+
+        verify(customCallback)
+                .onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ false);
+
+        cb.onProcessDied(processPid, processUid);
+        // Double the waiting time so that we have enough delay
+        waitForHandlerThreadToComplete(2 * PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS);
+
+        verify(customCallback).onProcessDied(processPid, processUid);
+    }
+
+    @Test
+    public void testUnregisterProcessRunningStateCallback() {
+        setUpAssignPassengerActivityToFgGroup(/*enableResource=*/ true, /*hasDriverZone=*/ true,
+                /*hasPassengerZone=*/ true);
+
+        mService.init();
+        ProcessObserverCallback customCallback = mock(ProcessObserverCallback.class);
+        mService.registerProcessObserverCallback(customCallback);
+        mService.unregisterProcessObserverCallback(customCallback);
+
+        ProcessObserverCallback cb = verifyAndGetProcessObserverCallback();
+
+        int processPid = 1;
+        // appId does not matter here but better to avoid 0.
+        int processUid = UserHandle.getUid(ActivityManager.getCurrentUser(), /*appId=*/ 1);
+
+        cb.onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ true);
+        // Double the waiting time so that we have enough delay
+        waitForHandlerThreadToComplete(2 * PASSENGER_PROCESS_GROUP_SET_RETRY_TIMEOUT_MS);
+
+        verify(customCallback, never())
+                .onForegroundActivitiesChanged(processPid, processUid, /*foreground=*/ true);
     }
 
     private void setUpAssignPassengerActivityToFgGroup(boolean enableResource,
