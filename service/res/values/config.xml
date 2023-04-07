@@ -254,12 +254,13 @@
          duration and this should not be made shorter. -->
     <integer name="maxGarageModeRunningDurationInSecs">900</integer>
 
-    <!-- The services that needs to be started earlier in the boot sequence and in particular order.
+    <!-- The services that need to be started earlier in the boot sequence and in particular order.
          Every item in this array contains a flatten component name of a service that needs to be
          started and a list of parameters after hashtag symbol. Here's the format:
 
-         <item>com.bar.foo/.Service#bind={bind|start|startForeground},user={all|system|foreground},
-         trigger={asap,userUnlocked}</item>
+         <item>com.bar.foo/.Service#bind={bind|start|startForeground},
+         user={all|system|foreground|visible|backgroundVisible},
+         trigger={asap|resume|userUnlocked|userPostUnlocked}</item>
 
          bind: bind - start service with Context#bindService
                start - start service with Context#startService
@@ -536,21 +537,6 @@
     <!-- A flag to configure whether the ExternalCarTime VHAL property should be used to send
          ExternalTimeSuggestions to the Android TimeManager service. -->
     <bool name="config_enableExternalCarTimeToExternalTimeSuggestion">false</bool>
-
-    <!-- Configuration to set when pre-created users should be managed by CarService. Car Service
-         will make sure it has the number of pre-created users defined by the system properties
-         android.car.number_pre_created_users and android.car.number_pre_created_guests.
-         Supported flags:
-         1 - Before suspend
-         2 - After system start
-         Flags can be combined. In this case, 3 means manage pre-created users after system start
-         and before suspend. If pre-created users are managed after system start then
-         config_userPreCreationDelay will be used to wait before managing pre-created users. -->
-    <integer name="config_userPreCreationStage">3</integer>
-
-    <!-- How many milli-seconds CarService should wait before managing pre-created users after
-         system start. This property only applied when config_userPreCreationStage flag is 2. -->
-    <integer name="config_userPreCreationDelay">5000</integer>
 
     <!-- This is the component name for the OEM customization service. OEM can choose to implement
          this service to customize car service behavior for different policies. If OEMs choose to

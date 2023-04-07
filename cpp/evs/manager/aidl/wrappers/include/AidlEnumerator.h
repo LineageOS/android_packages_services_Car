@@ -46,6 +46,8 @@ public:
     ::ndk::ScopedAStatus closeDisplay(const std::shared_ptr<aidlevs::IEvsDisplay>& obj) override;
     ::ndk::ScopedAStatus getDisplayIdList(std::vector<uint8_t>* list) override;
     ::ndk::ScopedAStatus getDisplayState(aidlevs::DisplayState* state) override;
+    ::ndk::ScopedAStatus getDisplayStateById(int32_t displayId,
+                                             aidlevs::DisplayState* state) override;
     ::ndk::ScopedAStatus openUltrasonicsArray(
             const std::string& id, std::shared_ptr<aidlevs::IEvsUltrasonicsArray>* obj) override;
     ::ndk::ScopedAStatus closeUltrasonicsArray(
