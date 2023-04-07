@@ -1431,6 +1431,28 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void setGroupVolume_withVolumeGroupMutingDisabled_doesnotThrowException() {
+        when(mMockResources.getBoolean(audioUseCarVolumeGroupMuting)).thenReturn(false);
+        CarAudioService nonVolumeGroupMutingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath(),
+                mCarVolumeCallbackHandler);
+        nonVolumeGroupMutingAudioService.init();
+        HalAudioGainCallback callback = getHalAudioGainCallback();
+        CarAudioGainConfigInfo carGain = createCarAudioGainConfigInfo(PRIMARY_AUDIO_ZONE,
+                MEDIA_TEST_DEVICE, TEST_GAIN_INDEX);
+        callback.onAudioDeviceGainsChanged(List.of(Reasons.TCU_MUTE), List.of(carGain));
+        reset(mCarVolumeCallbackHandler);
+
+        nonVolumeGroupMutingAudioService.setGroupVolume(
+                PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0, TEST_GAIN_INDEX, TEST_FLAGS);
+
+        // if an exception is thrown, the test automatically fails
+        verify(mCarVolumeCallbackHandler).onVolumeGroupChange(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_PRIMARY_ZONE_GROUP_0), anyInt());
+        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+    }
+
+    @Test
     public void getOutputDeviceAddressForUsage_forMusicUsage() {
         mCarAudioService.init();
 

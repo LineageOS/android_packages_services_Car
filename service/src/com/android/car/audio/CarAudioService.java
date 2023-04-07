@@ -629,6 +629,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void handleMuteChanged(int zoneId, int groupId, int flags) {
+        if (!mUseCarVolumeGroupMuting) {
+            return;
+        }
         callbackGroupMuteChanged(zoneId, groupId, flags);
         mCarVolumeGroupMuting.carMuteChanged();
     }
