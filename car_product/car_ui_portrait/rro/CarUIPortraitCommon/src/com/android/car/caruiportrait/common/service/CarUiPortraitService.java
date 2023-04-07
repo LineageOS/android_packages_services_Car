@@ -116,6 +116,11 @@ public class CarUiPortraitService extends Service {
      */
     public static final int MSG_IMMERSIVE_MODE_CHANGE = 8;
 
+    /**
+     * Command to service to notify when SysUI is ready and started.
+     */
+    public static final int MSG_SYSUI_STARTED = 9;
+
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
     private BroadcastReceiver mImmersiveModeChangeReceiver;
@@ -128,6 +133,10 @@ public class CarUiPortraitService extends Service {
         public void handleMessage(Message msg) {
             Log.d(TAG, "Received message: " + msg.what);
             switch (msg.what) {
+                case MSG_SYSUI_STARTED:
+                    // value is passed as 0 because launcher just needs a event and no need for val
+                    notifyClients(MSG_SYSUI_STARTED, 0);
+                    break;
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
                     break;
