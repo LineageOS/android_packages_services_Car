@@ -209,16 +209,22 @@ public final class CarDevicePolicyManager extends CarManagerBase {
                 type);
         int status = CreateUserResult.STATUS_FAILURE_GENERIC;
         try {
-            AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>();
-            mService.createUser(name, type, future);
-            UserCreationResult result = future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS,
-                    TimeUnit.MILLISECONDS);
+            SyncResultCallback<UserCreationResult> userCreationResultCallback =
+                    new SyncResultCallback<>();
+
+            ResultCallbackImpl<UserCreationResult> resultCallbackImpl = new ResultCallbackImpl(
+                    Runnable::run, userCreationResultCallback);
+
+            mService.createUser(name, type, resultCallbackImpl);
+
+            UserCreationResult result = userCreationResultCallback.get(
+                    DEVICE_POLICY_MANAGER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
             status = result.getStatus();
             return new CreateUserResult(result);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return CreateUserResult.forGenericError();
-        } catch (ExecutionException | TimeoutException e) {
+        } catch (TimeoutException e) {
             return CreateUserResult.forGenericError();
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, CreateUserResult.forGenericError());
