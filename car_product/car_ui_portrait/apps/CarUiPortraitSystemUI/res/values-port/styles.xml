@@ -42,15 +42,11 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="QCFooterButtonStyle"
-           parent="android:Widget.DeviceDefault.Button.Colored">
+    <style name="QCFooterButtonStyle" parent="android:Widget.DeviceDefault.Button">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:minHeight">@dimen/car_quick_controls_footer_button_min_height</item>
         <item name="android:layout_marginVertical">@dimen/car_quick_controls_footer_button_vertical_margin</item>
         <item name="android:layout_marginHorizontal">@dimen/car_quick_controls_footer_button_horizontal_margin</item>
-        <item name="android:background">@drawable/qc_dialog_button_background</item>
-        <item name="android:textColor">@color/car_on_primary</item>
         <item name="android:gravity">center</item>
     </style>
 
