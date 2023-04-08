@@ -26,6 +26,7 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_UNREGISTER_CLIENT;
 
 import android.annotation.Nullable;
@@ -897,6 +898,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
+                case MSG_SYSUI_STARTED:
+                    // This is to ensure that Homescreen is created each time the sysUI is ready.
+                    // This is needed to re-register TaskOrganizer after SysUI b/274834061
+                    recreate();
+                    break;
                 case MSG_IMMERSIVE_MODE_REQUESTED:
                     onImmersiveModeRequested(intToBool(msg.arg1), /* animate = */ true);
                     break;
