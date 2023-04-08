@@ -31,28 +31,33 @@
             android:id="@+id/aloha_title_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
             android:gravity="center"
             android:text="@string/aloha_welcome_message"
-            android:textSize="48sp"/>
+            android:textSize="200sp"/>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="350dp"
+            android:layout_height="100dp"
+            android:layout_marginTop="40dp"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:indeterminate="true"
+            android:indeterminateTint="@android:color/white"
+            android:layout_below="@+id/aloha_title_text"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
 
         <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
             android:id="@+id/driver_hvac"
             android:layout_width="wrap_content"
             android:layout_height="200dp"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
             android:gravity="center"
             systemui:hvacAreaId="49">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
-
-        <Button
-            android:id="@+id/aloha_action_button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="@string/aloha_action_button_text"
-            android:background="@*android:color/car_accent"/>
     </RelativeLayout>
 </FrameLayout>
