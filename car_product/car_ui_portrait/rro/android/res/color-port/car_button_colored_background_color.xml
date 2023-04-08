@@ -17,9 +17,9 @@
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="true"
-        android:color="@color/car_on_primary"/>
+        android:color="@color/car_primary"/>
 
     <item android:state_enabled="false"
         android:alpha="?android:attr/disabledAlpha"
-        android:color="@color/car_on_primary"/>
+        android:color="@color/car_primary"/>
 </selector>

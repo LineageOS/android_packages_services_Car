@@ -71,6 +71,7 @@
     <dimen name="system_bar_minimize_icon_height">17dp</dimen>
     <dimen name="system_bar_minimize_icon_width">28dp</dimen>
 
+
     <dimen name="user_avatar_background_radius">13dp</dimen>
 
     <dimen name="privacy_chip_horizontal_padding">0dp</dimen>
@@ -80,6 +81,7 @@
     <dimen name="top_system_bar_icon_drawing_size">42dp</dimen>
     <dimen name="top_system_bar_icon_size">64dp</dimen>
     <dimen name="top_system_bar_icon_horizontal_margin">20dp</dimen>
+    <dimen name="top_system_bar_icon_selected_corner">13dp</dimen>
 
     <dimen name="car_status_icon_panel_border_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
     <dimen name="car_status_icon_panel_padding_bottom">18dp</dimen>
