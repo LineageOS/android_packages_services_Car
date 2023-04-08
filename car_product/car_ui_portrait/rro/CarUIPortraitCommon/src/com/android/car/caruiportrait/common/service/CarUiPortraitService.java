@@ -67,6 +67,10 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_FG_TASK_VIEW_READY =
             "INTENT_EXTRA_TASK_VIEW_READY";
 
+    // key name for the intent's extra that tells if launcher is ready
+    public static final String INTENT_EXTRA_LAUNCHER_READY =
+            "INTENT_EXTRA_LAUNCHER_READY";
+
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
@@ -159,6 +163,8 @@ public class CarUiPortraitService extends Service {
                 case MSG_FG_TASK_VIEW_READY:
                     Intent taskViewReadyIntent = new Intent(REQUEST_FROM_LAUNCHER);
                     taskViewReadyIntent.putExtra(INTENT_EXTRA_FG_TASK_VIEW_READY,
+                            intToBoolean(msg.arg1));
+                    taskViewReadyIntent.putExtra(INTENT_EXTRA_LAUNCHER_READY,
                             intToBoolean(msg.arg1));
                     CarUiPortraitService.this.sendBroadcast(taskViewReadyIntent);
                     break;
