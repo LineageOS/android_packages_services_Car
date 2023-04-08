@@ -17,6 +17,7 @@
 package com.android.systemui.car.displayarea;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
 
 import android.app.ActivityManager;
 import android.content.ComponentName;
@@ -76,6 +77,9 @@ public class DisplayAreaComponent implements CoreStartable {
                 Message msg = Message.obtain(null, MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
+                Message msg1 = Message.obtain(null, MSG_SYSUI_STARTED);
+                msg1.replyTo = mMessenger;
+                mService.send(msg1);
             } catch (RemoteException e) {
                 // In this case the service has crashed before we could even
                 // do anything with it; we can count on soon being

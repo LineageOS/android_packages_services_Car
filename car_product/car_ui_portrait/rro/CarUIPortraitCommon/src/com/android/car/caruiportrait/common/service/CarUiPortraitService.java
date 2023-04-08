@@ -67,6 +67,10 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_FG_TASK_VIEW_READY =
             "INTENT_EXTRA_TASK_VIEW_READY";
 
+    // key name for the intent's extra that tells if launcher is ready
+    public static final String INTENT_EXTRA_LAUNCHER_READY =
+            "INTENT_EXTRA_LAUNCHER_READY";
+
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
 
@@ -116,8 +120,14 @@ public class CarUiPortraitService extends Service {
      */
     public static final int MSG_IMMERSIVE_MODE_CHANGE = 8;
 
+    /**
+     * Command to service to notify when SysUI is ready and started.
+     */
+    public static final int MSG_SYSUI_STARTED = 9;
+
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
+    private BroadcastReceiver mImmersiveModeChangeReceiver;
 
     /**
      * Handler of incoming messages from CarUiPortraitLauncher.
@@ -127,6 +137,10 @@ public class CarUiPortraitService extends Service {
         public void handleMessage(Message msg) {
             Log.d(TAG, "Received message: " + msg.what);
             switch (msg.what) {
+                case MSG_SYSUI_STARTED:
+                    // value is passed as 0 because launcher just needs a event and no need for val
+                    notifyClients(MSG_SYSUI_STARTED, 0);
+                    break;
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
                     break;
@@ -150,6 +164,8 @@ public class CarUiPortraitService extends Service {
                     Intent taskViewReadyIntent = new Intent(REQUEST_FROM_LAUNCHER);
                     taskViewReadyIntent.putExtra(INTENT_EXTRA_FG_TASK_VIEW_READY,
                             intToBoolean(msg.arg1));
+                    taskViewReadyIntent.putExtra(INTENT_EXTRA_LAUNCHER_READY,
+                            intToBoolean(msg.arg1));
                     CarUiPortraitService.this.sendBroadcast(taskViewReadyIntent);
                     break;
                 default:
@@ -160,7 +176,7 @@ public class CarUiPortraitService extends Service {
 
     @Override
     public void onCreate() {
-        BroadcastReceiver immersiveModeChangeReceiver = new BroadcastReceiver() {
+        mImmersiveModeChangeReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 boolean isImmersive = intent.getBooleanExtra(
@@ -188,13 +204,19 @@ public class CarUiPortraitService extends Service {
         };
         IntentFilter filter = new IntentFilter();
         filter.addAction(REQUEST_FROM_SYSTEM_UI);
-        registerReceiver(immersiveModeChangeReceiver, filter);
+        registerReceiver(mImmersiveModeChangeReceiver, filter);
         Log.d(TAG, "Portrait service is created");
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return mMessenger.getBinder();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mImmersiveModeChangeReceiver);
     }
 
     private void notifyClients(int key, int value) {

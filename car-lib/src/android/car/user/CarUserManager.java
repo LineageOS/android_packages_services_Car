@@ -760,7 +760,15 @@ public final class CarUserManager extends CarManagerBase {
                 userRemovalRequest.getUserHandle().getIdentifier());
         try {
             ResultCallbackImpl<UserRemovalResult> resultCallbackImpl = new ResultCallbackImpl<>(
-                    executor, callback);
+                    executor, callback) {
+                @Override
+                protected void onCompleted(UserRemovalResult result) {
+                    EventLogHelper.writeCarUserManagerRemoveUserResp(uid,
+                            result != null ? result.getStatus()
+                                    : UserRemovalResult.STATUS_ANDROID_FAILURE);
+                    super.onCompleted(result);
+                }
+            };
             mService.removeUser(userRemovalRequest.getUserHandle().getIdentifier(),
                     resultCallbackImpl);
         } catch (SecurityException e) {
@@ -770,9 +778,6 @@ public final class CarUserManager extends CarManagerBase {
             UserRemovalResult result = handleExceptionFromCarService(e,
                     new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
             callback.onResult(result);
-        } finally {
-            EventLogHelper.writeCarUserManagerRemoveUserResp(uid,
-                    UserRemovalResult.STATUS_ANDROID_FAILURE);
         }
     }
 
