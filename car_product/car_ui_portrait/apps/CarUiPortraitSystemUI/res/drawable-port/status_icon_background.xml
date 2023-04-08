@@ -22,8 +22,9 @@
         android:state_selected="true">
         <layer-list>
             <item>
-                <shape android:shape="oval">
+                <shape>
                     <solid android:color="@color/status_icon_selected_button_color"/>
+                    <corners android:radius="@dimen/top_system_bar_icon_selected_corner" />
                     <size android:width="@dimen/top_system_bar_icon_size"
                           android:height="@dimen/top_system_bar_icon_size"/>
                 </shape>
@@ -46,8 +47,9 @@
     <item android:state_selected="true">
         <layer-list>
             <item>
-                <shape android:shape="oval">
+                <shape>
                     <solid android:color="@color/status_icon_selected_button_color"/>
+                    <corners android:radius="@dimen/top_system_bar_icon_selected_corner" />
                     <size android:width="@dimen/top_system_bar_icon_size"
                           android:height="@dimen/top_system_bar_icon_size"/>
                 </shape>

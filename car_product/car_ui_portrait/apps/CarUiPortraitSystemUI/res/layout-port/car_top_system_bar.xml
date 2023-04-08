@@ -21,7 +21,6 @@
     android:id="@+id/car_top_bar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/status_bar_background"
     android:gravity="center"
     android:orientation="horizontal">
 
@@ -102,7 +101,7 @@
             <com.android.systemui.car.systembar.CarTopSystemBarButton
                 android:id="@+id/user_name"
                 style="@style/CarTopSystemBarButton"
-                android:background="@drawable/user_avatar_background"
+                android:background="@drawable/status_icon_background"
                 systemui:intent="intent:#Intent;component=com.android.car.settings/.profiles.ProfileSwitcherActivity;launchFlags=0x24000000;end" >
                 <ImageView
                     android:id="@+id/user_avatar"
