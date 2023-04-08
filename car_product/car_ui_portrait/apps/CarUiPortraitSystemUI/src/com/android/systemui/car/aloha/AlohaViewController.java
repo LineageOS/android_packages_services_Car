@@ -44,10 +44,6 @@ public class AlohaViewController extends OverlayViewController {
 
     @Override
     protected void onFinishInflate() {
-        getLayout().findViewById(R.id.aloha_action_button).setOnClickListener(v -> {
-            stop();
-        });
-
         CarUiPortraitTemperatureControlView view =
                 (CarUiPortraitTemperatureControlView) getLayout().findViewById(R.id.driver_hvac);
 
