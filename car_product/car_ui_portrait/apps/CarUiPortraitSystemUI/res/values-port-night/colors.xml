@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="status_icon_not_highlighted_color">#fff</color>
 
     <color name="title_bar_display_area_handle_bar_color">#5f6368</color>
     <color name="title_bar_display_area_background_color">#000000</color>
