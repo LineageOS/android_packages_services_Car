@@ -23,6 +23,5 @@
         <item name="android:padding">28dp</item>
         <item name="android:scaleType">fitCenter</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:tint">@color/car_on_primary</item>
     </style>
 </resources>

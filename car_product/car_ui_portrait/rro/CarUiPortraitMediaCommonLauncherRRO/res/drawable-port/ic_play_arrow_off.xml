@@ -16,12 +16,22 @@
   -->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="24dp"
+        android:alpha="?android:attr/disabledAlpha"
         android:height="24dp"
-        android:viewportWidth="24"
-        android:viewportHeight="24">
-<path
-    android:pathData="M20,12L6,21V3L20,12ZM15.26,12L8.55,7.68V16.32L15.26,12Z"
-    android:fillColor="@color/disabled_icon_color"
-    android:fillType="evenOdd"/>
+        android:width="24dp"
+        android:viewportHeight="24"
+        android:viewportWidth="24">
+        <group android:name="_R_G">
+            <group
+                android:name="_R_G_L_0_G"
+                android:translateX="12"
+                android:translateY="12.125">
+                <path
+                    android:name="_R_G_L_0_G_D_0_P_0"
+                    android:fillColor="@color/disabled_icon_color"
+                    android:fillAlpha="1"
+                    android:fillType="nonZero"
+                    android:pathData=" M-5.62 7 C-5.62,7 -4.75,7 -4.75,7 C-4.75,7 6,-0.12 6,-0.12 C6,-0.12 -4.44,-7 -4.44,-7 C-4.44,-7 -5.62,-7 -5.62,-7 C-5.62,-7 -5.62,7 -5.62,7c " />
+            </group>
+        </group>
 </vector>
