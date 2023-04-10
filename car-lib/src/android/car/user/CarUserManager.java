@@ -1069,17 +1069,16 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/272817932): Update notation to reflect removal timeline.
     /**
      * Sets a callback to be notified before user switch. It should only be used by Car System UI.
      *
      * @hide
      * @deprecated use {@link #setUserSwitchUiCallback(Executor, UserHandleSwitchUiCallback)}
-     * instead. It will be marked removed in {@code V} and hard removed in {@code X}.
+     * instead.
      */
     @Deprecated
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
-    @AddedInOrBefore(majorVersion = 33)
+    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public void setUserSwitchUiCallback(@NonNull UserSwitchUiCallback callback) {
         Preconditions.checkArgument(callback != null, "Null callback");
         UserHandleSwitchUiCallback userHandleSwitchUiCallback = (userHandle) -> {
@@ -1261,7 +1260,6 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/272817932): Update notation to reflect removal timeline.
     /**
      * Checks if the given {@code userId} represents a valid user.
      *
@@ -1275,13 +1273,12 @@ public final class CarUserManager extends CarManagerBase {
      * </ul>
      *
      * @hide
-     * @deprecated use {@link #isValidUser(UserHandle)} instead. It
-     * will be marked removed in {@code V} and hard removed in {@code X}.
+     * @deprecated use {@link #isValidUser(UserHandle)} instead.
      */
     @Deprecated
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
-    @AddedInOrBefore(majorVersion = 33)
+    @AddedInOrBefore(majorVersion = 33, softRemovalVersion = 35, hardRemovalVersion = 37)
     public boolean isValidUser(@UserIdInt int userId) {
         return isValidUser(UserHandle.of(userId));
     }
