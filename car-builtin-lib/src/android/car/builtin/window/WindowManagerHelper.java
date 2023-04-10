@@ -31,7 +31,7 @@ public final class WindowManagerHelper {
     /**
      * See {@link WindowManager.LayoutParams#inputFeatures}}.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setInputFeatureSpy(@NonNull WindowManager.LayoutParams p) {
         p.inputFeatures = WindowManager.LayoutParams.INPUT_FEATURE_SPY;
     }
@@ -39,7 +39,7 @@ public final class WindowManagerHelper {
     /**
      * See {@link WindowManager.LayoutParams#privateFlags}}.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setTrustedOverlay(@NonNull WindowManager.LayoutParams p) {
         p.setTrustedOverlay();
     }
