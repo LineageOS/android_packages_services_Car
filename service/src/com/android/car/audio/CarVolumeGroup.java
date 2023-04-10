@@ -398,6 +398,10 @@ import java.util.Objects;
 
     int getCurrentGainIndex() {
         synchronized (mLock) {
+            if (isMutedLocked()) {
+                return getMinGainIndex();
+            }
+
             return getRestrictedGainForIndexLocked(getCurrentGainIndexLocked());
         }
     }
@@ -409,9 +413,6 @@ import java.util.Objects;
 
     @GuardedBy("mLock")
     protected int getRestrictedGainForIndexLocked(int index) {
-        if (isMutedLocked()) {
-            return getMinGainIndex();
-        }
         if (isBlockedLocked()) {
             return mBlockedGainIndex;
         }
