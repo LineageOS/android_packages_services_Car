@@ -550,6 +550,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         public void setDisplayBrightness(int brightness) {}
 
         @Override
+        public void setDisplayBrightness(int displayId, int brightness) {}
+
+        @Override
         public void setDisplayState(int displayId, boolean on) {
             synchronized (sLock) {
                 mDisplayOn.put(displayId, on);
@@ -575,6 +578,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public void refreshDisplayBrightness(int displayId) {}
 
         @Override
         public boolean isAnyDisplayEnabled() {
