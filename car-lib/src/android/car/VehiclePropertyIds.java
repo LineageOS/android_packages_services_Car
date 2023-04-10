@@ -2154,6 +2154,18 @@ public final class VehiclePropertyIds {
     /**
      * Door move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the door is opening and negative values mean the door is closing.
+     * Larger integers, either positive or negative, indicate a faster speed. Once the door reaches
+     * the positional limit, the value resets to 0. When this property's value is 0, that means
+     * there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2245,6 +2257,18 @@ public final class VehiclePropertyIds {
     /**
      * Mirror Z Move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the mirror is tilting up and negative values mean the mirror is
+     * tilting down. Larger integers, either positive or negative, indicate a faster speed. Once the
+     * mirror reaches the positional limit, the value resets to 0. When this property's value is 0,
+     * that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2286,6 +2310,18 @@ public final class VehiclePropertyIds {
     public static final int MIRROR_Y_POS = 339741506;
     /**
      * Mirror Y Move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the mirror is tilting to the right and negative values mean the
+     * support is tilting to the left. Larger integers, either positive or negative, indicate a
+     * faster speed. Once the mirror reaches the positional limit, the value resets to 0. When this
+     * property's value is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2573,6 +2609,19 @@ public final class VehiclePropertyIds {
     /**
      * Seatbelt height move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat belt's shoulder anchor is moving up and negative values mean
+     * the seat belt's shoulder anchor is moving down. Larger integers, either positive or negative,
+     * indicate a faster speed. Once the seat belt's shoulder anchor reaches the positional limit,
+     * the value resets to 0. When this property's value is 0, that means there is no movement
+     * currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2614,6 +2663,20 @@ public final class VehiclePropertyIds {
     public static final int SEAT_FORE_AFT_POS = 356518789;
     /**
      * Seat fore/aft move.
+     *
+     * <p>This property moves the entire seat forward/backward in the direction it's facing.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat is moving forward and negative values mean the seat is
+     * moving backward. Larger integers, either positive or negative, indicate a faster speed. Once
+     * the seat reaches the positional limit, the value resets to 0. When this property's value is
+     * 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2657,7 +2720,21 @@ public final class VehiclePropertyIds {
     /**
      * Seat backrest angle 1 move.
      *
-     * <p>Moves the backrest forward or recline.
+     * <p>This property moves the seat backrest along the axis of rotation defined by the actuator
+     * closest to the bottom of the seat. This is the actuator that moves the seat upright/forward
+     * or into recline as seen in most conventional vehicles.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat is angling forward and negative values mean the seat is
+     * reclining backward. Larger integers, either positive or negative, indicate a faster speed.
+     * Once the seat reaches the positional limit, the value resets to 0. When this property's value
+     * is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2701,6 +2778,24 @@ public final class VehiclePropertyIds {
     /**
      * Seat backrest angle 2 move.
      *
+     * <p>This property will be implemented if there exists an additional actuator in the seat
+     * backrest besides the one at the very bottom of the backrest, which is covered by {@link
+     * #SEAT_BACKREST_ANGLE_1_MOVE}. This property will move the backrest along the axis of rotation
+     * defined by this additional actuator. It can be assumed that this actuator is closer to the
+     * headrest than the one defined by {@link #SEAT_BACKREST_ANGLE_1_MOVE}.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat is angling forward and negative values mean the seat is
+     * reclining backward. Larger integers, either positive or negative, indicate a faster speed.
+     * Once the seat reaches the positional limit, the value resets to 0. When this property's value
+     * is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2742,6 +2837,18 @@ public final class VehiclePropertyIds {
     public static final int SEAT_HEIGHT_POS = 356518795;
     /**
      * Seat height move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat is moving up and negative values mean the seat is moving
+     * down. Larger integers, either positive or negative, indicate a faster speed. Once the seat
+     * reaches the positional limit, the value resets to 0. When this property's value is 0, that
+     * means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2785,6 +2892,20 @@ public final class VehiclePropertyIds {
     /**
      * Seat depth move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the distance between the seat's front edge and the back of the seat
+     * is increasing, thus making the seat deeper. Negative values mean the distance between the
+     * seat's front edge and the back of the seat is decreasing, thus making the seat shallower.
+     * Larger integers, either positive or negative, indicate a faster speed. Once the seat depth
+     * reaches its limit, the value resets to 0. When this property's value is 0, that means there
+     * is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2826,6 +2947,20 @@ public final class VehiclePropertyIds {
     public static final int SEAT_TILT_POS = 356518799;
     /**
      * Seat tilt move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the seat cushion is tilting upward such that the seat cushion's front
+     * edge is higher than the rear end of the seat cushion. Negative values mean the seat cushion
+     * is tilting downward such that the seat cushion's front edge is lower than the rear end of the
+     * seat cushion. Larger integers, either positive or negative, indicate a faster speed. Once the
+     * seat cushion reaches the positional limit, the value resets to 0. When this property's value
+     * is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2869,6 +3004,19 @@ public final class VehiclePropertyIds {
     /**
      * Lumbar fore/aft move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the lumbar support is moving forward towards the front of the seat
+     * and negative values mean the lumbar support is moving backward away from the front of the
+     * seat. Larger integers, either positive or negative, indicate a faster speed. Once the lumbar
+     * support reaches the positional limit, the value resets to 0. When this property's value is 0,
+     * that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2910,6 +3058,19 @@ public final class VehiclePropertyIds {
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803;
     /**
      * Lumbar side support move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the lumbar side support is getting wider (i.e. less support) and
+     * negative values mean the lumbar side support is getting thinner (i.e. more support). Larger
+     * integers, either positive or negative, indicate a faster speed. Once the lumbar side support
+     * reaches the positional limit, the value resets to 0. When this property's value is 0, that
+     * means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -2994,6 +3155,18 @@ public final class VehiclePropertyIds {
     /**
      * Headrest height move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the headrest is moving up and negative values mean the headrest is
+     * moving down. Larger integers, either positive or negative, indicate a faster speed. Once the
+     * headrest reaches the positional limit, the value resets to 0. When this property's value is
+     * 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -3036,6 +3209,18 @@ public final class VehiclePropertyIds {
     /**
      * Headrest angle move.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the headrest is moving upright/forward and negative values mean the
+     * headrest is reclining. Larger integers, either positive or negative, indicate a faster speed.
+     * Once the headrest reaches the positional limit, the value resets to 0. When this property's
+     * value is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -3077,6 +3262,19 @@ public final class VehiclePropertyIds {
     public static final int SEAT_HEADREST_FORE_AFT_POS = 356518809;
     /**
      * Headrest fore/aft move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the headrest is moving forward towards the front of the seat and
+     * negative values mean the headrest is moving backward away from the front of the seat. Larger
+     * integers, either positive or negative, indicate a faster speed. Once the headrest reaches the
+     * positional limit, the value resets to 0. When this property's value is 0, that means there is
+     * no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3232,10 +3430,12 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for seat’s hipside (bottom cushion’s side) support position.
      *
-     * <p>This value is not in any particular unit but in a specified range of steps. The max value
-     * indicates the widest cushion side support setting (i.e. least support). The min value
-     * indicates the thinnest cushion side support setting (i.e most support). See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * <p>This property is not in any particular unit but in a specified range of steps.
+     *
+     * <p>The max value indicates the widest cushion side support setting (i.e. least support). The
+     * min value indicates the thinnest cushion side support setting (i.e most support).
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
      * positions. All integers between min and max value are supported.
      *
@@ -3264,11 +3464,16 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for movement direction and speed of seat cushion side support.
      *
-     * <p>This value is not in any particular unit but in a specified range of steps. Positive
-     * values mean growing wider (i.e. less support) and negative values mean growing thinner (i.e.
-     * more support). Larger integers, either positive or negative, indicate a faster speed. Once
-     * the support reaches the positional limit, the value resets to 0. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values means the seat cushion side support is growing wider (i.e. less support)
+     * and negative values means the seat cushion side support is growing thinner (i.e. more
+     * support). Larger integers, either positive or negative, indicate a faster speed. Once the
+     * seat cushion side support reaches the positional limit, the value resets to 0. When this
+     * property's value is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
      * All integers between min and max value are supported.
      *
@@ -3297,9 +3502,11 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for seat’s lumbar support vertical position.
      *
-     * <p>This value is not in any particular unit but in a specified range of steps. The max value
-     * indicates the highest position. The min value indicates the lowest position. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * <p>This property is not in any particular unit but in a specified range of steps.
+     *
+     * <p>The max value indicates the highest position. The min value indicates the lowest position.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
      * positions. All integers between min and max value are supported.
      *
@@ -3328,11 +3535,15 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for vertical movement direction and speed of seat lumbar support.
      *
-     * <p>This value is not in any particular unit but in a specified range of steps. Positive
-     * values mean the support is moving up and negative values mean the support is moving down.
-     * Larger integers, either positive or negative, indicate a faster speed. Once the support
-     * reaches the positional limit, the value resets to 0. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the lumbar support is moving up and negative values mean the lumbar
+     * support is moving down. Larger integers, either positive or negative, indicate a faster
+     * speed. Once the lumbar support reaches the positional limit, the value resets to 0. When this
+     * property's value is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
      * All integers between min and max value are supported.
      *
@@ -3436,6 +3647,20 @@ public final class VehiclePropertyIds {
     public static final int WINDOW_POS = 322964416;
     /**
      * Window Move.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative movement
+     * speeds.
+     *
+     * <p>Positive values mean the window is either closing from its out of plane position (if such
+     * a position is supported by the window), or is opening in plane. Negative values mean the
+     * window is closing in plane, or opening in its out of plane position (if the position is
+     * supported). Larger integers, either positive or negative, indicate a faster speed. Once the
+     * window reaches the positional limit, the value resets to 0. When this property's value is 0,
+     * that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3634,11 +3859,16 @@ public final class VehiclePropertyIds {
      *
      * <p>Returns the speed and direction, either towards or away from the driver, that the
      * steering wheel is moving in. This value is not in any particular unit but in a specified
-     * range of steps. Positive values mean moving towards the driver and negative values mean
-     * moving away from the driver. Larger integers, either positive or negative, indicate a
-     * faster speed. Once the steering wheel reaches the positional limit, the value resets to 0.
-     * See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible values.
+     * range of relative movement speeds.
+     *
+     * <p>Positive values mean moving towards the driver and negative values mean moving away from
+     * the driver. Larger integers, either positive or negative, indicate a faster speed. Once the
+     * steering wheel reaches the positional limit, the value resets to 0. When this property's
+     * value is 0, that means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
@@ -3697,12 +3927,17 @@ public final class VehiclePropertyIds {
      * Steering wheel height movement.
      *
      * <p>Returns the speed and direction, either upwards or downwards, that the steering wheel is
-     * moving in. This value is not in any particular unit but in a specified range of steps.
-     * Positive values mean moving upwards and negative values mean moving downwards. Larger
+     * moving in. This property is not in any particular unit but in a specified range of relative
+     * movement speeds.
+     *
+     * <p>Positive values mean moving upwards and negative values mean moving downwards. Larger
      * integers, either positive or negative, indicate a faster speed. Once the steering wheel
-     * reaches the positional limit, the value resets to 0. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible values.
+     * reaches the positional limit, the value resets to 0. When this property's value is 0, that
+     * means there is no movement currently occurring.
+     *
+     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
+     * All integers between min and max value are supported.
      *
      * <p>Property Config:
      * <ul>
