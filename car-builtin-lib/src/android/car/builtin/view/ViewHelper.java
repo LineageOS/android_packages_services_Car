@@ -33,7 +33,7 @@ public final class ViewHelper {
     /**
      * See {@link View#getBoundsOnScreen(Rect)}}.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void getBoundsOnScreen(@NonNull View v, @NonNull Rect outRect) {
         v.getBoundsOnScreen(outRect);
     }
@@ -41,7 +41,7 @@ public final class ViewHelper {
     /**
      * See {@link SurfaceView#setResizeBackgroundColor(int)}}.
      */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void seResizeBackgroundColor(@NonNull SurfaceView surfaceView, int color) {
         surfaceView.setResizeBackgroundColor(color);
     }
