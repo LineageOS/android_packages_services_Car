@@ -19,12 +19,18 @@
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:top="@dimen/hvac_panel_bg_radius">
-        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+        <shape>
             <solid android:color="@color/car_neutral_0"/>
         </shape>
     </item>
     <item>
-        <shape xmlns:android="http://schemas.android.com/apk/res/android">
+        <shape>
+            <solid android:color="@color/car_surface_variant"/>
+            <corners android:radius="@dimen/hvac_panel_bg_radius"/>
+        </shape>
+    </item>
+    <item android:top="@dimen/hvac_panel_stroke_width">
+        <shape>
             <solid android:color="@color/hvac_background_color"/>
             <corners android:radius="@dimen/hvac_panel_bg_radius"/>
         </shape>
