@@ -2130,8 +2130,16 @@ public final class VehiclePropertyIds {
     /**
      * Door position.
      *
-     * <p>This is an integer in case a door may be set to a particular position.
-     * Max value indicates fully open, min value (0) indicates fully closed.
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the door's
+     * position when closed. This value will be 0
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the door's
+     * position when fully open.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the closed and fully open positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2236,6 +2244,18 @@ public final class VehiclePropertyIds {
     /**
      * Mirror Z Position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the mirror's
+     * position when tilted completely downwards.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the mirror's
+     * position when tilted completely upwards.
+     * <p>0 indicates the mirror is not tilted in either direction.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the completely downwards and completely upwards positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2289,6 +2309,18 @@ public final class VehiclePropertyIds {
     public static final int MIRROR_Z_MOVE = 339741505;
     /**
      * Mirror Y Position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the mirror's
+     * position when tilted completely to the left.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the mirror's
+     * position when tilted completely to the right.
+     * <p>0 indicates the mirror is not tilted in either direction.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the extreme left and extreme right positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2443,10 +2475,13 @@ public final class VehiclePropertyIds {
     /**
      * Property that represents the current position of the glove box door.
      *
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates that the glove
-     * box is closed.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates that the glove
-     * box is fully open.
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the glove box's
+     * position when closed. This value will be 0.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the glove box's
+     * position when fully open.
      *
      * <p>All integers between the min and max values are supported and indicate a transition state
      * between the closed and fully open positions.
@@ -2588,6 +2623,17 @@ public final class VehiclePropertyIds {
     /**
      * Seatbelt height position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat belt
+     * shoulder anchor's lowest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat belt
+     * shoulder anchor's highest position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the lowest and highest positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2642,6 +2688,17 @@ public final class VehiclePropertyIds {
     public static final int SEAT_BELT_HEIGHT_MOVE = 356518788;
     /**
      * Seat fore/aft position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
+     * rearward-most linear position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
+     * forward-most linear position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2698,6 +2755,19 @@ public final class VehiclePropertyIds {
     public static final int SEAT_FORE_AFT_MOVE = 356518790;
     /**
      * Seat backrest angle 1 position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * backrest's full recline position w.r.t the actuator at the bottom of the seat (see {@link
+     * #SEAT_BACKREST_ANGLE_1_MOVE} for additional details).
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * backrest's most upright/forward position w.r.t the actuator at the bottom of the seat (see
+     * {@link #SEAT_BACKREST_ANGLE_1_MOVE} for additional details).
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2756,6 +2826,19 @@ public final class VehiclePropertyIds {
     public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792;
     /**
      * Seat backrest angle 2 position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * backrest's full recline position w.r.t the next actuator in the backrest from the one at the
+     * bottom of the seat (see {@link #SEAT_BACKREST_ANGLE_2_MOVE} for more details).
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * backrest's most upright/forward position w.r.t the next actuator in the backrest from the one
+     * at the bottom of the seat (see {@link #SEAT_BACKREST_ANGLE_2_MOVE} for more details).
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2817,6 +2900,17 @@ public final class VehiclePropertyIds {
     /**
      * Seat height position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
+     * lowest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
+     * highest position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the lowest and highest positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2870,6 +2964,19 @@ public final class VehiclePropertyIds {
     public static final int SEAT_HEIGHT_MOVE = 356518796;
     /**
      * Seat depth position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat's
+     * shallowest position. This corresponds to the smallest distance between the front edge of the
+     * seat and the seat backrest.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
+     * deepest position. This corresponds to the largest distance between the front edge of the seat
+     * and the seat backrest.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the shallowest and deepest positions.
      *
      * <p>Property Config:
      * <ul>
@@ -2927,6 +3034,19 @@ public final class VehiclePropertyIds {
     /**
      * Seat tilt position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * bottom's lowest angular position. This corresponds to the seat's front edge at its lowest
+     * possible position relative to the rear end of the seat.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * bottom's highest angular position. This corresponds to the seat's front edge at its highest
+     * possible position relative to the rear end of the seat.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the lowest and highest positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -2983,6 +3103,17 @@ public final class VehiclePropertyIds {
     /**
      * Lumber fore/aft position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat lumbar
+     * support's rearward most position (i.e. least supportive position).
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat lumbar
+     * support's forward most position (i.e. most supportive position).
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -3037,6 +3168,17 @@ public final class VehiclePropertyIds {
     public static final int SEAT_LUMBAR_FORE_AFT_MOVE = 356518802;
     /**
      * Lumbar side support position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat lumbar
+     * side support's thinnest position (i.e most support).
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat lumbar
+     * side support's widest position (i.e least support).
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the thinnest and widest positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3122,12 +3264,16 @@ public final class VehiclePropertyIds {
     /**
      * Headrest height position.
      *
-     * <p>Returns the height of the headrest for supported seats. This value is not in any
-     * particular unit but in a specified range of steps. The {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the tallest height. See
-     * {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
+     *
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * headrest's shortest position.
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * headrest's tallest position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the shortest and tallest positions.
      *
      * <p>{@link android.car.hardware.CarPropertyConfig#getAreaIds()} specifies which seats are
      * supported.
@@ -3188,6 +3334,17 @@ public final class VehiclePropertyIds {
     /**
      * Headrest angle position.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * headrest's full recline position.
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * headrest's most upright/forward position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
+     *
      * <p>Property Config:
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
@@ -3241,6 +3398,17 @@ public final class VehiclePropertyIds {
     public static final int SEAT_HEADREST_ANGLE_MOVE = 356518808;
     /**
      * Headrest fore/aft position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * headrest's rearward-most linear position.
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * headrest's forward-most linear position.
+     *
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the forward most and rearward most positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3430,14 +3598,16 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for seat’s hipside (bottom cushion’s side) support position.
      *
-     * <p>This property is not in any particular unit but in a specified range of steps.
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
      *
-     * <p>The max value indicates the widest cushion side support setting (i.e. least support). The
-     * min value indicates the thinnest cushion side support setting (i.e most support).
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * hipside support's thinnest position (i.e. most support).
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * hipside support's widest position (i.e. least support).
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
-     * positions. All integers between min and max value are supported.
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the thinnest and widest positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3502,13 +3672,16 @@ public final class VehiclePropertyIds {
     /**
      * Represents property for seat’s lumbar support vertical position.
      *
-     * <p>This property is not in any particular unit but in a specified range of steps.
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
      *
-     * <p>The max value indicates the highest position. The min value indicates the lowest position.
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the seat
+     * lumbar support's lowest position.
+     * <p>The {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat
+     * lumbar support's highest position.
      *
-     * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
-     * positions. All integers between min and max value are supported.
+     * <p>All integers between the min and max values are supported and indicate a transition state
+     * between the lowest and highest positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3572,10 +3745,13 @@ public final class VehiclePropertyIds {
     /**
      * Represents property that indicates the current walk-in position of the seat.
      *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
      * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the normal seat
      * position.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat is in
-     * the full walk-in position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the seat's
+     * position in full walk-in mode.
      *
      * <p>All integers in between the min and max values are supported and indicate a transition
      * state between the normal and walk-in positions. The area IDs match the seats that actually
@@ -3626,6 +3802,21 @@ public final class VehiclePropertyIds {
     public static final int SEAT_OCCUPANCY = 356518832;
     /**
      * Window Position.
+     *
+     * <p>This property is not in any particular unit but in a specified range of relative
+     * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the window's
+     * position when closed/fully open out of plane. If the window cannot open out of plane, then
+     * {@link android.car.hardware.property.AreaIdConfig#getMinValue()} is the position of the
+     * window when fully closed and must be 0. If the window can open out of plane, {@link
+     * android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the window is fully open
+     * in its position out of plane and will be a negative value.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the window's
+     * position when fully open.
+     *
+     * <p>All integers in between the min and max values are supported and indicate a transition
+     * state between the closed and fully open positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3825,12 +4016,16 @@ public final class VehiclePropertyIds {
     /**
      * Steering wheel depth position.
      *
-     * <p>Returns how close the steering wheel is to the driver. This value is not in any
-     * particular unit but in a specified range of steps. The max value indicates the wheel
-     * position closest to the driver. See {@link
-     * android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the steering
+     * wheel's position when closest to the driver.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
+     * wheel's position when farthest from the driver.
+     *
+     * <p>All integers in between the min and max values are supported and indicate a transition
+     * state between the closest and farthest positions.
      *
      * <p>Property Config:
      * <ul>
@@ -3858,13 +4053,14 @@ public final class VehiclePropertyIds {
      * Steering wheel depth movement.
      *
      * <p>Returns the speed and direction, either towards or away from the driver, that the
-     * steering wheel is moving in. This value is not in any particular unit but in a specified
+     * steering wheel is moving in. This property is not in any particular unit but in a specified
      * range of relative movement speeds.
      *
-     * <p>Positive values mean moving towards the driver and negative values mean moving away from
-     * the driver. Larger integers, either positive or negative, indicate a faster speed. Once the
-     * steering wheel reaches the positional limit, the value resets to 0. When this property's
-     * value is 0, that means there is no movement currently occurring.
+     * <p>Positive values mean the steering wheel is moving away from the driver and negative values
+     * mean the steering wheel is moving towards the driver. Larger integers, either positive or
+     * negative, indicate a faster speed. Once the steering wheel reaches the positional limit, the
+     * value resets to 0. When this property's value is 0, that means there is no movement currently
+     * occurring.
      *
      * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
@@ -3895,11 +4091,16 @@ public final class VehiclePropertyIds {
     /**
      * Steering wheel height position.
      *
-     * <p>Returns the steering wheel height. This value is not in any particular unit but in a
-     * specified range of steps. The max value indicates the highest position that can be set. See
-     * {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
-     * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible
+     * <p>This property is not in any particular unit but in a specified range of relative
      * positions.
+     *
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the steering
+     * wheel's lowest position.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
+     * wheel's highest position.
+     *
+     * <p>All integers in between the min and max values are supported and indicate a transition
+     * state between the lowest and highest positions.
      *
      * <p>Property Config:
      * <ul>
