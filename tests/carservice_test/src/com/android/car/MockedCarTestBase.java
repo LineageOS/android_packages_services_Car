@@ -559,6 +559,9 @@ public class MockedCarTestBase {
         public void setDisplayBrightness(int brightness) {}
 
         @Override
+        public void setDisplayBrightness(int displayId, int brightness) {}
+
+        @Override
         public void setDisplayState(int displayId, boolean on) {}
 
         @Override
@@ -572,6 +575,9 @@ public class MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public void refreshDisplayBrightness(int displayid) {}
 
         @Override
         public boolean isAnyDisplayEnabled() {

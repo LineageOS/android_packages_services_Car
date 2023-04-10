@@ -133,6 +133,11 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
+    public void setDisplayBrightness(int displayId, int brightness) {
+        mDisplayInterface.setDisplayBrightness(displayId, brightness);
+    }
+
+    @Override
     public void setDisplayState(int displayId, boolean on) {
         mDisplayInterface.setDisplayState(displayId, on);
     }
@@ -223,6 +228,11 @@ public class SystemInterface implements ActivityManagerInterface,
     @Override
     public void refreshDisplayBrightness() {
         mDisplayInterface.refreshDisplayBrightness();
+    }
+
+    @Override
+    public void refreshDisplayBrightness(int displayId) {
+        mDisplayInterface.refreshDisplayBrightness(displayId);
     }
 
     public final static class Builder {

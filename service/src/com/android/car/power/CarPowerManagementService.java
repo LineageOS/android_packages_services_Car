@@ -1312,7 +1312,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mNextWakeupSec = 0;
         }
         Slogf.i(TAG, "Resuming after suspending");
-        mSystemInterface.refreshDisplayBrightness();
+        forEachDisplay(mContext, mSystemInterface::refreshDisplayBrightness);
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
@@ -1392,11 +1392,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void onDisplayBrightnessChange(int brightness) {
-        mHandler.handleDisplayBrightnessChange(brightness);
+        mHandler.handleDisplayBrightnessChange(Display.DEFAULT_DISPLAY, brightness);
     }
 
-    private void doHandleDisplayBrightnessChange(int brightness) {
-        mSystemInterface.setDisplayBrightness(brightness);
+    @Override
+    public void onDisplayBrightnessChange(int displayId, int brightness) {
+        mHandler.handleDisplayBrightnessChange(displayId, brightness);
+    }
+
+    private void doHandleDisplayBrightnessChange(int displayId, int brightness) {
+        mSystemInterface.setDisplayBrightness(displayId, brightness);
     }
 
     private void doHandleDisplayStateChange(int displayId, boolean on) {
@@ -1443,6 +1448,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public void sendDisplayBrightness(int brightness) {
         mHal.sendDisplayBrightness(brightness);
+    }
+
+    /**
+     * Sends display brightness to VHAL.
+     * @param displayId the target display
+     * @param brightness value 0-100%
+     */
+    public void sendDisplayBrightness(int displayId, int brightness) {
+        mHal.sendDisplayBrightness(displayId, brightness);
     }
 
     /**
@@ -2040,8 +2054,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             sendMessage(msg);
         }
 
-        private void handleDisplayBrightnessChange(int brightness) {
-            Message msg = obtainMessage(MSG_DISPLAY_BRIGHTNESS_CHANGE, brightness, 0);
+        private void handleDisplayBrightnessChange(int displayId, int brightness) {
+            Message msg = obtainMessage(MSG_DISPLAY_BRIGHTNESS_CHANGE, displayId, brightness);
             sendMessage(msg);
         }
 
@@ -2087,7 +2101,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     service.doHandlePowerStateChange();
                     break;
                 case MSG_DISPLAY_BRIGHTNESS_CHANGE:
-                    service.doHandleDisplayBrightnessChange(msg.arg1);
+                    service.doHandleDisplayBrightnessChange(
+                            /* displayId= */ msg.arg1, /* brightness= */ msg.arg2);
                     break;
                 case MSG_DISPLAY_STATE_CHANGE:
                     int displayId = (Integer) msg.obj;
