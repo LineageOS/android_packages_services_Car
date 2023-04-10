@@ -4020,9 +4020,9 @@ public final class VehiclePropertyIds {
      * positions.
      *
      * <p>{@link android.car.hardware.property.AreaIdConfig#getMinValue()} indicates the steering
-     * wheel's position when farthest from the driver.
-     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
      * wheel's position when closest to the driver.
+     * <p>{@link android.car.hardware.property.AreaIdConfig#getMaxValue()} indicates the steering
+     * wheel's position when farthest from the driver.
      *
      * <p>All integers in between the min and max values are supported and indicate a transition
      * state between the closest and farthest positions.
@@ -4056,10 +4056,11 @@ public final class VehiclePropertyIds {
      * steering wheel is moving in. This property is not in any particular unit but in a specified
      * range of relative movement speeds.
      *
-     * <p>Positive values mean moving towards the driver and negative values mean moving away from
-     * the driver. Larger integers, either positive or negative, indicate a faster speed. Once the
-     * steering wheel reaches the positional limit, the value resets to 0. When this property's
-     * value is 0, that means there is no movement currently occurring.
+     * <p>Positive values mean the steering wheel is moving away from the driver and negative values
+     * mean the steering wheel is moving towards the driver. Larger integers, either positive or
+     * negative, indicate a faster speed. Once the steering wheel reaches the positional limit, the
+     * value resets to 0. When this property's value is 0, that means there is no movement currently
+     * occurring.
      *
      * <p>See {@link android.car.hardware.property.AreaIdConfig#getMaxValue()} and {@link
      * android.car.hardware.property.AreaIdConfig#getMinValue()} for the range of possible speeds.
