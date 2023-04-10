@@ -38,6 +38,7 @@ import com.android.internal.util.Preconditions;
  */
 final class CarAudioVolumeGroup extends CarVolumeGroup {
     private static final int UNSET_STEP_SIZE = -1;
+    private static final int EVENT_TYPE_NONE = 0;
     @GuardedBy("mLock")
     private int mDefaultGain = Integer.MAX_VALUE;
     @GuardedBy("mLock")
@@ -153,11 +154,17 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
         }
 
         // update the new gain stage and return event types so that callback can be triggered.
-        int eventType = 0;
+        int eventType = EVENT_TYPE_NONE;
         synchronized (mLock) {
-            // get the curret gain in mb before updating the volume bounds
-            int extrapolateGainInMb = getGainForIndexLocked(getCurrentGainIndexLocked());
+            // get the curret and restricted gains in mb before updating the volume bounds. These
+            // will be used for extrapolating to new volume ranges
+            int epCurrentGainInMb = getGainForIndexLocked(getCurrentGainIndexLocked());
+            int epLimitedGainInMb = getGainForIndexLocked(mLimitedGainIndex);
+            int epBlockedGainInMb = getGainForIndexLocked(mBlockedGainIndex);
+            int epAttenuatedGainInMb = getGainForIndexLocked(mAttenuatedGainIndex);
+            boolean isLimited = isLimitedLocked();
 
+            // update the volume ranges
             if (minGain != mMinGain) {
                 mMinGain = minGain;
                 eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
@@ -168,31 +175,62 @@ final class CarAudioVolumeGroup extends CarVolumeGroup {
                 eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
                         | EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED);
             }
+            // if only default gain changes, no impact to volume gain stages (i.e. no event).
             if (defaultGain != mDefaultGain) {
                 mDefaultGain = defaultGain;
-                // if only default gain changes, no impact to volume gain stages (i.e. no event).
             }
             if (stepSize != mStepSize) {
                 mStepSize = stepSize;
                 eventType |= (EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED
                         | EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED);
             }
-
-
-            if ((eventType & EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED)
-                    == EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED)  {
-                // if min/max/step values change, we shall try to maintain the same volume level
-                // through simple extrapolation i.e. the new  gain index is calculated from the
-                // previous 'current gain in millibels'
-                // caution: before updating, check if the previous gain is out of bound in the
-                //          new gain stage. If yes, use the safe value (i.e default gain)
-                //          provided by the hal implementations.
-                if (extrapolateGainInMb < mMinGain || extrapolateGainInMb > mMaxGain) {
-                    setCurrentGainIndexLocked(getIndexForGainLocked(mDefaultGain));
-                } else {
-                    setCurrentGainIndexLocked(getIndexForGainLocked(extrapolateGainInMb));
-                }
+            // if no change to indexes, return
+            if (eventType == EVENT_TYPE_NONE) {
+                return eventType;
             }
+
+            // if min/max/step values change, we shall try to maintain the same volume level
+            // through simple extrapolation, i.e., the new  gain index is calculated from the
+            // previous {@code mCurrentGainIndex} in millibels.
+            // caution: before updating, check if the previous gain is out of bound in the
+            //          new gain stage. If yes, use the safe value (i.e default gain)
+            //          provided by the hal implementations.
+            mCurrentGainIndex = getIndexForGainLocked(epCurrentGainInMb);
+            if (!isValidGainIndexLocked(mCurrentGainIndex)) {
+                mCurrentGainIndex = getIndexForGainLocked(mDefaultGain);
+            }
+
+            // similar extrapolation is tried for restricted gains: limited, blocked, attenuated.
+            // Note: Even after best effort, it is possible that some or all of the old restriction
+            // indexes are invalid and therefore reset.
+            int newLimitedGainIndex = getIndexForGainLocked(epLimitedGainInMb);
+            if (isLimited && isValidGainIndexLocked(newLimitedGainIndex)) {
+                setLimitLocked(newLimitedGainIndex);
+            } else {
+                resetLimitLocked();
+            }
+
+            int newBlockedGainIndex = getIndexForGainLocked(epBlockedGainInMb);
+            if (isBlockedLocked() && isValidGainIndexLocked(newBlockedGainIndex)) {
+                setBlockedLocked(newBlockedGainIndex);
+            } else {
+                resetBlockedLocked();
+            }
+
+            int newAttenuatedGainIndex = getIndexForGainLocked(epAttenuatedGainInMb);
+            if (isAttenuatedLocked() && isValidGainIndexLocked(newAttenuatedGainIndex)) {
+                setAttenuatedGainLocked(newAttenuatedGainIndex);
+            } else {
+                resetAttenuationLocked();
+            }
+
+            // Notes:
+            // (1) Setting current gain index will trigger Audio HAL. If restrictions are still
+            //     valid but were reset above, we expect AudioControl HAL to resend the restrictions
+            //     in a callback.
+            // (2) Audio HAL will be responsible to ensure consistent speaker output during this
+            //     transition.
+            setCurrentGainIndexLocked(getRestrictedGainForIndexLocked(mCurrentGainIndex));
         }
         return eventType;
     }
