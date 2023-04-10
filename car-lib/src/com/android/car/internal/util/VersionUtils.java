@@ -33,12 +33,23 @@ public final class VersionUtils {
      *
      * @throws PlatformVersionMismatchException if current platform version is not equal to or
      * greater than expected platform version.
+     *
+     * @deprecated Use version specific call for example {@link #assertPlatformVersionAtLeastU()}.
      */
     public static void assertPlatformVersionAtLeast(PlatformVersion expectedPlatformApiVersion) {
-        PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
-        if (!currentPlatformVersion.isAtLeast(expectedPlatformApiVersion)) {
+        if (!isPlatformVersionAtLeast(expectedPlatformApiVersion)) {
             throw new PlatformVersionMismatchException(expectedPlatformApiVersion);
         }
+    }
+
+    /**
+     * Asserts if the current platform version is at least {@code UPSIDE_DOWN_CAKE}.
+     *
+     * @throws PlatformVersionMismatchException if current platform version is not equal to or
+     * greater than expected platform version.
+     */
+    public static void assertPlatformVersionAtLeastU() {
+        assertPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
     }
 
     /**
