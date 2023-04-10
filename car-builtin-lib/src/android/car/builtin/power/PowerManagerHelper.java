@@ -33,6 +33,38 @@ import android.os.PowerManager.WakeLock;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class PowerManagerHelper {
 
+    /** See {@code PowerManager.BRIGHTNESS_ON} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int BRIGHTNESS_ON = PowerManager.BRIGHTNESS_ON;
+
+    /** See {@code PowerManager.BRIGHTNESS_OFF} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int BRIGHTNESS_OFF = PowerManager.BRIGHTNESS_OFF;
+
+    /** See {@code PowerManager.BRIGHTNESS_DEFAULT} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int BRIGHTNESS_DEFAULT = PowerManager.BRIGHTNESS_DEFAULT;
+
+    /** See {@code PowerManager.BRIGHTNESS_INVALID} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int BRIGHTNESS_INVALID = PowerManager.BRIGHTNESS_INVALID;
+
+    /** See {@code PowerManager.BRIGHTNESS_MAX} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final float BRIGHTNESS_MAX = PowerManager.BRIGHTNESS_MAX;
+
+    /** See {@code PowerManager.BRIGHTNESS_MIN} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final float BRIGHTNESS_MIN = PowerManager.BRIGHTNESS_MIN;
+
+    /** See {@code PowerManager.BRIGHTNESS_OFF_FLOAT} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final float BRIGHTNESS_OFF_FLOAT = PowerManager.BRIGHTNESS_OFF_FLOAT;
+
+    /** See {@code PowerManager.BRIGHTNESS_INVALID_FLOAT} */
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final float BRIGHTNESS_INVALID_FLOAT = PowerManager.BRIGHTNESS_INVALID_FLOAT;
+
     private PowerManagerHelper() {
         throw new UnsupportedOperationException("contains only static members");
     }

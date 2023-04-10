@@ -722,6 +722,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         public void setDisplayBrightness(int brightness) {}
 
         @Override
+        public void setDisplayBrightness(int displayId, int brightness) {}
+
+        @Override
         public void setDisplayState(int displayId, boolean on) {
             synchronized (mLock) {
                 mDisplayOn.put(displayId, on);
@@ -776,6 +779,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public void refreshDisplayBrightness(int displayId) {}
 
         @Override
         public boolean isAnyDisplayEnabled() {

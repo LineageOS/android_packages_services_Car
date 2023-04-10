@@ -148,6 +148,20 @@ package android.car.builtin.content.pm {
 
 }
 
+package android.car.builtin.display {
+
+  public final class DisplayManagerHelper {
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static float getBrightness(android.content.Context, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void registerDisplayListener(android.content.Context, android.hardware.display.DisplayManager.DisplayListener, android.os.Handler, long);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void setBrightness(android.content.Context, int, @FloatRange(from=0.0f, to=1.0f) float);
+    field public static final long EVENT_FLAG_DISPLAY_ADDED = 1L; // 0x1L
+    field public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS = 8L; // 0x8L
+    field public static final long EVENT_FLAG_DISPLAY_CHANGED = 4L; // 0x4L
+    field public static final long EVENT_FLAG_DISPLAY_REMOVED = 2L; // 0x2L
+  }
+
+}
+
 package android.car.builtin.input {
 
   public class InputManagerHelper {
@@ -314,6 +328,14 @@ package android.car.builtin.power {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static android.os.PowerManager.WakeLock newWakeLock(android.content.Context, int, String, int);
     method public static void setDisplayState(android.content.Context, boolean, long);
     method public static void shutdown(android.content.Context, boolean, String, boolean);
+    field public static final int BRIGHTNESS_DEFAULT = -1; // 0xffffffff
+    field public static final int BRIGHTNESS_INVALID = -1; // 0xffffffff
+    field public static final float BRIGHTNESS_INVALID_FLOAT;
+    field public static final float BRIGHTNESS_MAX = 1.0f;
+    field public static final float BRIGHTNESS_MIN = 0.0f;
+    field public static final int BRIGHTNESS_OFF = 0; // 0x0
+    field public static final float BRIGHTNESS_OFF_FLOAT = -1.0f;
+    field public static final int BRIGHTNESS_ON = 255; // 0xff
   }
 
 }
