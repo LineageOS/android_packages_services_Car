@@ -17,10 +17,12 @@
 package android.car.builtin.view;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
 import android.graphics.Rect;
+import android.os.Build;
 import android.view.SurfaceView;
 import android.view.View;
 
@@ -33,6 +35,7 @@ public final class ViewHelper {
     /**
      * See {@link View#getBoundsOnScreen(Rect)}}.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void getBoundsOnScreen(@NonNull View v, @NonNull Rect outRect) {
         v.getBoundsOnScreen(outRect);
@@ -41,6 +44,7 @@ public final class ViewHelper {
     /**
      * See {@link SurfaceView#setResizeBackgroundColor(int)}}.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void seResizeBackgroundColor(@NonNull SurfaceView surfaceView, int color) {
         surfaceView.setResizeBackgroundColor(color);
