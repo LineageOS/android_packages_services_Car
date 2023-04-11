@@ -14,17 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<!-- copy of switch_track_material, but with a ux restricted state -->
+
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_enabled="false"
         android:state_checked="true"
-        android:color="@color/car_primary"
+        android:color="@color/car_switch_track_checked"
         android:alpha="?attr/android:disabledAlpha" />
     <item android:state_enabled="false"
         android:state_checked="false"
-        android:color="@color/car_secondary"
+        android:color="@color/car_switch_track_unchecked"
         android:alpha="?attr/android:disabledAlpha" />
     <item android:state_checked="true"
-        android:color="@color/car_primary" />
-    <item android:color="@color/car_secondary" />
+        android:color="@color/car_switch_track_checked" />
+    <item android:color="@color/car_switch_track_unchecked" />
 </selector>
