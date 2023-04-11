@@ -24,7 +24,7 @@
         <item name="android:background">@drawable/grid_image_background</item>
         <item name="android:clipToOutline">true</item>
     </style>
-    <style name="BrowseGridTitleStyle" parent="TextAppearance.Car.Body.Large">
+    <style name="BrowseGridTitleStyle" parent="TextAppearance.Car.Body.Medium">
         <item name="android:textColor">@color/car_on_surface</item>
     </style>
     <style name="BrowseGridSubtitleStyle" parent="TextAppearance.Car.Body.Small">
