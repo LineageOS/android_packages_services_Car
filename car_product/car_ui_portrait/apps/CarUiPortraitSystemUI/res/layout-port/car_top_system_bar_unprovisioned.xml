@@ -85,20 +85,6 @@
             />
 
             <com.android.systemui.car.systembar.CarTopSystemBarButton
-                android:id="@+id/system_icon_area"
-                style="@style/CarTopSystemBarButton"
-                android:background="@drawable/status_icon_background"
-                systemui:intent="intent:#Intent;component=com.android.car.settings/.common.CarSettingActivities$HomepageActivity;launchFlags=0x24000000;end" >
-                <ImageView
-                    android:id="@+id/statusIcon"
-                    android:layout_gravity="center"
-                    android:layout_width="@dimen/top_system_bar_icon_drawing_size"
-                    android:layout_height="@dimen/top_system_bar_icon_drawing_size"
-                    android:src="@drawable/car_ic_status"
-                />
-            </com.android.systemui.car.systembar.CarTopSystemBarButton>
-
-            <com.android.systemui.car.systembar.CarTopSystemBarButton
                 android:id="@+id/user_name"
                 style="@style/CarTopSystemBarButton"
                 android:background="@drawable/status_icon_background"
