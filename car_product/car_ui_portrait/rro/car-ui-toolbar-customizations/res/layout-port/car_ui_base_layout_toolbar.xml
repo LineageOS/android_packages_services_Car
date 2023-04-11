@@ -106,8 +106,9 @@
                     android:scaleType="fitXY" />
             </FrameLayout>
 
-            <LinearLayout android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:id="@+id/car_ui_toolbar_title_container"
                 android:orientation="vertical"
                 android:layout_marginStart="16dp"
@@ -117,16 +118,23 @@
                 app:layout_constraintEnd_toStartOf="@+id/car_ui_toolbar_nav_icon_container"
                 app:layout_constraintStart_toEndOf="@id/car_ui_toolbar_title_logo_container">
                 <TextView android:id="@+id/car_ui_toolbar_title"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
                     android:textAlignment="viewStart"
+                    android:ellipsize="none"
+                    android:requiresFadingEdge="horizontal"
+                    android:fadingEdgeLength="@*android:dimen/car_textview_fading_edge_length"
+                    android:singleLine="true"
                     android:textAppearance="@style/TextAppearance.CarUi.Widget.Toolbar.Title"/>
                 <TextView android:id="@+id/car_ui_toolbar_subtitle"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
                     android:textAlignment="viewStart"
+                    android:ellipsize="none"
+                    android:requiresFadingEdge="horizontal"
+                    android:fadingEdgeLength="@*android:dimen/car_textview_fading_edge_length"
+                    android:singleLine="true"
                     android:textAppearance="?android:attr/textAppearanceSmall"/>
             </LinearLayout>
 
