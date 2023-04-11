@@ -548,7 +548,7 @@ package android.car.builtin.view {
   }
 
   public final class SurfaceControlHelper {
-    method public static android.view.SurfaceControl copy(android.view.SurfaceControl);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static android.view.SurfaceControl copy(android.view.SurfaceControl);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @Nullable public static android.view.SurfaceControl mirrorDisplay(int);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @NonNull public static android.view.SurfaceControl mirrorSurface(@NonNull android.view.SurfaceControl);
   }
@@ -561,8 +561,8 @@ package android.car.builtin.view {
   }
 
   public final class ViewHelper {
-    method public static void getBoundsOnScreen(@NonNull android.view.View, @NonNull android.graphics.Rect);
-    method public static void seResizeBackgroundColor(@NonNull android.view.SurfaceView, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void getBoundsOnScreen(@NonNull android.view.View, @NonNull android.graphics.Rect);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void seResizeBackgroundColor(@NonNull android.view.SurfaceView, int);
   }
 
 }
@@ -583,8 +583,8 @@ package android.car.builtin.window {
   }
 
   public final class WindowManagerHelper {
-    method public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
-    method public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
   }
 
 }
