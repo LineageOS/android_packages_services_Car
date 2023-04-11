@@ -40,10 +40,6 @@
         <item name="android:textSize">44sp</item>
     </style>
 
-    <style name="TextAppearance.Car.Headline.Small">
-        <item name="android:textSize">44sp</item>
-    </style>
-
 
     <style name="TextAppearance.Car.Body">
         <item name="android:textFontWeight">400</item>

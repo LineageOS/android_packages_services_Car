@@ -59,7 +59,7 @@
         <item name="android:textColorLink">?android:attr/textColorLinkInverse</item>
     </style>
 
-    <style name="TextAppearance.Material.Subhead" parent="TextAppearance.Car.Headline.Small">
+    <style name="TextAppearance.Material.Subhead" parent="TextAppearance.Car.Headline.Medium">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 

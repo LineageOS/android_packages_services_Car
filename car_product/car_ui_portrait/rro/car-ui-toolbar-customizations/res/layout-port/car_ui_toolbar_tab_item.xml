@@ -40,7 +40,7 @@
         android:id="@+id/car_ui_toolbar_tab_item_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="28sp"
+        style="@style/TextAppearance.Car.Body.Small"
         android:singleLine="true"
         app:layout_constraintStart_toEndOf="@id/car_ui_toolbar_tab_item_icon"
         app:layout_constraintEnd_toEndOf="parent"
