@@ -74,4 +74,34 @@ public final class CarPropertyConfigListUnitTest extends AbstractExtendedMockito
                 .that(carPropertyConfigList.getConfigs().get(0).getAreaType())
                 .isEqualTo(configs.get(0).getAreaType());
     }
+
+    @Test
+    public void testNewArray() {
+        CarPropertyConfigList[] array = CarPropertyConfigList.CREATOR.newArray(56);
+
+        expectWithMessage("Creator new array").that(array).isNotNull();
+        expectWithMessage("Creator new array").that(array).hasLength(56);
+    }
+
+    @Test
+    public void testCreateFromParcel() {
+        CarPropertyConfig carPropertyConfig = CarPropertyConfig.newBuilder(
+                Integer.class, 123, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build();
+        CarPropertyConfigList carPropertyConfigList = new CarPropertyConfigList(
+                List.of(carPropertyConfig));
+        Parcel parcel = Parcel.obtain();
+        parcel.setDataPosition(0);
+        carPropertyConfigList.writeToParcel(parcel, 0);
+        parcel.setDataPosition(0);
+
+        CarPropertyConfig carPropertyConfigCreateFromParcel =
+                CarPropertyConfigList.CREATOR.createFromParcel(parcel).getConfigs().get(0);
+
+        expectWithMessage("Create from parcel propertyId")
+                .that(carPropertyConfigCreateFromParcel.getPropertyId())
+                .isEqualTo(123);
+        expectWithMessage("Create from parcel area type")
+                .that(carPropertyConfigCreateFromParcel.getAreaType())
+                .isEqualTo(VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
+    }
 }
