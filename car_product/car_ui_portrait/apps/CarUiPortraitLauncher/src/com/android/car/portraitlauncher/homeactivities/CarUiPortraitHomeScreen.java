@@ -377,9 +377,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         mTaskCategoryManager = new TaskCategoryManager(getApplicationContext());
         if (savedInstanceState != null) {
-            String component = savedInstanceState.getString(SAVED_BACKGROUND_APP_COMPONENT_NAME);
-            mTaskCategoryManager.setCurrentBackgroundApp(
-                    ComponentName.unflattenFromString(component));
+            String savedBackgroundAppName = savedInstanceState.getString(
+                    SAVED_BACKGROUND_APP_COMPONENT_NAME);
+            if (savedBackgroundAppName != null) {
+                mTaskCategoryManager.setCurrentBackgroundApp(
+                        ComponentName.unflattenFromString(savedBackgroundAppName));
+            }
         }
 
         mTaskInfoCache = new TaskInfoCache(getApplicationContext());
