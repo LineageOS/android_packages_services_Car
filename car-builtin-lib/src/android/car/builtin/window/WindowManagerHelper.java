@@ -17,9 +17,11 @@
 package android.car.builtin.window;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.annotation.PlatformVersion;
+import android.os.Build;
 import android.view.WindowManager;
 
 /**
@@ -31,6 +33,7 @@ public final class WindowManagerHelper {
     /**
      * See {@link WindowManager.LayoutParams#inputFeatures}}.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setInputFeatureSpy(@NonNull WindowManager.LayoutParams p) {
         p.inputFeatures = WindowManager.LayoutParams.INPUT_FEATURE_SPY;
@@ -39,6 +42,7 @@ public final class WindowManagerHelper {
     /**
      * See {@link WindowManager.LayoutParams#privateFlags}}.
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setTrustedOverlay(@NonNull WindowManager.LayoutParams p) {
         p.setTrustedOverlay();
