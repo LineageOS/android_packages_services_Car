@@ -27,12 +27,19 @@
     <color name="car_seekbar_secondary_color">@color/car_secondary</color>
 
     <!-- ****** Toggle button colors ***** -->
-    <color name="car_button_toggle_background_checked">@color/car_secondary</color>
-    <color name="car_button_toggle_background_unchecked">@color/car_primary_container</color>
-    <color name="car_button_toggle_foreground_checked">@color/car_on_secondary</color>
-    <color name="car_button_toggle_foreground_unchecked">@color/car_on_primary_container</color>
+    <color name="car_button_toggle_background_checked">@color/car_primary</color>
+    <color name="car_button_toggle_background_unchecked">@color/car_secondary</color>
+    <color name="car_button_toggle_foreground_checked">@color/car_on_primary</color>
+    <color name="car_button_toggle_foreground_unchecked">@color/car_on_secondary</color>
 
-    <!-- ****** Toggle button colors ***** -->
+    <!-- ****** Button colors ***** -->
     <color name="car_button_background">@color/car_primary_container</color>
     <color name="car_button_foreground">@color/car_on_primary_container</color>
+
+    <!-- ****** Switch colors ***** -->
+    <color name="car_switch_thumb_checked">@color/car_primary_container</color>
+    <color name="car_switch_thumb_unchecked">@color/car_secondary_container</color>
+    <color name="car_switch_track_checked">@color/car_primary</color>
+    <color name="car_switch_track_unchecked">@color/car_secondary</color>
+
 </resources>
