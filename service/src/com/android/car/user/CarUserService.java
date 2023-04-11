@@ -745,9 +745,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (!isPlatformVersionAtLeastU()) {
             mHandler.post(() -> initBootUser(getInitialUserInfoRequestType()));
         }
-
-        // TODO(b/273370593): remove following once tests are stable
-        priorityInit();
     }
 
     private void initBootUser(int requestType) {
