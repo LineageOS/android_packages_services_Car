@@ -150,7 +150,7 @@ public class VehicleHalTest {
         when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
     }
 
     private static Answer<Void> checkConfigs(ArrayList<VehiclePropConfig> configs) {
@@ -328,7 +328,7 @@ public class VehicleHalTest {
 
         when(mVehicle.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
     }
 
     @Test
@@ -344,7 +344,7 @@ public class VehicleHalTest {
         propertyHalConfig.changeMode = VehiclePropertyChangeMode.STATIC;
 
         init(powerHalConfig, propertyHalConfig);
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
 
         // getAllPropConfigs should only be called once.
         verify(mVehicle, times(1)).getAllPropConfigs();
@@ -384,7 +384,7 @@ public class VehicleHalTest {
         doAnswer(checkConfigs(new ArrayList<VehiclePropConfig>()))
                 .when(mDiagnosticHalService).takeProperties(any());
 
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
 
         verify(mPowerHalService).init();
         verify(mPropertyHalService).init();
@@ -428,7 +428,7 @@ public class VehicleHalTest {
         doAnswer(checkConfigs(new ArrayList<VehiclePropConfig>()))
                 .when(mDiagnosticHalService).takeProperties(any());
 
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
 
         verify(mPowerHalService).init();
         verify(mPropertyHalService).init();
@@ -459,7 +459,7 @@ public class VehicleHalTest {
         // Throw exception.
         when(mVehicle.getAllPropConfigs()).thenThrow(new RemoteException());
 
-        assertThrows(RuntimeException.class, () -> mVehicleHal.init());
+        assertThrows(RuntimeException.class, () -> mVehicleHal.priorityInit());
     }
 
     @Test
@@ -1540,7 +1540,7 @@ public class VehicleHalTest {
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
         doAnswer(storePropValues(values)).when(mPowerHalService).onHalEvents(any());
 
-        mVehicleHal.init();
+        mVehicleHal.priorityInit();
     }
 
     @Test
