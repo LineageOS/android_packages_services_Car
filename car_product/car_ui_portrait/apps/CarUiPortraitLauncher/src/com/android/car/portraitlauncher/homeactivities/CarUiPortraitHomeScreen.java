@@ -42,6 +42,8 @@ import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.hardware.input.InputManager;
+import android.hardware.input.InputManagerGlobal;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -49,7 +51,10 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
@@ -76,7 +81,6 @@ import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.car.portraitlauncher.panel.TaskViewPanel;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -151,6 +155,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
+
+    private InputManagerGlobal mInputManagerGlobal;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     private Messenger mService = null;
@@ -442,6 +448,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         doBindService();
 
         setUpRootTaskView();
+
+        mInputManagerGlobal = InputManagerGlobal.getInstance();
     }
 
     @Override
@@ -825,14 +833,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("Root Task View is created");
                         taskView.setZOrderMediaOverlay(true);
                         mRootTaskViewPanel.setTaskView(taskView);
-                        mRootTaskViewPanel.setToolBarCallback(() -> {
-                            // TODO(b/274838245): Use android api to send key event
-                            try {
-                                Runtime.getRuntime().exec("input keyevent 4");
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+                        mRootTaskViewPanel.setToolBarCallback(() -> sendVirtualBackPress());
                     }
 
                     @Override
@@ -847,6 +848,25 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         setUpFullScreenTaskView();
                     }
                 });
+    }
+
+    /**
+     * Send both action down and up to be qualified as a back press. Set time for key events, so
+     * they are not staled.
+     */
+    private void sendVirtualBackPress() {
+        long downEventTime = SystemClock.uptimeMillis();
+        long upEventTime = downEventTime + 1;
+
+        final KeyEvent keydown = new KeyEvent(downEventTime, downEventTime, KeyEvent.ACTION_DOWN,
+                KeyEvent.KEYCODE_BACK, /* repeat= */ 0, /* metaState= */ 0,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, /* scancode= */ 0, KeyEvent.FLAG_FROM_SYSTEM);
+        final KeyEvent keyup = new KeyEvent(upEventTime, upEventTime, KeyEvent.ACTION_UP,
+                KeyEvent.KEYCODE_BACK, /* repeat= */ 0, /* metaState= */ 0,
+                KeyCharacterMap.VIRTUAL_KEYBOARD, /* scancode= */ 0, KeyEvent.FLAG_FROM_SYSTEM);
+
+        mInputManagerGlobal.injectInputEvent(keydown, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
+        mInputManagerGlobal.injectInputEvent(keyup, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);
     }
 
     private void setUpFullScreenTaskView() {
