@@ -102,8 +102,9 @@
                     android:scaleType="fitXY"/>
             </FrameLayout>
 
-            <LinearLayout android:layout_height="wrap_content"
+            <LinearLayout
                           android:layout_width="0dp"
+                          android:layout_height="wrap_content"
                           android:id="@+id/car_ui_toolbar_title_container"
                           android:orientation="vertical"
                           android:layout_marginStart="@dimen/car_ui_toolbar_title_margin_start"
@@ -112,13 +113,20 @@
                           app:layout_constraintStart_toEndOf="@+id/car_ui_toolbar_title_logo_container"
                           app:layout_constraintTop_toTopOf="parent">
                 <TextView android:id="@+id/car_ui_toolbar_title"
-                          android:layout_width="wrap_content"
+                          android:layout_width="match_parent"
                           android:layout_height="wrap_content"
+                          android:ellipsize="none"
+                          android:requiresFadingEdge="horizontal"
+                          android:fadingEdgeLength="@*android:dimen/car_textview_fading_edge_length"
                           android:singleLine="true"
                           style="@style/Widget.CarUi.Toolbar.Title"/>
                 <TextView android:id="@+id/car_ui_toolbar_subtitle"
-                          android:layout_width="wrap_content"
+                          android:layout_width="match_parent"
                           android:layout_height="wrap_content"
+                          android:ellipsize="none"
+                          android:requiresFadingEdge="horizontal"
+                          android:fadingEdgeLength="@*android:dimen/car_textview_fading_edge_length"
+                          android:singleLine="true"
                           android:visibility="gone"
                           style="@style/Widget.CarUi.Toolbar.Subtitle"/>
             </LinearLayout>

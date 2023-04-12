@@ -37,10 +37,6 @@
     </style>
 
     <style name="TextAppearance.Car.Headline.Medium">
-        <item name="android:textSize">56sp</item>
-    </style>
-
-    <style name="TextAppearance.Car.Headline.Small">
         <item name="android:textSize">44sp</item>
     </style>
 

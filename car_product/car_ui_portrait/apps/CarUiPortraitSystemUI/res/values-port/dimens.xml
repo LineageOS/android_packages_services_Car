@@ -23,6 +23,7 @@
     <dimen name="car_quick_controls_footer_button_radius">@dimen/car_portrait_ui_button_radius</dimen>
     <dimen name="car_quick_controls_entry_points_start_margin">24dp</dimen>
     <dimen name="car_profile_switcher_padding_top">16dp</dimen>
+    <dimen name="car_profile_quick_controls_panel_width">700dp</dimen>
 
     <dimen name="clock_elevation">5dp</dimen>
 
@@ -33,6 +34,7 @@
     <dimen name="hvac_panel_handle_bar_margin_top">17dp</dimen>
     <dimen name="hvac_panel_handle_bar_width">120dp</dimen>
     <dimen name="hvac_panel_bg_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
+    <dimen name="hvac_panel_stroke_width">2dp</dimen>
     <dimen name="hvac_panel_off_button_radius">24dp</dimen>
     <dimen name="hvac_panel_on_button_radius">24dp</dimen>
     <dimen name="hvac_panel_seek_bar_radius">44dp</dimen>

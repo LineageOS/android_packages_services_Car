@@ -59,7 +59,7 @@
         <item name="android:textColorLink">?android:attr/textColorLinkInverse</item>
     </style>
 
-    <style name="TextAppearance.Material.Subhead" parent="TextAppearance.Car.Headline.Small">
+    <style name="TextAppearance.Material.Subhead" parent="TextAppearance.Car.Headline.Medium">
         <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
@@ -205,7 +205,6 @@
         <item name="android:background">@drawable/car_button_background</item>
         <item name="android:minHeight">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingVertical">@dimen/car_button_vertical_padding</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button</item>
@@ -233,11 +232,11 @@
         <item name="android:background">@drawable/car_button_toggle_background</item>
         <item name="android:minHeight">@dimen/car_button_height</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingVertical">@dimen/car_button_vertical_padding</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
         <item name="android:textAppearance">@style/TextAppearance.DeviceDefault.Widget.Button.Toggle</item>
         <item name="android:stateListAnimator">@null</item>
+        <item name="android:gravity">center</item>
     </style>
 
     <style name="Widget.DeviceDefault.Button.Borderless" parent="Widget.DeviceDefault.Button">
@@ -245,7 +244,9 @@
         <item name="android:textColor">@color/car_on_background</item>
     </style>
 
-    <style name="Widget.DeviceDefault.ImageButton" parent="Widget.DeviceDefault.Button" />
+    <style name="Widget.DeviceDefault.ImageButton" parent="android:Widget.Material.ImageButton">
+        <item name="android:background">@drawable/car_button_background</item>
+    </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.RadioButton"
         parent="android:Widget.Material.CompoundButton.RadioButton">

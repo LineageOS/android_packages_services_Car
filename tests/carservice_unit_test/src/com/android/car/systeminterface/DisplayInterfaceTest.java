@@ -18,6 +18,7 @@ package com.android.car.systeminterface;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
@@ -27,6 +28,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.PowerManager;
+import android.os.UserManager;
 import android.view.Display;
 
 import com.android.car.power.CarPowerManagementService;
@@ -63,6 +65,9 @@ public final class DisplayInterfaceTest {
     private PowerManager mPowerManager;
 
     @Mock
+    private UserManager mUserManager;
+
+    @Mock
     private Display mDisplay;
 
     private DisplayInterface.DefaultImpl mDisplayInterface;
@@ -73,12 +78,17 @@ public final class DisplayInterfaceTest {
         when(mContext.getContentResolver()).thenReturn(mContentResolver);
         when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
         when(mContext.getSystemService(PowerManager.class)).thenReturn(mPowerManager);
+        when(mContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
         when(mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY)).thenReturn(mDisplay);
         when(mDisplayManager.getDisplays()).thenReturn(new Display[]{mDisplay});
 
         mDisplayInterface = new DisplayInterface.DefaultImpl(mContext, mWakeLockInterface) {
             @Override
             public void refreshDisplayBrightness() {
+            }
+
+            @Override
+            public void refreshDisplayBrightness(int displayId) {
             }
         };
         mDisplayInterface.init(mCarPowerManagementService, mCarUserService);
@@ -92,7 +102,7 @@ public final class DisplayInterfaceTest {
         mDisplayInterface.startDisplayStateMonitoring();
 
         verify(mContentResolver).registerContentObserver(any(), eq(false), any());
-        verify(mDisplayManager).registerDisplayListener(any(), isNull());
+        verify(mDisplayManager).registerDisplayListener(any(), isNull(), anyLong());
         verify(mCarUserService).addUserLifecycleListener(any(), any());
     }
 

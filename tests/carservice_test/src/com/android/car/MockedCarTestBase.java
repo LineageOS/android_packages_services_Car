@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static org.junit.Assert.fail;
@@ -50,6 +51,7 @@ import com.android.car.hal.test.AidlMockedVehicleHal;
 import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.hal.test.HidlMockedVehicleHal;
 import com.android.car.hal.test.HidlVehiclePropConfigBuilder;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.ActivityManagerInterface;
@@ -109,6 +111,7 @@ public class MockedCarTestBase {
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
     private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+    private final ICarServiceHelper mICarServiceHelper = mock(ICarServiceHelper.class);
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -252,6 +255,7 @@ public class MockedCarTestBase {
     protected MockitoSession createMockingSession() {
         return mockitoSession()
                 .initMocks(this)
+                .spyStatic(ICarImpl.class)
                 .strictness(Strictness.LENIENT)
                 .startMocking();
     }
@@ -316,8 +320,11 @@ public class MockedCarTestBase {
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
                 mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
-                mPowerPolicyDaemon, mCarTelemetryService);
+                mPowerPolicyDaemon, mCarTelemetryService, false);
 
+        doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
+        carImpl.setSystemServerConnections(mICarServiceHelper,
+                new ICarImplTest.CarServiceConnectedCallback());
         spyOnBeforeCarImplInit(carImpl);
         carImpl.init();
         mCarImpl = carImpl;
@@ -559,6 +566,9 @@ public class MockedCarTestBase {
         public void setDisplayBrightness(int brightness) {}
 
         @Override
+        public void setDisplayBrightness(int displayId, int brightness) {}
+
+        @Override
         public void setDisplayState(int displayId, boolean on) {}
 
         @Override
@@ -572,6 +582,9 @@ public class MockedCarTestBase {
 
         @Override
         public void refreshDisplayBrightness() {}
+
+        @Override
+        public void refreshDisplayBrightness(int displayid) {}
 
         @Override
         public boolean isAnyDisplayEnabled() {

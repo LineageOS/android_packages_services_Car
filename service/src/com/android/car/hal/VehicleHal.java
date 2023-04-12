@@ -168,7 +168,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         mPropValueBuilder = vehicle.getHalPropValueBuilder();
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
-        mPowerHal = powerHal != null ? powerHal : new PowerHalService(this);
+        mPowerHal = powerHal != null ? powerHal : new PowerHalService(context, this);
         mPropertyHal = propertyHal != null ? propertyHal : new PropertyHalService(this);
         mInputHal = inputHal != null ? inputHal : new InputHalService(this);
         mVmsHal = vmsHal != null ? vmsHal : new VmsHalService(context, this);
@@ -353,9 +353,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @Override
     public void init() {
         // nothing to init as everything was done on priorityInit
-
-        // TODO(b/273370593): remove following once tests are stable
-        priorityInit();
     }
 
     /**

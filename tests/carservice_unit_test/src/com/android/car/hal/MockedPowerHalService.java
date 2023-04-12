@@ -80,7 +80,7 @@ public class MockedPowerHalService extends PowerHalService {
 
     public MockedPowerHalService(boolean isPowerStateSupported, boolean isDeepSleepAllowed,
             boolean isHibernationAllowed, boolean isTimedWakeupAllowed) {
-        super(createVehicleHalWithMockedServices());
+        super(mock(Context.class), createVehicleHalWithMockedServices());
         mIsPowerStateSupported = isPowerStateSupported;
         mIsDeepSleepAllowed = isDeepSleepAllowed;
         mIsHibernationAllowed = isHibernationAllowed;
