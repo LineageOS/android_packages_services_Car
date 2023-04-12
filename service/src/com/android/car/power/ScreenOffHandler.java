@@ -543,6 +543,9 @@ final class ScreenOffHandler {
                     screenOffHandler.handleSetDisplayState(/* displayId= */ (Integer) msg.obj,
                             /* on= */ false);
                     break;
+                default:
+                    Slogf.w(TAG, "Invalid message type: %d", msg.what);
+                    break;
             }
         }
     }
