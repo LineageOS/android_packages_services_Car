@@ -235,12 +235,6 @@ public class ICarImpl extends ICar.Stub {
         mHal = constructWithTrace(t, VehicleHal.class,
                 () -> new VehicleHal(serviceContext, vehicle), allServices);
 
-        if (mDoPriorityInitInConstruction) {
-            t.traceBegin("VHAL.earlyInit");
-            Slogf.i(TAG, "VHAL Priority Init Enabled");
-            mHal.priorityInit();
-            t.traceEnd();
-        }
         HalPropValue disabledOptionalFeatureValue = mHal.getIfSupportedOrFailForEarlyStage(
                 VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
 
@@ -291,8 +285,9 @@ public class ICarImpl extends ICar.Stub {
                     allServices);
         }
         if (mDoPriorityInitInConstruction) {
+            Slogf.i(TAG, "VHAL Priority Init Enabled");
             Slogf.i(TAG, "Car User Service Priority Init Enabled");
-            mCarUserService.priorityInit();
+            priorityInit();
         }
 
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
@@ -498,8 +493,7 @@ public class ICarImpl extends ICar.Stub {
 
         t.traceBegin("ICarImpl.init");
         if (!mDoPriorityInitInConstruction) {
-            mHal.priorityInit();
-            mCarUserService.priorityInit();
+            priorityInit();
         }
 
         t.traceBegin("CarService.initAllServices");
@@ -1059,5 +1053,10 @@ public class ICarImpl extends ICar.Stub {
 
     /* package */ boolean hasAidlVhal() {
         return mHal.isAidlVhal();
+    }
+
+    /* package */ void priorityInit() {
+        mHal.priorityInit();
+        mCarUserService.priorityInit();
     }
 }
