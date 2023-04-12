@@ -732,6 +732,8 @@ import java.util.stream.Collectors;
                 case XmlPullParser.START_TAG:
                     depth++;
                     break;
+                default:
+                    break;
             }
         }
     }
