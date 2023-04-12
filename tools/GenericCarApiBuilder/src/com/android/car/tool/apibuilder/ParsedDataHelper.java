@@ -21,13 +21,34 @@ import com.android.car.tool.data.ParsedData;
 import java.util.ArrayList;
 import java.util.List;
 
+// TODO: add tests for this class
 public class ParsedDataHelper {
 
-    // TODO: add tests for this class
     public static List<String> getClassNamesOnly(ParsedData parsedData) {
         List<String> classes = new ArrayList<>();
         parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
                 .forEach((classData) -> classes.add(classData.useableClassName)));
         return classes;
+    }
+
+    public static List<String> getAddedInOrBeforeApisOnly(ParsedData parsedData) {
+        List<String> fieldsAndMethods = new ArrayList<>();
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.fields.values().forEach(
+                        (field) -> {
+                            if (field.annotationData.hasAddedInOrBefore) {
+                                fieldsAndMethods.add(packageData.packageName + "."
+                                        + classData.onlyClassName + "." + field.fieldName);
+                            }
+                        })));
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.methods.values().forEach(
+                        (method) -> {
+                            if (method.annotationData.hasAddedInOrBefore) {
+                                fieldsAndMethods.add(packageData.packageName + "."
+                                        + classData.onlyClassName + "." + method.methodName);
+                            }
+                        })));
+        return fieldsAndMethods;
     }
 }

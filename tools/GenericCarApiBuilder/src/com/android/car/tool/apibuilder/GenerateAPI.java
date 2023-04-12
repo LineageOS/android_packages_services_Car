@@ -199,6 +199,11 @@ public final class GenerateAPI {
 
             if (args.length > 0 && args[0].equalsIgnoreCase(
                     GENERATE_ADDEDINORBEFORE_API_FOR_TEST)) {
+                if (USE_NEW_IMPLEMENTATION) {
+                    writeListToFile(rootDir + CAR_ADDEDINORBEFORE_API_FILE,
+                            ParsedDataHelper.getAddedInOrBeforeApisOnly(parsedDataCarLib));
+                } else {
+
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
@@ -206,6 +211,7 @@ public final class GenerateAPI {
                                     includeConstructors));
                 }
                 writeListToFile(rootDir + CAR_ADDEDINORBEFORE_API_FILE, allCarAPIs);
+                }
                 return;
             }
         } catch (Exception e) {
@@ -446,7 +452,7 @@ public final class GenerateAPI {
 
                     boolean isSystem = false;
                     boolean isHidden = false;
-                    boolean hasAddedInOrBefore = true;
+                    boolean hasAddedInOrBefore = false;
                     String version = "";
                     if (!method.getJavadoc().isEmpty()) {
                         isHidden = method.getJavadoc().get().toText().contains("@hide");
@@ -544,7 +550,7 @@ public final class GenerateAPI {
 
                     boolean isSystem = false;
                     boolean isHidden = false;
-                    boolean hasAddedInOrBefore = true;
+                    boolean hasAddedInOrBefore = false;
 
                     String version = "";
                     if (!constructor.getJavadoc().isEmpty()) {
