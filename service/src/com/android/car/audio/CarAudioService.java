@@ -1677,6 +1677,10 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                         } else {
                             sourceAddresses.add(address);
                         }
+                        break;
+                    default:
+                        Slogf.w(TAG, "Unsupported input devices, type=%d", info.getType());
+                        break;
                 }
             }
 
