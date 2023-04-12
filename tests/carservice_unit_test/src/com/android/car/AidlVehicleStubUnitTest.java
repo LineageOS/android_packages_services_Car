@@ -1234,6 +1234,25 @@ public final class AidlVehicleStubUnitTest {
     }
 
     @Test
+    public void testSetAsyncServiceSpecificExceptionVendorErrorCode() throws Exception {
+        doThrow(new ServiceSpecificException(
+                StatusCode.NOT_AVAILABLE_SAFETY | (0x1234 << 16))).when(mAidlVehicle)
+                .setValues(any(), any());
+        AsyncGetSetRequest request = defaultVehicleStubAsyncRequest(HVAC_PROP_VALUE);
+
+        mAidlVehicleStub.setAsync(List.of(request), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getServiceRequestId()).isEqualTo(0);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(argumentCaptor.getValue().get(0).getVendorErrorCode()).isEqualTo(0x1234);
+    }
+
+    @Test
     public void testAidlVehicleCallbackOnPropertyEventSmallData() throws Exception {
         VehicleHalCallback callback = mock(VehicleHalCallback.class);
         VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);

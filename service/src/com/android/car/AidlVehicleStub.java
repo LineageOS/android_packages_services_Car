@@ -534,7 +534,7 @@ final class AidlVehicleStub extends VehicleStub {
          * Add an error result to be sent to vehicleStub through the callback later.
          */
         abstract void addErrorResult(VehicleStubCallbackInterface callback, int serviceRequestId,
-                int errorCode);
+                int errorCode, int vendorErrorCode);
         /**
          * Add a VHAL result to be sent to vehicleStub through the callback later.
          */
@@ -862,16 +862,15 @@ final class AidlVehicleStub extends VehicleStub {
 
         @Override
         void addErrorResult(VehicleStubCallbackInterface callback, int serviceRequestId,
-                int errorCode) {
+                int errorCode, int vendorErrorCode) {
             addVehicleStubResult(callback, new GetVehicleStubAsyncResult(serviceRequestId,
-                    errorCode));
+                    errorCode, vendorErrorCode));
         }
 
         @Override
         void addVhalResult(VehicleStubCallbackInterface callback, int serviceRequestId,
                 GetValueResult result) {
             addVehicleStubResult(callback, toVehicleStubResult(serviceRequestId, result));
-
         }
 
         @Override
@@ -890,12 +889,14 @@ final class AidlVehicleStub extends VehicleStub {
         private GetVehicleStubAsyncResult toVehicleStubResult(int serviceRequestId,
                 GetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
+                int[] errorCodes = convertHalToCarPropertyManagerError(vhalResult.status);
                 return new GetVehicleStubAsyncResult(serviceRequestId,
-                        convertHalToCarPropertyManagerError(vhalResult.status));
+                        errorCodes[0], errorCodes[1]);
             } else if (vhalResult.prop == null) {
                 // If status is OKAY but no property is returned, treat it as not_available.
                 return new GetVehicleStubAsyncResult(serviceRequestId,
-                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                        /* vendorErrorCode= */ 0);
             }
             return new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(vhalResult.prop));
@@ -911,9 +912,9 @@ final class AidlVehicleStub extends VehicleStub {
 
         @Override
         void addErrorResult(VehicleStubCallbackInterface callback, int serviceRequestId,
-                int errorCode) {
+                int errorCode, int vendorErrorCode) {
             addVehicleStubResult(callback, new SetVehicleStubAsyncResult(serviceRequestId,
-                    errorCode));
+                    errorCode, vendorErrorCode));
         }
 
         @Override
@@ -939,8 +940,9 @@ final class AidlVehicleStub extends VehicleStub {
         private SetVehicleStubAsyncResult toVehicleStubResult(int serviceRequestId,
                 SetValueResult vhalResult) {
             if (vhalResult.status != StatusCode.OK) {
+                int[] errorCodes = convertHalToCarPropertyManagerError(vhalResult.status);
                 return new SetVehicleStubAsyncResult(serviceRequestId,
-                        convertHalToCarPropertyManagerError(vhalResult.status));
+                        errorCodes[0], errorCodes[1]);
             }
             return new SetVehicleStubAsyncResult(serviceRequestId);
         }
@@ -1009,11 +1011,13 @@ final class AidlVehicleStub extends VehicleStub {
             asyncRequestsHandler.sendRequestsToVhal(mAidlVehicle, mGetSetValuesCallback);
         } catch (RemoteException e) {
             handleAsyncExceptionFromVhal(asyncRequestsHandler, vehicleStubCallback,
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, asyncResultsHandler);
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /*vendorErrorCode=*/ 0,
+                    asyncResultsHandler);
             return;
         } catch (ServiceSpecificException e) {
+            int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
             handleAsyncExceptionFromVhal(asyncRequestsHandler, vehicleStubCallback,
-                    convertHalToCarPropertyManagerError(e.errorCode), asyncResultsHandler);
+                    errorCodes[0], errorCodes[1], asyncResultsHandler);
             return;
         }
     }
@@ -1081,10 +1085,11 @@ final class AidlVehicleStub extends VehicleStub {
     private <VhalRequestType, VhalRequestsType> void handleAsyncExceptionFromVhal(
             AsyncRequestsHandler<VhalRequestType, VhalRequestsType> asyncRequestsHandler,
             VehicleStubCallbackInterface vehicleStubCallback, int errorCode,
-            AsyncResultsHandler asyncResultsHandler) {
+            int vendorErrorCode, AsyncResultsHandler asyncResultsHandler) {
         Slogf.w(TAG,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
-                        + "dead, error code: %d", errorCode);
+                        + "dead, system error code: %d, vendor error code: %d",
+                errorCode, vendorErrorCode);
         synchronized (mLock) {
             VhalRequestType[] requests = asyncRequestsHandler.getRequestItems();
             for (int i = 0; i < requests.length; i++) {
@@ -1098,7 +1103,8 @@ final class AidlVehicleStub extends VehicleStub {
                     continue;
                 }
                 asyncResultsHandler.addErrorResult(
-                        vehicleStubCallback, requestInfo.getServiceRequestId(), errorCode);
+                        vehicleStubCallback, requestInfo.getServiceRequestId(), errorCode,
+                        vendorErrorCode);
             }
         }
         asyncResultsHandler.callVehicleStubCallback();
