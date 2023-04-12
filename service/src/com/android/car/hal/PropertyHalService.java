@@ -15,8 +15,21 @@
  */
 package com.android.car.hal;
 
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+import static android.car.hardware.property.CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_ACCESS_DENIED;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INTERNAL_ERROR;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_INVALID_ARG;
 import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_DISABLED;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_POOR_VISIBILITY;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SAFETY;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_HIGH;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_NOT_AVAILABLE_SPEED_LOW;
+import static android.car.hardware.property.VehicleHalStatusCode.STATUS_TRY_AGAIN;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
@@ -32,6 +45,8 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
+import android.car.hardware.property.CarPropertyManager.CarSetPropertyErrorCode;
+import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -169,8 +184,10 @@ public class PropertyHalService extends HalServiceBase {
             return mPropMgrRequest;
         }
 
-        GetSetValueResult toErrorResult(@CarPropertyAsyncErrorCode int errorCode) {
-            return GetSetValueResult.newErrorResult(getManagerRequestId(), errorCode);
+        GetSetValueResult toErrorResult(@CarPropertyAsyncErrorCode int errorCode,
+                int vendorErrorCode) {
+            return GetSetValueResult.newErrorResult(getManagerRequestId(), errorCode,
+                    vendorErrorCode);
         }
 
         GetSetValueResult toGetValueResult(CarPropertyValue value) {
@@ -470,10 +487,11 @@ public class PropertyHalService extends HalServiceBase {
         private GetSetValueResult parseGetAsyncResults(
                 GetVehicleStubAsyncResult getVehicleStubAsyncResult,
                 AsyncPropRequestInfo clientRequestInfo) {
-            int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
-            if (vehicleStubErrorCode != STATUS_OK) {
+            int carPropMgrErrorCode = getVehicleStubAsyncResult.getErrorCode();
+            if (carPropMgrErrorCode != STATUS_OK) {
                 // All other error results will be delivered back through callback.
-                return clientRequestInfo.toErrorResult(vehicleStubErrorCode);
+                return clientRequestInfo.toErrorResult(carPropMgrErrorCode,
+                        getVehicleStubAsyncResult.getVendorErrorCode());
             }
 
             // For okay status, convert the property value to the type the client expects.
@@ -486,14 +504,20 @@ public class PropertyHalService extends HalServiceBase {
             if (halPropConfig == null) {
                 Slogf.e(TAG, "No configuration found for property: %s, must not happen",
                         clientRequestInfo.getPropertyName());
-                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(
+                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                        /* vendorErrorCode= */ 0);
             }
             HalPropValue halPropValue = getVehicleStubAsyncResult.getHalPropValue();
             if (halPropValue.getStatus() == VehiclePropertyStatus.UNAVAILABLE) {
-                return clientRequestInfo.toErrorResult(STATUS_NOT_AVAILABLE);
+                return clientRequestInfo.toErrorResult(
+                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                        /* vendorErrorCode= */ 0);
             }
             if (halPropValue.getStatus() != VehiclePropertyStatus.AVAILABLE) {
-                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(
+                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                        /* vendorErrorCode= */ 0);
             }
 
             try {
@@ -503,7 +527,9 @@ public class PropertyHalService extends HalServiceBase {
                 Slogf.e(TAG, e,
                         "Cannot convert halPropValue to carPropertyValue, property: %s, areaId: %d",
                         halPropIdToName(halPropValue.getPropId()), halPropValue.getAreaId());
-                return clientRequestInfo.toErrorResult(STATUS_INTERNAL_ERROR);
+                return clientRequestInfo.toErrorResult(
+                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                        /* vendorErrorCode= */ 0);
             }
         }
 
@@ -531,8 +557,8 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
 
-                    int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
-                    if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                    int carPropMgrErrorCode = getVehicleStubAsyncResult.getErrorCode();
+                    if (carPropMgrErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
                         // The request might need to be retried.
                         if (DBG) {
                             Slogf.d(TAG, "request: %s try again", clientRequestInfo);
@@ -612,9 +638,9 @@ public class PropertyHalService extends HalServiceBase {
                                 serviceRequestId);
                         continue;
                     }
-                    int vehicleStubErrorCode = setVehicleStubAsyncResult.getErrorCode();
+                    int carPropMgrErrorCode = setVehicleStubAsyncResult.getErrorCode();
 
-                    if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                    if (carPropMgrErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
                         // The request might need to be retried.
                         retryRequests.add(clientRequestInfo);
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
@@ -622,10 +648,11 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
 
-                    if (vehicleStubErrorCode != STATUS_OK) {
+                    if (carPropMgrErrorCode != STATUS_OK) {
                         // All other error results will be delivered back through callback.
                         setValueResults.add(clientRequestInfo.toErrorResult(
-                                vehicleStubErrorCode));
+                                carPropMgrErrorCode,
+                                setVehicleStubAsyncResult.getVendorErrorCode()));
                         removePendingAsyncPropRequestInfoLocked(clientRequestInfo,
                                 updatedHalPropIds);
                         continue;
@@ -663,7 +690,8 @@ public class PropertyHalService extends HalServiceBase {
                 List<GetSetValueResult> timeoutGetResults,
                 List<GetSetValueResult> timeoutSetResults) {
             GetSetValueResult timeoutResult =  requestInfo.toErrorResult(
-                    CarPropertyManager.STATUS_ERROR_TIMEOUT);
+                    CarPropertyManager.STATUS_ERROR_TIMEOUT,
+                    /* vendorErrorCode= */ 0);
             switch (requestInfo.getRequestType()) {
                 case GET:
                     timeoutGetResults.add(timeoutResult);
@@ -892,7 +920,7 @@ public class PropertyHalService extends HalServiceBase {
          * This event is sent when the set property call fails
          */
         void onPropertySetError(int property, int area,
-                @CarPropertyManager.CarSetPropertyErrorCode int errorCode);
+                @CarSetPropertyErrorCode int errorCode);
 
     }
 
@@ -1149,6 +1177,16 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
+    private static void storeResultForRequest(GetSetValueResult result,
+            AsyncPropRequestInfo request,
+            Map<VehicleStubCallback, List<GetSetValueResult>> callbackToResults) {
+        VehicleStubCallback clientCallback = request.getVehicleStubCallback();
+        if (callbackToResults.get(clientCallback) == null) {
+            callbackToResults.put(clientCallback, new ArrayList<>());
+        }
+        callbackToResults.get(clientCallback).add(result);
+    }
+
     /**
      * Check whether there is pending async set value request for the property.
      *
@@ -1169,6 +1207,9 @@ public class PropertyHalService extends HalServiceBase {
         for (AsyncPropRequestInfo pendingSetRequest : pendingSetRequests) {
             GetSetValueResult maybeSetResult = maybeFinishPendingSetValueRequestLocked(
                     pendingSetRequest, updatedValue);
+            if (pendingSetRequest.getAreaId() != updatedValue.getAreaId()) {
+                continue;
+            }
             // Don't remove the finished pending request info during the loop since it will
             // modify pendingSetRequests array.
             if (maybeSetResult == null) {
@@ -1182,12 +1223,7 @@ public class PropertyHalService extends HalServiceBase {
                 Slogf.d(TAG, "received property update to target value event for request: %s"
                         + ", sending success async set value result", pendingSetRequest);
             }
-            VehicleStubCallback clientCallback = pendingSetRequest.getVehicleStubCallback();
-            if (callbackToSetValueResults.get(clientCallback) == null) {
-                callbackToSetValueResults.put(clientCallback, new ArrayList<>());
-            }
-            callbackToSetValueResults.get(clientCallback).add(maybeSetResult);
-
+            storeResultForRequest(maybeSetResult, pendingSetRequest, callbackToSetValueResults);
             finishedPendingSetRequests.add(pendingSetRequest);
         }
 
@@ -1234,7 +1270,7 @@ public class PropertyHalService extends HalServiceBase {
         // 3. New update rate (local variable) is calculated based on state 1.
         // 4. Lock is released by thread 1..
         // 5. Lock is obtained by thread 2.
-        // 6. mHalPropIdToWaitForUPdatedRequests is updated by thread 2 to state 2.
+        // 6. mHalPropIdToWaitingUpdateRequestInfo is updated by thread 2 to state 2.
         // 7. New update rate (local variable) is calculated based on state 2.
         // 8. Lock is released by thread 2.
         // 9. Thread 2 calls subscribeProperty to VHAL based on state 2.
@@ -1317,6 +1353,27 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
+    private static @CarSetPropertyErrorCode int convertStatusCodeToCarSetPropertyErrorCode(
+            @VehicleHalStatusCodeInt int vhalStatusCode) {
+        switch (vhalStatusCode) {
+            case STATUS_TRY_AGAIN:
+                return CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+            case STATUS_INVALID_ARG:
+                return CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+            case STATUS_NOT_AVAILABLE: // fallthrough
+            case STATUS_NOT_AVAILABLE_DISABLED: // fallthrough
+            case STATUS_NOT_AVAILABLE_SPEED_LOW: // fallthrough
+            case STATUS_NOT_AVAILABLE_SPEED_HIGH: // fallthrough
+            case STATUS_NOT_AVAILABLE_POOR_VISIBILITY: // fallthrough
+            case STATUS_NOT_AVAILABLE_SAFETY:
+                return CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE;
+            case STATUS_ACCESS_DENIED:
+                return CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED;
+            default:
+                return CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN;
+        }
+    }
+
     @Override
     public void onPropertySetError(ArrayList<VehiclePropError> vehiclePropErrors) {
         PropertyHalListener propertyHalListener;
@@ -1324,11 +1381,55 @@ public class PropertyHalService extends HalServiceBase {
             propertyHalListener = mPropertyHalListener;
         }
         if (propertyHalListener != null) {
-            for (VehiclePropError vehiclePropError : vehiclePropErrors) {
+            for (int i = 0; i < vehiclePropErrors.size(); i++) {
+                VehiclePropError vehiclePropError = vehiclePropErrors.get(i);
                 int mgrPropId = halToManagerPropId(vehiclePropError.propId);
-                propertyHalListener.onPropertySetError(mgrPropId, vehiclePropError.areaId,
+                int vhalErrorCode = CarPropertyHelper.getVhalSystemErrorCode(
                         vehiclePropError.errorCode);
+                Slogf.w(TAG,
+                        "onPropertySetError for property: %s, area ID: %d, vhal error code: %d",
+                        VehiclePropertyIds.toString(mgrPropId), vehiclePropError.areaId,
+                        vhalErrorCode);
+                @CarSetPropertyErrorCode int carPropErrorCode =
+                        convertStatusCodeToCarSetPropertyErrorCode(vhalErrorCode);
+                propertyHalListener.onPropertySetError(mgrPropId, vehiclePropError.areaId,
+                        carPropErrorCode);
             }
+        }
+        Set<Integer> updatedHalPropIds = new ArraySet<>();
+        Map<VehicleStubCallback, List<GetSetValueResult>> callbackToSetValueResults =
+                new ArrayMap<>();
+        synchronized (mLock) {
+            for (int i = 0; i < vehiclePropErrors.size(); i++) {
+                VehiclePropError vehiclePropError = vehiclePropErrors.get(i);
+                // Fail all pending async set requests that are currently waiting for property
+                // update which has the same property ID and same area ID.
+                int halPropId = vehiclePropError.propId;
+                List<AsyncPropRequestInfo> pendingSetRequests =
+                        mHalPropIdToWaitingUpdateRequestInfo.get(halPropId);
+                if (pendingSetRequests == null) {
+                    continue;
+                }
+                for (int j = 0; j < pendingSetRequests.size(); j++) {
+                    AsyncPropRequestInfo pendingRequest = pendingSetRequests.get(j);
+                    if (pendingRequest.getAreaId() != vehiclePropError.areaId) {
+                        continue;
+                    }
+                    removePendingAsyncPropRequestInfoLocked(pendingRequest, updatedHalPropIds);
+                    int[] errorCodes = VehicleStub.convertHalToCarPropertyManagerError(
+                            vehiclePropError.errorCode);
+                    GetSetValueResult errorResult = pendingRequest.toErrorResult(
+                            errorCodes[0], errorCodes[1]);
+                    Slogf.w(TAG, "Pending async set request received property set error with "
+                            + "error: %d, vendor error code: %d, fail the pending request: %s",
+                            errorCodes[0], errorCodes[1], pendingRequest);
+                    storeResultForRequest(errorResult, pendingRequest, callbackToSetValueResults);
+                }
+            }
+            updateSubscriptionRateLocked(updatedHalPropIds);
+        }
+        for (VehicleStubCallback callback : callbackToSetValueResults.keySet()) {
+            callback.sendSetValueResults(callbackToSetValueResults.get(callback));
         }
     }
 
