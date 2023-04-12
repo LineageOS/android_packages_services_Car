@@ -28,6 +28,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -259,7 +260,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
                 TEST_VOLUME_GROUP_ID);
 
         expectWithMessage("Rear right zone min volume when service throws remote exception")
-                .that(mCarAudioManager.getGroupMaxVolume(TEST_REAR_RIGHT_ZONE_ID,
+                .that(mCarAudioManager.getGroupMinVolume(TEST_REAR_RIGHT_ZONE_ID,
                         TEST_VOLUME_GROUP_ID)).isEqualTo(0);
     }
 
@@ -591,11 +592,12 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
                 mVolumeGroupEventCallbackMock1);
         verify(mServiceMock).registerCarVolumeEventCallback(any());
+        clearInvocations(mServiceMock);
 
         expectWithMessage("Status for registering second car volume group event callback")
                 .that(mCarAudioManager.registerCarVolumeGroupEventCallback(DIRECT_EXECUTOR,
                         mVolumeGroupEventCallbackMock2)).isTrue();
-        verify(mServiceMock).registerCarVolumeEventCallback(any());
+        verify(mServiceMock, never()).registerCarVolumeEventCallback(any());
     }
 
     @Test
@@ -790,10 +792,11 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     public void registerCarVolumeCallback_withMultipleCallbacks() throws Exception {
         mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock1);
         verify(mServiceMock).registerVolumeCallback(any(IBinder.class));
+        clearInvocations(mServiceMock);
 
         mCarAudioManager.registerCarVolumeCallback(mVolumeCallbackMock2);
 
-        verify(mServiceMock).registerVolumeCallback(any(IBinder.class));
+        verify(mServiceMock, never()).registerVolumeCallback(any(IBinder.class));
     }
 
     @Test
@@ -1048,6 +1051,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void setPrimaryZoneMediaAudioRequestCallback_whenServiceThrowsRemoteException()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock)
+                .registerPrimaryZoneMediaAudioRequestCallback(any());
+
+        expectWithMessage("Status for setting primary zone media audio request callback "
+                + "when service throws remote exception").that(mCarAudioManager
+                .setPrimaryZoneMediaAudioRequestCallback(DIRECT_EXECUTOR,
+                        mPrimaryZoneMediaAudioRequestCallbackMock)).isFalse();
+    }
+
+    @Test
     public void clearPrimaryZoneMediaAudioRequestCallback() throws Exception {
         IPrimaryZoneMediaAudioRequestCallback serviceCallback =
                 getPrimaryZoneMediaAudioRequestCallbackImpl(
@@ -1056,6 +1071,36 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
 
         verify(mServiceMock).unregisterPrimaryZoneMediaAudioRequestCallback(serviceCallback);
+    }
+
+    @Test
+    public void clearPrimaryZoneMediaAudioRequestCallback_beforeRegisteringCallback()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+        verify(mServiceMock).unregisterPrimaryZoneMediaAudioRequestCallback(serviceCallback);
+        clearInvocations(mServiceMock);
+
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+
+        verify(mServiceMock, never()).unregisterPrimaryZoneMediaAudioRequestCallback(
+                serviceCallback);
+    }
+
+    @Test
+    public void clearPrimaryZoneMediaAudioRequestCallback_whenServiceThrowsRemoteException()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+        doThrow(mRemoteException).when(mServiceMock)
+                .unregisterPrimaryZoneMediaAudioRequestCallback(serviceCallback);
+
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -1068,6 +1113,20 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         serviceCallback.onRequestMediaOnPrimaryZone(mOccupantZoneInfoMock, TEST_REQUEST_ID);
 
         verify(mPrimaryZoneMediaAudioRequestCallbackMock).onRequestMediaOnPrimaryZone(
+                mOccupantZoneInfoMock, TEST_REQUEST_ID);
+    }
+
+    @Test
+    public void onRequestMediaOnPrimaryZone_afterClearPrimaryZoneMediaAudioRequestCallback()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+        mCarAudioManager.clearPrimaryZoneMediaAudioRequestCallback();
+
+        serviceCallback.onRequestMediaOnPrimaryZone(mOccupantZoneInfoMock, TEST_REQUEST_ID);
+
+        verify(mPrimaryZoneMediaAudioRequestCallbackMock, never()).onRequestMediaOnPrimaryZone(
                 mOccupantZoneInfoMock, TEST_REQUEST_ID);
     }
 
@@ -1138,6 +1197,19 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void requestMediaAudioOnPrimaryZone_whenServiceThrowsRemoteException_returnsInvalidId()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).requestMediaAudioOnPrimaryZone(any(
+                IMediaAudioRequestStatusCallback.class), any(OccupantZoneInfo.class));
+
+        expectWithMessage("Request id for media audio on primary zone when service throws "
+                + "remote exception").that(mCarAudioManager.requestMediaAudioOnPrimaryZone(
+                        mOccupantZoneInfoMock, DIRECT_EXECUTOR,
+                mMediaAudioRequestStatusCallbackMock)).isEqualTo(
+                        CarAudioManager.INVALID_REQUEST_ID);
+    }
+
+    @Test
     public void cancelMediaAudioOnPrimaryZone() throws Exception {
         when(mServiceMock.requestMediaAudioOnPrimaryZone(any(), any())).thenReturn(TEST_REQUEST_ID);
         long requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
@@ -1158,6 +1230,19 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Status for canceling media audio request with invalid id")
                 .that(mCarAudioManager.cancelMediaAudioOnPrimaryZone(requestId)).isTrue();
         verify(mServiceMock, never()).cancelMediaAudioOnPrimaryZone(requestId);
+    }
+
+    @Test
+    public void cancelMediaAudioOnPrimaryZone_whenServiceThrowsRemoteException_returnsFalse()
+            throws Exception {
+        when(mServiceMock.requestMediaAudioOnPrimaryZone(any(), any())).thenReturn(TEST_REQUEST_ID);
+        long requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(mOccupantZoneInfoMock,
+                DIRECT_EXECUTOR, mMediaAudioRequestStatusCallbackMock);
+        doThrow(mRemoteException).when(mServiceMock).cancelMediaAudioOnPrimaryZone(requestId);
+
+        expectWithMessage("Status for canceling pending media audio on primary zone "
+                + "throws remote exception").that(mCarAudioManager.cancelMediaAudioOnPrimaryZone(
+                        requestId)).isFalse();
     }
 
     @Test
@@ -1184,6 +1269,20 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void allowMediaAudioOnPrimaryZone_whenServiceThrowsRemoteException_returnsFalse()
+            throws Exception {
+        IPrimaryZoneMediaAudioRequestCallback serviceCallback =
+                getPrimaryZoneMediaAudioRequestCallbackImpl(
+                        mPrimaryZoneMediaAudioRequestCallbackMock);
+        doThrow(mRemoteException).when(mServiceMock).allowMediaAudioOnPrimaryZone(
+                serviceCallback.asBinder(), TEST_REQUEST_ID, /* allow= */ true);
+
+        expectWithMessage("Status for allowing media audio on primary zone when service throws"
+                + "remote exception").that(mCarAudioManager.allowMediaAudioOnPrimaryZone(
+                        TEST_REQUEST_ID, /* allow= */ true)).isFalse();
+    }
+
+    @Test
     public void resetMediaAudioOnPrimaryZone() throws Exception {
         when(mServiceMock.resetMediaAudioOnPrimaryZone(mOccupantZoneInfoMock)).thenReturn(true);
 
@@ -1193,11 +1292,33 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void resetMediaAudioOnPrimaryZone_whenServiceThrowsRemoteException_returnsFalse()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).resetMediaAudioOnPrimaryZone(
+                mOccupantZoneInfoMock);
+
+        expectWithMessage("Status for resetting media audio on primary zone when service "
+                + "throws remote exception").that(mCarAudioManager.resetMediaAudioOnPrimaryZone(
+                        mOccupantZoneInfoMock)).isFalse();
+    }
+
+    @Test
     public void isMediaAudioAllowedInPrimaryZone() throws Exception {
         when(mServiceMock.isMediaAudioAllowedInPrimaryZone(mOccupantZoneInfoMock)).thenReturn(true);
 
         expectWithMessage("Media audio allowed in primary zone").that(mCarAudioManager
                 .isMediaAudioAllowedInPrimaryZone(mOccupantZoneInfoMock)).isTrue();
+    }
+
+    @Test
+    public void isMediaAudioAllowedInPrimaryZone_whenServiceThrowsRemoteException_returnsFalse()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).isMediaAudioAllowedInPrimaryZone(
+                mOccupantZoneInfoMock);
+
+        expectWithMessage("Media audio allowed in primary zone when service "
+                + "throws remote exception").that(mCarAudioManager.isMediaAudioAllowedInPrimaryZone(
+                        mOccupantZoneInfoMock)).isFalse();
     }
 
     @Test
@@ -1255,6 +1376,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void setAudioZoneMirrorStatusCallback_whenServiceThrowsRemoteException_returnsFalse()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).registerAudioZonesMirrorStatusCallback(
+                any());
+
+        expectWithMessage("Status for setting audio zone mirror status callback when service "
+                + "throws remote exception").that(mCarAudioManager.setAudioZoneMirrorStatusCallback(
+                        DIRECT_EXECUTOR, mAudioZonesMirrorStatusCallback)).isFalse();
+    }
+
+    @Test
     public void clearAudioZonesMirrorStatusCallback() throws Exception {
         when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(true);
         ArgumentCaptor<IAudioZonesMirrorStatusCallback> captor = ArgumentCaptor.forClass(
@@ -1276,12 +1408,38 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void clearAudioZonesMirrorStatusCallback_whenServiceThrowsRemoteException()
+            throws Exception {
+        when(mServiceMock.registerAudioZonesMirrorStatusCallback(any())).thenReturn(true);
+        ArgumentCaptor<IAudioZonesMirrorStatusCallback> captor = ArgumentCaptor.forClass(
+                IAudioZonesMirrorStatusCallback.class);
+        mCarAudioManager.setAudioZoneMirrorStatusCallback(DIRECT_EXECUTOR,
+                mAudioZonesMirrorStatusCallback);
+        verify(mServiceMock).registerAudioZonesMirrorStatusCallback(captor.capture());
+        doThrow(mRemoteException).when(mServiceMock).unregisterAudioZonesMirrorStatusCallback(
+                captor.getValue());
+
+        mCarAudioManager.clearAudioZonesMirrorStatusCallback();
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
     public void canEnableAudioMirror() throws Exception {
         when(mServiceMock.canEnableAudioMirror()).thenReturn(
                 CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
 
         expectWithMessage("Audio mirror status").that(mCarAudioManager.canEnableAudioMirror())
                 .isEqualTo(CarAudioManager.AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES);
+    }
+
+    @Test
+    public void canEnableAudioMirror_whenServiceThrowsRemoteException_fails() throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).canEnableAudioMirror();
+
+        expectWithMessage("Audio mirror status when service throws remote exception")
+                .that(mCarAudioManager.canEnableAudioMirror()).isEqualTo(
+                        CarAudioManager.AUDIO_MIRROR_INTERNAL_ERROR);
     }
 
     @Test
@@ -1313,6 +1471,19 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void enableMirrorForAudioZones_whenServiceThrowsRemoteException_returnsInvalidId()
+            throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doThrow(mRemoteException).when(mServiceMock).enableMirrorForAudioZones(any(
+                int[].class));
+
+        expectWithMessage("Request id for enabling mirror for audio zones when service throws "
+                + "remote exception").that(mCarAudioManager.enableMirrorForAudioZones(
+                        zonesToMirrorList)).isEqualTo(CarAudioManager.INVALID_REQUEST_ID);
+    }
+
+    @Test
     public void extendAudioMirrorRequest() throws Exception {
         List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID);
         IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
@@ -1340,6 +1511,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void extendAudioMirrorRequest_whenServiceThrowsRemoteException() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doThrow(mRemoteException).when(mServiceMock).extendAudioMirrorRequest(
+                eq(TEST_REQUEST_ID), any(int[].class));
+
+        mCarAudioManager.extendAudioMirrorRequest(TEST_REQUEST_ID, zonesToMirrorList);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
     public void disableAudioMirror() throws Exception {
         List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
         IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
@@ -1354,6 +1537,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
         verify(mAudioZonesMirrorStatusCallback).onAudioZonesMirrorStatusChanged(zonesToMirrorList,
                 CarAudioManager.AUDIO_REQUEST_STATUS_CANCELLED);
+    }
+
+    @Test
+    public void disableAudioMirror_whenServiceThrowsRemoteException() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        long requestId = mCarAudioManager.enableMirrorForAudioZones(zonesToMirrorList);
+        doThrow(mRemoteException).when(mServiceMock).disableAudioMirror(requestId);
+
+        mCarAudioManager.disableAudioMirror(requestId);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
     }
 
     @Test
@@ -1373,6 +1568,18 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void disableAudioMirrorForZone_whenServiceThrowsRemoteException() throws Exception {
+        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        doThrow(mRemoteException).when(mServiceMock).disableAudioMirrorForZone(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        mCarAudioManager.disableAudioMirrorForZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        verify(mCar).handleRemoteExceptionFromCarService(mRemoteException);
+    }
+
+    @Test
     public void getMirrorAudioZonesForAudioZone() throws Exception {
         when(mServiceMock.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID)).thenReturn(
                 new int[]{TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID});
@@ -1383,6 +1590,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void getMirrorAudioZonesForAudioZone_whenServiceThrowsRemoteException_returnsEmptyList()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getMirrorAudioZonesForAudioZone(
+                TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirror zones for rear right zone when service throws remote exception")
+                .that(mCarAudioManager.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID))
+                .isEmpty();
+    }
+
+    @Test
     public void getMirrorAudioZonesForMirrorRequest() throws Exception {
         when(mServiceMock.getMirrorAudioZonesForMirrorRequest(TEST_REQUEST_ID)).thenReturn(
                 new int[]{TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID});
@@ -1390,6 +1608,17 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Mirror zones for request id").that(mCarAudioManager
                 .getMirrorAudioZonesForMirrorRequest(TEST_REQUEST_ID)).containsExactly(
                 TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID).inOrder();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForMirrorRequest_whenServiceThrowsRemoteException()
+            throws Exception {
+        doThrow(mRemoteException).when(mServiceMock).getMirrorAudioZonesForMirrorRequest(
+                TEST_REQUEST_ID);
+
+        expectWithMessage("Mirror zones for request id when service throws remote exception")
+                .that(mCarAudioManager.getMirrorAudioZonesForMirrorRequest(TEST_REQUEST_ID))
+                .isEmpty();
     }
 
     @Test
