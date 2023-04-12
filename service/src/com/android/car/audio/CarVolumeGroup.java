@@ -20,7 +20,6 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
 
-import static com.android.car.audio.CarVolumeEventFlag.VolumeEventFlags;
 import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -777,10 +776,10 @@ import java.util.Objects;
     }
 
     /**
-     * Returns one or more {@link VolumeEventFlags}
+     * @return one or more {@link CarVolumeGroupEvent#EventTypeEnum}
      */
-    public @VolumeEventFlags int onAudioVolumeGroupChanged(int flags) {
-        return CarVolumeEventFlag.FLAG_EVENT_VOLUME_NONE;
+    public int onAudioVolumeGroupChanged(int flags) {
+        return 0;
     }
 
     /**
