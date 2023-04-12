@@ -23,6 +23,11 @@ import android.car.VehiclePropertyIds;
 import org.junit.Test;
 
 public final class CarPropertyHelperUnitTest {
+
+    private static final int SYSTEM_ERROR_CODE = 0x0123;
+    private static final int VENDOR_ERROR_CODE = 0x1234;
+    private static final int COMBINDED_ERROR_CODE = 0x12340123;
+
     @Test
     public void testIsSupported() {
         // VehiclePropertyGroup:VENDOR, VehicleArea:GLOBAL,VehiclePropertyType:STRING, ID:0x0001
@@ -37,5 +42,17 @@ public final class CarPropertyHelperUnitTest {
         assertThat(CarPropertyHelper.isSupported(VehiclePropertyIds.INVALID)).isFalse();
         // This is a wrong property ID. It is like INFO_VIN but with the wrong VehicleArea.
         assertThat(CarPropertyHelper.isSupported(0x12100100)).isFalse();
+    }
+
+    @Test
+    public void testGetVhalSystemErrorcode() {
+        assertThat(CarPropertyHelper.getVhalSystemErrorCode(COMBINDED_ERROR_CODE)).isEqualTo(
+                SYSTEM_ERROR_CODE);
+    }
+
+    @Test
+    public void testGetVhalVendorErrorCode() {
+        assertThat(CarPropertyHelper.getVhalVendorErrorCode(COMBINDED_ERROR_CODE)).isEqualTo(
+                VENDOR_ERROR_CODE);
     }
 }
