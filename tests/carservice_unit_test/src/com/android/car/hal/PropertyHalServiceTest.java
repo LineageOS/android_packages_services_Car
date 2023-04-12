@@ -46,6 +46,7 @@ import static org.mockito.Mockito.when;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
+import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
@@ -104,6 +105,8 @@ public class PropertyHalServiceTest {
     private IBinder mGetAsyncPropertyResultBinder;
     @Mock
     private IBinder mSetAsyncPropertyResultBinder;
+    @Mock
+    private PropertyHalService.PropertyHalListener mPropertyHalListener;
     @Captor
     private ArgumentCaptor<List<GetSetValueResult>> mAsyncResultCaptor;
     @Captor
@@ -117,6 +120,7 @@ public class PropertyHalServiceTest {
     private static final int RECEIVED_REQUEST_ID_2 = 1;
     private static final int RECEIVED_REQUEST_ID_3 = 2;
     private static final int INT32_PROP = VehiclePropertyIds.INFO_FUEL_DOOR_LOCATION;
+    private static final int VENDOR_ERROR_CODE = 1234;
     private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_1 =
             new AsyncPropertyServiceRequest(REQUEST_ID_1, HVAC_TEMPERATURE_SET, /* areaId= */ 0);
     private static final AsyncPropertyServiceRequest GET_PROPERTY_SERVICE_REQUEST_2 =
@@ -181,6 +185,12 @@ public class PropertyHalServiceTest {
 
     private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
             int errorCode, HalPropValue propValue, boolean get) {
+        return deliverResult(invocation, expectedServiceRequestId, errorCode,
+                /* vendorErrorCode= */ 0, propValue, get);
+    }
+
+    private Object deliverResult(InvocationOnMock invocation, Integer expectedServiceRequestId,
+            int errorCode, int vendorErrorCode, HalPropValue propValue, boolean get) {
         Object[] args = invocation.getArguments();
         List getVehicleHalRequests = (List) args[0];
         Map<VehicleStubCallbackInterface, List<GetVehicleStubAsyncResult>> callbackToGetResults =
@@ -209,11 +219,11 @@ public class PropertyHalServiceTest {
                             serviceRequestId, propValue));
                 } else {
                     callbackToGetResults.get(callback).add(new GetVehicleStubAsyncResult(
-                            serviceRequestId, errorCode));
+                            serviceRequestId, errorCode, vendorErrorCode));
                 }
             } else {
                 callbackToSetResults.get(callback).add(new SetVehicleStubAsyncResult(
-                        serviceRequestId, errorCode));
+                        serviceRequestId, errorCode, vendorErrorCode));
             }
         }
 
@@ -540,6 +550,83 @@ public class PropertyHalServiceTest {
         assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
         assertThat(result.getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(result.getCarPropertyValue()).isEqualTo(null);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_errorResultVendorErrorCode() throws RemoteException {
+        doAnswer((invocation) -> {
+            return deliverResult(invocation, RECEIVED_REQUEST_ID_1,
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,  VENDOR_ERROR_CODE,
+                    /* propValue= */ null, /* get= */ true);
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(result.getVendorErrorCode()).isEqualTo(VENDOR_ERROR_CODE);
+        assertThat(result.getCarPropertyValue()).isEqualTo(null);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_propStatusUnavailable() throws RemoteException {
+        doAnswer((invocation) -> {
+            HalPropValue propValue = mPropValueBuilder.build(
+                    HVAC_TEMPERATURE_SET, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS,
+                    VehiclePropertyStatus.UNAVAILABLE, 17.0f);
+            return deliverOkayGetResult(invocation, propValue);
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(result.getVendorErrorCode()).isEqualTo(0);
+        assertThat(result.getCarPropertyValue()).isEqualTo(null);
+
+        verifyNoPendingRequest();
+    }
+
+    @Test
+    public void testGetCarPropertyValuesAsync_propStatusError() throws RemoteException {
+        doAnswer((invocation) -> {
+            HalPropValue propValue = mPropValueBuilder.build(
+                    HVAC_TEMPERATURE_SET, /* areaId= */ 0, TEST_UPDATE_TIMESTAMP_NANOS,
+                    VehiclePropertyStatus.ERROR, 17.0f);
+            return deliverOkayGetResult(invocation, propValue);
+        }).when(mVehicleHal).getAsync(any(List.class), any(VehicleStubCallbackInterface.class));
+
+        doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
+                mGetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        verify(mGetAsyncPropertyResultCallback, timeout(1000)).onGetValueResults(
+                mAsyncResultCaptor.capture());
+        GetSetValueResult result = mAsyncResultCaptor.getValue().get(0);
+        assertThat(result.getRequestId()).isEqualTo(REQUEST_ID_1);
+        assertThat(result.getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        assertThat(result.getVendorErrorCode()).isEqualTo(0);
         assertThat(result.getCarPropertyValue()).isEqualTo(null);
 
         verifyNoPendingRequest();
@@ -1474,6 +1561,53 @@ public class PropertyHalServiceTest {
         verifyNoPendingRequest();
     }
 
+    // If we receive errors for the [propId, areaId] we are setting via onPropertySetError, we must
+    // fail the pending request.
+    @Test
+    public void testSetCarPropertyValuesAsync_onPropertySetError() throws RemoteException {
+        List<HalServiceBase> serviceWrap = new ArrayList<>();
+        AsyncPropertyServiceRequest setPropertyRequest =
+                new AsyncPropertyServiceRequest(1, HVAC_TEMPERATURE_SET, /* areaId= */ 1);
+
+        doNothing().when(mVehicleHal).setAsync(any(List.class),
+                any(VehicleStubCallbackInterface.class));
+        doNothing().when(mVehicleHal).getAsync(any(List.class),
+                any(VehicleStubCallbackInterface.class));
+        doAnswer((invocation) -> {
+            serviceWrap.add(invocation.getArgument(0));
+            return null;
+        }).when(mVehicleHal).subscribeProperty(any(), eq(HVAC_TEMPERATURE_SET), eq(0f));
+        doReturn(mSetAsyncPropertyResultBinder).when(mSetAsyncPropertyResultCallback).asBinder();
+
+        mPropertyHalService.setCarPropertyValuesAsync(List.of(setPropertyRequest),
+                mSetAsyncPropertyResultCallback, /* timeoutInMs= */ 1000);
+
+        ArrayList<VehiclePropError> vehiclePropErrors = new ArrayList<>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = HVAC_TEMPERATURE_SET;
+        error1.areaId = 1;
+        error1.errorCode = STATUS_NOT_AVAILABLE | (0x1234 << 16);
+        // Error 2 has the wrong area ID and must be ignored.
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = HVAC_TEMPERATURE_SET;
+        error2.areaId = 2;
+        error2.errorCode = STATUS_INTERNAL_ERROR;
+        vehiclePropErrors.add(error1);
+        vehiclePropErrors.add(error2);
+        assertThat(serviceWrap).hasSize(1);
+        serviceWrap.get(0).onPropertySetError(vehiclePropErrors);
+
+        verify(mSetAsyncPropertyResultCallback).onSetValueResults(mAsyncResultCaptor.capture());
+        assertThat(mAsyncResultCaptor.getValue()).hasSize(1);
+        assertThat(mAsyncResultCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        assertThat(mAsyncResultCaptor.getValue().get(0).getVendorErrorCode()).isEqualTo(
+                0x1234);
+        verify(mVehicleHal).unsubscribeProperty(any(), eq(HVAC_TEMPERATURE_SET));
+
+        verifyNoPendingRequest();
+    }
+
     @Test
     public void testOnSetAsyncResults_RetryAndTimeout() throws RemoteException {
         doAnswer((invocation) -> {
@@ -1747,5 +1881,28 @@ public class PropertyHalServiceTest {
         ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
                 () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
         assertThat(e.errorCode).isEqualTo(STATUS_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testOnPropertySetError() throws Exception {
+        ArrayList<VehiclePropError> vehiclePropErrors = new ArrayList<>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = HVAC_TEMPERATURE_SET;
+        error1.areaId = 1;
+        error1.errorCode = STATUS_NOT_AVAILABLE | (0x1234 << 16);
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = PERF_VEHICLE_SPEED;
+        error2.areaId = 0;
+        error2.errorCode = STATUS_INTERNAL_ERROR;
+        vehiclePropErrors.add(error1);
+        vehiclePropErrors.add(error2);
+
+        mPropertyHalService.setPropertyHalListener(mPropertyHalListener);
+        mPropertyHalService.onPropertySetError(vehiclePropErrors);
+
+        verify(mPropertyHalListener).onPropertySetError(HVAC_TEMPERATURE_SET, 1,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE);
+        verify(mPropertyHalListener).onPropertySetError(PERF_VEHICLE_SPEED, 0,
+                CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
     }
 }

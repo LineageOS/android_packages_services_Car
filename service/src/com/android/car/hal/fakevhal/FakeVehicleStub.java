@@ -199,14 +199,15 @@ public final class FakeVehicleStub extends VehicleStub {
                     halPropValue);
                 if (halPropValue == null) {
                     result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+                        CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE, /* vendorErrorCode= */ 0);
                 }
             } catch (ServiceSpecificException e) {
-                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                        convertHalToCarPropertyManagerError(e.errorCode));
+                int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
+                result = new GetVehicleStubAsyncResult(request.getServiceRequestId(), errorCodes[0],
+                        errorCodes[1]);
             } catch (RemoteException e) {
                 result = new GetVehicleStubAsyncResult(request.getServiceRequestId(),
-                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
             }
             onGetAsyncResultList.add(result);
         }
@@ -234,10 +235,11 @@ public final class FakeVehicleStub extends VehicleStub {
                 result = new SetVehicleStubAsyncResult(serviceRequestId);
             } catch (RemoteException e) {
                 result = new SetVehicleStubAsyncResult(serviceRequestId,
-                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+                        CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
             } catch (ServiceSpecificException e) {
-                result = new SetVehicleStubAsyncResult(serviceRequestId,
-                                convertHalToCarPropertyManagerError(e.errorCode));
+                int[] errorCodes = convertHalToCarPropertyManagerError(e.errorCode);
+                result = new SetVehicleStubAsyncResult(serviceRequestId, errorCodes[0],
+                        errorCodes[1]);
             }
             onSetAsyncResultsList.add(result);
         }
