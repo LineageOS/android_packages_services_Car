@@ -647,6 +647,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 lastShutdownState = CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_DISK;
                 mHal.sendHibernationExit();
                 break;
+            default:
+                Slogf.w(TAG, "Invalid action when handling wait for VHAL: %d",
+                        carPowerStateListenerState);
+                break;
         }
         synchronized (mLock) {
             mLastShutdownState = lastShutdownState;
@@ -906,6 +910,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     break;
                 case CarPowerManager.STATE_HIBERNATION_ENTER:
                     mHal.sendHibernationEntry(wakeupSec);
+                    break;
+                default:
+                    Slogf.w(TAG, "Invalid action when handling wait for finish: %d",
+                            state.mCarPowerStateListenerState);
                     break;
             }
         };
@@ -2114,6 +2122,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     break;
                 case MSG_POWER_POLICY_NOTIFICATION:
                     service.doHandlePowerPolicyNotification((String) msg.obj);
+                    break;
+                default:
+                    Slogf.w(TAG, "handleMessage invalid message type: %d", msg.what);
                     break;
             }
         }
