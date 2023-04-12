@@ -277,6 +277,8 @@ final class CarVolume {
                 attributes.add(CarAudioContext
                         .getAudioAttributeFromUsage(USAGE_VOICE_COMMUNICATION));
                 break;
+            default:
+                break;
         }
 
         attributes.addAll(activeAttributes);
