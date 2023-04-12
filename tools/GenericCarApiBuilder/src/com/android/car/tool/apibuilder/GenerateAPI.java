@@ -65,17 +65,11 @@ public final class GenerateAPI {
     private static final String CAR_ADDEDINORBEFORE_API_FILE =
             "/packages/services/Car/tests/carservice_unit_test/res/raw/"
                     + "car_addedinorbefore_apis.txt";
-    private static final String API_TXT_SAVE_PATH =
-            "/packages/services/Car/tools/GenericCarApiBuilder/";
-    private static final String COMPLETE_CAR_API_LIST = "complete_car_api_list.txt";
-    private static final String COMPLETE_CAR_BUILT_IN_API_LIST =
-            "complete_car_built_in_api_list.txt";
     private static final String TAB = "    ";
 
     // Arguments:
     private static final String PRINT_CLASSES_ONLY = "--print-classes-only";
     private static final String UPDATE_CLASSES_FOR_TEST = "--update-classes-for-test";
-    private static final String GENERATE_FULL_API_LIST = "--generate-full-api-list";
     private static final String UPDATE_HIDDEN_API_FOR_TEST = "--update-hidden-api-for-test";
     private static final String PRINT_HIDDEN_API_FOR_TEST = "--print-hidden-api-for-test";
     private static final String PRINT_SHORTFORM_FULL_API_FOR_TEST =
@@ -89,7 +83,6 @@ public final class GenerateAPI {
     // PRINT_SHORT prints only a condensed version of the APIs.
     // PRINT_HIDDEN_ONLY prints only hidden APIs.
     // PRINT_ADDEDINORBEFORE_ONLY prints only APIs containing the AddedInOrBefore annotation.
-    private static final int PRINT_DEFAULT = 0;
     private static final int PRINT_SHORT = 1;
     private static final int PRINT_HIDDEN_ONLY = 2;
     private static final int PRINT_ADDEDINORBEFORE_ONLY = 3;
@@ -127,11 +120,14 @@ public final class GenerateAPI {
             ParsedData parsedDataCarLib = new ParsedData();
             ParsedData parsedDataCarBuiltinLib = new ParsedData();
 
+            if (USE_NEW_IMPLEMENTATION) {
+                ParsedDataBuilder.populateParsedData(allJavaFiles_carLib, parsedDataCarLib);
+                ParsedDataBuilder.populateParsedData(allJavaFiles_carBuiltInLib,
+                        parsedDataCarBuiltinLib);
+            }
+
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_CLASSES_ONLY)) {
                 if (USE_NEW_IMPLEMENTATION) {
-                    ParsedDataBuilder.populateParsedData(allJavaFiles_carLib, parsedDataCarLib);
-                    ParsedDataBuilder.populateParsedData(allJavaFiles_carBuiltInLib,
-                            parsedDataCarBuiltinLib);
                     ParsedDataHelper.getClassNamesOnly(parsedDataCarLib)
                             .forEach((string) -> System.out.println(string));
                     ParsedDataHelper.getClassNamesOnly(parsedDataCarBuiltinLib)
@@ -212,27 +208,6 @@ public final class GenerateAPI {
                 writeListToFile(rootDir + CAR_ADDEDINORBEFORE_API_FILE, allCarAPIs);
                 return;
             }
-
-            if (args.length > 0 && args[0].equalsIgnoreCase(GENERATE_FULL_API_LIST)) {
-                List<String> allCarAPIs = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_DEFAULT,
-                                    includeConstructors));
-                }
-                writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_API_LIST, allCarAPIs);
-
-                List<String> allCarBuiltInAPIs = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
-                    allCarBuiltInAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), PRINT_DEFAULT,
-                                    includeConstructors));
-                }
-                writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_BUILT_IN_API_LIST,
-                        allCarBuiltInAPIs);
-
-                return;
-            }
         } catch (Exception e) {
             throw e;
         }
@@ -258,8 +233,6 @@ public final class GenerateAPI {
                 + " of valid class and interfaces. These files are updated"
                 + " tests/carservice_unit_test/res/raw/car_api_classes.txt and"
                 + " tests/carservice_unit_test/res/raw/car_built_in_api_classes.txt");
-        System.out.println(GENERATE_FULL_API_LIST + " : Would generate full api list including the"
-                + " hidden APIs. Results would be saved in ");
         System.out.println(PRINT_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
                 + " testing. Results would be printed.");
         System.out.println(UPDATE_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
@@ -367,9 +340,6 @@ public final class GenerateAPI {
                         + packageName;
 
                 boolean wholeClassIsHidden = hiddenClass && !isClassSystemAPI;
-                if (printLevel == PRINT_DEFAULT) {
-                    parsedList.add(classDeclaration);
-                }
 
                 if (DBG) {
                     System.out.println(classDeclaration);
@@ -433,34 +403,10 @@ public final class GenerateAPI {
 
                     }
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("field ");
-                    sb.append(version + " ");
-                    if (isHidden && !isSystem) {
-                        sb.append("@hiddenOnly ");
-                    }
-
-                    sb.append(fieldType);
-                    sb.append(" ");
-                    sb.append(fieldName);
-
-                    if (fieldInitialized) {
-                        sb.append(" = ");
-                        sb.append(fieldInitializedValue);
-                    }
-                    sb.append(";");
-
-                    if (DBG) {
-                        System.out.printf("%s%s\n", TAB, sb);
-                    }
-
                     String parsedName = packageName + " " + className + " "
                             + fieldType + " " + fieldName;
 
                     switch (printLevel) {
-                        case PRINT_DEFAULT:
-                            parsedList.add(TAB + sb);
-                            break;
                         case PRINT_SHORT:
                             parsedList.add(parsedName);
                             break;
@@ -530,17 +476,6 @@ public final class GenerateAPI {
 
                     }
 
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("method ");
-                    sb.append(version + " ");
-                    if (isHidden && !isSystem) {
-                        sb.append("@hiddenOnly ");
-                    }
-
-                    sb.append(returnType);
-                    sb.append(" ");
-                    sb.append(methodName);
-
                     StringBuilder parametersString = new StringBuilder();
 
                     parametersString.append("(");
@@ -557,19 +492,10 @@ public final class GenerateAPI {
                     }
                     parametersString.append(")");
 
-                    sb.append(parametersString);
-
-                    if (DBG) {
-                        System.out.printf("%s%s\n", TAB, sb);
-                    }
-
                     String parsedName = packageName + " " + className + " "
                             + returnType + " " + methodName + parametersString;
 
                     switch (printLevel) {
-                        case PRINT_DEFAULT:
-                            parsedList.add(TAB + sb);
-                            break;
                         case PRINT_SHORT:
                             parsedList.add(parsedName);
                             break;
