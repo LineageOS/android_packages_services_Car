@@ -33,7 +33,10 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.MemberValuePair;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
@@ -232,6 +235,7 @@ public final class ParsedDataBuilder {
         MethodData methodData = new MethodData(methodName, returnType);
         methodData.isHidden = isHidden;
         methodData.fullMethodname = fullMethodNameString.toString();
+        methodData.firstBodyStatement = getFirstBodyStatement(method);
         return methodData;
     }
 
@@ -374,5 +378,20 @@ public final class ParsedDataBuilder {
         constructorData.fullConstructorName = parametersString.toString();
 
         return constructorData;
+    }
+
+    private static MethodCallExpr getFirstBodyStatement(MethodDeclaration method) {
+        if (method.getBody().isEmpty() || method.getBody().get().isEmpty()) {
+            return null;
+        }
+        Statement statement = method.getBody().get().getStatement(0);
+        if (!statement.isExpressionStmt()) {
+            return null;
+        }
+        Expression expression = statement.asExpressionStmt().getExpression();
+        if (!expression.isMethodCallExpr()) {
+            return null;
+        }
+        return (MethodCallExpr) statement.asExpressionStmt().getExpression();
     }
 }
