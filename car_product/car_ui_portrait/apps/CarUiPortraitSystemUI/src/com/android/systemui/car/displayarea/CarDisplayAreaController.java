@@ -72,6 +72,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     private boolean mUserSetupInProgress;
     private boolean mIsImmersive;
+    private boolean mIsLauncherReady;
     private AlohaViewController mAlohaViewController;
 
     private final CarUiPortraitDisplaySystemBarsController.Callback
@@ -125,7 +126,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     if (mUserSetupInProgress) {
                         mCarFullScreenTouchHandler.enable(false);
                         mAlohaViewController.stop();
-                    } else {
+                    } else if (!mIsLauncherReady) {
                         mAlohaViewController.start();
                     }
 
@@ -164,6 +165,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             public void onReceive(Context context, Intent intent) {
                 if (intent.hasExtra(INTENT_EXTRA_LAUNCHER_READY)) {
                     mAlohaViewController.stop();
+                    mIsLauncherReady = true;
                 }
             }
         };
