@@ -21,14 +21,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.time.Clock;
 import java.util.Random;
 
-public class GenerateApiTestHelper {
+public class TestHelper {
 
     public File getResourceFile(String filename) throws Exception {
         InputStream inputStream = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream(filename);
 
+        long startime = Clock.systemUTC().millis();
         File tempFile = new File(filename + "_temp_" + new Random().nextInt());
 
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(tempFile))) {

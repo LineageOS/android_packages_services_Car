@@ -19,6 +19,7 @@ package com.android.car.tool.data;
 public class ConstructorData {
 
     public final String constructorName;
+    public String fullConstructorName;
     public boolean isHidden;
     public AnnotationData annotationData;
 
