@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package {
-    default_applicable_licenses: ["Android-Apache-2.0"],
-}
+package com.android.car.tool.data;
 
-java_binary_host {
-    name: "GenericCarApiBuilder",
-    srcs: ["src/**/*.java"],
-    manifest: "manifest.txt",
-    static_libs: [
-        "javaparser",
-        "junit",
-        "truth-prebuilt",
-    ],
-}
+public class MethodData {
 
-java_test_host {
-    name: "GenericCarApiBuilderTest",
-    srcs: ["src/**/*.java"],
-    java_resource_dirs: ["res"],
-    static_libs: [
-        "javaparser",
-        "junit",
-        "truth-prebuilt",
-    ],
+    public final String methodName;
+    public final String returnType;
+    public String fullMethodname;
+    public AnnotationData annotationData;
+    public boolean isHidden;
+
+    public MethodData(String methodName, String returnType) {
+        this.methodName = methodName;
+        this.returnType = returnType;
+    }
 }
