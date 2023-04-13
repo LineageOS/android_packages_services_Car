@@ -17,7 +17,7 @@ package com.android.systemui.car.displayarea;
 
 import static android.view.Display.DEFAULT_DISPLAY;
 
-import android.hardware.input.InputManager;
+import android.hardware.input.InputManagerGlobal;
 import android.os.Looper;
 import android.view.InputChannel;
 import android.view.InputEvent;
@@ -78,7 +78,7 @@ public class CarFullScreenTouchHandler {
     }
 
     private void createInputChannel() {
-        mInputMonitor = InputManager.getInstance().monitorGestureInput(
+        mInputMonitor = InputManagerGlobal.getInstance().monitorGestureInput(
                 "car-display-area-touch", DEFAULT_DISPLAY);
         try {
             mMainExecutor.executeBlocking(() -> {
