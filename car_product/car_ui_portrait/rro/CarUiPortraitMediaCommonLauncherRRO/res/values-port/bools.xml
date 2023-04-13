@@ -22,4 +22,6 @@
     <bool name="show_circular_progress_bar">false</bool>
     <!-- Whether to show circular progress bar only when progress is active. -->
     <bool name="show_circular_progress_bar_only_when_active">false</bool>
+    <!-- Whether to use media source color for indeterminate tint in progress bar. -->
+    <bool name="use_media_source_color_for_fab_spinner">false</bool>
 </resources>
