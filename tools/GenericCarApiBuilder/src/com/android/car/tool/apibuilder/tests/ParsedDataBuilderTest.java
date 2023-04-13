@@ -29,7 +29,7 @@ import com.android.car.tool.data.ParsedData;
 
 import org.junit.Test;
 
-public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
+public final class ParsedDataBuilderTest extends TestHelper {
 
     @Test
     public void testClassData() throws Exception {
@@ -37,6 +37,7 @@ public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
         String packageName = "android.car.user";
         ParsedDataBuilder.populateParsedDataForFile(getResourceFile("Test1.txt"), data);
 
+        // Assert values
         PackageData packageData = data.getPackageData(packageName);
         assertThat(packageData).isNotNull();
         String className = "android.car.user.Test1";
@@ -51,7 +52,6 @@ public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
         assertThat(classData.constructors.size()).isEqualTo(1);
         ConstructorData constructorData = classData.constructors
                 .get("Test1(Car car, IBinder service)");
-        assertThat(constructorData).isNotNull();
         assertThat(constructorData.isHidden).isTrue();
         assertThat(constructorData.annotationData.isSystemApi).isFalse();
 
@@ -68,11 +68,9 @@ public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
         assertThat(classData.constructors.size()).isEqualTo(2);
         constructorData = classData.constructors
                 .get("UserLifecycleEvent(int eventType, int from, int to)");
-        assertThat(constructorData).isNotNull();
         assertThat(constructorData.isHidden).isTrue();
         assertThat(constructorData.annotationData.isSystemApi).isFalse();
         constructorData = classData.constructors.get("UserLifecycleEvent(int eventType, int to)");
-        assertThat(constructorData).isNotNull();
         assertThat(constructorData.isHidden).isFalse();
         assertThat(constructorData.annotationData.isSystemApi).isFalse();
 
@@ -108,7 +106,6 @@ public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
         String packageName = "android.car.user";
         ParsedDataBuilder.populateParsedDataForFile(getResourceFile("Test1.txt"), data);
 
-        // Assert values
         PackageData packageData = data.getPackageData(packageName);
         String className = "android.car.user.Test1";
         ClassData classData = packageData.classes.get(className);
@@ -246,6 +243,7 @@ public class GenerateApiUpdatedTest extends GenerateApiTestHelper {
         String className = "android.car.user.Test1";
         ClassData classData = packageData.classes.get(className);
         assertThat(classData.methods.size()).isEqualTo(3);
+
         MethodData methodData = classData.methods.get("method_1(UserStopRequest request, "
                 + "Executor executor, ResultCallback<UserStopResponse> callback)");
         assertThat(methodData.isHidden).isTrue();
