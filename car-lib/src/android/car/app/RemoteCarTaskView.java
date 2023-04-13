@@ -16,14 +16,18 @@
 
 package android.car.app;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
+
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.PlatformVersion;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.SurfaceControlHelper;
@@ -33,6 +37,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.os.Build;
 import android.os.DeadObjectException;
 import android.os.RemoteException;
 import android.util.Log;
@@ -45,6 +50,7 @@ import android.view.SurfaceView;
  * in a process that has registered a TaskOrganizer with the system server.
  * Usually this process is the Car System UI.
  */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 abstract class RemoteCarTaskView extends SurfaceView {
     private static final String TAG = RemoteCarTaskView.class.getSimpleName();
 
@@ -100,8 +106,8 @@ abstract class RemoteCarTaskView extends SurfaceView {
 
     RemoteCarTaskView(Context context) {
         super(context);
+        assertPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
         mTouchableInsetsProvider = new TouchableInsetsProvider(this);
-
         getHolder().addCallback(mSurfaceCallbackHandler);
     }
 
