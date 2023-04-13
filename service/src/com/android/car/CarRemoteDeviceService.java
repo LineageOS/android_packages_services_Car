@@ -476,21 +476,10 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                 return;
             }
             int userId = userHandle.getIdentifier();
+            // Note: userInfo can't be null here, otherwise getUniquePackageNameByUidLocked() would
+            // return null, and it wouldn't get here.
             PerUserInfo userInfo = mPerUserInfoMap.get(userId);
-            OccupantZoneInfo occupantZone;
-            if (userInfo == null) {
-                // This shouldn't happen, but let's try another way to get the occupant zone.
-                Slogf.e(TAG, "No PerUserInfo for user %d", userId);
-                occupantZone = mOccupantZoneService.getOccupantZoneForUser(userHandle);
-                if (occupantZone == null) {
-                    // This shouldn't happen. Let's log an error.
-                    Slogf.e(TAG, "No occupant zone for user %d", userId);
-                    return;
-                }
-            } else {
-                occupantZone = userInfo.zone;
-            }
-            ClientId clientId = new ClientId(occupantZone, userId, packageName);
+            ClientId clientId = new ClientId(userInfo.zone, userId, packageName);
             @AppState int newAppState =
                     convertProcessRunningStateToAppStateLocked(packageName, userId, newState);
             setAppStateLocked(clientId, newAppState, /* callbackToNotify= */ null);
@@ -514,12 +503,14 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     /**
      * Initializes PerUserInfo for the given user, and registers a PackageChangeReceiver for the
      * given user.
+     *
+     * @return {@code true} if the PerUserInfo was initialized successfully
      */
     @GuardedBy("mLock")
-    private void initAssignedUserLocked(int userId, OccupantZoneInfo occupantZone) {
+    private boolean initAssignedUserLocked(int userId, OccupantZoneInfo occupantZone) {
         if (!isNonSystemUser(userId)) {
             Slogf.w(TAG, "%s is assigned to user %d", occupantZone, userId);
-            return;
+            return false;
         }
 
         // Init PackageChangeReceiver.
@@ -533,7 +524,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         Context userContext = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
         if (userContext == null) {
             Slogf.e(TAG, "Failed to create Context as user %d", userId);
-            return;
+            return false;
         }
         Slogf.v(TAG, "registerReceiver() as user %d", userId);
 
@@ -544,11 +535,12 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         PackageManager pm = userContext.getPackageManager();
         if (pm == null) {
             Slogf.e(TAG, "Failed to create PackageManager as user %d", userId);
-            return;
+            return false;
         }
 
         PerUserInfo userInfo = new PerUserInfo(occupantZone, userContext, pm, receiver);
         mPerUserInfoMap.put(userId, userInfo);
+        return true;
     }
 
     /**
@@ -945,12 +937,31 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
 
     @GuardedBy("mLock")
     private String getUniquePackageNameByUidLocked(int uid) {
-        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
+        UserHandle userHandle = UserHandle.getUserHandleForUid(uid);
+        int userId = userHandle.getIdentifier();
         PerUserInfo userInfo = mPerUserInfoMap.get(userId);
         if (userInfo == null) {
-            // This should never happen, but let's be cautious and log an error.
-            Slogf.wtf(TAG, "No PerUserInfo for user %d", userId);
-            return null;
+            // When an occupant zone is assigned with a user, the associated PerUserInfo will be
+            // initialized in the ICarOccupantZoneCallback. But the ICarOccupantZoneCallback may be
+            // invoked after this method (called by ProcessObserverCallback). In that case, the
+            // PerUserInfo will be null (b/277956688). So let's try to initialize the PerUserInfo
+            // here.
+            Slogf.v(TAG, "PerUserIno for user %d is not initialized yet", userId);
+            OccupantZoneInfo occupantZone = mOccupantZoneService.getOccupantZoneForUser(userHandle);
+            if (occupantZone == null) {
+                // This shouldn't happen. Let's log an error.
+                Slogf.e(TAG, "The running state of the process (uid %d) has changed, but the user"
+                        + " %d is not assigned to any occupant zone yet", uid, userId);
+                return null;
+            }
+            boolean success = initAssignedUserLocked(userId, occupantZone);
+            if (!success) {
+                Slogf.wtf(TAG, "Failed to initialize PerUserInfo for user %d in %s", userId,
+                        occupantZone);
+                return null;
+            }
+            // Note: userInfo must not be null here because it was initialized successfully.
+            userInfo = mPerUserInfoMap.get(userId);
         }
         String[] packageNames = userInfo.pm.getPackagesForUid(uid);
         if (packageNames == null) {

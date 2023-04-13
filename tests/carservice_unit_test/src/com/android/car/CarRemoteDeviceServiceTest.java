@@ -94,6 +94,7 @@ public class CarRemoteDeviceServiceTest {
 
     private static final int OCCUPANT_ZONE_ID = 321;
     private static final int USER_ID = 123;
+    private static final int USER_ID2 = 234;
     private static final int PID = 456;
 
     // This value is copied from android.os.UserHandle#PER_USER_RANGE.
@@ -126,6 +127,7 @@ public class CarRemoteDeviceServiceTest {
 
     private final OccupantZoneInfo mOccupantZone =
             new OccupantZoneInfo(OCCUPANT_ZONE_ID, OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
+    private final int mMyUserId = Binder.getCallingUserHandle().getIdentifier();
 
     private CarRemoteDeviceService mService;
 
@@ -188,8 +190,7 @@ public class CarRemoteDeviceServiceTest {
     @Test
     public void testPeerClientInstallUninstall() {
         // There are two occupant zone: my zone, peer zone.
-        int myUserId = Binder.getCallingUserHandle().getIdentifier();
-        mockPerUserInfo(myUserId, mOccupantZone);
+        mockPerUserInfo(mMyUserId, mOccupantZone);
 
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
@@ -243,8 +244,7 @@ public class CarRemoteDeviceServiceTest {
     @Test
     public void testNonPeerClientUninstall() {
         // There are two occupant zone: my zone, peer zone.
-        int myUserId = Binder.getCallingUserHandle().getIdentifier();
-        mockPerUserInfo(myUserId, mOccupantZone);
+        mockPerUserInfo(mMyUserId, mOccupantZone);
 
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
@@ -452,20 +452,18 @@ public class CarRemoteDeviceServiceTest {
         List<OccupantZoneInfo> allZones = Arrays.asList(myZone, peerZone1, peerZone2);
         when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
 
-        UserHandle myUserHandle = Binder.getCallingUserHandle();
-        int myUserId = myUserHandle.getIdentifier();
-        int peerUserId1 = myUserId + 10;
-        int peerUserId2 = myUserId + 11;
+        int peerUserId1 = mMyUserId + 10;
+        int peerUserId2 = mMyUserId + 11;
 
         // The caller zone is powered on and ready for connection.
         // Peer zone 1 is powered on, and peer zone 2 is not powered on.
         mockOccupantZonePowerOn(myZone);
-        mockOccupantZoneConnectionReady(myZone, myUserId);
+        mockOccupantZoneConnectionReady(myZone, mMyUserId);
         mockOccupantZonePowerOn(peerZone1);
 
         // The discovering client is running in the foreground. Its peer client1 is installed but
         // not running, and peer client2 is not installed.
-        mockAppRunningAsUser(myUserId, PID, myZone, IMPORTANCE_FOREGROUND);
+        mockAppRunningAsUser(mMyUserId, PID, myZone, IMPORTANCE_FOREGROUND);
         mockAppInstalledAsUser(peerUserId1, peerZone1);
         mockPerUserInfo(peerUserId2, peerZone2);
 
@@ -500,11 +498,9 @@ public class CarRemoteDeviceServiceTest {
         List<OccupantZoneInfo> allZones = Arrays.asList(myZone, peerZone1, peerZone2);
         when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
 
-        UserHandle myUserHandle = Binder.getCallingUserHandle();
-        int myUserId = myUserHandle.getIdentifier();
-        int peerUserId1 = myUserId + 10;
-        int peerUserId2 = myUserId + 11;
-        mockPerUserInfo(myUserId, myZone);
+        int peerUserId1 = mMyUserId + 10;
+        int peerUserId2 = mMyUserId + 11;
+        mockPerUserInfo(mMyUserId, myZone);
         mockPerUserInfo(peerUserId1, peerZone1);
         mockPerUserInfo(peerUserId2, peerZone2);
 
@@ -544,6 +540,39 @@ public class CarRemoteDeviceServiceTest {
     }
 
     @Test
+    public void testProcessObserverCallbackInvokedBeforeOccupantZoneCallback()
+            throws RemoteException {
+        ProcessObserverCallback[] processObserver = new ProcessObserverCallback[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            processObserver[0] = (ProcessObserverCallback) args[0];
+            return null;
+        }).when(mSystemActivityMonitoringService).registerProcessObserverCallback(any());
+
+        // There is only one occupant zones assigned with a foreground user.
+        OccupantZoneInfo myZone = new OccupantZoneInfo(/* zoneId= */ 0,
+                OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
+        List<OccupantZoneInfo> allZones = Arrays.asList(myZone);
+        when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
+        mockPerUserInfo(mMyUserId, myZone);
+
+        mService.init();
+        mService.registerStateCallback(PACKAGE_NAME, mCallback);
+
+        // Peer zone is assigned, but the ICarOccupantZoneCallback is not invoked yet, so
+        // mPerUserInfoMap has no entry for peerUserId.
+        int peerUserId = mMyUserId + 10;
+        OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 1,
+                OCCUPANT_TYPE_FRONT_PASSENGER, SEAT_ROW_1_RIGHT);
+        mockAppInstalledAsUser(peerUserId, peerZone);
+        mPerUserInfoMap.remove(peerUserId);
+        processObserver[0].onProcessDied(PID, userIdToUid(peerUserId));
+
+        verify(mCallback).onAppStateChanged(peerZone,
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+    }
+
+    @Test
     public void testOccupantZoneStateChanged() throws RemoteException {
         ICarOccupantZoneCallback[] zoneStateCallback = new ICarOccupantZoneCallback[1];
         doAnswer((invocation) -> {
@@ -562,11 +591,9 @@ public class CarRemoteDeviceServiceTest {
         List<OccupantZoneInfo> allZones = Arrays.asList(myZone, peerZone1, peerZone2);
         when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
 
-        UserHandle myUserHandle = Binder.getCallingUserHandle();
-        int myUserId = myUserHandle.getIdentifier();
-        int peerUserId1 = myUserId + 10;
-        int peerUserId2 = myUserId + 11;
-        mockPerUserInfo(myUserId, myZone);
+        int peerUserId1 = mMyUserId + 10;
+        int peerUserId2 = mMyUserId + 11;
+        mockPerUserInfo(mMyUserId, myZone);
         mockPerUserInfo(peerUserId1, peerZone1);
         mockPerUserInfo(peerUserId2, peerZone2);
 
@@ -653,15 +680,14 @@ public class CarRemoteDeviceServiceTest {
 
         assertThat(mPerUserInfoMap.get(USER_ID).zone).isEqualTo(mOccupantZone);
 
-        int userId2 = USER_ID + 10;
-        when(mOccupantZoneService.getUserForOccupant(mOccupantZone.zoneId)).thenReturn(userId2);
-        mockPerUserInfo(userId2, mOccupantZone);
+        when(mOccupantZoneService.getUserForOccupant(mOccupantZone.zoneId)).thenReturn(USER_ID2);
+        mockPerUserInfo(USER_ID2, mOccupantZone);
         // Remove the item added by previous line, then check whether it can be added back
         // after onOccupantZoneConfigChanged().
-        mPerUserInfoMap.remove(userId2);
+        mPerUserInfoMap.remove(USER_ID2);
         callback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
 
-        assertThat(mPerUserInfoMap.get(userId2).zone).isEqualTo(mOccupantZone);
+        assertThat(mPerUserInfoMap.get(USER_ID2).zone).isEqualTo(mOccupantZone);
     }
 
     @Test
@@ -690,9 +716,8 @@ public class CarRemoteDeviceServiceTest {
     @Test
     public void testUnregisterStateCallbackWithoutOtherDiscoverers() {
         // There is only one discoverer.
-        int userId = Binder.getCallingUserHandle().getIdentifier();
-        mockPerUserInfo(userId, mOccupantZone);
-        ClientId discoveringClient = new ClientId(mOccupantZone, userId, PACKAGE_NAME);
+        mockPerUserInfo(mMyUserId, mOccupantZone);
+        ClientId discoveringClient = new ClientId(mOccupantZone, mMyUserId, PACKAGE_NAME);
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
 
         assertThat(mCallbackMap.containsKey(discoveringClient)).isTrue();
@@ -711,15 +736,12 @@ public class CarRemoteDeviceServiceTest {
     @Test
     public void testUnregisterStateCallbackWithOtherDiscoverers() {
         // There are two discoverers.
-        UserHandle userHandle = Binder.getCallingUserHandle();
-        int userId = userHandle.getIdentifier();
-        mockPerUserInfo(userId, mOccupantZone);
+        mockPerUserInfo(mMyUserId, mOccupantZone);
         OccupantZoneInfo zone2 = new OccupantZoneInfo(/* zoneId= */ 1,
                 OCCUPANT_TYPE_FRONT_PASSENGER, SEAT_ROW_1_RIGHT);
-        int userId2 = 456;
-        mockPerUserInfo(userId2, zone2);
-        ClientId discoveringClient = new ClientId(mOccupantZone, userId, PACKAGE_NAME);
-        ClientId discoveringClient2 = new ClientId(zone2, userId2, PACKAGE_NAME);
+        mockPerUserInfo(USER_ID, zone2);
+        ClientId discoveringClient = new ClientId(mOccupantZone, mMyUserId, PACKAGE_NAME);
+        ClientId discoveringClient2 = new ClientId(zone2, USER_ID, PACKAGE_NAME);
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
         IStateCallback callback2 = mock(IStateCallback.class);
         IBinder callbackBinder = mock(IBinder.class);
