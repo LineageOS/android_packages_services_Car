@@ -17,9 +17,11 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.content.Intent;
+import android.os.Build;
 
 /**
  * This class provides the required configuration to create a
@@ -28,7 +30,7 @@ import android.content.Intent;
  */
 @SystemApi
 public final class ControlledRemoteCarTaskViewConfig {
-    private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
+    private static final String TAG = "ControlledRemoteCarTaskView";
 
     final Intent mActivityIntent;
     final boolean mShouldAutoRestartOnTaskRemoval;
