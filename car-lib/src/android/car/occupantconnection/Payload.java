@@ -196,4 +196,23 @@ public final class Payload extends LargeParcelableBase {
     private boolean containsBinder() {
         return mBinder != null;
     }
+
+    // The method needs to be overridden for a CtsSystemApiAnnotationTestCases. Ideally test should
+    // be fixed, but it is an edge case, so these methods are overridden. It is happening because
+    // LargeParcelableBase is hidden class but it implements parcelable and closeable which are
+    // public APIs. So the test is not able to find these methods in payload.java and complains.
+    // More details in b/275738385
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @Override
+    public void close() {
+        super.close();
+    }
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+    }
 }
