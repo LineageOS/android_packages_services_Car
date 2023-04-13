@@ -598,8 +598,10 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
         ALOGW("Failed to tell VHAL the new power policy(%s): %s", policyId.c_str(),
               ret.error().message().c_str());
     }
+    auto accumulatedPolicy = mComponentHandler.getAccumulatedPolicy();
     for (auto client : clients) {
-        ICarPowerPolicyChangeCallback::fromBinder(client.binder)->onPolicyChanged(*policy);
+        ICarPowerPolicyChangeCallback::fromBinder(client.binder)
+                ->onPolicyChanged(*accumulatedPolicy);
     }
     ALOGI("The current power policy is %s", policyId.c_str());
     return {};
