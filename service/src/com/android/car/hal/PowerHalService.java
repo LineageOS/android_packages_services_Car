@@ -702,6 +702,10 @@ public class PowerHalService extends HalServiceBase {
                     listener.onDisplayBrightnessChange(displayId, brightness);
                     break;
                 }
+                default:
+                    Slogf.w(CarLog.TAG_POWER, "Received event with invalid property id: %d",
+                            v.getPropId());
+                    break;
             }
         }
     }

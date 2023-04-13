@@ -16,7 +16,9 @@
 
 package com.android.car.internal.property;
 
+import android.annotation.SuppressLint;
 import android.car.VehiclePropertyIds;
+import android.car.hardware.property.VehicleHalStatusCode.VehicleHalStatusCodeInt;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -50,6 +52,9 @@ public final class CarPropertyHelper {
     private static final int VEHICLE_PROPERTY_GROUP_MASK = 0xf0000000;
     private static final int VEHICLE_PROPERTY_GROUP_VENDOR = 0x20000000;
 
+    private static final int SYSTEM_ERROR_CODE_MASK = 0xffff;
+    private static final int VENDOR_ERROR_CODE_SHIFT = 16;
+
     /*
      * Used to cache the mapping of property Id integer values into property name strings. This
      * will be initialized during the first usage.
@@ -77,6 +82,21 @@ public final class CarPropertyHelper {
     public static String toString(int propertyId) {
         String name = cachePropertyIdsToNameMapping().get(propertyId);
         return name != null ? name : "0x" + Integer.toHexString(propertyId);
+    }
+
+    /**
+     * Returns the system error code contained in the error code returned from VHAL.
+     */
+    @SuppressLint("WrongConstant")
+    public static @VehicleHalStatusCodeInt int getVhalSystemErrorCode(int vhalErrorCode) {
+        return vhalErrorCode & SYSTEM_ERROR_CODE_MASK;
+    }
+
+    /**
+     * Returns the vendor error code contained in the error code returned from VHAL.
+     */
+    public static int getVhalVendorErrorCode(int vhalErrorCode) {
+        return vhalErrorCode >>> VENDOR_ERROR_CODE_SHIFT;
     }
 
     private static SparseArray<String> cachePropertyIdsToNameMapping() {
