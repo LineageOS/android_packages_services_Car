@@ -16,20 +16,39 @@
 
 package com.android.car.portraitlauncher.panel;
 
+import android.annotation.NonNull;
+import android.content.Context;
 import android.graphics.Point;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 /** An OnTouchListener to control the drag events of a TaskViewPanel */
 abstract class OnPanelDragListener implements View.OnTouchListener {
+    private class SingleTapListener extends GestureDetector.SimpleOnGestureListener {
+        @Override
+        public boolean onSingleTapUp(@NonNull MotionEvent e) {
+            onClick();
+            return true;
+        }
+    }
 
-    private Point mDragBeginPoint = new Point();
-    private Point mDragCurrentPoint = new Point();
-    private Point mDragDeltaPoint = new Point();
-    private Point mLastDragDeltaPoint = new Point();
+    private final GestureDetector mGestureDetector;
+    private final Point mDragBeginPoint = new Point();
+    private final Point mDragCurrentPoint = new Point();
+    private final Point mDragDeltaPoint = new Point();
+    private final Point mLastDragDeltaPoint = new Point();
+
+    OnPanelDragListener(Context context) {
+        mGestureDetector = new GestureDetector(context, new SingleTapListener());
+    }
 
     @Override
     public boolean onTouch(View view, MotionEvent event) {
+        // Abandon the rest if gesture detector already detected a gesture.
+        if (mGestureDetector.onTouchEvent(event)) {
+            return true;
+        }
 
         mDragCurrentPoint.set((int) event.getRawX(), (int) event.getRawY());
 
@@ -60,6 +79,7 @@ abstract class OnPanelDragListener implements View.OnTouchListener {
         return true;
     }
 
+    abstract void onClick();
     abstract void onDragBegin();
     abstract void onDrag(int deltaX, int deltaY);
     abstract void onDragEnd(int deltaX, int deltaY);
