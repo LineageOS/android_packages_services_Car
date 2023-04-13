@@ -39,7 +39,6 @@ public class FadeOutPanelAnimator extends PanelAnimator {
     private static final float FADE_OUT_ALPHA = 0;
     private static final float FADE_IN_ALPHA = 1;
 
-    private final View mBackground;
     private final View mOverlay;
     private final View mTaskView;
     private final Rect mBounds;
@@ -48,16 +47,14 @@ public class FadeOutPanelAnimator extends PanelAnimator {
      * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
      *
      * @param panel The panel that should animate
-     * @param background The view shown behind the {@code TaskView}.
      * @param overlay The overlay view that covers the {@code TaskView}. Used to visually fade out
      *                the {@code TaskView}.
      * @param taskView The task view of the panel.
      * @param toBounds The final bounds of the panel within its parent
      */
-    public FadeOutPanelAnimator(ViewGroup panel, View background, View overlay, View taskView,
+    public FadeOutPanelAnimator(ViewGroup panel, View overlay, View taskView,
             Rect toBounds) {
         super(panel);
-        mBackground = background;
         mOverlay = overlay;
         mTaskView = taskView;
         mBounds = toBounds;
@@ -66,7 +63,6 @@ public class FadeOutPanelAnimator extends PanelAnimator {
     @Override
     public void animate(Runnable endAction) {
         updateBounds(mBounds);
-        mBackground.setVisibility(GONE);
         mOverlay.setVisibility(VISIBLE);
         mOverlay.setAlpha(FADE_OUT_ALPHA);
         mOverlay.post(() -> {
@@ -76,7 +72,6 @@ public class FadeOutPanelAnimator extends PanelAnimator {
                     .withEndAction(() -> {
                         mPanel.animate().alpha(FADE_OUT_ALPHA).setDuration(PANEL_FADE_OUT_DURATION)
                                 .withEndAction(() -> {
-                                    mBackground.setVisibility(VISIBLE);
                                     mOverlay.setVisibility(GONE);
                                     mTaskView.setVisibility(VISIBLE);
                                     mTaskView.setAlpha(FADE_IN_ALPHA);
