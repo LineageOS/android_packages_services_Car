@@ -67,13 +67,16 @@ public class TaskViewPanel extends RelativeLayout {
         private final boolean mIsFullScreen;
         /** Whether the panel should display the toolbar. */
         private boolean mHasToolBar;
+        /** Whether the panel should show the background surfaceView. */
+        private boolean mHasBackgroundSurfaceView;
 
         public State(boolean hasGripBar, boolean isVisible, boolean isFullScreen,
-                boolean hasToolBar) {
+                boolean hasToolBar, boolean hasBackgroundSurfaceView) {
             mHasGripBar = hasGripBar;
             mIsVisible = isVisible;
             mIsFullScreen = isFullScreen;
             mHasToolBar = hasToolBar;
+            mHasBackgroundSurfaceView = hasBackgroundSurfaceView;
         }
 
         boolean hasGripBar() {
@@ -82,6 +85,10 @@ public class TaskViewPanel extends RelativeLayout {
 
         boolean hasToolBar() {
             return mHasToolBar;
+        }
+
+        boolean hasBackgroundSurfaceView() {
+            return mHasBackgroundSurfaceView;
         }
 
         /** Whether the panel in this state has any visible parts. */
@@ -199,11 +206,14 @@ public class TaskViewPanel extends RelativeLayout {
         mDragThreshold = (int) getResources().getDimension(R.dimen.panel_drag_threshold);
 
         mOpenState = new State(/* hasGripBar = */ true, /* isVisible = */ true,
-                /* isFullScreen */false, /* hasToolBar = */ false);
+                /* isFullScreen */false, /* hasToolBar = */ false,
+                /* hasBackgroundSurfaceView = */ false);
         mCloseState = new State(/* hasGripBar = */ true, /* isVisible = */ false,
-                /* isFullScreen */false, /* hasToolBar = */ false);
+                /* isFullScreen */false, /* hasToolBar = */ false,
+                /* hasBackgroundSurfaceView = */ false);
         mFullScreenState = new State(/* hasGripBar = */ false, /* isVisible = */ true,
-                /* isFullScreen */true, /* hasToolBar = */ true);
+                /* isFullScreen */true, /* hasToolBar = */ true,
+                /* hasBackgroundSurfaceView = */ true);
     }
 
     @Override
@@ -215,6 +225,7 @@ public class TaskViewPanel extends RelativeLayout {
         mTaskViewContainer = findViewById(R.id.task_view_container);
         mTaskViewOverlay = findViewById(R.id.task_view_overlay);
         mBackgroundSurfaceView = findViewById(R.id.surface_view);
+        mBackgroundSurfaceView.setZOrderOnTop(false);
         setupGrabBar();
         setActiveState(mCloseState, /* animator = */ null);
     }
@@ -275,8 +286,7 @@ public class TaskViewPanel extends RelativeLayout {
     /** Transitions the panel into the close state using the fade-out animation. */
     public void fadeOutPanel() {
         PanelAnimator animator =
-                new FadeOutPanelAnimator(this, mBackgroundSurfaceView, mTaskViewOverlay,
-                        mTaskView, mOpenState.mBounds);
+                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mOpenState.mBounds);
         setActiveState(mCloseState, animator);
     }
 
@@ -350,37 +360,31 @@ public class TaskViewPanel extends RelativeLayout {
     @SuppressLint("ClickableViewAccessibility")
     private void setupGrabBar() {
         mGripBarHeight = (int) getResources().getDimension(R.dimen.panel_grip_bar_height);
-        mGripBar.setOnTouchListener(new OnPanelDragListener() {
-            private boolean mIsEnabled = true;
+        mGripBar.setOnTouchListener(new OnPanelDragListener(getContext()) {
+            @Override void onClick() {
+                closePanel();
+            }
 
             @Override
             public void onDragBegin() {
-                mIsEnabled = true;
             }
 
             @Override
             public void onDrag(int deltaX, int deltaY) {
-                if (!mIsEnabled) {
-                    return;
-                }
                 deltaY = Math.max(0, deltaY);
-                // Close the panel and disable the drag as soon as we cross the threshold.
-                if (deltaY > mDragThreshold) {
-                    mIsEnabled = false;
-                    closePanel();
-                } else {
-                    Rect rect = new Rect(mActiveState.mBounds);
-                    rect.offset(/* dx= */ 0, deltaY);
-                    updateBounds(rect);
-                }
+                Rect rect = new Rect(mActiveState.mBounds);
+                rect.offset(/* dx= */ 0, deltaY);
+                updateBounds(rect);
             }
 
             @Override
             public void onDragEnd(int deltaX, int deltaY) {
-                if (!mIsEnabled) {
-                    return;
+                deltaY = Math.max(0, deltaY);
+                if (deltaY > mDragThreshold) {
+                    closePanel();
+                } else {
+                    openPanel();
                 }
-                openPanel();
             }
         });
     }
@@ -490,7 +494,8 @@ public class TaskViewPanel extends RelativeLayout {
                 animator.animate(() -> {
                             mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
                             mToolBarView.setVisibility(toState.hasToolBar() ? VISIBLE : GONE);
-
+                            mBackgroundSurfaceView.setVisibility(
+                                    toState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
                             updateBounds(mActiveState.mBounds);
                             onStateChangeEnd(fromState, toState, /* animated= */ true);
                         }
@@ -500,6 +505,8 @@ public class TaskViewPanel extends RelativeLayout {
         } else {
             mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
             mToolBarView.setVisibility(toState.hasToolBar()  ? VISIBLE : GONE);
+            mBackgroundSurfaceView.setVisibility(
+                    toState.hasBackgroundSurfaceView() ? VISIBLE : GONE);
             updateBounds(mActiveState.mBounds);
             onStateChangeEnd(fromState, toState, /* animated= */ false);
         }
