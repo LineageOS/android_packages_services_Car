@@ -166,34 +166,66 @@ public final class GenerateAPI {
             }
 
             if (args.length > 0 && args[0].equalsIgnoreCase(UPDATE_HIDDEN_API_FOR_TEST)) {
-                List<String> allCarAPIs = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
-                                    includeConstructors));
+                if (USE_NEW_IMPLEMENTATION) {
+                    if (includeConstructors) {
+                        writeListToFile(rootDir + CAR_HIDDEN_API_FILE,
+                                ParsedDataHelper
+                                        .getHiddenApisWithHiddenConstructor(parsedDataCarLib));
+                    } else {
+                        writeListToFile(rootDir + CAR_HIDDEN_API_FILE,
+                                ParsedDataHelper.getHiddenApisOnly(parsedDataCarLib));
+                    }
+                } else {
+                    List<String> allCarAPIs = new ArrayList<>();
+                    for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                        allCarAPIs.addAll(
+                                parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
+                                        includeConstructors));
+                    }
+                    writeListToFile(rootDir + CAR_HIDDEN_API_FILE, allCarAPIs);
                 }
-                writeListToFile(rootDir + CAR_HIDDEN_API_FILE, allCarAPIs);
                 return;
             }
 
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_HIDDEN_API_FOR_TEST)) {
-                List<String> allCarAPIs = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    allCarAPIs.addAll(parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
-                            includeConstructors));
+                if (USE_NEW_IMPLEMENTATION) {
+                    if (includeConstructors) {
+                        ParsedDataHelper.getHiddenApisWithHiddenConstructor(parsedDataCarLib)
+                                .forEach((string) -> System.out.println(string));
+                    } else {
+                        ParsedDataHelper.getHiddenApisOnly(parsedDataCarLib)
+                                .forEach((string) -> System.out.println(string));
+                    }
+                } else {
+                    List<String> allCarAPIs = new ArrayList<>();
+                    for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                        allCarAPIs
+                                .addAll(parseJavaFile(allJavaFiles_carLib.get(i), PRINT_HIDDEN_ONLY,
+                                        includeConstructors));
+                    }
+                    print(allCarAPIs);
                 }
-                print(allCarAPIs);
                 return;
             }
 
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_SHORTFORM_FULL_API_FOR_TEST)) {
-                List<String> allCarAPIs = new ArrayList<>();
-                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
-                    allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i), PRINT_SHORT,
-                                    includeConstructors));
+                if (USE_NEW_IMPLEMENTATION) {
+                    if (includeConstructors) {
+                        ParsedDataHelper.getAllApisWithConstructor(parsedDataCarLib)
+                                .forEach((string) -> System.out.println(string));
+                    } else {
+                        ParsedDataHelper.getAllApis(parsedDataCarLib)
+                                .forEach((string) -> System.out.println(string));
+                    }
+                } else {
+                    List<String> allCarAPIs = new ArrayList<>();
+                    for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                        allCarAPIs.addAll(
+                                parseJavaFile(allJavaFiles_carLib.get(i), PRINT_SHORT,
+                                        includeConstructors));
+                    }
+                    print(allCarAPIs);
                 }
-                print(allCarAPIs);
                 return;
             }
 
