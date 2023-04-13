@@ -115,7 +115,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     }
 
     @Override
-    public final void writeToParcel(@NonNull Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         int startPosition = dest.dataPosition();
         SharedMemory sharedMemory;
         synchronized (mLock) {

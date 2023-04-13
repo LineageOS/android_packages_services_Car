@@ -1745,7 +1745,7 @@ package android.car.occupantconnection {
     method @Nullable public byte[] getBytes();
     method public void serialize(@NonNull android.os.Parcel, int);
     method public void serializeNullPayload(@NonNull android.os.Parcel);
-    method public final void writeToParcel(@NonNull android.os.Parcel, int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.occupantconnection.Payload> CREATOR;
   }
 
