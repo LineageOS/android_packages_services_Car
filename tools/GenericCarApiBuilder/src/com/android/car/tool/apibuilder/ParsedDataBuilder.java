@@ -82,7 +82,8 @@ public final class ParsedDataBuilder {
 
                     constructorData.annotationData = getAnnotationData(
                             constructor.getAnnotations());
-                    classData.constructors.put(constructorData.constructorName, constructorData);
+                    classData.constructors.put(constructorData.fullConstructorName,
+                            constructorData);
                 }
 
                 // update field info
@@ -368,8 +369,9 @@ public final class ParsedDataBuilder {
             isHidden = constructor.getJavadoc().get().toText().contains("@hide");
         }
 
-        ConstructorData constructorData = new ConstructorData(parametersString.toString());
+        ConstructorData constructorData = new ConstructorData(constructorName);
         constructorData.isHidden = isHidden;
+        constructorData.fullConstructorName = parametersString.toString();
 
         return constructorData;
     }
