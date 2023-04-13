@@ -59,6 +59,10 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE =
             "INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE";
 
+    // key name for the intent's extra that tells the notification's visibility status
+    public static final String INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE =
+            "INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE";
+
     // key name for the intent's extra that tells if suw is in progress
     public static final String INTENT_EXTRA_SUW_IN_PROGRESS =
             "INTENT_EXTRA_SUW_IN_PROGRESS";
@@ -125,6 +129,11 @@ public class CarUiPortraitService extends Service {
      */
     public static final int MSG_SYSUI_STARTED = 9;
 
+    /**
+     * Command to service to set a new value for notifications visibility.
+     */
+    public static final int MSG_NOTIFICATIONS_VISIBILITY_CHANGE = 10;
+
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
     private BroadcastReceiver mImmersiveModeChangeReceiver;
@@ -152,6 +161,12 @@ public class CarUiPortraitService extends Service {
                     intent.putExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE,
                             intToBoolean(msg.arg1));
                     CarUiPortraitService.this.sendBroadcast(intent);
+                    break;
+                case MSG_NOTIFICATIONS_VISIBILITY_CHANGE:
+                    Intent notificationIntent = new Intent(REQUEST_FROM_LAUNCHER);
+                    notificationIntent.putExtra(INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE,
+                            intToBoolean(msg.arg1));
+                    CarUiPortraitService.this.sendBroadcast(notificationIntent);
                     break;
                 case MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE:
                     int val = msg.arg1;

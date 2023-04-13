@@ -17,6 +17,7 @@
 package com.android.systemui.car.systembar;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
 
 import android.content.BroadcastReceiver;
@@ -28,6 +29,7 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
 
     private CarUiPortraitButtonSelectionStateController mPortraitButtonStateController;
     private boolean mIsAppGridVisible;
+    private boolean mIsNotificationVisible;
 
     CarUiPortraitButtonSelectionStateListener(Context context,
             ButtonSelectionStateController carSystemButtonController) {
@@ -41,11 +43,18 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
         BroadcastReceiver displayAreaVisibilityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (intent.hasExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE)
-                        && mPortraitButtonStateController != null) {
+                if (mPortraitButtonStateController == null) {
+                    return;
+                }
+                if (intent.hasExtra(INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE)) {
                     mIsAppGridVisible = intent.getBooleanExtra(
                             INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE, false);
                     mPortraitButtonStateController.setAppGridButtonSelected(mIsAppGridVisible);
+                } else if (intent.hasExtra(INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE)) {
+                    mIsNotificationVisible = intent.getBooleanExtra(
+                            INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE, false);
+                    mPortraitButtonStateController.setNotificationButtonSelected(
+                            mIsNotificationVisible);
                 }
             }
         };
