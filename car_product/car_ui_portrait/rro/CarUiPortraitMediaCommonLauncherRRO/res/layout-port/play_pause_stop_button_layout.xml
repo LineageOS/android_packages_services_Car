@@ -32,7 +32,7 @@
         android:layout_gravity="center"
         android:padding="@dimen/circular_progress_bar_padding"
         android:indeterminateDrawable="@drawable/music_buffering"
-        android:indeterminateTint="@color/fab_spinner_indeterminate_color"
+        android:indeterminateTint="@color/car_on_primary"
         android:progressDrawable="@drawable/circular_progress_bar"
         android:progressTint="@color/minimized_progress_bar_highlight"
         android:progressBackgroundTint="@color/minimized_progress_bar_background"

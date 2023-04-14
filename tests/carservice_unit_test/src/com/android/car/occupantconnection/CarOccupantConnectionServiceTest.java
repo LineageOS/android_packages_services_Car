@@ -76,6 +76,8 @@ public final class CarOccupantConnectionServiceTest {
     private static final String PACKAGE_NAME = "my_package_name";
     private static final String FAKE_PACKAGE_NAME = "fake_package_name";
     private static final String RECEIVER_ENDPOINT_ID = "test_receiver_endpoint";
+    private static final int USER_ID = 123;
+    private static final int RECEIVER_USER_ID = 456;
 
     @Mock
     private Context mContext;
@@ -502,10 +504,9 @@ public final class CarOccupantConnectionServiceTest {
         UserHandle senderUserHandle = Binder.getCallingUserHandle();
         when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
                 .thenReturn(mSenderZone);
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+                .thenReturn(RECEIVER_USER_ID);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
         IBinder binder = mock(IBinder.class);
         IBackendReceiver receiverService = mock(IBackendReceiver.class);
         when(receiverService.asBinder()).thenReturn(binder);
@@ -534,12 +535,11 @@ public final class CarOccupantConnectionServiceTest {
         UserHandle senderUserHandle = Binder.getCallingUserHandle();
         when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
                 .thenReturn(mSenderZone);
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
+                .thenReturn(RECEIVER_USER_ID);
         ClientId senderClient =
                 new ClientId(mSenderZone, senderUserHandle.getIdentifier(), PACKAGE_NAME);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
 
         IConnectionRequestCallback callback = mock(IConnectionRequestCallback.class);
@@ -559,12 +559,11 @@ public final class CarOccupantConnectionServiceTest {
         UserHandle senderUserHandle = Binder.getCallingUserHandle();
         when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
                 .thenReturn(mSenderZone);
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
+                .thenReturn(RECEIVER_USER_ID);
         ClientId senderClient =
                 new ClientId(mSenderZone, senderUserHandle.getIdentifier(), PACKAGE_NAME);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
 
         IConnectionRequestCallback callback = mock(IConnectionRequestCallback.class);
@@ -594,11 +593,9 @@ public final class CarOccupantConnectionServiceTest {
 
     @Test
     public void testCancelConnection() throws RemoteException {
-        // TODO(b/272196149): make receiverUserId constant.
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+                .thenReturn(RECEIVER_USER_ID);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
 
         UserHandle senderUserHandle = Binder.getCallingUserHandle();
         when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle))
@@ -676,7 +673,7 @@ public final class CarOccupantConnectionServiceTest {
         ClientId receiverClient = mService.getCallingClientId(PACKAGE_NAME);
         ReceiverEndpointId receiverEndpoint =
                 new ReceiverEndpointId(receiverClient, RECEIVER_ENDPOINT_ID);
-        ClientId senderClient = new ClientId(mSenderZone, /* userId= */ 123, PACKAGE_NAME);
+        ClientId senderClient = new ClientId(mSenderZone, USER_ID, PACKAGE_NAME);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         ConnectionRecord connectionRecord =
                 new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
@@ -752,10 +749,9 @@ public final class CarOccupantConnectionServiceTest {
         // It is connected.
         mEstablishedConnections.add(connectionRecord);
 
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+                .thenReturn(RECEIVER_USER_ID);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
         IBinder binder = mock(IBinder.class);
         IBackendReceiver receiverService = mock(IBackendReceiver.class);
         when(receiverService.asBinder()).thenReturn(binder);
@@ -823,10 +819,9 @@ public final class CarOccupantConnectionServiceTest {
         mEstablishedConnections.add(connectionRecord);
 
         ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
-        int receiverUserId = 456;
         when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
-                .thenReturn(receiverUserId);
-        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+                .thenReturn(RECEIVER_USER_ID);
+        ClientId receiverClient = new ClientId(mReceiverZone, RECEIVER_USER_ID, PACKAGE_NAME);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         mAcceptedConnectionRequestMap.put(connectionId, mConnectionRequestCallback);
 
