@@ -16,6 +16,8 @@
 
 package com.android.systemui.car.displayarea;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE;
@@ -25,6 +27,9 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_SYSTEM_UI;
 
 import android.app.ActivityManager;
+import android.car.Car;
+import android.car.user.CarUserManager;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -36,6 +41,8 @@ import android.os.Build;
 import android.os.UserHandle;
 import android.util.Log;
 import android.window.DisplayAreaOrganizer;
+
+import androidx.annotation.NonNull;
 
 import com.android.systemui.R;
 import com.android.systemui.car.CarDeviceProvisionedController;
@@ -72,7 +79,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     private boolean mUserSetupInProgress;
     private boolean mIsImmersive;
+    private boolean mIsLauncherReady;
     private AlohaViewController mAlohaViewController;
+    private CarUserManager mCarUserManager;
 
     private final CarUiPortraitDisplaySystemBarsController.Callback
             mCarUiPortraitDisplaySystemBarsControllerCallback =
@@ -125,7 +134,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     if (mUserSetupInProgress) {
                         mCarFullScreenTouchHandler.enable(false);
                         mAlohaViewController.stop();
-                    } else {
+                    } else if (!mIsLauncherReady) {
                         mAlohaViewController.start();
                     }
 
@@ -164,6 +173,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             public void onReceive(Context context, Intent intent) {
                 if (intent.hasExtra(INTENT_EXTRA_LAUNCHER_READY)) {
                     mAlohaViewController.stop();
+                    mIsLauncherReady = true;
                 }
             }
         };
@@ -176,6 +186,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     mCarUiPortraitDisplaySystemBarsControllerCallback);
             commandQueue.addCallback(this);
         }
+
+        setOnUserSwitchListener();
     }
 
     @Override
@@ -235,5 +247,30 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         };
         mApplicationContext.registerReceiverForAllUsers(immersiveModeChangeReceiver,
                 new IntentFilter(REQUEST_FROM_LAUNCHER), null, null, Context.RECEIVER_EXPORTED);
+    }
+
+    private void setOnUserSwitchListener() {
+        mCarServiceProvider.addListener(new CarServiceProvider.CarServiceOnConnectedListener() {
+            @Override
+            public void onConnected(Car car) {
+                mCarUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+                UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+                mCarUserManager.addListener(mApplicationContext.getMainExecutor(), filter,
+                        new CarUserManager.UserLifecycleListener() {
+                            @Override
+                            public void onEvent(@NonNull CarUserManager.UserLifecycleEvent event) {
+                                logIfDebuggable(
+                                        "UserLifecycleListener.onEvent: For User received an event "
+                                                + event);
+                                // TaskViewManager#release is called on this event
+                                if (event.getEventType() == USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
+                                    mIsLauncherReady = false;
+                                    mAlohaViewController.start();
+                                }
+                            }
+                        });
+            }
+        });
     }
 }
