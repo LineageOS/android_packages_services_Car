@@ -128,6 +128,45 @@ public final class ParsedDataHelper {
         return allApis;
     }
 
+    public static List<String> getApisWithVersion(ParsedData parsedData) {
+        List<String> apisWithVersion = new ArrayList<>();
+
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.fields.values().forEach(
+                        (field) -> {
+                            String minCarVersion = "";
+                            if (field.annotationData.hasAddedInAnnotation) {
+                                minCarVersion = field.annotationData.addedInPlatformVersion;
+                            } else if (field.annotationData.hasAddedInOrBefore) {
+                                minCarVersion =
+                                        "TIRAMISU_" + field.annotationData.addedInPlatformVersion;
+                            } else {
+                                minCarVersion = field.annotationData.minCarVersion;
+                            }
+                            apisWithVersion.add(
+                                    formatFieldString(packageData, classData, field) + " | "
+                                            + minCarVersion);
+                        })));
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.methods.values().forEach(
+                        (method) -> {
+                            String minCarVersion = "";
+                            if (method.annotationData.hasAddedInAnnotation) {
+                                minCarVersion = method.annotationData.addedInPlatformVersion;
+                            } else if (method.annotationData.hasAddedInOrBefore) {
+                                minCarVersion =
+                                        "TIRAMISU_" + method.annotationData.addedInPlatformVersion;
+                            } else {
+                                minCarVersion = method.annotationData.minCarVersion;
+                            }
+                            apisWithVersion.add(
+                                    formatMethodString(packageData, classData, method) + " | "
+                                            + minCarVersion);
+                        })));
+
+        return apisWithVersion;
+    }
+
     private static String formatMethodString(PackageData packageData, ClassData classData,
             MethodData method) {
         return packageData.packageName + " "
