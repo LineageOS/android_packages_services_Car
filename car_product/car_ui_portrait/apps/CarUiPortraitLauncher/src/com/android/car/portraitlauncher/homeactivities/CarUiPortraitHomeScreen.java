@@ -24,6 +24,7 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_NOTIFICATIONS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
@@ -152,6 +153,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mNavBarHeight;
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
+    private boolean mIsNotificationCenterOnTop;
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
@@ -222,6 +224,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
                 return;
             }
+
+            mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
 
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes an reveals
@@ -738,9 +742,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             public void onStateChangeStart(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
                 boolean isVisible = newState.isVisible();
-                if (isVisible) {
-                    notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(isVisible));
-                }
+                notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(isVisible));
             }
 
             @Override
@@ -748,11 +750,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 updateObscuredTouchRegion();
                 updateBackgroundTaskViewInsets();
-
-                boolean isVisible = newState.isVisible();
-                if (!isVisible) {
-                    notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(isVisible));
-                }
             }
         });
     }
@@ -794,6 +791,20 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     }
                 } else {
                     setControlBarVisibility(/* isVisible= */ true, animated);
+                }
+
+                boolean isVisible = newState.isVisible();
+                // Deselect the app grid button as soon as we know the root task view panel will
+                // be shown on top.
+                if (isVisible) {
+                    notifySystemUI(MSG_APP_GRID_VISIBILITY_CHANGE, boolToInt(false));
+                }
+
+                // Update the notification button's selection state.
+                if (mIsNotificationCenterOnTop && isVisible) {
+                    notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(true));
+                } else {
+                    notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(false));
                 }
             }
 
