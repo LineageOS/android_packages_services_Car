@@ -45,6 +45,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -86,23 +87,28 @@ public final class CarRemoteAccessServiceUnitTest {
 
     private static final String TAG = CarRemoteAccessServiceUnitTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 5000;
-    private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 2000;
+    private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 5000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
     private static final String TEST_VEHICLE_ID = "test_vehicle";
     private static final String TEST_PROCESSOR_ID = "test_processor";
     private static final String PERMISSION_NOT_GRANTED_PACKAGE = "life.is.beautiful";
     private static final String PERMISSION_GRANTED_PACKAGE_ONE = "we.are.the.world";
     private static final String PERMISSION_GRANTED_PACKAGE_TWO = "android.automotive.os";
+    private static final int UID_PERMISSION_NOT_GRANTED_PACKAGE = 1;
+    private static final int UID_PERMISSION_GRANTED_PACKAGE_ONE = 2;
+    private static final int UID_PERMISSION_GRANTED_PACKAGE_TWO = 3;
     private static final String CLASS_NAME_ONE = "Hello";
     private static final String CLASS_NAME_TWO = "Best";
     private static final List<PackagePrepForTest> AVAILABLE_PACKAGES = List.of(
             createPackagePrepForTest(PERMISSION_NOT_GRANTED_PACKAGE, "Happy",
-                    /* permissionGranted= */ false),
+                    /* permissionGranted= */ false,
+                    UID_PERMISSION_NOT_GRANTED_PACKAGE),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_ONE,
-                    CLASS_NAME_ONE, /* permissionGranted= */ true),
+                    CLASS_NAME_ONE, /* permissionGranted= */ true,
+                    UID_PERMISSION_GRANTED_PACKAGE_ONE),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
-                    CLASS_NAME_TWO, /* permissionGranted= */ true),
-            createPackagePrepForTest("com.abc.xyz", CLASS_NAME_ONE, /* permissionGranted= */ true)
+                    CLASS_NAME_TWO, /* permissionGranted= */ true,
+                    UID_PERMISSION_GRANTED_PACKAGE_TWO)
     );
     private static final List<ClientIdEntry> PERSISTENT_CLIENTS = List.of(
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
@@ -122,6 +128,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Mock private SystemInterface mSystemInterface;
     @Mock private CarPowerManagementService mCarPowerManagementService;
     @Mock private PowerHalService mPowerHalService;
+    @Mock private CarRemoteAccessService.CarRemoteAccessServiceDep mDep;
 
     @Before
     public void setUp() {
@@ -148,10 +155,18 @@ public final class CarRemoteAccessServiceUnitTest {
         mockPackageInfo();
         setVehicleInUse(/* inUse= */ false);
 
+        when(mPackageManager.getNameForUid(UID_PERMISSION_NOT_GRANTED_PACKAGE)).thenReturn(
+                PERMISSION_NOT_GRANTED_PACKAGE);
+        when(mPackageManager.getNameForUid(UID_PERMISSION_GRANTED_PACKAGE_ONE)).thenReturn(
+                PERMISSION_GRANTED_PACKAGE_ONE);
+        when(mPackageManager.getNameForUid(UID_PERMISSION_GRANTED_PACKAGE_TWO)).thenReturn(
+                PERMISSION_GRANTED_PACKAGE_TWO);
+
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
         mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService,
-                mRemoteAccessHal, mRemoteAccessStorage, ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
+                mDep, mRemoteAccessHal, mRemoteAccessStorage,
+                ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
     }
 
     @After
@@ -211,8 +226,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient() throws Exception {
-        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         mService.init();
 
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -226,8 +240,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient_addTwice() throws Exception {
-        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
         mService.init();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -243,10 +256,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient_addMultipleClients() throws Exception {
-        String packageNameOne = PERMISSION_GRANTED_PACKAGE_ONE;
-        String packageNameTwo = PERMISSION_GRANTED_PACKAGE_TWO;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageNameOne)
-                .thenReturn(packageNameTwo);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE)
+                .thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
         mService.init();
 
@@ -263,9 +274,10 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testAddCarRemoteTaskClient_persistentClientId() throws Exception {
-        String packageName = PERSISTENT_CLIENTS.get(0).packageName;
+        String packageName = PERSISTENT_CLIENTS.get(0).uidName;
         String expectedClientId = PERSISTENT_CLIENTS.get(0).clientId;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(1234);
+        when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
         setupDatabase();
         mService.init();
 
@@ -280,8 +292,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoveCarRemoteTaskClient() throws Exception {
-        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         mService.init();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
 
@@ -338,9 +349,10 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoteTaskRequested_persistentClientRegisteredAfterRequest() throws Exception {
-        String packageName = PERSISTENT_CLIENTS.get(0).packageName;
+        String packageName = PERSISTENT_CLIENTS.get(0).uidName;
         String clientId = PERSISTENT_CLIENTS.get(0).clientId;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(1234);
+        when(mPackageManager.getNameForUid(1234)).thenReturn(packageName);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         setupDatabase();
         mService.init();
@@ -355,10 +367,8 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testRemoteTaskRequested_withTwoClientsRegistered() throws Exception {
-        String packageNameOne = PERMISSION_GRANTED_PACKAGE_ONE;
-        String packageNameTwo = PERMISSION_GRANTED_PACKAGE_TWO;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageNameOne)
-                .thenReturn(packageNameTwo);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE)
+                .thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
         mService.init();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -537,8 +547,7 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     private RemoteAccessHalCallback prepareCarRemoteTastClient() throws Exception {
-        String packageName = PERMISSION_GRANTED_PACKAGE_ONE;
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(packageName);
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
         PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
@@ -577,12 +586,14 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     private static PackagePrepForTest createPackagePrepForTest(String packageName, String className,
-            boolean permissionGranted) {
+            boolean permissionGranted, int uid) {
         PackagePrepForTest packagePrep = new PackagePrepForTest();
         packagePrep.resolveInfo = new ResolveInfo();
         packagePrep.resolveInfo.serviceInfo = new ServiceInfo();
         packagePrep.resolveInfo.serviceInfo.packageName = packageName;
         packagePrep.resolveInfo.serviceInfo.name = className;
+        packagePrep.resolveInfo.serviceInfo.applicationInfo = new ApplicationInfo();
+        packagePrep.resolveInfo.serviceInfo.applicationInfo.uid = uid;
         packagePrep.permissionGranted = permissionGranted;
         return packagePrep;
     }
