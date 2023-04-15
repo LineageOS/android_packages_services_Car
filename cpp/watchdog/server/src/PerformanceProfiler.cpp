@@ -35,8 +35,14 @@
 namespace android {
 namespace automotive {
 namespace watchdog {
-
+using ::aidl::android::automotive::watchdog::PerStateBytes;
+using ::aidl::android::automotive::watchdog::internal::PackageIdentifier;
+using ::aidl::android::automotive::watchdog::internal::ProcessCpuUsageStats;
 using ::aidl::android::automotive::watchdog::internal::ResourceStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceUsageStats;
+using ::aidl::android::automotive::watchdog::internal::SystemSummaryUsageStats;
+using ::aidl::android::automotive::watchdog::internal::UidIoUsageStats;
+using ::aidl::android::automotive::watchdog::internal::UidResourceUsageStats;
 using ::android::wp;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -140,6 +146,105 @@ Result<void> checkDataCollectors(const sp<UidStatsCollectorInterface>& uidStatsC
                       "Proc stats collector must not be null");
     }
     return Error() << "Invalid data collectors: " << error;
+}
+
+// Calculates the milliseconds since the UID started.
+int64_t calculateUidUptimeMillis(int64_t elapsedTimeSinceBootMillis,
+                                 const UidProcStats& procStats) {
+    int64_t earliestProcStartTimeMillis = std::numeric_limits<int64_t>::max();
+    for (auto [_, processStats] : procStats.processStatsByPid) {
+        if (processStats.startTimeMillis < earliestProcStartTimeMillis) {
+            earliestProcStartTimeMillis = processStats.startTimeMillis;
+        }
+    }
+    return elapsedTimeSinceBootMillis - earliestProcStartTimeMillis;
+}
+
+UidResourceUsageStats constructUidResourceUsageStats(
+        PackageIdentifier packageIdentifier, int64_t uidUptimeMillis, int64_t totalCpuTimeMillis,
+        bool isGarageModeActive, const UserPackageStats::ProcCpuStatsView& procCpuStatsView,
+        const UserPackageStats::IoStatsView& ioReadsStatsView,
+        const UserPackageStats::IoStatsView& ioWritesStatsView) {
+    std::vector<ProcessCpuUsageStats> processCpuUsageStats;
+    processCpuUsageStats.reserve(procCpuStatsView.topNProcesses.size());
+    for (const auto& processCpuValue : procCpuStatsView.topNProcesses) {
+        processCpuUsageStats.push_back({
+                .pid = processCpuValue.pid,
+                .name = processCpuValue.comm,
+                .cpuTimeMillis = static_cast<int64_t>(processCpuValue.cpuTime),
+                .cpuCycles = static_cast<int64_t>(processCpuValue.cpuCycles),
+        });
+    }
+
+    UidIoUsageStats ioUsageStats = {};
+    if (isGarageModeActive) {
+        ioUsageStats.readBytes.garageModeBytes = ioReadsStatsView.totalBytes();
+        ioUsageStats.writtenBytes.garageModeBytes = ioWritesStatsView.totalBytes();
+    } else {
+        ioUsageStats.readBytes.foregroundBytes = ioReadsStatsView.bytes[UidState::FOREGROUND];
+        ioUsageStats.readBytes.backgroundBytes = ioReadsStatsView.bytes[UidState::BACKGROUND];
+        ioUsageStats.writtenBytes.foregroundBytes = ioWritesStatsView.bytes[UidState::FOREGROUND];
+        ioUsageStats.writtenBytes.backgroundBytes = ioWritesStatsView.bytes[UidState::BACKGROUND];
+    }
+
+    int64_t cpuTimeMillis = static_cast<int64_t>(procCpuStatsView.cpuTime);
+    // clang-format off
+    return UidResourceUsageStats{
+            .packageIdentifier = std::move(packageIdentifier),
+            .uidUptimeMillis = uidUptimeMillis,
+            .cpuUsageStats = {
+                    .cpuTimeMillis = cpuTimeMillis,
+                    .cpuCycles = static_cast<int64_t>(procCpuStatsView.cpuCycles),
+                    .cpuTimePercentage = percentage(cpuTimeMillis, totalCpuTimeMillis),
+            },
+            .processCpuUsageStats = std::move(processCpuUsageStats),
+            .ioUsageStats = ioUsageStats,
+    };
+    // clang-format on
+}
+
+SystemSummaryUsageStats constructSystemSummaryUsageStats(
+        bool isGarageModeActive, const SystemSummaryStats& systemStats,
+        const UserPackageSummaryStats& userPackageStats) {
+    const auto sum = [](int64_t lhs, int64_t rhs) -> int64_t {
+        return std::numeric_limits<int64_t>::max() - lhs > rhs
+                ? lhs + rhs
+                : std::numeric_limits<int64_t>::max();
+    };
+
+    PerStateBytes totalIoReads = {};
+    PerStateBytes totalIoWrites = {};
+    if (isGarageModeActive) {
+        totalIoReads.garageModeBytes =
+                sum(userPackageStats.totalIoStats[MetricType::READ_BYTES][UidState::FOREGROUND],
+                    userPackageStats.totalIoStats[MetricType::READ_BYTES][UidState::BACKGROUND]);
+        totalIoWrites.garageModeBytes =
+                sum(userPackageStats.totalIoStats[MetricType::WRITE_BYTES][UidState::FOREGROUND],
+                    userPackageStats.totalIoStats[MetricType::WRITE_BYTES][UidState::BACKGROUND]);
+    } else {
+        totalIoReads.foregroundBytes =
+                userPackageStats.totalIoStats[MetricType::READ_BYTES][UidState::FOREGROUND];
+        totalIoReads.backgroundBytes =
+                userPackageStats.totalIoStats[MetricType::READ_BYTES][UidState::BACKGROUND];
+        totalIoWrites.foregroundBytes =
+                userPackageStats.totalIoStats[MetricType::WRITE_BYTES][UidState::FOREGROUND];
+        totalIoWrites.backgroundBytes =
+                userPackageStats.totalIoStats[MetricType::WRITE_BYTES][UidState::BACKGROUND];
+    }
+
+    return SystemSummaryUsageStats{
+            // Currently total CPU cycles derive from thread level CPU stats,
+            // hence they don't include idle information.
+            .cpuNonIdleCycles = static_cast<int64_t>(systemStats.totalCpuCycles),
+            .cpuNonIdleTimeMillis = systemStats.totalCpuTimeMillis - systemStats.cpuIdleTimeMillis,
+            .cpuIdleTimeMillis = systemStats.cpuIdleTimeMillis,
+            .contextSwitchesCount = static_cast<int64_t>(systemStats.contextSwitchesCount),
+            .ioBlockedProcessCount = static_cast<int32_t>(systemStats.ioBlockedProcessCount),
+            .totalProcessCount = static_cast<int32_t>(systemStats.totalProcessCount),
+            .totalMajorPageFaults = static_cast<int32_t>(userPackageStats.totalMajorFaults),
+            .totalIoReads = totalIoReads,
+            .totalIoWrites = totalIoWrites,
+    };
 }
 
 }  // namespace
@@ -271,7 +376,7 @@ void UserPackageStats::cacheTopNProcessCpuStats(
         const UidStats& uidStats, int topNProcessCount,
         std::vector<UserPackageStats::ProcCpuStatsView::ProcessCpuValue>* topNProcesses) {
     int cachedProcessCount = 0;
-    for (const auto& [_, processStats] : uidStats.procStats.processStatsByPid) {
+    for (const auto& [pid, processStats] : uidStats.procStats.processStatsByPid) {
         uint64_t cpuTime = processStats.cpuTimeMillis;
         if (cpuTime == 0) {
             continue;
@@ -280,6 +385,7 @@ void UserPackageStats::cacheTopNProcessCpuStats(
             if (cpuTime > it->cpuTime) {
                 topNProcesses->insert(it,
                                       UserPackageStats::ProcCpuStatsView::ProcessCpuValue{
+                                              .pid = pid,
                                               .comm = processStats.comm,
                                               .cpuTime = cpuTime,
                                               .cpuCycles = processStats.totalCpuCycles,
@@ -584,26 +690,28 @@ Result<void> PerformanceProfiler::onCustomCollection(
                          procStatCollectorSp, &mCustomCollection, resourceStats);
 }
 
-// TODO(b/266008677): Use the systemState variable to correctly attribute the mode of the I/O
-// usage stats when collecting the resource usage stats.
 Result<void> PerformanceProfiler::processLocked(
-        time_t time, [[maybe_unused]] SystemState systemState,
-        const std::unordered_set<std::string>& filterPackages,
+        time_t time, SystemState systemState, const std::unordered_set<std::string>& filterPackages,
         const sp<UidStatsCollectorInterface>& uidStatsCollector,
         const sp<ProcStatCollectorInterface>& procStatCollector, CollectionInfo* collectionInfo,
-        [[maybe_unused]] ResourceStats* resourceStats) {
+        ResourceStats* resourceStats) {
     if (collectionInfo->maxCacheSize == 0) {
         return Error() << "Maximum cache size cannot be 0";
     }
     PerfStatsRecord record{
             .time = time,
     };
-    processUidStatsLocked(filterPackages, uidStatsCollector, &record.userPackageSummaryStats);
+    bool isGarageModeActive = systemState == SystemState::GARAGE_MODE;
+    bool shouldSendResourceUsageStats = mDoSendResourceUsageStats && (resourceStats != nullptr);
+    std::vector<UidResourceUsageStats>* uidResourceUsageStats =
+            shouldSendResourceUsageStats ? new std::vector<UidResourceUsageStats>() : nullptr;
     processProcStatLocked(procStatCollector, &record.systemSummaryStats);
     // The system-wide CPU time should be the same as CPU time aggregated here across all UID, so
     // reuse the total CPU time from SystemSummaryStat
-    record.userPackageSummaryStats.totalCpuTimeMillis =
-            record.systemSummaryStats.totalCpuTimeMillis;
+    int64_t totalCpuTimeMillis = record.systemSummaryStats.totalCpuTimeMillis;
+    record.userPackageSummaryStats.totalCpuTimeMillis = totalCpuTimeMillis;
+    processUidStatsLocked(isGarageModeActive, totalCpuTimeMillis, filterPackages, uidStatsCollector,
+                          uidResourceUsageStats, &record.userPackageSummaryStats);
     // The system-wide CPU cycles are the aggregate of all the UID's CPU cycles collected during
     // each poll.
     record.systemSummaryStats.totalCpuCycles = record.userPackageSummaryStats.totalCpuCycles;
@@ -611,12 +719,34 @@ Result<void> PerformanceProfiler::processLocked(
         collectionInfo->records.erase(collectionInfo->records.begin());  // Erase the oldest record.
     }
     collectionInfo->records.push_back(record);
+
+    if (!shouldSendResourceUsageStats) {
+        return {};
+    }
+
+    const auto timeSinceEpoch = std::chrono::system_clock::from_time_t(time).time_since_epoch();
+
+    // The durationInMillis field is set in WatchdogPerfService, which tracks the last
+    // collection time.
+    ResourceUsageStats resourceUsageStats = {
+            .startTimeEpochMillis =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(timeSinceEpoch).count(),
+    };
+    resourceUsageStats.systemSummaryUsageStats =
+            constructSystemSummaryUsageStats(isGarageModeActive, record.systemSummaryStats,
+                                             record.userPackageSummaryStats);
+    resourceUsageStats.uidResourceUsageStats = *uidResourceUsageStats;
+
+    resourceStats->resourceUsageStats = std::make_optional(resourceUsageStats);
+
     return {};
 }
 
 void PerformanceProfiler::processUidStatsLocked(
+        bool isGarageModeActive, int64_t totalCpuTimeMillis,
         const std::unordered_set<std::string>& filterPackages,
         const sp<UidStatsCollectorInterface>& uidStatsCollector,
+        std::vector<UidResourceUsageStats>* uidResourceUsageStats,
         UserPackageSummaryStats* userPackageSummaryStats) {
     const std::vector<UidStats>& uidStats = uidStatsCollector->deltaStats();
     if (uidStats.empty()) {
@@ -629,6 +759,7 @@ void PerformanceProfiler::processUidStatsLocked(
         userPackageSummaryStats->topNIoBlocked.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNMajorFaults.resize(mTopNStatsPerCategory);
     }
+    int64_t elapsedTimeSinceBootMs = kGetElapsedTimeSinceBootMillisFunc();
     for (const auto& curUidStats : uidStats) {
         // Set the overall stats.
         userPackageSummaryStats->totalCpuCycles += curUidStats.procStats.cpuCycles;
@@ -636,15 +767,13 @@ void PerformanceProfiler::processUidStatsLocked(
         userPackageSummaryStats->totalMajorFaults += curUidStats.procStats.totalMajorFaults;
 
         // Transform |UidStats| to |UserPackageStats| for each stats view.
-        UserPackageStats ioReadsPackageStats =
-                UserPackageStats(MetricType::READ_BYTES, curUidStats);
-        UserPackageStats ioWritesPackageStats =
-                UserPackageStats(MetricType::WRITE_BYTES, curUidStats);
-        UserPackageStats cpuTimePackageStats =
+        auto ioReadsPackageStats = UserPackageStats(MetricType::READ_BYTES, curUidStats);
+        auto ioWritesPackageStats = UserPackageStats(MetricType::WRITE_BYTES, curUidStats);
+        auto cpuTimePackageStats =
                 UserPackageStats(CPU_TIME, curUidStats, mTopNStatsPerSubcategory);
-        UserPackageStats ioBlockedPackageStats =
+        auto ioBlockedPackageStats =
                 UserPackageStats(IO_BLOCKED_TASKS_COUNT, curUidStats, mTopNStatsPerSubcategory);
-        UserPackageStats majorFaultsPackageStats =
+        auto majorFaultsPackageStats =
                 UserPackageStats(MAJOR_FAULTS, curUidStats, mTopNStatsPerSubcategory);
 
         if (filterPackages.empty()) {
@@ -665,6 +794,33 @@ void PerformanceProfiler::processUidStatsLocked(
             userPackageSummaryStats->taskCountByUid[ioBlockedPackageStats.uid] =
                     curUidStats.procStats.totalTasksCount;
         }
+
+        // A null value in uidResourceUsageStats indicates that uid resource usage stats
+        // will not be sent to CarService. Hence, there is no need to populate it.
+        if (uidResourceUsageStats == nullptr) {
+            continue;
+        }
+
+        PackageIdentifier packageIdentifier = {
+                .name = curUidStats.genericPackageName(),
+                .uid = static_cast<int32_t>(curUidStats.uid()),
+        };
+        int64_t uidUptimeMillis =
+                calculateUidUptimeMillis(elapsedTimeSinceBootMs, curUidStats.procStats);
+
+        const auto& procCpuStatsView =
+                std::get<UserPackageStats::ProcCpuStatsView>(cpuTimePackageStats.statsView);
+        const auto& ioReadsStatsView =
+                std::get<UserPackageStats::IoStatsView>(ioReadsPackageStats.statsView);
+        const auto& ioWritesStatsView =
+                std::get<UserPackageStats::IoStatsView>(ioWritesPackageStats.statsView);
+
+        UidResourceUsageStats usageStats =
+                constructUidResourceUsageStats(std::move(packageIdentifier), uidUptimeMillis,
+                                               totalCpuTimeMillis, isGarageModeActive,
+                                               procCpuStatsView, ioReadsStatsView,
+                                               ioWritesStatsView);
+        uidResourceUsageStats->push_back(std::move(usageStats));
     }
     if (mLastMajorFaults != 0) {
         int64_t increase = userPackageSummaryStats->totalMajorFaults - mLastMajorFaults;

@@ -236,7 +236,9 @@ public:
 
 class WatchdogPerfService final : public WatchdogPerfServiceInterface {
 public:
-    WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
+    WatchdogPerfService(const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
+                        const std::function<int64_t()>& getElapsedTimeSinceBootMsFunc) :
+          kGetElapsedTimeSinceBootMsFunc(std::move(getElapsedTimeSinceBootMsFunc)),
           mPostSystemEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
                   std::chrono::seconds(sysprop::postSystemEventDuration().value_or(
                           kDefaultPostSystemEventDurationSec.count())))),
@@ -254,6 +256,7 @@ public:
           mCustomCollection({}),
           mPeriodicMonitor({}),
           mUnsentResourceStats({}),
+          mLastCollectionTimeMs(0),
           mCurrCollectionEvent(EventType::INIT),
           mUidStatsCollector(android::sp<UidStatsCollector>::make()),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
@@ -371,6 +374,8 @@ private:
      */
     EventMetadata* getCurrentCollectionMetadataLocked();
 
+    std::function<int64_t()> kGetElapsedTimeSinceBootMsFunc;
+
     // Duration to extend a system event collection after the final signal is received.
     std::chrono::nanoseconds mPostSystemEventDurationNs;
 
@@ -414,6 +419,9 @@ private:
     // Cache of resource stats that have not been sent to CarWatchdogService.
     std::vector<std::tuple<nsecs_t, aidl::android::automotive::watchdog::internal::ResourceStats>>
             mUnsentResourceStats GUARDED_BY(mMutex);
+
+    // Tracks the latest collection time since boot in millis.
+    int64_t mLastCollectionTimeMs GUARDED_BY(mMutex);
 
     // Tracks either the WatchdogPerfService's state or current collection event. Updated on
     // |start|, |onBootFinished|, |onUserStateChange|, |startCustomCollection|,

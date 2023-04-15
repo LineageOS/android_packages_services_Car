@@ -29,6 +29,7 @@
 #include <utils/Errors.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
+#include <utils/SystemClock.h>
 
 #include <ctime>
 #include <string>
@@ -82,9 +83,11 @@ public:
         std::vector<ProcessValue> topNProcesses = {};
     };
     struct ProcCpuStatsView {
+        // TODO(b/286434452): Rename to cpuTimeMs
         uint64_t cpuTime = 0;
         uint64_t cpuCycles = 0;
         struct ProcessCpuValue {
+            int32_t pid = -1;
             std::string comm = "";
             uint64_t cpuTime = 0;
             uint64_t cpuCycles = 0;
@@ -162,6 +165,7 @@ struct SystemSummaryStats {
 
 // Performance record collected during a sampling/collection period.
 struct PerfStatsRecord {
+    // TODO(b/286434452): Rename time field to collectionTimeMs
     time_t time;  // Collection time.
     SystemSummaryStats systemSummaryStats;
     UserPackageSummaryStats userPackageSummaryStats;
@@ -185,6 +189,7 @@ struct UserSwitchCollectionInfo : CollectionInfo {
 class PerformanceProfiler final : public DataProcessorInterface {
 public:
     PerformanceProfiler() :
+          kGetElapsedTimeSinceBootMillisFunc(elapsedRealtime),
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
           mMaxUserSwitchEvents(0),
@@ -263,9 +268,13 @@ private:
             aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats);
 
     // Processes per-UID performance data.
-    void processUidStatsLocked(const std::unordered_set<std::string>& filterPackages,
-                               const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
-                               UserPackageSummaryStats* userPackageSummaryStats);
+    void processUidStatsLocked(
+            bool isGarageModeActive, int64_t totalCpuTimeMillis,
+            const std::unordered_set<std::string>& filterPackages,
+            const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
+            std::vector<aidl::android::automotive::watchdog::internal::UidResourceUsageStats>*
+                    uidResourceUsageStats,
+            UserPackageSummaryStats* userPackageSummaryStats);
 
     // Processes system performance data from the `/proc/stats` file.
     void processProcStatLocked(const android::sp<ProcStatCollectorInterface>& procStatCollector,
@@ -275,6 +284,8 @@ private:
     android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
 
     void clearExpiredSystemEventCollections(time_t now);
+
+    std::function<int64_t()> kGetElapsedTimeSinceBootMillisFunc;
 
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
