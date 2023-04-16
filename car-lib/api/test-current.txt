@@ -994,15 +994,15 @@ package android.car.evs {
     field public static final int SERVICE_STATE_INACTIVE = 1; // 0x1
     field public static final int SERVICE_STATE_REQUESTED = 2; // 0x2
     field public static final int SERVICE_STATE_UNAVAILABLE = 0; // 0x0
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_DRIVERVIEW = 5; // 0x5
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_FRONTVIEW = 2; // 0x2
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_FRONT_PASSENGERSVIEW = 6; // 0x6
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_LEFTVIEW = 3; // 0x3
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_DRIVERVIEW = 5; // 0x5
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_FRONTVIEW = 2; // 0x2
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_FRONT_PASSENGERSVIEW = 6; // 0x6
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_LEFTVIEW = 3; // 0x3
     field public static final int SERVICE_TYPE_REARVIEW = 0; // 0x0
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_REAR_PASSENGERSVIEW = 7; // 0x7
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_RIGHTVIEW = 4; // 0x4
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_REAR_PASSENGERSVIEW = 7; // 0x7
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_RIGHTVIEW = 4; // 0x4
     field public static final int SERVICE_TYPE_SURROUNDVIEW = 1; // 0x1
-    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_3, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_3) public static final int SERVICE_TYPE_USER_DEFINED = 1000; // 0x3e8
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final int SERVICE_TYPE_USER_DEFINED = 1000; // 0x3e8
     field public static final int STREAM_EVENT_FRAME_DROPPED = 3; // 0x3
     field public static final int STREAM_EVENT_NONE = 0; // 0x0
     field public static final int STREAM_EVENT_OTHER_ERRORS = 7; // 0x7
