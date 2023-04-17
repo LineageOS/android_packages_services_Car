@@ -27,7 +27,15 @@ from pathlib import Path
 # [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature. It excludes matching any '(' characters when there are no parameters, i.e. method().
 # [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
-    return re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', " ", api)
+    # get the arguments first
+    argGroup = re.search("\((.*)\)",api)
+    if argGroup is None:
+        return api
+    arg = argGroup.group(0)
+    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\((.*)\)", new_arg, api)
+
+
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if rootDir is None or rootDir == "":
