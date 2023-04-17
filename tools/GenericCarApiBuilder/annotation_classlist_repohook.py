@@ -45,20 +45,20 @@ if javaHomeDir is None or javaHomeDir == "":
 # This generates a list of all classes.
 java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
            "/packages/services/Car/tools/GenericCarApiBuilder" \
-           "/GenericCarApiBuilder.jar --print-classes-only " \
-           "--ANDROID-BUILD-TOP " + rootDir
+           "/GenericCarApiBuilder.jar --print-classes " \
+           "--root-dir " + rootDir
 
 # This produces a list of current hidden apis to determine if they have been modified or removed.
 java_cmd_2 = javaHomeDir + "/bin/java -jar " + rootDir + \
              "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-             "--ANDROID-BUILD-TOP " + rootDir
+             "/GenericCarApiBuilder.jar --print-hidden-apis " \
+             "--root-dir " + rootDir
 
 # This determines all remaining hidden, system or public APIs.
 java_cmd_3 = javaHomeDir + "/bin/java -jar " + rootDir + \
              "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-             "--include-constructors --ANDROID-BUILD-TOP " + rootDir
+             "/GenericCarApiBuilder.jar --print-all-apis-with-constr " \
+             "--root-dir " + rootDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2, java_cmd_3]
@@ -102,7 +102,7 @@ if error != "":
     print(error)
     print("\nRun following command to generate classlist for annotation test")
     print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-classes-for-test")
+          "--update-classes")
     print("\nThen run following test to make sure classes are properly annotated")
     print("atest CarServiceUnitTest:android.car.AnnotationTest")
     sys.exit(1)
@@ -159,7 +159,7 @@ if len(modified_or_added_hidden_api) > 0:
         " upgrade of the hidden API. \nTo learn more about hidden API usage and removal in the Car stack please visit go/car-hidden-api-usage-removal."
         "\nTo add a hidden API, please run the following command after creating the bug:")
     print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
+          "--update-hidden-apis")
     print("\nPlease do not use \"no-verify\" to bypass this check. Reach out to gargmayank@ or"
           " ethanalee@ if there is any confusion or repo upload is not working for you even after running the previous command.")
     sys.exit(1)
