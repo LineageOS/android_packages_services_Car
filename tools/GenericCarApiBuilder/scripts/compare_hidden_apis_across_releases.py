@@ -38,20 +38,20 @@ newDir = sys.argv[2]
 
 
 java_cmd= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + oldDir
+                                    "/GenericCarApiBuilder.jar --print-hidden-apis " \
+                                    "--root-dir " + oldDir
 
 java_cmd_2= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + newDir
+                                    "/GenericCarApiBuilder.jar --print-hidden-apis " \
+                                    "--root-dir " + newDir
 
 java_cmd_3= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-                                    "--include-constructors --ANDROID-BUILD-TOP " + oldDir
+                                    "/GenericCarApiBuilder.jar --print-hidden-apis-with-constr " \
+                                    "--root-dir " + oldDir
 
 java_cmd_4= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-                                    "--include-constructors --ANDROID-BUILD-TOP " + newDir
+                                    "/GenericCarApiBuilder.jar --print-all-apis-with-constr " \
+                                    "--root-dir " + newDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2, java_cmd_3, java_cmd_4]
