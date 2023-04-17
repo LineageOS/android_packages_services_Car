@@ -37,7 +37,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -68,13 +67,11 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     private static final int ZONE_ID = 0;
     private static final int CONFIG_ID = 1;
     private static final int GROUP_ID = 0;
-    private static final int STEP_VALUE = 2;
-    private static final int MIN_GAIN = 3;
-    private static final int MAX_GAIN = 10;
-    private static final int DEFAULT_GAIN = 5;
-    private static final int DEFAULT_GAIN_INDEX = (DEFAULT_GAIN - MIN_GAIN) / STEP_VALUE;
+    private static final int DEFAULT_GAIN_INDEX = (TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN
+            - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
     private static final int MIN_GAIN_INDEX = 0;
-    private static final int MAX_GAIN_INDEX = (MAX_GAIN - MIN_GAIN) / STEP_VALUE;
+    private static final int MAX_GAIN_INDEX = (TestCarAudioDeviceInfoBuilder.MAX_GAIN
+            - TestCarAudioDeviceInfoBuilder.MIN_GAIN) / TestCarAudioDeviceInfoBuilder.STEP_VALUE;
     private static final int TEST_GAIN_INDEX = 2;
     private static final int TEST_USER_10 = 10;
     private static final int TEST_USER_11 = 11;
@@ -120,8 +117,9 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Before
     public void setUp() {
-        mMediaDeviceInfo = new InfoBuilder(MEDIA_DEVICE_ADDRESS).build();
-        mNavigationDeviceInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS).build();
+        mMediaDeviceInfo = new TestCarAudioDeviceInfoBuilder(MEDIA_DEVICE_ADDRESS).build();
+        mNavigationDeviceInfo = new TestCarAudioDeviceInfoBuilder(NAVIGATION_DEVICE_ADDRESS)
+                .build();
     }
 
     @Test
@@ -290,10 +288,10 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, false);
         carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_11);
 
-        carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
+        carVolumeGroup.setCurrentGainIndex(TestCarAudioDeviceInfoBuilder.MIN_GAIN);
 
         verify(settings).storeVolumeGainIndexForUser(TEST_USER_11, ZONE_ID, CONFIG_ID, GROUP_ID,
-                MIN_GAIN);
+                TestCarAudioDeviceInfoBuilder.MIN_GAIN);
     }
 
     @Test
@@ -302,10 +300,10 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 .setGainIndexForUser(UserHandle.USER_CURRENT).build();
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithNavigationBound(settings, false);
 
-        carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
+        carVolumeGroup.setCurrentGainIndex(TestCarAudioDeviceInfoBuilder.MIN_GAIN);
 
         verify(settings).storeVolumeGainIndexForUser(UserHandle.USER_CURRENT, ZONE_ID, CONFIG_ID,
-                GROUP_ID, MIN_GAIN);
+                GROUP_ID, TestCarAudioDeviceInfoBuilder.MIN_GAIN);
     }
 
     @Test
@@ -1046,13 +1044,15 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
         // Broadcasted to all CarAudioDeviceInfo
-        verify(mMediaDeviceInfo).setCurrentGain(eq(DEFAULT_GAIN));
-        verify(mNavigationDeviceInfo).setCurrentGain(eq(DEFAULT_GAIN));
+        verify(mMediaDeviceInfo).setCurrentGain(TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN);
+        verify(mNavigationDeviceInfo).setCurrentGain(TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN);
 
         carVolumeGroup.onAudioGainChanged(reasons, navCarGain);
         // Broadcasted to all CarAudioDeviceInfo
-        verify(mMediaDeviceInfo, times(2)).setCurrentGain(eq(DEFAULT_GAIN));
-        verify(mNavigationDeviceInfo, times(2)).setCurrentGain(eq(DEFAULT_GAIN));
+        verify(mMediaDeviceInfo, times(2)).setCurrentGain(
+                TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN);
+        verify(mNavigationDeviceInfo, times(2)).setCurrentGain(
+                TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN);
     }
 
     @Test
@@ -1213,8 +1213,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                 int gainUserId = mStoredGainIndexes.keyAt(storeIndex);
                 when(settingsMock
                         .getStoredVolumeGainIndexForUser(gainUserId, mZoneId, mConfigId,
-                                mGroupId)).thenReturn(
-                        mStoredGainIndexes.get(gainUserId, DEFAULT_GAIN));
+                                mGroupId)).thenReturn(mStoredGainIndexes.get(gainUserId,
+                        TestCarAudioDeviceInfoBuilder.DEFAULT_GAIN));
             }
             for (int muteIndex = 0; muteIndex < mStoreMuteStates.size(); muteIndex++) {
                 int muteUserId = mStoreMuteStates.keyAt(muteIndex);
@@ -1225,49 +1225,6 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
                         .thenReturn(mPersistMute);
             }
             return settingsMock;
-        }
-    }
-
-    private static final class InfoBuilder {
-        private final String mAddress;
-
-        private int mStepValue = STEP_VALUE;
-        private int mDefaultGain = DEFAULT_GAIN;
-        private int mMinGain = MIN_GAIN;
-        private int mMaxGain = MAX_GAIN;
-
-        InfoBuilder(String address) {
-            mAddress = address;
-        }
-
-        InfoBuilder setStepValue(int stepValue) {
-            mStepValue = stepValue;
-            return this;
-        }
-
-        InfoBuilder setDefaultGain(int defaultGain) {
-            mDefaultGain = defaultGain;
-            return this;
-        }
-
-        InfoBuilder setMinGain(int minGain) {
-            mMinGain = minGain;
-            return this;
-        }
-
-        InfoBuilder setMaxGain(int maxGain) {
-            mMaxGain = maxGain;
-            return this;
-        }
-
-        CarAudioDeviceInfo build() {
-            CarAudioDeviceInfo infoMock = Mockito.mock(CarAudioDeviceInfo.class);
-            when(infoMock.getStepValue()).thenReturn(mStepValue);
-            when(infoMock.getDefaultGain()).thenReturn(mDefaultGain);
-            when(infoMock.getMaxGain()).thenReturn(mMaxGain);
-            when(infoMock.getMinGain()).thenReturn(mMinGain);
-            when(infoMock.getAddress()).thenReturn(mAddress);
-            return infoMock;
         }
     }
 }
