@@ -67,13 +67,13 @@ newDir = sys.argv[2]
 
 java_cmd= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                                   "/GenericCarApiBuilder.jar " \
-                                  "--print-shortform-full-api-for-test " \
-                                  "--ANDROID-BUILD-TOP " + oldDir
+                                  "--print-all-apis " \
+                                  "--root-dir " + oldDir
 
 java_cmd_2= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                                     "/GenericCarApiBuilder.jar " \
-                                    "--print-shortform-full-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + newDir
+                                    "--print-all-apis " \
+                                    "--root-dir " + newDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2]
