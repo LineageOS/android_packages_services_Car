@@ -1,14 +1,4 @@
--keep class com.android.systemui.CarUiPortraitSystemUIInitializer
 -keep class com.android.car.caruiportrait.common.service.CarUiPortraitService
-
--keep class com.android.systemui.DaggerCarUiPortraitGlobalRootComponent { *; }
--keep class com.android.systemui.DaggerCarUiPortraitGlobalRootComponent$CarUiPortraitSysUIComponentImpl { *; }
-
-# Keep the protolog group methods that are called by the generated code
--keepclassmembers class com.android.wm.shell.protolog.ShellProtoLogGroup {
-    *;
-}
-
 -keep class com.android.systemui.car.qc.CarUiPortraitProfileSwitcher { *; }
 
 -include ../../../../../../../packages/apps/Car/SystemUI/proguard.flags
