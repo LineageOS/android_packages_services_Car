@@ -178,7 +178,7 @@ if len(upgraded_hidden_apis) > 0:
     print("\n".join(upgraded_hidden_apis))
     print("\nPlease run the following command to update: ")
     print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
+          "--update-hidden-apis")
     print("\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
           "upgrading hidden APIs. Visit go/upgrade-hidden-api for more info.")
     print("\n\n")
