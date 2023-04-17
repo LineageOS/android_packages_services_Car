@@ -180,6 +180,26 @@ package android.car.builtin.job {
 
 }
 
+package android.car.builtin.keyguard {
+
+  public final class KeyguardServiceDelegate {
+    ctor public KeyguardServiceDelegate();
+    method public void bindService(android.content.Context, android.os.UserHandle, int[]);
+    method public void dump(java.io.PrintWriter);
+    method public boolean isShowing();
+    method public void notifyDisplayOff();
+    method public void notifyDisplayOn();
+    method public void registerKeyguardLockedStateCallback(@NonNull android.car.builtin.keyguard.KeyguardServiceDelegate.KeyguardLockedStateCallback);
+    method public void stop(android.content.Context);
+    method public void unregisterKeyguardLockedStateCallback();
+  }
+
+  public static interface KeyguardServiceDelegate.KeyguardLockedStateCallback {
+    method public void onKeyguardLockedStateChanged(boolean);
+  }
+
+}
+
 package android.car.builtin.media {
 
   public final class AudioManagerHelper {
