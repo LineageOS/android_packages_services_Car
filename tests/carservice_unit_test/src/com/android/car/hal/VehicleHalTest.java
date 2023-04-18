@@ -837,6 +837,34 @@ public class VehicleHalTest {
     }
 
     @Test
+    public void testUnsubscribe_notSubscribed() throws Exception {
+        //Act
+        mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+
+        // Assert
+        verify(mSubscriptionClient, never()).unsubscribe(anyInt());
+    }
+
+    @Test
+    public void testUnsubscribe_afterSubscribeThenUnsubscribe() throws Exception {
+        // Arrange
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE_1);
+        SubscribeOptions expectedOptions = createSubscribeOptions(SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, new int[]{GLOBAL_AREA_ID});
+        verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions}));
+        mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+        verify(mSubscriptionClient).unsubscribe(SOME_READ_ON_CHANGE_PROPERTY);
+        clearInvocations(mSubscriptionClient);
+
+        // Act
+        mVehicleHal.unsubscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY);
+
+        // Assert
+        verify(mSubscriptionClient, never()).unsubscribe(anyInt());
+    }
+
+    @Test
     public void testOnPropertyEvent() {
         // Arrange
         List<HalPropValue> dispatchList = mock(List.class);
