@@ -2506,7 +2506,8 @@ package android.car.view {
   }
 
   public final class WindowManagerHelper {
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
   }
 
 }
