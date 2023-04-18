@@ -315,11 +315,9 @@ package android.car.builtin.os {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isFullUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method public static boolean isPreCreatedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isVisibleBackgroundUsersOnDefaultDisplaySupported(@NonNull android.os.UserManager);
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static boolean isVisibleBackgroundUsersSupported(@NonNull android.os.UserManager);
     method public static boolean markGuestForDeletion(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Nullable public static android.os.UserHandle preCreateUser(@NonNull android.os.UserManager, @NonNull String);
     field public static final int FLAG_ADMIN = 2; // 0x2
     field public static final int FLAG_DEMO = 512; // 0x200
     field public static final int FLAG_DISABLED = 64; // 0x40
