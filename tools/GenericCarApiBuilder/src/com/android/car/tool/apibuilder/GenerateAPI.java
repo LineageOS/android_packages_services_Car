@@ -58,6 +58,8 @@ public final class GenerateAPI {
     private static final String PRINT_ALL_APIS_WITH_CONSTR = "--print-all-apis-with-constr";
     private static final String UPDATE_APIS_WITH_ADDEDINORBEFORE =
             "--update-apis-with-addedinorbefore";
+    private static final String PRINT_ALL_APIS_WITH_CAR_VERSION =
+            "--print-all-apis-with-car-version";
     private static final String ROOT_DIR = "--root-dir";
 
     public static void main(final String[] args) throws Exception {
@@ -75,6 +77,7 @@ public final class GenerateAPI {
             boolean printAllApis = false;
             boolean printAllApisWithConstr = false;
             boolean updateApisWithAddedinorbefore = false;
+            boolean printAllApisWithCarVersion = false;
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
             // If print request is more than one. Use marker to separate data. This would be useful
             // for executing multiple requests in one go.
@@ -114,6 +117,9 @@ public final class GenerateAPI {
                         break;
                     case ROOT_DIR:
                         rootDir = args[++i];
+                        break;
+                    case PRINT_ALL_APIS_WITH_CAR_VERSION:
+                        printAllApisWithCarVersion = true;
                         break;
                     default:
                         System.out.println("Incorrect Arguments.");
@@ -181,6 +187,11 @@ public final class GenerateAPI {
                 write(rootDir + CAR_ADDEDINORBEFORE_API_FILE,
                         ParsedDataHelper.getAddedInOrBeforeApisOnly(parsedDataCarLib));
             }
+            if (printAllApisWithCarVersion) {
+                printMarker(printRequests, PRINT_ALL_APIS_WITH_CAR_VERSION);
+                print(ParsedDataHelper.getApisWithVersion(parsedDataCarLib));
+                print(ParsedDataHelper.getApisWithVersion(parsedDataCarBuiltinLib));
+            }
         } catch (Exception e) {
             throw e;
         }
@@ -223,6 +234,8 @@ public final class GenerateAPI {
         System.out.println(UPDATE_APIS_WITH_ADDEDINORBEFORE
                 + " generates the api list that contains the @AddedInOrBefore annotation. "
                 + "Results would be updated in " + CAR_ADDEDINORBEFORE_API_FILE);
+        System.out.println(PRINT_ALL_APIS_WITH_CAR_VERSION
+                + " : Prints a list of all apis along with their min car version.");
         System.out.println("Second argument is value of Git Root Directory. By default, "
                 + "it is environment variable ANDROID_BUILD_TOP. If environment variable is not set"
                 + "then provide using" + ROOT_DIR + " <directory>");
