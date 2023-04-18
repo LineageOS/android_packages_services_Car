@@ -27,7 +27,15 @@ from pathlib import Path
 # [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature. It excludes matching any '(' characters when there are no parameters, i.e. method().
 # [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
-    return re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', " ", api)
+    # get the arguments first
+    argGroup = re.search("\((.*)\)",api)
+    if argGroup is None:
+        return api
+    arg = argGroup.group(0)
+    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\((.*)\)", new_arg, api)
+
+
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if rootDir is None or rootDir == "":
@@ -45,20 +53,20 @@ if javaHomeDir is None or javaHomeDir == "":
 # This generates a list of all classes.
 java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
            "/packages/services/Car/tools/GenericCarApiBuilder" \
-           "/GenericCarApiBuilder.jar --print-classes-only " \
-           "--ANDROID-BUILD-TOP " + rootDir
+           "/GenericCarApiBuilder.jar --print-classes " \
+           "--root-dir " + rootDir
 
 # This produces a list of current hidden apis to determine if they have been modified or removed.
 java_cmd_2 = javaHomeDir + "/bin/java -jar " + rootDir + \
              "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-             "--ANDROID-BUILD-TOP " + rootDir
+             "/GenericCarApiBuilder.jar --print-hidden-apis " \
+             "--root-dir " + rootDir
 
 # This determines all remaining hidden, system or public APIs.
 java_cmd_3 = javaHomeDir + "/bin/java -jar " + rootDir + \
              "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-             "--include-constructors --ANDROID-BUILD-TOP " + rootDir
+             "/GenericCarApiBuilder.jar --print-all-apis-with-constr " \
+             "--root-dir " + rootDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2, java_cmd_3]
@@ -102,7 +110,7 @@ if error != "":
     print(error)
     print("\nRun following command to generate classlist for annotation test")
     print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-classes-for-test")
+          "--update-classes")
     print("\nThen run following test to make sure classes are properly annotated")
     print("atest CarServiceUnitTest:android.car.AnnotationTest")
     sys.exit(1)
@@ -133,14 +141,6 @@ for path in hidden_apis_previous_releases_paths:
         hidden_apis = set(f.read().splitlines())
         hidden_apis_previous_releases = hidden_apis_previous_releases.union(hidden_apis)
 
-excluded_removed_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
-                                      "/car_hidden_apis_excluded.txt"
-
-with open(excluded_removed_hidden_apis_path) as f:
-    excluded_removed_hidden_apis = set(f.read().splitlines())
-
-hidden_apis_previous_releases = hidden_apis_previous_releases - excluded_removed_hidden_apis
-
 # All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
 new_hidden_apis = set(new_hidden_apis)
@@ -159,7 +159,7 @@ if len(modified_or_added_hidden_api) > 0:
         " upgrade of the hidden API. \nTo learn more about hidden API usage and removal in the Car stack please visit go/car-hidden-api-usage-removal."
         "\nTo add a hidden API, please run the following command after creating the bug:")
     print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
+          "--update-hidden-apis")
     print("\nPlease do not use \"no-verify\" to bypass this check. Reach out to gargmayank@ or"
           " ethanalee@ if there is any confusion or repo upload is not working for you even after running the previous command.")
     sys.exit(1)
@@ -178,7 +178,7 @@ if len(upgraded_hidden_apis) > 0:
     print("\n".join(upgraded_hidden_apis))
     print("\nPlease run the following command to update: ")
     print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
+          "--update-hidden-apis")
     print("\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
           "upgrading hidden APIs. Visit go/upgrade-hidden-api for more info.")
     print("\n\n")
