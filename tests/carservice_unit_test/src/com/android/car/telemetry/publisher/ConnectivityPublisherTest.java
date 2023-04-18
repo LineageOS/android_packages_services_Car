@@ -120,15 +120,15 @@ public class ConnectivityPublisherTest {
                     .setScript("function empty_handler()\nend")
                     .build();
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_1 =
-            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "", 0);
     private static final SessionAnnotation SESSION_ANNOTATION_END_1 =
-            new SessionAnnotation(1, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(1, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "", 0);
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_2 =
-            new SessionAnnotation(2, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(2, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "", 0);
     private static final SessionAnnotation SESSION_ANNOTATION_END_2 =
-            new SessionAnnotation(2, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(2, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "", 0);
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_3 =
-            new SessionAnnotation(3, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(3, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "", 0);
 
 
     /** See {@code ConnectivityPublisher#pullInitialNetstats()}. */

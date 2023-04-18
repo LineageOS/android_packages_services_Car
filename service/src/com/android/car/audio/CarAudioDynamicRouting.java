@@ -26,9 +26,9 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.internal.annotation.AttributeUsage;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Builds dynamic audio routing in a car from audio zone configuration.
@@ -48,11 +48,11 @@ final class CarAudioDynamicRouting {
     };
 
     static void setupAudioDynamicRouting(AudioPolicy.Builder builder,
-            SparseArray<CarAudioZone> carAudioZones) {
+            SparseArray<CarAudioZone> carAudioZones, CarAudioContext carAudioContext) {
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone zone = carAudioZones.valueAt(i);
             for (CarVolumeGroup group : zone.getVolumeGroups()) {
-                setupAudioDynamicRoutingForGroup(group, builder);
+                setupAudioDynamicRoutingForGroup(group, builder, carAudioContext);
             }
         }
     }
@@ -61,11 +61,14 @@ final class CarAudioDynamicRouting {
      * Enumerates all physical buses in a given volume group and attach the mixing rules.
      * @param group {@link CarVolumeGroup} instance to enumerate the buses with
      * @param builder {@link AudioPolicy.Builder} to attach the mixing rules
+     * @param carAudioContext car audio context
      */
     private static void setupAudioDynamicRoutingForGroup(CarVolumeGroup group,
-            AudioPolicy.Builder builder) {
+            AudioPolicy.Builder builder, CarAudioContext carAudioContext) {
         // Note that one can not register audio mix for same bus more than once.
-        for (String address : group.getAddresses()) {
+        List<String> addresses = group.getAddresses();
+        for (int index = 0; index < addresses.size(); index++) {
+            String address = addresses.get(index);
             boolean hasContext = false;
             CarAudioDeviceInfo info = group.getCarAudioDeviceInfoForAddress(address);
             AudioFormat mixFormat = new AudioFormat.Builder()
@@ -74,18 +77,23 @@ final class CarAudioDynamicRouting {
                     .setChannelMask(info.getChannelCount())
                     .build();
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
-            for (int carAudioContext : group.getContextsForAddress(address)) {
+            List<Integer> contextIdsForAddress = group.getContextsForAddress(address);
+            for (int contextIndex = 0; contextIndex < contextIdsForAddress.size(); contextIndex++) {
+                @CarAudioContext.AudioContext int contextId =
+                        contextIdsForAddress.get(contextIndex);
                 hasContext = true;
-                int[] usages = CarAudioContext.getUsagesForContext(carAudioContext);
-                for (int usage : usages) {
-                    AudioAttributes attributes = buildAttributesWithUsage(usage);
+                AudioAttributes[] allAudioAttributes =
+                        carAudioContext.getAudioAttributesForContext(contextId);
+                for (int attrIndex = 0; attrIndex < allAudioAttributes.length; attrIndex++) {
+                    AudioAttributes attributes = allAudioAttributes[attrIndex];
                     mixingRuleBuilder.addRule(attributes,
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
                 if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                     Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s sampleRate: %d "
-                            + "channels: %d usages: %s", address, carAudioContext,
-                            info.getSampleRate(), info.getChannelCount(), Arrays.toString(usages));
+                            + "channels: %d attributes: %s", address, carAudioContext,
+                            info.getSampleRate(), info.getChannelCount(),
+                            Arrays.toString(allAudioAttributes));
                 }
             }
             if (hasContext) {
@@ -100,15 +108,5 @@ final class CarAudioDynamicRouting {
                 builder.addMix(audioMix);
             }
         }
-    }
-
-    private static AudioAttributes buildAttributesWithUsage(@AttributeUsage int usage) {
-        AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
-        if (AudioAttributes.isSystemUsage(usage)) {
-            attributesBuilder.setSystemUsage(usage);
-        } else {
-            attributesBuilder.setUsage(usage);
-        }
-        return attributesBuilder.build();
     }
 }

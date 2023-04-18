@@ -897,6 +897,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
                     mGearSelectionPropertyListener);
         }
+
+        mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
         mStatusListeners.kill();
         mHalWrapper.release();
     }
@@ -1001,11 +1003,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
+        int priority;
         if (isSessionToken(token)) {
             mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
+            priority = REQUEST_PRIORITY_HIGH;
+        } else {
+            priority = REQUEST_PRIORITY_LOW;
         }
 
-        final int priority = token != null ? REQUEST_PRIORITY_HIGH : REQUEST_PRIORITY_LOW;
         return mStateEngine.execute(priority, SERVICE_STATE_ACTIVE, type, token, callback);
     }
 

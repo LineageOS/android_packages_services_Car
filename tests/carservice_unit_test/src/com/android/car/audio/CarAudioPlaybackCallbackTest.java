@@ -18,11 +18,9 @@ package com.android.car.audio;
 
 import static android.media.AudioAttributes.AttributeUsage;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
-import static com.android.car.audio.CarAudioContext.MUSIC;
-import static com.android.car.audio.CarAudioContext.NAVIGATION;
-import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -63,6 +61,22 @@ public final class CarAudioPlaybackCallbackTest {
     private static final long TIMER_AFTER_TIMEOUT_MS =
             TIMER_START_TIME_MS + KEY_EVENT_TIMEOUT_MS + 1;
 
+    private static final AudioAttributes TEST_MEDIA_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+    private static final AudioAttributes TEST_NAVIGATION_AUDIO_ATTRIBUTE =
+            new AudioAttributes.Builder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE).build();
+
+    private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
+
+    private static final @CarAudioContext.AudioContext int TEST_MEDIA_AUDIO_CONTEXT =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_MEDIA_AUDIO_ATTRIBUTE);
+    private static final @CarAudioContext.AudioContext int TEST_NAVIGATION_AUDIO_CONTEXT =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(TEST_NAVIGATION_AUDIO_ATTRIBUTE);
+    private static final @CarAudioContext.AudioContext int TEST_ASSISTANT_CONTEXT =
+            TEST_CAR_AUDIO_CONTEXT.getContextForAudioAttribute(CarAudioContext
+                    .getAudioAttributeFromUsage(USAGE_ASSISTANT));
+
     @Mock
     private SystemClockWrapper mClock;
 
@@ -102,10 +116,10 @@ public final class CarAudioPlaybackCallbackTest {
         CarAudioPlaybackCallback callback =
                 new CarAudioPlaybackCallback(mPrimaryZone, mClock, KEY_EVENT_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
     @Test
@@ -123,10 +137,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(MUSIC);
+        assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -148,10 +162,12 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(MUSIC, NAVIGATION);
+        assertThat(activeAttributes)
+                .containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE,
+                        TEST_NAVIGATION_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -174,10 +190,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(configurations);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(MUSIC);
+        assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -201,10 +217,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
     @Test
@@ -242,10 +258,12 @@ public final class CarAudioPlaybackCallbackTest {
 
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(MUSIC, NAVIGATION);
+        assertThat(activeAttributes)
+                .containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE,
+                        TEST_NAVIGATION_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -284,10 +302,12 @@ public final class CarAudioPlaybackCallbackTest {
 
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(NAVIGATION, MUSIC);
+        assertThat(activeAttributes)
+                .containsExactly(TEST_NAVIGATION_AUDIO_ATTRIBUTE,
+                        TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -328,10 +348,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         when(mClock.uptimeMillis()).thenReturn(TIMER_BEFORE_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
     @Test
@@ -369,10 +389,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         when(mClock.uptimeMillis()).thenReturn(TIMER_AFTER_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).containsExactly(MUSIC);
+        assertThat(activeAttributes).containsExactly(TEST_MEDIA_AUDIO_ATTRIBUTE);
     }
 
     @Test
@@ -410,10 +430,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         when(mClock.uptimeMillis()).thenReturn(TIMER_AFTER_TIMEOUT_MS);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
 
@@ -436,10 +456,10 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(activeConfigurations);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
     @Test
@@ -476,22 +496,25 @@ public final class CarAudioPlaybackCallbackTest {
 
         callback.onPlaybackConfigChanged(configurationsChanged);
 
-        List<Integer> activeContexts =
-                callback.getAllActiveContextsForPrimaryZone();
+        List<AudioAttributes> activeAttributes =
+                callback.getAllActiveAudioAttributesForPrimaryZone();
 
-        assertThat(activeContexts).isEmpty();
+        assertThat(activeAttributes).isEmpty();
     }
 
     private CarAudioZone generatePrimaryZone() {
         return new TestCarAudioZoneBuilder("Primary zone", PRIMARY_ZONE_ID)
                 .addVolumeGroup(new VolumeGroupBuilder()
-                                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+                                .addDeviceAddressAndContexts(TEST_MEDIA_AUDIO_CONTEXT,
+                                        PRIMARY_MEDIA_ADDRESS)
                                 .build())
                 .addVolumeGroup(new VolumeGroupBuilder()
-                        .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                        .addDeviceAddressAndContexts(TEST_NAVIGATION_AUDIO_CONTEXT,
+                                PRIMARY_NAVIGATION_ADDRESS)
                         .build())
                 .addVolumeGroup(new VolumeGroupBuilder()
-                        .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                        .addDeviceAddressAndContexts(TEST_ASSISTANT_CONTEXT,
+                                PRIMARY_VOICE_ADDRESS)
                         .build())
                 .build();
     }

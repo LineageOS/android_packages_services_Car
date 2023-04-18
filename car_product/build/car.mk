@@ -68,7 +68,8 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.carrier=unknown
+    ro.carrier=unknown \
+    ro.hardware.type=automotive \
 
 # Set default Bluetooth profiles
 TARGET_SYSTEM_PROP += \
@@ -134,7 +135,7 @@ PRODUCT_SYSTEM_PROPERTIES += \
     ro.android.car.carservice.package?=com.android.car.updatable
 
 # Update with PLATFORM_VERSION_MINOR_INT update
-PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=2
+PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=3
 
 # Automotive specific packages
 PRODUCT_PACKAGES += \

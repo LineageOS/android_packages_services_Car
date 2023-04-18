@@ -16,6 +16,7 @@
 package android.car.oem;
 
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 
 import java.io.PrintWriter;
@@ -28,6 +29,7 @@ import java.io.PrintWriter;
  *
  * @hide
  */
+@SystemApi
 @SuppressWarnings("[NotCloseable]")
 public interface OemCarServiceComponent {
     /**

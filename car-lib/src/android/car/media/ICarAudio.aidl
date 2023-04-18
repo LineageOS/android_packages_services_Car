@@ -17,6 +17,8 @@
 package android.car.media;
 
 import android.car.media.CarAudioPatchHandle;
+import android.car.media.CarVolumeGroupInfo;
+import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 /**
  * Binder interface for {@link android.car.media.CarAudioManager}.
@@ -50,6 +52,10 @@ interface ICarAudio {
 
     boolean isVolumeGroupMuted(int zoneId, int groupId);
     void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags);
+    CarVolumeGroupInfo getVolumeGroupInfo(int zoneId, int groupId);
+    List<CarVolumeGroupInfo> getVolumeGroupInfosForZone(int zoneId);
+
+    List<AudioAttributes> getAudioAttributesForVolumeGroup(in CarVolumeGroupInfo groupInfo);
 
     String getOutputDeviceAddressForUsage(int zoneId, int usage);
 

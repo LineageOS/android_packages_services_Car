@@ -95,6 +95,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_3;
   }
 
   public enum ApiRequirements.PlatformVersion {
@@ -102,6 +103,7 @@ package android.car.annotation {
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_2;
+    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_3;
   }
 
 }

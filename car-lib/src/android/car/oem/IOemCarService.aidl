@@ -17,7 +17,9 @@
 package android.car.oem;
 
 import android.car.CarVersion;
+import android.car.oem.IOemCarAudioDuckingService;
 import android.car.oem.IOemCarAudioFocusService;
+import android.car.oem.IOemCarAudioVolumeService;
 import android.car.oem.IOemCarServiceCallback;
 
 /*
@@ -48,6 +50,21 @@ interface IOemCarService {
      */
     String getAllStackTraces();
 
-    // Component services
+    /**
+     * Returns the corresponding car audio service, this will be used by car audio service for
+     * audio focus evaluation.
+     */
     IOemCarAudioFocusService getOemAudioFocusService();
+
+    /**
+     * Returns the corresponding car volume service, this will be used by car audio service for
+     * audio volume evaluations.
+     */
+    IOemCarAudioVolumeService getOemAudioVolumeService();
+
+    /**
+     * Returns the corresponding car ducking service, this will be used by car audio service for
+     * audio ducking evaluations.
+     */
+    IOemCarAudioDuckingService getOemAudioDuckingService();
 }

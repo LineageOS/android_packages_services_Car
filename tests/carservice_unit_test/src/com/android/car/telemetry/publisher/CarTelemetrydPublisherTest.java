@@ -74,7 +74,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
                             .setId(CAR_DATA_ID_1))
                     .build();
     private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_1 =
-            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "", 0);
     private static final String[] SESSION_ANNOTATION_KEYS =
             {Constants.ANNOTATION_BUNDLE_KEY_SESSION_ID,
                     Constants.ANNOTATION_BUNDLE_KEY_BOOT_REASON,
@@ -229,7 +229,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
         mFakeCarTelemetryInternal.mListener.onCarDataReceived(
-                new CarDataInternal[]{buildCarDataInternal(CAR_DATA_ID_1, new byte[]{1, 2, 3})});
+                new CarDataInternal[]{buildCarDataInternal(CAR_DATA_ID_1, new byte[]{55, 66, 77})});
 
         // Also verifies that the published data is not large.
         verify(mMockDataSubscriber).push(mBundleCaptor.capture(), eq(false));
@@ -238,9 +238,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(result.getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(result.getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(1, 2, 3).inOrder();
+        assertThat(result.getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo("7BM");
         // Verify session annotations are also present.
         assertThat(result.keySet()).containsAtLeastElementsIn(SESSION_ANNOTATION_KEYS);
     }
@@ -265,9 +264,9 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         mPublisher.addDataSubscriber(subscriber2);
 
         mFakeCarTelemetryInternal.mListener.onCarDataReceived(
-                new CarDataInternal[]{buildCarDataInternal(CAR_DATA_ID_1, new byte[]{1, 2, 3}),
-                        buildCarDataInternal(CAR_DATA_ID_1, new byte[]{3, 2, 1}),
-                        buildCarDataInternal(CAR_DATA_ID_1, new byte[]{30, 20, 10})});
+                new CarDataInternal[]{buildCarDataInternal(CAR_DATA_ID_1, new byte[]{41, 52, 63}),
+                        buildCarDataInternal(CAR_DATA_ID_1, new byte[]{53, 62, 71}),
+                        buildCarDataInternal(CAR_DATA_ID_1, new byte[]{40, 50, 60})});
 
         verify(mMockDataSubscriber, times(3)).push(mBundleCaptor.capture(),
                 eq(false));
@@ -276,9 +275,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(0).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(0).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(1, 2, 3).inOrder();
+        assertThat(telemetryDataList.get(0).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo(")4?");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(0).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -288,10 +286,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(1).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(1).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(
-                        3, 2, 1).inOrder();
+        assertThat(telemetryDataList.get(1).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo("5>G");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(1).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -301,9 +297,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(2).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(2).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(30, 20, 10).inOrder();
+        assertThat(telemetryDataList.get(2).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo("(2<");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(2).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -316,9 +311,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(0).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(0).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(1, 2, 3).inOrder();
+        assertThat(telemetryDataList.get(0).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo(")4?");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(0).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -328,9 +322,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(1).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(1).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(3, 2, 1).inOrder();
+        assertThat(telemetryDataList.get(1).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo("5>G");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(1).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -340,9 +333,8 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(telemetryDataList.get(2).getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(telemetryDataList.get(2).getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .containsExactly(30, 20, 10).inOrder();
+        assertThat(telemetryDataList.get(2).getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).isEqualTo("(2<");
         // Verify session annotations are also present.
         assertThat(telemetryDataList.get(2).keySet()).containsAtLeastElementsIn(
                 SESSION_ANNOTATION_KEYS);
@@ -377,9 +369,9 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(result.getInt(
                 Constants.CAR_TELEMETRYD_BUNDLE_KEY_ID)).isEqualTo(
                 CAR_DATA_ID_1);
-        assertThat(result.getIntArray(
-                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT)).asList()
-                .hasSize(DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES + 1);
+        assertThat(result.getString(
+                Constants.CAR_TELEMETRYD_BUNDLE_KEY_CONTENT).length())
+                .isEqualTo(DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES + 1);
         // Verify session annotations are also present.
         assertThat(result.keySet()).containsAtLeastElementsIn(SESSION_ANNOTATION_KEYS);
     }

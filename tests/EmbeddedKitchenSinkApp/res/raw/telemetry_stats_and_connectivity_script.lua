@@ -95,5 +95,8 @@ function onWifiNetstatsForTopConsumers(data, state)
             "}")
     end
     local resultStr = table.concat(lines, ", ")
-    on_script_finished({["top_data_usage"] = resultStr})
+    local res = {}
+    res["top_data_usage"] = resultStr
+    res["bootCount"] = data["session.bootCount"]
+    on_script_finished(res)
 end

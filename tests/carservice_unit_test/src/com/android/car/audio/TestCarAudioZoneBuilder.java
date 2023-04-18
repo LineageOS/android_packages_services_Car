@@ -24,6 +24,8 @@ public final class TestCarAudioZoneBuilder {
     private final int mAudioZoneId;
     private final List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();
     private final String mAudioZoneName;
+    private CarAudioContext mCarAudioContext =
+            new CarAudioContext(CarAudioContext.getAllContextsInfo());
 
     public TestCarAudioZoneBuilder(String audioZoneName, int audioZoneId) {
         mAudioZoneId = audioZoneId;
@@ -35,8 +37,14 @@ public final class TestCarAudioZoneBuilder {
         return this;
     }
 
+    TestCarAudioZoneBuilder setCarAudioContexts(CarAudioContext carAudioContext) {
+        mCarAudioContext = carAudioContext;
+        return this;
+    }
+
     CarAudioZone build() {
-        return mCarVolumeGroups.stream().collect(()->new CarAudioZone(mAudioZoneId, mAudioZoneName),
+        return mCarVolumeGroups.stream().collect(
+                ()->new CarAudioZone(mCarAudioContext, mAudioZoneName, mAudioZoneId),
                 (x, y) -> x.addVolumeGroup(y), (a, b) -> {
                     for (CarVolumeGroup group: b.getVolumeGroups()) {
                     a.addVolumeGroup(group);

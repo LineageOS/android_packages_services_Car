@@ -170,6 +170,14 @@ package android.car {
     method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
+  public static class CarVersion.VERSION_CODES {
+    field @NonNull public static final android.car.CarVersion TIRAMISU_3;
+  }
+
+  public static class PlatformVersion.VERSION_CODES {
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_3;
+  }
+
   public final class VehicleAreaDoor {
     field public static final int DOOR_HOOD = 268435456; // 0x10000000
     field public static final int DOOR_REAR = 536870912; // 0x20000000
@@ -1059,6 +1067,7 @@ package android.car.media {
 
   public final class CarAudioManager {
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.media.CarAudioPatchHandle createAudioPatch(String, int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.media.AudioAttributes> getAudioAttributesForVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public java.util.List<java.lang.Integer> getAudioZoneIds();
     method @Deprecated @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public String[] getExternalSources();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getGroupMaxVolume(int);
@@ -1075,6 +1084,8 @@ package android.car.media {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupCount(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public int getVolumeGroupIdForUsage(int, int);
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public android.car.media.CarVolumeGroupInfo getVolumeGroupInfo(int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public java.util.List<android.car.media.CarVolumeGroupInfo> getVolumeGroupInfosForZone(int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isPlaybackOnVolumeGroupActive(int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME) public boolean isVolumeGroupMuted(int, int);
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public void releaseAudioPatch(android.car.media.CarAudioPatchHandle);
@@ -1108,6 +1119,34 @@ package android.car.media {
     method public void onMediaSourceChanged(@NonNull android.content.ComponentName);
   }
 
+  public final class CarVolumeGroupInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getId();
+    method public int getMaxVolumeGainIndex();
+    method public int getMinVolumeGainIndex();
+    method @NonNull public String getName();
+    method public int getVolumeGainIndex();
+    method public int getZoneId();
+    method public boolean isAttenuated();
+    method public boolean isBlocked();
+    method public boolean isMuted();
+    method public boolean isSameVolumeGroup(@Nullable android.car.media.CarVolumeGroupInfo);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.media.CarVolumeGroupInfo> CREATOR;
+  }
+
+  public static final class CarVolumeGroupInfo.Builder {
+    ctor public CarVolumeGroupInfo.Builder(@NonNull String, int, int);
+    ctor public CarVolumeGroupInfo.Builder(@NonNull android.car.media.CarVolumeGroupInfo);
+    method @NonNull public android.car.media.CarVolumeGroupInfo build();
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setAttenuated(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setBlocked(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMaxVolumeGainIndex(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMinVolumeGainIndex(int);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setMuted(boolean);
+    method @NonNull public android.car.media.CarVolumeGroupInfo.Builder setVolumeGainIndex(int);
+  }
+
 }
 
 package android.car.navigation {
@@ -1133,6 +1172,145 @@ package android.car.navigation {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
+  }
+
+}
+
+package android.car.oem {
+
+  public final class AudioFocusEntry implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAudioContextId();
+    method @NonNull public android.media.AudioFocusInfo getAudioFocusInfo();
+    method public int getAudioFocusResult();
+    method public int getAudioVolumeGroupId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.AudioFocusEntry> CREATOR;
+  }
+
+  public static final class AudioFocusEntry.Builder {
+    ctor public AudioFocusEntry.Builder(@NonNull android.car.oem.AudioFocusEntry);
+    ctor public AudioFocusEntry.Builder(@NonNull android.media.AudioFocusInfo, int, int, int);
+    method @NonNull public android.car.oem.AudioFocusEntry build();
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioContextId(int);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioFocusInfo(@NonNull android.media.AudioFocusInfo);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioFocusResult(int);
+    method @NonNull public android.car.oem.AudioFocusEntry.Builder setAudioVolumeGroupId(int);
+  }
+
+  public interface OemCarAudioDuckingService extends android.car.oem.OemCarServiceComponent {
+    method @NonNull public java.util.List<android.media.AudioAttributes> evaluateAttributesToDuck(@NonNull android.car.oem.OemCarAudioVolumeRequest);
+  }
+
+  public final class OemCarAudioFocusEvaluationRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusRequest();
+    method public int getAudioZoneId();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getFocusHolders();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getFocusLosers();
+    method @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getMutedVolumeGroups();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarAudioFocusEvaluationRequest> CREATOR;
+  }
+
+  public static final class OemCarAudioFocusEvaluationRequest.Builder {
+    ctor public OemCarAudioFocusEvaluationRequest.Builder(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, int);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addFocusHolders(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addFocusLosers(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder addMutedVolumeGroups(@NonNull android.car.media.CarVolumeGroupInfo);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest build();
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioFocusRequest(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setAudioZoneId(int);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setFocusHolders(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setFocusLosers(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusEvaluationRequest.Builder setMutedVolumeGroups(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>);
+  }
+
+  public final class OemCarAudioFocusResult implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.oem.AudioFocusEntry getAudioFocusEntry();
+    method public int getAudioFocusResult();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyBlockedAudioFocusEntries();
+    method @NonNull public java.util.List<android.car.oem.AudioFocusEntry> getNewlyLostAudioFocusEntries();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarAudioFocusResult> CREATOR;
+    field @NonNull public static final android.car.oem.OemCarAudioFocusResult EMPTY_OEM_CAR_AUDIO_FOCUS_RESULTS;
+  }
+
+  public static final class OemCarAudioFocusResult.Builder {
+    ctor public OemCarAudioFocusResult.Builder(@NonNull java.util.List<android.car.oem.AudioFocusEntry>, @NonNull java.util.List<android.car.oem.AudioFocusEntry>, int);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyBlockedAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder addNewlyLostAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult build();
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusEntry(@NonNull android.car.oem.AudioFocusEntry);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setAudioFocusResult(int);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyBlockedAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+    method @NonNull public android.car.oem.OemCarAudioFocusResult.Builder setNewlyLostAudioFocusEntries(@NonNull java.util.List<android.car.oem.AudioFocusEntry>);
+  }
+
+  public interface OemCarAudioFocusService extends android.car.oem.OemCarServiceComponent {
+    method @NonNull public android.car.oem.OemCarAudioFocusResult evaluateAudioFocusRequest(@NonNull android.car.oem.OemCarAudioFocusEvaluationRequest);
+    method public void notifyAudioFocusChange(@NonNull java.util.List<android.media.AudioFocusInfo>, @NonNull java.util.List<android.media.AudioFocusInfo>, int);
+  }
+
+  public final class OemCarAudioVolumeRequest implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public java.util.List<android.media.AudioAttributes> getActivePlaybackAttributes();
+    method public int getAudioZoneId();
+    method public int getCallState();
+    method @NonNull public java.util.List<android.car.media.CarVolumeGroupInfo> getCarVolumeGroupInfos();
+    method @NonNull public java.util.List<android.media.AudioAttributes> getDuckedAudioAttributes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarAudioVolumeRequest> CREATOR;
+  }
+
+  public static final class OemCarAudioVolumeRequest.Builder {
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder addActivePlaybackAttributes(@NonNull android.media.AudioAttributes);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder addCarVolumeGroupInfos(@NonNull android.car.media.CarVolumeGroupInfo);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder addDuckedAudioAttributes(@NonNull android.media.AudioAttributes);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest build();
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setActivePlaybackAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setCallState(int);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setCarVolumeGroupInfos(@NonNull java.util.List<android.car.media.CarVolumeGroupInfo>);
+    method @NonNull public android.car.oem.OemCarAudioVolumeRequest.Builder setDuckedAudioAttributes(@NonNull java.util.List<android.media.AudioAttributes>);
+  }
+
+  public interface OemCarAudioVolumeService extends android.car.oem.OemCarServiceComponent {
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo getSuggestedGroupForVolumeChange(@NonNull android.car.oem.OemCarAudioVolumeRequest, int);
+  }
+
+  public abstract class OemCarService extends android.app.Service {
+    ctor public OemCarService();
+    method @CallSuper public void dump(@Nullable java.io.FileDescriptor, @Nullable java.io.PrintWriter, @Nullable String[]);
+    method @Nullable public android.car.oem.OemCarAudioDuckingService getOemAudioDuckingService();
+    method @Nullable public android.car.oem.OemCarAudioFocusService getOemAudioFocusService();
+    method @Nullable public android.car.oem.OemCarAudioVolumeService getOemAudioVolumeService();
+    method @NonNull public abstract android.car.CarVersion getSupportedCarVersion();
+    method @NonNull public final android.os.IBinder onBind(@Nullable android.content.Intent);
+    method public abstract void onCarServiceReady();
+    method public final int onStartCommand(@Nullable android.content.Intent, int, int);
+  }
+
+  public interface OemCarServiceComponent {
+    method public void dump(@Nullable java.io.PrintWriter, @Nullable String[]);
+    method public void init();
+    method public void onCarServiceReady();
+    method public void release();
+  }
+
+  public final class OemCarVolumeChangeInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.media.CarVolumeGroupInfo getChangedVolumeGroup();
+    method public boolean isVolumeChanged();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.oem.OemCarVolumeChangeInfo> CREATOR;
+    field @NonNull public static final android.car.oem.OemCarVolumeChangeInfo EMPTY_OEM_VOLUME_CHANGE;
+  }
+
+  public static final class OemCarVolumeChangeInfo.Builder {
+    ctor public OemCarVolumeChangeInfo.Builder(boolean);
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo build();
+    method @NonNull public android.car.oem.OemCarVolumeChangeInfo.Builder setChangedVolumeGroup(@NonNull android.car.media.CarVolumeGroupInfo);
   }
 
 }

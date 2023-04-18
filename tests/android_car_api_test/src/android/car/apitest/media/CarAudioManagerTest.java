@@ -23,11 +23,13 @@ import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
 
 import android.car.apitest.CarApiTestBase;
 import android.car.media.CarAudioManager;
+import android.car.media.CarVolumeGroupInfo;
 import android.media.AudioDeviceInfo;
 import android.os.Process;
 
@@ -50,6 +52,41 @@ public class CarAudioManagerTest extends CarApiTestBase {
     public void setUp() throws Exception {
         mCarAudioManager = (CarAudioManager) getCar().getCarManager(AUDIO_SERVICE);
         assertThat(mCarAudioManager).isNotNull();
+    }
+
+    @Test
+    public void getVolumeGroupInfo() {
+        assumeDynamicRoutingIsEnabled();
+
+        int groupCount = mCarAudioManager.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+        for (int index = 0; index < groupCount; index++) {
+            CarVolumeGroupInfo info =
+                    mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
+            assertWithMessage("Car volume group info id for group %s", index)
+                    .that(info.getId()).isEqualTo(index);
+            assertWithMessage("Car volume group info zone for group %s", index)
+                    .that(info.getZoneId()).isEqualTo(PRIMARY_AUDIO_ZONE);
+        }
+    }
+
+    @Test
+    public void getVolumeGroupInfosForZone() {
+        assumeDynamicRoutingIsEnabled();
+
+        int groupCount = mCarAudioManager.getVolumeGroupCount(PRIMARY_AUDIO_ZONE);
+
+        List<CarVolumeGroupInfo> infos =
+                mCarAudioManager.getVolumeGroupInfosForZone(PRIMARY_AUDIO_ZONE);
+
+        assertWithMessage("Car volume group infos for primary zone")
+                .that(infos).hasSize(groupCount);
+        for (int index = 0; index < groupCount; index++) {
+            CarVolumeGroupInfo info =
+                    mCarAudioManager.getVolumeGroupInfo(PRIMARY_AUDIO_ZONE, index);
+            assertWithMessage("Car volume group infos for primary zone and group %s", index)
+                    .that(infos).contains(info);
+        }
     }
 
     @Test

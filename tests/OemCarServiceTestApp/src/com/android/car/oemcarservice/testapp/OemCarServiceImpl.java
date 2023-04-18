@@ -17,9 +17,11 @@
 package com.android.car.oemcarservice.testapp;
 
 import android.car.CarVersion;
+import android.car.oem.OemCarAudioDuckingService;
 import android.car.oem.OemCarAudioFocusService;
+import android.car.oem.OemCarAudioVolumeService;
 import android.car.oem.OemCarService;
-import android.util.Log;
+import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -29,60 +31,91 @@ import java.io.PrintWriter;
 public final class OemCarServiceImpl extends OemCarService {
 
     private static final String TAG = OemCarServiceImpl.class.getSimpleName();
+    private static final boolean DEBUG = true;
     private static final CarVersion SUPPORTED_CAR_VERSION =
             CarVersion.VERSION_CODES.TIRAMISU_2;
 
-    private final Object mLock = new Object();
 
+    private final OemCarAudioFocusServiceImpl mOemCarAudioFocusServiceImpl =
+            new OemCarAudioFocusServiceImpl();
+    private final OemCarAudioDuckingServiceImpl mOemCarAudioDuckingService =
+            new OemCarAudioDuckingServiceImpl();
+
+    private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private OemCarAudioFocusServiceImpl mOemCarAudioFocusServiceImpl;
+    private OemCarAudioVolumeServiceImp mOemCarAudioVolumeService;
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate");
-
-        // Initialize all subcomponents.
-        synchronized (mLock) {
-            mOemCarAudioFocusServiceImpl = new OemCarAudioFocusServiceImpl();
+        if (DEBUG) {
+            Slog.d(TAG, "onCreate");
         }
+
         super.onCreate();
     }
 
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "onDestroy");
-        // Releases resource from subcomponents.
-        synchronized (mLock) {
-            mOemCarAudioFocusServiceImpl = null;
+        if (DEBUG) {
+            Slog.d(TAG, "onDestroy");
         }
+        // Releases resource from subcomponents.
         super.onDestroy();
     }
 
     @Override
     public void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        Log.d(TAG, "dump");
+        if (DEBUG) {
+            Slog.d(TAG, "dump");
+        }
         writer.println("Dump OemCarServiceImpl");
-        writer.println("SUPPORTED_CAR_VERSION:" + SUPPORTED_CAR_VERSION);
-
+        writer.printf("\tSUPPORTED_CAR_VERSION: %s", SUPPORTED_CAR_VERSION);
+        super.dump(fd, writer, args);
     }
 
     @Override
     public OemCarAudioFocusService getOemAudioFocusService() {
+        if (DEBUG) {
+            Slog.d(TAG, "getOemAudioFocusService returning car audio focus service");
+        }
+        return mOemCarAudioFocusServiceImpl;
+    }
+
+    @Override
+    public OemCarAudioDuckingService getOemAudioDuckingService() {
+        if (DEBUG) {
+            Slog.d(TAG, "getOemAudioDuckingService returning car ducking service");
+        }
+        return mOemCarAudioDuckingService;
+    }
+
+    @Override
+    public OemCarAudioVolumeService getOemAudioVolumeService() {
+        if (DEBUG) {
+            Slog.d(TAG, "getOemAudioVolumeService returning car ducking service");
+        }
+
         synchronized (mLock) {
-            Log.d(TAG, "getOemAudioFocusService returned " + mOemCarAudioFocusServiceImpl);
-            return mOemCarAudioFocusServiceImpl;
+            if (mOemCarAudioVolumeService == null) {
+                mOemCarAudioVolumeService = new OemCarAudioVolumeServiceImp(this);
+            }
+            return mOemCarAudioVolumeService;
         }
     }
 
     @Override
     public void onCarServiceReady() {
-        Log.d(TAG, "onCarServiceReady");
+        if (DEBUG) {
+            Slog.d(TAG, "onCarServiceReady");
+        }
     }
 
     @Override
     public CarVersion getSupportedCarVersion() {
-        Log.d(TAG, "OemCarServiceImpl getSupportedCarVersion called");
+        if (DEBUG) {
+            Slog.d(TAG, "OemCarServiceImpl getSupportedCarVersion called");
+        }
         return SUPPORTED_CAR_VERSION;
     }
 

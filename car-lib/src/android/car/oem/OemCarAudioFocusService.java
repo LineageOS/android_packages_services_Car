@@ -16,6 +16,7 @@
 package android.car.oem;
 
 import android.annotation.NonNull;
+import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.media.AudioFocusInfo;
 
@@ -31,12 +32,40 @@ import java.util.List;
  *
  * @hide
  */
+@SystemApi
 public interface OemCarAudioFocusService extends OemCarServiceComponent {
     /**
-     * Updates audio focus change. It is one way call for OEM Service.
+     * Notifies of audio focus changes in car focus stack. It is one way call for OEM Service.
      */
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_2,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    void audioFocusChanged(@NonNull List<AudioFocusInfo> currentFocusHolders,
+    void notifyAudioFocusChange(@NonNull List<AudioFocusInfo> currentFocusHolders,
             @NonNull List<AudioFocusInfo> currentFocusLosers, int zoneId);
+
+    /**
+     * Call to evaluate a focus request, the request contains the information to make a decision.
+     *
+     * @param request current request containing the focus entry that triggered the current focus
+     * evaluation, the current focus holders, and current focus losers (focus requests that have
+     * transiently lost focus but can gain it again).
+     *
+     * @return the result of the focus request
+     * The result can be granted, delayed, or failed. In the case of granted the car audio stack
+     * will be changed according to the entries returned in newly loss and newly blocked.
+     * For delayed results the entry will be added as the current delayed request and it will be
+     * re-evaluated when any of the current focus holders abandons focus. For failed request,
+     * the car audio focus stack will not change and the current request will not gain focus.
+     *
+     * <p>Note: For the new focus losers and new blocked focus entries the focus loss can be
+     * permanent or transient. In the case of permanent loss the entry will receive permanent
+     * focus loss and it will be removed from the car audio focus stack. For transient losses,
+     * the new current request will become a blocker but will only receive transient focus loss.
+     * Everytime there is focus change the blocked entries will be re-evaluated to determine
+     * which can regain, lose, or continue with block focus.
+     **/
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_3,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    OemCarAudioFocusResult evaluateAudioFocusRequest(
+            @NonNull OemCarAudioFocusEvaluationRequest request);
 }
