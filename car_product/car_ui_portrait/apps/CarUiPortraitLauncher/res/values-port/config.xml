@@ -42,7 +42,7 @@
 
     <!-- A list of package names that provide the cards to display on the home screen -->
     <string-array name="config_homeCardModuleClasses" translatable="false">
-        <item>com.android.car.carlauncher.homescreen.audio.AudioCard</item>
+        <item>com.android.car.portraitlauncher.homescreen.audio.PortraitAudioCard</item>
     </string-array>
 
     <!--
