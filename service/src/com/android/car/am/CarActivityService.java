@@ -444,6 +444,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public IBinder createTaskMirroringToken(int taskId) {
         ensureManageActivityTasksPermission();
+        if (!isPlatformVersionAtLeastU()) {
+            return null;
+        }
         synchronized (mLock) {
             if (!mTaskToSurfaceMap.contains(taskId)) {
                 throw new IllegalArgumentException("Non-existent Task#" + taskId);
@@ -455,6 +458,9 @@ public final class CarActivityService extends ICarActivityService.Stub
     @Override
     public IBinder createDisplayMirroringToken(int displayId) {
         ensurePermission(Car.PERMISSION_MIRROR_DISPLAY);
+        if (!isPlatformVersionAtLeastU()) {
+            return null;
+        }
         return new DisplayMirroringToken(displayId);
     }
 
@@ -473,6 +479,9 @@ public final class CarActivityService extends ICarActivityService.Stub
             Slogf.d(TAG, "registerCarSystemUIProxy %s", carSystemUIProxy.toString());
         }
         ensurePermission(PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY);
+        if (!isPlatformVersionAtLeastU()) {
+            return;
+        }
         synchronized (mLock) {
             if (mCarSystemUIProxy != null) {
                 throw new UnsupportedOperationException("Car system UI proxy is already "
@@ -521,6 +530,9 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @Override
     public boolean isCarSystemUIProxyRegistered() {
+        if (!isPlatformVersionAtLeastU()) {
+            return false;
+        }
         synchronized (mLock) {
             return mCarSystemUIProxy != null;
         }
