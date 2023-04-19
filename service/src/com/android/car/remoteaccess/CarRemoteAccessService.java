@@ -660,10 +660,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void searchForRemoteTaskClientPackages() {
         List<RemoteTaskClientServiceInfo> servicesToStart = new ArrayList<>();
         // TODO(b/266129982): Query for all users.
-        UserHandle currentUser = UserHandle.of(mDep.getCurrentUser());
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
                 new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
-                currentUser);
+                UserHandle.SYSTEM);
         synchronized (mLock) {
             for (int i = 0; i < services.size(); i++) {
                 ServiceInfo info = services.get(i).serviceInfo;
@@ -704,12 +703,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         ComponentName serviceName = serviceInfo.getServiceComponentName();
         // TODO(b/266129982): Start a service for the user under which the task needs to be
         // executed.
-        UserHandle currentUser = UserHandle.of(mDep.getCurrentUser());
         if (serviceInfo.getServiceConnection() != null) {
             serviceInfo.getServiceConnection().bindService();
         } else {
             RemoteTaskClientServiceConnection serviceConnection =
-                    new RemoteTaskClientServiceConnection(mContext, serviceName, currentUser);
+                    new RemoteTaskClientServiceConnection(mContext, serviceName, UserHandle.SYSTEM);
             serviceConnection.bindService();
             serviceInfo.setServiceConnection(serviceConnection);
         }

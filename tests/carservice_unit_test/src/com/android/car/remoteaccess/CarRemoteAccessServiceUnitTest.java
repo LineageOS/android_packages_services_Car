@@ -121,7 +121,6 @@ public final class CarRemoteAccessServiceUnitTest {
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
             new ClientIdEntry("98765", System.currentTimeMillis(), "android.automotive.os")
     );
-    private static final int CURRENT_USER = 1234;
 
     private CarRemoteAccessService mService;
     private ICarRemoteAccessCallbackImpl mRemoteAccessCallback;
@@ -187,8 +186,6 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mPackageManager.getNameForUid(UID_PERMISSION_GRANTED_PACKAGE_TWO)).thenReturn(
                 PERMISSION_GRANTED_PACKAGE_TWO);
 
-        when(mDep.getCurrentUser()).thenReturn(CURRENT_USER);
-
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
         mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
         mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
@@ -250,8 +247,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mBootComplete.run();
         mService.init();
 
-        UserHandle currentUserHandle = new UserHandle(CURRENT_USER);
-        verify(mUserManager, times(2)).isUserUnlocked(eq(currentUserHandle));
+        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
         verify(mCarUserService, times(2)).addUserLifecycleListener(any(),
                 mUserLifecycleListenerCaptor.capture());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
@@ -259,7 +255,7 @@ public final class CarRemoteAccessServiceUnitTest {
         for (int i = 0; i < packageNames.length; i++) {
             UserLifecycleListener listener = mUserLifecycleListenerCaptor.getAllValues().get(i);
             listener.onEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
-                    CURRENT_USER));
+                    UserHandle.USER_SYSTEM));
         }
 
         verifyBindingStartedForPackages(packageNames, classNames);
@@ -276,8 +272,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mBootComplete.run();
         mService.init();
 
-        UserHandle currentUserHandle = new UserHandle(CURRENT_USER);
-        verify(mUserManager, times(2)).isUserUnlocked(eq(currentUserHandle));
+        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
         verify(mCarUserService, times(2)).addUserLifecycleListener(any(),
                 mUserLifecycleListenerCaptor.capture());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
@@ -297,7 +292,7 @@ public final class CarRemoteAccessServiceUnitTest {
         for (int i = 0; i < packageNames.length; i++) {
             UserLifecycleListener listener = mUserLifecycleListenerCaptor.getAllValues().get(i);
             listener.onEvent(new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
-                    CURRENT_USER));
+                    UserHandle.USER_SYSTEM));
         }
 
         verify(mContext, times(2)).bindServiceAsUser(any(), any(), anyInt(), any());
@@ -310,8 +305,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mBootComplete.run();
         mService.init();
 
-        UserHandle currentUserHandle = new UserHandle(CURRENT_USER);
-        verify(mUserManager, times(2)).isUserUnlocked(eq(currentUserHandle));
+        verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
         verify(mCarUserService, times(2)).addUserLifecycleListener(any(), any());
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
