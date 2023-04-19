@@ -49,10 +49,9 @@ class TaskCategoryManager {
     private final ArraySet<ComponentName> mIgnoreOpeningRootTaskViewComponentsSet;
     private final Set<ComponentName> mFullScreenActivities;
     private final Set<ComponentName> mBackgroundActivities;
+    private final Context mContext;
 
     private ComponentName mCurrentBackgroundApp;
-
-    private final Context mContext;
 
     TaskCategoryManager(Context context) {
         mContext = context;
@@ -111,6 +110,10 @@ class TaskCategoryManager {
 
     boolean isBlankActivity(ActivityManager.RunningTaskInfo taskInfo) {
         return mBlankActivityComponent.equals(taskInfo.baseActivity);
+    }
+
+    boolean isAppGridActivity(ComponentName componentName) {
+        return mAppGridActivityComponent.equals(componentName);
     }
 
     boolean isAppGridActivity(TaskInfo taskInfo) {

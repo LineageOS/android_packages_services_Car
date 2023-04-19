@@ -18,6 +18,7 @@ package com.android.car.portraitlauncher.panel;
 
 import android.annotation.SuppressLint;
 import android.app.TaskInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Insets;
@@ -43,6 +44,7 @@ import com.android.car.portraitlauncher.panel.animation.FadeOutPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FullScreenPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.OpenPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.PanelAnimator;
+
 /**
  * A view container used to display CarTaskViews.
  *
@@ -242,6 +244,11 @@ public class TaskViewPanel extends RelativeLayout {
     /** Whether the panel is in the open state. */
     public boolean isOpen() {
         return mActiveState == mOpenState;
+    }
+
+    /** Whether the panel is in the full screen state. */
+    public boolean isFullScreen() {
+        return mActiveState.isFullScreen();
     }
 
     /** Whether the panel is visible */
@@ -480,6 +487,16 @@ public class TaskViewPanel extends RelativeLayout {
      */
     public void setCurrentTask(TaskInfo task) {
         mCurrentTask = task;
+    }
+
+    /**
+     * Returns true if given component has the same package name as current task.
+     */
+    public boolean isPackageOnTop(ComponentName componentName) {
+        if (componentName == null || mCurrentTask == null || mCurrentTask.baseActivity == null) {
+            return false;
+        }
+        return componentName.getPackageName().equals(mCurrentTask.baseActivity.getPackageName());
     }
 
     /**

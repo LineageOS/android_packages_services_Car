@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -44,6 +45,11 @@ public class CarUiPortraitService extends Service {
     // key name for the intent's extra that tells the root task view's visibility status
     public static final String INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED =
             "INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED";
+
+    // key name for the intent's extra that tells the component that request the view's
+    // visibility change.
+    public static final String INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE =
+            "INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE";
 
     public static final String INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE =
             "INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE";
@@ -232,7 +238,11 @@ public class CarUiPortraitService extends Service {
                 if (intent.hasExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED)
                         && isImmersive != mIsSystemInImmersiveMode) {
                     mIsSystemInImmersiveMode = isImmersive;
-                    notifyClients(MSG_IMMERSIVE_MODE_REQUESTED, boolToInt(isImmersive));
+                    String source = intent.getStringExtra(
+                            INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE, source);
+                    notifyClients(MSG_IMMERSIVE_MODE_REQUESTED, boolToInt(isImmersive), bundle);
                 }
 
                 boolean isImmersiveState = intent.getBooleanExtra(
@@ -282,6 +292,21 @@ public class CarUiPortraitService extends Service {
             } catch (RemoteException e) {
                 // The client is dead. Remove it from the list.
                 mClients.remove(i);
+                Log.d(TAG, "A client is removed from the list");
+            }
+        }
+    }
+
+    private void notifyClients(int key, int value, Bundle bundle) {
+        for (int i = mClients.size() - 1; i >= 0; i--) {
+            try {
+                Message msg = Message.obtain(null, key, value, 0);
+                msg.setData(bundle);
+                mClients.get(i).send(msg);
+            } catch (RemoteException e) {
+                // The client is dead. Remove it from the list.
+                mClients.remove(i);
+                Log.d(TAG, "A client is removed from the list");
             }
         }
     }
