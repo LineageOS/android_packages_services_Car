@@ -470,4 +470,8 @@
     <string name="audio_permission_granted">Audio permission granted</string>
     <string name="audio_permission_not_granted">No audio permission</string>
 
+    <!-- Biometric Prompt Test -->
+    <string name="auth_device_credential" translatable="false">Auth by device credential</string>
+    <string name="auth_biometric" translatable="false">Auth by biometric</string>
+    <string name="auth_device_credential_intent" translatable="false">Auth by createConfirmDeviceCredentialIntent</string>
 </resources>
