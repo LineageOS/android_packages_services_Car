@@ -55,9 +55,9 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -91,10 +91,11 @@ public final class CarActivityService extends ICarActivityService.Stub
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int MAX_RUNNING_TASKS_TO_GET = 100;
-    private static final int MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
+    private static final long MIRRORING_TOKEN_TIMEOUT_MS = 10 * 60 * 1000;  // 10 mins
 
     private final Context mContext;
     private final DisplayManager mDisplayManager;
+    private final long mMirroringTokenTimeoutMs;
 
     private final Object mLock = new Object();
 
@@ -108,7 +109,10 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final SparseArray<SurfaceControl> mTaskToSurfaceMap = new SparseArray<>();
 
     @GuardedBy("mLock")
-    private final ArrayMap<IBinder, IBinder.DeathRecipient> mTokens = new ArrayMap<>();
+    private final ArrayMap<IBinder, IBinder.DeathRecipient> mMonitorTokens = new ArrayMap<>();
+
+    @GuardedBy("mLock")
+    private final ArraySet<MirroringToken> mMirroringTokens = new ArraySet<>();
 
     @GuardedBy("mLock")
     private ICarSystemUIProxy mCarSystemUIProxy;
@@ -134,8 +138,14 @@ public final class CarActivityService extends ICarActivityService.Stub
     private final Handler mHandler = new Handler(mMonitorHandlerThread.getLooper());
 
     public CarActivityService(Context context) {
+        this(context, MIRRORING_TOKEN_TIMEOUT_MS);
+    }
+
+    @VisibleForTesting
+    CarActivityService(Context context, long mirroringTokenTimeout) {
         mContext = context;
         mDisplayManager = context.getSystemService(DisplayManager.class);
+        mMirroringTokenTimeoutMs = mirroringTokenTimeout;
     }
 
     @Override
@@ -176,7 +186,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         IBinder.DeathRecipient deathRecipient = new IBinder.DeathRecipient() {
             @Override
             public void binderDied() {
-                cleanUpToken(token);
+                cleanUpMonitorToken(token);
             }
         };
         synchronized (mLock) {
@@ -187,7 +197,7 @@ public final class CarActivityService extends ICarActivityService.Stub
                 Slogf.e(TAG, "failed to linkToDeath: %s", token);
                 return;
             }
-            mTokens.put(token, deathRecipient);
+            mMonitorTokens.put(token, deathRecipient);
             mCurrentMonitor = token;
             // When new TaskOrganizer takes the control, it'll get the status of the whole tasks
             // in the system again. So drops the old status.
@@ -206,12 +216,12 @@ public final class CarActivityService extends ICarActivityService.Stub
         ensurePermission(MANAGE_ACTIVITY_TASKS);
     }
 
-    private void cleanUpToken(IBinder token) {
+    private void cleanUpMonitorToken(IBinder token) {
         synchronized (mLock) {
             if (mCurrentMonitor == token) {
                 mCurrentMonitor = null;
             }
-            IBinder.DeathRecipient deathRecipient = mTokens.remove(token);
+            IBinder.DeathRecipient deathRecipient = mMonitorTokens.remove(token);
             if (deathRecipient != null) {
                 token.unlinkToDeath(deathRecipient, /* flags= */ 0);
             }
@@ -255,7 +265,7 @@ public final class CarActivityService extends ICarActivityService.Stub
             return true;
         }
         // Fallback during no current Monitor exists.
-        boolean allowed = (mCurrentMonitor == null && mTokens.containsKey(token));
+        boolean allowed = (mCurrentMonitor == null && mMonitorTokens.containsKey(token));
         if (!allowed) {
             Slogf.w(TAG, "Report with the invalid token: %s", token);
         }
@@ -303,7 +313,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     public void unregisterTaskMonitor(IBinder token) {
         if (DBG) Slogf.d(TAG, "unregisterTaskMonitor: %s", token);
         ensureManageActivityTasksPermission();
-        cleanUpToken(token);
+        cleanUpMonitorToken(token);
     }
 
     /**
@@ -368,21 +378,33 @@ public final class CarActivityService extends ICarActivityService.Stub
         CarServiceUtils.startUserPickerOnDisplay(mContext, displayId, userPickerName);
     }
 
-    private abstract static class MirroringToken extends Binder {
-        private final long mCreationTimeMs;
+    private abstract class MirroringToken extends Binder {
         private MirroringToken() {
-            // Uses elapsedRealtime() because the token should be expired during sleep.
-            mCreationTimeMs = SystemClock.elapsedRealtime();
+            CarActivityService.this.registerMirroringToken(this);
         }
 
-        protected void checkValidity(long tokenTimeoutMs) {
-            if (SystemClock.elapsedRealtime() - mCreationTimeMs > tokenTimeoutMs) {
-                throw new IllegalArgumentException("Expired token: created=" + mCreationTimeMs);
-            }
-        }
-
-        protected abstract SurfaceControl getMirroredSurface(long tokenTimeoutMs, Rect outBounds);
+        protected abstract SurfaceControl getMirroredSurface(Rect outBounds);
     };
+
+    private void registerMirroringToken(MirroringToken token) {
+        synchronized (mLock) {
+            mMirroringTokens.add(token);
+        }
+        mHandler.postDelayed(() -> cleanUpMirroringToken(token), mMirroringTokenTimeoutMs);
+    }
+
+    private void cleanUpMirroringToken(MirroringToken token) {
+        synchronized (mLock) {
+            mMirroringTokens.remove(token);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void assertMirroringTokenIsValidLocked(MirroringToken token) {
+        if (!mMirroringTokens.contains(token)) {
+            throw new IllegalArgumentException("Invalid token: " + token);
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private final class TaskMirroringToken extends MirroringToken {
@@ -393,15 +415,10 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
 
         @Override
-        protected SurfaceControl getMirroredSurface(long tokenTimeousMs, Rect outBounds) {
-            checkValidity(tokenTimeousMs);
-
-            SurfaceControl taskSurface;
-            TaskInfo taskInfo;
-            synchronized (mLock) {
-                taskInfo = mTasks.get(mTaskId);
-                taskSurface = mTaskToSurfaceMap.get(mTaskId);
-            }
+        @GuardedBy("CarActivityService.this.mLock")
+        protected SurfaceControl getMirroredSurface(Rect outBounds) {
+            TaskInfo taskInfo = mTasks.get(mTaskId);
+            SurfaceControl taskSurface = mTaskToSurfaceMap.get(mTaskId);
             if (taskInfo == null || taskSurface == null || !taskInfo.isVisible()) {
                 Slogf.e(TAG, "TaskMirroringToken#getMirroredSurface: no task=%s", taskInfo);
                 return null;
@@ -425,9 +442,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         }
 
         @Override
-        protected SurfaceControl getMirroredSurface(long tokenTimeousMs, Rect outBounds) {
-            checkValidity(tokenTimeousMs);
-
+        protected SurfaceControl getMirroredSurface(Rect outBounds) {
             Display display = mDisplayManager.getDisplay(mDisplayId);
             Point point = new Point();
             display.getRealSize(point);
@@ -470,7 +485,17 @@ public final class CarActivityService extends ICarActivityService.Stub
         if (!isPlatformVersionAtLeastU()) {
             return null;
         }
-        return getMirroredSurfaceInternal(token, outBounds, MIRRORING_TOKEN_TIMEOUT_MS);
+        ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
+        MirroringToken mirroringToken;
+        try {
+            mirroringToken = (MirroringToken) token;
+        } catch (ClassCastException e) {
+            throw new IllegalArgumentException("Bad token");
+        }
+        synchronized (mLock) {
+            assertMirroringTokenIsValidLocked(mirroringToken);
+            return mirroringToken.getMirroredSurface(outBounds);
+        }
     }
 
     @Override
@@ -580,18 +605,6 @@ public final class CarActivityService extends ICarActivityService.Stub
         synchronized (mLock) {
             mCarSystemUIProxyCallbacks.unregister(callback);
         }
-    }
-
-    @VisibleForTesting
-    SurfaceControl getMirroredSurfaceInternal(IBinder token, Rect outBounds, long tokenTimeoutMs) {
-        ensurePermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE);
-        MirroringToken mirroringToken;
-        try {
-            mirroringToken = (MirroringToken) token;
-        } catch (ClassCastException e) {
-            throw new IllegalArgumentException("Bad token");
-        }
-        return mirroringToken.getMirroredSurface(tokenTimeoutMs, outBounds);
     }
 
     /**
