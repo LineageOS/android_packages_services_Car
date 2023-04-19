@@ -42,6 +42,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.eq;
@@ -62,6 +63,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager;
+import android.hardware.display.DisplayManager.DisplayListener;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
@@ -115,6 +118,8 @@ public class CarRemoteDeviceServiceTest {
     @Mock
     private UserManager mUserManager;
     @Mock
+    private DisplayManager mDisplayManager;
+    @Mock
     private IStateCallback mCallback;
     @Mock
     private IBinder mCallbackBinder;
@@ -146,6 +151,7 @@ public class CarRemoteDeviceServiceTest {
         mService = new CarRemoteDeviceService(mContext, mOccupantZoneService,
                 mPowerManagementService, mSystemActivityMonitoringService, mActivityManager,
                 mUserManager, mPerUserInfoMap, mCallbackMap, mAppStateMap, mOccupantZoneStateMap);
+        when(mContext.getSystemService(DisplayManager.class)).thenReturn(mDisplayManager);
         mService.init();
         mockPackageName();
         when(mCallback.asBinder()).thenReturn(mCallbackBinder);
@@ -408,11 +414,10 @@ public class CarRemoteDeviceServiceTest {
 
     @Test
     public void testCalculateOccupantZoneState_connectionReady() {
-        mockOccupantZonePowerOn(mOccupantZone);
         mockOccupantZoneConnectionReady(mOccupantZone, USER_ID);
 
         assertThat(mService.calculateOccupantZoneState(mOccupantZone))
-                .isEqualTo(FLAG_OCCUPANT_ZONE_POWER_ON | FLAG_OCCUPANT_ZONE_CONNECTION_READY);
+                .isEqualTo(FLAG_OCCUPANT_ZONE_CONNECTION_READY);
     }
 
     @Test
@@ -620,6 +625,26 @@ public class CarRemoteDeviceServiceTest {
         zoneStateCallback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
 
         verify(mCallback).onOccupantZoneStateChanged(peerZone2, FLAG_OCCUPANT_ZONE_POWER_ON);
+    }
+
+    @Test
+    public void testOccupantZonePowerStateChanged() throws RemoteException {
+        DisplayListener[] displayListener = new DisplayListener[1];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            displayListener[0] = (DisplayListener) args[0];
+            return null;
+        }).when(mDisplayManager).registerDisplayListener(any(), any(), anyLong());
+
+        mService.init();
+        mOccupantZoneStateMap.put(mOccupantZone, INITIAL_OCCUPANT_ZONE_STATE);
+        mockOccupantZonePowerOn(mOccupantZone);
+        int displayId = 789;
+        when(mOccupantZoneService.getOccupantZoneForDisplayId(displayId)).thenReturn(mOccupantZone);
+
+        displayListener[0].onDisplayChanged(displayId);
+
+        assertThat(mOccupantZoneStateMap.get(mOccupantZone)).isEqualTo(FLAG_OCCUPANT_ZONE_POWER_ON);
     }
 
     @Test
