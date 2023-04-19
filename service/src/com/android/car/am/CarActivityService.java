@@ -251,7 +251,7 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     @GuardedBy("mLock")
     private boolean isAllowedToUpdateLocked(IBinder token) {
-        if (mCurrentMonitor == token) {
+        if (mCurrentMonitor != null && mCurrentMonitor == token) {
             return true;
         }
         // Fallback during no current Monitor exists.
