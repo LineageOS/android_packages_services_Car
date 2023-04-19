@@ -208,4 +208,13 @@ public final class PackageManagerHelper {
         ActivityManager am = context.getSystemService(ActivityManager.class);
         am.forceStopPackageAsUser(packageName, userId);
     }
+
+    /** Check {@link ActivityManager#forceStopPackageAsUserEvenWhenStopping}. */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static void forceStopPackageAsUserEvenWhenStopping(@NonNull Context context,
+            @NonNull String packageName, @UserIdInt int userId) {
+        ActivityManager am = context.getSystemService(ActivityManager.class);
+        am.forceStopPackageAsUserEvenWhenStopping(packageName, userId);
+    }
 }
