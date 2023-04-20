@@ -58,6 +58,8 @@ public final class GenerateAPI {
     private static final String PRINT_ALL_APIS_WITH_CONSTR = "--print-all-apis-with-constr";
     private static final String UPDATE_APIS_WITH_ADDEDINORBEFORE =
             "--update-apis-with-addedinorbefore";
+    private static final String PLATFORM_VERSION_ASSERTION_CHECK =
+            "--platform-version-assertion-check";
     private static final String PRINT_ALL_APIS_WITH_CAR_VERSION =
             "--print-all-apis-with-car-version";
     private static final String ROOT_DIR = "--root-dir";
@@ -77,6 +79,7 @@ public final class GenerateAPI {
             boolean printAllApis = false;
             boolean printAllApisWithConstr = false;
             boolean updateApisWithAddedinorbefore = false;
+            boolean platformVersionCheck = false;
             boolean printAllApisWithCarVersion = false;
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
             // If print request is more than one. Use marker to separate data. This would be useful
@@ -117,6 +120,9 @@ public final class GenerateAPI {
                         break;
                     case ROOT_DIR:
                         rootDir = args[++i];
+                        break;
+                    case PLATFORM_VERSION_ASSERTION_CHECK:
+                        platformVersionCheck = true;
                         break;
                     case PRINT_ALL_APIS_WITH_CAR_VERSION:
                         printAllApisWithCarVersion = true;
@@ -187,6 +193,10 @@ public final class GenerateAPI {
                 write(rootDir + CAR_ADDEDINORBEFORE_API_FILE,
                         ParsedDataHelper.getAddedInOrBeforeApisOnly(parsedDataCarLib));
             }
+            if (platformVersionCheck) {
+                printMarker(printRequests, PLATFORM_VERSION_ASSERTION_CHECK);
+                print(ParsedDataHelper.checkAssertPlatformVersionAtLeast(parsedDataCarLib));
+            }
             if (printAllApisWithCarVersion) {
                 printMarker(printRequests, PRINT_ALL_APIS_WITH_CAR_VERSION);
                 print(ParsedDataHelper.getApisWithVersion(parsedDataCarLib));
@@ -234,6 +244,9 @@ public final class GenerateAPI {
         System.out.println(UPDATE_APIS_WITH_ADDEDINORBEFORE
                 + " generates the api list that contains the @AddedInOrBefore annotation. "
                 + "Results would be updated in " + CAR_ADDEDINORBEFORE_API_FILE);
+        System.out.println(PLATFORM_VERSION_ASSERTION_CHECK
+                + " : Iterates through APIs to ensure that APIs added after TIRAMISU_x have call "
+                + "assertPlatformVersionAtLeast with the correct minPlatformVersion.");
         System.out.println(PRINT_ALL_APIS_WITH_CAR_VERSION
                 + " : Prints a list of all apis along with their min car version.");
         System.out.println("Second argument is value of Git Root Directory. By default, "
