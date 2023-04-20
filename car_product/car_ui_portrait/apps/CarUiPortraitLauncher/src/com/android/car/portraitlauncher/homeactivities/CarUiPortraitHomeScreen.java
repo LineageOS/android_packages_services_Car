@@ -20,6 +20,7 @@ import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERL
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
@@ -226,7 +227,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
-
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes an reveals
             // the blank activity underneath.
@@ -487,8 +487,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                                     + " took " + reflectionTime + " ms");
                 }
             } catch (IllegalAccessException | InstantiationException
-                    | ClassNotFoundException | InvocationTargetException
-                    | NoSuchMethodException e) {
+                     | ClassNotFoundException | InvocationTargetException
+                     | NoSuchMethodException e) {
                 Log.w(TAG, "Unable to create HomeCardProvider class " + providerClassName, e);
             }
         }
@@ -497,6 +497,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             transaction.replace(cardModule.getCardResId(), cardModule.getCardView());
         }
         transaction.commitNow();
+    }
+
+    private void collapseNotificationPanel() {
+        if (mIsNotificationCenterOnTop) {
+            mRootTaskViewPanel.closePanel();
+        }
     }
 
     @Override
@@ -578,7 +584,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // Set padding instead of margin so the bottom area shows background of
         // car_ui_portrait_launcher during immersive mode without nav bar, and panel states are
         // calculated correctly.
-        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */0 , bottomPadding);
+        mContainer.setPadding(/* left= */ 0, /* top= */ 0, /* right= */0, bottomPadding);
     }
 
     // TODO(b/275633095): Add test to verify the region is set correctly in each mode
@@ -948,6 +954,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 case MSG_IMMERSIVE_MODE_CHANGE:
                     boolean hideNavBar = intToBool(msg.arg1);
                     mRootTaskViewPanel.setToolBarViewVisibility(hideNavBar);
+                    break;
+                case MSG_COLLAPSE_NOTIFICATION:
+                    collapseNotificationPanel();
                     break;
                 default:
                     super.handleMessage(msg);
