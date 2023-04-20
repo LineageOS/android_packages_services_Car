@@ -2408,6 +2408,7 @@ package android.car.view {
   }
 
   public final class WindowManagerHelper {
+    method public static void setInputFeatureSpy(@NonNull android.view.WindowManager.LayoutParams);
     method @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW) public static void setTrustedOverlay(@NonNull android.view.WindowManager.LayoutParams);
   }
 
