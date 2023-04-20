@@ -56,8 +56,8 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     private static final String TAG = CarRemoteDeviceManager.class.getSimpleName();
 
     /**
-     * Flag to indicate whether the occupant zone is powered on. If it is not powered on, the caller
-     * can power it on by {@link #setOccupantZonePower}.
+     * Flag to indicate whether all the displays of the occupant zone are powered on. If any of
+     * them is not powered on, the caller can power them on by {@link #setOccupantZonePower}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
