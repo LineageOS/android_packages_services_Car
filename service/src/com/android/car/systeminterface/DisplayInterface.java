@@ -26,6 +26,7 @@ import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
 
+import android.annotation.RequiresApi;
 import android.car.builtin.display.DisplayManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.power.PowerManagerHelper;
@@ -36,6 +37,7 @@ import android.content.Context;
 import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -160,7 +162,7 @@ public interface DisplayInterface {
         private final SparseBooleanArray mDisplayStateSet = new SparseBooleanArray();
         @GuardedBy("mLock")
         private final SparseIntArray mDisplayBrightnessSet = new SparseIntArray();
-        private final boolean mPerDisplayBrightnessSupported;
+        private final UserManager mUserManager;
 
         private final ContentObserver mBrightnessObserver =
                 new ContentObserver(new Handler(Looper.getMainLooper())) {
@@ -206,9 +208,7 @@ public interface DisplayInterface {
                     mDisplayBrightnessSet.put(displayId, INVALID_DISPLAY_BRIGHTNESS);
                 }
             }
-            UserManager userManager = context.getSystemService(UserManager.class);
-            mPerDisplayBrightnessSupported = isPlatformVersionAtLeastU()
-                    && UserManagerHelper.isVisibleBackgroundUsersSupported(userManager);
+            mUserManager = context.getSystemService(UserManager.class);
         }
 
         private final UserLifecycleListener mUserLifecycleListener = event -> {
@@ -238,13 +238,15 @@ public interface DisplayInterface {
                         + "no CarPowerManagementService");
                 return;
             }
-            if (mPerDisplayBrightnessSupported) {
+            if (isPlatformVersionAtLeastU()
+                    && UserManagerHelper.isVisibleBackgroundUsersSupported(mUserManager)) {
                 refreshDisplayBrightnessFromDisplay(carPowerManagementService, displayId);
             } else {
                 refreshDisplayBrigtnessFromSetting(carPowerManagementService);
             }
         }
 
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         private void refreshDisplayBrightnessFromDisplay(
                 CarPowerManagementService carPowerManagementService, int displayId) {
             int linear = BrightnessUtils.brightnessFloatToInt(
@@ -310,7 +312,8 @@ public interface DisplayInterface {
             }
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
-            if (mPerDisplayBrightnessSupported) {
+            if (isPlatformVersionAtLeastU()
+                    && UserManagerHelper.isVisibleBackgroundUsersSupported(mUserManager)) {
                 DisplayManagerHelper.setBrightness(mContext, displayId,
                         BrightnessUtils.brightnessIntToFloat(linear));
             } else {
@@ -343,13 +346,15 @@ public interface DisplayInterface {
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
             carUserService.addUserLifecycleListener(userSwitchingEventFilter,
                     mUserLifecycleListener);
-            DisplayManagerHelper.registerDisplayListener(mContext, mDisplayListener,
-                    carPowerManagementService.getHandler(),
-                    DisplayManagerHelper.EVENT_FLAG_DISPLAY_ADDED
-                            | DisplayManagerHelper.EVENT_FLAG_DISPLAY_REMOVED
-                            | DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED
-                            | DisplayManagerHelper.EVENT_FLAG_DISPLAY_BRIGHTNESS);
-            if (!mPerDisplayBrightnessSupported) {
+            if (isPlatformVersionAtLeastU()
+                    && UserManagerHelper.isVisibleBackgroundUsersSupported(mUserManager)) {
+                DisplayManagerHelper.registerDisplayListener(mContext, mDisplayListener,
+                        carPowerManagementService.getHandler(),
+                        DisplayManagerHelper.EVENT_FLAG_DISPLAY_ADDED
+                                | DisplayManagerHelper.EVENT_FLAG_DISPLAY_REMOVED
+                                | DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED
+                                | DisplayManagerHelper.EVENT_FLAG_DISPLAY_BRIGHTNESS);
+            } else {
                 getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
                         .registerContentObserver(System.getUriFor(System.SCREEN_BRIGHTNESS),
                                 false,
@@ -369,8 +374,10 @@ public interface DisplayInterface {
                 carUserService = mCarUserService;
             }
             carUserService.removeUserLifecycleListener(mUserLifecycleListener);
-            mDisplayManager.unregisterDisplayListener(mDisplayListener);
-            if (!mPerDisplayBrightnessSupported) {
+            if (isPlatformVersionAtLeastU()
+                    && UserManagerHelper.isVisibleBackgroundUsersSupported(mUserManager)) {
+                mDisplayManager.unregisterDisplayListener(mDisplayListener);
+            } else {
                 getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
                         .unregisterContentObserver(mBrightnessObserver);
             }
