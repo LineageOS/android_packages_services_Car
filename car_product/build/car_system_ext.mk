@@ -18,6 +18,9 @@
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
 
+# Window Extensions
+$(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
+
 PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarProvision \
