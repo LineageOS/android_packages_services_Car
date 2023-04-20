@@ -2350,6 +2350,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         int userId = Integer.parseInt(args[1]);
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         boolean halOnly = false;
 
         for (int i = 2; i < args.length; i++) {
@@ -2383,11 +2384,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
+        SyncResultCallback<UserRemovalResult> syncResultCallback = new SyncResultCallback<>();
         carUserManager.removeUser(new UserRemovalRequest.Builder(
-                        UserHandle.of(userId)).build(), Runnable::run,
-                response -> writer.printf("UserRemovalResult: status = %s\n",
-                        UserRemovalResult.statusToString(response.getStatus()))
-        );
+                UserHandle.of(userId)).build(), Runnable::run, syncResultCallback);
+        try {
+            UserRemovalResult result = syncResultCallback.get(timeout, TimeUnit.MILLISECONDS);
+            writer.printf("UserRemovalResult: status = %s\n",
+                    UserRemovalResult.statusToString(result.getStatus()));
+        } catch (TimeoutException e) {
+            writer.printf("UserRemovalResult: timed out waitng for result");
+        } catch (InterruptedException e) {
+            writer.printf("UserRemovalResult: interrupted waitng for result");
+            Thread.currentThread().interrupt();
+        }
     }
 
     private static <T> T waitForFuture(IndentingPrintWriter writer,
