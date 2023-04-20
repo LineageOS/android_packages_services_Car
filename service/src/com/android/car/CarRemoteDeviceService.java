@@ -27,6 +27,7 @@ import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_CONNECTION_READY;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
+import static android.car.builtin.display.DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED;
 import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
 import static com.android.car.CarServiceUtils.assertPermission;
@@ -44,6 +45,7 @@ import android.car.CarRemoteDeviceManager.AppState;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
 import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
+import android.car.builtin.display.DisplayManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
@@ -53,6 +55,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -86,7 +89,7 @@ import java.util.Set;
  * those occupant zones. There are 3 {@link OccupantZoneState}s:
  * <ul>
  *   <li> {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_POWER_ON} is updated by the
- *        DisplayListener. TODO(b/257117236).
+ *        DisplayListener.
  *   <li> TODO(b/257117236): implement FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED.
  *   <li> {@link android.car.CarRemoteDeviceManager#FLAG_OCCUPANT_ZONE_CONNECTION_READY} is updated
  *        by the ICarOccupantZoneCallback.
@@ -281,6 +284,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         initAllOccupantZones();
         registerOccupantZoneCallback();
         initAssignedUsers();
+        registerDisplayListener();
     }
 
     @Override
@@ -431,6 +435,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
 
                         if ((!hasOldUser && !hasNewUser) || (oldUserId == newUserId)) {
                             // No secondary user change in this occupant zone, so do nothing.
+                            Slogf.v(TAG, "No user change in %s", occupantZone);
                             continue;
                         }
                         if (hasOldUser && !hasNewUser) {
@@ -451,6 +456,35 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         });
     }
 
+    private void registerDisplayListener() {
+        DisplayManagerHelper.registerDisplayListener(mContext, new DisplayListener() {
+            @Override
+            public void onDisplayAdded(int displayId) {
+                // No-op.
+            }
+
+            @Override
+            public void onDisplayRemoved(int displayId) {
+                // No-op.
+            }
+
+            @Override
+            public void onDisplayChanged(int displayId) {
+                Slogf.v(TAG, "onDisplayChanged(): displayId %d", displayId);
+                OccupantZoneInfo occupantZone =
+                        mOccupantZoneService.getOccupantZoneForDisplayId(displayId);
+                if (occupantZone == null) {
+                    Slogf.i(TAG, "Display %d has no occupant zone assigned", displayId);
+                    return;
+                }
+                synchronized (mLock) {
+                    updateOccupantZoneStateLocked(occupantZone,
+                            /* callbackToNotify= */null);
+                }
+            }
+        }, /* handler= */null, EVENT_FLAG_DISPLAY_CHANGED);
+    }
+
     private void handleProcessRunningStateChange(int uid, @ProcessRunningState int newState) {
         UserHandle userHandle = UserHandle.getUserHandleForUid(uid);
         if (userHandle.isSystem()) {
@@ -465,7 +499,6 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             if (packageName == null) {
                 return;
             }
-            Slogf.e(TAG, "%s 's running state changed to %d", packageName, newState);
             if (!isDiscoveringLocked(packageName)) {
                 // There is no peer client discovering this app, so ignore its running state change
                 // event.
@@ -475,6 +508,8 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                 }
                 return;
             }
+            Slogf.v(TAG, "%s 's running state changed to %s", packageName,
+                    processRunningStateToString(newState));
             int userId = userHandle.getIdentifier();
             // Note: userInfo can't be null here, otherwise getUniquePackageNameByUidLocked() would
             // return null, and it wouldn't get here.
@@ -655,14 +690,15 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     @OccupantZoneState
     int calculateOccupantZoneState(OccupantZoneInfo occupantZone) {
         @OccupantZoneState int occupantZoneState = INITIAL_OCCUPANT_ZONE_STATE;
+        // The three occupant zones states are independent of each other.
         if (isPowerOn(occupantZone)) {
             occupantZoneState |= FLAG_OCCUPANT_ZONE_POWER_ON;
-            if (isScreenUnlocked(occupantZone)) {
-                occupantZoneState |= FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
-            }
-            if (isConnectionReady(occupantZone)) {
-                occupantZoneState |= FLAG_OCCUPANT_ZONE_CONNECTION_READY;
-            }
+        }
+        if (isScreenUnlocked(occupantZone)) {
+            occupantZoneState |= FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
+        }
+        if (isConnectionReady(occupantZone)) {
+            occupantZoneState |= FLAG_OCCUPANT_ZONE_CONNECTION_READY;
         }
         return occupantZoneState;
     }
@@ -1041,12 +1077,26 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         return new StringBuilder(64)
                 .append("[")
                 .append(installed ? "installed, " : "not-installed, ")
-                .append(sameVersion ? "same-versio, " : "different-version, ")
+                .append(sameVersion ? "same-version, " : "different-version, ")
                 .append(sameSignature ? "same-signature, " : "different-signature, ")
                 .append(!running
                         ? "not-running"
                         : (inForeground ? "foreground" : "background"))
                 .append("]")
                 .toString();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    private static String processRunningStateToString(@ProcessRunningState int state) {
+        switch (state) {
+            case PROCESS_NOT_RUNNING:
+                return "not-running";
+            case PROCESS_RUNNING_IN_BACKGROUND:
+                return "background";
+            case PROCESS_RUNNING_IN_FOREGROUND:
+                return "foreground";
+            default:
+                throw new IllegalArgumentException("Undefined ProcessRunningState: " + state);
+        }
     }
 }
