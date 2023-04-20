@@ -24,6 +24,7 @@
     <item target="string/config_notificationPanelViewMediator" value="com.android.systemui.car.notification.BottomNotificationPanelViewMediator"/>
 
     <item target="attr/icon" value="@attr/icon"/>
+    <item target="attr/selectedIcon" value="@attr/selectedIcon"/>
     <item target="attr/intent" value="@attr/intent"/>
     <item target="attr/longIntent" value="@attr/longIntent"/>
     <item target="attr/componentNames" value="@attr/componentNames"/>
