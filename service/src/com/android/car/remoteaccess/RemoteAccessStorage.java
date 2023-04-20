@@ -57,33 +57,26 @@ final class RemoteAccessStorage {
 
     @Nullable
     ClientIdEntry getClientIdEntry(String packageName) {
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return ClientIdTable.queryClientIdEntry(db, packageName);
-        }
+        return ClientIdTable.queryClientIdEntry(mDbHelper.getReadableDatabase(), packageName);
     }
 
     @Nullable
     List<ClientIdEntry> getClientIdEntries() {
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return ClientIdTable.queryClientIdEntries(db);
-        }
+        return ClientIdTable.queryClientIdEntries(mDbHelper.getReadableDatabase());
     }
 
     boolean updateClientId(ClientIdEntry entry) {
-        boolean isSuccessful = false;
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            try {
-                db.beginTransaction();
-                if (!ClientIdTable.replaceEntry(db, entry)) {
-                    return false;
-                }
-                db.setTransactionSuccessful();
-                isSuccessful = true;
-            } finally {
-                db.endTransaction();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+            if (!ClientIdTable.replaceEntry(db, entry)) {
+                return false;
             }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
         }
-        return isSuccessful;
     }
 
     boolean deleteClientId(String clientId) {
