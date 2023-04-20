@@ -54,6 +54,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.BinderKeyValueContainer;
+import com.android.car.internal.util.BinderKeyValueContainer.BinderDeathCallback;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -146,10 +147,27 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     private final BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
             mAcceptedConnectionRequestMap;
 
-    // TODO(b/257117236): update this map when the sender dies.
     /** A set of established connection records. */
     @GuardedBy("mLock")
     private final ArraySet<ConnectionRecord> mEstablishedConnections;
+
+    private final BinderDeathCallback<ConnectionId> mConnectedSenderDeathCallback =
+            staleConnection -> {
+                Slogf.e(TAG, "The sender was connected before, but now it is dead %s",
+                        staleConnection.senderClient);
+                synchronized (mLock) {
+                    handleSenderDisconnectedLocked(staleConnection);
+                }
+            };
+
+    private final BinderDeathCallback<ConnectionId> mPendingConnectedSenderDeathCallback =
+            connectionToCancel -> {
+                Slogf.e(TAG, "The sender requested a connection before, but now it is dead %s",
+                        connectionToCancel.senderClient);
+                synchronized (mLock) {
+                    handleConnectionCanceledLocked(connectionToCancel);
+                }
+            };
 
     /**
      * A class to handle the connection to {@link
@@ -336,7 +354,11 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
     @Override
     public void init() {
-        // TODO(b/257117236): implement this method.
+        synchronized (mLock) {
+            mAcceptedConnectionRequestMap.setBinderDeathCallback(mConnectedSenderDeathCallback);
+            mPendingConnectionRequestMap.setBinderDeathCallback(
+                    mPendingConnectedSenderDeathCallback);
+        }
     }
 
     @Override
@@ -517,21 +539,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         synchronized (mLock) {
             assertHasPendingConnectionRequestLocked(connectionToCancel);
             mPendingConnectionRequestMap.remove(connectionToCancel);
-
-            // If the AbstractReceiverService of the receiver app is bound, notify it of the
-            // cancellation now.
-            IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
-            if (receiverService != null) {
-                try {
-                    receiverService.onConnectionCanceled(senderClient.occupantZone);
-                } catch (RemoteException e) {
-                    // There is no need to propagate the Exception to the sender client because
-                    // the connection was canceled successfully anyway.
-                    Slogf.e(TAG, "Failed to notify the receiver of connection cancellation", e);
-                }
-            }
-
-            maybeUnbindReceiverServiceLocked(receiverClient);
+            handleConnectionCanceledLocked(connectionToCancel);
         }
     }
 
@@ -572,31 +580,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
             // Remove the connection callback.
             // receiverClient can't be null because the sender is connected to it now.
-            ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
-            mAcceptedConnectionRequestMap.remove(connectionId);
+            ConnectionId staleConnection = new ConnectionId(senderClient, receiverClient);
+            mAcceptedConnectionRequestMap.remove(staleConnection);
 
-            // Remove the connection record.
-            ConnectionRecord connectionRecord = new ConnectionRecord(packageName,
-                    senderClient.occupantZone.zoneId, receiverZone.zoneId);
-            mEstablishedConnections.remove(connectionRecord);
-
-            // Notify the receiver service.
-            IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
-            if (receiverService == null) {
-                // receiverService can't be null since it is connected, but let's be cautious.
-                Slogf.e(TAG, "The receiver service in " + receiverClient + " is not bound yet");
-                return;
-            }
-            try {
-                receiverService.onDisconnected(senderClient.occupantZone);
-            } catch (RemoteException e) {
-                // There is no need to propagate the Exception to the sender client because
-                // the connection was terminated successfully anyway.
-                Slogf.e(TAG, "Failed to notify the receiver service of disconnection! "
-                        + "senderClient:%s, receiverClient:", senderClient, receiverClient, e);
-            }
-
-            maybeUnbindReceiverServiceLocked(receiverClient);
+            handleSenderDisconnectedLocked(staleConnection);
         }
     }
 
@@ -876,5 +863,67 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 }
             }
         }
+    }
+
+    /**
+     * This method is invoked when the sender was connected before but is disconnected now.
+     * For example, the sender calls {@link #disconnect}, or dies.
+     */
+    @GuardedBy("mLock")
+    private void handleSenderDisconnectedLocked(ConnectionId staleConnection) {
+        // Remove the connection record.
+        ConnectionRecord staleRecord = new ConnectionRecord(
+                staleConnection.senderClient.packageName,
+                staleConnection.senderClient.occupantZone.zoneId,
+                staleConnection.receiverClient.occupantZone.zoneId);
+        mEstablishedConnections.remove(staleRecord);
+
+        // Notify the receiver service.
+        IBackendReceiver receiverService =
+                mConnectedReceiverServiceMap.get(staleConnection.receiverClient);
+        if (receiverService == null) {
+            // receiverService can't be null since it must be connected when this method is called,
+            // but let's be cautious.
+            Slogf.e(TAG, "The receiver service in %s is not bound yet",
+                    staleConnection.receiverClient);
+            return;
+        }
+        try {
+            receiverService.onDisconnected(staleConnection.senderClient.occupantZone);
+        } catch (RemoteException e) {
+            // There is no need to propagate the Exception to the sender client because
+            // the connection was terminated successfully anyway.
+            Slogf.e(TAG, "Failed to notify the receiver service of disconnection! "
+                            + "senderClient:%s, receiverClient:%s", staleConnection.senderClient,
+                    staleConnection.receiverClient, e);
+        }
+
+        maybeUnbindReceiverServiceLocked(staleConnection.receiverClient);
+    }
+
+    /**
+     * This method is invoked when a pending connection is canceled. For example, the sender calls
+     * {@link #cancelConnection}, or dies.
+     */
+    @GuardedBy("mLock")
+    private void handleConnectionCanceledLocked(ConnectionId connectionToCancel) {
+        IBackendReceiver receiverService =
+                mConnectedReceiverServiceMap.get(connectionToCancel.receiverClient);
+        // If the AbstractReceiverService of the receiver app is bound, notify it of the
+        // cancellation now.
+        if (receiverService != null) {
+            try {
+                receiverService.onConnectionCanceled(connectionToCancel.senderClient.occupantZone);
+            } catch (RemoteException e) {
+                // There is no need to propagate the Exception to the sender client because
+                // the connection was canceled successfully anyway.
+                Slogf.e(TAG, "Failed to notify the receiver service of connection request"
+                                + " cancellation! senderClient:%s, receiverClient:%s",
+                        connectionToCancel.senderClient, connectionToCancel.receiverClient, e);
+            }
+        }
+        // The receiverService may be bound already, or being bound. In either case, it needs to be
+        // unbound if it is not needed any more.
+        maybeUnbindReceiverServiceLocked(connectionToCancel.receiverClient);
     }
 }
