@@ -1922,7 +1922,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // This addresses the most common scenario that "user starting" event occurs after
             // "user visible" event.
             assignVisibleUserToZone(userId);
-            startSystemUiForUser(mContext, userId);
+            startSystemUIForVisibleUser(userId);
         } else {
             // If the user is not visible at this point, they might become visible at a later point.
             // So we save this user in 'mNotVisibleAtStartingUsers' for them to be checked in
@@ -1997,7 +1997,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             + "SysUi.", userId);
                 }
                 assignVisibleUserToZone(userId);
-                startSystemUiForUser(mContext, userId);
+                startSystemUIForVisibleUser(userId);
                 // The user will be cleared from 'mNotVisibleAtStartingUsers' the first time it
                 // becomes visible since starting.
                 mNotVisibleAtStartingUsers.remove(Integer.valueOf(userId));
@@ -2536,6 +2536,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     + " result %d",
                     userId, zoneInfo.zoneId, result);
         }
+    }
+
+    /** Should be called for non-current user only */
+    private void startSystemUIForVisibleUser(@UserIdInt int userId) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (userId == UserHandle.SYSTEM.getIdentifier()
+                || userId == ActivityManager.getCurrentUser()) {
+            Slogf.w(TAG, "Cannot start SystemUI for current or system user (userId=%d)", userId);
+            return;
+        }
+
+        if (isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager)) {
+            int displayId = getMainDisplayAssignedToUser(userId);
+            if (displayId == Display.DEFAULT_DISPLAY) {
+                // System user SystemUI is responsible for users running on the default display
+                Slogf.d(TAG, "Skipping starting SystemUI for passenger user %d on default display",
+                        userId);
+                return;
+            }
+        }
+        startSystemUiForUser(mContext, userId);
     }
 
     /** Should be called for non-current user only */
