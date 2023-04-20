@@ -197,7 +197,7 @@ public final class CarMediaManager extends CarManagerBase {
         try {
             return mService.isIndependentPlaybackConfig();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 
