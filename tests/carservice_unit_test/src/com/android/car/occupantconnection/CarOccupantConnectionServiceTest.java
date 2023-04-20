@@ -853,9 +853,155 @@ public final class CarOccupantConnectionServiceTest {
                 () -> mService.disconnect(PACKAGE_NAME, mReceiverZone));
     }
 
+    @Test
+    public void testConnectedSenderDied() throws RemoteException {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+        ConnectionRecord connectionRecord =
+                new ConnectionRecord(PACKAGE_NAME, mSenderZone.zoneId, mReceiverZone.zoneId);
+        mEstablishedConnections.add(connectionRecord);
+
+        ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        TestConnectionRequestCallback connectionRequestCallback =
+                new TestConnectionRequestCallback();
+        mAcceptedConnectionRequestMap.put(connectionId, connectionRequestCallback);
+
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+
+        // The sender dies.
+        connectionRequestCallback.die();
+
+        assertThat(mEstablishedConnections.size()).isEqualTo(0);
+        assertThat(mAcceptedConnectionRequestMap.size()).isEqualTo(0);
+        assertThat(mConnectedReceiverServiceMap.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+        verify(receiverService).onDisconnected(mSenderZone);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testConnectingSenderDiedWithoutReceiverServiceBound() throws RemoteException {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+
+        ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        TestConnectionRequestCallback connectionRequestCallback =
+                new TestConnectionRequestCallback();
+        mPendingConnectionRequestMap.put(connectionId, connectionRequestCallback);
+
+        mConnectingReceiverServices.add(receiverClient);
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+
+        // The sender dies.
+        connectionRequestCallback.die();
+
+        assertThat(mPendingConnectionRequestMap.size()).isEqualTo(0);
+        assertThat(mConnectingReceiverServices.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
+    @Test
+    public void testConnectingSenderDiedWithReceiverServiceBound() throws RemoteException {
+        UserHandle senderUserHandle = Binder.getCallingUserHandle();
+        when(mOccupantZoneService.getOccupantZoneForUser(senderUserHandle)).thenReturn(mSenderZone);
+
+        ClientId senderClient = mService.getCallingClientId(PACKAGE_NAME);
+        int receiverUserId = 456;
+        when(mOccupantZoneService.getUserForOccupant(mReceiverZone.zoneId))
+                .thenReturn(receiverUserId);
+        ClientId receiverClient = new ClientId(mReceiverZone, receiverUserId, PACKAGE_NAME);
+        ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
+        TestConnectionRequestCallback connectionRequestCallback =
+                new TestConnectionRequestCallback();
+        mPendingConnectionRequestMap.put(connectionId, connectionRequestCallback);
+
+        IBinder binder = mock(IBinder.class);
+        IBackendReceiver receiverService = mock(IBackendReceiver.class);
+        when(receiverService.asBinder()).thenReturn(binder);
+        mConnectedReceiverServiceMap.put(receiverClient, receiverService);
+        ServiceConnection serviceConnection = mock(ServiceConnection.class);
+        mReceiverServiceConnectionMap.put(receiverClient, serviceConnection);
+
+        // The sender dies.
+        connectionRequestCallback.die();
+
+        assertThat(mPendingConnectionRequestMap.size()).isEqualTo(0);
+        assertThat(mConnectedReceiverServiceMap.size()).isEqualTo(0);
+        assertThat(mReceiverServiceConnectionMap.size()).isEqualTo(0);
+        verify(receiverService).onConnectionCanceled(mSenderZone);
+        verify(mContext).unbindService(serviceConnection);
+    }
+
     private void mockPackageName() throws PackageManager.NameNotFoundException {
         PackageManager pm = mock(PackageManager.class);
         when(mContext.getPackageManager()).thenReturn(pm);
         when(pm.getPackageUidAsUser(eq(PACKAGE_NAME), anyInt())).thenReturn(Binder.getCallingUid());
+    }
+
+    private static final class TestConnectionRequestCallback extends android.os.Binder implements
+            IConnectionRequestCallback {
+
+        private DeathRecipient mRecipient;
+
+        @Override
+        public void linkToDeath(DeathRecipient recipient, int flags) {
+            // In any situation, a single binder object should only have at most one death
+            // recipient.
+            assertThat(mRecipient).isNull();
+
+            mRecipient = recipient;
+        }
+
+        @Override
+        public boolean unlinkToDeath(DeathRecipient recipient, int flags) {
+            assertThat(mRecipient).isSameInstanceAs(recipient);
+            mRecipient = null;
+            return true;
+        }
+
+        @Override
+        public IBinder asBinder() {
+            return this;
+        }
+
+        @Override
+        public void onConnected(OccupantZoneInfo receiverZone) {
+        }
+
+        @Override
+        public void onRejected(OccupantZoneInfo receiverZone, int rejectionReason) {
+        }
+
+        @Override
+        public void onFailed(OccupantZoneInfo receiverZone, int connectionError) {
+        }
+
+        @Override
+        public void onDisconnected(OccupantZoneInfo receiverZone) {
+        }
+
+        private void die() {
+            if (mRecipient != null) {
+                mRecipient.binderDied(this);
+            }
+            mRecipient = null;
+        }
     }
 }
