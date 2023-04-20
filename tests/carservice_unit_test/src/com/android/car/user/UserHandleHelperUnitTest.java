@@ -164,14 +164,6 @@ public final class UserHandleHelperUnitTest extends AbstractExtendedMockitoTestC
         assertThat(mUserHandleHelper.isInitializedUser(user)).isTrue();
     }
 
-    @Test
-    public void testIsPreCreatedUser() {
-        UserHandle user = UserHandle.of(100);
-        doReturn(true).when(() -> UserManagerHelper.isPreCreatedUser(mUserManager, user));
-
-        assertThat(mUserHandleHelper.isPreCreatedUser(user)).isTrue();
-    }
-
     private void mockGetUserHandles(boolean excludePartial, boolean excludeDying,
             boolean excludePreCreated, List<UserHandle> userHandles) {
         doReturn(userHandles).when(
