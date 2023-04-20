@@ -20,8 +20,6 @@
     <item target="color/icon_tint" value="@color/icon_tint" />
     <item target="color/media_button_tint" value="@color/media_button_tint" />
     <item target="color/media_button_tint_disabled" value="@color/media_button_tint_disabled" />
-    <item target="color/recent_apps_line_divider_color"
-        value="@color/recent_apps_line_divider_color" />
     <item target="color/seek_bar_color" value="@color/seek_bar_color" />
     <item target="color/page_indicator_bar_color" value="@color/page_indicator_bar_color"/>
 
@@ -43,9 +41,6 @@
     <item target="id/primary_text" value="@id/primary_text" />
     <item target="id/secondary_text" value="@id/secondary_text" />
     <item target="id/title" value="@id/title" />
-
-    <item target="id/recent_apps_row" value="@id/recent_apps_row" />
-    <item target="id/divider" value="@id/divider" />
 
     <item target="id/app_item" value="@id/app_item" />
     <item target="id/app_icon" value="@id/app_icon" />
@@ -86,7 +81,6 @@
         value="@dimen/app_item_highlight_edge_width" />
     <item target="dimen/app_grid_width" value="@dimen/app_grid_width" />
     <item target="dimen/app_grid_height" value="@dimen/app_grid_height" />
-    <item target="dimen/app_grid_margin_horizontal" value="@dimen/app_grid_margin_horizontal" />
     <item target="dimen/app_grid_row_margin" value="@dimen/app_grid_row_margin_vertical" />
     <item target="dimen/app_grid_touch_target_size" value="@dimen/app_grid_touch_target_size" />
     <item target="dimen/app_touch_target_padding" value="@dimen/app_touch_target_padding" />
