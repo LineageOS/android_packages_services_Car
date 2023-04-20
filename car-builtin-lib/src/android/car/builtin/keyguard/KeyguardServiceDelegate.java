@@ -286,6 +286,7 @@ public final class KeyguardServiceDelegate {
         /**
          * Callback function that executes when the keyguard locked state changes.
          */
+        @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void onKeyguardLockedStateChanged(boolean isKeyguardLocked);
     }
 }
