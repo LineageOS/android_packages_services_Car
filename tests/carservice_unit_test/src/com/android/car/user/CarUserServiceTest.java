@@ -482,6 +482,42 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testOnUserVisibleAndStarted_nonSystemUser_startsSystemUI() throws Exception {
+        // Arrange.
+        mockUmGetVisibleUsers(mMockedUserManager);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, TEST_DISPLAY_ID);
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserStartingEvent(TEST_USER_ID);
+        sendUserVisibleEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mMockUserContext).startService(any());
+    }
+
+    @Test
+    public void testOnUserVisibleAndStarted_backgroundUserOnDefaultDisplay_noSystemUIStart()
+            throws Exception {
+        // Arrange.
+        mockUmGetVisibleUsers(mMockedUserManager);
+        when(mMockedUserManager.isUserRunning(UserHandle.of(TEST_USER_ID))).thenReturn(true);
+        mockContextCreateContextAsUser(mMockContext, mMockUserContext, TEST_USER_ID);
+        mockCarServiceHelperGetMainDisplayAssignedToUser(TEST_USER_ID, Display.DEFAULT_DISPLAY);
+        mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
+        mockUmIsVisibleBackgroundUsersOnDefaultDisplaySupported(mMockedUserManager, true);
+
+        // Act.
+        sendUserStartingEvent(TEST_USER_ID);
+        sendUserVisibleEvent(TEST_USER_ID);
+
+        // Verify.
+        verify(mMockUserContext, never()).startService(any());
+    }
+
+    @Test
     public void testOnUserInvisible_systemUser_noop() throws Exception {
         // Arrange.
         mockUmIsVisibleBackgroundUsersSupported(mMockedUserManager, true);
