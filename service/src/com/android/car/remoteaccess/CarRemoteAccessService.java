@@ -627,8 +627,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private int calcTaskMaxDurationLocked() {
         long currentTimeInMs = SystemClock.uptimeMillis();
         int taskMaxDurationInSec = (int) (mShutdownTimeInMs - currentTimeInMs) / MILLI_TO_SECOND;
-        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON) {
-            taskMaxDurationInSec = (int) (mAllowedSystemUptimeMs / MILLI_TO_SECOND);
+        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                || mPowerHalService.isVehicleInUse()) {
+            // If next power state is ON or vehicle is in use, the mShutdownTimeInMs does not make
+            // sense because shutdown will not happen. We always allow task to execute for
+            // mAllowedSystemUptimMs.
+            taskMaxDurationInSec = (int) Math.ceil(
+                    (double) mAllowedSystemUptimeMs / MILLI_TO_SECOND);
         }
         return taskMaxDurationInSec;
     }
@@ -778,7 +783,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     private void wrapUpRemoteAccessServiceIfNeeded() {
-        Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+        synchronized (mLock) {
+            if (mNextPowerState != CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                    && !mPowerHalService.isVehicleInUse()) {
+                Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+            }
+        }
         shutdownIfNeeded(/* force= */ true);
     }
 

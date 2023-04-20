@@ -21,6 +21,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED
 import static com.android.car.remoteaccess.RemoteAccessStorage.RemoteAccessDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
@@ -669,6 +670,74 @@ public final class CarRemoteAccessServiceUnitTest {
                         /* runGarageMode= */ false);
     }
 
+    @Test
+    public void testTaskArriveAfterAllowedTime() throws Exception {
+        // Use a shorter time for testing.
+        mService = newServiceWithSystemUpTime(100L);
+        mService.init();
+        mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
+                /* runGarageMode= */ false);
+
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        byte[] data = new byte[]{1, 2, 3, 4};
+        SystemClock.sleep(100);
+
+        halCallback.onRemoteTaskRequested(clientId, data);
+
+        SystemClock.sleep(100);
+
+        assertWithMessage("Must not dispatch remote task after shutdown is supposed to start")
+                .that(mRemoteAccessCallback.getTaskId()).isNull();
+    }
+
+    // Allowed system up time must not take effect if vehicle is currently in use.
+    @Test
+    public void testTaskArriveAfterAllowedTime_vehicleInUse() throws Exception {
+        // Use a shorter time for testing.
+        mService = newServiceWithSystemUpTime(100L);
+        // Boot complete to trigger package search.
+        mBootComplete.run();
+        mService.init();
+        mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
+                /* runGarageMode= */ false);
+        setVehicleInUse(true);
+
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        byte[] data = new byte[]{1, 2, 3, 4};
+        SystemClock.sleep(100);
+
+        halCallback.onRemoteTaskRequested(clientId, data);
+
+        PollingCheck.check("Remote task received", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+        // We will round up 100ms to 1 sec.
+        assertThat(mRemoteAccessCallback.getTaskMaxDurationInSec()).isEqualTo(1);
+    }
+
+    // Allowed system up time must not take effect if next power state is on.
+    @Test
+    public void testTaskArriveAfterAllowedTime_nextPowerStateOn() throws Exception {
+        // Use a shorter time for testing.
+        mService = newServiceWithSystemUpTime(100L);
+        // Boot complete to trigger package search.
+        mBootComplete.run();
+        mService.init();
+        mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_ON,
+                /* runGarageMode= */ false);
+
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        byte[] data = new byte[]{1, 2, 3, 4};
+        SystemClock.sleep(100);
+
+        halCallback.onRemoteTaskRequested(clientId, data);
+
+        PollingCheck.check("Remote task received", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+    }
+
     private ICarPowerStateListener getCarPowerStateListener() {
         ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
                 ArgumentCaptor.forClass(ICarPowerStateListener.class);
@@ -754,6 +823,7 @@ public final class CarRemoteAccessServiceUnitTest {
         private String mTaskId;
         private byte[] mData;
         private boolean mShutdownStarted;
+        private int mTaskMaxDurationInSec;
 
         @Override
         public void onClientRegistrationUpdated(RemoteTaskClientRegistrationInfo info) {
@@ -773,6 +843,7 @@ public final class CarRemoteAccessServiceUnitTest {
             mClientId = clientId;
             mTaskId = taskId;
             mData = data;
+            mTaskMaxDurationInSec = taskMaxDurationInSec;
         }
 
         @Override
@@ -802,6 +873,10 @@ public final class CarRemoteAccessServiceUnitTest {
 
         public byte[] getData() {
             return mData;
+        }
+
+        public int getTaskMaxDurationInSec() {
+            return mTaskMaxDurationInSec;
         }
     }
 }
