@@ -80,8 +80,21 @@ public final class UserManagerHelper {
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
     /**
-     * Returns all users based on the boolean flags.
+     * Returns all user handles.
      */
+    @NonNull
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
+            boolean excludeDying) {
+        return userManager.getUserHandles(excludeDying);
+    }
+
+    /**
+     * Returns all users based on the boolean flags.
+     *
+     * @deprecated Use {@link #getUserHandles(UserManager, boolean)} instead.
+     */
+    @Deprecated
     @NonNull
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
