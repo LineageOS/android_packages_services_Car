@@ -68,7 +68,6 @@ cc_binary {
         "-Wunused",
         "-Wunreachable-code",
     ],
-    system_ext_specific: true,
 }
 
 cc_library {
@@ -79,26 +78,22 @@ cc_library {
         type: "lite",
     },
     shared_libs: ["libprotobuf-cpp-lite"],
-    system_ext_specific: true,
 }
 
 prebuilt_etc {
     name: "config.json",
     src: "res/config.json",
     sub_dir: "automotive/evs",
-    system_ext_specific: true,
 }
 
 prebuilt_etc {
     name: "CarFromTop.png",
     src: "res/CarFromTop.png",
     sub_dir: "automotive/evs",
-    system_ext_specific: true,
 }
 
 prebuilt_etc {
     name: "LabeledChecker.png",
     src: "res/LabeledChecker.png",
     sub_dir: "automotive/evs",
-    system_ext_specific: true,
 }
