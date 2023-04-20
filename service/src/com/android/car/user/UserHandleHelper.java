@@ -121,13 +121,6 @@ public final class UserHandleHelper {
         return UserManagerHelper.isInitializedUser(mUserManager, user);
     }
 
-    /**
-     * Is user preCreated?
-     */
-    public boolean isPreCreatedUser(UserHandle user) {
-        return UserManagerHelper.isPreCreatedUser(mUserManager, user);
-    }
-
     private UserManager getUserContextAwareUserManager(@UserIdInt int userId) {
         Context userContext = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
         return userContext.getSystemService(UserManager.class);
