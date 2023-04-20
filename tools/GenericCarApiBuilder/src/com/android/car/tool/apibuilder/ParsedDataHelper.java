@@ -25,6 +25,7 @@ import com.android.car.tool.data.ParsedData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class ParsedDataHelper {
 
@@ -126,6 +127,36 @@ public final class ParsedDataHelper {
                         })));
 
         return allApis;
+    }
+
+    // TODO(b/278759600): add tests for assertPlatformVersionAtLeast check
+    public static List<String> checkAssertPlatformVersionAtLeast(
+            ParsedData parsedData) {
+        List<String> apis = new ArrayList<>();
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.methods.values().forEach(
+                        (method) -> {
+                            // Only check that assertPlatformVersionAtLeast is present for APIs
+                            // added after TIRAMISU_x.
+                            if (!method.annotationData.hasApiRequirementAnnotation
+                                    || method.annotationData.minPlatformVersion.contains(
+                                    "TIRAMISU") || method.firstBodyStatement == null) {
+                                return;
+                            }
+                            // Check that assertPlatformVersionAtLeast is called and that it has
+                            // the correct
+                            // version as its argument.
+                            if (method.firstBodyStatement.getName().asString().contains(
+                                    "assertPlatformVersionAtLeast")
+                                    && Objects.equals(method.firstBodyStatement.getArgument(
+                                            0).asNameExpr().getNameAsString(),
+                                    method.annotationData.minPlatformVersion)) {
+                                return;
+                            }
+                            apis.add(formatMethodString(packageData, classData, method));
+                        })));
+
+        return apis;
     }
 
     public static List<String> getApisWithVersion(ParsedData parsedData) {
