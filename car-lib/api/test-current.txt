@@ -2320,6 +2320,7 @@ package android.car.user {
   }
 
   public final class UserCreationResult implements android.os.Parcelable {
+    ctor public UserCreationResult(int);
     method public int describeContents();
     method @Nullable public Integer getAndroidFailureStatus();
     method @Nullable public String getErrorMessage();
