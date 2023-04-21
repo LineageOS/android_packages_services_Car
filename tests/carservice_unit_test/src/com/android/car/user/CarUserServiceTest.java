@@ -67,6 +67,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.PlatformVersion;
+import android.car.SyncResultCallback;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -106,6 +107,7 @@ import android.util.Log;
 import android.view.Display;
 
 import com.android.car.hal.HalCallback;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.util.DebugUtils;
 
 import org.junit.Before;
@@ -1897,8 +1899,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testCreateUser_nullType() throws Exception {
-        assertThrows(NullPointerException.class, () -> mCarUserService
-                .createUser("dude", null, 108, ASYNC_CALL_TIMEOUT_MS, new AndroidFuture<>(),
+        assertThrows(NullPointerException.class,
+                () -> mCarUserService.createUser("dude", null, 108, ASYNC_CALL_TIMEOUT_MS,
+                        new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>()),
                         NO_CALLER_RESTRICTIONS));
     }
 
@@ -1915,7 +1918,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserManager.USER_OPERATION_ERROR_MAX_USERS);
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, response);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -1935,7 +1938,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         RuntimeException exception = new RuntimeException("D'OH!");
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, exception);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -1957,7 +1960,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUser(HalCallback.STATUS_INVALID, /* not_used_status= */ -1);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -1977,7 +1980,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.FAILURE);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -1998,7 +2001,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUser(HalCallback.STATUS_HAL_SET_TIMEOUT, /* response= */ null);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -2020,7 +2023,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUserThrowsRuntimeException(exception);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture,
+        createUser("dude", "TypeONegative", 108, ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback,
                 NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
@@ -2042,7 +2045,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserManagerHelper.FLAG_EPHEMERAL, mRegularUser);
 
         createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
@@ -2063,9 +2066,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 /* flags= */ 0, UserHandle.of(42));
 
         createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
-        assertUserCreationWithInternalErrorMessage(mUserCreationFuture,
+        assertUserCreationWithInternalErrorMessage(mSyncResultCallbackForCreateUser,
                 UserCreationResult.STATUS_ANDROID_FAILURE,
                 CarUserService.ERROR_TEMPLATE_DISALLOW_ADD_USER, Process.myUserHandle(),
                 UserManager.DISALLOW_ADD_USER);
@@ -2085,7 +2088,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
         createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -2119,7 +2122,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
         createUser("guest", UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -2151,9 +2154,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         String name = "guest";
         int flags = UserManagerHelper.FLAG_EPHEMERAL;
         createUser(name, UserManager.USER_TYPE_FULL_GUEST, flags, ASYNC_CALL_TIMEOUT_MS,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
-        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(mUserCreationFuture,
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
+                mSyncResultCallbackForCreateUser,
                 CarUserService.ERROR_TEMPLATE_INVALID_FLAGS_FOR_GUEST_CREATION, flags, name);
     }
 
@@ -2170,7 +2174,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
         createUser(nullName, UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -2198,13 +2202,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testCreateUser_binderMethod() {
         CarUserService spy = spy(mCarUserService);
-        AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
+        ResultCallbackImpl<UserCreationResult> resultCallbackImpl = new ResultCallbackImpl<>(
+                Runnable::run, new SyncResultCallback<>());
         int flags = 42;
         int timeoutMs = 108;
 
-        spy.createUser("name", "type", flags, timeoutMs, receiver);
+        spy.createUser("name", "type", flags, timeoutMs, resultCallbackImpl,
+                NO_CALLER_RESTRICTIONS);
 
-        verify(spy).createUser("name", "type", flags, timeoutMs, receiver,
+        verify(spy).createUser("name", "type", flags, timeoutMs, resultCallbackImpl,
                 NO_CALLER_RESTRICTIONS);
     }
 
@@ -2215,9 +2221,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockGetCallingUserHandle(currentUser.getIdentifier());
 
         createUser("name", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_ADMIN,
-                ASYNC_CALL_TIMEOUT_MS, mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, HAS_CALLER_RESTRICTIONS);
 
-        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(mUserCreationFuture,
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
+                mSyncResultCallbackForCreateUser,
                 CarUserService.ERROR_TEMPLATE_NON_ADMIN_CANNOT_CREATE_ADMIN_USERS,
                 mRegularUser.getIdentifier());
     }
