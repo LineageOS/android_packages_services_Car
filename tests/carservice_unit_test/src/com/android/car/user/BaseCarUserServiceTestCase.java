@@ -124,6 +124,7 @@ import org.mockito.Mock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class contains unit tests for the {@link CarUserService}.
@@ -187,7 +188,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     // failures
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
-    protected final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
+    protected final SyncResultCallback<UserCreationResult> mSyncResultCallbackForCreateUser =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallback =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForCreateUser);
     protected final SyncResultCallback<UserRemovalResult> mSyncResultCallbackForRemoveUser =
             new SyncResultCallback<UserRemovalResult>();
 
@@ -369,29 +373,30 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void assertUserCreationInvalidArgumentsFailure(
-            AndroidFuture<UserCreationResult> future) throws Exception {
-        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(future,
+            SyncResultCallback<UserCreationResult> callback) throws Exception {
+        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(callback,
                 UserCreationResult.STATUS_INVALID_REQUEST);
         assertThat(result.getInternalErrorMessage()).isNull();
     }
 
     protected void assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
-            AndroidFuture<UserCreationResult> future, String format, @Nullable Object... args)
+            SyncResultCallback<UserCreationResult> callback, String format,
+            @Nullable Object... args)
                     throws Exception {
-        assertUserCreationWithInternalErrorMessage(future,
+        assertUserCreationWithInternalErrorMessage(callback,
                 UserCreationResult.STATUS_INVALID_REQUEST, format, args);
     }
 
     protected void assertUserCreationWithInternalErrorMessage(
-            AndroidFuture<UserCreationResult> future, int status, String format,
+            SyncResultCallback<UserCreationResult> callback, int status, String format,
             @Nullable Object... args) throws Exception {
-        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(future, status);
+        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(callback, status);
         assertThat(result.getInternalErrorMessage()).isEqualTo(String.format(format, args));
     }
 
     private UserCreationResult assertBasicFieldsOnUserCreationFailure(
-            AndroidFuture<UserCreationResult> future, int status) throws Exception {
-        UserCreationResult result = getResult(future, "user creation");
+            SyncResultCallback<UserCreationResult> callback, int status) throws Exception {
+        UserCreationResult result = callback.get(ASYNC_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(status);
@@ -403,21 +408,30 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected void createUserWithRestrictionsInvalidTypes(@NonNull String type) throws Exception {
         int flags = 0;
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
-        mCarUserService.createUser("name", type, flags, ASYNC_CALL_TIMEOUT_MS, future,
+        SyncResultCallback<UserCreationResult> userCreationResultCallback =
+                new SyncResultCallback<>();
+        ResultCallbackImpl<UserCreationResult> resultCallbackImpl = new ResultCallbackImpl<>(
+                Runnable::run, userCreationResultCallback);
+        mCarUserService.createUser("name", type, flags, ASYNC_CALL_TIMEOUT_MS, resultCallbackImpl,
                 HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
-        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
+                userCreationResultCallback,
                 CarUserService.ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION, type, flags);
     }
 
     protected void createUserWithRestrictionsInvalidTypes(int flags) throws Exception {
         String userType = UserManager.USER_TYPE_FULL_SECONDARY;
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>();
-        mCarUserService.createUser("name", userType, flags, ASYNC_CALL_TIMEOUT_MS, future,
+        SyncResultCallback<UserCreationResult> userCreationResultCallback =
+                new SyncResultCallback<>();
+        ResultCallbackImpl<UserCreationResult> resultCallbackImpl = new ResultCallbackImpl<>(
+                Runnable::run, userCreationResultCallback);
+        mCarUserService.createUser("name", userType, flags, ASYNC_CALL_TIMEOUT_MS,
+                resultCallbackImpl,
                 HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
-        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
+                userCreationResultCallback,
                 CarUserService.ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION,
                 userType, flags);
     }
@@ -437,9 +451,9 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void createUser(@Nullable String name, @NonNull String userType, int flags,
-            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            int timeoutMs, @NonNull ResultCallbackImpl<UserCreationResult> callback,
             boolean hasCallerRestrictions) {
-        mCarUserService.createUser(name, userType, flags, timeoutMs, receiver,
+        mCarUserService.createUser(name, userType, flags, timeoutMs, callback,
                 hasCallerRestrictions);
         waitForHandlerThreadToFinish();
     }
@@ -491,11 +505,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     /**
-     * Gets the result of a user creation call that was made using {@link #mUserCreationFuture}.
+     * Gets the result of a user creation call that was made using
+     * {@link #mUserCreationResultCallback}.
      */
     @NonNull
     protected UserCreationResult getUserCreationResult() throws Exception {
-        return getResult(mUserCreationFuture, "result of user creation");
+        return mSyncResultCallbackForCreateUser.get();
     }
 
     /**
