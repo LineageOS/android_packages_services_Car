@@ -66,6 +66,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -86,6 +87,8 @@ public class CarActivityServiceTaskMonitorUnitTest {
     private static final long NO_ACTIVITY_TIMEOUT_MS = 1000;
     private static final long DEFAULT_TIMEOUT_MS = 10_000;
     private static final int SLEEP_MS = 50;
+    private static final long SHORT_MIRRORING_TOKEN_TIMEOUT_MS = 100;
+
     private static CopyOnWriteArrayList<Activity> sTestActivities = new CopyOnWriteArrayList<>();
 
     private CarActivityService mService;
@@ -105,10 +108,16 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     @Rule
     public final Expect expect = Expect.create();
+    @Rule
+    public TestName mTestName = new TestName();
 
     @Before
     public void setUp() throws Exception {
-        mService = new CarActivityService(getContext());
+        long timeOutMs = DEFAULT_TIMEOUT_MS;
+        if (mTestName.getMethodName().contains("ExpiredToken")) {
+            timeOutMs = SHORT_MIRRORING_TOKEN_TIMEOUT_MS;
+        }
+        mService = new CarActivityService(getContext(), timeOutMs);
         mService.init();
         mService.registerTaskMonitor(mToken);
         setUpTaskOrganizer();
@@ -307,16 +316,25 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     @Test
+    public void testGetMirroredSurface_throwsExceptionForForgedToken() {
+        CarActivityService fakeService = new CarActivityService(getContext());
+        IBinder forgedToken = fakeService.createDisplayMirroringToken(Display.DEFAULT_DISPLAY);
+        Rect outBounds = new Rect();
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.getMirroredSurface(forgedToken, outBounds));
+    }
+
+    @Test
     public void testGetMirroredSurface_throwsExceptionForExpiredToken() throws Exception {
         FilteredLaunchListener listenerA = startActivityAndAssertLaunched(mActivityA);
 
         IBinder token = mService.createTaskMirroringToken(listenerA.mTopTask.taskId);
         Rect outBounds = new Rect();
 
-        SystemClock.sleep(2);
+        SystemClock.sleep(SHORT_MIRRORING_TOKEN_TIMEOUT_MS * 2);
 
         assertThrows(IllegalArgumentException.class,
-                () -> mService.getMirroredSurfaceInternal(token, outBounds, /* timeOutMs= */ 1));
+                () -> mService.getMirroredSurface(token, outBounds));
     }
 
     @Test
