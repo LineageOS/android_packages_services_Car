@@ -44,8 +44,8 @@ DUMP_DATETIME_FORMAT = "%a %b %d %H:%M:%S %Y %Z"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 STATS_COLLECTION_PATTERN = "Collection (\d+): <(.+)>"
-PACKAGE_CPU_STATS_PATTERN = "(\d+), (.+), (\d+), (\d+).(\d+)%, (\d+)"
-PROCESS_CPU_STATS_PATTERN = "\s+(.+), (\d+), (\d+).(\d+)%, (\d+)"
+PACKAGE_CPU_STATS_PATTERN = "(\d+), (.+), (\d+), (\d+).(\d+)%(, (\d+))?"
+PROCESS_CPU_STATS_PATTERN = "\s+(.+), (\d+), (\d+).(\d+)%(, (\d+))?"
 TOTAL_CPU_TIME_PATTERN = "Total CPU time \\(ms\\): (\d+)"
 TOTAL_IDLE_CPU_TIME_PATTERN = "Total idle CPU time \\(ms\\)/percent: (\d+) / .+"
 CPU_IO_WAIT_TIME_PATTERN = "CPU I/O wait time \\(ms\\)/percent: (\d+) / .+"
@@ -280,7 +280,7 @@ def parse_cpu_times(lines, idx):
       cpu_time_ms = int(match.group(3))
       total_cpu_time_percent = float("{}.{}".format(match.group(4),
                                                     match.group(5)))
-      cpu_cycles = int(match.group(6))
+      cpu_cycles = int(match.group(7)) if match.group(7) is not None else -1
 
       package_cpu_stat = PackageCpuStats(user_id, package_name,
                                          cpu_time_ms,
@@ -292,7 +292,7 @@ def parse_cpu_times(lines, idx):
       cpu_time_ms = int(match.group(2))
       package_cpu_time_percent = float("{}.{}".format(match.group(3),
                                                       match.group(4)))
-      cpu_cycles = int(match.group(5))
+      cpu_cycles = int(match.group(6)) if match.group(6) is not None else -1
       if package_cpu_stat:
         package_cpu_stat.process_cpu_stats.append(
           ProcessCpuStats(command, cpu_time_ms, package_cpu_time_percent, cpu_cycles))
@@ -594,7 +594,6 @@ if __name__ == "__main__":
       print(performance_stats)
     sys.exit()
 
-  print("Parsing CarWatchdog performance stats")
   if not os.path.isfile(args.file):
     print("Error: File '%s' does not exist" % args.file)
     sys.exit(1)
@@ -618,4 +617,7 @@ if __name__ == "__main__":
       print("Output protobuf binary in:", out_file)
 
     if args.print or not (args.out or args.build):
+      if args.json:
+          print(json.dumps(performance_stats.to_dict()))
+          sys.exit()
       print(performance_stats)
