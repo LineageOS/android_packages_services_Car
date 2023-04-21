@@ -15,6 +15,9 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="divider_color">#E8EAED</color>
+    <color name="car_ui_preference_primary_switch_background_color">@color/car_primary_container</color>
     <color name="car_ui_toolbar_nav_icon_color">@color/car_ui_text_color_primary</color>
+    <color name="car_ui_preference_primary_title">@color/car_on_surface</color>
+    <color name="car_ui_preference_primary_summary">@color/car_on_surface_variant</color>
+    <color name="car_ui_preference_two_action_divider_color">@color/car_outline</color>
 </resources>

@@ -77,4 +77,13 @@
         <item name="android:tint">@color/car_on_surface</item>
         <item name="android:background">@drawable/car_ui_toolbar_menu_item_icon_ripple</item>
     </style>
+
+    <style name="PreferenceCarUiIcon"/>
+
+    <style name="CarUiPreferencePrimaryTitleStyle" parent="TextAppearance.CarUi.PreferenceSummary">
+        <item name="android:textColor">@color/car_ui_preference_primary_title</item>
+    </style>
+    <style name="CarUiPreferencePrimarySummaryStyle" parent="TextAppearance.CarUi.PreferenceSummary">
+        <item name="android:textColor">@color/car_ui_preference_primary_summary</item>
+    </style>
 </resources>

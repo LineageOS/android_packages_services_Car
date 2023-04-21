@@ -16,6 +16,10 @@
   -->
 
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/car_ui_text_color_primary" android:state_activated="true"/>
-    <item android:color="@color/car_ui_text_color_secondary"/>
+    <item android:state_enabled="false"
+        android:alpha="?android:attr/disabledAlpha"
+        android:color="@color/car_on_surface_variant"/>
+    <item android:state_activated="true"
+        android:color="@color/car_on_secondary_container" />
+    <item android:color="@color/car_on_surface_variant" />
 </selector>
