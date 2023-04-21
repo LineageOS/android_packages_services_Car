@@ -185,3 +185,20 @@ if len(upgraded_hidden_apis) > 0:
     print("\n\n")
     sys.exit(1)
 
+# Check if Car Service is throwing platform mismatch exception
+folder = rootDir + "/packages/services/Car/service/"
+files = [str(v) for v in list(Path(folder).rglob("*.java"))]
+errors = []
+for f in files:
+    with open(f, "r") as tmp_f:
+        lines = tmp_f.readlines()
+        for i in range(len(lines)):
+            if "assertPlatformVersionAtLeast" in lines[i]:
+                errors.append("line: " + str(i) + ". assertPlatformVersionAtLeast used.")
+            if "PlatformVersionMismatchException" in lines[i]:
+                errors.append("line: " + str(i) + ". PlatformVersionMismatchException used.")
+if len(errors) > 0:
+    print("\nassertPlatformVersionAtLeast or PlatformVersionMismatchException should not be used in"
+          " car service. see go/car-mainline-version-assertion")
+    print("\n".join(errors))
+    sys.exit(1)
