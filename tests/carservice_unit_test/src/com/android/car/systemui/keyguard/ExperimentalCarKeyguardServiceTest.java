@@ -139,7 +139,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onInit_initializeCurrentPassengerUsers() {
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
 
         mExperimentalCarKeyguardService.init();
 
@@ -152,7 +152,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onSystemUserVisible_doNothing() {
-        setCurrentUsers(/* passengerStarted= */ false);
+        setCurrentUsers(/* passengerVisible= */ false);
         mExperimentalCarKeyguardService.init();
         CarUserManager.UserLifecycleEvent event = new CarUserManager.UserLifecycleEvent(
                 USER_LIFECYCLE_EVENT_TYPE_VISIBLE, UserHandle.USER_SYSTEM);
@@ -164,7 +164,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onForegroundUserVisible_doNothing() {
-        setCurrentUsers(/* passengerStarted= */ false);
+        setCurrentUsers(/* passengerVisible= */ false);
         mExperimentalCarKeyguardService.init();
         CarUserManager.UserLifecycleEvent event = new CarUserManager.UserLifecycleEvent(
                 USER_LIFECYCLE_EVENT_TYPE_VISIBLE, FOREGROUND_USER_ID);
@@ -176,7 +176,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onSecondaryUserVisible_initKeyguard() {
-        setCurrentUsers(/* passengerStarted= */ false);
+        setCurrentUsers(/* passengerVisible= */ false);
         mExperimentalCarKeyguardService.init();
 
         startKeyguardForSecondaryUser();
@@ -189,7 +189,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onUserInvisible_removeKeyguard() {
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
         KeyguardServiceDelegate delegate = getKeyguardState(SECONDARY_USER_ID).mKeyguardDelegate;
 
@@ -204,7 +204,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
     @Test
     public void onDisplayOn_notifiesDelegate() {
         when(mSecondaryDisplay.getState()).thenReturn(Display.STATE_OFF);
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
 
         when(mSecondaryDisplay.getState()).thenReturn(Display.STATE_ON);
@@ -217,7 +217,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
 
     @Test
     public void onDisplayOff_notifiesDelegate() {
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
 
         when(mSecondaryDisplay.getState()).thenReturn(Display.STATE_OFF);
@@ -234,7 +234,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
                 mock(IExperimentalCarKeyguardLockedStateListener.class);
         IExperimentalCarKeyguardLockedStateListener listener2 =
                 mock(IExperimentalCarKeyguardLockedStateListener.class);
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
         ExperimentalCarKeyguardService.KeyguardState state = getKeyguardState(SECONDARY_USER_ID);
 
@@ -250,7 +250,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
                 mock(IExperimentalCarKeyguardLockedStateListener.class);
         IExperimentalCarKeyguardLockedStateListener listener2 =
                 mock(IExperimentalCarKeyguardLockedStateListener.class);
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
         ExperimentalCarKeyguardService.KeyguardState state = getKeyguardState(SECONDARY_USER_ID);
         state.addKeyguardLockedStateListener(listener1);
@@ -266,7 +266,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
     public void onLockedStateChanged_notifiesListener() throws RemoteException {
         IExperimentalCarKeyguardLockedStateListener listener =
                 mock(IExperimentalCarKeyguardLockedStateListener.class);
-        setCurrentUsers(/* passengerStarted= */ true);
+        setCurrentUsers(/* passengerVisible= */ true);
         mExperimentalCarKeyguardService.init();
         ExperimentalCarKeyguardService.KeyguardState state = getKeyguardState(SECONDARY_USER_ID);
         state.addKeyguardLockedStateListener(listener);
@@ -281,6 +281,7 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
     }
 
     private void startKeyguardForSecondaryUser() {
+        when(mMockUserManager.isUserRunning(UserHandle.of(SECONDARY_USER_ID))).thenReturn(true);
         CarUserManager.UserLifecycleEvent event = new CarUserManager.UserLifecycleEvent(
                 USER_LIFECYCLE_EVENT_TYPE_VISIBLE, SECONDARY_USER_ID);
         mExperimentalCarKeyguardService.mUserLifecycleListener.onEvent(event);
@@ -317,9 +318,9 @@ public final class ExperimentalCarKeyguardServiceTest extends AbstractExtendedMo
                 mSecondaryDisplay);
     }
 
-    private void setCurrentUsers(boolean passengerStarted) {
+    private void setCurrentUsers(boolean passengerVisible) {
         Set<UserHandle> visibleUsers;
-        if (passengerStarted) {
+        if (passengerVisible) {
             visibleUsers = Set.of(UserHandle.SYSTEM, UserHandle.of(FOREGROUND_USER_ID),
                     UserHandle.of(SECONDARY_USER_ID));
         } else {
