@@ -1288,21 +1288,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void createUser(@Nullable String name, @NonNull String userType, int flags,
-            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
-        createUser(name, userType, flags, timeoutMs, receiver, /* hasCallerRestrictions= */ false);
-    }
-
-    // TODO(b/235994008): convert this call to createUser once other createUser call is removed.
-    @Override
-    public void createUser2(@NonNull UserCreationRequest userCreationRequest, int timeoutMs,
+    public void createUser(@NonNull UserCreationRequest userCreationRequest, int timeoutMs,
             ResultCallbackImpl<UserCreationResult> callback) {
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
-            @Override
-            protected void onCompleted(UserCreationResult result, Throwable err) {
-                callback.complete(result);
-            }
-        };
         String name = userCreationRequest.getName();
         String userType = userCreationRequest.isGuest() ? UserManager.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
@@ -1310,7 +1297,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         flags |= userCreationRequest.isAdmin() ? UserManagerHelper.FLAG_ADMIN : 0;
         flags |= userCreationRequest.isEphemeral() ? UserManagerHelper.FLAG_EPHEMERAL : 0;
 
-        createUser(name, userType, flags, timeoutMs, future);
+        createUser(name, userType, flags, timeoutMs, callback, /* hasCallerRestrictions= */ false);
     }
 
     /**
@@ -1321,10 +1308,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * only create admin users
      */
     public void createUser(@Nullable String name, @NonNull String userType, int flags,
-            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            int timeoutMs, @NonNull ResultCallbackImpl<UserCreationResult> callback,
             boolean hasCallerRestrictions) {
         Objects.requireNonNull(userType, "user type cannot be null");
-        Objects.requireNonNull(receiver, "receiver cannot be null");
+        Objects.requireNonNull(callback, "receiver cannot be null");
         checkManageOrCreateUsersPermission(flags);
         EventLogHelper.writeCarUserServiceCreateUserReq(UserHelperLite.safeName(name), userType,
                 flags, timeoutMs, hasCallerRestrictions ? 1 : 0);
@@ -1334,24 +1321,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             String internalErrorMessage = String.format(ERROR_TEMPLATE_DISALLOW_ADD_USER,
                     callingUser, UserManager.DISALLOW_ADD_USER);
             Slogf.w(TAG, internalErrorMessage);
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     internalErrorMessage);
             return;
         }
 
-        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, receiver,
+        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, callback,
                 callingUser, hasCallerRestrictions));
     }
 
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
-            int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            int flags, int timeoutMs, @NonNull ResultCallbackImpl<UserCreationResult> callback,
             @NonNull UserHandle callingUser, boolean hasCallerRestrictions) {
         if (userType.equals(UserManager.USER_TYPE_FULL_GUEST) && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             String internalErroMessage = String
                     .format(ERROR_TEMPLATE_INVALID_FLAGS_FOR_GUEST_CREATION, flags, name);
             Slogf.e(TAG, internalErroMessage);
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                     internalErroMessage);
             return;
         }
@@ -1377,7 +1364,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION, userType, flags);
 
                 Slogf.d(TAG, internalErrorMessage);
-                sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+                sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMessage);
                 return;
             }
@@ -1388,7 +1375,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         .format(ERROR_TEMPLATE_NON_ADMIN_CANNOT_CREATE_ADMIN_USERS,
                                 callingUser.getIdentifier());
                 Slogf.d(TAG, internalErrorMessage);
-                sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+                sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMessage);
                 return;
             }
@@ -1400,7 +1387,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         } catch (Exception e) {
             Slogf.e(TAG, e, "Error creating new user request. name: %s UserType: %s and flags: %s",
                     name, userType, flags);
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     UserManager.USER_OPERATION_ERROR_UNKNOWN, /* user= */ null,
                     /* errorMessage= */ null, e.toString());
             return;
@@ -1415,7 +1402,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     Slogf.d(TAG, "um.createUser() returned null for user of type %s and flags %d",
                             userType, flags);
                 }
-                sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+                sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                         newUserResponse.getOperationResult(), /* user= */ null,
                         /* errorMessage= */ null, /* internalErrorMessage= */ null);
                 return;
@@ -1430,14 +1417,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     userType, flags);
         } catch (RuntimeException e) {
             Slogf.e(TAG, e, "Error creating user of type %s and flags %d", userType, flags);
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     UserManager.USER_OPERATION_ERROR_UNKNOWN, /* user= */ null,
                     /* errorMessage= */ null, e.toString());
             return;
         }
 
         if (!isUserHalSupported()) {
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_SUCCESSFUL,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_SUCCESSFUL,
                     /* androidFailureStatus= */ null , newUser, /* errorMessage= */ null,
                     /* internalErrorMessage= */ null);
             return;
@@ -1470,7 +1457,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             errorMessage);
                     removeCreatedUser(newUser, "HAL call failed with "
                             + UserHalHelper.halCallbackStatusToString(status));
-                    sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
+                    sendUserCreationResult(callback, resultStatus, /* androidFailureStatus= */ null,
                             user, errorMessage,  /* internalErrorMessage= */ null);
                     return;
                 }
@@ -1494,13 +1481,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     removeCreatedUser(newUser, "HAL returned "
                             + UserCreationResult.statusToString(resultStatus));
                 }
-                sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
+                sendUserCreationResult(callback, resultStatus, /* androidFailureStatus= */ null,
                         user, errorMessage, /* internalErrorMessage= */ null);
             });
         } catch (Exception e) {
             Slogf.w(TAG, e, "mHal.createUser(%s) failed", request);
             removeCreatedUser(newUser, "mHal.createUser() failed");
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
                     e.toString());
         }
     }
@@ -1680,13 +1667,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 new UserSwitchResult(userSwitchStatus, androidFailureStatus, errorMessage));
     }
 
-    static void sendUserCreationFailure(AndroidFuture<UserCreationResult> receiver,
+    static void sendUserCreationFailure(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, String internalErrorMessage) {
-        sendUserCreationResult(receiver, status, /* androidStatus= */ null, /* user= */ null,
+        sendUserCreationResult(callback, status, /* androidFailureStatus= */ null, /* user= */ null,
                 /* errorMessage= */ null, internalErrorMessage);
     }
 
-    private static void sendUserCreationResult(AndroidFuture<UserCreationResult> receiver,
+    private static void sendUserCreationResult(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, @Nullable Integer androidFailureStatus,
             @NonNull UserHandle user, @Nullable String errorMessage,
             @Nullable String internalErrorMessage) {
@@ -1697,7 +1684,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             internalErrorMessage = null;
         }
 
-        receiver.complete(new UserCreationResult(status, androidFailureStatus, user, errorMessage,
+        callback.complete(new UserCreationResult(status, androidFailureStatus, user, errorMessage,
                 internalErrorMessage));
     }
 
