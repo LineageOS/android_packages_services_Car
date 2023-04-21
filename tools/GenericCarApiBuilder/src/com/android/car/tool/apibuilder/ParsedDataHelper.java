@@ -198,6 +198,31 @@ public final class ParsedDataHelper {
         return apisWithVersion;
     }
 
+    /**
+     * Gives incorrect usage of requires APIs.
+     */
+    // TODO(b/277617236): add tests for this
+    public static List<String> getIncorrectRequiresApiUsage(ParsedData parsedData) {
+        List<String> incorrectRequiresApiUsage = new ArrayList<>();
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> {
+                    if (classData.annotationData.hasRequiresApiAnnotation) {
+                        incorrectRequiresApiUsage.add(classData.useableClassName + " "
+                                + classData.annotationData.requiresApiVersion);
+                    }
+                }));
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.methods.values().forEach(
+                        (method) -> {
+                            if (method.annotationData.hasRequiresApiAnnotation) {
+                                incorrectRequiresApiUsage.add(classData.useableClassName + "."
+                                        + method.methodName
+                                        + " " + method.annotationData.requiresApiVersion);
+                            }
+                        })));
+        return incorrectRequiresApiUsage;
+    }
+
     private static String formatMethodString(PackageData packageData, ClassData classData,
             MethodData method) {
         return packageData.packageName + " "
