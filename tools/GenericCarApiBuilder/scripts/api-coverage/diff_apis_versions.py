@@ -95,14 +95,52 @@ new_apis = [strip_param_names(i) for i in new_apis]
 
 new_apis = [format_name(i) for i in new_apis if i not in old_apis]
 
-# Get the query results from F1
-cmd_str = "f1-sql --csv_print_column_names=true --csv_output=true --input_file=api-coverage-sql-query --output_file=\"api-coverage-results.csv\" --print_queries=false;"
+# Get the build numbers for the last 5 builds:
+cmd_str = "f1-sql --csv_print_column_names=true --csv_output=true --input_file=buildnums-sql-query --output_file=\"buildnums-results.csv\" --print_queries=false;"
 subprocess.run(cmd_str, shell=True)
 
-data_read = []
-with open("api-coverage-results.csv") as fp:
+build_nums = []
+with open("buildnums-results.csv") as fp:
+    next(fp)
     for row in fp:
-        data_read.append(strip_param_prefixes(row.replace("$", ".").replace("\"", "").strip()))
+        build_nums.append(row.strip())
+
+for i in build_nums:
+    print(i)
+
+# Get the query results from F1
+data_read = set()
+for build_num in build_nums:
+    f = open('api-coverage-sql-query', 'r')
+    filedata = f.read()
+    f.close()
+
+    newdata = filedata.replace('build_num', build_num)
+
+    f = open('api-coverage-sql-query', 'w')
+    f.write(newdata)
+    f.close()
+
+    print(newdata)
+    cmd_str = "f1-sql --csv_print_column_names=true --csv_output=true --input_file=api-coverage-sql-query --output_file=\"api-coverage-results.csv\" --print_queries=false;"
+    subprocess.run(cmd_str, shell=True)
+
+    # Writeback the old query data.
+    f = open('api-coverage-sql-query', 'w')
+    f.write(filedata)
+    f.close()
+
+    current_data = []
+    with open("api-coverage-results.csv") as fp:
+        for row in fp:
+            current_data.append(strip_param_prefixes(row.replace("$", ".").replace("\"", "").strip()))
+
+    if len(data_read) == 0:
+        data_read = set(current_data)
+        continue
+
+    # Save the intersection of data over multiple runs.
+    data_read = data_read.intersection(set(current_data))
 
 print("**********THE FOLLOWING APIS HAVE BEEN ADDED FROM " + oldDir + " TO " + newDir + "************")
 f = open("apis-without-coverage.txt", "w")
@@ -113,5 +151,6 @@ for api in data_read:
 
 f.close()
 
-# Clean up csv file.
+# Clean up csv files
 subprocess.run("rm api-coverage-results.csv", shell=True)
+subprocess.run("rm buildnums-results.csv", shell=True)
