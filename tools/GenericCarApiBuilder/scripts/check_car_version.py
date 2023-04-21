@@ -57,12 +57,12 @@ version = sys.argv[3]
 java_cmd= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                                   "/GenericCarApiBuilder.jar " \
                                   "--print-all-apis-with-car-version " \
-                                  "--ANDROID-BUILD-TOP " + oldDir
+                                  "--root-dir " + oldDir
 
 java_cmd_2= "java -jar " + newDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
                                     "/GenericCarApiBuilder.jar " \
                                     "--print-all-apis-with-car-version " \
-                                    "--ANDROID-BUILD-TOP " + newDir
+                                    "--root-dir " + newDir
 
 processes = []
 cmds = [java_cmd, java_cmd_2]
