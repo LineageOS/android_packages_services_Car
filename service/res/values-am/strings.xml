@@ -200,8 +200,8 @@
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"በመኪናው ውስጥ ያሉ የሌሎች የተጠቃሚ ሰው ዞኖችን እና በእነሱ ዞኖች ውስጥ የተጫኑ የአቻ መተግበሪያዎችን (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ሁኔታዎች ይከታተሉ እና የእነሱን ዞኖች ኃይል ያስተዳድሩ።"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ግንኙነት ይፍጠሩ እና በመኪናው ውስጥ ያሉ ሌሎች የተጠቃሚ ሰው ዞኖች ውስጥ ከተጫኑ አቻ መተግበሪያዎች (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ጋር ይገናኙ"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ግንኙነት ይፍጠሩ እና በመኪናው ውስጥ ባሉ ሌሎች የተጠቃሚ ሰዎች ዞኖች ውስጥ ከተጫኑ አቻ መተግበሪያዎች (ከደዋዩ ጋር ተመሳሳይ የጥቅል ስም ያላቸው መተግበሪያዎች) ጋር ይገናኙ።"</string>
-    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"የሌሎች መተግበሪያዎችን ማያ ገጽ ያንጸባርቁ"</string>
-    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"የሌሎች መተግበሪያዎችን ማያ ገጽ ያንጸባርቁ።"</string>
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"የሌሎች መተግበሪያዎችን ማያ ገፅ ያንጸባርቁ"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"የሌሎች መተግበሪያዎችን ማያ ገፅ ያንጸባርቁ።"</string>
     <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"የሌሎች ተጠቃሚዎች ማሳያን ያንጸባርቁ"</string>
     <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"የሌሎች ተጠቃሚዎች ማሳያን ያንጸባርቁ።"</string>
     <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"የሥርዓት ዩአይን ለማስተዳደር እና የተግባር ዕይታዎችን ለመፍጠር በሌላ መተግበሪያዎች ሥራ ላይ መዋል የሚችል የሥርዓት ዩአይ ተኪ ያቅርቡ።"</string>
