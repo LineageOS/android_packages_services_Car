@@ -52,7 +52,8 @@ if javaHomeDir is None or javaHomeDir == "":
 
 # This generates a list of all classes.
 marker = "Start-"
-options = ["--print-classes", "--print-hidden-apis", "--print-all-apis-with-constr"]
+options = ["--print-classes", "--print-hidden-apis", "--print-all-apis-with-constr",
+           "--print-incorrect-requires-api-usage-in-car-service"]
 
 java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
            "/packages/services/Car/tools/GenericCarApiBuilder" \
@@ -74,6 +75,7 @@ all_results.append(all_data[previous_mark+1:])
 
 # Update this line when adding more options
 new_class_list, new_hidden_apis, all_apis = all_results[0], all_results[1], all_results[2]
+incorrect_api_usage_errors = all_results[3]
 new_hidden_apis = set(new_hidden_apis)
 all_apis = [strip_param_names(i) for i in all_apis]
 
@@ -201,4 +203,11 @@ if len(errors) > 0:
     print("\nassertPlatformVersionAtLeast or PlatformVersionMismatchException should not be used in"
           " car service. see go/car-mainline-version-assertion")
     print("\n".join(errors))
+    sys.exit(1)
+
+if len(incorrect_api_usage_errors) > 0:
+    print("\nOnly non-public classes and methods can have RequiresApi annotation. Following public "
+          "methods/classes also have requiresAPI annotation which is not allowed. See "
+          "go/car-api-version-annotation#using-requiresapi-for-version-check")
+    print("\n".join(incorrect_api_usage_errors))
     sys.exit(1)
