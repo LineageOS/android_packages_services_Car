@@ -99,7 +99,9 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
 
-        assertThat(getCreateDriverResult(future).getUser().getIdentifier()).isEqualTo(100);
+        UserCreationResult result = getCreateDriverResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getUser().getIdentifier()).isEqualTo(100);
     }
 
     @Test
@@ -122,8 +124,9 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", false);
         waitForHandlerThreadToFinish();
 
-        UserHandle userHandle = getCreateDriverResult(future).getUser();
-        assertThat(userHandle.getIdentifier()).isEqualTo(100);
+        UserCreationResult result = getCreateDriverResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getUser().getIdentifier()).isEqualTo(100);
     }
 
     @Test
