@@ -64,7 +64,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTestCase {
-
     @Mock
     private CarUserService mCarUserService;
 
@@ -91,7 +90,11 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     private final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
             new ResultCallbackImpl<>(Runnable::run, new SyncResultCallback<>());
 
-    private AndroidFuture<UserCreationResult> mUserCreationResult = new AndroidFuture<>();
+    private final SyncResultCallback<UserCreationResult> mSyncResultCallbackForCreateUser =
+            new SyncResultCallback<>();
+
+    private final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForCreateUser);
 
     private AndroidFuture<UserStartResult> mUserStartResult = new AndroidFuture<>();
 
@@ -138,8 +141,8 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private void invalidCreateUserTypeTest(@CarDevicePolicyManager.UserType int type)
             throws Exception {
-        mService.createUser("name", type, mUserCreationResult);
-        UserCreationResult result = mUserCreationResult.get();
+        mService.createUser("name", type, mUserCreationResultCallbackImpl);
+        UserCreationResult result = mSyncResultCallbackForCreateUser.get();
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
@@ -166,10 +169,11 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private void createUserOkTest(@UserInfoFlag int flags,
             @CarDevicePolicyManager.UserType int carDpmUserType, @NonNull String userType) {
-        mService.createUser("name", carDpmUserType, mUserCreationResult);
+        mService.createUser("name", carDpmUserType, mUserCreationResultCallbackImpl);
 
-        verify(mCarUserService).createUser(eq("name"), eq(userType), eq(flags),
-                /* timeoutMs= */ anyInt(), eq(mUserCreationResult));
+        // TODO(b/278124479): Match based on name, userType, flags.
+        verify(mCarUserService).createUser(/* userCreationRequest= */ any(), /* timeoutMs= */
+                anyInt(), eq(mUserCreationResultCallbackImpl));
     }
 
     @Test
