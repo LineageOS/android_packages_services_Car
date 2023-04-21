@@ -160,7 +160,7 @@ public final class GenerateAPI {
             if (updateClasses) {
                 write(rootDir + CAR_API_ANNOTATION_TEST_FILE,
                         ParsedDataHelper.getClassNamesOnly(parsedDataCarLib));
-                write(rootDir + CAR_API_ANNOTATION_TEST_FILE,
+                write(rootDir + CAR_BUILT_IN_ANNOTATION_TEST_FILE,
                         ParsedDataHelper.getClassNamesOnly(parsedDataCarBuiltinLib));
             }
 
