@@ -1194,7 +1194,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testSwitchUser_nullReceiver() throws Exception {
+    public void testSwitchUser_nullCallback() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
         assertThrows(NullPointerException.class,
@@ -1203,9 +1203,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testSwitchUser_nonExistingTarget() throws Exception {
-        switchUser(NON_EXISTING_USER, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(NON_EXISTING_USER, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(NON_EXISTING_USER),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_INVALID_REQUEST);
         verifyNoLogoutUser();
     }
@@ -1217,9 +1217,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUmGetUserSwitchability(mMockedUserManager,
                 UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_NOT_SWITCHABLE);
         verifyNoLogoutUser();
     }
@@ -1228,9 +1228,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testSwitchUser_targetSameAsCurrentUser() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
-        switchUser(mAdminUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mAdminUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId).getStatus(),
+        assertUserSwitchResult(getUserSwitchResult().getStatus(),
                 UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
         verifyNoUserSwitch();
         verifyNoLogoutUser();
@@ -1242,9 +1242,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUserHalSupported(false);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
 
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
 
         // update current user due to successful user switch
@@ -1261,9 +1261,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUserHalSupported(false);
         // Don't need to call mockAmSwitchUser() because it returns false by default
 
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mRegularUserId),
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(),
                 UserManager.USER_OPERATION_ERROR_UNKNOWN);
         assertNoHalUserSwitch();
         verifyNoLogoutUser();
@@ -1278,9 +1278,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
 
         // update current user due to successful user switch
@@ -1299,9 +1299,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, false);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_ANDROID_FAILURE);
         assertPostSwitch(requestId, mAdminUserId, mGuestUserId);
         verifyNoLogoutUser();
@@ -1314,9 +1314,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.errorMessage = "Error Message";
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultWithError(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResultWithError(getUserSwitchResult(),
                 UserSwitchResult.STATUS_HAL_FAILURE, mSwitchUserResponse.errorMessage);
         verifyNoUserSwitch();
         verifyNoLogoutUser();
@@ -1327,9 +1327,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mockHalSwitch(mAdminUserId, mGuestUser, /* response= */ null);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultWithError(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResultWithError(getUserSwitchResult(),
                 UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, /* expectedErrorMessage= */ null);
         verifyNoUserSwitch();
         verifyNoLogoutUser();
@@ -1342,9 +1342,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, HalCallback.STATUS_WRONG_HAL_RESPONSE,
                 mSwitchUserResponse, mGuestUser);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
         verifyNoUserSwitch();
         verifyNoLogoutUser();
@@ -1356,9 +1356,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
         initService();
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         assertNoHalUserSwitch();
         verifyNoUserSwitch();
@@ -1376,15 +1376,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         // Should be ok first time...
         ICarUxRestrictionsChangeListener listener = initService();
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
 
         // ...but then fail after the state changed
         mockCurrentUser(mGuestUser);
         updateUxRestrictions(listener, /* restricted= */ true); // changed state
-        switchUser(mAdminUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
-        assertUserSwitchResult(getUserSwitchResult2(mAdminUserId),
+        switchUser(mAdminUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
 
         // Verify only initial call succeeded (if second was also called the mocks, verify() would
@@ -1403,7 +1403,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
         int newRequestId = 43;
@@ -1412,11 +1412,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         switchUserResponse.requestId = newRequestId;
         mockHalSwitch(mAdminUserId, mRegularUser, switchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertUserSwitchResult(getUserSwitchResult2(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1433,7 +1433,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
         int newRequestId = 43;
@@ -1442,15 +1442,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         switchUserResponse.requestId = newRequestId;
         mockHalSwitch(mAdminUserId, mRegularUser, switchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUserId);
 
         if (false) { // TODO(b/214437189): add this assertion (right now it's returning SUCCESSFUL
-            assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+            assertUserSwitchResult(getUserSwitchResult(),
                     UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
         }
-        assertUserSwitchResult(getUserSwitchResult2(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1469,9 +1469,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
         // First switch, using CarUserManager
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         // update current user due to successful user switch
         mockCurrentUser(mGuestUser);
@@ -1494,7 +1494,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
         int newRequestId = 43;
@@ -1503,13 +1503,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         switchUserResponse.requestId = newRequestId;
         mockHalSwitch(mAdminUserId, mRegularUser, switchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
         if (false) { // TODO(b/214437189): add this assertion (right now it times out)
-            assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+            assertUserSwitchResult(getUserSwitchResult(),
                     UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
         }
-        assertUserSwitchResult(getUserSwitchResult2(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1524,7 +1524,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int requestId = 42;
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
         int newRequestId = 43;
@@ -1533,16 +1533,16 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         switchUserResponse.requestId = newRequestId;
         mockHalSwitch(mAdminUserId, mRegularUser, switchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUserId);
 
         if (false) { // TODO(b/214437189): add this assertion (right now it times out)
-            assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+            assertUserSwitchResult(getUserSwitchResult(),
                     UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
         }
-        assertUserSwitchResult(getUserSwitchResult2(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1559,7 +1559,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.requestId = requestId;
         BlockingAnswer<Void> blockingAnswer = mockHalSwitchLateResponse(mAdminUserId,
                 mGuestUser, mSwitchUserResponse);
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
         int newRequestId = 43;
@@ -1568,15 +1568,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         switchUserResponse.requestId = newRequestId;
         mockHalSwitch(mAdminUserId, mRegularUser, switchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
-        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mRegularUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUserId);
         blockingAnswer.unblock();
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
-        assertUserSwitchResult(getUserSwitchResult2(mRegularUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1591,13 +1591,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // calling another user switch before unlock
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
         // TODO(b/214437189): should also assert first call
-        assertUserSwitchResult(getUserSwitchResult2(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1613,13 +1613,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
         // calling another user switch before unlock
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertUserSwitchResult(getUserSwitchResult2(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1636,18 +1636,18 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
         int newRequestId = 43;
         mSwitchUserResponse.requestId = newRequestId;
 
         // calling another user switch before unlock
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture2);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl2);
         mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUserId);
 
-        assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertUserSwitchResult(getUserSwitchResult2(mGuestUserId),
+        assertUserSwitchResult(getUserSwitchResult2(),
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertPostSwitch(requestId, mGuestUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
@@ -1659,7 +1659,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
 
         assertThrows(SecurityException.class, () -> mCarUserService
-                .switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture));
+                .switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl));
     }
 
     @Test
@@ -1691,7 +1691,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int targetUserId = mGuestUserId;
         mockCallerUid(Binder.getCallingUid(), true);
         mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
-        switchUser(targetUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(targetUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // Act - trigger legacy switch
         sendUserSwitchingEvent(mAdminUserId, targetUserId);
@@ -1715,7 +1715,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mAdminUserId, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
-        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        switchUser(mGuestUserId, ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
         // update current user due to successful user switch
         verify(mSwitchUserUiReceiver).send(mGuestUserId, null);
@@ -1760,10 +1760,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testLogoutUser_currentUserNotSwitchedByDeviceAdmin() throws Exception {
         mockNoLogoutUserId();
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getResult(mUserSwitchFuture, "result of user not logged in"),
-                UserSwitchResult.STATUS_NOT_LOGGED_IN);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_NOT_LOGGED_IN);
         verifyNoLogoutUser();
         verifyNoUserSwitch();
     }
@@ -1776,10 +1775,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUmGetUserSwitchability(mMockedUserManager,
                 UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
         verifyLogoutUser();
         verifyNoUserSwitch();
     }
@@ -1790,10 +1788,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUserHalSupported(false);
         mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_SUCCESS);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
         verifyLogoutUser();
         verifyNoUserSwitch();
     }
@@ -1804,9 +1801,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockUserHalSupported(false);
         mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_ERROR_MAX_USERS);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mAdminUserId),
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(),
                 UserManager.USER_OPERATION_ERROR_MAX_USERS);
         verifyLogoutUser();
         verifyNoUserSwitch();
@@ -1823,10 +1820,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mAdminUser, true);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
 
         // update current user due to successful user switch
         mockCurrentUser(mAdminUser);
@@ -1847,9 +1843,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
         mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_ERROR_MAX_USERS);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mAdminUserId),
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(),
                 UserManager.USER_OPERATION_ERROR_MAX_USERS);
         verifyLogoutUser();
         verifyNoUserSwitch();
@@ -1865,10 +1861,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.errorMessage = "Error Message";
         mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
 
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResultWithError(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_HAL_FAILURE, mSwitchUserResponse.errorMessage);
+        assertUserSwitchResultWithError(getUserSwitchResult(), UserSwitchResult.STATUS_HAL_FAILURE,
+                mSwitchUserResponse.errorMessage);
 
         verifyNoLogoutUser();
         verifyNoUserSwitch();
@@ -1880,9 +1876,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockLogoutUser(mAdminUser);
 
         initService();
-        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture);
+        logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
+        assertUserSwitchResult(getUserSwitchResult(),
                 UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         verifyNoLogoutUser();
         assertNoHalUserSwitch();
@@ -1894,7 +1890,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
 
         assertThrows(SecurityException.class, () -> mCarUserService
-                .logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchFuture));
+                .logoutUser(ASYNC_CALL_TIMEOUT_MS, mUserSwitchResultCallbackImpl));
     }
 
     @Test
@@ -2955,8 +2951,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 .that(carConstant).isEqualTo(amConstant);
     }
 
-    private void logoutUser(int timeoutMs, AndroidFuture<UserSwitchResult> receiver) {
-        mCarUserService.logoutUser(timeoutMs, receiver);
+    private void logoutUser(int timeoutMs, ResultCallbackImpl<UserSwitchResult> callback) {
+        mCarUserService.logoutUser(timeoutMs, callback);
         waitForHandlerThreadToFinish();
     }
 
