@@ -42,8 +42,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserStartRequest;
 import android.car.user.UserStopRequest;
-import android.car.user.UserSwitchResult;
-import android.car.util.concurrent.AsyncFuture;
+import android.car.user.UserSwitchRequest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -327,12 +326,13 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         try {
             Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
-            AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
-            UserSwitchResult result = future.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            Log.d(TAG, "Result: " + result);
-
-            assertWithMessage("User %s switched in %sms. Result: %s", userId,
-                    SWITCH_USER_TIMEOUT_MS, result).that(result.isSuccess()).isTrue();
+            mCarUserManager.switchUser(new UserSwitchRequest.Builder(
+                    UserHandle.of(userId)).build(), Runnable::run, response -> {
+                    Log.d(TAG, "result: " + response);
+                    assertWithMessage("User %s switched in %sms. Result: %s", userId,
+                        SWITCH_USER_TIMEOUT_MS, response).that(response.isSuccess()).isTrue();
+                }
+            );
 
             if (waitForUserSwitchToComplete) {
                 listener.waitForEvents();
