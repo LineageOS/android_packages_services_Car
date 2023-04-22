@@ -186,8 +186,16 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     // NOTE: Futures below should be used just once per test case, otherwise they could cause
     // failures
+
+    protected final SyncResultCallback<UserSwitchResult> mSyncResultCallbackForSwitchUser =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserSwitchResult> mUserSwitchResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForSwitchUser);
+    protected final SyncResultCallback<UserSwitchResult> mSyncResultCallbackForSwitchUser2 =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserSwitchResult> mUserSwitchResultCallbackImpl2 =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForSwitchUser2);
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
-    protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
     protected final SyncResultCallback<UserCreationResult> mSyncResultCallbackForCreateUser =
             new SyncResultCallback<>();
     protected final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallback =
@@ -459,8 +467,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void switchUser(@UserIdInt int userId, int timeoutMs,
-            @NonNull AndroidFuture<UserSwitchResult> receiver) {
-        mCarUserService.switchUser(userId, timeoutMs, receiver);
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
+        mCarUserService.switchUser(userId, timeoutMs, callback);
         waitForHandlerThreadToFinish();
     }
 
@@ -497,11 +505,21 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     /**
-     * Gets the result of a user switch call that was made using {@link #mUserSwitchFuture2}.
+     * Gets the result of a user switch call that was made using
+     * {@link #mUserSwitchResultCallbackImpl}.
      */
     @NonNull
-    protected UserSwitchResult getUserSwitchResult2(int userId) throws Exception {
-        return getResult(mUserSwitchFuture2, "result of switching user %d", userId);
+    protected UserSwitchResult getUserSwitchResult() throws Exception {
+        return mSyncResultCallbackForSwitchUser.get(ASYNC_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Gets the result of a user switch call that was made using
+     * {@link #mUserSwitchResultCallbackImpl2}.
+     */
+    @NonNull
+    protected UserSwitchResult getUserSwitchResult2() throws Exception {
+        return mSyncResultCallbackForSwitchUser2.get(ASYNC_CALL_TIMEOUT_MS, TimeUnit.MILLISECONDS);
     }
 
     /**

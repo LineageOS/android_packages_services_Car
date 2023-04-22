@@ -34,9 +34,8 @@ import com.android.car.internal.ResultCallbackImpl;
 
 /** @hide */
 interface ICarUserService {
-    // TODO(b/235991826): Use callback instead of AsyncFuture
-    void switchUser(int targetUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
-    void logoutUser(int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void switchUser(int targetUserId, int timeoutMs, in ResultCallbackImpl<UserSwitchResult> callback);
+    void logoutUser(int timeoutMs, in ResultCallbackImpl<UserSwitchResult> callback);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(in UserCreationRequest userCreationRequest, int timeoutMs,
           in ResultCallbackImpl<UserCreationResult> callback);

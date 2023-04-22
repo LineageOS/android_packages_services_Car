@@ -66,6 +66,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchRequest;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.car.watchdog.CarWatchdogManager;
@@ -2118,15 +2119,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
-        // TODO(b/235991826): Update this call with new switchUser call
-        AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
 
-        showUserSwitchResult(writer, future, timeout);
+        SyncResultCallback<UserSwitchResult> syncResultCallback = new SyncResultCallback<>();
+
+        carUserManager.switchUser(
+                new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(), Runnable::run,
+                syncResultCallback);
+
+        try {
+            showUserSwitchResult(writer, syncResultCallback.get(timeout, TimeUnit.MILLISECONDS));
+        } catch (TimeoutException e) {
+            writer.printf("UserSwitchResult: timed out waitng for result");
+        } catch (InterruptedException e) {
+            writer.printf("UserSwitchResult: interrupted waitng for result");
+            Thread.currentThread().interrupt();
+        }
     }
 
-    private void showUserSwitchResult(IndentingPrintWriter writer,
-            AsyncFuture<UserSwitchResult> future, int timeout) {
-        UserSwitchResult result = waitForFuture(writer, future, timeout);
+    private void showUserSwitchResult(IndentingPrintWriter writer, UserSwitchResult result) {
         if (result == null) return;
         writer.printf("UserSwitchResult: status=%s",
                 UserSwitchResult.statusToString(result.getStatus()));
@@ -2158,7 +2168,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         CarUserManager carUserManager = getCarUserManager(mContext);
         AsyncFuture<UserSwitchResult> future = carUserManager.logoutUser();
-        showUserSwitchResult(writer, future, timeout);
+        UserSwitchResult result = waitForFuture(writer, future, timeout);
+        showUserSwitchResult(writer, result);
     }
 
     private void createUser(String[] args, IndentingPrintWriter writer) {
