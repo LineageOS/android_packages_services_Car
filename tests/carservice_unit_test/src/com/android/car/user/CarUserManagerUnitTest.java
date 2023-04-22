@@ -53,6 +53,7 @@ import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchRequest;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
@@ -287,6 +288,19 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     public void testSwitchUser_success() throws Exception {
         expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL);
 
+        mMgr.switchUser(new UserSwitchRequest.Builder(
+                        UserHandle.of(11)).build(), Runnable::run, response -> {
+                    assertThat(response.getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+                    assertThat(response.getErrorMessage()).isNull();
+                }
+        );
+
+    }
+
+    @Test
+    public void testSwitchUserId_success() throws Exception {
+        expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL);
+
         AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
@@ -300,6 +314,20 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceSwitchUserFails(11, new RemoteException("D'OH!"));
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
+        mMgr.switchUser(new UserSwitchRequest.Builder(
+                        UserHandle.of(11)).build(), Runnable::run, response -> {
+                    assertThat(response.getStatus()).isEqualTo(
+                            UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+                    assertThat(response.getErrorMessage()).isNull();
+                }
+        );
+    }
+
+    @Test
+    public void testSwitchUserId_remoteException() throws Exception {
+        expectServiceSwitchUserFails(11, new RemoteException("D'OH!"));
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
         AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
@@ -310,6 +338,19 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testSwitchUser_runtimeException() throws Exception {
+        expectServiceSwitchUserFails(11, new RuntimeException("D'OH!"));
+
+        mMgr.switchUser(new UserSwitchRequest.Builder(
+                        UserHandle.of(11)).build(), Runnable::run, response -> {
+                    assertThat(response.getStatus()).isEqualTo(
+                            UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+                    assertThat(response.getErrorMessage()).isNull();
+                }
+        );
+    }
+
+    @Test
+    public void testSwitchUserId_runtimeException() throws Exception {
         expectServiceSwitchUserFails(11, new RuntimeException("D'OH!"));
 
         AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
@@ -747,9 +788,9 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
             @UserSwitchResult.Status int status) throws RemoteException {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
-            AndroidFuture<UserSwitchResult> future =
-                    (AndroidFuture<UserSwitchResult>) invocation.getArguments()[2];
-            future.complete(new UserSwitchResult(status, /* errorMessage= */ null));
+            ResultCallbackImpl<UserSwitchResult> resultCallbackImpl =
+                    (ResultCallbackImpl<UserSwitchResult>) invocation.getArguments()[2];
+            resultCallbackImpl.complete(new UserSwitchResult(status, /* errorMessage= */ null));
             return null;
         }).when(mService).switchUser(eq(userId), anyInt(), notNull());
     }
@@ -762,9 +803,9 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
             throws RemoteException {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
-            AndroidFuture<UserSwitchResult> future =
-                    (AndroidFuture<UserSwitchResult>) invocation.getArguments()[1];
-            future.complete(new UserSwitchResult(status, /* errorMessage= */ null));
+            ResultCallbackImpl<UserSwitchResult> resultCallbackImpl =
+                    (ResultCallbackImpl<UserSwitchResult>) invocation.getArguments()[1];
+            resultCallbackImpl.complete(new UserSwitchResult(status, /* errorMessage= */ null));
             return null;
         }).when(mService).logoutUser(anyInt(), notNull());
     }
