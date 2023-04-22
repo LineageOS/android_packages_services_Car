@@ -17,7 +17,6 @@
 package com.android.car;
 
 import static android.car.user.CarUserManager.lifecycleEventTypeToString;
-import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Process.INVALID_UID;
 
@@ -42,6 +41,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -818,7 +818,8 @@ public final class CarServiceUtils {
         Intent intent = new Intent()
                 .setComponent(ComponentName.unflattenFromString(
                     userPickerActivityPackage))
-                .addFlags(FLAG_ACTIVITY_MULTIPLE_TASK | FLAG_ACTIVITY_NEW_TASK);
+                .addFlags(FLAG_ACTIVITY_NEW_TASK)
+                .setData(Uri.parse("data://com.android.car/userpicker/display" + displayId));
         ActivityOptions activityOptions = ActivityOptions.makeBasic()
                 .setLaunchDisplayId(displayId);
         try {

@@ -35,6 +35,8 @@ public final class GenerateAPI {
     private static final String ANDROID_BUILD_TOP = "ANDROID_BUILD_TOP";
     private static final String CAR_API_PATH =
             "/packages/services/Car/car-lib/src/android/car";
+    private static final String CAR_SERVICE_PATH =
+            "/packages/services/Car/service/src";
     private static final String CAR_BUILT_IN_API_PATH =
             "/packages/services/Car/car-builtin-lib/src/android/car/builtin";
     private static final String CAR_API_ANNOTATION_TEST_FILE =
@@ -62,6 +64,8 @@ public final class GenerateAPI {
             "--platform-version-assertion-check";
     private static final String PRINT_ALL_APIS_WITH_CAR_VERSION =
             "--print-all-apis-with-car-version";
+    private static final String PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE =
+            "--print-incorrect-requires-api-usage-in-car-service";
     private static final String ROOT_DIR = "--root-dir";
 
     public static void main(final String[] args) throws Exception {
@@ -81,6 +85,7 @@ public final class GenerateAPI {
             boolean updateApisWithAddedinorbefore = false;
             boolean platformVersionCheck = false;
             boolean printAllApisWithCarVersion = false;
+            boolean printIncorrectRequiresApiUsageInCarService = false;
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
             // If print request is more than one. Use marker to separate data. This would be useful
             // for executing multiple requests in one go.
@@ -127,6 +132,9 @@ public final class GenerateAPI {
                     case PRINT_ALL_APIS_WITH_CAR_VERSION:
                         printAllApisWithCarVersion = true;
                         break;
+                    case PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE:
+                        printIncorrectRequiresApiUsageInCarService = true;
+                        break;
                     default:
                         System.out.println("Incorrect Arguments.");
                         printHelp();
@@ -160,7 +168,7 @@ public final class GenerateAPI {
             if (updateClasses) {
                 write(rootDir + CAR_API_ANNOTATION_TEST_FILE,
                         ParsedDataHelper.getClassNamesOnly(parsedDataCarLib));
-                write(rootDir + CAR_API_ANNOTATION_TEST_FILE,
+                write(rootDir + CAR_BUILT_IN_ANNOTATION_TEST_FILE,
                         ParsedDataHelper.getClassNamesOnly(parsedDataCarBuiltinLib));
             }
 
@@ -201,6 +209,14 @@ public final class GenerateAPI {
                 printMarker(printRequests, PRINT_ALL_APIS_WITH_CAR_VERSION);
                 print(ParsedDataHelper.getApisWithVersion(parsedDataCarLib));
                 print(ParsedDataHelper.getApisWithVersion(parsedDataCarBuiltinLib));
+            }
+            if (printIncorrectRequiresApiUsageInCarService) {
+                printMarker(printRequests, PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE);
+                List<File> allJavaFiles_CarService = getAllFiles(
+                        new File(rootDir + CAR_SERVICE_PATH));
+                ParsedData parsedDataCarService = new ParsedData();
+                ParsedDataBuilder.populateParsedData(allJavaFiles_CarService, parsedDataCarService);
+                print(ParsedDataHelper.getIncorrectRequiresApiUsage(parsedDataCarService));
             }
         } catch (Exception e) {
             throw e;

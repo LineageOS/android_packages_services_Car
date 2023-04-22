@@ -22,6 +22,7 @@ import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
 import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
@@ -33,6 +34,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.IExperimentalCarUserService;
+import android.car.SyncResultCallback;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -52,6 +54,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ResultCallbackImpl;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -201,30 +204,37 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         checkManageUsersPermission("createDriver");
         Objects.requireNonNull(name, "name cannot be null");
 
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
+
+        ResultCallbackImpl<UserCreationResult> resultResultCallbackImpl = new ResultCallbackImpl<>(
+                Runnable::run, new SyncResultCallback<>()) {
             @Override
-            protected void onCompleted(UserCreationResult result, Throwable err) {
+            protected void onCompleted(UserCreationResult result) {
                 if (result == null) {
-                    Slogf.w(TAG, "createDriver(%s, %s) failed: %s", name, admin, err);
+                    Slogf.w(TAG, "createDriver(%s, %s) failed", name, admin);
                 }
-                super.onCompleted(result, err);
-            };
+                future.complete(result);
+                super.onCompleted(result);
+            }
         };
         int flags = 0;
+
         if (admin) {
             if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
                 String internalErrorMsg =
                         "Only admin users and system user can create other admins.";
                 Slogf.e(TAG, internalErrorMsg);
-                sendUserCreationFailure(future, UserCreationResult.STATUS_INVALID_REQUEST,
+                sendUserCreationFailure(resultResultCallbackImpl,
+                        UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMsg);
                 return future;
             }
             flags = UserManagerHelper.FLAG_ADMIN;
         }
+
         mCarUserService.createUser(name,
                 UserManagerHelper.getDefaultUserTypeForUserInfoFlags(flags), flags, mHalTimeoutMs,
-                future);
+                resultResultCallbackImpl, false);
         return future;
     }
 
@@ -419,9 +429,14 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
     /** Returns all users who are matched by the given filter. */
     private List<UserHandle> getUsersHandle(UserFilter filter) {
-        List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false,
-                /* excludePreCreated */ true);
+        List<UserHandle> users;
+        if (isPlatformVersionAtLeastU()) {
+            users = UserManagerHelper.getUserHandles(mUserManager, /* excludeDying= */ false);
+        } else {
+            users = UserManagerHelper.getUserHandles(mUserManager,
+                    /* excludePartial= */ false, /* excludeDying= */ false,
+                    /* excludePreCreated */ true);
+        }
         List<UserHandle> usersFiltered = new ArrayList<UserHandle>();
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
@@ -441,9 +456,14 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     }
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {
-        List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false,
-                /* excludePreCreated */ true);
+        List<UserHandle> users;
+        if (isPlatformVersionAtLeastU()) {
+            users = UserManagerHelper.getUserHandles(mUserManager, /* excludeDying= */ false);
+        } else {
+            users = UserManagerHelper.getUserHandles(mUserManager,
+                    /* excludePartial= */ false, /* excludeDying= */ false,
+                    /* excludePreCreated */ true);
+        }
         // Count all users that are managed profiles of the given user.
         int managedProfilesCount = 0;
         for (UserHandle user : users) {

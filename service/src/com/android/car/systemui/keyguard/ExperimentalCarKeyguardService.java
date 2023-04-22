@@ -250,8 +250,7 @@ public final class ExperimentalCarKeyguardService extends IExperimentalCarKeygua
         if (!isPlatformVersionAtLeastU()) {
             return;
         }
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-        for (Iterator<UserHandle> iterator = userManager.getVisibleUsers().iterator();
+        for (Iterator<UserHandle> iterator = mUserManager.getVisibleUsers().iterator();
                 iterator.hasNext();) {
             UserHandle userHandle = iterator.next();
             if (isPassengerUser(userHandle.getIdentifier())) {

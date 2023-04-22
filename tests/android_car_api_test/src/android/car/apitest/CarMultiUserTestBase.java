@@ -31,11 +31,13 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.SyncResultCallback;
 import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserStartRequest;
@@ -252,10 +254,21 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         assertCanAddUser();
 
-        UserCreationResult result = (isGuest
-                ? mCarUserManager.createGuest(name)
-                : mCarUserManager.createUser(name, /* flags= */ 0))
-                    .get(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        UserCreationRequest.Builder userCreationRequestBuilder = new UserCreationRequest.Builder();
+
+        if (isGuest) {
+            userCreationRequestBuilder.setGuest();
+        }
+
+        SyncResultCallback<UserCreationResult> userCreationResultCallback =
+                new SyncResultCallback<>();
+
+        mCarUserManager.createUser(userCreationRequestBuilder.setName(name).build(), Runnable::run,
+                userCreationResultCallback);
+
+        UserCreationResult result = userCreationResultCallback.get(
+                DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
         Log.d(TAG, "result: " + result);
         assertWithMessage("user creation result (waited for %sms)", DEFAULT_WAIT_TIMEOUT_MS)
                 .that(result).isNotNull();

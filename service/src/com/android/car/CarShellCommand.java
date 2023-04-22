@@ -254,6 +254,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String DRIVING_STATE_DRIVE = "drive";
     private static final String DRIVING_STATE_PARK = "park";
     private static final String DRIVING_STATE_REVERSE = "reverse";
+    private static final String DRIVING_STATE_NEUTRAL = "neutral";
 
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
@@ -808,8 +809,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "displays the silent state");
         pw.println("\t  and shows how many listeners are monitoring the state.");
 
-        pw.printf("\t%s [%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
-                DRIVING_STATE_PARK, DRIVING_STATE_REVERSE);
+        pw.printf("\t%s [%s|%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
+                DRIVING_STATE_PARK, DRIVING_STATE_REVERSE, DRIVING_STATE_NEUTRAL);
         pw.println("\t  Emulates the giving driving state.");
 
         pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
@@ -2850,6 +2851,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case DRIVING_STATE_REVERSE:
                 emulateReverse();
                 break;
+            case DRIVING_STATE_NEUTRAL:
+                emulateNeutral();
+                break;
             default:
                 writer.printf("invalid driving mode %s; must be %s or %s\n", mode,
                         DRIVING_STATE_DRIVE, DRIVING_STATE_PARK);
@@ -2894,6 +2898,20 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
                 /* zone= */ 0, Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ 0);
+    }
+
+    /**
+     * Emulates neutral driving state. Called by
+     * {@code adb shell cmd car_service emulate-driving-state neutral}.
+     */
+    private void emulateNeutral() {
+        Slogf.i(TAG, "Emulating neutral driving mode");
+        mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
+                /* zone= */ 0, Integer.toString(VehicleGear.GEAR_NEUTRAL), /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.PARKING_BRAKE_ON,
+                /* zone= */ 0, /* value= */ "true", /* delayTime= */ 0);
     }
 
     private int definePowerPolicy(String[] args, IndentingPrintWriter writer) {

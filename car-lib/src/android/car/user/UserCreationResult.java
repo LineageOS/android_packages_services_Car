@@ -22,6 +22,7 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserHandle;
@@ -133,6 +134,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     }
 
     /** @hide */
+    @TestApi
     public UserCreationResult(@Status int status) {
         this(status, /* user= */ null);
     }
