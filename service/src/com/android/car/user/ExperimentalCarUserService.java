@@ -270,22 +270,30 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     @Override
     public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
         checkManageUsersPermission("switchDriver");
+        ResultCallbackImpl<UserSwitchResult> resultCallbackImpl = new ResultCallbackImpl<>(
+                Runnable::run, new SyncResultCallback<>()) {
+            @Override
+            protected void onCompleted(UserSwitchResult result) {
+                receiver.complete(result);
+                super.onCompleted(result);
+            }
+        };
 
         if (UserHelperLite.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
             Slogf.w(TAG, "switching to system user in headless system user mode is not allowed");
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(resultCallbackImpl, /* isLogout= */ false,
                     UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         int userSwitchable = mUserManager.getUserSwitchability();
         if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
             Slogf.w(TAG, "current process is not allowed to switch user");
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(resultCallbackImpl, /* isLogout= */ false,
                     UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
-        mCarUserService.switchUser(driverId, mHalTimeoutMs, receiver);
+        mCarUserService.switchUser(driverId, mHalTimeoutMs, resultCallbackImpl);
     }
 
     /**
