@@ -239,12 +239,6 @@ public:
         return {};
     }
 
-    android::base::Result<void> onResourceStatsSent([[maybe_unused]] bool successful) override {
-        // TODO(b/244458187): Handle caches after resource usage stats are sent to the car watchdog
-        //  service.
-        return {};
-    }
-
     android::base::Result<void> onDump(int fd) const override;
 
     android::base::Result<void> onCustomCollectionDump(int fd) override;

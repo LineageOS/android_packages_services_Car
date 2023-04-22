@@ -199,12 +199,13 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     EXPECT_CALL(*mMockIoOveruseMonitor, isInitialized()).WillOnce(Return(false));
     EXPECT_CALL(*mMockWatchdogPerfService, registerDataProcessor(Eq(mMockIoOveruseMonitor)))
             .WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockWatchdogPerfService, onCarWatchdogServiceRegistered()).Times(1);
+    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
 
     std::shared_ptr<ICarWatchdogServiceForSystem> service =
             SharedRefBase::make<ICarWatchdogServiceForSystemDefault>();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(ByMove(ScopedAStatus::ok())));
-    EXPECT_CALL(*mMockIoOveruseMonitor, onCarWatchdogServiceRegistered()).Times(1);
 
     auto status = mWatchdogInternalHandler->registerCarWatchdogService(service);
 
