@@ -23,10 +23,12 @@ import static android.car.user.CarUserManager.USER_IDENTIFICATION_ASSOCIATION_VA
 import android.annotation.Nullable;
 import android.app.AlertDialog;
 import android.car.Car;
+import android.car.SyncResultCallback;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchRequest;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
@@ -50,6 +52,7 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Shows information (and actions) about the current user.
@@ -68,6 +71,7 @@ public final class UserFragment extends Fragment {
     private static final String TAG = UserFragment.class.getSimpleName();
 
     private static final long TIMEOUT_MS = 5_000;
+    private static final long SWITCH_USER_TIMEOUT_MS = 20_000;
 
     private final int mUserId = UserHandle.myUserId();
     private UserManager mUserManager;
@@ -238,8 +242,20 @@ public final class UserFragment extends Fragment {
     private void switchUser() {
         int userId = mCurrentUsers.getSelectedUserId();
         Log.i(TAG, "Switch user: " + userId);
-        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
-        UserSwitchResult result = getResult(future);
+        SyncResultCallback<UserSwitchResult> userSwitchResultCallback =
+                new SyncResultCallback<>();
+        mCarUserManager.switchUser(new UserSwitchRequest.Builder(UserHandle.of(userId)).build(),
+                Runnable::run, userSwitchResultCallback);
+        UserSwitchResult result = new UserSwitchResult(UserSwitchResult.STATUS_ANDROID_FAILURE,
+                null);
+        try {
+            result = userSwitchResultCallback.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            Log.e(TAG, "switchUser(" + userId + ") : timed out while waiting for result");
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            Log.e(TAG, "switchUser(" + userId + ") : interrupted while waiting for result");
+        }
         updateState();
 
         StringBuilder message = new StringBuilder();
