@@ -37,6 +37,7 @@ import android.util.Log;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -116,6 +117,19 @@ public final class CarTaskViewController {
         }
     }
 
+    void onControlledRemoteCarTaskViewReleased(@NonNull ControlledRemoteCarTaskView taskView) {
+        if (mReleased) {
+            Log.w(TAG, "Failed to remove the taskView as the "
+                    + "CarTaskViewController is already released");
+            return;
+        }
+        if (!mControlledRemoteCarTaskViews.contains(taskView)) {
+            Log.w(TAG, "This taskView has already been removed");
+            return;
+        }
+        mControlledRemoteCarTaskViews.remove(taskView);
+    }
+
     private void assertPermission(String permission) {
         if (mHostActivity.getApplicationContext().checkCallingOrSelfPermission(permission)
                 != PERMISSION_GRANTED) {
@@ -144,10 +158,14 @@ public final class CarTaskViewController {
     }
 
     void releaseTaskViews() {
-        for (RemoteCarTaskView carTaskView : mControlledRemoteCarTaskViews) {
-            carTaskView.release();
+        Iterator<ControlledRemoteCarTaskView> iterator = mControlledRemoteCarTaskViews.iterator();
+        while (iterator.hasNext()) {
+            ControlledRemoteCarTaskView taskView = iterator.next();
+            // Remove the task view here itself because release triggers removal again which can
+            // result in concurrent modification exception.
+            iterator.remove();
+            taskView.release();
         }
-        mControlledRemoteCarTaskViews.clear();
     }
 
     /**

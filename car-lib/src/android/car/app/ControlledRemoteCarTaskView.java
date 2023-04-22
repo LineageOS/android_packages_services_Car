@@ -140,6 +140,7 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     @Override
     void onReleased() {
         mCallbackExecutor.execute(() -> mCallback.onTaskViewReleased());
+        mCarTaskViewController.onControlledRemoteCarTaskViewReleased(this);
     }
 
     @Override

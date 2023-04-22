@@ -270,7 +270,9 @@ abstract class RemoteCarTaskView extends SurfaceView {
     }
 
     /** Release the resources associated with this task view. */
-    void release() {
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void release() {
         getHolder().removeCallback(mSurfaceCallbackHandler);
         try {
             mICarTaskViewHost.release();
