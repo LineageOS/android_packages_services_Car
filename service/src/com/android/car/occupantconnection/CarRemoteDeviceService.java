@@ -34,9 +34,11 @@ import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.car.Car;
@@ -57,6 +59,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Binder;
+import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -283,6 +286,10 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
 
     @Override
     public void init() {
+        if (!isPlatformVersionAtLeastU()) {
+            Slogf.w(TAG, "CarRemoteDeviceService should run on Android U+");
+            return;
+        }
         initAllOccupantZones();
         registerOccupantZoneCallback();
         initAssignedUsers();
@@ -458,6 +465,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         });
     }
 
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     private void registerDisplayListener() {
         DisplayManagerHelper.registerDisplayListener(mContext, new DisplayListener() {
             @Override
