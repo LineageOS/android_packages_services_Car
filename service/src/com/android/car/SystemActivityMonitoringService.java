@@ -162,14 +162,14 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     /** Registers a callback to get notified when the running state of a process has changed. */
-    void registerProcessObserverCallback(ProcessObserverCallback callback) {
+    public void registerProcessObserverCallback(ProcessObserverCallback callback) {
         synchronized (mLock) {
             mCustomProcessObservers.add(callback);
         }
     }
 
     /** Unregisters the ProcessObserverCallback, if there is any. */
-    void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
+    public void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
         synchronized (mLock) {
             mCustomProcessObservers.remove(callback);
         }
