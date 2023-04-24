@@ -32,6 +32,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
@@ -62,6 +64,7 @@ import java.util.Objects;
 public final class WatchdogStorage {
     private static final String TAG = CarLog.tagFor(WatchdogStorage.class);
     private static final int RETENTION_PERIOD_IN_DAYS = 30;
+    private static final int CLOSE_DB_HELPER_DELAY_MS = 3000;
 
     /**
      * The database is clean when it is synchronized with the in-memory cache. Cannot start a
@@ -104,6 +107,7 @@ public final class WatchdogStorage {
     public static final String ZONE_MODIFIER = "utc";
     public static final String DATE_MODIFIER = "unixepoch";
 
+    private final Handler mMainHandler;
     private final WatchdogDbHelper mDbHelper;
     private final ArrayMap<String, UserPackage> mUserPackagesByKey = new ArrayMap<>();
     private final ArrayMap<String, UserPackage> mUserPackagesById = new ArrayMap<>();
@@ -116,6 +120,13 @@ public final class WatchdogStorage {
     @GuardedBy("mLock")
     private @DatabaseStateType int mCurrentDbState = DB_STATE_CLEAN;
 
+    private final Runnable mCloseDbHelperRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mDbHelper.close();
+        }
+    };
+
     public WatchdogStorage(Context context, TimeSource timeSource) {
         this(context, /* useDataSystemCarDir= */ true, timeSource);
     }
@@ -124,18 +135,17 @@ public final class WatchdogStorage {
     WatchdogStorage(Context context, boolean useDataSystemCarDir, TimeSource timeSource) {
         mTimeSource = timeSource;
         mDbHelper = new WatchdogDbHelper(context, useDataSystemCarDir, mTimeSource);
+        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     /** Releases resources. */
     public void release() {
-        mDbHelper.close();
+        mDbHelper.terminate();
     }
 
     /** Handles database shrink. */
     public void shrinkDatabase() {
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            mDbHelper.onShrink(db);
-        }
+        mDbHelper.onShrink(getDatabase(/* isWritable= */ true));
     }
 
     /**
@@ -192,40 +202,37 @@ public final class WatchdogStorage {
     public boolean saveUserPackageSettings(List<UserPackageSettingsEntry> entries) {
         ArraySet<Integer> usersWithMissingIds = new ArraySet<>();
         boolean isWriteSuccessful = false;
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            try {
-                db.beginTransaction();
-                for (int i = 0; i < entries.size(); ++i) {
-                    UserPackageSettingsEntry entry = entries.get(i);
-                    // Note: DO NOT replace existing entries in the UserPackageSettingsTable because
-                    // the replace operation deletes the old entry and inserts a new entry in the
-                    // table. This deletes the entries (in other tables) that are associated with
-                    // the old userPackageId. And also the userPackageId is auto-incremented.
-                    if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
-                            != null && UserPackageSettingsTable.updateEntry(db, entry)) {
-                        continue;
-                    }
-                    usersWithMissingIds.add(entry.userId);
-                    if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
-                        return false;
-                    }
+        SQLiteDatabase db = getDatabase(/* isWritable= */ true);
+        try {
+            db.beginTransaction();
+            for (int i = 0; i < entries.size(); ++i) {
+                UserPackageSettingsEntry entry = entries.get(i);
+                // Note: DO NOT replace existing entries in the UserPackageSettingsTable because
+                // the replace operation deletes the old entry and inserts a new entry in the
+                // table. This deletes the entries (in other tables) that are associated with
+                // the old userPackageId. And also the userPackageId is auto-incremented.
+                if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
+                        != null && UserPackageSettingsTable.updateEntry(db, entry)) {
+                    continue;
                 }
-                db.setTransactionSuccessful();
-                isWriteSuccessful = true;
-            } finally {
-                db.endTransaction();
+                usersWithMissingIds.add(entry.userId);
+                if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
+                    return false;
+                }
             }
-            populateUserPackages(db, usersWithMissingIds);
+            db.setTransactionSuccessful();
+            isWriteSuccessful = true;
+        } finally {
+            db.endTransaction();
         }
+        populateUserPackages(db, usersWithMissingIds);
         return isWriteSuccessful;
     }
 
     /** Returns the user package setting entries. */
     public List<UserPackageSettingsEntry> getUserPackageSettings() {
-        ArrayMap<String, UserPackageSettingsEntry> entriesById;
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            entriesById = UserPackageSettingsTable.querySettings(db);
-        }
+        ArrayMap<String, UserPackageSettingsEntry> entriesById =
+                UserPackageSettingsTable.querySettings(getDatabase(/* isWritable= */ false));
         List<UserPackageSettingsEntry> entries = new ArrayList<>(entriesById.size());
         for (int i = 0; i < entriesById.size(); ++i) {
             String userPackageId = entriesById.keyAt(i);
@@ -258,10 +265,8 @@ public final class WatchdogStorage {
             long includingStartEpochSeconds = mTimeSource.getCurrentDate().toEpochSecond();
             long excludingEndEpochSeconds = mTimeSource.getCurrentDateTime().toEpochSecond();
             ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsagesById;
-            try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-                ioUsagesById = IoUsageStatsTable.queryStats(db, includingStartEpochSeconds,
-                        excludingEndEpochSeconds);
-            }
+            ioUsagesById = IoUsageStatsTable.queryStats(getDatabase(/* isWritable= */ false),
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
             for (int i = 0; i < ioUsagesById.size(); ++i) {
                 String userPackageId = ioUsagesById.keyAt(i);
                 UserPackage userPackage = mUserPackagesById.get(userPackageId);
@@ -289,9 +294,8 @@ public final class WatchdogStorage {
         }
         mUserPackagesByKey.remove(userPackage.getKey());
         mUserPackagesById.remove(userPackage.userPackageId);
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            UserPackageSettingsTable.deleteUserPackage(db, userId, packageName);
-        }
+        UserPackageSettingsTable.deleteUserPackage(getDatabase(/* isWritable= */ true), userId,
+                    packageName);
     }
 
     /**
@@ -304,17 +308,14 @@ public final class WatchdogStorage {
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
         long excludingEndEpochSeconds = currentDate.toEpochSecond();
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            UserPackage userPackage = mUserPackagesByKey.get(
-                    UserPackage.getKey(userId, packageName));
-            if (userPackage == null) {
-                /* Packages without historical stats don't have userPackage entry. */
-                return null;
-            }
-            return IoUsageStatsTable.queryIoOveruseStatsForUserPackageId(db,
-                    userPackage.userPackageId, includingStartEpochSeconds,
-                    excludingEndEpochSeconds);
+        UserPackage userPackage = mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
+        if (userPackage == null) {
+            /* Packages without historical stats don't have userPackage entry. */
+            return null;
         }
+        return IoUsageStatsTable.queryIoOveruseStatsForUserPackageId(
+                getDatabase(/* isWritable= */ false), userPackage.userPackageId,
+                includingStartEpochSeconds, excludingEndEpochSeconds);
     }
 
     /**
@@ -324,25 +325,24 @@ public final class WatchdogStorage {
     public @Nullable List<AtomsProto.CarWatchdogDailyIoUsageSummary> getDailySystemIoUsageSummaries(
             long minSystemTotalWrittenBytes, long includingStartEpochSeconds,
             long excludingEndEpochSeconds) {
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries =
-                    IoUsageStatsTable.queryDailySystemIoUsageSummaries(db,
-                            includingStartEpochSeconds, excludingEndEpochSeconds);
-            if (dailyIoUsageSummaries == null) {
-                return null;
-            }
-            long systemTotalWrittenBytes = 0;
-            for (int i = 0; i < dailyIoUsageSummaries.size(); i++) {
-                AtomsProto.CarWatchdogPerStateBytes writtenBytes =
-                        dailyIoUsageSummaries.get(i).getWrittenBytes();
-                systemTotalWrittenBytes += writtenBytes.getForegroundBytes()
-                        + writtenBytes.getBackgroundBytes() + writtenBytes.getGarageModeBytes();
-            }
-            if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
-                return null;
-            }
-            return dailyIoUsageSummaries;
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries =
+                IoUsageStatsTable.queryDailySystemIoUsageSummaries(
+                        getDatabase(/* isWritable= */ false),
+                        includingStartEpochSeconds, excludingEndEpochSeconds);
+        if (dailyIoUsageSummaries == null) {
+            return null;
         }
+        long systemTotalWrittenBytes = 0;
+        for (int i = 0; i < dailyIoUsageSummaries.size(); i++) {
+            AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                    dailyIoUsageSummaries.get(i).getWrittenBytes();
+            systemTotalWrittenBytes += writtenBytes.getForegroundBytes()
+                    + writtenBytes.getBackgroundBytes() + writtenBytes.getGarageModeBytes();
+        }
+        if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
+            return null;
+        }
+        return dailyIoUsageSummaries;
     }
 
     /**
@@ -353,15 +353,14 @@ public final class WatchdogStorage {
             int numTopUsers, long minSystemTotalWrittenBytes, long includingStartEpochSeconds,
             long excludingEndEpochSeconds) {
         ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>> summariesById;
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            long systemTotalWrittenBytes = IoUsageStatsTable.querySystemTotalWrittenBytes(db,
-                    includingStartEpochSeconds, excludingEndEpochSeconds);
-            if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
-                return null;
-            }
-            summariesById = IoUsageStatsTable.queryTopUsersDailyIoUsageSummaries(db,
-                    numTopUsers, includingStartEpochSeconds, excludingEndEpochSeconds);
+        SQLiteDatabase db = getDatabase(/* isWritable= */ false);
+        long systemTotalWrittenBytes = IoUsageStatsTable.querySystemTotalWrittenBytes(db,
+                includingStartEpochSeconds, excludingEndEpochSeconds);
+        if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
+            return null;
         }
+        summariesById = IoUsageStatsTable.queryTopUsersDailyIoUsageSummaries(db,
+                numTopUsers, includingStartEpochSeconds, excludingEndEpochSeconds);
         if (summariesById == null) {
             return null;
         }
@@ -395,10 +394,10 @@ public final class WatchdogStorage {
         long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
         long excludingEndEpochSeconds = currentDate.toEpochSecond();
         ArrayMap<String, Integer> notForgivenOverusesById;
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            notForgivenOverusesById = IoUsageStatsTable.queryNotForgivenHistoricalOveruses(db,
-                    includingStartEpochSeconds, excludingEndEpochSeconds);
-        }
+        notForgivenOverusesById =
+                IoUsageStatsTable.queryNotForgivenHistoricalOveruses(
+                        getDatabase(/* isWritable= */ false), includingStartEpochSeconds,
+                        excludingEndEpochSeconds);
         List<NotForgivenOverusesEntry> notForgivenOverusesEntries = new ArrayList<>();
         for (int i = 0; i < notForgivenOverusesById.size(); i++) {
             String id = notForgivenOverusesById.keyAt(i);
@@ -443,10 +442,8 @@ public final class WatchdogStorage {
                 userPackageIds.add(userPackage.userPackageId);
             }
         }
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            IoUsageStatsTable.forgiveHistoricalOverusesForPackage(db, userPackageIds,
-                    includingStartEpochSeconds, excludingEndEpochSeconds);
-        }
+        IoUsageStatsTable.forgiveHistoricalOverusesForPackage(getDatabase(/* isWritable= */ true),
+                userPackageIds, includingStartEpochSeconds, excludingEndEpochSeconds);
     }
 
     /**
@@ -463,9 +460,8 @@ public final class WatchdogStorage {
                 mUserPackagesById.remove(userPackage.userPackageId);
             }
         }
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            UserPackageSettingsTable.syncUserPackagesWithAliveUsers(db, aliveUsers);
-        }
+        UserPackageSettingsTable.syncUserPackagesWithAliveUsers(getDatabase(/* isWritable= */ true),
+                    aliveUsers);
     }
 
     @VisibleForTesting
@@ -493,9 +489,13 @@ public final class WatchdogStorage {
             rows.add(IoUsageStatsTable.getContentValues(
                     userPackage.userPackageId, entry, statsDateEpochSeconds));
         }
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            return atomicReplaceEntries(db, IoUsageStatsTable.TABLE_NAME, rows);
-        }
+        return atomicReplaceEntries(getDatabase(/*isWritable=*/ true),
+                    IoUsageStatsTable.TABLE_NAME, rows);
+    }
+
+    @VisibleForTesting
+    boolean hasPendingCloseDbHelperMessage() {
+        return mMainHandler.hasCallbacks(mCloseDbHelperRunnable);
     }
 
     private void populateUserPackages(SQLiteDatabase db, ArraySet<Integer> users) {
@@ -508,6 +508,12 @@ public final class WatchdogStorage {
             mUserPackagesByKey.put(userPackage.getKey(), userPackage);
             mUserPackagesById.put(userPackage.userPackageId, userPackage);
         }
+    }
+
+    private SQLiteDatabase getDatabase(boolean isWritable) {
+        mMainHandler.removeCallbacks(mCloseDbHelperRunnable);
+        mMainHandler.postDelayed(mCloseDbHelperRunnable, CLOSE_DB_HELPER_DELAY_MS);
+        return isWritable ? mDbHelper.getWritableDatabase() : mDbHelper.getReadableDatabase();
     }
 
     /**
@@ -1301,8 +1307,8 @@ public final class WatchdogStorage {
             db.setForeignKeyConstraintsEnabled(true);
         }
 
-        public synchronized void close() {
-            super.close();
+        public synchronized void terminate() {
+            close();
             mLatestShrinkDate = null;
         }
 
