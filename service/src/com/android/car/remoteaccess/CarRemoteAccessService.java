@@ -437,7 +437,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 mClientTokenByUidName.put(uidName, token);
                 mUidByClientId.put(token.getClientId(), uidName);
             }
-            token.setCallback(callback);
             try {
                 callback.asBinder().linkToDeath(token, /* flags= */ 0);
             } catch (RemoteException e) {
@@ -446,7 +445,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
         }
         saveClientIdInDb(token, uidName);
-        postRegistrationUpdated(callback, token.getClientId());
+        postRegistrationUpdated(callback, token);
     }
 
     /**
@@ -591,7 +590,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
-    private void postRegistrationUpdated(ICarRemoteAccessCallback callback, String clientId) {
+    private void postRegistrationUpdated(ICarRemoteAccessCallback callback, ClientToken token) {
+        String clientId = token.getClientId();
         mHandler.post(() -> {
             try {
                 if (DEBUG) {
@@ -605,6 +605,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 Slogf.e(TAG, e, "Calling onClientRegistrationUpdated() failed: clientId = %s",
                         clientId);
             }
+
+            // After notify the client about the registration info, the callback is registered.
+            token.setCallback(callback);
 
             // Just after a registration callback is invoked, let's call onRemoteTaskRequested
             // callback if there are pending tasks.
