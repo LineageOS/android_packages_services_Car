@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.occupantconnection;
 
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_CACHED;
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
@@ -35,8 +35,8 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_1_RIGHT;
 import static android.car.VehicleAreaSeat.SEAT_ROW_2_RIGHT;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
 
-import static com.android.car.CarRemoteDeviceService.INITIAL_APP_STATE;
-import static com.android.car.CarRemoteDeviceService.INITIAL_OCCUPANT_ZONE_STATE;
+import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_APP_STATE;
+import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_OCCUPANT_ZONE_STATE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -74,9 +74,11 @@ import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 
-import com.android.car.CarRemoteDeviceService.PerUserInfo;
+import com.android.car.CarLocalServices;
+import com.android.car.CarOccupantZoneService;
+import com.android.car.SystemActivityMonitoringService;
 import com.android.car.internal.util.BinderKeyValueContainer;
-import com.android.car.occupantconnection.ClientId;
+import com.android.car.occupantconnection.CarRemoteDeviceService.PerUserInfo;
 import com.android.car.power.CarPowerManagementService;
 
 import org.junit.After;
