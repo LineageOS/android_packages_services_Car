@@ -23,16 +23,21 @@ import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_NONE;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_NOT_READY;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_UNKNOWN;
 
 import static com.android.car.CarServiceUtils.assertPermission;
 import static com.android.car.CarServiceUtils.checkCalledByPackage;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.builtin.util.Slogf;
+import android.car.occupantconnection.CarOccupantConnectionManager.ConnectionError;
 import android.car.occupantconnection.IBackendConnectionResponder;
 import android.car.occupantconnection.IBackendReceiver;
 import android.car.occupantconnection.ICarOccupantConnection;
@@ -43,6 +48,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -50,6 +56,7 @@ import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -59,6 +66,8 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 
 /**
@@ -71,6 +80,16 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     private static final String TAG = CarOccupantConnectionService.class.getSimpleName();
     private static final String INDENTATION_2 = "  ";
     private static final String INDENTATION_4 = "    ";
+
+    private static final int NOTIFY_ON_DISCONNECT = 1;
+    private static final int NOTIFY_ON_FAILED = 2;
+    @IntDef(flag = false, prefix = {"NOTIFY_ON_"}, value = {
+            NOTIFY_ON_DISCONNECT,
+            NOTIFY_ON_FAILED
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface NotifyCallbackType {
+    }
 
     private final Context mContext;
     private final Object mLock = new Object();
@@ -294,10 +313,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                     }
                 }
 
-                notifySenderOfReceiverServiceDisconnect(mPendingConnectionRequestMap,
-                        mReceiverClient);
-                notifySenderOfReceiverServiceDisconnect(mAcceptedConnectionRequestMap,
-                        mReceiverClient);
+                notifyPeersOfReceiverServiceDisconnect(mPendingConnectionRequestMap,
+                        mReceiverClient, NOTIFY_ON_FAILED);
+                notifyPeersOfReceiverServiceDisconnect(mAcceptedConnectionRequestMap,
+                        mReceiverClient, NOTIFY_ON_DISCONNECT);
 
                 for (int i = mEstablishedConnections.size() - 1; i >= 0; i--) {
                     ConnectionRecord connectionRecord = mEstablishedConnections.valueAt(i);
@@ -484,11 +503,18 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
-        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
-        if (receiverClient == null) {
-            throw new IllegalStateException("Don't connect to the receiver zone because it is not "
-                    + " ready for connection: " + receiverZone);
+        int connectionError = calculateConnectionError(receiverZone, packageName);
+        if (connectionError != CONNECTION_ERROR_NONE) {
+            try {
+                callback.onFailed(receiverZone, connectionError);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to notify the sender %s of connection failure %s",
+                        senderClient, e);
+            }
+            return;
         }
+
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         synchronized (mLock) {
             assertNoDuplicateConnectionRequestLocked(connectionId);
@@ -781,9 +807,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         }
     }
 
-    private void notifySenderOfReceiverServiceDisconnect(
+    private void notifyPeersOfReceiverServiceDisconnect(
             BinderKeyValueContainer<ConnectionId, IConnectionRequestCallback>
-                    connectionRequestMap, ClientId receiverClient) {
+                    connectionRequestMap, ClientId receiverClient,
+            @NotifyCallbackType int callbackType) {
         for (int i = connectionRequestMap.size() - 1; i >= 0; i--) {
             ConnectionId connectionId = connectionRequestMap.keyAt(i);
             if (!connectionId.receiverClient.equals(receiverClient)) {
@@ -791,7 +818,17 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             }
             IConnectionRequestCallback callback = connectionRequestMap.valueAt(i);
             try {
-                callback.onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+                switch (callbackType) {
+                    case NOTIFY_ON_DISCONNECT:
+                        callback.onDisconnected(receiverClient.occupantZone);
+                        break;
+                    case NOTIFY_ON_FAILED:
+                        callback.onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Undefined NotifyCallbackType: "
+                                + callbackType);
+                }
             } catch (RemoteException e) {
                 Slogf.e(TAG, "Failed to notify the sender for connection failure", e);
             }
@@ -925,5 +962,26 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         // The receiverService may be bound already, or being bound. In either case, it needs to be
         // unbound if it is not needed any more.
         maybeUnbindReceiverServiceLocked(connectionToCancel.receiverClient);
+    }
+
+    @ConnectionError
+    private static int calculateConnectionError(OccupantZoneInfo receiverZone, String packageName) {
+        CarRemoteDeviceService remoteDeviceService =
+                CarLocalServices.getService(CarRemoteDeviceService.class);
+        if (remoteDeviceService == null) {
+            Slogf.e(TAG, "CarRemoteDeviceService is not available on this device");
+            return CONNECTION_ERROR_UNKNOWN;
+        }
+        if (!remoteDeviceService.isConnectionReady(receiverZone)) {
+            Slogf.e(TAG, "%s is not ready for connection", receiverZone);
+            return CONNECTION_ERROR_NOT_READY;
+        }
+        PackageInfo receiverInfo =
+                remoteDeviceService.getEndpointPackageInfo(receiverZone.zoneId, packageName);
+        if (receiverInfo == null) {
+            Slogf.e(TAG, "Peer app %s is not installed in %s", packageName, receiverZone);
+            return CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
+        }
+        return CONNECTION_ERROR_NONE;
     }
 }
