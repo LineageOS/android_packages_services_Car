@@ -98,5 +98,8 @@ interface ICarActivityService {
      * Returns true if the {@link CarSystemUIProxy} is registered, false otherwise.
      */
     boolean isCarSystemUIProxyRegistered() = 16;
+
+    void setPersistentActivitiesOnRootTask(in List<ComponentName> activities,
+        in IBinder launchCookie) = 17;
 }
 
