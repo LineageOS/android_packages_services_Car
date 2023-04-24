@@ -415,12 +415,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             new ICarOccupantZoneCallback.Stub() {
                 @Override
                 public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
-                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                    // Listen for changes to displays and user->display assignments and launch
+                    // user picker when there is no user assigned to a display. This may be a no-op
+                    // for certain cases, such as a user getting assigned to a display.
+                    if ((flags & (CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY
+                            | CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)) != 0) {
                         if (DBG) {
                             String flagString = DebugUtils.flagsToString(
                                     CarOccupantZoneManager.class, "ZONE_CONFIG_CHANGE_FLAG_",
                                     flags);
-                            Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
+                            Slogf.d(TAG, "onOccupantZoneConfigChanged: zone change flag=%s",
                                     flagString);
                         }
                         startUserPicker();
