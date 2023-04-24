@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">Bonyn Gweithgaredd</string>
+    <string name="message_not_supported">Does dim ap a all ymdrin â\'r weithred hon</string>
+    <string name="stub_name">Dim</string>
+</resources>
