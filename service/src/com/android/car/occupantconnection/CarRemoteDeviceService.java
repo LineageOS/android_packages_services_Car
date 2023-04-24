@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.occupantconnection;
 
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
@@ -65,10 +65,12 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarOccupantZoneService;
+import com.android.car.CarServiceBase;
+import com.android.car.SystemActivityMonitoringService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.BinderKeyValueContainer;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.occupantconnection.ClientId;
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -723,7 +725,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
      * is actively running, and is unlocked.
      */
     // TODO(b/257118327): support multi-SoC.
-    private boolean isConnectionReady(OccupantZoneInfo occupantZone) {
+    boolean isConnectionReady(OccupantZoneInfo occupantZone) {
         int userId = mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
         Slogf.v(TAG, "User ID of %s is %d now", occupantZone, userId);
         if (!isNonSystemUser(userId)) {
