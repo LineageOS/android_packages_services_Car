@@ -100,7 +100,8 @@ public final class CarTaskViewController {
                         mHostActivity.getSystemService(UserManager.class));
 
         try {
-            ICarTaskViewHost host = mService.createCarTaskView(taskViewClient.mICarTaskViewClient);
+            ICarTaskViewHost host = mService.createControlledCarTaskView(
+                    taskViewClient.mICarTaskViewClient);
             taskViewClient.setRemoteHost(host);
             mControlledRemoteCarTaskViews.add(taskViewClient);
 

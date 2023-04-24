@@ -461,7 +461,7 @@ package android.car.app {
   }
 
   public interface CarSystemUIProxy {
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.car.app.CarTaskViewHost createCarTaskView(@NonNull android.car.app.CarTaskViewClient);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @NonNull public android.car.app.CarTaskViewHost createControlledCarTaskView(@NonNull android.car.app.CarTaskViewClient);
   }
 
   public final class CarTaskViewClient {
