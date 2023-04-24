@@ -114,7 +114,7 @@ final class VendorServiceController implements UserLifecycleListener {
                 case Intent.ACTION_PACKAGE_REPLACED:
                     // Fall through
                 case Intent.ACTION_PACKAGE_ADDED:
-                    tryToRebindConnectionsForUser(userId);
+                    startOrBindServiceForPackage(packageName, userId);
                     break;
                 case Intent.ACTION_PACKAGE_REMOVED:
                     stopOrUnbindService(packageName, userId);
@@ -208,14 +208,32 @@ final class VendorServiceController implements UserLifecycleListener {
         mContext.unregisterReceiver(mPackageChangeReceiver);
     }
 
-    private void tryToRebindConnectionsForUser(@UserIdInt int userId) {
-        for (VendorServiceConnection connection : mConnections.values()) {
-            if (connection.isUser(userId)) {
-                Slogf.d(TAG, "Trying to rebind connection to %s",
-                        connection.mVendorServiceInfo);
-                connection.tryToRebind();
+    private void startOrBindServiceForPackage(String packageName, @UserIdInt int userId) {
+        if (DBG) {
+            Slogf.d(TAG, "startOrBindServiceForPackage() for package=%s, userId=%d",
+                    packageName, userId);
+        }
+
+        int currentUserId = ActivityManager.getCurrentUser();
+        int size = mVendorServiceInfos.size();
+        for (int i = 0; i < size; i++) {
+            VendorServiceInfo serviceInfo = mVendorServiceInfos.get(i);
+            // Start or bind the service when the package name matches and the user is in scope.
+            if (packageName.equals(serviceInfo.getIntent().getComponent().getPackageName())
+                    && isUserInScope(userId, serviceInfo, currentUserId)) {
+                startOrBindService(serviceInfo, UserHandle.of(userId));
             }
         }
+    }
+
+    /** Checks if the given {@code serviceInfo} satisfies the user scope. */
+    private static boolean isUserInScope(@UserIdInt int userId, VendorServiceInfo serviceInfo,
+            @UserIdInt int currentUserId) {
+        boolean isSystemUser = userId == UserHandle.SYSTEM.getIdentifier();
+        boolean isCurrentUser = userId == currentUserId;
+
+        return (isSystemUser && serviceInfo.isSystemUserService())
+            || (isCurrentUser && serviceInfo.isForegroundUserService());
     }
 
     private void handleOnUserSwitching(@UserIdInt int userId) {
@@ -375,11 +393,6 @@ final class VendorServiceController implements UserLifecycleListener {
                     handleFailureMessage(msg);
                 }
             };
-        }
-
-        @VisibleForTesting
-        public boolean isPendingRebind() {
-            return mFailureHandler.hasMessages(MSG_REBIND);
         }
 
         @Override
