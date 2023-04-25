@@ -16,8 +16,10 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
 
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -30,6 +32,8 @@ import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +50,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -63,6 +68,7 @@ import com.android.car.remoteaccess.RemoteAccessStorage.ClientIdEntry;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -259,6 +265,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     };
     private final RemoteAccessHalWrapper mRemoteAccessHal;
     private final PowerHalService mPowerHalService;
+    private final UserManager mUserManager;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
 
@@ -290,11 +297,20 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
          * Gets the calling UID. Must be used in a binder context.
          */
         int getCallingUid();
+
+        /**
+         * Gets the current user.
+         */
+        int getCurrentUser();
     }
 
     private class CarRemoteAccessServiceDepImpl implements CarRemoteAccessServiceDep {
         public int getCallingUid() {
             return Binder.getCallingUid();
+        }
+
+        public int getCurrentUser() {
+            return ActivityManager.getCurrentUser();
         }
     }
 
@@ -304,6 +320,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             @Nullable RemoteAccessHalWrapper remoteAccessHal,
             @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs) {
         mContext = context;
+        mUserManager = mContext.getSystemService(UserManager.class);
         mPowerHalService = powerHalService;
         mDep = dep != null ? dep : new CarRemoteAccessServiceDepImpl();
         mPackageManager = mContext.getPackageManager();
@@ -586,6 +603,18 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
+    /**
+     * For testing only.
+     *
+     * Unbind all the remote task client services.
+     */
+    @VisibleForTesting
+    public void unbindAllServices() {
+        synchronized (mLock) {
+            unbindAllServicesLocked();
+        }
+    }
+
     @GuardedBy("mLock")
     private void unbindAllServicesLocked() {
         for (int i = 0; i < mClientServiceInfoByUid.size(); i++) {
@@ -598,8 +627,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private int calcTaskMaxDurationLocked() {
         long currentTimeInMs = SystemClock.uptimeMillis();
         int taskMaxDurationInSec = (int) (mShutdownTimeInMs - currentTimeInMs) / MILLI_TO_SECOND;
-        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON) {
-            taskMaxDurationInSec = (int) (mAllowedSystemUptimeMs / MILLI_TO_SECOND);
+        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                || mPowerHalService.isVehicleInUse()) {
+            // If next power state is ON or vehicle is in use, the mShutdownTimeInMs does not make
+            // sense because shutdown will not happen. We always allow task to execute for
+            // mAllowedSystemUptimMs.
+            taskMaxDurationInSec = (int) Math.ceil(
+                    (double) mAllowedSystemUptimeMs / MILLI_TO_SECOND);
         }
         return taskMaxDurationInSec;
     }
@@ -631,10 +665,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void searchForRemoteTaskClientPackages() {
         List<RemoteTaskClientServiceInfo> servicesToStart = new ArrayList<>();
         // TODO(b/266129982): Query for all users.
-        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
                 new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
-                currentUser);
+                UserHandle.SYSTEM);
         synchronized (mLock) {
             for (int i = 0; i < services.size(); i++) {
                 ServiceInfo info = services.get(i).serviceInfo;
@@ -673,13 +706,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void startRemoteTaskClientService(RemoteTaskClientServiceInfo serviceInfo,
             boolean scheduleUnbind) {
         ComponentName serviceName = serviceInfo.getServiceComponentName();
-        RemoteTaskClientServiceConnection serviceConnection =
-                new RemoteTaskClientServiceConnection(mContext, serviceName);
-        if (!serviceConnection.bindService()) {
-            Slogf.w(TAG, "failed to bind service connection");
-            return;
+        // TODO(b/266129982): Start a service for the user under which the task needs to be
+        // executed.
+        if (serviceInfo.getServiceConnection() != null) {
+            serviceInfo.getServiceConnection().bindService();
+        } else {
+            RemoteTaskClientServiceConnection serviceConnection =
+                    new RemoteTaskClientServiceConnection(mContext, serviceName, UserHandle.SYSTEM);
+            serviceConnection.bindService();
+            serviceInfo.setServiceConnection(serviceConnection);
         }
-        serviceInfo.setServiceConnection(serviceConnection);
         Slogf.i(TAG, "Service(%s) is bound to give a time to register as a remote task client",
                 serviceName.flattenToString());
         if (scheduleUnbind) {
@@ -747,7 +783,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     private void wrapUpRemoteAccessServiceIfNeeded() {
-        Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+        synchronized (mLock) {
+            if (mNextPowerState != CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                    && !mPowerHalService.isVehicleInUse()) {
+                Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+            }
+        }
         shutdownIfNeeded(/* force= */ true);
     }
 
@@ -970,23 +1011,52 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
-    private static final class RemoteTaskClientServiceConnection implements ServiceConnection {
+    private final class RemoteTaskClientServiceConnection implements ServiceConnection {
 
         private static final String TAG = RemoteTaskClientServiceConnection.class.getSimpleName();
 
         private final Object mServiceLock = new Object();
         private final Context mContext;
         private final Intent mIntent;
+        private final UserHandle mUser;
 
+        private final CarUserService mCarUserService;
+
+        // The following three variables represent the state machine of this connection:
+        // 1. Init state (Binding: F, Bound: F, WaitingForUserUnlock: F)
+        // 2. Waiting for user unlock (Binding: F, Bound: F, WaitingForUserUnlock: T)
+        // 3. Binding state (Binding: T, Bound: F, WaitingForUserUnlock: F)
+        // 4. Bound state (Binding: F, Bound: T, WaitingForUserUnlock: F)
+        //
+        // 1->2 If user is currently locked
+        // 2->3 Aftr receiving user unlock intent.
+        // 1->3 If user is currently unlocked
+        // 3->4 After onNullBinding callback.
         @GuardedBy("mServiceLock")
         private boolean mBound;
         @GuardedBy("mServiceLock")
         private boolean mBinding;
+        @GuardedBy("mServiceLock")
+        private boolean mWaitingForUserUnlock;
 
-        private RemoteTaskClientServiceConnection(Context context, ComponentName serviceName) {
+        private final UserLifecycleListener mUserLifecycleListener;
+
+        private RemoteTaskClientServiceConnection(Context context, ComponentName serviceName,
+                UserHandle user) {
             mContext = context;
             mIntent = new Intent();
             mIntent.setComponent(serviceName);
+            mUser = user;
+            mCarUserService = CarLocalServices.getService(CarUserService.class);
+            mUserLifecycleListener = event -> {
+                if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
+                    return;
+                }
+
+                if (event.getUserId() == mUser.getIdentifier()) {
+                    onReceiveUserUnlock();
+                }
+            };
         }
 
         @Override
@@ -1014,37 +1084,96 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.w(TAG, "Service(%s) died", name.flattenToShortString());
         }
 
-        public boolean bindService() {
+        private void onReceiveUserUnlock() {
+            synchronized (mServiceLock) {
+                mWaitingForUserUnlock = false;
+                if (DEBUG) {
+                    Slogf.d(TAG, "received user unlock notification");
+                }
+                if (mBinding || mBound) {
+                    // bindService is called again after user is unlocked, which caused binding to
+                    // happen, so we don't need to do anything here.
+                    if (DEBUG) {
+                        Slogf.d(TAG, "a binding is already created, ignore the user unlock intent");
+                    }
+                    return;
+                }
+                bindServiceLocked();
+            }
+        }
+
+        @GuardedBy("mServiceLock")
+        private void waitForUserUnlockServiceLocked() {
+            UserLifecycleEventFilter userUnlockEventFilter = new UserLifecycleEventFilter.Builder()
+                    .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).addUser(mUser).build();
+            mCarUserService.addUserLifecycleListener(userUnlockEventFilter, mUserLifecycleListener);
+            mWaitingForUserUnlock = true;
+        }
+
+        @GuardedBy("mServiceLock")
+        private void cancelWaitForUserUnlockServiceLocked() {
+            mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
+            mWaitingForUserUnlock = false;
+        }
+
+        @GuardedBy("mServiceLock")
+        private void bindServiceLocked() {
+            if (DEBUG) {
+                Slogf.d(TAG, "Bind service %s as user %s", mIntent, mUser);
+            }
+            boolean status = mContext.bindServiceAsUser(mIntent, /* conn= */ this,
+                    BIND_AUTO_CREATE, mUser);
+            if (!status) {
+                Slogf.w(TAG, "Failed to bind service %s as user %s", mIntent, mUser);
+                mContext.unbindService(/* conn= */ this);
+                return;
+            }
+            mBinding = true;
+        }
+
+        public void bindService() {
+            if (DEBUG) {
+                Slogf.d(TAG, "Try to bind service %s as user %s if unlocked", mIntent, mUser);
+            }
             synchronized (mServiceLock) {
                 if (mBinding) {
                     Slogf.w(TAG, "%s binding is already ongoing, ignore the new bind request",
                             mIntent);
-                    return true;
+                    return;
+                }
+                if (mWaitingForUserUnlock) {
+                    Slogf.w(TAG,
+                            "%s binding is waiting for user unlock, ignore the new bind request",
+                            mIntent);
+                    return;
                 }
                 if (mBound) {
                     Slogf.w(TAG, "%s is already bound", mIntent);
-                    return true;
+                    return;
                 }
-                // TODO(b/266129982): Start a service for the user under which the task needs to be
-                // executed.
-                UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
-                boolean status = mContext.bindServiceAsUser(mIntent, /* conn= */ this,
-                        BIND_AUTO_CREATE, currentUser);
-                if (!status) {
-                    Slogf.w(TAG, "Failed to bind service %s as user %s", mIntent, currentUser);
-                    mContext.unbindService(/* conn= */ this);
-                    return false;
+                // Start listening for unlock event before checking so that we don't miss any
+                // unlock intent.
+                waitForUserUnlockServiceLocked();
+                if (mUserManager.isUserUnlocked(mUser)) {
+                    if (DEBUG) {
+                        Slogf.d(TAG, "User %s is unlocked, start binding", mUser);
+                    }
+                    cancelWaitForUserUnlockServiceLocked();
+                    bindServiceLocked();
+                } else {
+                    Slogf.w(TAG, "User %s is not unlocked, waiting for it to be unlocked", mUser);
                 }
-
-                mBinding = true;
-                return status;
             }
         }
 
         public void unbindService() {
             synchronized (mServiceLock) {
+                if (mWaitingForUserUnlock) {
+                    cancelWaitForUserUnlockServiceLocked();
+                    return;
+                }
                 if (!mBound && !mBinding) {
-                    // If we have do not have an active bounding.
+                    // If we do not have an active bounding.
                     return;
                 }
                 mBinding = false;
