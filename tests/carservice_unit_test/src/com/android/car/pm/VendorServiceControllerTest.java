@@ -63,12 +63,14 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public final class VendorServiceControllerTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = VendorServiceControllerTest.class.getSimpleName();
@@ -159,7 +161,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
 
-        mContext.assertRecentBoundService(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mContext.verifyNoMoreServiceLaunches();
     }
 
@@ -177,7 +179,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                 UserHandle.USER_SYSTEM);
 
-        mContext.assertRecentStartedService(SERVICE_START_SYSTEM_UNLOCKED);
+        mContext.assertRecentStartedServices(SERVICE_START_SYSTEM_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
     }
 
@@ -198,25 +200,25 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
 
         // Expect only services with ASAP trigger to be started
-        mContext.assertRecentBoundService(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mContext.verifyNoMoreServiceLaunches();
 
         // Unlock foreground user
         mockUserUnlock(FG_USER_ID);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
 
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
+        mContext.assertRecentBoundServices(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
 
         // Send USER_POST_UNLOCKED event.
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, FG_USER_ID);
 
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.assertRecentBoundServices(SERVICE_BIND_FG_USER_POST_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
     }
 
     @Test
-    public void packageChanged_attemptsRebind() throws Exception {
+    public void packageChanged_bindsTheService() throws Exception {
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
         mContext.reset();
@@ -229,29 +231,22 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         UserInfo nullUser = new UserInfo(UserHandle.USER_NULL, "null user", /* flags= */ 0);
         when(mUserManager.getUserInfo(UserHandle.USER_NULL)).thenReturn(nullUser);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mockUserUnlock(FG_USER_ID);
+        mContext.assertServiceNotBound(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.assertServiceNotBound(SERVICE_BIND_FG_USER_UNLOCKED);
 
-        // assertRecentBoundService() is important after every sendUserLifecycleEvent to ensure
-        // that the event has been handled completely.
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.expectServices(SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_BIND_FG_USER_POST_UNLOCKED);
 
         Intent packageIntent = new Intent(Intent.ACTION_PACKAGE_CHANGED);
         int appId = 123;
-        packageIntent.setData(new Uri.Builder().path("Any package").build());
+        packageIntent.setData(new Uri.Builder().path("com.android.car").build());
         packageIntent.putExtra(Intent.EXTRA_UID, UserHandle.getUid(FG_USER_ID, appId));
         mContext.mPackageChangeReceiver.onReceive(mContext, packageIntent);
         runOnMainThreadAndWaitForIdle(() -> {});
 
-        assertThat(((VendorServiceController.VendorServiceConnection)
-                mContext.mBoundServiceToConnectionMap.get(SERVICE_BIND_FG_USER_POST_UNLOCKED))
-                .isPendingRebind()).isTrue();
-        assertThat(((VendorServiceController.VendorServiceConnection)
-                mContext.mBoundServiceToConnectionMap.get(SERVICE_BIND_FG_USER_UNLOCKED))
-                .isPendingRebind()).isTrue();
+        mContext.assertRecentBoundServices(
+                SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_BIND_FG_USER_POST_UNLOCKED);
     }
 
     @Test
@@ -267,15 +262,15 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         UserInfo nullUser = new UserInfo(UserHandle.USER_NULL, "null user", /* flags= */ 0);
         when(mUserManager.getUserInfo(UserHandle.USER_NULL)).thenReturn(nullUser);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_ALL_USERS_ASAP);
+        mContext.assertRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mockUserUnlock(FG_USER_ID);
 
-        // assertRecentBoundService() is important after every sendUserLifecycleEvent to ensure
+        // assertRecentBoundServices() is important after every sendUserLifecycleEvent to ensure
         // that the event has been handled completely.
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
+        mContext.assertRecentBoundServices(SERVICE_BIND_FG_USER_UNLOCKED);
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, FG_USER_ID);
-        mContext.assertRecentBoundService(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.assertRecentBoundServices(SERVICE_BIND_FG_USER_POST_UNLOCKED);
 
         Intent packageIntent = new Intent(Intent.ACTION_PACKAGE_REMOVED);
         int appId = 123;
@@ -299,12 +294,11 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         when(mUserManager.isUserUnlockingOrUnlocked(userId)).thenReturn(true);
     }
 
-    private static void assertHasService(List<ComponentName> recentServices, String service,
-            String action) {
-        assertWithMessage("Number of recent %s services", action).that(recentServices)
-                .hasSize(1);
-        assertWithMessage("Recent service").that(recentServices.get(0))
-                .isEqualTo(ComponentName.unflattenFromString(service));
+    private static void assertHasServices(List<ComponentName> recentServices, String action,
+            String... services) {
+        assertWithMessage("Recent %s services", action).that(recentServices)
+                .containsExactlyElementsIn(Arrays.stream(services)
+                        .map(ComponentName::unflattenFromString).collect(Collectors.toList()));
         recentServices.clear();
     }
 
@@ -398,19 +392,21 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             }
         }
 
-        private void await(Map<String, CountDownLatch> latches, String service, String method)
+        private void await(Map<String, CountDownLatch> latches, String method, String... services)
                 throws InterruptedException {
-            CountDownLatch latch = latches.get(service);
-            Preconditions.checkArgument(latch != null,
-                    "no latch set for %s - did you call expectBoundServices()?", service);
-            Log.d(TAG, "waiting " + DEFAULT_TIMEOUT_MS + "ms for " + method);
-            if (!latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
-                String errorMessage = method + " not called in " + DEFAULT_TIMEOUT_MS + "ms";
-                Log.e(TAG, errorMessage);
-                fail(errorMessage);
+            for (String service : services) {
+                CountDownLatch latch = latches.get(service);
+                Preconditions.checkArgument(latch != null,
+                        "no latch set for %s - did you call expectBoundServices()?", service);
+                Log.d(TAG, "waiting " + DEFAULT_TIMEOUT_MS + "ms for " + method);
+                if (!latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS)) {
+                    String errorMessage = method + " not called in " + DEFAULT_TIMEOUT_MS + "ms";
+                    Log.e(TAG, errorMessage);
+                    fail(errorMessage);
+                }
             }
-            Log.v(TAG, "latch.await for service (" + service + ") and method ("
-                    + method + ") called fine");
+            Log.v(TAG, "latch.await for services (" + Arrays.toString(services)
+                    + ") and method (" + method + ") called fine");
         }
 
         private void countdown(Map<String, CountDownLatch> latches, Intent service, String action) {
@@ -426,10 +422,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             }
         }
 
-        void assertRecentBoundService(String service) throws InterruptedException {
-            await(mBoundLatches, service, "bind()");
+        void assertRecentBoundServices(String... services) throws InterruptedException {
+            await(mBoundLatches, "bind()", services);
             synchronized (mLock) {
-                assertHasService(mRecentBoundServices, service, "bound");
+                assertHasServices(mRecentBoundServices, "bound", services);
             }
         }
 
@@ -440,10 +436,10 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             }
         }
 
-        void assertRecentStartedService(String service) throws InterruptedException {
-            await(mStartedLatches, service, "start()");
+        void assertRecentStartedServices(String... services) throws InterruptedException {
+            await(mStartedLatches, "start()", services);
             synchronized (mLock) {
-                assertHasService(mRecentStartedServices, service, "started");
+                assertHasServices(mRecentStartedServices, "started", services);
             }
         }
 
