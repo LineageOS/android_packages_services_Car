@@ -391,7 +391,7 @@ package android.car.app {
   }
 
   public interface CarSystemUIProxy {
-    method @NonNull public android.car.app.CarTaskViewHost createCarTaskView(@NonNull android.car.app.CarTaskViewClient);
+    method @NonNull public android.car.app.CarTaskViewHost createControlledCarTaskView(@NonNull android.car.app.CarTaskViewClient);
   }
 
   public final class CarTaskViewClient {
