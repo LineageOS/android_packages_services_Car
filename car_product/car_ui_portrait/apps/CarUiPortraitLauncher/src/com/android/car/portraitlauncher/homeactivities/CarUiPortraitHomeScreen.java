@@ -21,11 +21,13 @@ import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_RECENTS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_FG_TASK_VIEW_READY;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_NOTIFICATIONS_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_RECENTS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SYSUI_STARTED;
@@ -158,6 +160,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mNavBarHeight;
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
+    private boolean mIsRecentsOnTop;
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
     private TaskViewPanel mRootTaskViewPanel;
@@ -244,6 +247,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
+            mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
@@ -535,6 +539,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void collapseNotificationPanel() {
         if (isNotificationCenterOnTop()) {
+            mRootTaskViewPanel.closePanel();
+        }
+    }
+
+    private void collapseRecentsPanel() {
+        if (mIsRecentsOnTop) {
             mRootTaskViewPanel.closePanel();
         }
     }
@@ -867,6 +877,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 } else {
                     notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(false));
                 }
+
+                // Update the Recents button's selection state.
+                if (mIsRecentsOnTop && isVisible) {
+                    notifySystemUI(MSG_RECENTS_VISIBILITY_CHANGE, boolToInt(true));
+                } else {
+                    notifySystemUI(MSG_RECENTS_VISIBILITY_CHANGE, boolToInt(false));
+                }
             }
 
             @Override
@@ -1006,6 +1023,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     break;
                 case MSG_COLLAPSE_NOTIFICATION:
                     collapseNotificationPanel();
+                    break;
+                case MSG_COLLAPSE_RECENTS:
+                    collapseRecentsPanel();
                     break;
                 default:
                     super.handleMessage(msg);
