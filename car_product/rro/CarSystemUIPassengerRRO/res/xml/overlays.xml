@@ -21,6 +21,9 @@
 
     <item target="bool/config_enableTopSystemBar" value="false"/>
 
+    <item target="id/notifications" value="@id/notifications" />
+    <item target="string/system_bar_notifications_label" value="@string/system_bar_notifications_label"/>
+    <item target="drawable/car_ic_notification" value="@drawable/car_ic_notification" />
     <item target="string/config_notificationPanelViewMediator" value="com.android.systemui.car.notification.BottomNotificationPanelViewMediator"/>
 
     <item target="attr/icon" value="@attr/icon"/>
