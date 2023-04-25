@@ -71,6 +71,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -242,23 +243,23 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         Log.i(TAG, mTestName.getMethodName());
         String methodName = mTestName.getMethodName();
         ErrorCodeHandler handler = new ErrorCodeHandler();
-        if (methodName.equals("testInitialLiveFrameException_Invalid_Arg")) {
+        if (Objects.equals(methodName, "testInitialLiveFrameException_Invalid_Arg")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_INVALID_ARG);
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
-        } else if (methodName.equals("testInitialLiveFrameException_NOT_AVAILABLE")) {
+        } else if (Objects.equals(methodName, "testInitialLiveFrameException_NOT_AVAILABLE")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
-        } else if (methodName.equals("testInitialLiveFrameException_ACCESS_DENIED")) {
+        } else if (Objects.equals(methodName, "testInitialLiveFrameException_ACCESS_DENIED")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_ACCESS_DENIED);
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
-        } else if (methodName.equals("testInitialLiveFrameException_TRY_AGAIN")) {
+        } else if (Objects.equals(methodName, "testInitialLiveFrameException_TRY_AGAIN")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_TRY_AGAIN);
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
-        } else if (methodName.equals("testInitialLiveFrameException_INTERNAL_ERROR")) {
+        } else if (Objects.equals(methodName, "testInitialLiveFrameException_INTERNAL_ERROR")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
@@ -266,19 +267,22 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, mLiveFrameEventBuilder.build())
                     .setConfigArray(numVendorSensors);
         }
-        if (methodName.equals("testInitialFreezeFrameInfoException_Invalid_Arg")) {
+        if (Objects.equals(methodName, "testInitialFreezeFrameInfoException_Invalid_Arg")) {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INVALID_ARG);
-        } else if (methodName.equals("testInitialFreezeFrameInfoException_NOT_AVAILABLE")) {
+        } else if (Objects.equals(methodName,
+                "testInitialFreezeFrameInfoException_NOT_AVAILABLE")) {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
-        } else if (methodName.equals("testInitialFreezeFrameInfoException_ACCESS_DENIED")) {
+        } else if (Objects.equals(methodName,
+                "testInitialFreezeFrameInfoException_ACCESS_DENIED")) {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_ACCESS_DENIED);
-        } else if (methodName.equals("testInitialFreezeFrameInfoException_TRY_AGAIN")) {
+        } else if (Objects.equals(methodName, "testInitialFreezeFrameInfoException_TRY_AGAIN")) {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_TRY_AGAIN);
-        } else if (methodName.equals("testInitialFreezeFrameInfoException_INTERNAL_ERROR")) {
+        } else if (Objects.equals(methodName,
+                "testInitialFreezeFrameInfoException_INTERNAL_ERROR")) {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
         }
@@ -286,19 +290,19 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 VehicleProperty.OBD2_FREEZE_FRAME_INFO,
                 mFreezeFrameProperties.mFreezeFrameInfoHandler);
 
-        if (methodName.equals("testInitialFreezeFrameException_Invalid_Arg")) {
+        if (Objects.equals(methodName, "testInitialFreezeFrameException_Invalid_Arg")) {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INVALID_ARG);
-        } else if (methodName.equals("testInitialFreezeFrameException_NOT_AVAILABLE")) {
+        } else if (Objects.equals(methodName, "testInitialFreezeFrameException_NOT_AVAILABLE")) {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
-        } else if (methodName.equals("testInitialFreezeFrameException_ACCESS_DENIED")) {
+        } else if (Objects.equals(methodName, "testInitialFreezeFrameException_ACCESS_DENIED")) {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_ACCESS_DENIED);
-        } else if (methodName.equals("testInitialFreezeFrameException_TRY_AGAIN")) {
+        } else if (Objects.equals(methodName, "testInitialFreezeFrameException_TRY_AGAIN")) {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_TRY_AGAIN);
-        } else if (methodName.equals("testInitialFreezeFrameException_INTERNAL_ERROR")) {
+        } else if (Objects.equals(methodName, "testInitialFreezeFrameException_INTERNAL_ERROR")) {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
         }
