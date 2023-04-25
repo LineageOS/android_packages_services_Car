@@ -19,8 +19,6 @@ package com.android.systemui.car.statusicon.ui;
 import static android.car.VehiclePropertyIds.ENV_OUTSIDE_TEMPERATURE;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_DISPLAY_UNITS;
 
-import static com.android.systemui.car.hvac.HvacUtils.celsiusToFahrenheit;
-
 import android.car.Car;
 import android.car.VehicleUnit;
 import android.car.hardware.CarPropertyValue;
@@ -147,5 +145,9 @@ public class StatusBarSensorInfoManager {
         if (DEBUG) {
             Log.d(TAG, msg);
         }
+    }
+
+    private float celsiusToFahrenheit(float tempC) {
+        return (tempC * 9f / 5f) + 32;
     }
 }
