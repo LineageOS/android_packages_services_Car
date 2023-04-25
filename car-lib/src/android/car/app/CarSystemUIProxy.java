@@ -35,5 +35,5 @@ public interface CarSystemUIProxy {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
-    CarTaskViewHost createCarTaskView(@NonNull CarTaskViewClient carTaskViewClient);
+    CarTaskViewHost createControlledCarTaskView(@NonNull CarTaskViewClient carTaskViewClient);
 }
