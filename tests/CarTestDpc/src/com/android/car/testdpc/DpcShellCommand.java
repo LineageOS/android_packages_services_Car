@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 final class DpcShellCommand {
@@ -177,7 +178,8 @@ final class DpcShellCommand {
     private void runAddUserRestriction() {
         Log.i(TAG, "Calling addUserRestriction()");
 
-        if (mArgs.length != ADD_USER_RESTRICTION_ARG_LEN || !(ARG_TARGET_USER.equals(mArgs[1]))) {
+        if (mArgs.length != ADD_USER_RESTRICTION_ARG_LEN || !(Objects.equals(mArgs[1],
+                ARG_TARGET_USER))) {
             showHelp();
             return;
         }
@@ -266,7 +268,7 @@ final class DpcShellCommand {
     }
 
     private void runRemoveUser() {
-        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+        if (mArgs.length != 3 || !Objects.equals(mArgs[1], ARG_TARGET_USER)) {
             showHelp();
             return;
         }
@@ -277,7 +279,7 @@ final class DpcShellCommand {
     }
 
     private void runStartUserBackground() {
-        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+        if (mArgs.length != 3 || !Objects.equals(mArgs[1], ARG_TARGET_USER)) {
             showHelp();
             return;
         }
@@ -292,7 +294,7 @@ final class DpcShellCommand {
     }
 
     private void runStopUser() {
-        if (mArgs.length != 3 || !ARG_TARGET_USER.equals(mArgs[1])) {
+        if (mArgs.length != 3 || !Objects.equals(mArgs[1], ARG_TARGET_USER)) {
             showHelp();
             return;
         }
