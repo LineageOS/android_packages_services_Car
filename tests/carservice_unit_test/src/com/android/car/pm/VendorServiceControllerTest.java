@@ -312,7 +312,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void packageChanged_attemptsRebind() throws Exception {
+    public void packageChanged_bindsTheService() throws Exception {
         mockGetCurrentUser(UserHandle.USER_SYSTEM);
         mController.init();
         mContext.reset();
@@ -327,27 +327,20 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, FG_USER_ID);
         mContext.expectRecentBoundServices(SERVICE_BIND_ALL_USERS_ASAP);
         mockUserUnlock(FG_USER_ID);
+        mContext.expectServiceNotBound(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.expectServiceNotBound(SERVICE_BIND_FG_USER_UNLOCKED);
 
-        // assertRecentBoundService() is important after every sendUserLifecycleEvent to ensure
-        // that the event has been handled completely.
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
-        mContext.expectRecentBoundServices(SERVICE_BIND_FG_USER_UNLOCKED);
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, FG_USER_ID);
-        mContext.expectRecentBoundServices(SERVICE_BIND_FG_USER_POST_UNLOCKED);
+        mContext.expectServices(SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_BIND_FG_USER_POST_UNLOCKED);
 
         Intent packageIntent = new Intent(Intent.ACTION_PACKAGE_CHANGED);
         int appId = 123;
-        packageIntent.setData(new Uri.Builder().path("Any package").build());
+        packageIntent.setData(new Uri.Builder().path("com.android.car").build());
         packageIntent.putExtra(Intent.EXTRA_UID, UserHandle.getUid(FG_USER_ID, appId));
         mContext.mPackageChangeReceiver.onReceive(mContext, packageIntent);
         runOnMainThreadAndWaitForIdle(() -> {});
 
-        expectThat(((VendorServiceController.VendorServiceConnection)
-                mContext.mBoundServiceToConnectionMap.get(SERVICE_BIND_FG_USER_POST_UNLOCKED))
-                .isPendingRebind()).isTrue();
-        expectThat(((VendorServiceController.VendorServiceConnection)
-                mContext.mBoundServiceToConnectionMap.get(SERVICE_BIND_FG_USER_UNLOCKED))
-                .isPendingRebind()).isTrue();
+        mContext.expectRecentBoundServices(
+                SERVICE_BIND_FG_USER_UNLOCKED, SERVICE_BIND_FG_USER_POST_UNLOCKED);
     }
 
     @Test
