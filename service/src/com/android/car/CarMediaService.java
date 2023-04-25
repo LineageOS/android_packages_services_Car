@@ -697,6 +697,18 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 }
                 TransportControls controls = mActiveUserMediaController.getTransportControls();
                 if (controls != null) {
+                    // In order to prevent some apps from taking back the audio focus after being
+                    // stopped, first call pause, if the app supports pause. This does not affect
+                    // the saved source or the playback state, because the callback has already
+                    // been unregistered.
+                    PlaybackState playbackState = mActiveUserMediaController.getPlaybackState();
+                    if (playbackState != null
+                            && (playbackState.getActions() & PlaybackState.ACTION_PAUSE) != 0) {
+                        if (Slogf.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
+                            Slogf.d(CarLog.TAG_MEDIA, "Call pause before stop");
+                        }
+                        controls.pause();
+                    }
                     controls.stop();
                 } else {
                     Slogf.e(CarLog.TAG_MEDIA, "Can't stop playback, transport controls unavailable "
