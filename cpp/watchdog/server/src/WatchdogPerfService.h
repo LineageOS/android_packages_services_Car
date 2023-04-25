@@ -59,6 +59,7 @@ class WatchdogPerfServicePeer;
 constexpr std::chrono::seconds kDefaultPostSystemEventDurationSec = 30s;
 constexpr std::chrono::seconds kDefaultWakeUpEventDurationSec = 30s;
 constexpr std::chrono::seconds kDefaultUserSwitchTimeoutSec = 30s;
+constexpr std::chrono::nanoseconds kPrevUnsentResourceStatsMaxDurationNs = 10min;
 constexpr const char* kStartCustomCollectionFlag = "--start_perf";
 constexpr const char* kEndCustomCollectionFlag = "--stop_perf";
 constexpr const char* kIntervalFlag = "--interval";
@@ -125,11 +126,6 @@ public:
     virtual android::base::Result<void> onPeriodicMonitor(
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
             const std::function<void()>& alertHandler) = 0;
-    // Callback to perform actions (such as clearing caches) after resource stats are sent to
-    // the car watchdog service.
-    // TODO(b/272524458): WatchdogPerfService should manage the ResourceStats, instead of
-    // each individual data processor.
-    virtual android::base::Result<void> onResourceStatsSent(bool successful) = 0;
     // Callback to dump the boot-time collected and periodically collected data.
     virtual android::base::Result<void> onDump(int fd) const = 0;
     /**
@@ -180,6 +176,13 @@ enum SwitchMessage {
      * collection and monitor.
      */
     END_CUSTOM_COLLECTION,
+
+    LAST_SWITCH_MSG,
+};
+
+enum TaskMessage {
+    // On receiving this message, send the cached resource stats to CarWatchdogService.
+    SEND_RESOURCE_STATS = SwitchMessage::LAST_SWITCH_MSG + 1,
 };
 
 /**
@@ -201,6 +204,8 @@ public:
     virtual void terminate() = 0;
     // Sets the system state.
     virtual void setSystemState(SystemState systemState) = 0;
+    // Handles unsent resource stats.
+    virtual void onCarWatchdogServiceRegistered() = 0;
     // Ends the boot-time collection by switching to periodic collection after the post event
     // duration.
     virtual android::base::Result<void> onBootFinished() = 0;
@@ -246,6 +251,7 @@ public:
           mUserSwitchCollection({}),
           mCustomCollection({}),
           mPeriodicMonitor({}),
+          mUnsentResourceStats({}),
           mCurrCollectionEvent(EventType::INIT),
           mUidStatsCollector(android::sp<UidStatsCollector>::make()),
           mProcStatCollector(android::sp<ProcStatCollector>::make()),
@@ -261,6 +267,8 @@ public:
     void terminate() override;
 
     void setSystemState(SystemState systemState) override;
+
+    void onCarWatchdogServiceRegistered() override;
 
     android::base::Result<void> onBootFinished() override;
 
@@ -343,10 +351,17 @@ private:
     // Processes the monitor events received by |handleMessage|.
     android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
 
+    // Sends the unsent resource stats.
+    android::base::Result<void> sendResourceStats();
+
     // Notifies all registered data processors that either boot-time or wake-up collection will
     // start. Individual implementations of data processors may clear stats collected during
     // previous system startup events.
     android::base::Result<void> notifySystemStartUpLocked();
+
+    // Caches resource stats that have not been sent to CarWatchdogService.
+    void cacheUnsentResourceStatsLocked(
+            aidl::android::automotive::watchdog::internal::ResourceStats resourceStats);
 
     /**
      * Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
@@ -393,6 +408,10 @@ private:
 
     // Info for the |EventType::PERIODIC_MONITOR| monitor event.
     EventMetadata mPeriodicMonitor GUARDED_BY(mMutex);
+
+    // Cache of resource stats that have not been sent to CarWatchdogService.
+    std::vector<std::tuple<nsecs_t, aidl::android::automotive::watchdog::internal::ResourceStats>>
+            mUnsentResourceStats GUARDED_BY(mMutex);
 
     // Tracks either the WatchdogPerfService's state or current collection event. Updated on
     // |start|, |onBootFinished|, |onUserStateChange|, |startCustomCollection|,
