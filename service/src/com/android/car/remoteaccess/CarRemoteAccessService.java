@@ -727,12 +727,14 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 ServiceInfo info = services.get(i).serviceInfo;
                 String packageName = info.packageName;
                 ComponentName componentName = new ComponentName(packageName, info.name);
-                if (mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS,
+                // We require client to has PERMISSION_CONTROL_REMOTE_ACCESS which is a system API
+                // so that they can be launched as systme user.
+                if (mPackageManager.checkPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS,
                         packageName) != PackageManager.PERMISSION_GRANTED) {
                     Slogf.w(TAG, "Component(%s) has %s intent but doesn't have %s permission",
                             componentName.flattenToString(),
                             Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE,
-                            Car.PERMISSION_USE_REMOTE_ACCESS);
+                            Car.PERMISSION_CONTROL_REMOTE_ACCESS);
                     continue;
                 }
                 // TODO(b/263798644): mClientServiceInfoByUid should be updated when packages

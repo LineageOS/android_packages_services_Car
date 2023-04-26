@@ -906,6 +906,8 @@ public final class CarRemoteAccessServiceUnitTest {
                     : PackageManager.PERMISSION_DENIED;
             when(mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS, packageName))
                     .thenReturn(permission);
+            when(mPackageManager.checkPermission(Car.PERMISSION_CONTROL_REMOTE_ACCESS, packageName))
+                    .thenReturn(permission);
         }
         when(mPackageManager.queryIntentServicesAsUser(any(), anyInt(), any()))
                 .thenReturn(resolveInfos);
