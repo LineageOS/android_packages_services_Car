@@ -22,19 +22,45 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION_RINGTONE;
 import static android.media.AudioAttributes.USAGE_VOICE_COMMUNICATION;
+import static android.media.audio.common.AudioDeviceDescription.CONNECTION_BUS;
+import static android.media.audio.common.AudioDeviceType.OUT_DEVICE;
+import static android.media.audio.common.AudioGainMode.JOINT;
 
+import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.MIN_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
+import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
+import android.car.builtin.media.AudioManagerHelper;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.Reasons;
+import android.media.AudioDeviceInfo;
+import android.media.AudioGain;
+import android.media.AudioManager;
+import android.media.audio.common.AudioDevice;
+import android.media.audio.common.AudioDeviceAddress;
+import android.media.audio.common.AudioDeviceDescription;
+import android.media.audio.common.AudioPort;
+import android.media.audio.common.AudioPortDeviceExt;
+import android.media.audio.common.AudioPortExt;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 
 import com.google.common.truth.Expect;
 
@@ -46,23 +72,37 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 @RunWith(MockitoJUnitRunner.class)
-public final class CarAudioVolumeGroupTest {
+public final class CarAudioVolumeGroupTest extends AbstractExtendedMockitoTestCase {
     private static final int ZONE_ID = 0;
     private static final int ZONE_CONFIG_ID = 1;
     private static final int GROUP_ID = 0;
-    private static final int STEP_VALUE = 2;
-    private static final int MIN_GAIN = 3;
-    private static final int MAX_GAIN = 10;
-    private static final int DEFAULT_GAIN = 5;
-    private static final int DEFAULT_GAIN_INDEX = (DEFAULT_GAIN - MIN_GAIN) / STEP_VALUE;
+    private static final int DEFAULT_GAIN_INDEX = getIndexForGain(MIN_GAIN, STEP_SIZE,
+            DEFAULT_GAIN);
     private static final int MIN_GAIN_INDEX = 0;
-    private static final int MAX_GAIN_INDEX = (MAX_GAIN - MIN_GAIN) / STEP_VALUE;
-    private static final int TEST_GAIN_INDEX = 2;
+    private static final int MAX_GAIN_INDEX = getIndexForGain(MIN_GAIN, STEP_SIZE, MAX_GAIN);
+    private static final int TEST_GAIN_INDEX = 35;
     private static final int TEST_USER_11 = 11;
     private static final String GROUP_NAME = "group_0";
     private static final String MEDIA_DEVICE_ADDRESS = "music";
     private static final String NAVIGATION_DEVICE_ADDRESS = "navigation";
+    private static final int MEDIA_PORT_ID = 0;
+    private static final int NAV_PORT_ID = 1;
+    private static final String TEST_MEDIA_PORT_NAME = "Media bus";
+    private static final String TEST_NAV_PORT_NAME = "Nav bus";
+    private static final int TEST_GAIN_MIN_VALUE = -3000;
+    private static final int TEST_GAIN_MAX_VALUE = -1000;
+    private static final int TEST_GAIN_DEFAULT_VALUE = -2000;
+    private static final int TEST_GAIN_STEP_VALUE = 2;
+    private static final int TEST_GAIN_MIN_INDEX = 0;
+    private static final int TEST_GAIN_MAX_INDEX = getIndexForGain(TEST_GAIN_MIN_VALUE,
+            TEST_GAIN_STEP_VALUE, TEST_GAIN_MAX_VALUE);
+    private static final int TEST_GAIN_DEFAULT_INDEX = getIndexForGain(TEST_GAIN_MIN_VALUE,
+            TEST_GAIN_STEP_VALUE, TEST_GAIN_DEFAULT_VALUE);
+    private static final int EVENT_TYPE_VOLUME_INDEX_MIN_MAX = 0x7;
+    private static final int EVENT_TYPE_NONE = 0;
 
     private static final CarAudioContext TEST_CAR_AUDIO_CONTEXT =
             new CarAudioContext(CarAudioContext.getAllContextsInfo(),
@@ -91,15 +131,26 @@ public final class CarAudioVolumeGroupTest {
     private CarAudioDeviceInfo mNavigationDeviceInfo;
 
     @Mock
+    private AudioManager mAudioManager;
+
+    @Mock
     CarAudioSettings mSettingsMock;
 
     @Rule
     public final Expect expect = Expect.create();
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(AudioManager.class)
+                .spyStatic(AudioManagerHelper.class);
+    }
+
     @Before
     public void setUp() {
-        mMediaDeviceInfo = new InfoBuilder(MEDIA_DEVICE_ADDRESS).build();
-        mNavigationDeviceInfo = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS).build();
+        mMediaDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
+                getMockAudioDeviceInfo(MEDIA_DEVICE_ADDRESS));
+        mNavigationDeviceInfo = new CarAudioDeviceInfo(mAudioManager,
+                getMockAudioDeviceInfo(NAVIGATION_DEVICE_ADDRESS));
     }
 
     @Test
@@ -139,8 +190,8 @@ public final class CarAudioVolumeGroupTest {
         CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
 
-        verify(mMediaDeviceInfo).setCurrentGain(7);
-        verify(mNavigationDeviceInfo).setCurrentGain(7);
+        expect.withMessage("Current gain index for bound devices")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(TEST_GAIN_INDEX);
     }
 
     @Test
@@ -178,6 +229,350 @@ public final class CarAudioVolumeGroupTest {
                         GROUP_ID, MIN_GAIN);
     }
 
+    @Test
+    public void updateAudioDeviceInfo_succeeds() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(
+                MEDIA_PORT_ID, TEST_MEDIA_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(
+                NAV_PORT_ID, TEST_NAV_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE,
+                NAVIGATION_DEVICE_ADDRESS);
+
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        expect.withMessage("Media device info min gain").that(mMediaDeviceInfo.getMinGain())
+                .isEqualTo(TEST_GAIN_MIN_VALUE);
+        expect.withMessage("Media device info max gain").that(mMediaDeviceInfo.getMaxGain())
+                .isEqualTo(TEST_GAIN_MAX_VALUE);
+        expect.withMessage("Media device info step value").that(mMediaDeviceInfo.getStepValue())
+                .isEqualTo(TEST_GAIN_STEP_VALUE);
+        expect.withMessage("Media device info default gain").that(mMediaDeviceInfo.getDefaultGain())
+                .isEqualTo(TEST_GAIN_DEFAULT_VALUE);
+        expect.withMessage("Nav device info min gain").that(mNavigationDeviceInfo.getMinGain())
+                .isEqualTo(TEST_GAIN_MIN_VALUE);
+        expect.withMessage("Nav device info max gain").that(mNavigationDeviceInfo.getMaxGain())
+                .isEqualTo(TEST_GAIN_MAX_VALUE);
+        expect.withMessage("Nav device info step value").that(mNavigationDeviceInfo.getStepValue())
+                .isEqualTo(TEST_GAIN_STEP_VALUE);
+        expect.withMessage("Nav device info default gain")
+                .that(mNavigationDeviceInfo.getDefaultGain()).isEqualTo(TEST_GAIN_DEFAULT_VALUE);
+    }
+
+    @Test
+    public void updateAudioDeviceInfo_invalidDeviceInfo_doesNotUpdate() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        String invalidMediaDeviceAddress = "Invalid media device";
+        String invalidNavDeviceAddress = "Invalid nav device";
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(
+                MEDIA_PORT_ID, TEST_MEDIA_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE,
+                invalidMediaDeviceAddress);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(
+                NAV_PORT_ID, TEST_NAV_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE, invalidNavDeviceAddress);
+
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        expect.withMessage("Default media device info min gain")
+                .that(mMediaDeviceInfo.getMinGain()).isEqualTo(MIN_GAIN);
+        expect.withMessage("Default media device info max gain")
+                .that(mMediaDeviceInfo.getMaxGain()).isEqualTo(MAX_GAIN);
+        expect.withMessage("Default media device info step value")
+                .that(mMediaDeviceInfo.getStepValue()).isEqualTo(STEP_SIZE);
+        expect.withMessage("Default media device info default gain")
+                .that(mMediaDeviceInfo.getDefaultGain()).isEqualTo(DEFAULT_GAIN);
+        expect.withMessage("Default nav device info min gain")
+                .that(mNavigationDeviceInfo.getMinGain()).isEqualTo(MIN_GAIN);
+        expect.withMessage("Default nav device info max gain")
+                .that(mNavigationDeviceInfo.getMaxGain()).isEqualTo(MAX_GAIN);
+        expect.withMessage("Default nav device info step value")
+                .that(mNavigationDeviceInfo.getStepValue()).isEqualTo(STEP_SIZE);
+        expect.withMessage("Default nav device info default gain")
+                .that(mNavigationDeviceInfo.getDefaultGain()).isEqualTo(DEFAULT_GAIN);
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_forSameGainStage_returnsNoEventType() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_NONE);
+        expect.withMessage("Calculated min gain index for new gain stage")
+                .that(carVolumeGroup.getMinGainIndex()).isEqualTo(MIN_GAIN_INDEX);
+        expect.withMessage("Calculated max gain index for new gain stage")
+                .that(carVolumeGroup.getMaxGainIndex()).isEqualTo(MAX_GAIN_INDEX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_withOnlyDefaultUpdate_returnsNoEventType() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN * 2, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN * 2, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage\"")
+                .that(eventType).isEqualTo(EVENT_TYPE_NONE);
+        expect.withMessage("Calculated min gain index for new gain stage")
+                .that(carVolumeGroup.getMinGainIndex()).isEqualTo(MIN_GAIN_INDEX);
+        expect.withMessage("Calculated max gain index for new gain stage")
+                .that(carVolumeGroup.getMaxGainIndex()).isEqualTo(MAX_GAIN_INDEX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_withDifferentStepValues_throws() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, MIN_GAIN, MAX_GAIN, DEFAULT_GAIN, STEP_SIZE - 1,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> carVolumeGroup.calculateNewGainStageFromDeviceInfos());
+
+        expect.withMessage("Calculation of new gain stage throws exception")
+                .that(thrown).hasMessageThat()
+                .contains("Gain stages within one group must have same step value");
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_extrapolationSucceeds() {
+        int newMinGain = MIN_GAIN + STEP_SIZE * 2;
+        int newMaxGain = MAX_GAIN - STEP_SIZE * 2;
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated min gain index for new gain stage")
+                .that(carVolumeGroup.getMinGainIndex()).isEqualTo(MIN_GAIN_INDEX);
+        expect.withMessage("Calculated max gain index for new gain stage")
+                .that(carVolumeGroup.getMaxGainIndex())
+                .isEqualTo(getIndexForGain(newMinGain, STEP_SIZE, newMaxGain));
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(getExtrapolatedGainIndex(MIN_GAIN, newMinGain, STEP_SIZE,
+                        TEST_GAIN_INDEX));
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_extrapolationFails_setsToDefaultValue() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(
+                MEDIA_PORT_ID, TEST_MEDIA_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(
+                NAV_PORT_ID, TEST_NAV_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE,
+                NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated min gain index for new gain stage")
+                .that(carVolumeGroup.getMinGainIndex()).isEqualTo(TEST_GAIN_MIN_INDEX);
+        expect.withMessage("Calculated max gain index for new gain stage")
+                .that(carVolumeGroup.getMaxGainIndex()).isEqualTo(TEST_GAIN_MAX_INDEX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(TEST_GAIN_DEFAULT_INDEX);
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_whenBlockingActive_extrapolationSucceeds() {
+        int newMinGain = MIN_GAIN + STEP_SIZE * 2;
+        int newMaxGain = MAX_GAIN - STEP_SIZE * 2;
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(getIndexForGain(MIN_GAIN, STEP_SIZE, newMaxGain));
+        List<Integer> reasons = List.of(Reasons.FORCED_MASTER_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(getExtrapolatedGainIndex(MIN_GAIN, newMinGain, STEP_SIZE,
+                        TEST_GAIN_INDEX));
+        expect.withMessage("Volume group blocking state")
+                .that(carVolumeGroup.isBlocked()).isTrue();
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_whenLimitingActive_extrapolationSucceeds() {
+        int newMinGain = MIN_GAIN + STEP_SIZE * 2;
+        int newMaxGain = MAX_GAIN - STEP_SIZE * 2;
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(getIndexForGain(MIN_GAIN, STEP_SIZE, newMaxGain));
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(getExtrapolatedGainIndex(MIN_GAIN, newMinGain, STEP_SIZE,
+                        TEST_GAIN_INDEX));
+        expect.withMessage("Volume group limitation state")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expect.withMessage("Volume group over-limitation state")
+                .that(carVolumeGroup.isOverLimit()).isTrue();
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_whenAttenuationActive_extrapolationSucceeds() {
+        int newMinGain = MIN_GAIN + STEP_SIZE * 2;
+        int newMaxGain = MAX_GAIN - STEP_SIZE * 2;
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(getIndexForGain(MIN_GAIN, STEP_SIZE, newMaxGain));
+        List<Integer> reasons = List.of(Reasons.NAV_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(MEDIA_PORT_ID,
+                TEST_MEDIA_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(NAV_PORT_ID,
+                TEST_NAV_PORT_NAME, newMinGain, newMaxGain, DEFAULT_GAIN, STEP_SIZE,
+                OUT_DEVICE, NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(getExtrapolatedGainIndex(MIN_GAIN, newMinGain, STEP_SIZE,
+                        TEST_GAIN_INDEX));
+        expect.withMessage("Volume group attenuation state")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+    }
+
+    @Test
+    public void calculateNewGainStageFromDeviceInfos_whenRestrictionsActive_extrapolationFails() {
+        CarAudioVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> reasons = List.of(Reasons.NAV_DUCKING, Reasons.THERMAL_LIMITATION,
+                Reasons.FORCED_MASTER_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        HalAudioDeviceInfo mediaBusDeviceInfo = createHalAudioDeviceInfo(
+                MEDIA_PORT_ID, TEST_MEDIA_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE, MEDIA_DEVICE_ADDRESS);
+        HalAudioDeviceInfo navBusDeviceInfo = createHalAudioDeviceInfo(
+                NAV_PORT_ID, TEST_NAV_PORT_NAME, TEST_GAIN_MIN_VALUE, TEST_GAIN_MAX_VALUE,
+                TEST_GAIN_DEFAULT_VALUE, TEST_GAIN_STEP_VALUE, OUT_DEVICE,
+                NAVIGATION_DEVICE_ADDRESS);
+        carVolumeGroup.updateAudioDeviceInfo(mediaBusDeviceInfo);
+        carVolumeGroup.updateAudioDeviceInfo(navBusDeviceInfo);
+
+        int eventType = carVolumeGroup.calculateNewGainStageFromDeviceInfos();
+
+        expect.withMessage("Calculated event type for new gain stage")
+                .that(eventType).isEqualTo(EVENT_TYPE_VOLUME_INDEX_MIN_MAX);
+        expect.withMessage("Calculated current gain index for new gain stage")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(TEST_GAIN_DEFAULT_INDEX);
+        expect.withMessage("Volume group attenuation state")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expect.withMessage("Volume group limitation state")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expect.withMessage("Volume group blocking state")
+                .that(carVolumeGroup.isBlocked()).isFalse();
+    }
+
+    private int getExtrapolatedGainIndex(int oldMinGain, int newMinGain, int step, int index) {
+        return getIndexForGain(newMinGain, step, getGainForIndex(oldMinGain, step, index));
+    }
+
+    private static int getIndexForGain(int minGain, int step, int gain) {
+        return (gain - minGain) / step;
+    }
+
+    private static int getGainForIndex(int minGain, int step, int index) {
+        return minGain + step * index;
+    }
+
     private CarAudioVolumeGroup testVolumeGroupSetup() {
         return testVolumeGroupSetup(mSettingsMock);
     }
@@ -185,6 +580,9 @@ public final class CarAudioVolumeGroupTest {
     private CarAudioVolumeGroup testVolumeGroupSetup(CarAudioSettings settings) {
         SparseArray<String> contextToAddress = new SparseArray<>();
         ArrayMap<String, CarAudioDeviceInfo> addressToCarAudioDeviceInfo = new ArrayMap<>();
+
+        doReturn(true).when(() -> AudioManagerHelper
+                .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
 
         addressToCarAudioDeviceInfo.put(mMediaDeviceInfo.getAddress(), mMediaDeviceInfo);
         contextToAddress.put(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo.getAddress());
@@ -198,7 +596,7 @@ public final class CarAudioVolumeGroupTest {
 
         return new CarAudioVolumeGroup(TEST_CAR_AUDIO_CONTEXT, settings, contextToAddress,
                 addressToCarAudioDeviceInfo, ZONE_ID, ZONE_CONFIG_ID, GROUP_ID, GROUP_NAME,
-                STEP_VALUE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCoreAudioVolume= */ false);
+                STEP_SIZE, DEFAULT_GAIN, MIN_GAIN, MAX_GAIN, /* useCoreAudioVolume= */ false);
     }
 
     private static final class SettingsBuilder {
@@ -242,26 +640,39 @@ public final class CarAudioVolumeGroupTest {
         }
     }
 
-    private static final class InfoBuilder {
-        private final String mAddress;
+    private AudioDeviceInfo getMockAudioDeviceInfo(String address) {
+        AudioGain mockGain = new GainBuilder().build();
+        return getMockAudioDeviceInfo(new AudioGain[]{mockGain}, address);
+    }
 
-        private int mStepValue = STEP_VALUE;
-        private int mDefaultGain = DEFAULT_GAIN;
-        private int mMinGain = MIN_GAIN;
-        private int mMaxGain = MAX_GAIN;
+    private AudioDeviceInfo getMockAudioDeviceInfo(AudioGain[] gains, String address) {
+        return new AudioDeviceInfoBuilder()
+                .setAddressName(address)
+                .setAudioGains(gains)
+                .build();
+    }
 
-        InfoBuilder(String address) {
-            mAddress = address;
-        }
-
-        CarAudioDeviceInfo build() {
-            CarAudioDeviceInfo infoMock = Mockito.mock(CarAudioDeviceInfo.class);
-            when(infoMock.getStepValue()).thenReturn(mStepValue);
-            when(infoMock.getDefaultGain()).thenReturn(mDefaultGain);
-            when(infoMock.getMaxGain()).thenReturn(mMaxGain);
-            when(infoMock.getMinGain()).thenReturn(mMinGain);
-            when(infoMock.getAddress()).thenReturn(mAddress);
-            return infoMock;
-        }
+    private HalAudioDeviceInfo createHalAudioDeviceInfo(int id, String name, int minVal,
+            int maxVal, int defaultVal, int stepVal, int type, String address) {
+        AudioPortDeviceExt deviceExt = new AudioPortDeviceExt();
+        deviceExt.device = new AudioDevice();
+        deviceExt.device.type = new AudioDeviceDescription();
+        deviceExt.device.type.type = type;
+        deviceExt.device.type.connection = CONNECTION_BUS;
+        deviceExt.device.address = AudioDeviceAddress.id(address);
+        AudioPort audioPort = new AudioPort();
+        audioPort.id = id;
+        audioPort.name = name;
+        audioPort.gains = new android.media.audio.common.AudioGain[] {
+                new android.media.audio.common.AudioGain() {{
+                    mode = JOINT;
+                    minValue = minVal;
+                    maxValue = maxVal;
+                    defaultValue = defaultVal;
+                    stepValue = stepVal;
+                }}
+        };
+        audioPort.ext = AudioPortExt.device(deviceExt);
+        return new HalAudioDeviceInfo(audioPort);
     }
 }
