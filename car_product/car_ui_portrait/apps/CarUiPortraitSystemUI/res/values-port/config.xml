@@ -24,7 +24,7 @@
         <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
         <!-- add the below line to display welcome screen -->
-         <item>com.android.systemui.car.aloha.AlohaViewMediator</item>
+         <item>com.android.systemui.car.loading.LoadingViewMediator</item>
     </string-array>
 
     <integer name="hvac_num_fan_speeds">8</integer>
