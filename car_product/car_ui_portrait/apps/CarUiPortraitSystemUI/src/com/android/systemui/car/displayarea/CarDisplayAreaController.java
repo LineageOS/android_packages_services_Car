@@ -42,7 +42,7 @@ import com.android.systemui.R;
 import com.android.systemui.car.CarDeviceProvisionedController;
 import com.android.systemui.car.CarDeviceProvisionedListener;
 import com.android.systemui.car.CarServiceProvider;
-import com.android.systemui.car.aloha.AlohaViewController;
+import com.android.systemui.car.loading.LoadingViewController;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
@@ -74,7 +74,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private boolean mUserSetupInProgress;
     private boolean mIsImmersive;
     private boolean mIsLauncherReady;
-    private AlohaViewController mAlohaViewController;
+    private LoadingViewController mLoadingViewController;
 
     private final CarUiPortraitDisplaySystemBarsController.Callback
             mCarUiPortraitDisplaySystemBarsControllerCallback =
@@ -86,7 +86,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                             .isCurrentUserSetupInProgress();
                     if (mUserSetupInProgress) {
                         mCarFullScreenTouchHandler.enable(false);
-                        mAlohaViewController.stop();
+                        mLoadingViewController.stop();
                         logIfDebuggable(
                                 "No need to send out immersive request change intent during SUW");
                         updateImmersiveModeInternal();
@@ -144,13 +144,13 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     private void updateImmersiveModeForSUW() {
         mCarFullScreenTouchHandler.enable(false);
-        mAlohaViewController.stop();
+        mLoadingViewController.stop();
     }
 
     private void updateImmersiveMode() {
         mCarFullScreenTouchHandler.enable(mIsLauncherReady);
         if (!mIsLauncherReady) {
-            mAlohaViewController.start();
+            mLoadingViewController.start();
         }
     }
 
@@ -167,7 +167,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             CarUiPortraitDisplaySystemBarsController carUiPortraitDisplaySystemBarsController,
             CommandQueue commandQueue,
             CarDeviceProvisionedController deviceProvisionedController,
-            AlohaViewController alohaViewController) {
+            LoadingViewController loadingViewController) {
         mApplicationContext = applicationContext;
         mOrganizer = organizer;
         mShellExecutor = shellExecutor;
@@ -179,14 +179,14 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mCarUiDisplaySystemBarsController = carUiPortraitDisplaySystemBarsController;
         mCarDeviceProvisionedController = deviceProvisionedController;
         mCarFullScreenTouchHandler = new CarFullScreenTouchHandler(mShellExecutor);
-        mAlohaViewController = alohaViewController;
-        mAlohaViewController.start();
+        mLoadingViewController = loadingViewController;
+        mLoadingViewController.start();
 
         BroadcastReceiver taskViewReadyReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.hasExtra(INTENT_EXTRA_LAUNCHER_READY)) {
-                    mAlohaViewController.stop();
+                    mLoadingViewController.stop();
                     mIsLauncherReady = true;
                 }
             }

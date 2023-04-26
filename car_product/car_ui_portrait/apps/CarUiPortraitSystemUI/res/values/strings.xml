@@ -24,6 +24,6 @@
 
     <!-- Subtitle for current profile in profile switch panel [CHAR LIMIT=20]-->
     <string name="current_profile_subtitle">Current profile</string>
-    <string name="aloha_welcome_message">AAOS</string>
-    <string name="aloha_action_button_text">Continue</string>
+    <string name="loading_welcome_message">AAOS</string>
+    <string name="loading_action_button_text">Continue</string>
 </resources>
