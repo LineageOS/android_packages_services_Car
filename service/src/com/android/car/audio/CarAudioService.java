@@ -156,8 +156,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     static final String TAG = CarLog.TAG_AUDIO;
     private static final String MIRROR_COMMAND_SEPARATOR = ";";
     private static final String MIRROR_COMMAND_DESTINATION_SEPARATOR = ",";
-    public static final String MIRROR_COMMAND_SOURCE = "mirroring_src=";
-    public static final String MIRROR_COMMAND_DESTINATION = "mirroring_dst=";
+    private static final String MIRROR_COMMAND_SOURCE = "mirroring_src=";
+    private static final String MIRROR_COMMAND_DESTINATION = "mirroring_dst=";
+    private static final String DISABLE_AUDIO_MIRRORING = "mirroring=off";
 
     private static final String CAR_AUDIO_SERVICE_THREAD_NAME = "CarAudioService";
 
@@ -629,6 +630,9 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void handleMuteChanged(int zoneId, int groupId, int flags) {
+        if (!mUseCarVolumeGroupMuting) {
+            return;
+        }
         callbackGroupMuteChanged(zoneId, groupId, flags);
         mCarVolumeGroupMuting.carMuteChanged();
     }
@@ -1222,6 +1226,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         mAudioManager.setParameters(builder.toString());
     }
 
+    private String getAudioMirroringOffCommand(String mirrorSource) {
+        return new StringBuilder().append(MIRROR_COMMAND_SOURCE).append(mirrorSource)
+                .append(MIRROR_COMMAND_SEPARATOR).append(DISABLE_AUDIO_MIRRORING)
+                .append(MIRROR_COMMAND_SEPARATOR).toString();
+    }
+
     private String getOutputDeviceAddressForUsageInternal(int zoneId, int usage) {
         int contextForUsage = getCarAudioContext()
                 .getContextForAudioAttribute(CarAudioContext.getAudioAttributeFromUsage(usage));
@@ -1241,6 +1251,14 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
     }
 
     private void handleDisableAudioMirrorForZonesInConfig(int[] audioZoneIds, long requestId) {
+        AudioDeviceInfo mirrorDevice = mCarAudioMirrorRequestHandler.getAudioDeviceInfo(requestId);
+        if (mirrorDevice == null) {
+            Slogf.e(TAG, "handleDisableAudioMirrorForZonesInConfig failed,"
+                    + " audio mirror not allowed as there are no more mirror devices available");
+            mCarAudioMirrorRequestHandler.rejectMirrorForZones(requestId, audioZoneIds);
+            return;
+        }
+
         int[] oldConfigs = mCarAudioMirrorRequestHandler.getMirrorAudioZonesForRequest(requestId);
         if (oldConfigs == null) {
             Slogf.w(TAG, "Could not disable audio mirror for zones %s,"
@@ -1287,6 +1305,11 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
 
         modifyAudioMirrorForZones(oldConfigs, newConfig);
         mCarAudioMirrorRequestHandler.updateRemoveMirrorConfigurationForZones(requestId, newConfig);
+
+        // If there are no more zones mirroring then turn it off at HAL
+        if (newConfig.length == 0) {
+            mAudioManager.setParameters(getAudioMirroringOffCommand(mirrorDevice.getAddress()));
+        }
     }
 
     private void modifyAudioMirrorForZones(int[] audioZoneIds, int[] newConfig) {

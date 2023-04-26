@@ -355,7 +355,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void hasCriticalAudioContexts_withCriticalContexts_returnsTrue() {
-        CarVolumeGroupFactory factory = getFactory();
+        CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
         factory.setDeviceInfoForContext(TEST_EMERGENCY_CONTEXT_ID, mMediaDeviceInfo);
         CarVolumeGroup carVolumeGroup = factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
 
@@ -905,6 +905,23 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void onAudioGainChanged_withMutedGain_whenGroupMutingDisabled_doesNotSetMute() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup(/* useCarVolumeGroupMute= */ false);
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        expectWithMessage("Audio gain changed with muted")
+                .that(carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain))
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
+        expectWithMessage("Mute state").that(carVolumeGroup.isMuted()).isFalse();
+    }
+
+    @Test
     public void onAudioGainChanged_withVolumeFeedback() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
@@ -1135,7 +1152,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
-        CarVolumeGroupFactory factory = getFactory();
+        CarVolumeGroupFactory factory = getFactory(/* useCarVolumeGroupMute= */ true);
         factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
@@ -1159,7 +1176,11 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     private CarVolumeGroup testVolumeGroupSetup() {
-        CarVolumeGroupFactory factory = getFactory();
+        return testVolumeGroupSetup(/* useCarVolumeGroupMute= */ true);
+    }
+
+    private CarVolumeGroup testVolumeGroupSetup(boolean useCarVolumeGroupMute) {
+        CarVolumeGroupFactory factory = getFactory(useCarVolumeGroupMute);
 
         factory.setDeviceInfoForContext(TEST_MEDIA_CONTEXT_ID, mMediaDeviceInfo);
         factory.setDeviceInfoForContext(TEST_CALL_CONTEXT_ID, mMediaDeviceInfo);
@@ -1172,9 +1193,9 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         return factory.getCarVolumeGroup(/* useCoreAudioVolume= */ false);
     }
 
-    CarVolumeGroupFactory getFactory() {
+    CarVolumeGroupFactory getFactory(boolean useCarVolumeGroupMute) {
         return new CarVolumeGroupFactory(mAudioManagerMock, mSettingsMock, TEST_CAR_AUDIO_CONTEXT,
-                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, /* useCarVolumeGroupMute= */ true);
+                ZONE_ID, CONFIG_ID, GROUP_ID, GROUP_NAME, useCarVolumeGroupMute);
     }
 
     private static final class SettingsBuilder {

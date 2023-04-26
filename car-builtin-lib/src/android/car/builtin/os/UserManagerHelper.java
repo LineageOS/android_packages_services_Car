@@ -83,6 +83,7 @@ public final class UserManagerHelper {
      * Returns all user handles.
      */
     @NonNull
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
             boolean excludeDying) {

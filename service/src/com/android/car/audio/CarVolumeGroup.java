@@ -687,8 +687,10 @@ import java.util.Objects;
                 eventType |= EVENT_TYPE_ATTENUATION_CHANGED;
             }
 
+            // Accept mute callbacks from hal only if group mute is enabled.
+            // If disabled, such callbacks will be considered as blocking restriction only.
             boolean shouldMute = CarAudioGainMonitor.shouldMuteVolumeGroup(halReasons);
-            if (shouldMute != isHalMutedLocked()) {
+            if (mUseCarVolumeGroupMute && (shouldMute != isHalMutedLocked())) {
                 setHalMuteLocked(shouldMute);
                 eventType |= EVENT_TYPE_MUTE_CHANGED;
             }
