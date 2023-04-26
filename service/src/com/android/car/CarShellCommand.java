@@ -865,7 +865,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
 
-        pw.printf("\t%s <PACKAGE_NAME>\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL);
+        pw.printf("\t%s <PACKAGE_NAME> [--user USER_ID]\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL);
         pw.println("\t  Kills PACKAGE_NAME due to resource overuse.");
 
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
@@ -3245,12 +3245,22 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private void performResourceOveruseKill(String[] args, IndentingPrintWriter writer) {
-        if (args.length != 2) {
+        if (args.length != 2 && args.length != 4) {
             showInvalidArguments(writer);
             return;
         }
         String packageName = args[1];
-        int userId = ActivityManager.getCurrentUser();
+        int userId;
+        if (args.length > 2 && args[2].equals("--user")) {
+            try {
+                userId = Integer.parseInt(args[3]);
+            } catch (NumberFormatException e) {
+                writer.printf("Invalid user id provided: %s\n", args[3]);
+                return;
+            }
+        } else {
+            userId = ActivityManager.getCurrentUser();
+        }
         boolean isKilled = mCarWatchdogService.performResourceOveruseKill(packageName, userId);
         if (isKilled) {
             writer.printf("Successfully killed package '%s' for user %d\n", packageName, userId);
