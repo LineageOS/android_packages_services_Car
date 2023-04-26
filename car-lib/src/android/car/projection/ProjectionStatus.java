@@ -22,6 +22,7 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -62,7 +63,23 @@ public final class ProjectionStatus implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_STATE_ACTIVE_BACKGROUND = 3;
 
-    private static final int PROJECTION_STATE_MAX = PROJECTION_STATE_ACTIVE_BACKGROUND;
+    /** This state indicates that at least one phone is connected and attempting to start
+     * the projection. If one mobile device is already attempting to start the projection,
+     * it should not be overridden by starting other projection technologies on top of it.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int PROJECTION_STATE_ATTEMPTING = 4;
+
+    /** This state indicates that at least one phone is connected and in the process of finishing
+     * the projection. If one mobile device is already finishing the projection,
+     * another mobile device should not start other projection technologies on top of it.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int PROJECTION_STATE_FINISHING = 5;
+
+    private static final int PROJECTION_STATE_MAX = PROJECTION_STATE_FINISHING;
 
     /** This status is used when projection is not actively running */
     @AddedInOrBefore(majorVersion = 33)
@@ -93,6 +110,8 @@ public final class ProjectionStatus implements Parcelable {
             PROJECTION_STATE_READY_TO_PROJECT,
             PROJECTION_STATE_ACTIVE_FOREGROUND,
             PROJECTION_STATE_ACTIVE_BACKGROUND,
+            PROJECTION_STATE_ATTEMPTING,
+            PROJECTION_STATE_FINISHING,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ProjectionState {}
