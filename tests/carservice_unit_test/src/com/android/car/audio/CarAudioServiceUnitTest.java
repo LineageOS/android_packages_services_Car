@@ -229,6 +229,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final String PRIMARY_ZONE_FM_TUNER_ADDRESS = "FM Tuner";
     private static final String SECONDARY_ZONE_CONFIG_NAME_1 = "secondary zone config 1";
     private static final String SECONDARY_ZONE_CONFIG_NAME_2 = "secondary zone config 2";
+    private static final String MIRROR_OFF_SIGNAL = "mirroring=off";
     // From the car audio configuration file in /res/raw/car_audio_configuration.xml
     private static final int TEST_REAR_LEFT_ZONE_ID = 1;
     private static final int TEST_REAR_RIGHT_ZONE_ID = 2;
@@ -3485,7 +3486,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
 
         callback.waitForCallback();
-        String audioMirrorInfoCommand = captureAudioMirrorInfoCommand();
+        String audioMirrorInfoCommand = captureAudioMirrorInfoCommand(1);
         List<String> commands = Arrays.asList(audioMirrorInfoCommand.split(";"));
         String sourceDeviceAddress = removeUpToEquals(commands.get(0));
         expectWithMessage("Audio mirror source info").that(sourceDeviceAddress)
@@ -3959,7 +3960,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void disableAudioMirrorForZone_withoutMirroringDisabled() {
+    public void disableAudioMirrorForZone_withMirroringDisabled() {
         CarAudioService carAudioService = getCarAudioServiceWithoutMirroring();
         carAudioService.init();
 
@@ -4030,6 +4031,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Callback zones disable audio mirror for mirroring zone")
                 .that(callback.getLastZoneIds()).asList()
                 .containsExactly(TEST_REAR_RIGHT_ZONE_ID, TEST_REAR_LEFT_ZONE_ID);
+        String audioMirrorOffCommand = captureAudioMirrorInfoCommand(2);
+        expectWithMessage("Audio HAL off source for mirroring zone")
+                .that(audioMirrorOffCommand).contains(MIRROR_TEST_DEVICE);
+        expectWithMessage("Audio HAL off signal for mirroring zone")
+                .that(audioMirrorOffCommand).contains(MIRROR_OFF_SIGNAL);
     }
 
     @Test
@@ -4118,6 +4124,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Callback zones disable audio mirror for mirroring zones")
                 .that(callback.getLastZoneIds()).asList()
                 .containsExactly(TEST_REAR_RIGHT_ZONE_ID, TEST_REAR_LEFT_ZONE_ID);
+        String audioMirrorOffCommand = captureAudioMirrorInfoCommand(2);
+        expectWithMessage("Audio HAL off source for mirroring zones")
+                .that(audioMirrorOffCommand).contains(MIRROR_TEST_DEVICE);
+        expectWithMessage("Audio HAL off signal for mirroring zones")
+                .that(audioMirrorOffCommand).contains(MIRROR_OFF_SIGNAL);
     }
 
     @Test
@@ -4145,9 +4156,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         return command.replaceAll("^[^=]*=", "");
     }
 
-    private String captureAudioMirrorInfoCommand() {
+    private String captureAudioMirrorInfoCommand(int count) {
         ArgumentCaptor<String> capture = ArgumentCaptor.forClass(String.class);
-        verify(mAudioManager).setParameters(capture.capture());
+        verify(mAudioManager, times(count)).setParameters(capture.capture());
         return capture.getValue();
     }
 
