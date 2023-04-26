@@ -62,6 +62,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -619,7 +620,8 @@ public class BugReportService extends Service {
                 }
                 String filename = file.getName();
                 // only for the zipped output file, we add individual entries to zip file.
-                if (filename.equals(OUTPUT_ZIP_FILE) || filename.equals(EXTRA_OUTPUT_ZIP_FILE)) {
+                if (Objects.equals(filename, OUTPUT_ZIP_FILE)
+                        || Objects.equals(filename, EXTRA_OUTPUT_ZIP_FILE)) {
                     ZipUtils.extractZippedFileToZipStream(file, zipStream);
                 } else {
                     ZipUtils.addFileToZipStream(file, zipStream);

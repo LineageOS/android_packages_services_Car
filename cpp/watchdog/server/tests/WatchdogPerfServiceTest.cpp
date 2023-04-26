@@ -28,8 +28,11 @@
 #include <aidl/android/automotive/watchdog/internal/ResourceOveruseStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceStats.h>
 #include <aidl/android/automotive/watchdog/internal/ResourceUsageStats.h>
+#include <aidl/android/automotive/watchdog/internal/SystemSummaryUsageStats.h>
+#include <aidl/android/automotive/watchdog/internal/UidResourceUsageStats.h>
 #include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/file.h>
+#include <android-base/stringprintf.h>
 #include <android/binder_auto_utils.h>
 #include <android/binder_interface_utils.h>
 #include <gmock/gmock.h>
@@ -44,9 +47,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+namespace {
+
 using ::aidl::android::automotive::watchdog::internal::ResourceOveruseStats;
 using ::aidl::android::automotive::watchdog::internal::ResourceStats;
 using ::aidl::android::automotive::watchdog::internal::ResourceUsageStats;
+using ::aidl::android::automotive::watchdog::internal::SystemSummaryUsageStats;
+using ::aidl::android::automotive::watchdog::internal::UidResourceUsageStats;
 using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::RefBase;
 using ::android::sp;
@@ -55,6 +62,7 @@ using ::android::wp;
 using ::android::automotive::watchdog::testing::LooperStub;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::android::base::StringAppendF;
 using ::testing::_;
 using ::testing::ByMove;
 using ::testing::Eq;
@@ -73,6 +81,43 @@ constexpr std::chrono::seconds kTestCustomCollectionDuration = 11s;
 constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
 constexpr std::chrono::seconds kTestUserSwitchTimeout = 15s;
 constexpr std::chrono::seconds kTestWakeUpDuration = 20s;
+
+std::string toString(const std::vector<ResourceStats>& resourceStats) {
+    std::string buffer;
+    StringAppendF(&buffer, "{");
+    for (const auto& stats : resourceStats) {
+        StringAppendF(&buffer, "%s,\n", stats.toString().c_str());
+    }
+    if (buffer.size() > 2) {
+        buffer.resize(buffer.size() - 2);  // Remove ",\n" from last element
+    }
+    StringAppendF(&buffer, "}");
+    return buffer;
+}
+
+ResourceUsageStats constructResourceUsageStats(
+        int64_t startTimeEpochMillis, const SystemSummaryUsageStats& systemSummaryUsageStats,
+        std::vector<UidResourceUsageStats> uidResourceUsageStats) {
+    ResourceUsageStats resourceUsageStats;
+    resourceUsageStats.startTimeEpochMillis = startTimeEpochMillis;
+    resourceUsageStats.durationInMillis = 1000;
+    resourceUsageStats.systemSummaryUsageStats = systemSummaryUsageStats;
+    resourceUsageStats.uidResourceUsageStats = uidResourceUsageStats;
+
+    return resourceUsageStats;
+}
+
+ResourceStats constructResourceStats(
+        const std::optional<ResourceUsageStats>& resourceUsageStats,
+        const std::optional<ResourceOveruseStats>& resourceOveruseStats) {
+    ResourceStats resourceStats = {};
+    resourceStats.resourceUsageStats = resourceUsageStats;
+    resourceStats.resourceOveruseStats = resourceOveruseStats;
+
+    return resourceStats;
+}
+
+}  // namespace
 
 namespace internal {
 
@@ -220,6 +265,16 @@ protected:
         ASSERT_RESULT_OK(mLooperStub->pollCache());
     }
 
+    void removePeriodicMonitorEvents() {
+        mLooperStub->removeMessages(mService, EventType::PERIODIC_MONITOR);
+    }
+
+    void skipPeriodicCollection() {
+        EXPECT_CALL(*mMockDataProcessor, onPeriodicCollection(_, SystemState::NORMAL_MODE, _, _, _))
+                .Times(1);
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+    }
+
     void verifyAndClearExpectations() {
         Mock::VerifyAndClearExpectations(mMockUidStatsCollector.get());
         Mock::VerifyAndClearExpectations(mMockProcStatCollector.get());
@@ -295,13 +350,16 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(startService());
 
     // #1 Boot-time collection
+    // TODO(b/266008677): Add more data to the ResourceStats.
+    std::optional<ResourceUsageStats> boottimeResourceUsageStats =
+            std::make_optional<ResourceUsageStats>({});
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector), _))
             .Times(1)
             .WillOnce([&](auto, auto, auto, auto* resourceStats) -> Result<void> {
-                resourceStats->resourceUsageStats = std::make_optional<ResourceUsageStats>({});
+                resourceStats->resourceUsageStats = boottimeResourceUsageStats;
                 return {};
             });
     EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1);
@@ -323,7 +381,7 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     EXPECT_CALL(*mMockDataProcessor,
                 onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector), _))
             .Times(1);
-    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1);
     EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_)).Times(0);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -344,7 +402,7 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     EXPECT_CALL(*mMockDataProcessor,
                 onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector), _))
             .Times(maxIterations);
-    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(0);
+    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(maxIterations);
     EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_)).Times(0);
 
     ASSERT_RESULT_OK(mService->onBootFinished());
@@ -396,6 +454,15 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     // #6 Periodic collection
+    std::vector<ResourceStats> actualResourceStats = {};
+    ResourceOveruseStats expectedResourceOveruseStats = {};
+    std::vector<ResourceStats> expectedResourceStats = {
+            // Handle the resource stats send during boottime.
+            constructResourceStats(boottimeResourceUsageStats,
+                                   /*resourceOveruseStats=*/std::nullopt),
+            constructResourceStats(/*resourceUsageStats=*/std::nullopt,
+                                   expectedResourceOveruseStats),
+    };
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
@@ -403,16 +470,17 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
                                      Eq(mMockProcStatCollector), _))
             .Times(1)
             .WillOnce([&](auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
-                resourceStats->resourceOveruseStats = std::make_optional<ResourceOveruseStats>({});
+                resourceStats->resourceOveruseStats =
+                        std::make_optional<ResourceOveruseStats>(expectedResourceOveruseStats);
                 return {};
             });
-    EXPECT_CALL(*mMockDataProcessor, onResourceStatsSent(Eq(true)))
-            .Times(1)
-            .WillOnce(Return<Result<void>>({}));
     EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_))
             .Times(1)
-            .WillOnce(Return(ByMove(ndk::ScopedAStatus::ok())));
+            .WillOnce([&](auto& resourceStats) -> ndk::ScopedAStatus {
+                actualResourceStats = resourceStats;
+                return ndk::ScopedAStatus::ok();
+            });
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -420,16 +488,33 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
             << "First periodic collection didn't happen at 1 second interval";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
+
+    // Handle the SEND_RESOURCE_STATS message
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << toString(expectedResourceStats)
+            << "\nActual: " << toString(actualResourceStats);
+
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     std::string customCollectionIntervalStr = std::to_string(kTestCustomCollectionInterval.count());
     std::string customCollectionDurationStr = std::to_string(kTestCustomCollectionDuration.count());
     // #7 Custom collection
+    actualResourceStats = {};
     const char* firstArgs[] = {kStartCustomCollectionFlag, kIntervalFlag,
                                customCollectionIntervalStr.c_str(), kMaxDurationFlag,
                                customCollectionDurationStr.c_str()};
 
     ASSERT_RESULT_OK(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/5));
+
+    ResourceUsageStats expectedResourceUsageStats =
+            constructResourceUsageStats(/*startTimeEpochMillis=*/0, /*systemSummaryUsageStats=*/{},
+                                        /*uidResourceUsageStats=*/{});
+    expectedResourceStats = {
+            constructResourceStats(expectedResourceUsageStats,
+                                   /*resourceOveruseStats=*/std::nullopt),
+    };
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
@@ -438,22 +523,30 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
                                    Eq(mMockProcStatCollector), _))
             .Times(1)
             .WillOnce([&](auto, auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
-                resourceStats->resourceUsageStats = std::make_optional<ResourceUsageStats>({});
+                resourceStats->resourceUsageStats =
+                        expectedResourceStats.front().resourceUsageStats;
                 return {};
             });
-    EXPECT_CALL(*mMockDataProcessor, onResourceStatsSent(Eq(true)))
-            .Times(1)
-            .WillOnce(Return<Result<void>>({}));
     EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1).WillOnce(Return(true));
     EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_))
             .Times(1)
-            .WillOnce(Return(ByMove(ndk::ScopedAStatus::ok())));
+            .WillOnce([&](auto& resourceStats) -> ndk::ScopedAStatus {
+                actualResourceStats = resourceStats;
+                return ndk::ScopedAStatus::ok();
+            });
 
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    // Handle the SEND_RESOURCE_STATS message
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
     ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0) << "Custom collection didn't start immediately";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::CUSTOM_COLLECTION)
             << "Invalid collection event";
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << toString(expectedResourceStats)
+            << "\nActual: " << toString(actualResourceStats);
+
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     // #8 Custom collection
@@ -1512,6 +1605,164 @@ TEST_F(WatchdogPerfServiceTest, TestHandlesInvalidDumpArguments) {
     const char* fifthArgs[] = {"Invalid flag"};
 
     ASSERT_FALSE(mService->onCustomCollection(-1, fifthArgs, /*numArgs=*/1).ok());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestOnCarWatchdogServiceRegistered) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicCollection());
+
+    // Expect because the next pollCache call will result in an onPeriodicMonitor call
+    // because no message is sent to process unsent resource stats
+    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, _, _)).Times(1);
+    EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_)).Times(0);
+
+    mService->onCarWatchdogServiceRegistered();
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestOnCarWatchdogServiceRegisteredWithUnsentResourceStats) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                     Eq(mMockProcStatCollector), _))
+            .Times(1)
+            .WillOnce([&](auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
+                resourceStats->resourceOveruseStats = std::make_optional<ResourceOveruseStats>({});
+                return {};
+            });
+    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1).WillOnce(Return(false));
+    // Called when CarWatchdogService is registered
+    EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_))
+            .Times(1)
+            .WillOnce(Return(ByMove(ndk::ScopedAStatus::ok())));
+
+    // Handle the periodic collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    mService->onCarWatchdogServiceRegistered();
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsEviction) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                     Eq(mMockProcStatCollector), _))
+            .Times(1)
+            .WillOnce([&](auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
+                resourceStats->resourceOveruseStats = std::make_optional<ResourceOveruseStats>({});
+                return {};
+            });
+    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1).WillOnce(Return(false));
+    // Should not be called once CarWatchdogService is registered
+    EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_)).Times(0);
+
+    // Handle the periodic collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    // Increment time so that the unsent resource stat is evicted
+    mLooperStub->incrementTime(kPrevUnsentResourceStatsMaxDurationNs);
+
+    mService->onCarWatchdogServiceRegistered();
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(removePeriodicMonitorEvents());
+
+    int32_t maxCacheSize = 10;
+
+    std::vector<ResourceStats> expectedResourceStats = {};
+
+    // Handle the periodic collections.
+    for (int64_t i = 0; i < maxCacheSize; ++i) {
+        expectedResourceStats.push_back(ResourceStats{
+                .resourceUsageStats = std::make_optional<ResourceUsageStats>({
+                        .startTimeEpochMillis = i,
+                }),
+        });
+
+        EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+        EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+        EXPECT_CALL(*mMockDataProcessor,
+                    onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                         Eq(mMockProcStatCollector), _))
+                .Times(1)
+                .WillOnce([&](auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
+                    resourceStats->resourceUsageStats =
+                            expectedResourceStats.back().resourceUsageStats;
+                    return {};
+                });
+        EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected())
+                .Times(1)
+                .WillRepeatedly(Return(false));
+
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+    }
+
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // The first resource stats should be evicted.
+    expectedResourceStats.erase(expectedResourceStats.begin());
+
+    expectedResourceStats.push_back(ResourceStats{
+            .resourceUsageStats = std::make_optional<ResourceUsageStats>({
+                    .startTimeEpochMillis = maxCacheSize,
+            }),
+    });
+
+    std::vector<ResourceStats> actualResourceStats;
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                     Eq(mMockProcStatCollector), _))
+            .Times(1)
+            .WillRepeatedly([&](auto, auto, auto, auto, auto* resourceStats) -> Result<void> {
+                resourceStats->resourceUsageStats = expectedResourceStats.back().resourceUsageStats;
+                return {};
+            });
+    EXPECT_CALL(*mMockWatchdogServiceHelper, isServiceConnected()).Times(1).WillOnce(Return(true));
+    EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_))
+            .Times(1)
+            .WillOnce([&](auto unsentStats) -> ndk::ScopedAStatus {
+                actualResourceStats = unsentStats;
+                return ndk::ScopedAStatus::ok();
+            });
+
+    // Handle an extra periodic collection, where unsent resource cache should
+    // evict the oldest stats.
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    // Handle the SEND_RESOURCE_STATS message.
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+    ASSERT_EQ(actualResourceStats, expectedResourceStats);
 }
 
 }  // namespace watchdog
