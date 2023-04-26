@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.car.aloha;
+package com.android.systemui.car.loading;
 
 import com.android.systemui.R;
 import com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView;
@@ -26,18 +26,18 @@ import com.android.systemui.dagger.SysUISingleton;
 import javax.inject.Inject;
 
 /**
- * Controller for {@link R.layout#aloha_screen}.
+ * Controller for {@link R.layout#loading_screen}.
  */
 @SysUISingleton
-public class AlohaViewController extends OverlayViewController {
+public class LoadingViewController extends OverlayViewController {
 
     private HvacController mHvacController;
 
     @Inject
-    public AlohaViewController(
+    public LoadingViewController(
             OverlayViewGlobalStateController overlayViewGlobalStateController,
             HvacController controller) {
-        super(R.id.aloha_screen_stub, overlayViewGlobalStateController);
+        super(R.id.loading_screen_stub, overlayViewGlobalStateController);
 
         mHvacController = controller;
     }
@@ -48,6 +48,11 @@ public class AlohaViewController extends OverlayViewController {
                 (CarUiPortraitTemperatureControlView) getLayout().findViewById(R.id.driver_hvac);
 
         mHvacController.registerHvacViews(view);
+    }
+
+    @Override
+    protected boolean shouldShowHUN() {
+        return false;
     }
 }
 

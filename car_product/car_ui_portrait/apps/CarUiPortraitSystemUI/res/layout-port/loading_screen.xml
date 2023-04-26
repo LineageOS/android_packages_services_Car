@@ -18,7 +18,7 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:systemui="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/aloha_container"
+    android:id="@+id/loading_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black">
@@ -28,13 +28,13 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/aloha_title_text"
+            android:id="@+id/loading_title_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
             android:gravity="center"
-            android:text="@string/aloha_welcome_message"
+            android:text="@string/loading_welcome_message"
             android:textSize="200sp"/>
 
         <ProgressBar
@@ -45,7 +45,7 @@
             style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true"
             android:indeterminateTint="@android:color/white"
-            android:layout_below="@+id/aloha_title_text"
+            android:layout_below="@+id/loading_title_text"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"/>
 

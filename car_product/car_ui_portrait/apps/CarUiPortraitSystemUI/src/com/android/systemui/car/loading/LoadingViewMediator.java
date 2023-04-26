@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.systemui.car.aloha;
+package com.android.systemui.car.loading;
 
 import android.content.Context;
 
@@ -27,16 +27,16 @@ import javax.inject.Inject;
  * The view mediator which attaches the view controller to other elements of the system ui.
  */
 @SysUISingleton
-public class AlohaViewMediator implements OverlayViewMediator {
+public class LoadingViewMediator implements OverlayViewMediator {
 
     Context mContext;
-    AlohaViewController mAlohaViewController;
+    LoadingViewController mLoadingViewController;
 
 
     @Inject
-    public AlohaViewMediator(Context context, AlohaViewController alohaViewController) {
+    public LoadingViewMediator(Context context, LoadingViewController loadingViewController) {
         mContext = context;
-        mAlohaViewController = alohaViewController;
+        mLoadingViewController = loadingViewController;
     }
 
     @Override
