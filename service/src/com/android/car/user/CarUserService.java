@@ -2031,43 +2031,54 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * <p>If a valid display ID is specified in the {@code request}, then start the user visible on
      *    the display.
      */
-    public UserStartResponse startUser(UserStartRequest request) {
+    @Override
+    public void startUser(UserStartRequest request,
+            ResultCallbackImpl<UserStartResponse> callback) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
             throw new SecurityException("startUser: You need one of " + MANAGE_USERS
                     + ", or " + INTERACT_ACROSS_USERS);
         }
-
         int userId = request.getUserHandle().getIdentifier();
         int displayId = request.getDisplayId();
-        int result;
-
-        if (displayId == Display.INVALID_DISPLAY) {
-            EventLogHelper.writeCarUserServiceStartUserInBackgroundReq(userId);
-            result = startUserInBackgroundInternal(userId);
-            EventLogHelper.writeCarUserServiceStartUserInBackgroundResp(userId, result);
-
-            return new UserStartResponse(result);
-        }
-
         if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayReq(userId, displayId);
-            result = startUserVisibleOnDisplayInternal(userId, displayId);
+        } else {
+            EventLogHelper.writeCarUserServiceStartUserInBackgroundReq(userId);
+        }
+        mHandler.post(() -> handleStartUser(userId, displayId, callback));
+    }
+
+    private void handleStartUser(@UserIdInt int userId, int displayId,
+            ResultCallbackImpl<UserStartResponse> callback) {
+        @UserStartResponse.Status int userStartStatus = startUserInternal(userId, displayId);
+        sendUserStartUserResponse(userId, displayId, userStartStatus, callback);
+    }
+
+    private void sendUserStartUserResponse(@UserIdInt int userId, int displayId,
+            @UserStartResponse.Status int result,
+            @NonNull ResultCallbackImpl<UserStartResponse> callback) {
+        if (isPlatformVersionAtLeastU()) {
             EventLogHelper.writeCarUserServiceStartUserVisibleOnDisplayResp(userId, displayId,
                     result);
         } else {
-            Slogf.w(TAG, "The platform does not support startUser."
-                    + " Platform version: %s", Car.getPlatformVersion());
-            result = UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
+            EventLogHelper.writeCarUserServiceStartUserInBackgroundResp(userId, result);
         }
-
-        return new UserStartResponse(result);
+        callback.complete(new UserStartResponse(result));
     }
 
-    private @UserStartResponse.Status int startUserVisibleOnDisplayInternal(
-            @UserIdInt int userId, int displayId) {
+    private @UserStartResponse.Status int startUserInternal(@UserIdInt int userId, int displayId) {
         if (displayId == Display.INVALID_DISPLAY) {
-            Slogf.wtf(TAG, "startUserVisibleOnDisplay: Display ID must be valid.");
-            return UserStartResponse.STATUS_DISPLAY_INVALID;
+            // For an invalid display ID, start the user in background without a display.
+            int status = startUserInBackgroundInternal(userId);
+            // This works because the status code of UserStartResponse is a superset of
+            // UserStartResult.
+            return status;
+        }
+
+        if (!isPlatformVersionAtLeastU()) {
+            Slogf.w(TAG, "The platform does not support startUser."
+                    + " Platform version: %s", Car.getPlatformVersion());
+            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
         }
 
         // If the requested user is the system user.
@@ -2110,10 +2121,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY;
         }
 
-        if (!isPlatformVersionAtLeastU()) {
-            return UserStartResponse.STATUS_UNSUPPORTED_PLATFORM_FAILURE;
-        }
-
         return ActivityManagerHelper.startUserInBackgroundVisibleOnDisplay(userId, displayId)
                 ? UserStartResponse.STATUS_SUCCESSFUL : UserStartResponse.STATUS_ANDROID_FAILURE;
     }
@@ -2133,7 +2140,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void handleStartUserInBackground(@UserIdInt int userId,
-            @NonNull AndroidFuture<UserStartResult> receiver) {
+            AndroidFuture<UserStartResult> receiver) {
         int result = startUserInBackgroundInternal(userId);
         sendUserStartResult(userId, result, receiver);
     }
@@ -2225,7 +2232,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *
      * @param userId user to stop
      * @param receiver to post results
+     *
+     * @deprecated Use {@link #stopUser(UserStopRequest, ResultCallbackImpl<UserStopResponse>)}
+     *            instead.
      */
+    // TODO(b/279793766) Clean up this method.
     public void stopUser(@UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
         checkManageOrCreateUsersPermission("stopUser");
         EventLogHelper.writeCarUserServiceStopUserReq(userId);
@@ -2233,10 +2244,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mHandler.post(() -> handleStopUser(userId, receiver));
     }
 
+    private void handleStopUser(@UserIdInt int userId, AndroidFuture<UserStopResult> receiver) {
+        @UserStopResult.Status int result = stopBackgroundUserInternal(userId,
+                /* forceStop= */ true, /* withDelayedLocking= */ true);
+        EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
+        receiver.complete(new UserStopResult(result));
+    }
+
     /**
      * Stops the specified background user.
      */
-    public UserStopResponse stopUser(UserStopRequest request) {
+    @Override
+    public void stopUser(UserStopRequest request,
+            ResultCallbackImpl<UserStopResponse> callback) {
         if (!hasManageUsersOrPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)) {
             throw new SecurityException("stopUser: You need one of " + MANAGE_USERS + ", or "
                     + INTERACT_ACROSS_USERS);
@@ -2245,23 +2265,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         boolean withDelayedLocking = request.isWithDelayedLocking();
         boolean forceStop = request.isForce();
         EventLogHelper.writeCarUserServiceStopUserReq(userId);
-        int result = stopBackgroundUserInternal(userId, forceStop, withDelayedLocking);
-        EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
-
-        return new UserStopResponse(result);
+        mHandler.post(() -> handleStopUser(userId, forceStop, withDelayedLocking, callback));
     }
 
-    private void handleStopUser(
-            @UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
-        @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId,
-                /* forceStop= */ true, /* withDelayedLocking= */ true);
-        sendUserStopResult(userId, userStopStatus, receiver);
+    private void handleStopUser(@UserIdInt int userId, boolean forceStop,
+            boolean withDelayedLocking, ResultCallbackImpl<UserStopResponse> callback) {
+        @UserStopResponse.Status int userStopStatus =
+                stopBackgroundUserInternal(userId, forceStop, withDelayedLocking);
+        sendUserStopResult(userId, userStopStatus, callback);
     }
 
-    private void sendUserStopResult(@UserIdInt int userId, @UserStopResult.Status int result,
-            @NonNull AndroidFuture<UserStopResult> receiver) {
+    private void sendUserStopResult(@UserIdInt int userId, @UserStopResponse.Status int result,
+            ResultCallbackImpl<UserStopResponse> callback) {
         EventLogHelper.writeCarUserServiceStopUserResp(userId, result);
-        receiver.complete(new UserStopResult(result));
+        callback.complete(new UserStopResponse(result));
     }
 
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId,

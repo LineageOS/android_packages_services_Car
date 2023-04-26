@@ -39,8 +39,8 @@ interface ICarUserService {
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(in UserCreationRequest userCreationRequest, int timeoutMs,
           in ResultCallbackImpl<UserCreationResult> callback);
-    UserStartResponse startUser(in UserStartRequest request);
-    UserStopResponse stopUser(in UserStopRequest request);
+    void startUser(in UserStartRequest request, in ResultCallbackImpl<UserStartResponse> callback);
+    void stopUser(in UserStopRequest request, in ResultCallbackImpl<UserStopResponse> callback);
     void removeUser(int userId, in ResultCallbackImpl<UserRemovalResult> callback);
     void setLifecycleListenerForApp(String pkgName, in UserLifecycleEventFilter filter,
       in ICarResultReceiver listener);
