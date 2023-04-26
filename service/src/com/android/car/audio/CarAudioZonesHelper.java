@@ -295,8 +295,9 @@ import java.util.stream.Collectors;
                 if (mUseCoreAudioRouting) {
                     contextId = CoreAudioHelper.getStrategyForAudioAttributes(attributes.get(0));
                     if (contextId == CoreAudioHelper.INVALID_STRATEGY) {
-                        throw new RuntimeException("Cannot find strategy id for context: "
-                                + contextName);
+                        throw new IllegalArgumentException(TAG_AUDIO_ATTRIBUTES
+                                + ": Cannot find strategy id for context: "
+                                + contextName + " and attributes \"" + attributes.get(0) + "\" .");
                     }
                 }
                 validateCarAudioContextAttributes(contextId, attributes, contextName);
@@ -320,7 +321,7 @@ import java.util.stream.Collectors;
             AudioAttributes aa = attributes.get(index);
             if (!strategy.supportsAudioAttributes(aa)
                     && !CoreAudioHelper.isDefaultStrategy(strategy.getId())) {
-                throw new RuntimeException(" Invalid attributes " + aa + " for context: "
+                throw new IllegalArgumentException("Invalid attributes " + aa + " for context: "
                         + contextName);
             }
         }
@@ -353,6 +354,9 @@ import java.util.stream.Collectors;
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);
+        }
+        if (supportedAttributes.isEmpty()) {
+            throw new IllegalArgumentException("No attributes for context: " + contextName);
         }
         return supportedAttributes;
     }
