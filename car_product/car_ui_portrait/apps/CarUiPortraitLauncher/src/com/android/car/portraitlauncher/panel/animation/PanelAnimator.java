@@ -38,6 +38,11 @@ public abstract class PanelAnimator {
      */
     public abstract void animate(Runnable endAction);
 
+    /**
+     * Cancels any on going animations.
+     */
+    public abstract void cancel();
+
     /** Updates the bounds of the panel to the given {@code bounds}. */
     protected void updateBounds(Rect bounds) {
         final ViewGroup.MarginLayoutParams layoutParams =

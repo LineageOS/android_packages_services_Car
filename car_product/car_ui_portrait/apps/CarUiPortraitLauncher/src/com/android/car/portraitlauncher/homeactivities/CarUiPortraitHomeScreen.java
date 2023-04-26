@@ -228,10 +228,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
             mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             // Close the panel if the top application is a blank activity.
-            // This is to prevent showing a blank panel to the user if an app crashes an reveals
+            // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
             if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
-                mRootTaskViewPanel.closePanel(/* animated = */ true);
+                mRootTaskViewPanel.closePanel(/* animated = */ false);
                 return;
             }
 
@@ -280,8 +280,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             super.onActivityRestartAttempt(taskInfo, homeTaskVisible, clearedTask, wasVisible);
 
             logIfDebuggable("On Activity restart attempt, task = " + taskInfo);
-            if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null
-                    || mRootTaskViewPanel.isAnimating()) {
+            if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
                 return;
             }
 
@@ -294,12 +293,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
-            if (mRootTaskViewPanel.isAnimating() || mAppGridTaskViewPanel.isAnimating()) {
-                return;
-            }
-
             logIfDebuggable("Update UI state on app restart attempt, task = " + taskInfo);
             if (mTaskCategoryManager.isAppGridActivity(taskInfo)) {
+                if (mRootTaskViewPanel.isAnimating()) {
+                    mRootTaskViewPanel.closePanel(/* animated = */ false);
+                }
+
                 // If the new task is an app grid then toggle the app grid panel:
                 // 1 - Close the app grid panel if it is open.
                 // 2 - Open the app grid panel if it is closed:
@@ -315,15 +314,23 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mAppGridTaskViewPanel.openPanel();
                 }
             } else if (shouldTaskShowOnRootTaskView(taskInfo)) {
+                if (mAppGridTaskViewPanel.isAnimating() && mAppGridTaskViewPanel.isOpen()) {
+                    mAppGridTaskViewPanel.openPanel(/* animated = */ false);
+                }
+
                 // If the new task should be launched in the root task view panel:
                 // 1 - Close the root task view panel if it is open and the task is notification
-                //    center.
+                //    center. Make sure the app grid panel is closed already in case we are
+                //    interrupting a running animation.
                 // 2 - Open the root task view panel if it is closed:
                 //    a) If the app grid panel is already open then use an expand animation
                 //       to open the root task view on top of the app grid task view.
                 //    b) Otherwise, simply open the app grid panel.
                 if (mRootTaskViewPanel.isOpen()
                         && mTaskCategoryManager.isNotificationActivity(taskInfo)) {
+                    if (mAppGridTaskViewPanel.isOpen()) {
+                        mAppGridTaskViewPanel.closePanel(/* animated = */ false);
+                    }
                     mRootTaskViewPanel.closePanel();
                 } else if (mAppGridTaskViewPanel.isOpen()) {
                     mRootTaskViewPanel.expandPanel();
@@ -536,9 +543,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private boolean shouldTaskShowOnRootTaskView(TaskInfo taskInfo) {
-        if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null
-                || mRootTaskViewPanel.isAnimating()) {
-            logIfDebuggable("Should not show on root task view since task is null");
+        if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
+            logIfDebuggable("Should not show on root task view since base intent is null");
             return false;
         }
 

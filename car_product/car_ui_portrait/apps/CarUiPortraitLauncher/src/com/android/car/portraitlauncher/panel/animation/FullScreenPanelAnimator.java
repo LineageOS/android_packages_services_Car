@@ -35,6 +35,7 @@ public class FullScreenPanelAnimator extends PanelAnimator {
 
     private final Rect mBounds;
     private final Point mInitialOffset;
+    private Animation mAnimation;
 
     /**
      * A {@code PanelAnimator} to animate the panel into the full screen state.
@@ -56,9 +57,16 @@ public class FullScreenPanelAnimator extends PanelAnimator {
         bounds.offset(mInitialOffset.x, mInitialOffset.y);
         updateBounds(bounds);
 
-        Animation animation = new BoundsAnimation(mPanel, mBounds, endAction);
-        animation.setInterpolator(INTERPOLATOR);
-        animation.setDuration(DURATION);
-        mPanel.post(() -> mPanel.startAnimation(animation));
+        mAnimation = new BoundsAnimation(mPanel, mBounds, endAction);
+        mAnimation.setInterpolator(INTERPOLATOR);
+        mAnimation.setDuration(DURATION);
+        mPanel.post(() -> mPanel.startAnimation(mAnimation));
+    }
+
+    @Override
+    public void cancel() {
+        if (mAnimation != null) {
+            mAnimation.cancel();
+        }
     }
 }

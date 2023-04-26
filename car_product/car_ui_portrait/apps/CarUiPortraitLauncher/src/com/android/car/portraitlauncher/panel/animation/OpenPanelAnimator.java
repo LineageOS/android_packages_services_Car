@@ -31,6 +31,7 @@ public class OpenPanelAnimator extends PanelAnimator {
     private static final long DURATION = 600;
 
     private final Rect mBounds;
+    private Animation mAnimation;
 
     /**
      * A {@code PanelAnimator} to animate the panel into the open state.
@@ -45,9 +46,16 @@ public class OpenPanelAnimator extends PanelAnimator {
 
     @Override
     public void animate(Runnable endAction) {
-        Animation animation = new BoundsAnimation(mPanel, mBounds, endAction);
-        animation.setInterpolator(INTERPOLATOR);
-        animation.setDuration(DURATION);
-        mPanel.startAnimation(animation);
+        mAnimation = new BoundsAnimation(mPanel, mBounds, endAction);
+        mAnimation.setInterpolator(INTERPOLATOR);
+        mAnimation.setDuration(DURATION);
+        mPanel.startAnimation(mAnimation);
+    }
+
+    @Override
+    public void cancel() {
+        if (mAnimation != null) {
+            mAnimation.cancel();
+        }
     }
 }
