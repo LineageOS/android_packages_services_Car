@@ -232,6 +232,9 @@ public final class PowerComponentUtil {
             case PowerComponent.CPU:
                 return POWER_COMPONENT_CPU;
             default:
+                if (component >= PowerComponent.MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                    return Integer.toString(component);
+                }
                 return "unknown component";
         }
     }
