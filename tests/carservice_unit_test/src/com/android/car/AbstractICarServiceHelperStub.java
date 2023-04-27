@@ -22,6 +22,7 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
@@ -81,6 +82,13 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         Log.d(TAG, "setPersistentActivity(activity=" + activity.toShortString()
                 + ", displayId=" + displayId + ", featureId=" + featureId + ")");
         return CarActivityManager.RESULT_SUCCESS;
+    }
+
+    @Override
+    public void setPersistentActivitiesOnRootTask(List<ComponentName> activities,
+            IBinder rootTaskToken) {
+        Log.d(TAG, "setPersistentActivitiesOnRootTask(activities=" + activities.toString()
+                + ", rootTaskToken=" + rootTaskToken + ")");
     }
 
     @Override
