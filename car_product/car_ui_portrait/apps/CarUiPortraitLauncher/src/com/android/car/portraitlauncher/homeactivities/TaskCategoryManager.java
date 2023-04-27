@@ -109,6 +109,10 @@ class TaskCategoryManager {
         return mAppGridActivityComponent.equals(taskInfo.baseActivity);
     }
 
+    public Set<ComponentName> getFullScreenActivities() {
+        return mFullScreenActivities;
+    }
+
     boolean isFullScreenActivity(TaskInfo taskInfo) {
         return mFullScreenActivities.contains(taskInfo.baseActivity);
     }
