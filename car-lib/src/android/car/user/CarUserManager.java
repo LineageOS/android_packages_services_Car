@@ -717,10 +717,6 @@ public final class CarUserManager extends CarManagerBase {
 
     /**
      * Updates pre-created users.
-     * <p>
-     * Updates pre-created users based on the car properties defined
-     * {@code CarProperties.number_pre_created_guests} and (@code
-     * CarProperties.number_pre_created_users}.
      *
      * @deprecated Pre-created users are no longer supported.
      *             This method is no-op and will be removed soon.
