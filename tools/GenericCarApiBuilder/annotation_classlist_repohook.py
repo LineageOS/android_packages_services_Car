@@ -51,9 +51,11 @@ if javaHomeDir is None or javaHomeDir == "":
         sys.exit(1)
 
 # This generates a list of all classes.
+# Marker is set in GenerateApi.java class and should not be changed.
 marker = "Start-"
 options = ["--print-classes", "--print-hidden-apis", "--print-all-apis-with-constr",
-           "--print-incorrect-requires-api-usage-in-car-service"]
+           "--print-incorrect-requires-api-usage-in-car-service",
+           "--print-addedin-without-requires-api-in-car-built-in"]
 
 java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
            "/packages/services/Car/tools/GenericCarApiBuilder" \
@@ -75,7 +77,8 @@ all_results.append(all_data[previous_mark+1:])
 
 # Update this line when adding more options
 new_class_list, new_hidden_apis, all_apis = all_results[0], all_results[1], all_results[2]
-incorrect_api_usage_errors = all_results[3]
+incorrect_requires_api_usage_in_car_service_errors = all_results[3]
+incorrect_addedin_api_usage_in_car_built_in_errors = all_results[4]
 new_hidden_apis = set(new_hidden_apis)
 all_apis = [strip_param_names(i) for i in all_apis]
 
@@ -173,8 +176,9 @@ if len(removed_hidden_api) > 0:
 
 # If a hidden API was upgraded to system or public API, the car_hidden_apis.txt should be updated to
 # reflect its upgrade.
-# Added hidden API and removed hidden APIs are checked. So if there is diff between
-# existing_hidden_apis and new_hidden_apis, these are the APIs upgraded.
+# Prior to this check, added and removed hidden APIs have been checked. At this point, the set
+# difference between existing_hidden_apis and new_hidden_apis indicates that some hidden APIs have
+# been upgraded."
 upgraded_hidden_apis = existing_hidden_apis - new_hidden_apis
 if len(upgraded_hidden_apis) > 0:
     print("\nThe following hidden APIs were upgraded to either system or public APIs.")
@@ -205,9 +209,16 @@ if len(errors) > 0:
     print("\n".join(errors))
     sys.exit(1)
 
-if len(incorrect_api_usage_errors) > 0:
+if len(incorrect_requires_api_usage_in_car_service_errors) > 0:
     print("\nOnly non-public classes and methods can have RequiresApi annotation. Following public "
           "methods/classes also have requiresAPI annotation which is not allowed. See "
           "go/car-api-version-annotation#using-requiresapi-for-version-check")
-    print("\n".join(incorrect_api_usage_errors))
+    print("\n".join(incorrect_requires_api_usage_in_car_service_errors))
+    sys.exit(1)
+
+if len(incorrect_addedin_api_usage_in_car_built_in_errors) > 0:
+    print("\nOnly non-public classes and methods can have RequiresApi annotation. Following public "
+          "methods/classes also have requiresAPI annotation which is not allowed. See "
+          "go/car-api-version-annotation#using-requiresapi-for-version-check")
+    print("\n".join(incorrect_addedin_api_usage_in_car_built_in_errors))
     sys.exit(1)
