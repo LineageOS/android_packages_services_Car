@@ -66,6 +66,8 @@ public final class GenerateAPI {
             "--print-all-apis-with-car-version";
     private static final String PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE =
             "--print-incorrect-requires-api-usage-in-car-service";
+    private static final String PRINT_ADDEDIN_WITHOUT_REQUIRES_API_IN_CAR_BUILT_IN =
+            "--print-addedin-without-requires-api-in-car-built-in";
     private static final String ROOT_DIR = "--root-dir";
 
     public static void main(final String[] args) throws Exception {
@@ -86,6 +88,7 @@ public final class GenerateAPI {
             boolean platformVersionCheck = false;
             boolean printAllApisWithCarVersion = false;
             boolean printIncorrectRequiresApiUsageInCarService = false;
+            boolean printAddedinWithoutRequiresApiInCarBuiltIn = false;
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
             // If print request is more than one. Use marker to separate data. This would be useful
             // for executing multiple requests in one go.
@@ -134,6 +137,9 @@ public final class GenerateAPI {
                         break;
                     case PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE:
                         printIncorrectRequiresApiUsageInCarService = true;
+                        break;
+                    case PRINT_ADDEDIN_WITHOUT_REQUIRES_API_IN_CAR_BUILT_IN:
+                        printAddedinWithoutRequiresApiInCarBuiltIn = true;
                         break;
                     default:
                         System.out.println("Incorrect Arguments.");
@@ -212,11 +218,15 @@ public final class GenerateAPI {
             }
             if (printIncorrectRequiresApiUsageInCarService) {
                 printMarker(printRequests, PRINT_INCORRECT_REQUIRES_API_USAGE_IN_CAR_SERVICE);
-                List<File> allJavaFiles_CarService = getAllFiles(
-                        new File(rootDir + CAR_SERVICE_PATH));
+                List<File> allJavaFiles_CarService =
+                        getAllFiles(new File(rootDir + CAR_SERVICE_PATH));
                 ParsedData parsedDataCarService = new ParsedData();
                 ParsedDataBuilder.populateParsedData(allJavaFiles_CarService, parsedDataCarService);
                 print(ParsedDataHelper.getIncorrectRequiresApiUsage(parsedDataCarService));
+            }
+            if (printAddedinWithoutRequiresApiInCarBuiltIn) {
+                printMarker(printRequests, PRINT_ADDEDIN_WITHOUT_REQUIRES_API_IN_CAR_BUILT_IN);
+                print(ParsedDataHelper.getIncorrectAddedInApi(parsedDataCarBuiltinLib));
             }
         } catch (Exception e) {
             throw e;

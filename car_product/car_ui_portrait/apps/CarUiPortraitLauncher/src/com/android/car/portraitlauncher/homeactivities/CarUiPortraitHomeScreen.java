@@ -889,15 +889,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private void setUpFullScreenTaskView() {
         ViewGroup parent = findViewById(R.id.fullscreen_container);
         mTaskViewManager.createSemiControlledTaskView(getMainExecutor(),
+                mTaskCategoryManager.getFullScreenActivities().stream().toList(),
                 new SemiControlledCarTaskViewCallbacks() {
-                    @Override
-                    public boolean shouldStartInTaskView(TaskInfo taskInfo) {
-                        if (taskInfo.baseActivity == null) {
-                            return false;
-                        }
-                        return mTaskCategoryManager.isFullScreenActivity(taskInfo);
-                    }
-
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
                         logIfDebuggable("FullScreen Task View is created");

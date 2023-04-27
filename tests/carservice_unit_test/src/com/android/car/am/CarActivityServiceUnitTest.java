@@ -31,6 +31,8 @@ import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Binder;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 
@@ -48,6 +50,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarActivityServiceUnitTest {
@@ -120,6 +124,29 @@ public class CarActivityServiceUnitTest {
         assertThat(activityCaptor.getValue()).isEqualTo(mTestActivity);
         assertThat(displayIdCaptor.getValue()).isEqualTo(displayId);
         assertThat(featureIdCaptor.getValue()).isEqualTo(FEATURE_DEFAULT_TASK_CONTAINER);
+    }
+
+    @Test
+    public void setPersistentActivitiesOnRootTaskThrowsException_withoutPermission() {
+        when(mContext.checkCallingOrSelfPermission(eq(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)))
+                .thenReturn(PackageManager.PERMISSION_DENIED);
+
+        assertThrows(SecurityException.class,
+                () -> mCarActivityService.setPersistentActivitiesOnRootTask(
+                        List.of(mTestActivity), new Binder()));
+    }
+
+    @Test
+    public void setPersistentActivitiesOnRootTaskInvokesICarServiceHelper() throws RemoteException {
+        IBinder tempToken = new Binder();
+        mCarActivityService.setPersistentActivitiesOnRootTask(List.of(mTestActivity), tempToken);
+
+        ArgumentCaptor<List<ComponentName>> activityCaptor = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Binder> rootTaskTokenCaptor = ArgumentCaptor.forClass(Binder.class);
+        verify(mICarServiceHelper).setPersistentActivitiesOnRootTask(
+                activityCaptor.capture(), rootTaskTokenCaptor.capture());
+        assertThat(activityCaptor.getValue()).isEqualTo(List.of(mTestActivity));
+        assertThat(rootTaskTokenCaptor.getValue()).isEqualTo(tempToken);
     }
 
     @Test
