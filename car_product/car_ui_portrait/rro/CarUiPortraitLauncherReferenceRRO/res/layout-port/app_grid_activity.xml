@@ -30,7 +30,8 @@
         <com.android.car.carlauncher.AppGridRecyclerView
             android:id="@+id/apps_grid"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="@dimen/app_grid_margin_horizontal"/>
         <FrameLayout
             android:id="@+id/page_indicator_container"
             android:layout_width="match_parent"

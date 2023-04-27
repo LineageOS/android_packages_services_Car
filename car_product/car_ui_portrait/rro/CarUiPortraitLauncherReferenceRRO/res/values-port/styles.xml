@@ -21,11 +21,11 @@
     <style name="TextAppearance.DescriptiveText.SecondaryText" parent="TextAppearance.Car.Body.Small" >
         <item name="android:textColor">@color/car_on_surface_variant</item>
     </style>
-    <style name="AppDisplayNameStyle">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body.Small</item>
+    <style name="AppDisplayNameStyle" parent="TextAppearance.Car.Body.Small">
         <item name="android:textColor">@color/car_on_surface</item>
-        <item name="android:lineHeight">36dp</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:ellipsize">none</item>
+        <item name="android:requiresFadingEdge">horizontal</item>
+        <item name="android:fadingEdgeLength">40dp</item>
     </style>
 </resources>
