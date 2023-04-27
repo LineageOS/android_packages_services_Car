@@ -40,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -68,6 +69,16 @@ public class CarActivityManagerPermissionTest {
         SecurityException e = assertThrows(SecurityException.class,
                 () -> mCarActivityManager.setPersistentActivity(activity, Display.DEFAULT_DISPLAY,
                         DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER));
+
+        assertThat(e).hasMessageThat().contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+    }
+
+    @Test
+    public void testSetPersistentActivities_requiresPermission() {
+        ComponentName activity = new ComponentName("testPkg", "testActivity");
+        SecurityException e = assertThrows(SecurityException.class,
+                () -> mCarActivityManager.setPersistentActivitiesOnRootTask(List.of(activity),
+                        new Binder()));
 
         assertThat(e).hasMessageThat().contains(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
     }
