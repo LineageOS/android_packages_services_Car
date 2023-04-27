@@ -64,4 +64,6 @@
 
     <color name="car_user_switcher_add_user_background_color">@color/car_secondary_container</color>
     <color name="car_user_switcher_add_user_add_sign_color">@color/car_on_secondary_container</color>
+    <color name="car_user_switching_dialog_background_color">@color/car_neutral_0</color>
+    <color name="car_user_switching_dialog_loading_text_color">@color/car_neutral_90</color>
 </resources>
