@@ -81,6 +81,15 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
         public static final CarVersion UPSIDE_DOWN_CAKE_0 =
                 new CarVersion("UPSIDE_DOWN_CAKE_0", Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
 
+        /**
+         * Helper object for main version of Android 15.
+         */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.VANILLA_ICE_CREAM_0,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final CarVersion VANILLA_ICE_CREAM_0 =
+                new CarVersion("VANILLA_ICE_CREAM_0", Build.VERSION_CODES.VANILLA_ICE_CREAM, 0);
+
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");
         }
