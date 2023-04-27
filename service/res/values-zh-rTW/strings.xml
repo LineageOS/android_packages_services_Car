@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"存取車商權限資訊。"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"讀取車輛外部燈光狀態"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"存取車輛外部燈光狀態。"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"存取車輛雜物箱狀態"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"存取車輛雜物箱狀態。"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"存取車輛的 Epoch 紀元時間"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"存取車輛的 Epoch 紀元時間。"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"讀取車輛外部燈光"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"讀取車輛的 ADAS 狀態資訊。"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"控制車輛的 ADAS 狀態資訊"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"控制車輛的 ADAS 狀態資訊。"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"讀取車輛雨刷"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"讀取車輛雨刷。"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"控制車輛雨刷"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"控制車輛雨刷。"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"監控安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 和這些區域本身的狀態，以及管理這些區域的電源供應。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"監控安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 和這些區域本身的狀態，以及管理這些區域的電源供應。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"建立連線並與安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 進行通訊"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"建立連線並與安裝在車內其他乘客區域的同類應用程式 (套件名稱與呼叫端相同的應用程式) 進行通訊。"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"透過鏡像方式投放其他應用程式的畫面"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"透過鏡像方式投放其他應用程式的畫面。"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"透過鏡像方式投放其他使用者的裝置畫面"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"透過鏡像方式投放其他使用者的裝置畫面。"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"提供其他應用程式可使用的系統 UI Proxy，藉此管理系統 UI 及建立工作檢視畫面。"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"提供其他應用程式可使用的系統 UI Proxy，藉此管理系統 UI 及建立工作檢視畫面。"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"與車輛系統 UI 進行通訊，藉此建立工作檢視畫面或接收系統 UI 變更相關通知。"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"與車輛系統 UI 進行通訊，藉此建立工作檢視畫面或接收系統 UI 變更相關通知。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路發生問題"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路無回應。請將主機盒插頭拔下並插回，然後重新啟動車輛"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>

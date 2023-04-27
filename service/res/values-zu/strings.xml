@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Finyelela ulwazi lwemvume lomthengisi wemoto."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"funda isimo somkhanyo wemoto sangaphakathi"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Finyelela isimo sezibani sangaphandle semoto."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"finyelela isimo sebhokisi legilavu yemoto"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Finyelela isimo sebhokisi lamagilavu emoto."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"finyelela isikhathi se-epoch semoto"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Finyelela isikhathi se-epoch semoto."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"Funda isimo sezibani zangaphandle zemoto"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Funda imininingwane ye-ADAS yemoto."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"lawula i-ADAS yemoto isho ulwazi"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Lawula i-ADAS yemoto isho ulwazi."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"funda ama-windshield wiper emoto"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Funda ama-windshield wiper emoto."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"lawula ama-windshield wiper emoto"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Lawula ama-windshield wiper emoto."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"qapha izimo zezinye izindawo ezihlala emotweni kanye nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) elifakwe kulawo mazoni, futhi ulawule amandla alawo mazoni."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Qapha izimo zezinye izindawo ezihlala emotweni kanye nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) elifakwe kulawo mazoni, futhi ulawule amandla alawo mazoni."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"sungula uxhumo futhi uxhumane nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) afakwe kwamanye amazoni asemotweni"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Sungula uxhumo futhi uxhumane nama-app ontanga (ama-app anegama lephakheji elifanayo nelomuntu ofonayo) afakwe kwezinye izindawo ezihlala emotweni."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"fanisa isikrini samanye ama-app"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Fanisa isibonisi samanye ama-App."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"fanisa isibonisi sabanye abasebenzisi"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Fanisa isibonisi sabanye abasebenzisi."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Nikeza ngommeleli wesistimu ye-ui engasetshenziswa amanye ama-app ukuphatha isistimu ye-ui nokusungula ukubukwa komsebenzi."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Nikeza ngommeleli wesistimu ye-ui engasetshenziswa amanye ama-app ukuphatha isistimu ye-ui nokusungula ukubukwa komsebenzi."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Xhumana nesistimu ye-ui yemoto ngokusungula ukubuka komsebenzi noma ukwaziswa mayelana nezinguquko zesistimu ye-ui."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Xhumana nesistimu ye-ui yemoto ngokusungula ukubuka komsebenzi noma ukwaziswa mayelana nezinguquko zesistimu ye-ui."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Ibhasi ye-CAN yehlulekile"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Ibhasi ye-CAN ayiphenduli. Nqamula futhi uxhume ibhokisi le-headunit ukuze uqalise kabusha imoto"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Idivayisi yami"</string>

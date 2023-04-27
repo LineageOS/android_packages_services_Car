@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"காரின் தயாரிப்பாளர் அனுமதி குறித்த விவரங்களை அணுகுதல்."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"காரின் வெளிப்புற விளக்குகளின் நிலையை அறிய வேண்டும்"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"காரின் வெளிப்புற விளக்குகளின் நிலையை அணுக வேண்டும்."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"காரின் கையுறைப் பெட்டியின் நிலையை அணுகுதல்"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"காரின் கையுறைப் பெட்டியின் நிலையை அணுகும்."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"காரின் காலத் தொடக்க நேரத்தை அணுகும்"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"காரின் காலத் தொடக்க நேரத்தை அணுகும்."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"காரின் வெளிப்புற விளக்குகளை அறிய வேண்டும்"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"காரின் ADAS நிலைகள் குறித்த தகவல்களைப் படிக்கும்."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"காரின் ADAS நிலைகள் குறித்த தகவல்களைக் கட்டுப்படுத்துதல்"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"காரின் ADAS நிலைகள் குறித்த தகவல்களைக் கட்டுப்படுத்தும்."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"காரின் கண்ணாடித் துடைப்பான் தொடர்பான தரவைப் படித்தல்"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"காரின் கண்ணாடித் துடைப்பான் தொடர்பான தரவைப் படிக்கும்."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"காரின் கண்ணாடித் துடைப்பானைக் கட்டுப்படுத்துதல்"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"காரின் கண்ணாடித் துடைப்பானைக் கட்டுப்படுத்தும்."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"காரிலுள்ள பிற பயணிப் பகுதிகளின் நிலைகளையும் அப்பகுதிகளில் நிறுவப்பட்டிருக்கும் பியர் ஆப்ஸையும் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) கண்காணித்தல், அப்பகுதிகளின் பவரை நிர்வகித்தல்."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"காரிலுள்ள பிற பயணிப் பகுதிகளின் நிலைகளையும் அப்பகுதிகளில் நிறுவப்பட்டிருக்கும் பியர் ஆப்ஸையும் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) கண்காணிக்கும், அப்பகுதிகளின் பவரை நிர்வகிக்கும்."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"காரின் பிற பயணிப் பகுதிகளில் நிறுவப்பட்டுள்ள பியர் ஆப்ஸுடன் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) இணைப்பை ஏற்படுத்தி அவற்றுடன் தரவுப் பரிமாற்றம் செய்தல்"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"காரிலுள்ள பிற பயணிப் பகுதிகளில் நிறுவப்பட்டுள்ள பியர் ஆப்ஸுடன் (ஒரே பேக்கேஜ் பெயரை உடைய ஆப்ஸ்) இணைப்பை ஏற்படுத்தி அவற்றுடன் தரவுப் பரிமாற்றம் செய்யும்."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"பிற ஆப்ஸின் திரையை மிரர் செய்தல்"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"பிற ஆப்ஸின் திரையை மிரர் செய்யலாம்."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"பிற பயனர்களின் டிஸ்ப்ளேவை மிரர் செய்தல்"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"பிற பயனர்களின் டிஸ்ப்ளேவை மிரர் செய்யலாம்."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"பிற ஆப்ஸ் பயன்படுத்தக்கூடிய சிஸ்டம் UI ப்ராக்ஸி வழங்கப்பட்டால் சிஸ்டம் UIயை நிர்வகிக்கலாம் மற்றும் ’டாஸ்க் வியூ’ உருவாக்கலாம்."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"பிற ஆப்ஸ் பயன்படுத்தக்கூடிய சிஸ்டம் UI ப்ராக்ஸி வழங்கப்பட்டால் சிஸ்டம் UIயை நிர்வகிக்கலாம் மற்றும் ’டாஸ்க் வியூ’ உருவாக்கலாம்."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"’டாஸ்க் வியூ’ உருவாக்க அல்லது சிஸ்டம் UIயில் செய்யப்படும் மாற்றங்கள் குறித்த அறிவிப்பைப் பெற, கார் சிஸ்டம் UIயைப் பார்க்கவும்."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"’டாஸ்க் வியூ’ உருவாக்க அல்லது சிஸ்டம் UIயில் செய்யப்படும் மாற்றங்கள் குறித்த அறிவிப்பைப் பெற, கார் சிஸ்டம் UIயைப் பார்க்கவும்."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus அமைப்பு தோல்வியடைந்தது"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus அமைப்பு இயங்கவில்லை. ஹெட்யூனிட் பாக்ஸைப் பிளக்கில் இருந்து அகற்றிச் செருகியபின் காரை மீண்டும் தொடங்கவும்"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"எனது சாதனம்"</string>

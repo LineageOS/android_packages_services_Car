@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Toegang tot informatie over de leveranciersrechten van de auto."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"status van buitenverlichting van auto lezen"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Toegang tot status van buitenverlichting van auto."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"toegang krijgen tot status van handschoenenkastje van auto"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Toegang krijgen tot status van handschoenenkastje van auto."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"toegang krijgen tot de epochtijd van de auto"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Toegang krijgen tot de epochtijd van de auto."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"buitenverlichting van auto lezen"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Informatie over ADAS-statussen van auto lezen."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"informatie over ADAS-statussen van auto beheren"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Informatie over ADAS-statussen van auto beheren."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"ruitenwissers van auto lezen"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Ruitenwissers van auto lezen."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ruitenwissers van auto bedienen"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Ruitenwissers van auto bedienen."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"de statussen bijhouden van andere passagierszones in de auto en vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in die zones, en de stroomvoorziening van die zones beheren"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"De statussen bijhouden van andere passagierszones in de auto en vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in die zones, en de stroomvoorziening van die zones beheren."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"verbinding maken en communiceren met vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in andere passagierszones in de auto"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Verbinding maken en communiceren met vergelijkbare apps (apps die dezelfde pakketnaam hebben als de beller) die zijn geïnstalleerd in andere passagierszones in de auto."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"het scherm van andere apps mirroren"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Het scherm van andere apps mirroren."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"het scherm van andere gebruikers mirroren"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Het scherm van andere gebruikers mirroren."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Een systeem-UI-proxy leveren die andere apps kunnen gebruiken om de systeem-UI te beheren en taakweergaven te maken."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Een systeem-UI-proxy leveren die andere apps kunnen gebruiken om de systeem-UI te beheren en taakweergaven te maken."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Communiceren met de systeem-UI van de auto om taakweergaven te maken of meldingen over wijzigingen in de systeem-UI te krijgen."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Communiceren met de systeem-UI van de auto om taakweergaven te maken of meldingen over wijzigingen in de systeem-UI te krijgen."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus is mislukt"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageert niet. Koppel de hoofdeenheid los en sluit deze vervolgens weer aan. Start de auto daarna opnieuw."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mijn apparaat"</string>

@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"මෝටර් රථයේ විකුණුම්කරුගේ අවසර තොරතුරු වෙත ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"මෝටර් රථයේ බාහිර ආලෝක තත්ත්වය කියවන්න"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"මෝටර් රථයේ බාහිර ආලෝක තත්ත්වයට ප්‍රවේශ වන්න."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"මෝටර් රථයේ අත්වැසුම් පෙට්ටි තත්ත්වයට ප්‍රවේශ වන්න"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"මෝටර් රථයේ අත්වැසුම් පෙට්ටි තත්ත්වයට ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"මෝටර් රථයේ අවධි වේලාවට ප්‍රවේශ වන්න"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"මෝටර් රථයේ අවධි වේලාවට ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"මෝටර් රථයේ බාහිර ආලෝකයන් කියවන්න"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"මෝටර් රථයේ ADAS තත්ත්ව තොරතුරු කියවන්න."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"මෝටර් රථයේ ADAS තට්ත්ව තොරතුරු පාලනය කරන්න"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"මෝටර් රථයේ ADAS තට්ත්ව තොරතුරු පාලනය කරන්න."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"මෝටර් රථයේ හුළං පලිහ පිසින කියවන්න"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"මෝටර් රථයේ හුළං පලිහ පිසින කියවන්න."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"මෝටර් රථයේ හුළං පලිහ පිසින පාලනය කරන්න"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"මෝටර් රථයේ හුළං පලිහ පිසින පාලනය කරන්න."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"එම කලාප තුළ ස්ථාපනය කර ඇති මෝටර් රථ සහ සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නාමය ඇති යෙදුම්) තුළ ඇති අනෙකුත් පදිංචිකරුවන්ගේ කලාපවල තත්ත්වයන් අධීක්ෂණය කරන්න, සහ එම කලාපවල බලය කළමනාකරණය කරන්න."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"එම කලාප තුළ ස්ථාපනය කර ඇති මෝටර් රථ සහ සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නාමය ඇති යෙදුම්) තුළ ඇති අනෙකුත් පදිංචිකරුවන්ගේ කලාපවල තත්ත්වයන් අධීක්ෂණය කරන්න, සහ එම කලාපවල බලය කළමනාකරණය කරන්න."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"මෝටර් රථයේ වෙනත් පදිංචිකරුවන්ගේ කලාපවල ස්ථාපනය කර ඇති සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නම ඇති යෙදුම්) වෙත සම්බන්ධතාවය ස්ථාපිත කර සන්නිවේදනය කරන්න."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"මෝටර් රථයේ වෙනත් පදිංචිකරුවන්ගේ කලාපවල ස්ථාපනය කර ඇති සම වයසේ යෙදුම් (ඇමතුම්කරු මෙන් එකම පැකේජ නම ඇති යෙදුම්) වෙත සම්බන්ධතාවය ස්ථාපිත කර සන්නිවේදනය කරන්න."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"වෙනත් යෙදුම්වල තිරය පිළිබිඹු කරන්න"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"වෙනත් යෙදුම්වල තිරය පිළිබිඹු කරන්න."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"වෙනත් පරිශීලකයින්ගේ සංදර්ශකය පිළිබිඹු කරන්න"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"වෙනත් පරිශීලකයින්ගේ සංදර්ශකය පිළිබිඹු කරන්න."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"පද්ධති ui කළමනාකරණය කිරීමට සහ කාර්ය දසුන් තැනීමට වෙනත් යෙදුම්වලට භාවිතා කළ හැකි පද්ධති ui ප්‍රොක්සියක් සපයන්න."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"පද්ධති ui කළමනාකරණය කිරීමට සහ කාර්ය දසුන් තැනීමට වෙනත් යෙදුම්වලට භාවිතා කළ හැකි පද්ධති ui ප්‍රොක්සියක් සපයන්න."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"කාර්ය දසුන් තැනීම හෝ පද්ධති ui වෙනස්කම් පිළිබඳව දැනුවත් වීම සඳහා මෝටර් රථ පද්ධති ui සමග සන්නිවේදනය කරන්න."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"කාර්ය දසුන් තැනීම හෝ පද්ධති ui වෙනස්කම් පිළිබඳව දැනුවත් වීම සඳහා මෝටර් රථ පද්ධති ui සමග සන්නිවේදනය කරන්න."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN බස් අසාර්ථකයි"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN බස් ප්‍රතිචාර නොදක්වයි. හෙඩ්යුනිට් පෙට්ටිය පේනු ඉවත් කර ආපසු පේනුගත කර, මෝටර් රථය යළි අරඹන්න"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"මගේ උපාංගය"</string>

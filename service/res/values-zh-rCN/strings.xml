@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"访问汽车的供应商权限信息。"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"读取汽车的外部灯具状态信息"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"访问汽车的外部灯具状态信息。"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"获取汽车手套箱的状态数据"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"获取汽车手套箱的状态数据。"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"获取汽车的 epoch 新纪元时间"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"获取汽车的 epoch 新纪元时间。"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"读取汽车的外部灯具信息"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"读取汽车的 ADAS 状态信息。"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"控制汽车的 ADAS 状态信息"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"控制汽车的 ADAS 状态信息。"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"读取汽车雨刷的数据"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"读取汽车雨刷的数据。"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"控制汽车的雨刷"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"控制汽车的雨刷。"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"监控安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）的状态及这些区域本身的状态，以及管理这些区域的电源供应。"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"监控安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）的状态及这些区域本身的状态，以及管理这些区域的电源供应。"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"与安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）建立连接及进行通信"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"与安装在车内其他乘员区中的类似应用（与调用方拥有相同软件包名称的应用）建立连接及进行通信。"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"镜像显示其他应用的界面"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"镜像显示其他应用的界面。"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"镜像显示其他用户的显示屏"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"镜像显示其他用户的显示屏。"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"提供其他应用可使用的系统界面代理，以便管理系统界面及创建任务视图。"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"提供其他应用可使用的系统界面代理，以便管理系统界面及创建任务视图。"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"与汽车系统界面进行通信，以便创建任务视图或接收与系统界面变更相关的通知。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 总线没有响应。请将主机盒插头拔下并插回，然后重新启动汽车"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>

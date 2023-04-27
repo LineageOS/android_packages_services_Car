@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"차량 공급업체 권한 정보에 액세스합니다."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"차량 외부 조명 상태 읽기"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"차량의 외부 조명 상태에 액세스합니다."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"차량 글러브 박스 상태에 액세스합니다."</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"차량 글러브 박스 상태에 액세스합니다."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"차량의 유닉스 시간에 액세스"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"차량의 유닉스 시간에 액세스합니다."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"차량 외부 조명 읽기"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"차량의 ADAS 상태 정보를 읽습니다."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"차량의 ADAS 상태 정보 관리"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"차량의 ADAS 상태 정보를 관리합니다."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"차량 와이퍼를 읽습니다."</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"차량 와이퍼를 읽습니다."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"차량 와이퍼를 제어합니다."</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"차량 와이퍼를 제어합니다."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"차량 내 다른 승객 공간의 상태와 해당 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)의 상태를 모니터링하고 승객 공간의 출력을 관리합니다."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"차량 내 다른 승객 공간의 상태와 해당 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)의 상태를 모니터링하고 승객 공간의 출력을 관리합니다."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"차량 내 다른 승객 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)과 연결을 설정하고 통신합니다."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"차량 내 다른 승객 공간에 설치된 동종 앱(호출자와 같은 패키지 이름을 가진 앱)과 연결을 설정하고 통신합니다."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"다른 앱의 스크린을 미러링하기"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"다른 앱의 스크린을 미러링하기"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"다른 사용자의 화면을 미러링하기"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"다른 사용자의 화면을 미러링하기"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"다른 앱에서 시스템 UI를 관리하고 작업 뷰를 만들기 위해 사용하는 시스템 UI 프록시를 제공합니다."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"다른 앱에서 시스템 UI를 관리하고 작업 뷰를 만들기 위해 사용하는 시스템 UI 프록시를 제공합니다."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"작업 뷰 만들기 또는 시스템 UI 변경에 관한 알림 수신을 위해 차량 시스템 UI와 통신합니다."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"작업 뷰 만들기 또는 시스템 UI 변경에 관한 알림 수신을 위해 차량 시스템 UI와 통신합니다."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"내 기기"</string>

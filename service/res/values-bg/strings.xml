@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Достъп до информацията за разрешенията на автомобилния производител"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"четене на състоянието на външните светлини на автомобила"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Достъп до състоянието на външните светлини на автомобила."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"достъп до състоянието на жабката на автомобила"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Достъп до състоянието на жабката на автомобила."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"осъществяване на достъп до епохата на автомобила"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Осъществяване на достъп до епохата на автомобила."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"четене на външните светлини на автомобила"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Четене на информацията за състоянията на усъвършенстваната система за подпомагане на водача в автомобила ви."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"управление на информацията за състоянията на усъвършенстваната система за подпомагане на водача в автомобила ви"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Управление на информацията за състоянията на усъвършенстваната система за подпомагане на водача в автомобила ви."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"четене на чистачките на автомобила"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Четене на чистачките на автомобила."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"управление на чистачките на автомобила"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Управление на чистачките на автомобила."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"наблюдаване на състоянията на другите пътнически зони в автомобила и тези на подобните приложения (имат същото име на пакета като това на извикващото приложение), инсталирани за съответните зони, и управление на захранването на пътническите зони"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Наблюдаване на състоянията на другите пътнически зони в автомобила и тези на подобните приложения (имат същото име на пакета като това на извикващото приложение), инсталирани за съответните зони, и управление на захранването на пътническите зони."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"установяване на връзка и комуникация с подобните приложения (имат същото име на пакета като това на извикващото приложение), инсталирани за другите пътнически зони в автомобила"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Установяване на връзка и комуникация с подобните приложения (имат същото име на пакета като това на извикващото приложение), инсталирани за другите пътнически зони в автомобила."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"дублиране на екрана на други приложения"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Дублиране на екрана на други приложения."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"дублиране на екрана на други потребители"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Дублиране на екрана на други потребители."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Предоставяне на прокси сървър за системния потребителски интерфейс, който може да се използва от други приложения за управление на този интерфейс и създаване на изгледи на задачи."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Предоставяне на прокси сървър за системния потребителски интерфейс, който може да се използва от други приложения за управление на този интерфейс и създаване на изгледи на задачи."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Комуникиране със системния потребителски интерфейс на автомобила с цел създаване на изгледи на задачи или получаване на известия за промени в този интерфейс."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Комуникиране със системния потребителски интерфейс на автомобила с цел създаване на изгледи на задачи или получаване на известия за промени в този интерфейс."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Грешка в CAN шината"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN шината не реагира. Изключете и включете отново захранването на основното устройство и рестартирайте автомобила"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Моето устройство"</string>

@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Atzitu autoaren saltzailearen baimenari buruzko informazioa"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"irakurri autoaren kanpoaldeko argien egoera"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Atzitu autoaren kanpoaldeko argien egoera."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"atzitu autoaren eskularru-kutxaren egoera"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Atzitu autoaren eskularru-kutxaren egoera."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"atzitu autoaren erreferentziazko denbora tartearen ordua"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Atzitu autoaren erreferentziazko denbora tartearen ordua."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"irakurri autoaren kanpoaldeko argiak"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Irakurri autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"kontrolatu autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Kontrolatu autoaren erlazionatutako garatzaile-kontuaren egoerei buruzko informazioa."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"irakurri autoaren haizetako-garbigailuak"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Irakurri autoaren haizetako-garbigailuak."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kontrolatu autoaren haizetako-garbigailuak"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kontrolatu autoaren haizetako-garbigailuak."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Kontrolatu ea autoko beste eserlekuetan inor baden eta eserleku horietan daudenen instalatutatako pareko aplikazioen (deitzailearen pakete-izen bereko aplikazioak) egoerak, eta kudeatu eserleku horietako korrontea."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"konektatu eta komunikatu autoko beste eserleku batzuetan instalatuta dauden pareko aplikazioekin; hau da, deitzailearen pakete-izen bereko aplikazioekin"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Konektatu eta komunikatu autoko beste eserleku batzuetan instalatuta dauden pareko aplikazioekin; hau da, deitzailearen pakete-izen bereko aplikazioekin."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"islatu beste aplikazio batzuen pantailak"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Islatu beste aplikazio batzuen pantailak."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"islatu beste erabiltzaile batzuen pantailak"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Islatu beste erabiltzaile batzuen pantailak."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Sortu este aplikazio batzuek sistemaren erabiltzaile-interfazea kudeatzeko eta zeregin-ikuspegiak sortzeko erabil dezaketen proxy bat sistemaren erabiltzaile-interfazerako."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Sortu este aplikazio batzuek sistemaren erabiltzaile-interfazea kudeatzeko eta zeregin-ikuspegiak sortzeko erabil dezaketen proxy bat sistemaren erabiltzaile-interfazerako."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Komunikatu autoaren sistemaren erabiltzaile-interfazearekin zeregin-ikuspegiak sortzeko edo sistemaren erabiltzaile-interfazean gertatzen diren aldaketen berri izateko."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komunikatu autoaren sistemaren erabiltzaile-interfazearekin zeregin-ikuspegiak sortzeko edo sistemaren erabiltzaile-interfazean gertatzen diren aldaketen berri izateko."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN autobusak huts egin du"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus-ak ez du erantzuten. Desentxufatu eta entxufatu berriro gailu nagusia eta berrabiarazi autoa."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Nire gailua"</string>

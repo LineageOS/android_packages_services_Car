@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"ကားအချက်အလက်"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"သင့်ကား၏ အချက်အလက်များကို အသုံးပြုနိုင်သည်"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"သင့်ကား၏ အချက်အလက်များကို ကြည့်နိုင်သည်"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"ကား၏ ကင်မရာကို အသုံးပြုပါမည်"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"သင့်ကား၏ ကင်မရာ(များ)ကို ဝင်ရောက်အသုံးပြုပါမည်။"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"ကား၏ စွမ်းအင်အချက်အလက်များကို ရယူပါမည်"</string>
@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ကားရောင်းချသူ ခွင့်ပြုချက်ဆိုင်ရာ အချက်အလက်များကို ကြည့်ရန်။"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ကားအပြင်ဘက်ရှိ မီးလုံးများ၏ အခြေအနေကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ကား၏အပြင်ဘက်ရှိ မီးလုံးများ၏ အခြေအနေကို ကြည့်ပါမည်။"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"ကားဒက်ရှ်ဘုတ်အတွင်း ထည့်ရန်အံ၏ အခြေအနေကို ကြည့်ပါ"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"ကားဒက်ရှ်ဘုတ်ရှိ ထည့်ရန်အံ၏ အခြေအနေကို ကြည့်ပါ။"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ကား၏ ခေတ်အချိန်ကို သုံးပါ"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ကား၏ ခေတ်အချိန်ကို သုံးပါ။"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ကားအပြင်ဘက်ရှိ မီးလုံးများကို ကြည့်ပါမည်"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ကြည့်နိုင်သည်။"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ကား၏ ADAS အခြေအနေ အချက်အလက်များကို ထိန်းချုပ်နိုင်သည်။"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"ကားလေကာမှန်ရေယက်များ၏ အခြေအနေကို ဖတ်ပါ"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"ကားလေကာမှန်ရေယက်များ၏ အခြေအနေကို ဖတ်ပါ။"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ကား၏ လေကာမှန်ရေယက်များကို ထိန်းချုပ်ပါ"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ကား၏ လေကာမှန်ရေယက်များကို ထိန်းချုပ်ပါ။"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများနှင့် ထိုနေရာများတွင် တပ်ဆင်ထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) ၏ အခြေအနေကို စောင့်ကြည့်စစ်ဆေးပြီး ထိုနေရာများ၏ စွမ်းအင်ပါဝါကို စီမံပါ။"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ချိတ်ဆက်မှုပြုပြီး ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများတွင် ထည့်သွင်းထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) နှင့် ဆက်သွယ်ပါ"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ချိတ်ဆက်မှုပြုပြီး ကားထဲရှိ အခြားလိုက်ပါသူရှိသည့် နေရာများတွင် ထည့်သွင်းထားသည့် အမျိုးအစားတူ အက်ပ်များ (ခေါ်ဆိုသူနှင့် ပက်ကေ့ချ်အမည်တူညီသော အက်ပ်များ) နှင့် ဆက်သွယ်ပါ။"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"အခြား ‘အက်ပ်’ များ၏ ဖန်သားပြင်ကို စကရင်ပွားပါ"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"အခြား ‘အက်ပ်’ များ၏ ဖန်သားပြင်ကို စကရင်ပွားပါ။"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"အခြားအသုံးပြုသူများ၏ ပြကွက်ကို စကရင်ပွားပါ"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"အခြားအသုံးပြုသူများ၏ ပြကွက်ကို စကရင်ပွားပါ။"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"စနစ် UI စီမံရန်နှင့် လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ရန် အခြားအက်ပ်များ သုံးနိုင်သော စနစ် UI ပရောက်စီကို ပေးပါ။"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"စနစ် UI စီမံရန်နှင့် လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ရန် အခြားအက်ပ်များ သုံးနိုင်သော စနစ် UI ပရောက်စီကို ပေးပါ။"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"လုပ်ဆောင်စရာမြင်ကွင်းများ ပြုလုပ်ခြင်း (သို့) စနစ် UI အပြောင်းအလဲများဆိုင်ရာ အကြောင်းချက်ရယူခြင်းအတွက် ကားစနစ် UI နှင့် ချိတ်ဆက်ပါ။"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>
