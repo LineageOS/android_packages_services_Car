@@ -99,4 +99,11 @@ interface ICarServiceHelper {
      * On error, returns {@link com.android.car.internal.common.CommonConstants#INVALID_PID}.
      */
     int fetchAidlVhalPid() = 13;
+
+    /**
+     * Designates the given {@code activities} to be launched in the root task associated with
+     * {@code rootTaskToken}.
+     */
+    void setPersistentActivitiesOnRootTask(in List<ComponentName> activity,
+        in IBinder rootTaskToken) = 14;
 }
