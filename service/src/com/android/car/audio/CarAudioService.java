@@ -2382,13 +2382,16 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         requireDynamicRouting();
         requireVolumeGroupMuting();
+        boolean muteStateChanged = false;
         synchronized (mImplLock) {
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
-            group.setMute(mute);
+            muteStateChanged = group.setMute(mute);
         }
-        handleMuteChanged(zoneId, groupId, flags);
-        callbackVolumeGroupEvent(List.of(convertVolumeChangeToEvent(
-                getVolumeGroupInfo(zoneId, groupId), flags, EVENT_TYPE_MUTE_CHANGED)));
+        if (muteStateChanged) {
+            handleMuteChanged(zoneId, groupId, flags);
+            callbackVolumeGroupEvent(List.of(convertVolumeChangeToEvent(
+                    getVolumeGroupInfo(zoneId, groupId), flags, EVENT_TYPE_MUTE_CHANGED)));
+        }
     }
 
     @Override
