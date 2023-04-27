@@ -25,6 +25,7 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DIS
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresApi;
 import android.app.ActivityManager;
@@ -165,6 +166,14 @@ public final class CarActivityService extends ICarActivityService.Stub
 
         return CarServiceHelperWrapper.getInstance().setPersistentActivity(activity, displayId,
                 featureId);
+    }
+
+    @Override
+    public void setPersistentActivitiesOnRootTask(@NonNull List<ComponentName> activities,
+            IBinder rootTaskToken) {
+        ensurePermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH);
+        CarServiceHelperWrapper.getInstance().setPersistentActivitiesOnRootTask(activities,
+                rootTaskToken);
     }
 
     @VisibleForTesting

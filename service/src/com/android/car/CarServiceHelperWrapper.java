@@ -26,6 +26,7 @@ import android.car.app.CarActivityManager;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.view.Display;
@@ -195,6 +196,18 @@ public final class CarServiceHelperWrapper {
             Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
         }
         return CarActivityManager.RESULT_FAILURE;
+    }
+
+    /**
+     * See {@code ICarServiceHelper}.
+     */
+    public void setPersistentActivitiesOnRootTask(List<ComponentName> activities,
+            IBinder rootTaskToken) {
+        try {
+            waitForCarServiceHelper().setPersistentActivitiesOnRootTask(activities, rootTaskToken);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, REMOTE_EXCEPTION_STR, e);
+        }
     }
 
     /**

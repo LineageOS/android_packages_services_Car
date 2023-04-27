@@ -149,6 +149,32 @@ public final class CarActivityManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Designates the given {@code activities} to be launched in the root task associated with the
+     * given {@code rootTaskToken}.
+     * <p>Note: If an activity is already persisted on a root task, it will be overridden by the
+     * {@code rootTaskToken} supplied in the latest call.
+     * <p>Note: If {@code rootTaskToken} is null, the designation will be removed and the given
+     * activities will follow default behavior.
+     *
+     * @param activities list of {@link ComponentName} of activities to be designated on the
+     *                   root task.
+     * @param rootTaskToken the binder token of the root task.
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public void setPersistentActivitiesOnRootTask(@NonNull List<ComponentName> activities,
+            @Nullable IBinder rootTaskToken) {
+        try {
+            mService.setPersistentActivitiesOnRootTask(activities, rootTaskToken);
+        } catch (IllegalArgumentException | IllegalStateException | SecurityException e) {
+            throw e;
+        }  catch (RemoteException | RuntimeException e) {
+            handleExceptionFromCarService(e, RESULT_FAILURE);
+        }
+    }
+
     /** @hide */
     @Override
     @AddedInOrBefore(majorVersion = 33)
