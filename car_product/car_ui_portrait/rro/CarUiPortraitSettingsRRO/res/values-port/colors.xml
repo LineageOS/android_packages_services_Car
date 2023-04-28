@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,6 +15,5 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <dimen name="top_level_menu_width">362dp</dimen>
-    <dimen name="car_portrait_ui_tab_margin_vertical">1dp</dimen>
+    <color name="top_level_preference_text_color">@color/car_on_primary_container</color>
 </resources>

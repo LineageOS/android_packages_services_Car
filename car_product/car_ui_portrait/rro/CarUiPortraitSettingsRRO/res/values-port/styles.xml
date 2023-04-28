@@ -24,4 +24,13 @@
     <style name="CarSettingsFragmentContainerStyle">
         <item name="android:layout_marginHorizontal">16dp</item>
     </style>
+    <style name="TopLevelPreferenceTitleStyle" parent="TextAppearance.CarUi.PreferenceTitle">
+        <item name="android:textColor">@color/top_level_preference_text_color</item>
+    </style>
+    <style name="TopLevelPreferenceSummaryStyle" parent="TextAppearance.CarUi.PreferenceSummary">
+        <item name="android:textColor">@color/top_level_preference_text_color</item>
+    </style>
+    <style name="CarSettingsActivityDividerStyle">
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>
