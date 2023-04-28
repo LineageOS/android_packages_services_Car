@@ -31,6 +31,7 @@ public class BoundsAnimation extends Animation {
     private ViewGroup.MarginLayoutParams mLayoutParams;
     private RectEvaluator mEvaluator = new RectEvaluator(new Rect());
     private boolean mAnimationEnded;
+    private boolean mIsCanceled;
 
     BoundsAnimation(ViewGroup panel, Rect toBounds, Runnable onAnimationEnd) {
         mPanel = panel;
@@ -48,7 +49,9 @@ public class BoundsAnimation extends Animation {
             @Override
             public void onAnimationEnd(Animation animation) {
                 mAnimationEnded = true;
-                onAnimationEnd.run();
+                if (!mIsCanceled) {
+                    onAnimationEnd.run();
+                }
             }
 
             @Override
@@ -68,5 +71,11 @@ public class BoundsAnimation extends Animation {
         mLayoutParams.width = bounds.width();
         mLayoutParams.height = bounds.height();
         mPanel.setLayoutParams(mLayoutParams);
+    }
+
+    @Override
+    public void cancel() {
+        super.cancel();
+        mIsCanceled = true;
     }
 }
