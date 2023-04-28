@@ -22,6 +22,7 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 
 /**
@@ -37,6 +38,7 @@ public class ExpandPanelAnimator extends PanelAnimator {
     private final Rect mBounds;
     private final View mGripBar;
     private final Point mOrigin;
+    private ViewPropertyAnimator mViewPropertyAnimator;
 
     /**
      * A {@code PanelAnimator} to animate the panel into the open state using the expand animation.
@@ -62,13 +64,25 @@ public class ExpandPanelAnimator extends PanelAnimator {
 
         mPanel.setTranslationX(mOrigin.x - mBounds.centerX());
         mPanel.setTranslationY(mOrigin.y - mBounds.centerY());
-        mPanel.post(() -> mPanel.animate()
+
+        mViewPropertyAnimator = mPanel.animate()
                 .scaleX(FINAL_SCALE)
                 .scaleY(FINAL_SCALE)
                 .translationX(/* value= */ 0)
                 .translationY(/* value= */ 0)
                 .setDuration(DURATION)
                 .setInterpolator(INTERPOLATOR)
-                .withEndAction(endAction));
+                .withEndAction(endAction);
+    }
+
+    @Override
+    public void cancel() {
+        if (mViewPropertyAnimator != null) {
+            mViewPropertyAnimator.cancel();
+        }
+        mPanel.setScaleX(FINAL_SCALE);
+        mPanel.setScaleY(FINAL_SCALE);
+        mPanel.setTranslationX(/* value= */ 0);
+        mPanel.setTranslationY(/* value= */ 0);
     }
 }
