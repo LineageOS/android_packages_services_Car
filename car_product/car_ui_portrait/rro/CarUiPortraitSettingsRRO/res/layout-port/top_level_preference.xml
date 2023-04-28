@@ -20,12 +20,13 @@
     android:layout_width="@dimen/car_portrait_ui_tab_width"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="@dimen/car_portrait_ui_tab_margin_horizontal"
+    android:layout_marginVertical="@dimen/car_portrait_ui_tab_margin_vertical"
     android:background="?android:attr/selectableItemBackground"
     android:clipToPadding="false"
     android:minHeight="@dimen/car_portrait_ui_tab_height"
     android:tag="carUiPreference">
 
-    <com.android.car.ui.uxr.DrawableStateImageView
+    <ImageView
         android:id="@android:id/icon"
         android:layout_width="44dp"
         android:layout_height="44dp"
@@ -38,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginStart="33dp"
+        android:layout_marginStart="24dp"
         android:layout_toEndOf="@android:id/icon"
         android:layout_toStartOf="@android:id/widget_frame"
         android:orientation="vertical">
@@ -48,13 +49,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="false"
-            android:textAppearance="@style/TextAppearance.CarUi.PreferenceTitle"/>
+            style="@style/TopLevelPreferenceTitleStyle"/>
 
         <com.android.car.ui.uxr.DrawableStateTextView
             android:id="@android:id/summary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.CarUi.PreferenceSummary"/>
+            style="@style/TopLevelPreferenceSummaryStyle"/>
 
     </LinearLayout>
 
