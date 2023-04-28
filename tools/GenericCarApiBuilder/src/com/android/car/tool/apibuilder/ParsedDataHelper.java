@@ -144,8 +144,7 @@ public final class ParsedDataHelper {
                                 return;
                             }
                             // Check that assertPlatformVersionAtLeast is called and that it has
-                            // the correct
-                            // version as its argument.
+                            // the correct version as its argument.
                             if (method.firstBodyStatement.getName().asString().contains(
                                     "assertPlatformVersionAtLeast")
                                     && Objects.equals(method.firstBodyStatement.getArgument(
@@ -169,8 +168,8 @@ public final class ParsedDataHelper {
                             if (field.annotationData.hasAddedInAnnotation) {
                                 minCarVersion = field.annotationData.addedInPlatformVersion;
                             } else if (field.annotationData.hasAddedInOrBefore) {
-                                minCarVersion =
-                                        "TIRAMISU_" + field.annotationData.addedInPlatformVersion;
+                                // The only car version for @AddedInOrBefore is TIRAMISU_0.
+                                minCarVersion = "TIRAMISU_0";
                             } else {
                                 minCarVersion = field.annotationData.minCarVersion;
                             }
@@ -185,8 +184,8 @@ public final class ParsedDataHelper {
                             if (method.annotationData.hasAddedInAnnotation) {
                                 minCarVersion = method.annotationData.addedInPlatformVersion;
                             } else if (method.annotationData.hasAddedInOrBefore) {
-                                minCarVersion =
-                                        "TIRAMISU_" + method.annotationData.addedInPlatformVersion;
+                                // The only car version for @AddedInOrBefore is TIRAMISU_0.
+                                minCarVersion = "TIRAMISU_0";
                             } else {
                                 minCarVersion = method.annotationData.minCarVersion;
                             }
