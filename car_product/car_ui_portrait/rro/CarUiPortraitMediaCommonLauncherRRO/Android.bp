@@ -24,6 +24,7 @@ android_app {
     ],
     static_libs: [
         "car-portrait-ui-common",
-        "car-media-common"
+        "car-media-common",
+        "car-ui-lib",
     ],
 }
