@@ -40,6 +40,7 @@ import com.android.car.portraitlauncher.panel.animation.ExpandPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FadeInPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FadeOutPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.FullScreenPanelAnimator;
+import com.android.car.portraitlauncher.panel.animation.OpenPanelAnimator;
 import com.android.car.portraitlauncher.panel.animation.PanelAnimator;
 /**
  * A view container used to display CarTaskViews.
@@ -151,6 +152,11 @@ public class TaskViewPanel extends RelativeLayout {
      */
     private State mActiveState;
 
+    /**
+     * The current animator if there is an on-going animation.
+     */
+    private PanelAnimator mActiveAnimator;
+
     /** An optional listener to observe when the panel state changes. */
     private OnStateChangeListener mOnStateChangeListener;
 
@@ -174,9 +180,6 @@ public class TaskViewPanel extends RelativeLayout {
 
     /** The {@code CarTaskView} embedded in this panel. This is the main content of the panel. */
     private CarTaskView mTaskView;
-
-    /** Shows whether the panel is animating or there is no ongoing animation. */
-    private boolean mIsAnimating;
 
     /** The last reported window bounds of the task view. */
     private Rect mTaskViewWindowBounds;
@@ -227,7 +230,7 @@ public class TaskViewPanel extends RelativeLayout {
         mBackgroundSurfaceView = findViewById(R.id.surface_view);
         mBackgroundSurfaceView.setZOrderOnTop(false);
         setupGrabBar();
-        setActiveState(mCloseState, /* animator = */ null);
+        mActiveState = mCloseState;
     }
 
     /** Whether the panel is in the open state. */
@@ -235,14 +238,9 @@ public class TaskViewPanel extends RelativeLayout {
         return mActiveState == mOpenState;
     }
 
-    /** Whether the panel is in the full screen state. */
-    public boolean isFullScreen() {
-        return mActiveState == mFullScreenState;
-    }
-
     /** Whether the panel is actively animating. */
     public boolean isAnimating() {
-        return mIsAnimating;
+        return mActiveAnimator != null;
     }
 
     /** Transitions the panel into the open state. */
@@ -253,7 +251,7 @@ public class TaskViewPanel extends RelativeLayout {
     /** Transitions the panel into the open state. */
     public void openPanel(boolean animated) {
         PanelAnimator animator =
-                animated ? new ClosePanelAnimator(this, mOpenState.mBounds) : null;
+                animated ? new OpenPanelAnimator(this, mOpenState.mBounds) : null;
         setActiveState(mOpenState, animator);
     }
 
@@ -286,7 +284,7 @@ public class TaskViewPanel extends RelativeLayout {
     /** Transitions the panel into the close state using the fade-out animation. */
     public void fadeOutPanel() {
         PanelAnimator animator =
-                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mOpenState.mBounds);
+                new FadeOutPanelAnimator(this, mTaskViewOverlay, mTaskView, mCloseState.mBounds);
         setActiveState(mCloseState, animator);
     }
 
@@ -329,6 +327,9 @@ public class TaskViewPanel extends RelativeLayout {
     /** Updates the readiness state of the panel. */
     public void setReady(boolean isReady) {
         mIsReady = isReady;
+        if (mIsReady) {
+            closePanel();
+        }
     }
 
     /** Returns whether the panel is ready. */
@@ -408,6 +409,9 @@ public class TaskViewPanel extends RelativeLayout {
         }
         mOpenState.mInsets = insets;
         mCloseState.mInsets = insets;
+        if (!isReady()) {
+            return;
+        }
         updateInsets(mActiveState.mInsets);
         recalculateBounds();
         updateBounds(mActiveState.mBounds);
@@ -472,25 +476,44 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     private void setActiveState(State toState, PanelAnimator animator) {
+        if (!isReady()) {
+            logIfDebuggable("Skipping state change. Not Ready.");
+        }
+
+        if (toState.mBounds.height() == 0) {
+            logIfDebuggable("Skipping state change. Not initialized.");
+            return;
+        }
+
         State fromState = mActiveState;
         logIfDebuggable("Panel( " + getTag() + ") active state changes from " + fromState
                 + " to " + toState);
+
+        if (mActiveAnimator != null) {
+            logIfDebuggable("cancelling the old animation");
+            mActiveAnimator.cancel();
+            mActiveAnimator = null;
+            mGripBar.setVisibility(mActiveState.hasGripBar() ? VISIBLE : GONE);
+            mToolBarView.setVisibility(GONE);
+            mBackgroundSurfaceView.setVisibility(GONE);
+        }
 
         boolean animated = animator != null;
         onStateChangeStart(fromState, toState, animated);
 
         mActiveState = toState;
+        mActiveAnimator = animator;
 
         updateInsets(mActiveState.mInsets);
         updateTaskViewWindowBounds();
 
         if (animated) {
+            // Hide toolbar before animation if toState doesn't have toolbar for better
+            // animation
+            if (!toState.hasToolBar()) {
+                mToolBarView.setVisibility(GONE);
+            }
             post(() -> {
-                // Hide toolbar before animation if toState doesn't have toolbar for better
-                // animation
-                if (!toState.hasToolBar()) {
-                    mToolBarView.setVisibility(GONE);
-                }
                 animator.animate(() -> {
                             mGripBar.setVisibility(toState.hasGripBar() ? VISIBLE : GONE);
                             mToolBarView.setVisibility(toState.hasToolBar() ? VISIBLE : GONE);
@@ -499,7 +522,6 @@ public class TaskViewPanel extends RelativeLayout {
                             updateBounds(mActiveState.mBounds);
                             onStateChangeEnd(fromState, toState, /* animated= */ true);
                         }
-
                 );
             });
         } else {
@@ -513,16 +535,15 @@ public class TaskViewPanel extends RelativeLayout {
     }
 
     private void onStateChangeStart(State fromState, State toState, boolean animated) {
-        mIsAnimating = animated;
         if (mOnStateChangeListener != null) {
             mOnStateChangeListener.onStateChangeStart(fromState, toState, animated);
         }
     }
     private void onStateChangeEnd(State fromState, State toState, boolean animated) {
+        mActiveAnimator = null;
         if (mOnStateChangeListener != null) {
             mOnStateChangeListener.onStateChangeEnd(fromState, toState, animated);
         }
-        mIsAnimating = false;
     }
 
     private void updateTaskViewWindowBounds() {
