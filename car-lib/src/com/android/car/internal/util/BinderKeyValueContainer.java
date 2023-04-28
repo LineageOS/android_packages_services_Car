@@ -49,6 +49,9 @@ public final class BinderKeyValueContainer<K, V extends IInterface> {
     @GuardedBy("mLock")
     private final ArrayMap<K, BinderInterfaceHolder<K, V>> mBinderMap;
 
+    @Nullable
+    private BinderDeathCallback<K> mBinderDeathCallback;
+
     /**
      * Wrapper class for objects that want to be notified whenever they are unlinked from
      * the container ({@link BinderKeyValueContainer}).
@@ -75,6 +78,17 @@ public final class BinderKeyValueContainer<K, V extends IInterface> {
             mBinder.unlinkToDeath(this, 0);
             mMap.removeByBinderInterfaceHolder(this);
         }
+    }
+
+    /**
+     * Interface to be implemented by object that wants to be notified whenever a binder is unlinked
+     * (dies).
+     *
+     * @param <K> type of the key of the container
+     */
+    public interface BinderDeathCallback<K> {
+        /** Callback to be invoked after a binder is unlinked and removed from the container. */
+        void onBinderDied(K deadKey);
     }
 
     public BinderKeyValueContainer() {
@@ -203,13 +217,26 @@ public final class BinderKeyValueContainer<K, V extends IInterface> {
         }
     }
 
+    /**
+     * Sets a death callback to be notified after a binder is unlinked and removed from the
+     * container.
+     */
+    public void setBinderDeathCallback(@Nullable BinderDeathCallback<K> binderDeathCallback) {
+        mBinderDeathCallback = binderDeathCallback;
+    }
+
     private void removeByBinderInterfaceHolder(BinderInterfaceHolder<K, V> holder) {
+        K deadKey = null;
         synchronized (mLock) {
             int index = mBinderMap.indexOfValue(holder);
             if (index >= 0) {
+                deadKey = mBinderMap.keyAt(index);
                 mBinderMap.removeAt(index);
                 Slogf.i(TAG, "Binder died, so remove %s", holder.mBinderInterface);
             }
+        }
+        if (mBinderDeathCallback != null && deadKey != null) {
+            mBinderDeathCallback.onBinderDied(deadKey);
         }
     }
 }

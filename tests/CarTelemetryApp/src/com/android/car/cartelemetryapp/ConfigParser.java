@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** Utility class for parsing metrics configs from xml files. */
 public class ConfigParser {
@@ -106,7 +107,8 @@ public class ConfigParser {
         try {
             int eventType = parser.getEventType();
             while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.getName().equals(CONFIG_TAG)) {
+                if (eventType == XmlPullParser.START_TAG && Objects.equals(parser.getName(),
+                        CONFIG_TAG)) {
                     MetricsConfig config = parseMetricsConfig(parser);
                     if (config != null) {
                         configs.put(config.getName(), config);
@@ -164,9 +166,10 @@ public class ConfigParser {
 
         int eventType = parser.next();
         List<Subscriber> subscribers = null;
-        while (eventType != XmlPullParser.END_TAG || !parser.getName().equals(CONFIG_TAG)) {
+        while (eventType != XmlPullParser.END_TAG || !Objects.equals(parser.getName(),
+                CONFIG_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(SUBSCRIBERS_TAG)) {
+                    && Objects.equals(parser.getName(), SUBSCRIBERS_TAG)) {
                 subscribers = parseSubscribers(parser);
                 for (Subscriber sub : subscribers) {
                     config.addSubscribers(sub);
@@ -189,9 +192,9 @@ public class ConfigParser {
         List<Subscriber> subscribers = new ArrayList<>();
         int eventType = parser.next();
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(SUBSCRIBERS_TAG)) {
+                || !Objects.equals(parser.getName(), SUBSCRIBERS_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(SUBSCRIBER_TAG)) {
+                    && Objects.equals(parser.getName(), SUBSCRIBER_TAG)) {
                 Subscriber sub = parseSubscriber(parser);
                 if (sub != null) {
                     subscribers.add(sub);
@@ -229,9 +232,9 @@ public class ConfigParser {
         int eventType = parser.next();
         Publisher publisher = null;
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(SUBSCRIBER_TAG)) {
+                || !Objects.equals(parser.getName(), SUBSCRIBER_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(PUBLISHER_TAG)) {
+                    && Objects.equals(parser.getName(), PUBLISHER_TAG)) {
                 publisher = parsePublisher(parser);
             }
             eventType = parser.next();
@@ -257,19 +260,19 @@ public class ConfigParser {
             return null;
         }
 
-        if (type.equals(PUBLISHER_TYPE_VEHICLE_PROPERTY)) {
+        if (Objects.equals(type, PUBLISHER_TYPE_VEHICLE_PROPERTY)) {
             VehiclePropertyPublisher subPub = parseVehiclePropertyPublisher(parser);
             if (subPub == null) return null;
             pub.setVehicleProperty(subPub);
-        } else if (type.equals(PUBLISHER_TYPE_CARTELEMETRYD)) {
+        } else if (Objects.equals(type, PUBLISHER_TYPE_CARTELEMETRYD)) {
             CarTelemetrydPublisher subPub = parseCarTelemetrydPublisher(parser);
             if (subPub == null) return null;
             pub.setCartelemetryd(subPub);
-        } else if (type.equals(PUBLISHER_TYPE_STATS)) {
+        } else if (Objects.equals(type, PUBLISHER_TYPE_STATS)) {
             StatsPublisher subPub = parseStatsPublisher(parser);
             if (subPub == null) return null;
             pub.setStats(subPub);
-        } else if (type.equals(PUBLISHER_TYPE_CONNECTIVITY)) {
+        } else if (Objects.equals(type, PUBLISHER_TYPE_CONNECTIVITY)) {
             ConnectivityPublisher subPub = parseConnectivityPublisher(parser);
             if (subPub == null) return null;
             pub.setConnectivity(subPub);
@@ -288,9 +291,9 @@ public class ConfigParser {
         VehiclePropertyPublisher.Builder pub = VehiclePropertyPublisher.newBuilder();
         int eventType = parser.next();
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(PUBLISHER_TAG)) {
+                || !Objects.equals(parser.getName(), PUBLISHER_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(VEHICLE_PROP_PUB_PROP_ID_TAG)) {
+                    && Objects.equals(parser.getName(), VEHICLE_PROP_PUB_PROP_ID_TAG)) {
                 parser.next();
                 String vehiclePropertyId = parser.getText();
                 try {
@@ -301,7 +304,7 @@ public class ConfigParser {
                     return null;
                 }
             } else if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(VEHICLE_PROP_PUB_READ_RATE_TAG)) {
+                    && Objects.equals(parser.getName(), VEHICLE_PROP_PUB_READ_RATE_TAG)) {
                 parser.next();
                 String readRate = parser.getText();
                 try {
@@ -324,9 +327,9 @@ public class ConfigParser {
         CarTelemetrydPublisher.Builder pub = CarTelemetrydPublisher.newBuilder();
         int eventType = parser.next();
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(PUBLISHER_TAG)) {
+                || !Objects.equals(parser.getName(), PUBLISHER_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(CAR_TELEMETRYD_PUB_ID_TAG)) {
+                    && Objects.equals(parser.getName(), CAR_TELEMETRYD_PUB_ID_TAG)) {
                 parser.next();
                 String id = parser.getText();
                 try {
@@ -349,9 +352,9 @@ public class ConfigParser {
         StatsPublisher.Builder pub = StatsPublisher.newBuilder();
         int eventType = parser.next();
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(PUBLISHER_TAG)) {
+                || !Objects.equals(parser.getName(), PUBLISHER_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(STATS_PUB_SYSTEM_METRIC_TAG)) {
+                    && Objects.equals(parser.getName(), STATS_PUB_SYSTEM_METRIC_TAG)) {
                 parser.next();
                 String systemMetric = parser.getText();
                 try {
@@ -374,9 +377,9 @@ public class ConfigParser {
         ConnectivityPublisher.Builder pub = ConnectivityPublisher.newBuilder();
         int eventType = parser.next();
         while (eventType != XmlPullParser.END_TAG
-                || !parser.getName().equals(PUBLISHER_TAG)) {
+                || !Objects.equals(parser.getName(), PUBLISHER_TAG)) {
             if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(CONNECTIVITY_PUB_TRANSPORT_TAG)) {
+                    && Objects.equals(parser.getName(), CONNECTIVITY_PUB_TRANSPORT_TAG)) {
                 parser.next();
                 String transport = parser.getText();
                 try {
@@ -386,7 +389,7 @@ public class ConfigParser {
                     return null;
                 }
             } else if (eventType == XmlPullParser.START_TAG
-                    && parser.getName().equals(CONNECTIVITY_PUB_OEM_TYPE_TAG)) {
+                    && Objects.equals(parser.getName(), CONNECTIVITY_PUB_OEM_TYPE_TAG)) {
                 parser.next();
                 String oemType = parser.getText();
                 try {

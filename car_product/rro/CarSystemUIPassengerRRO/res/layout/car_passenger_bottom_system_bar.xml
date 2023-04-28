@@ -72,13 +72,22 @@
                 android:visibility="gone"
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_control_center"
+                systemui:selectedIcon="@drawable/car_ic_control_center_selected"
                 systemui:intent="intent:#Intent;action=android.intent.action.MAIN;package=com.android.car.multidisplay.controlcenter;component=com.android.car.multidisplay.controlcenter/.ControlCenterActivity;B.BOTTOM_BAR_LAUNCH=true;end"
                 systemui:packages="com.android.car.multidisplay.controlcenter"/>
+
+            <com.android.systemui.car.systembar.CarSystemBarButton
+                android:id="@+id/notifications"
+                android:contentDescription="@string/system_bar_notifications_label"
+                style="@style/SystemBarButton"
+                systemui:highlightWhenSelected="true"
+                systemui:icon="@drawable/car_ic_notification"/>
 
             <Space
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
+
         </LinearLayout>
         <!--TODO() b/260663404 Need to implement Privacy chip indicator -->
         <com.android.systemui.car.statusicon.ui.QuickControlsEntryPointContainer

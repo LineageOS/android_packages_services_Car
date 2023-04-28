@@ -17,7 +17,6 @@
 package android.car.builtin.os;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
@@ -81,8 +80,22 @@ public final class UserManagerHelper {
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
     /**
-     * Returns all users based on the boolean flags.
+     * Returns all user handles.
      */
+    @NonNull
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
+            boolean excludeDying) {
+        return userManager.getUserHandles(excludeDying);
+    }
+
+    /**
+     * Returns all users based on the boolean flags.
+     *
+     * @deprecated Use {@link #getUserHandles(UserManager, boolean)} instead.
+     */
+    @Deprecated
     @NonNull
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
@@ -131,15 +144,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Checks if a user is precreated.
-     */
-    @AddedIn(PlatformVersion.TIRAMISU_0)
-    public static boolean isPreCreatedUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).preCreated;
-    }
-
-    /**
      * Checks if a user is initialized.
      */
     @AddedIn(PlatformVersion.TIRAMISU_0)
@@ -154,16 +158,6 @@ public final class UserManagerHelper {
     @AddedIn(PlatformVersion.TIRAMISU_0)
     public static String getDefaultUserTypeForUserInfoFlags(int userInfoFlag) {
         return UserInfo.getDefaultUserType(userInfoFlag);
-    }
-
-    /**
-     * Precreates user based on user type
-     */
-    @Nullable
-    @AddedIn(PlatformVersion.TIRAMISU_0)
-    public static UserHandle preCreateUser(@NonNull UserManager userManager, @NonNull String type) {
-        UserInfo userInfo = userManager.preCreateUser(type);
-        return userInfo == null ? null : userInfo.getUserHandle();
     }
 
     /**

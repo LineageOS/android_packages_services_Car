@@ -415,12 +415,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             new ICarOccupantZoneCallback.Stub() {
                 @Override
                 public void onOccupantZoneConfigChanged(int flags) throws RemoteException {
-                    if ((flags & CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY) != 0) {
+                    // Listen for changes to displays and user->display assignments and launch
+                    // user picker when there is no user assigned to a display. This may be a no-op
+                    // for certain cases, such as a user getting assigned to a display.
+                    if ((flags & (CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY
+                            | CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)) != 0) {
                         if (DBG) {
                             String flagString = DebugUtils.flagsToString(
                                     CarOccupantZoneManager.class, "ZONE_CONFIG_CHANGE_FLAG_",
                                     flags);
-                            Slogf.d(TAG, "onOccupantZoneConfigChanged: display zone change flag=%s",
+                            Slogf.d(TAG, "onOccupantZoneConfigChanged: zone change flag=%s",
                                     flagString);
                         }
                         startUserPicker();
@@ -910,29 +914,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     public void switchUser(@UserIdInt int targetUserId, int timeoutMs,
-            @NonNull AndroidFuture<UserSwitchResult> receiver) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
         EventLogHelper.writeCarUserServiceSwitchUserReq(targetUserId, timeoutMs);
         checkManageOrCreateUsersPermission("switchUser");
-        Objects.requireNonNull(receiver);
+        Objects.requireNonNull(callback);
         UserHandle targetUser = mUserHandleHelper.getExistingUserHandle(targetUserId);
         if (targetUser == null) {
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(callback, /* isLogout= */ false,
                     UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
-            sendUserSwitchResult(receiver, /* isLogout= */ false,
+            sendUserSwitchResult(callback, /* isLogout= */ false,
                     UserSwitchResult.STATUS_NOT_SWITCHABLE);
             return;
         }
-        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, receiver,
+        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
                 /* isLogout= */ false));
     }
 
     @Override
-    public void logoutUser(int timeoutMs, @NonNull AndroidFuture<UserSwitchResult> receiver) {
+    public void logoutUser(int timeoutMs, @NonNull ResultCallbackImpl<UserSwitchResult> callback) {
         checkManageOrCreateUsersPermission("logoutUser");
-        Objects.requireNonNull(receiver);
+        Objects.requireNonNull(callback);
 
         UserHandle targetUser = mDpm.getLogoutUser();
         int logoutUserId = targetUser == null ? UserManagerHelper.USER_NULL
@@ -941,17 +945,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         if (targetUser == null) {
             Slogf.w(TAG, "logoutUser() called when current user is not logged in");
-            sendUserSwitchResult(receiver, /* isLogout= */ true,
+            sendUserSwitchResult(callback, /* isLogout= */ true,
                     UserSwitchResult.STATUS_NOT_LOGGED_IN);
             return;
         }
 
-        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, receiver,
+        mHandler.post(() -> handleSwitchUser(targetUser, timeoutMs, callback,
                 /* isLogout= */ true));
     }
 
     private void handleSwitchUser(@NonNull UserHandle targetUser, int timeoutMs,
-            @NonNull AndroidFuture<UserSwitchResult> receiver, boolean isLogout) {
+            @NonNull ResultCallbackImpl<UserSwitchResult> callback, boolean isLogout) {
         int currentUser = ActivityManager.getCurrentUser();
         int targetUserId = targetUser.getIdentifier();
         if (currentUser == targetUserId) {
@@ -959,12 +963,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Slogf.d(TAG, "Current user is same as requested target user: %d", targetUserId);
             }
             int resultStatus = UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND;
-            sendUserSwitchResult(receiver, isLogout, resultStatus);
+            sendUserSwitchResult(callback, isLogout, resultStatus);
             return;
         }
 
         if (isUxRestricted()) {
-            sendUserSwitchResult(receiver, isLogout,
+            sendUserSwitchResult(callback, isLogout,
                     UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
             return;
         }
@@ -973,10 +977,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (!isUserHalSupported()) {
             int result = switchOrLogoutUser(targetUser, isLogout);
             if (result == UserManager.USER_OPERATION_SUCCESS) {
-                sendUserSwitchResult(receiver, isLogout, UserSwitchResult.STATUS_SUCCESSFUL);
+                sendUserSwitchResult(callback, isLogout, UserSwitchResult.STATUS_SUCCESSFUL);
                 return;
             }
-            sendUserSwitchResult(receiver, isLogout, HalCallback.STATUS_INVALID,
+            sendUserSwitchResult(callback, isLogout, HalCallback.STATUS_INVALID,
                     UserSwitchResult.STATUS_ANDROID_FAILURE, result, /* errorMessage= */ null);
             return;
         }
@@ -997,7 +1001,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 Slogf.w(TAG, "switchUser(%s): another user switch request (id=%d) in process for "
                         + "that user", targetUser, mRequestIdForUserSwitchInProcess);
                 int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
-                sendUserSwitchResult(receiver, isLogout, resultStatus);
+                sendUserSwitchResult(callback, isLogout, resultStatus);
                 return;
             } else {
                 if (DBG) {
@@ -1028,7 +1032,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 if (halCallbackStatus != HalCallback.STATUS_OK || resp == null) {
                     Slogf.w(TAG, "invalid callback status (%s) or null response (%s)",
                             Integer.toString(halCallbackStatus), resp);
-                    sendUserSwitchResult(receiver, isLogout, resultStatus);
+                    sendUserSwitchResult(callback, isLogout, resultStatus);
                     mUserIdForUserSwitchInProcess = USER_NULL;
                     return;
                 }
@@ -1041,7 +1045,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             mUserIdForUserSwitchInProcess);
                     resultStatus =
                             UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST;
-                    sendUserSwitchResult(receiver, isLogout, resultStatus);
+                    sendUserSwitchResult(callback, isLogout, resultStatus);
                     mUserIdForUserSwitchInProcess = USER_NULL;
                     return;
                 }
@@ -1076,7 +1080,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mUserIdForUserSwitchInProcess = USER_NULL;
                 }
             }
-            sendUserSwitchResult(receiver, isLogout, halCallbackStatus, resultStatus,
+            sendUserSwitchResult(callback, isLogout, halCallbackStatus, resultStatus,
                     androidFailureStatus, resp.errorMessage);
         });
     }
@@ -1288,21 +1292,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void createUser(@Nullable String name, @NonNull String userType, int flags,
-            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
-        createUser(name, userType, flags, timeoutMs, receiver, /* hasCallerRestrictions= */ false);
-    }
-
-    // TODO(b/235994008): convert this call to createUser once other createUser call is removed.
-    @Override
-    public void createUser2(@NonNull UserCreationRequest userCreationRequest, int timeoutMs,
+    public void createUser(@NonNull UserCreationRequest userCreationRequest, int timeoutMs,
             ResultCallbackImpl<UserCreationResult> callback) {
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
-            @Override
-            protected void onCompleted(UserCreationResult result, Throwable err) {
-                callback.complete(result);
-            }
-        };
         String name = userCreationRequest.getName();
         String userType = userCreationRequest.isGuest() ? UserManager.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
@@ -1310,7 +1301,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         flags |= userCreationRequest.isAdmin() ? UserManagerHelper.FLAG_ADMIN : 0;
         flags |= userCreationRequest.isEphemeral() ? UserManagerHelper.FLAG_EPHEMERAL : 0;
 
-        createUser(name, userType, flags, timeoutMs, future);
+        createUser(name, userType, flags, timeoutMs, callback, /* hasCallerRestrictions= */ false);
     }
 
     /**
@@ -1321,10 +1312,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * only create admin users
      */
     public void createUser(@Nullable String name, @NonNull String userType, int flags,
-            int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            int timeoutMs, @NonNull ResultCallbackImpl<UserCreationResult> callback,
             boolean hasCallerRestrictions) {
         Objects.requireNonNull(userType, "user type cannot be null");
-        Objects.requireNonNull(receiver, "receiver cannot be null");
+        Objects.requireNonNull(callback, "receiver cannot be null");
         checkManageOrCreateUsersPermission(flags);
         EventLogHelper.writeCarUserServiceCreateUserReq(UserHelperLite.safeName(name), userType,
                 flags, timeoutMs, hasCallerRestrictions ? 1 : 0);
@@ -1334,24 +1325,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             String internalErrorMessage = String.format(ERROR_TEMPLATE_DISALLOW_ADD_USER,
                     callingUser, UserManager.DISALLOW_ADD_USER);
             Slogf.w(TAG, internalErrorMessage);
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     internalErrorMessage);
             return;
         }
 
-        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, receiver,
+        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, callback,
                 callingUser, hasCallerRestrictions));
     }
 
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
-            int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
+            int flags, int timeoutMs, @NonNull ResultCallbackImpl<UserCreationResult> callback,
             @NonNull UserHandle callingUser, boolean hasCallerRestrictions) {
         if (userType.equals(UserManager.USER_TYPE_FULL_GUEST) && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             String internalErroMessage = String
                     .format(ERROR_TEMPLATE_INVALID_FLAGS_FOR_GUEST_CREATION, flags, name);
             Slogf.e(TAG, internalErroMessage);
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                     internalErroMessage);
             return;
         }
@@ -1377,7 +1368,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION, userType, flags);
 
                 Slogf.d(TAG, internalErrorMessage);
-                sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+                sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMessage);
                 return;
             }
@@ -1388,7 +1379,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         .format(ERROR_TEMPLATE_NON_ADMIN_CANNOT_CREATE_ADMIN_USERS,
                                 callingUser.getIdentifier());
                 Slogf.d(TAG, internalErrorMessage);
-                sendUserCreationFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST,
+                sendUserCreationFailure(callback, UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMessage);
                 return;
             }
@@ -1400,7 +1391,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         } catch (Exception e) {
             Slogf.e(TAG, e, "Error creating new user request. name: %s UserType: %s and flags: %s",
                     name, userType, flags);
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     UserManager.USER_OPERATION_ERROR_UNKNOWN, /* user= */ null,
                     /* errorMessage= */ null, e.toString());
             return;
@@ -1415,7 +1406,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     Slogf.d(TAG, "um.createUser() returned null for user of type %s and flags %d",
                             userType, flags);
                 }
-                sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+                sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                         newUserResponse.getOperationResult(), /* user= */ null,
                         /* errorMessage= */ null, /* internalErrorMessage= */ null);
                 return;
@@ -1430,14 +1421,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     userType, flags);
         } catch (RuntimeException e) {
             Slogf.e(TAG, e, "Error creating user of type %s and flags %d", userType, flags);
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_ANDROID_FAILURE,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_ANDROID_FAILURE,
                     UserManager.USER_OPERATION_ERROR_UNKNOWN, /* user= */ null,
                     /* errorMessage= */ null, e.toString());
             return;
         }
 
         if (!isUserHalSupported()) {
-            sendUserCreationResult(receiver, UserCreationResult.STATUS_SUCCESSFUL,
+            sendUserCreationResult(callback, UserCreationResult.STATUS_SUCCESSFUL,
                     /* androidFailureStatus= */ null , newUser, /* errorMessage= */ null,
                     /* internalErrorMessage= */ null);
             return;
@@ -1470,7 +1461,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             errorMessage);
                     removeCreatedUser(newUser, "HAL call failed with "
                             + UserHalHelper.halCallbackStatusToString(status));
-                    sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
+                    sendUserCreationResult(callback, resultStatus, /* androidFailureStatus= */ null,
                             user, errorMessage,  /* internalErrorMessage= */ null);
                     return;
                 }
@@ -1494,13 +1485,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     removeCreatedUser(newUser, "HAL returned "
                             + UserCreationResult.statusToString(resultStatus));
                 }
-                sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
+                sendUserCreationResult(callback, resultStatus, /* androidFailureStatus= */ null,
                         user, errorMessage, /* internalErrorMessage= */ null);
             });
         } catch (Exception e) {
             Slogf.w(TAG, e, "mHal.createUser(%s) failed", request);
             removeCreatedUser(newUser, "mHal.createUser() failed");
-            sendUserCreationFailure(receiver, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
+            sendUserCreationFailure(callback, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE,
                     e.toString());
         }
     }
@@ -1659,13 +1650,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return UserHalHelper.convertFlags(mUserHandleHelper, user);
     }
 
-    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull ResultCallbackImpl<UserSwitchResult> callback,
             boolean isLogout, @UserSwitchResult.Status int userSwitchStatus) {
-        sendUserSwitchResult(receiver, isLogout, HalCallback.STATUS_INVALID, userSwitchStatus,
+        sendUserSwitchResult(callback, isLogout, HalCallback.STATUS_INVALID, userSwitchStatus,
                 /* androidFailureStatus= */ null, /* errorMessage= */ null);
     }
 
-    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull ResultCallbackImpl<UserSwitchResult> callback,
             boolean isLogout, @HalCallback.HalCallbackStatus int halCallbackStatus,
             @UserSwitchResult.Status int userSwitchStatus, @Nullable Integer androidFailureStatus,
             @Nullable String errorMessage) {
@@ -1676,17 +1667,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             EventLogHelper.writeCarUserServiceSwitchUserResp(halCallbackStatus, userSwitchStatus,
                     errorMessage);
         }
-        receiver.complete(
+        callback.complete(
                 new UserSwitchResult(userSwitchStatus, androidFailureStatus, errorMessage));
     }
 
-    static void sendUserCreationFailure(AndroidFuture<UserCreationResult> receiver,
+    static void sendUserCreationFailure(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, String internalErrorMessage) {
-        sendUserCreationResult(receiver, status, /* androidStatus= */ null, /* user= */ null,
+        sendUserCreationResult(callback, status, /* androidFailureStatus= */ null, /* user= */ null,
                 /* errorMessage= */ null, internalErrorMessage);
     }
 
-    private static void sendUserCreationResult(AndroidFuture<UserCreationResult> receiver,
+    private static void sendUserCreationResult(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, @Nullable Integer androidFailureStatus,
             @NonNull UserHandle user, @Nullable String errorMessage,
             @Nullable String internalErrorMessage) {
@@ -1697,7 +1688,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             internalErrorMessage = null;
         }
 
-        receiver.complete(new UserCreationResult(status, androidFailureStatus, user, errorMessage,
+        callback.complete(new UserCreationResult(status, androidFailureStatus, user, errorMessage,
                 internalErrorMessage));
     }
 
@@ -1922,7 +1913,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // This addresses the most common scenario that "user starting" event occurs after
             // "user visible" event.
             assignVisibleUserToZone(userId);
-            startSystemUiForUser(mContext, userId);
+            startSystemUIForVisibleUser(userId);
         } else {
             // If the user is not visible at this point, they might become visible at a later point.
             // So we save this user in 'mNotVisibleAtStartingUsers' for them to be checked in
@@ -1997,7 +1988,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             + "SysUi.", userId);
                 }
                 assignVisibleUserToZone(userId);
-                startSystemUiForUser(mContext, userId);
+                startSystemUIForVisibleUser(userId);
                 // The user will be cleared from 'mNotVisibleAtStartingUsers' the first time it
                 // becomes visible since starting.
                 mNotVisibleAtStartingUsers.remove(Integer.valueOf(userId));
@@ -2536,6 +2527,29 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     + " result %d",
                     userId, zoneInfo.zoneId, result);
         }
+    }
+
+    /** Should be called for non-current user only */
+    private void startSystemUIForVisibleUser(@UserIdInt int userId) {
+        if (!isMultipleUsersOnMultipleDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (userId == UserHandle.SYSTEM.getIdentifier()
+                || userId == ActivityManager.getCurrentUser()) {
+            Slogf.w(TAG, "Cannot start SystemUI for current or system user (userId=%d)", userId);
+            return;
+        }
+
+        if (isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager)) {
+            int displayId = getMainDisplayAssignedToUser(userId);
+            if (displayId == Display.DEFAULT_DISPLAY) {
+                // System user SystemUI is responsible for users running on the default display
+                Slogf.d(TAG, "Skipping starting SystemUI for passenger user %d on default display",
+                        userId);
+                return;
+            }
+        }
+        startSystemUiForUser(mContext, userId);
     }
 
     /** Should be called for non-current user only */

@@ -116,17 +116,28 @@ public class CarPropertyManager extends CarManagerBase {
                     } catch (RemoteException e) {
                         handleRemoteExceptionFromCarService(e);
                         return false;
+                    } catch (IllegalArgumentException e) {
+                        Log.w(TAG, "register: propertyId: "
+                                + VehiclePropertyIds.toString(propertyId) + ", updateRateHz: "
+                                + updateRateHz + ", exception: ", e);
+                        return false;
                     }
                     return true;
                 }
 
                 @Override
-                public void unregister(int propertyId) {
+                public boolean unregister(int propertyId) {
                     try {
                         mService.unregisterListener(propertyId, mCarPropertyEventToService);
                     } catch (RemoteException e) {
                         handleRemoteExceptionFromCarService(e);
+                        return false;
+                    } catch (IllegalArgumentException e) {
+                        Log.w(TAG, "unregister: propertyId: "
+                                + VehiclePropertyIds.toString(propertyId) + ", exception: ", e);
+                        return false;
                     }
+                    return true;
                 }
             };
 
@@ -1133,7 +1144,7 @@ public class CarPropertyManager extends CarManagerBase {
         requireNonNull(carPropertyEventCallback);
         CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
         if (carPropertyConfig == null) {
-            Log.e(TAG, "registerListener:  propertyId is not in carPropertyConfig list:  "
+            Log.e(TAG, "registerCallback:  propertyId is not in carPropertyConfig list:  "
                     + VehiclePropertyIds.toString(propertyId));
             return false;
         }
@@ -1141,19 +1152,25 @@ public class CarPropertyManager extends CarManagerBase {
         float sanitizedUpdateRateHz = InputSanitizationUtils.sanitizeUpdateRateHz(carPropertyConfig,
                 updateRateHz);
 
-        CarPropertyEventCallbackController carPropertyEventCallbackController;
+        boolean registerSuccessful;
         synchronized (mLock) {
-            carPropertyEventCallbackController =
+            boolean isNewInstance = false;
+            CarPropertyEventCallbackController carPropertyEventCallbackController =
                     mPropertyIdToCarPropertyEventCallbackController.get(propertyId);
             if (carPropertyEventCallbackController == null) {
                 carPropertyEventCallbackController = new CarPropertyEventCallbackController(
                         propertyId, mLock, mRegistrationUpdateCallback);
+                isNewInstance = true;
+            }
+
+            registerSuccessful = carPropertyEventCallbackController.add(carPropertyEventCallback,
+                    sanitizedUpdateRateHz);
+            if (registerSuccessful && isNewInstance) {
                 mPropertyIdToCarPropertyEventCallbackController.put(propertyId,
                         carPropertyEventCallbackController);
             }
         }
-        return carPropertyEventCallbackController.add(carPropertyEventCallback,
-                sanitizedUpdateRateHz);
+        return registerSuccessful;
     }
 
     private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
@@ -1182,6 +1199,8 @@ public class CarPropertyManager extends CarManagerBase {
      * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
      * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
      * stopped.
+     *
+     * @throws SecurityException if missing the appropriate permission.
      */
     @AddedInOrBefore(majorVersion = 33)
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
@@ -1202,6 +1221,8 @@ public class CarPropertyManager extends CarManagerBase {
      * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
      * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
      * will not be affected.
+     *
+     * @throws SecurityException if missing the appropriate permission.
      */
     @AddedInOrBefore(majorVersion = 33)
     public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
@@ -1212,15 +1233,14 @@ public class CarPropertyManager extends CarManagerBase {
                     + VehiclePropertyIds.toString(propertyId) + " is not supported");
             return;
         }
-        CarPropertyEventCallbackController carPropertyEventCallbackController;
         synchronized (mLock) {
-            carPropertyEventCallbackController =
+            CarPropertyEventCallbackController carPropertyEventCallbackController =
                     mPropertyIdToCarPropertyEventCallbackController.get(propertyId);
-        }
-        if (carPropertyEventCallbackController == null) {
-            return;
-        }
-        synchronized (mLock) {
+
+            if (carPropertyEventCallbackController == null) {
+                return;
+            }
+
             boolean allCallbacksRemoved = carPropertyEventCallbackController.remove(
                     carPropertyEventCallback);
             if (allCallbacksRemoved) {

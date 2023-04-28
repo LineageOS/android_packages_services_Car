@@ -114,32 +114,15 @@ public final class CarPropertyEventCallbackController {
      */
     public boolean add(CarPropertyEventCallback carPropertyEventCallback, float updateRateHz) {
         requireNonNull(carPropertyEventCallback);
-        Float previousUpdateRateHz;
-        SparseLongArray previousAreaIdToNextUpdateTimeNanos;
         synchronized (mCarPropertyManagerLock) {
-            previousUpdateRateHz = mCarPropertyEventCallbackToUpdateRateHz.put(
+            Float previousUpdateRateHz = mCarPropertyEventCallbackToUpdateRateHz.put(
                     carPropertyEventCallback, updateRateHz);
-            previousAreaIdToNextUpdateTimeNanos =
+            SparseLongArray previousAreaIdToNextUpdateTimeNanos =
                     mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.put(
                             carPropertyEventCallback, new SparseLongArray());
+            return updateMaxUpdateRateHzAndRegisterLocked(carPropertyEventCallback,
+                    previousUpdateRateHz, previousAreaIdToNextUpdateTimeNanos);
         }
-        boolean registerSuccessful = updateMaxUpdateRateHzAndRegistration();
-        if (!registerSuccessful) {
-            synchronized (mCarPropertyManagerLock) {
-                if (previousUpdateRateHz != null && previousAreaIdToNextUpdateTimeNanos != null) {
-                    mCarPropertyEventCallbackToUpdateRateHz.put(carPropertyEventCallback,
-                            previousUpdateRateHz);
-                    mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.put(
-                            carPropertyEventCallback, previousAreaIdToNextUpdateTimeNanos);
-                } else {
-                    mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
-                    mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.remove(
-                            carPropertyEventCallback);
-                }
-                mMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
-            }
-        }
-        return registerSuccessful;
     }
 
     /**
@@ -151,15 +134,16 @@ public final class CarPropertyEventCallbackController {
     public boolean remove(CarPropertyEventCallback carPropertyEventCallback) {
         requireNonNull(carPropertyEventCallback);
         synchronized (mCarPropertyManagerLock) {
-            mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
-            mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.remove(carPropertyEventCallback);
-        }
-        updateMaxUpdateRateHzAndRegistration();
-        synchronized (mCarPropertyManagerLock) {
+            Float previousUpdateRateHz =
+                    mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
+            SparseLongArray previousAreaIdToNextUpdateTimeNanos =
+                    mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.remove(
+                            carPropertyEventCallback);
+            updateMaxUpdateRateHzAndRegisterLocked(carPropertyEventCallback,
+                    previousUpdateRateHz, previousAreaIdToNextUpdateTimeNanos);
             return mCarPropertyEventCallbackToUpdateRateHz.isEmpty();
         }
     }
-
 
     private List<CarPropertyEventCallback> getCallbacksForCarPropertyEvent(
             CarPropertyEvent carPropertyEvent) {
@@ -213,20 +197,53 @@ public final class CarPropertyEventCallbackController {
         return false;
     }
 
-    private boolean updateMaxUpdateRateHzAndRegistration() {
-        Float newMaxUpdateRateHz;
-        synchronized (mCarPropertyManagerLock) {
-            newMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
-            if (Objects.equals(mMaxUpdateRateHz, newMaxUpdateRateHz)) {
-                return true;
-            }
-            mMaxUpdateRateHz = newMaxUpdateRateHz;
+    @GuardedBy("mCarPropertyManagerLock")
+    private void restorePreviousUpdateValuesLocked(
+            CarPropertyEventCallback carPropertyEventCallback, @Nullable Float previousUpdateRateHz,
+            @Nullable SparseLongArray previousAreaIdToNextUpdateTimeNanos) {
+        if (previousUpdateRateHz != null && previousAreaIdToNextUpdateTimeNanos != null) {
+            mCarPropertyEventCallbackToUpdateRateHz.put(carPropertyEventCallback,
+                    previousUpdateRateHz);
+            mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.put(
+                    carPropertyEventCallback, previousAreaIdToNextUpdateTimeNanos);
+        } else {
+            mCarPropertyEventCallbackToUpdateRateHz.remove(carPropertyEventCallback);
+            mCarPropertyEventCallbackToAreaIdToNextUpdateTimeNanos.remove(
+                    carPropertyEventCallback);
         }
-        if (newMaxUpdateRateHz == null) {
-            mRegistrationUpdateCallback.unregister(mPropertyId);
+        mMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
+    }
+
+    @GuardedBy("mCarPropertyManagerLock")
+    private boolean updateMaxUpdateRateHzAndRegisterLocked(
+            CarPropertyEventCallback carPropertyEventCallback, @Nullable Float previousUpdateRateHz,
+            @Nullable SparseLongArray previousAreaIdToNextUpdateTimeNanos)
+            throws SecurityException {
+        Float newMaxUpdateRateHz = calculateMaxUpdateRateHzLocked();
+        if (Objects.equals(mMaxUpdateRateHz, newMaxUpdateRateHz)) {
             return true;
         }
-        return mRegistrationUpdateCallback.register(mPropertyId, newMaxUpdateRateHz);
+        mMaxUpdateRateHz = newMaxUpdateRateHz;
+
+        boolean updateSuccessful;
+        try {
+            if (newMaxUpdateRateHz == null) {
+                updateSuccessful = mRegistrationUpdateCallback.unregister(mPropertyId);
+            } else {
+                updateSuccessful =
+                        mRegistrationUpdateCallback.register(mPropertyId, newMaxUpdateRateHz);
+            }
+        } catch (SecurityException e) {
+            restorePreviousUpdateValuesLocked(carPropertyEventCallback, previousUpdateRateHz,
+                    previousAreaIdToNextUpdateTimeNanos);
+            throw e;
+        }
+
+        if (!updateSuccessful) {
+            restorePreviousUpdateValuesLocked(carPropertyEventCallback, previousUpdateRateHz,
+                    previousAreaIdToNextUpdateTimeNanos);
+        }
+        return updateSuccessful;
     }
 
     @GuardedBy("mCarPropertyManagerLock")
@@ -246,14 +263,18 @@ public final class CarPropertyEventCallbackController {
         /**
          * Called when {@code propertyId} registration needs to be updated.
          *
-         * @return true is registration was successful, otherwise false.
+         * @return {@code true} if registration was successful, otherwise false.
+         * @throws SecurityException if missing the appropriate permission.
          */
         boolean register(int propertyId, float updateRateHz);
 
         /**
          * Called when {@code propertyId} needs to be unregistered.
+         *
+         * @return {@code true} if deregistration was successful, otherwise false.
+         * @throws SecurityException if missing the appropriate permission.
          */
-        void unregister(int propertyId);
+        boolean unregister(int propertyId);
     }
 }
 

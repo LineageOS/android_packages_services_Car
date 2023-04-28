@@ -32,8 +32,8 @@ filter_keyword = sys.argv[1]
 
 # Generate class list using tool
 java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-                                    "--ANDROID-BUILD-TOP " + rootDir
+                                    "/GenericCarApiBuilder.jar --print-all-apis " \
+                                    "--root-dir " + rootDir
 full_api_list = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
 
 output = "@ApiTest(apis = {"

@@ -16,8 +16,10 @@
 
 package com.android.car.remoteaccess;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
 
+import static com.android.car.CarServiceUtils.isEventOfType;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -30,6 +32,8 @@ import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -46,6 +50,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -63,6 +68,7 @@ import com.android.car.remoteaccess.RemoteAccessStorage.ClientIdEntry;
 import com.android.car.remoteaccess.hal.RemoteAccessHalCallback;
 import com.android.car.remoteaccess.hal.RemoteAccessHalWrapper;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -109,16 +115,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValule= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValule= */ 0);
     @GuardedBy("mLock")
-    private final ArrayMap<String, String> mPackageByClientId = new ArrayMap<>();
+    private final ArrayMap<String, String> mUidByClientId = new ArrayMap<>();
     @GuardedBy("mLock")
     private final ArrayMap<String, ArrayList<RemoteTask>> mTasksToBeNotifiedByClientId =
             new ArrayMap<>();
     @GuardedBy("mLock")
-    private final ArrayMap<String, ClientToken> mClientTokenByPackage = new ArrayMap<>();
+    private final ArrayMap<String, ClientToken> mClientTokenByUidName = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final ArrayMap<String, ArraySet<String>> mActiveTasksByPackage = new ArrayMap<>();
+    private final ArrayMap<String, ArraySet<String>> mActiveTasksByUidName = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final ArrayMap<String, RemoteTaskClientServiceInfo> mClientServiceInfoByPackage =
+    private final ArrayMap<String, RemoteTaskClientServiceInfo> mClientServiceInfoByUid =
             new ArrayMap<>();
     @GuardedBy("mLock")
     private boolean mIsReadyForRemoteTask;
@@ -203,15 +209,15 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 return;
             }
             // If this clientId has never been stored on this device before,
-            String packageName = mPackageByClientId.get(clientId);
-            if (packageName == null) {
+            String uidName = mUidByClientId.get(clientId);
+            if (uidName == null) {
                 Slogf.w(TAG, "Cannot notify task: client(%s) is not registered.", clientId);
                 Slogf.w(TAG, "Removing all the pending tasks for client ID: %s", clientId);
                 mTasksToBeNotifiedByClientId.remove(clientId);
                 return;
             }
-            // Token must not be null if mPackageByClientId contains clientId.
-            ClientToken token = mClientTokenByPackage.get(packageName);
+            // Token must not be null if mUidByClientId contains clientId.
+            ClientToken token = mClientTokenByUidName.get(uidName);
             if (!token.isClientIdValid()) {
                 // TODO(b/266371728): Handle client ID expiration.
                 Slogf.w(TAG, "Cannot notify task: clientID has expired: token = %s", token);
@@ -221,10 +227,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 return;
             }
             RemoteTaskClientServiceInfo serviceInfo =
-                    mClientServiceInfoByPackage.get(packageName);
+                    mClientServiceInfoByUid.get(uidName);
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
-                        + "for %s is not registered yet", packageName);
+                        + "for %s is not registered yet", uidName);
                 // We don't have to start the service explicitly because it will be started
                 // after searching for remote task client service is done.
                 return;
@@ -239,7 +245,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
 
             remoteTasksToNotify = popTasksFromPendingQueueLocked(clientId);
-            addTasksToActiveTasksLocked(packageName, remoteTasksToNotify);
+            addTasksToActiveTasksLocked(uidName, remoteTasksToNotify);
             callback = token.getCallback();
         }
         invokeTaskRequestCallbacks(callback, clientId, remoteTasksToNotify, taskMaxDurationInSec);
@@ -259,6 +265,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     };
     private final RemoteAccessHalWrapper mRemoteAccessHal;
     private final PowerHalService mPowerHalService;
+    private final UserManager mUserManager;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
 
@@ -272,20 +279,50 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private CarPowerManagementService mPowerService;
     private AtomicBoolean mInitialized;
 
+    private CarRemoteAccessServiceDep mDep;
+
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
             PowerHalService powerHalService) {
-        this(context, systemInterface, powerHalService, /* remoteAccessHal= */ null,
-                new RemoteAccessStorage(context, systemInterface),
+        this(context, systemInterface, powerHalService, /* dep= */ null,
+                /* remoteAccessHal= */ null, new RemoteAccessStorage(context, systemInterface),
                 INVALID_ALLOWED_SYSTEM_UPTIME);
+    }
+
+    /**
+     * Dependencies for stubbing.
+     */
+    @VisibleForTesting
+    public interface CarRemoteAccessServiceDep {
+        /**
+         * Gets the calling UID. Must be used in a binder context.
+         */
+        int getCallingUid();
+
+        /**
+         * Gets the current user.
+         */
+        int getCurrentUser();
+    }
+
+    private class CarRemoteAccessServiceDepImpl implements CarRemoteAccessServiceDep {
+        public int getCallingUid() {
+            return Binder.getCallingUid();
+        }
+
+        public int getCurrentUser() {
+            return ActivityManager.getCurrentUser();
+        }
     }
 
     @VisibleForTesting
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
-            PowerHalService powerHalService,
+            PowerHalService powerHalService, @Nullable CarRemoteAccessServiceDep dep,
             @Nullable RemoteAccessHalWrapper remoteAccessHal,
             @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs) {
         mContext = context;
+        mUserManager = mContext.getSystemService(UserManager.class);
         mPowerHalService = powerHalService;
+        mDep = dep != null ? dep : new CarRemoteAccessServiceDepImpl();
         mPackageManager = mContext.getPackageManager();
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         mRemoteAccessHal = remoteAccessHal != null ? remoteAccessHal
@@ -345,25 +382,25 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             writer.printf("mWakeupServiceName: %s\n", mWakeupServiceName);
             writer.printf("mVehicleId: %s\n", mVehicleId);
             writer.printf("mProcessorId: %s\n", mProcessorId);
-            writer.println("mClientTokenByPackage:");
+            writer.println("mClientTokenByUidName:");
             writer.increaseIndent();
-            for (int i = 0; i < mClientTokenByPackage.size(); i++) {
-                writer.printf("%s ==> %s\n", mClientTokenByPackage.keyAt(i),
-                        mClientTokenByPackage.valueAt(i));
+            for (int i = 0; i < mClientTokenByUidName.size(); i++) {
+                writer.printf("%s ==> %s\n", mClientTokenByUidName.keyAt(i),
+                        mClientTokenByUidName.valueAt(i));
             }
             writer.decreaseIndent();
-            writer.println("mActiveTasksByPackage:");
+            writer.println("mActiveTasksByUidName:");
             writer.increaseIndent();
-            for (int i = 0; i < mActiveTasksByPackage.size(); i++) {
-                writer.printf("%s ==> %s\n", mActiveTasksByPackage.keyAt(i),
-                        mActiveTasksByPackage.valueAt(i));
+            for (int i = 0; i < mActiveTasksByUidName.size(); i++) {
+                writer.printf("%s ==> %s\n", mActiveTasksByUidName.keyAt(i),
+                        mActiveTasksByUidName.valueAt(i));
             }
             writer.decreaseIndent();
-            writer.println("mClientServiceInfoByPackage:");
+            writer.println("mClientServiceInfoByUid:");
             writer.increaseIndent();
-            for (int i = 0; i < mClientServiceInfoByPackage.size(); i++) {
-                writer.printf("%d: %s ==> %s\n", i, mClientServiceInfoByPackage.keyAt(i),
-                        mClientServiceInfoByPackage.valueAt(i));
+            for (int i = 0; i < mClientServiceInfoByUid.size(); i++) {
+                writer.printf("%d: %s ==> %s\n", i, mClientServiceInfoByUid.keyAt(i),
+                        mClientServiceInfoByUid.valueAt(i));
             }
             writer.decreaseIndent();
         }
@@ -382,11 +419,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     public void addCarRemoteTaskClient(ICarRemoteAccessCallback callback) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_REMOTE_ACCESS);
         Preconditions.checkArgument(callback != null, "callback cannot be null");
-        int callingUid = Binder.getCallingUid();
-        String packageName = mPackageManager.getNameForUid(callingUid);
+        int callingUid = mDep.getCallingUid();
+        String uidName = mPackageManager.getNameForUid(callingUid);
         ClientToken token;
         synchronized (mLock) {
-            token = mClientTokenByPackage.get(packageName);
+            token = mClientTokenByUidName.get(uidName);
             if (token != null) {
                 ICarRemoteAccessCallback oldCallback = token.getCallback();
                 if (oldCallback != null) {
@@ -395,19 +432,19 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             } else {
                 // Creates a new client ID with a null callback.
                 token = new ClientToken(generateNewClientId(), System.currentTimeMillis());
-                mClientTokenByPackage.put(packageName, token);
-                mPackageByClientId.put(token.getClientId(), packageName);
+                mClientTokenByUidName.put(uidName, token);
+                mUidByClientId.put(token.getClientId(), uidName);
             }
             token.setCallback(callback);
             try {
                 callback.asBinder().linkToDeath(token, /* flags= */ 0);
             } catch (RemoteException e) {
-                mPackageByClientId.remove(token.getClientId());
-                mClientTokenByPackage.remove(packageName);
+                mUidByClientId.remove(token.getClientId());
+                mClientTokenByUidName.remove(uidName);
                 throw new IllegalStateException("Failed to linkToDeath callback");
             }
         }
-        saveClientIdInDb(token, packageName);
+        saveClientIdInDb(token, uidName);
         postRegistrationUpdated(callback, token.getClientId());
     }
 
@@ -421,13 +458,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     public void removeCarRemoteTaskClient(ICarRemoteAccessCallback callback) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_REMOTE_ACCESS);
         Preconditions.checkArgument(callback != null, "callback cannot be null");
-        int callingUid = Binder.getCallingUid();
-        String packageName = mPackageManager.getNameForUid(callingUid);
+        int callingUid = mDep.getCallingUid();
+        String uidName = mPackageManager.getNameForUid(callingUid);
         synchronized (mLock) {
-            ClientToken token = mClientTokenByPackage.get(packageName);
+            ClientToken token = mClientTokenByUidName.get(uidName);
             if (token == null || token.getCallback().asBinder() != callback.asBinder()) {
                 Slogf.w(TAG, "Cannot remove callback. Callback has not been registered for %s",
-                        packageName);
+                        uidName);
                 return;
             }
             callback.asBinder().unlinkToDeath(token, /* flags= */ 0);
@@ -450,10 +487,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_REMOTE_ACCESS);
         Preconditions.checkArgument(clientId != null, "clientId cannot be null");
         Preconditions.checkArgument(taskId != null, "taskId cannot be null");
-        int callingUid = Binder.getCallingUid();
-        String packageName = mPackageManager.getNameForUid(callingUid);
+        int callingUid = mDep.getCallingUid();
+        String uidName = mPackageManager.getNameForUid(callingUid);
         synchronized (mLock) {
-            ClientToken token = mClientTokenByPackage.get(packageName);
+            ClientToken token = mClientTokenByUidName.get(uidName);
             if (token == null) {
                 throw new IllegalArgumentException("Callback has not been registered");
             }
@@ -462,7 +499,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 throw new IllegalArgumentException("Client ID(" + clientId + ") doesn't match the "
                         + "registered one(" + token.getClientId() + ")");
             }
-            removeTaskFromActiveTasksLocked(packageName, taskId);
+            removeTaskFromActiveTasksLocked(uidName, taskId);
         }
         shutdownIfNeeded(/* force= */ false);
     }
@@ -495,18 +532,18 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             for (int i = 0; i < clientIdEntries.size(); i++) {
                 ClientIdEntry entry = clientIdEntries.get(i);
-                mPackageByClientId.put(entry.clientId, entry.packageName);
-                mClientTokenByPackage.put(entry.packageName,
+                mUidByClientId.put(entry.clientId, entry.uidName);
+                mClientTokenByUidName.put(entry.uidName,
                         new ClientToken(entry.clientId, entry.idCreationTime));
             }
         }
     }
 
-    private void saveClientIdInDb(ClientToken token, String packageName) {
+    private void saveClientIdInDb(ClientToken token, String uidName) {
         ClientIdEntry entry = new ClientIdEntry(token.getClientId(), token.getIdCreationTime(),
-                packageName);
+                uidName);
         if (!mRemoteAccessStorage.updateClientId(entry)) {
-            Slogf.e(TAG, "Failed to save %s for %s in the database", token, packageName);
+            Slogf.e(TAG, "Failed to save %s for %s in the database", token, uidName);
         }
     }
 
@@ -566,10 +603,22 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
+    /**
+     * For testing only.
+     *
+     * Unbind all the remote task client services.
+     */
+    @VisibleForTesting
+    public void unbindAllServices() {
+        synchronized (mLock) {
+            unbindAllServicesLocked();
+        }
+    }
+
     @GuardedBy("mLock")
     private void unbindAllServicesLocked() {
-        for (int i = 0; i < mClientServiceInfoByPackage.size(); i++) {
-            RemoteTaskClientServiceInfo serviceInfo = mClientServiceInfoByPackage.valueAt(i);
+        for (int i = 0; i < mClientServiceInfoByUid.size(); i++) {
+            RemoteTaskClientServiceInfo serviceInfo = mClientServiceInfoByUid.valueAt(i);
             unbindRemoteTaskClientService(serviceInfo);
         }
     }
@@ -578,8 +627,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private int calcTaskMaxDurationLocked() {
         long currentTimeInMs = SystemClock.uptimeMillis();
         int taskMaxDurationInSec = (int) (mShutdownTimeInMs - currentTimeInMs) / MILLI_TO_SECOND;
-        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON) {
-            taskMaxDurationInSec = (int) (mAllowedSystemUptimeMs / MILLI_TO_SECOND);
+        if (mNextPowerState == CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                || mPowerHalService.isVehicleInUse()) {
+            // If next power state is ON or vehicle is in use, the mShutdownTimeInMs does not make
+            // sense because shutdown will not happen. We always allow task to execute for
+            // mAllowedSystemUptimMs.
+            taskMaxDurationInSec = (int) Math.ceil(
+                    (double) mAllowedSystemUptimeMs / MILLI_TO_SECOND);
         }
         return taskMaxDurationInSec;
     }
@@ -587,8 +641,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private int getActiveTaskCountLocked() {
         int count = 0;
-        for (int i = 0; i < mActiveTasksByPackage.size(); i++) {
-            count += mActiveTasksByPackage.valueAt(i).size();
+        for (int i = 0; i < mActiveTasksByUidName.size(); i++) {
+            count += mActiveTasksByUidName.valueAt(i).size();
         }
         return count;
     }
@@ -611,30 +665,31 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void searchForRemoteTaskClientPackages() {
         List<RemoteTaskClientServiceInfo> servicesToStart = new ArrayList<>();
         // TODO(b/266129982): Query for all users.
-        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
                 new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
-                currentUser);
+                UserHandle.SYSTEM);
         synchronized (mLock) {
             for (int i = 0; i < services.size(); i++) {
                 ServiceInfo info = services.get(i).serviceInfo;
-                ComponentName componentName = new ComponentName(info.packageName, info.name);
+                String packageName = info.packageName;
+                ComponentName componentName = new ComponentName(packageName, info.name);
                 if (mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS,
-                        info.packageName) != PackageManager.PERMISSION_GRANTED) {
+                        packageName) != PackageManager.PERMISSION_GRANTED) {
                     Slogf.w(TAG, "Component(%s) has %s intent but doesn't have %s permission",
                             componentName.flattenToString(),
                             Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE,
                             Car.PERMISSION_USE_REMOTE_ACCESS);
                     continue;
                 }
-                // TODO(b/263798644): mClientServiceInfoByPackage should be updated when packages
+                // TODO(b/263798644): mClientServiceInfoByUid should be updated when packages
                 // are added, removed, updated.
                 RemoteTaskClientServiceInfo serviceInfo =
                         new RemoteTaskClientServiceInfo(componentName);
-                mClientServiceInfoByPackage.put(info.packageName, serviceInfo);
+                String uidName = mPackageManager.getNameForUid(info.applicationInfo.uid);
+                mClientServiceInfoByUid.put(uidName, serviceInfo);
                 if (DEBUG) {
                     Slogf.d(TAG, "Package(%s) is found as a remote task client service",
-                            info.packageName);
+                            packageName);
                 }
                 servicesToStart.add(serviceInfo);
             }
@@ -651,13 +706,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void startRemoteTaskClientService(RemoteTaskClientServiceInfo serviceInfo,
             boolean scheduleUnbind) {
         ComponentName serviceName = serviceInfo.getServiceComponentName();
-        RemoteTaskClientServiceConnection serviceConnection =
-                new RemoteTaskClientServiceConnection(mContext, serviceName);
-        if (!serviceConnection.bindService()) {
-            Slogf.w(TAG, "failed to bind service connection");
-            return;
+        // TODO(b/266129982): Start a service for the user under which the task needs to be
+        // executed.
+        if (serviceInfo.getServiceConnection() != null) {
+            serviceInfo.getServiceConnection().bindService();
+        } else {
+            RemoteTaskClientServiceConnection serviceConnection =
+                    new RemoteTaskClientServiceConnection(mContext, serviceName, UserHandle.SYSTEM);
+            serviceConnection.bindService();
+            serviceInfo.setServiceConnection(serviceConnection);
         }
-        serviceInfo.setServiceConnection(serviceConnection);
         Slogf.i(TAG, "Service(%s) is bound to give a time to register as a remote task client",
                 serviceName.flattenToString());
         if (scheduleUnbind) {
@@ -704,8 +762,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
                 return;
             }
-            for (int i = 0; i < mClientTokenByPackage.size(); i++) {
-                ClientToken token = mClientTokenByPackage.valueAt(i);
+            for (int i = 0; i < mClientTokenByUidName.size(); i++) {
+                ClientToken token = mClientTokenByUidName.valueAt(i);
                 if (token == null || token.getCallback() == null || !token.isClientIdValid()) {
                     Slogf.w(TAG, "Notifying client(%s) of shutdownStarting is skipped: invalid "
                             + "client token", token);
@@ -725,19 +783,24 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     private void wrapUpRemoteAccessServiceIfNeeded() {
-        Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+        synchronized (mLock) {
+            if (mNextPowerState != CarRemoteAccessManager.NEXT_POWER_STATE_ON
+                    && !mPowerHalService.isVehicleInUse()) {
+                Slogf.i(TAG, "Remote task execution time has expired: wrapping up the service");
+            }
+        }
         shutdownIfNeeded(/* force= */ true);
     }
 
     @Nullable
     RemoteTaskClientServiceInfo getRemoteTaskClientServiceInfo(String clientId) {
         synchronized (mLock) {
-            String packageName = mPackageByClientId.get(clientId);
-            if (packageName == null) {
+            String uidName = mUidByClientId.get(clientId);
+            if (uidName == null) {
                 Slogf.w(TAG, "Cannot get package name for client ID(%s)", clientId);
                 return null;
             }
-            return mClientServiceInfoByPackage.get(packageName);
+            return mClientServiceInfoByUid.get(uidName);
         }
     }
 
@@ -766,22 +829,22 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     @GuardedBy("mLock")
-    private void removeTaskFromActiveTasksLocked(String packageName, String taskId) {
-        ArraySet<String> tasks = mActiveTasksByPackage.get(packageName);
+    private void removeTaskFromActiveTasksLocked(String uidName, String taskId) {
+        ArraySet<String> tasks = mActiveTasksByUidName.get(uidName);
         if (tasks == null || !tasks.contains(taskId)) {
             throw new IllegalArgumentException("Task ID(" + taskId + ") is not valid");
         }
         tasks.remove(taskId);
         if (tasks.isEmpty()) {
-            mActiveTasksByPackage.remove(packageName);
+            mActiveTasksByUidName.remove(uidName);
         }
     }
 
     @GuardedBy("mLock")
     private void removeTaskFromActiveTasksOfClientLocked(String clientId, String taskId) {
-        String packageName = mPackageByClientId.get(clientId);
-        if (packageName != null) {
-            removeTaskFromActiveTasksLocked(packageName, taskId);
+        String uidName = mUidByClientId.get(clientId);
+        if (uidName != null) {
+            removeTaskFromActiveTasksLocked(uidName, taskId);
         } else {
             Slogf.w(TAG, "Cannot remove task(%s) from the active tasks: package for "
                     + "clientId(%s) is not available", taskId, clientId);
@@ -789,11 +852,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     @GuardedBy("mLock")
-    private void addTasksToActiveTasksLocked(String packageName, List<RemoteTask> tasks) {
-        ArraySet<String> activeTasks = mActiveTasksByPackage.get(packageName);
+    private void addTasksToActiveTasksLocked(String uidName, List<RemoteTask> tasks) {
+        ArraySet<String> activeTasks = mActiveTasksByUidName.get(uidName);
         if (activeTasks == null) {
             activeTasks = new ArraySet<>();
-            mActiveTasksByPackage.put(packageName, activeTasks);
+            mActiveTasksByUidName.put(uidName, activeTasks);
         }
         for (int i = 0; i < tasks.size(); i++) {
             RemoteTask task = tasks.get(i);
@@ -948,23 +1011,52 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
     }
 
-    private static final class RemoteTaskClientServiceConnection implements ServiceConnection {
+    private final class RemoteTaskClientServiceConnection implements ServiceConnection {
 
         private static final String TAG = RemoteTaskClientServiceConnection.class.getSimpleName();
 
         private final Object mServiceLock = new Object();
         private final Context mContext;
         private final Intent mIntent;
+        private final UserHandle mUser;
 
+        private final CarUserService mCarUserService;
+
+        // The following three variables represent the state machine of this connection:
+        // 1. Init state (Binding: F, Bound: F, WaitingForUserUnlock: F)
+        // 2. Waiting for user unlock (Binding: F, Bound: F, WaitingForUserUnlock: T)
+        // 3. Binding state (Binding: T, Bound: F, WaitingForUserUnlock: F)
+        // 4. Bound state (Binding: F, Bound: T, WaitingForUserUnlock: F)
+        //
+        // 1->2 If user is currently locked
+        // 2->3 Aftr receiving user unlock intent.
+        // 1->3 If user is currently unlocked
+        // 3->4 After onNullBinding callback.
         @GuardedBy("mServiceLock")
         private boolean mBound;
         @GuardedBy("mServiceLock")
         private boolean mBinding;
+        @GuardedBy("mServiceLock")
+        private boolean mWaitingForUserUnlock;
 
-        private RemoteTaskClientServiceConnection(Context context, ComponentName serviceName) {
+        private final UserLifecycleListener mUserLifecycleListener;
+
+        private RemoteTaskClientServiceConnection(Context context, ComponentName serviceName,
+                UserHandle user) {
             mContext = context;
             mIntent = new Intent();
             mIntent.setComponent(serviceName);
+            mUser = user;
+            mCarUserService = CarLocalServices.getService(CarUserService.class);
+            mUserLifecycleListener = event -> {
+                if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
+                    return;
+                }
+
+                if (event.getUserId() == mUser.getIdentifier()) {
+                    onReceiveUserUnlock();
+                }
+            };
         }
 
         @Override
@@ -992,37 +1084,96 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.w(TAG, "Service(%s) died", name.flattenToShortString());
         }
 
-        public boolean bindService() {
+        private void onReceiveUserUnlock() {
+            synchronized (mServiceLock) {
+                mWaitingForUserUnlock = false;
+                if (DEBUG) {
+                    Slogf.d(TAG, "received user unlock notification");
+                }
+                if (mBinding || mBound) {
+                    // bindService is called again after user is unlocked, which caused binding to
+                    // happen, so we don't need to do anything here.
+                    if (DEBUG) {
+                        Slogf.d(TAG, "a binding is already created, ignore the user unlock intent");
+                    }
+                    return;
+                }
+                bindServiceLocked();
+            }
+        }
+
+        @GuardedBy("mServiceLock")
+        private void waitForUserUnlockServiceLocked() {
+            UserLifecycleEventFilter userUnlockEventFilter = new UserLifecycleEventFilter.Builder()
+                    .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).addUser(mUser).build();
+            mCarUserService.addUserLifecycleListener(userUnlockEventFilter, mUserLifecycleListener);
+            mWaitingForUserUnlock = true;
+        }
+
+        @GuardedBy("mServiceLock")
+        private void cancelWaitForUserUnlockServiceLocked() {
+            mCarUserService.removeUserLifecycleListener(mUserLifecycleListener);
+            mWaitingForUserUnlock = false;
+        }
+
+        @GuardedBy("mServiceLock")
+        private void bindServiceLocked() {
+            if (DEBUG) {
+                Slogf.d(TAG, "Bind service %s as user %s", mIntent, mUser);
+            }
+            boolean status = mContext.bindServiceAsUser(mIntent, /* conn= */ this,
+                    BIND_AUTO_CREATE, mUser);
+            if (!status) {
+                Slogf.w(TAG, "Failed to bind service %s as user %s", mIntent, mUser);
+                mContext.unbindService(/* conn= */ this);
+                return;
+            }
+            mBinding = true;
+        }
+
+        public void bindService() {
+            if (DEBUG) {
+                Slogf.d(TAG, "Try to bind service %s as user %s if unlocked", mIntent, mUser);
+            }
             synchronized (mServiceLock) {
                 if (mBinding) {
                     Slogf.w(TAG, "%s binding is already ongoing, ignore the new bind request",
                             mIntent);
-                    return true;
+                    return;
+                }
+                if (mWaitingForUserUnlock) {
+                    Slogf.w(TAG,
+                            "%s binding is waiting for user unlock, ignore the new bind request",
+                            mIntent);
+                    return;
                 }
                 if (mBound) {
                     Slogf.w(TAG, "%s is already bound", mIntent);
-                    return true;
+                    return;
                 }
-                // TODO(b/266129982): Start a service for the user under which the task needs to be
-                // executed.
-                UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
-                boolean status = mContext.bindServiceAsUser(mIntent, /* conn= */ this,
-                        BIND_AUTO_CREATE, currentUser);
-                if (!status) {
-                    Slogf.w(TAG, "Failed to bind service %s as user %s", mIntent, currentUser);
-                    mContext.unbindService(/* conn= */ this);
-                    return false;
+                // Start listening for unlock event before checking so that we don't miss any
+                // unlock intent.
+                waitForUserUnlockServiceLocked();
+                if (mUserManager.isUserUnlocked(mUser)) {
+                    if (DEBUG) {
+                        Slogf.d(TAG, "User %s is unlocked, start binding", mUser);
+                    }
+                    cancelWaitForUserUnlockServiceLocked();
+                    bindServiceLocked();
+                } else {
+                    Slogf.w(TAG, "User %s is not unlocked, waiting for it to be unlocked", mUser);
                 }
-
-                mBinding = true;
-                return status;
             }
         }
 
         public void unbindService() {
             synchronized (mServiceLock) {
+                if (mWaitingForUserUnlock) {
+                    cancelWaitForUserUnlockServiceLocked();
+                    return;
+                }
                 if (!mBound && !mBinding) {
-                    // If we have do not have an active bounding.
+                    // If we do not have an active bounding.
                     return;
                 }
                 mBinding = false;

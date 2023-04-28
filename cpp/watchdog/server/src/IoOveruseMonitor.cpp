@@ -378,14 +378,12 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     if (mLatestIoOveruseStats.empty()) {
         return {};
     }
-    // Do not clear the cache here since it is not known if the I/O overuse stats were sent
-    // successfully. This will be known once WatchdogPerfService sends the stats to car watchdog
-    // service side and calls the |onResourceStatsSent| method on each data processor. Handle all
-    // clearing logic on the |onResourceStatsSent| method instead.
     if (!(resourceStats->resourceOveruseStats).has_value()) {
         resourceStats->resourceOveruseStats = std::make_optional<ResourceOveruseStats>({});
     }
     resourceStats->resourceOveruseStats->packageIoOveruseStats = mLatestIoOveruseStats;
+    // Clear the cache
+    mLatestIoOveruseStats.clear();
     return {};
 }
 
@@ -451,15 +449,6 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
         mSystemWideWrittenBytes.erase(mSystemWideWrittenBytes.begin());  // Erase the oldest entry.
     }
     mLastSystemWideIoMonitorTime = time;
-    return {};
-}
-
-Result<void> IoOveruseMonitor::onResourceStatsSent(bool successful) {
-    // Clear the cache only if the stats were sent successfully. If unsuccessful, keep the stats
-    // cached as they can be pushed again on the next collection.
-    if (successful) {
-        mLatestIoOveruseStats.clear();
-    }
     return {};
 }
 

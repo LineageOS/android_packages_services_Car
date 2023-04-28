@@ -644,43 +644,6 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
         return null;
     }
 
-    private static final class AudioPlaybackConfigurationBuilder {
-        @AudioAttributes.AttributeUsage private int mUsage = USAGE_MEDIA;
-        private boolean mIsActive = true;
-        private String mDeviceAddress = "";
-
-        AudioPlaybackConfigurationBuilder setUsage(@AudioAttributes.AttributeUsage int usage) {
-            mUsage = usage;
-            return this;
-        }
-
-        AudioPlaybackConfigurationBuilder setDeviceAddress(String deviceAddress) {
-            mDeviceAddress = deviceAddress;
-            return this;
-        }
-
-        AudioPlaybackConfiguration build() {
-            AudioPlaybackConfiguration configuration = mock(AudioPlaybackConfiguration.class);
-            AudioAttributes attributes = new AudioAttributes.Builder().setUsage(mUsage).build();
-            AudioDeviceInfo outputDevice = generateOutAudioDeviceInfo(mDeviceAddress);
-            when(configuration.getAudioAttributes()).thenReturn(attributes);
-            when(configuration.getAudioDeviceInfo()).thenReturn(outputDevice);
-            when(configuration.isActive()).thenReturn(mIsActive);
-            return configuration;
-        }
-
-        private AudioDeviceInfo generateOutAudioDeviceInfo(String address) {
-            AudioDeviceInfo audioDeviceInfo = mock(AudioDeviceInfo.class);
-            when(audioDeviceInfo.getAddress()).thenReturn(address);
-            when(audioDeviceInfo.getType()).thenReturn(AudioDeviceInfo.TYPE_BUS);
-            when(audioDeviceInfo.isSource()).thenReturn(false);
-            when(audioDeviceInfo.isSink()).thenReturn(true);
-            when(audioDeviceInfo.getInternalType()).thenReturn(AudioDeviceInfo
-                    .convertDeviceTypeToInternalInputDevice(AudioDeviceInfo.TYPE_BUS));
-            return audioDeviceInfo;
-        }
-    }
-
     private static final class TestCarAudioZoneConfigBuilder {
         private static final int INVALID_GROUP_ID = -1;
         private List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();

@@ -67,7 +67,7 @@ public final class UserHandleHelperUnitTest extends AbstractExtendedMockitoTestC
     public void testGetExistingUserHandle() {
         List<UserHandle> users = Arrays.asList(UserHandle.of(100), UserHandle.of(101),
                 UserHandle.of(102));
-        mockGetUserHandles(false, false, true, users);
+        mockGetUserHandles(false, users);
         UserHandle user100 = UserHandle.of(100);
         UserHandle user101 = UserHandle.of(101);
         UserHandle user102 = UserHandle.of(102);
@@ -76,29 +76,6 @@ public final class UserHandleHelperUnitTest extends AbstractExtendedMockitoTestC
         expectThat(mUserHandleHelper.getExistingUserHandle(101)).isEqualTo(user101);
         expectThat(mUserHandleHelper.getExistingUserHandle(102)).isEqualTo(user102);
         expectThat(mUserHandleHelper.getExistingUserHandle(103)).isNull();
-    }
-
-    @Test
-    public void testGetUserHandles() {
-        List<UserHandle> users = Arrays.asList(UserHandle.of(100), UserHandle.of(101),
-                UserHandle.of(102));
-        mockGetUserHandles(false, false, false, users);
-        mockGetUserHandles(false, false, true, users);
-        mockGetUserHandles(false, true, false, users);
-        mockGetUserHandles(false, true, true, users);
-        mockGetUserHandles(true, false, false, users);
-        mockGetUserHandles(true, false, true, users);
-        mockGetUserHandles(true, true, false, users);
-        mockGetUserHandles(true, true, true, users);
-
-        expectThat(mUserHandleHelper.getUserHandles(false, false, false)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(false, false, true)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(false, true, false)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(false, true, true)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(true, false, false)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(true, false, true)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(true, true, false)).isEqualTo(users);
-        expectThat(mUserHandleHelper.getUserHandles(true, true, true)).isEqualTo(users);
     }
 
     @Test
@@ -164,18 +141,8 @@ public final class UserHandleHelperUnitTest extends AbstractExtendedMockitoTestC
         assertThat(mUserHandleHelper.isInitializedUser(user)).isTrue();
     }
 
-    @Test
-    public void testIsPreCreatedUser() {
-        UserHandle user = UserHandle.of(100);
-        doReturn(true).when(() -> UserManagerHelper.isPreCreatedUser(mUserManager, user));
-
-        assertThat(mUserHandleHelper.isPreCreatedUser(user)).isTrue();
-    }
-
-    private void mockGetUserHandles(boolean excludePartial, boolean excludeDying,
-            boolean excludePreCreated, List<UserHandle> userHandles) {
+    private void mockGetUserHandles(boolean excludeDying, List<UserHandle> userHandles) {
         doReturn(userHandles).when(
-                () -> UserManagerHelper.getUserHandles(mUserManager, excludePartial, excludeDying,
-                        excludePreCreated));
+                () -> UserManagerHelper.getUserHandles(mUserManager, excludeDying));
     }
 }

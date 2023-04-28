@@ -72,6 +72,9 @@ public:
         return std::chrono::duration_cast<std::chrono::seconds>(mElapsedTime).count();
     }
 
+    // Increment time by a specific duration.
+    void incrementTime(std::chrono::nanoseconds duration) { mTimer += duration; }
+
 private:
     Mutex mMutex;
     android::sp<MessageHandler> mHandler;

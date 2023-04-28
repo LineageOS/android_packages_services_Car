@@ -177,7 +177,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
 
     class CarUiPortraitPerDisplay extends DisplaySystemBarsController.PerDisplay {
         private final int[] mDefaultVisibilities =
-                new int[]{ WindowInsets.Type.systemBars(), 0};
+                new int[]{WindowInsets.Type.systemBars(), 0};
         private final int[] mFullImmersiveVisibilities =
                 new int[]{0, WindowInsets.Type.systemBars()};
         // Only hide statusBars
@@ -246,7 +246,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             int[] barVisibilities = BarControlPolicy.getBarVisibilities(mPackageName);
             //TODO(b/260948168): Check with UX on how to deal with activity resize when changing
             // between STATE_IMMERSIVE_WITHOUT_NAV_BAR and STATE_IMMERSIVE_WITH_NAV_BAR
-            switch (mImmersiveState){
+            switch (mImmersiveState) {
                 case STATE_DEFAULT: {
                     Slog.d(TAG, "Update barVisibilities to STATE_DEFAULT");
                     barVisibilities = mDefaultVisibilities;
@@ -257,7 +257,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                     barVisibilities = mFullImmersiveVisibilities;
                     break;
                 }
-                case STATE_IMMERSIVE_WITH_NAV_BAR : {
+                case STATE_IMMERSIVE_WITH_NAV_BAR: {
                     Slog.d(TAG, "Update barVisibilities to STATE_IMMERSIVE_WITH_NAV_BAR");
                     barVisibilities = mImmersiveWithNavBarVisibilities;
                     break;

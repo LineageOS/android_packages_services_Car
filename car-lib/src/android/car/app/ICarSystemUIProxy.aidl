@@ -34,5 +34,5 @@ interface ICarSystemUIProxy {
      *
      * @return a handle to the host side of task view.
      */
-    ICarTaskViewHost createCarTaskView(in ICarTaskViewClient client);
+    ICarTaskViewHost createControlledCarTaskView(in ICarTaskViewClient client);
 }

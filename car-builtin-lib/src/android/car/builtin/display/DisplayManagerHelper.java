@@ -41,6 +41,7 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_ADDED = DisplayManager.EVENT_FLAG_DISPLAY_ADDED;
 
@@ -49,6 +50,7 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_REMOVED = DisplayManager.EVENT_FLAG_DISPLAY_REMOVED;
 
@@ -57,6 +59,7 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_CHANGED = DisplayManager.EVENT_FLAG_DISPLAY_CHANGED;
 
@@ -67,6 +70,7 @@ public final class DisplayManagerHelper {
      *
      * @see #registerDisplayListener(DisplayListener, Handler, long)
      */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final long EVENT_FLAG_DISPLAY_BRIGHTNESS =
             DisplayManager.EVENT_FLAG_DISPLAY_BRIGHTNESS;

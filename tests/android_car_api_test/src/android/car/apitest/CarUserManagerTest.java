@@ -48,6 +48,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
 
@@ -344,6 +345,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     private static boolean isDeviceEmulator() {
-        return SystemProperties.get("ro.product.system.device").equals("generic");
+        return Objects.equals(SystemProperties.get("ro.product.system.device"), "generic");
     }
 }

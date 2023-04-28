@@ -131,7 +131,11 @@ package android.car.test {
 package android.car.user {
 
   public final class CarUserManager {
-    method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
+    method @Deprecated @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
+  }
+
+  public final class UserCreationResult implements android.os.Parcelable {
+    ctor public UserCreationResult(int);
   }
 
 }

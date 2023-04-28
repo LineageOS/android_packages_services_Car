@@ -317,7 +317,7 @@ public final class OemCarServiceHelper {
     }
 
     private AudioAttributes getAudioAttributeFromString(String stringAudioAttribute) {
-        if (stringAudioAttribute.equals("AUDIO_USAGE_NOTIFICATION_EVENT")) {
+        if (Objects.equals(stringAudioAttribute, "AUDIO_USAGE_NOTIFICATION_EVENT")) {
             return getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT);
         }
         return getAudioAttributeFromUsage(AudioAttributes.xsdStringToUsage(stringAudioAttribute));

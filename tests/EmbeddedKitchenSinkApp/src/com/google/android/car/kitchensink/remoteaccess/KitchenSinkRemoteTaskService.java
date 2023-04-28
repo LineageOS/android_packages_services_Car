@@ -16,28 +16,55 @@
 
 package com.google.android.car.kitchensink.remoteaccess;
 
+import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.app.Service;
 import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.android.internal.annotations.GuardedBy;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.concurrent.Executor;
 
 public final class KitchenSinkRemoteTaskService extends Service {
 
     private static final String TAG = KitchenSinkRemoteTaskService.class.getSimpleName();
 
+    static final String PREF_KEY = "Tasks";
+    static final String TASK_TIME_KEY = "TaskTime";
+    static final String TASK_ID_KEY = "TaskId";
+    static final String TASK_DATA_KEY = "TaskData";
+    static final String TASK_DURATION_KEY = "TaskDuration";
+
     private final RemoteTaskClient mRemoteTaskClient = new RemoteTaskClient();
 
     private Car mCar;
     private CarRemoteAccessManager mRemoteAccessManager;
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private SharedPreferences mSharedPref;
+
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
+        synchronized (mLock) {
+            mSharedPref = getDefaultSharedPreferences(this);
+        }
         disconnectCar();
         mCar = Car.createCar(this, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 (Car car, boolean ready) -> {
@@ -73,7 +100,7 @@ public final class KitchenSinkRemoteTaskService extends Service {
         }
     }
 
-    private static final class RemoteTaskClient
+    private final class RemoteTaskClient
             implements CarRemoteAccessManager.RemoteTaskClientCallback {
 
         @Override
@@ -90,13 +117,57 @@ public final class KitchenSinkRemoteTaskService extends Service {
 
         @Override
         public void onRemoteTaskRequested(String taskId, byte[] data, int remainingTimeSec) {
-            Log.i(TAG, "Remote task(" + taskId + ") is requested with " + remainingTimeSec
-                    + " sec remaining");
+            // Lock to prevent concurrent access of shared pref.
+            synchronized (mLock) {
+                String taskDataStr = new String(data, StandardCharsets.UTF_8);
+                Log.i(TAG, "Remote task(" + taskId + ") is requested with " + remainingTimeSec
+                        + " sec remaining, task data: " + taskDataStr);
+                String taskListJson = mSharedPref.getString(
+                        KitchenSinkRemoteTaskService.PREF_KEY, "{}");
+                SharedPreferences.Editor sharedPrefEditor = mSharedPref.edit();
+                sharedPrefEditor.putString(PREF_KEY, toJsonString(
+                        taskListJson, taskId, taskDataStr, remainingTimeSec));
+                sharedPrefEditor.apply();
+            }
         }
 
         @Override
         public void onShutdownStarting(CarRemoteAccessManager.CompletableRemoteTaskFuture future) {
             future.complete();
+        }
+
+        private static String formatTime(LocalDateTime t) {
+            return t.format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT));
+        }
+
+        private static String toJsonString(String taskListJson, String taskId, String taskDataStr,
+                int remainingTimeSec) {
+            LocalDateTime taskTime = LocalDateTime.now(ZoneId.systemDefault());
+            JSONObject jsonObject = null;
+            JSONArray tasks = null;
+            try {
+                jsonObject = new JSONObject(taskListJson);
+                tasks = (JSONArray) jsonObject.get(PREF_KEY);
+            } catch (JSONException e) {
+                Log.w(TAG, "task list JSON is not initialized");
+            }
+            try {
+                if (jsonObject == null || tasks == null) {
+                    jsonObject = new JSONObject();
+                    tasks = new JSONArray();
+                    jsonObject.put(PREF_KEY, tasks);
+                }
+                JSONObject task = new JSONObject();
+                task.put(TASK_TIME_KEY, formatTime(taskTime));
+                task.put(TASK_ID_KEY, taskId);
+                task.put(TASK_DATA_KEY, taskDataStr);
+                task.put(TASK_DURATION_KEY, Integer.valueOf(remainingTimeSec));
+                tasks.put(task);
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to convert task info to JSON", e);
+                return "";
+            }
+            return jsonObject.toString();
         }
     }
 }

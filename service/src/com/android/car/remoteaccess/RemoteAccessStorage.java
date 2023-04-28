@@ -57,33 +57,26 @@ final class RemoteAccessStorage {
 
     @Nullable
     ClientIdEntry getClientIdEntry(String packageName) {
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return ClientIdTable.queryClientIdEntry(db, packageName);
-        }
+        return ClientIdTable.queryClientIdEntry(mDbHelper.getReadableDatabase(), packageName);
     }
 
     @Nullable
     List<ClientIdEntry> getClientIdEntries() {
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return ClientIdTable.queryClientIdEntries(db);
-        }
+        return ClientIdTable.queryClientIdEntries(mDbHelper.getReadableDatabase());
     }
 
     boolean updateClientId(ClientIdEntry entry) {
-        boolean isSuccessful = false;
-        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            try {
-                db.beginTransaction();
-                if (!ClientIdTable.replaceEntry(db, entry)) {
-                    return false;
-                }
-                db.setTransactionSuccessful();
-                isSuccessful = true;
-            } finally {
-                db.endTransaction();
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        try {
+            db.beginTransaction();
+            if (!ClientIdTable.replaceEntry(db, entry)) {
+                return false;
             }
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
         }
-        return isSuccessful;
     }
 
     boolean deleteClientId(String clientId) {
@@ -100,13 +93,13 @@ final class RemoteAccessStorage {
     static final class ClientIdEntry {
         public final String clientId;
         public final long idCreationTime;
-        public final String packageName;
+        public final String uidName;
 
-        ClientIdEntry(String clientId, long idCreationTime, String packageName) {
-            Preconditions.checkArgument(packageName != null, "packageName cannot be null");
+        ClientIdEntry(String clientId, long idCreationTime, String uidName) {
+            Preconditions.checkArgument(uidName != null, "uidName cannot be null");
             this.clientId = clientId;
             this.idCreationTime = idCreationTime;
-            this.packageName = packageName;
+            this.uidName = uidName;
         }
 
         @Override
@@ -119,19 +112,19 @@ final class RemoteAccessStorage {
             }
             ClientIdEntry other = (ClientIdEntry) obj;
             return clientId.equals(other.clientId) && idCreationTime == other.idCreationTime
-                    && packageName.equals(other.packageName);
+                    && uidName.equals(other.uidName);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(clientId, idCreationTime, packageName);
+            return Objects.hash(clientId, idCreationTime, uidName);
         }
 
         @Override
         public String toString() {
             return new StringBuilder().append("ClientIdEntry{clientId: ").append(clientId)
-                    .append(", idCreationTime: ").append(idCreationTime).append(", packageName: ")
-                    .append(packageName).append('}').toString();
+                    .append(", idCreationTime: ").append(idCreationTime).append(", uidName: ")
+                    .append(uidName).append('}').toString();
         }
     }
 
@@ -144,7 +137,7 @@ final class RemoteAccessStorage {
         public static final String INDEX_NAME = "index_package_name";
         public static final String COLUMN_CLIENT_ID = "client_id";
         public static final String COLUMN_CLIENT_ID_CREATION_TIME = "id_creation_time";
-        public static final String COLUMN_PACKAGE_NAME = "package_name";
+        public static final String COLUMN_UID_NAME = "uid_name";
         public static final String COLUMN_SECRET_KEY_IV = "secret_key_iv";
 
         private static final String STRING_ENCODING = "UTF-8";
@@ -152,7 +145,7 @@ final class RemoteAccessStorage {
         public static void createDb(SQLiteDatabase db) {
             StringBuilder createCommand = new StringBuilder();
             createCommand.append("CREATE TABLE ").append(TABLE_NAME).append(" (")
-                    .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL PRIMARY KEY, ")
+                    .append(COLUMN_UID_NAME).append(" TEXT NOT NULL PRIMARY KEY, ")
                     .append(COLUMN_CLIENT_ID).append(" BLOB NOT NULL, ")
                     .append(COLUMN_CLIENT_ID_CREATION_TIME).append(" BIGINT NOT NULL, ")
                     .append(COLUMN_SECRET_KEY_IV).append(" BLOB NOT NULL")
@@ -168,8 +161,8 @@ final class RemoteAccessStorage {
         @Nullable
         public static ClientIdEntry queryClientIdEntry(SQLiteDatabase db, String packageName) {
             String queryCommand = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s = ?",
-                    COLUMN_PACKAGE_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
-                    COLUMN_SECRET_KEY_IV, TABLE_NAME, COLUMN_PACKAGE_NAME);
+                    COLUMN_UID_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
+                    COLUMN_SECRET_KEY_IV, TABLE_NAME, COLUMN_UID_NAME);
             String[] selectionArgs = new String[]{packageName};
 
             try (Cursor cursor = db.rawQuery(queryCommand, selectionArgs)) {
@@ -200,7 +193,7 @@ final class RemoteAccessStorage {
         @Nullable
         public static List<ClientIdEntry> queryClientIdEntries(SQLiteDatabase db) {
             String queryCommand = String.format("SELECT %s, %s, %s, %s FROM %s",
-                    COLUMN_PACKAGE_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
+                    COLUMN_UID_NAME, COLUMN_CLIENT_ID, COLUMN_CLIENT_ID_CREATION_TIME,
                     COLUMN_SECRET_KEY_IV, TABLE_NAME);
 
             try (Cursor cursor = db.rawQuery(queryCommand, new String[]{})) {
@@ -241,7 +234,7 @@ final class RemoteAccessStorage {
                 return false;
             }
             ContentValues values = new ContentValues();
-            values.put(COLUMN_PACKAGE_NAME, entry.packageName);
+            values.put(COLUMN_UID_NAME, entry.uidName);
             values.put(COLUMN_CLIENT_ID, data.getEncryptedData());
             values.put(COLUMN_CLIENT_ID_CREATION_TIME, entry.idCreationTime);
             values.put(COLUMN_SECRET_KEY_IV, data.getIv());

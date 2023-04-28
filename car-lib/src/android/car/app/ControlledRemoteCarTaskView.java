@@ -18,6 +18,7 @@ package android.car.app;
 
 import android.annotation.MainThread;
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
@@ -30,6 +31,7 @@ import android.car.builtin.view.ViewHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.UserManager;
 import android.view.Display;
 import android.view.SurfaceControl;
@@ -51,6 +53,7 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
     private static final String TAG = ControlledRemoteCarTaskView.class.getSimpleName();
 

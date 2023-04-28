@@ -1,4 +1,4 @@
-service cardisplayproxyd /system_ext/bin/cardisplayproxyd
+service cardisplayproxyd /system/bin/cardisplayproxyd
     class hal
     user graphics
     group automotive_evs

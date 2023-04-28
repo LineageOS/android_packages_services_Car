@@ -316,6 +316,17 @@ public final class Car {
     public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
 
     /**
+     * Service name for ExperimentalCarKeyguardService
+     *
+     * @hide
+     */
+    @OptionalFeature
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String EXPERIMENTAL_CAR_KEYGUARD_SERVICE =
+            "experimental_car_keyguard_service";
+
+    /**
      * Service name for {@link CarDevicePolicyManager}
      *
      * @hide

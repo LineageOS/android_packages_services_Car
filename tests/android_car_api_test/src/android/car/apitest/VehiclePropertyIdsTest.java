@@ -35,6 +35,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
@@ -73,12 +74,12 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
             if (MISSING_VEHICLE_PROPERTY_IDS.contains(vhalName)) {
                 continue;
             }
-            if (vhalName.equals("ANDROID_EPOCH_TIME")) {
+            if (Objects.equals(vhalName, "ANDROID_EPOCH_TIME")) {
                 // This is renamed in AIDL VHAL.
                 expectedCarServiceNames.add("EPOCH_TIME");
                 continue;
             }
-            if (vhalName.equals("GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
+            if (Objects.equals(vhalName, "GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
                 // We renamed this property in Car Service.
                 expectedCarServiceNames.add("GENERAL_SAFETY_REGULATION_COMPLIANCE");
                 continue;
@@ -115,11 +116,12 @@ public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
             }
 
             String carServiceName = vhalName;
-            if (carServiceName.equals("ANDROID_EPOCH_TIME")) {
+            if (Objects.equals(carServiceName, "ANDROID_EPOCH_TIME")) {
                 // This is renamed in AIDL VHAL.
                 carServiceName = "EPOCH_TIME";
             }
-            if (carServiceName.equals("GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
+            if (Objects.equals(carServiceName,
+                    "GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
                 // We renamed this property in Car Service.
                 carServiceName = "GENERAL_SAFETY_REGULATION_COMPLIANCE";
                 continue;

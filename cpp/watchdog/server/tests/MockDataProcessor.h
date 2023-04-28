@@ -61,7 +61,6 @@ public:
                 (time_t, const android::wp<ProcDiskStatsCollectorInterface>&,
                  const std::function<void()>&),
                 (override));
-    MOCK_METHOD(android::base::Result<void>, onResourceStatsSent, (bool successful), (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int), (const, override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollectionDump, (int), (override));
 };

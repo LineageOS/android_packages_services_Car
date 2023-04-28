@@ -104,6 +104,9 @@ $(call inherit-product, device/sample/products/location_overlay.mk)
 $(call inherit-product-if-exists, frameworks/webview/chromium/chromium.mk)
 $(call inherit-product, packages/services/Car/car_product/build/car_base.mk)
 
+# Window Extensions
+$(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
+
 # Overrides
 PRODUCT_BRAND := generic
 PRODUCT_DEVICE := generic

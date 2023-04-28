@@ -54,6 +54,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class MapMceTestFragment extends Fragment {
@@ -398,11 +399,11 @@ public class MapMceTestFragment extends Fragment {
                             == BluetoothProfile.STATE_DISCONNECTED) {
                         mBluetoothDevice.setText("Disconnected");
                     }
-                } else if (action.equals(ACTION_MESSAGE_SENT_SUCCESSFULLY)) {
+                } else if (Objects.equals(action, ACTION_MESSAGE_SENT_SUCCESSFULLY)) {
                     mSent.setChecked(true);
-                } else if (action.equals(ACTION_MESSAGE_DELIVERED_SUCCESSFULLY)) {
+                } else if (Objects.equals(action, ACTION_MESSAGE_DELIVERED_SUCCESSFULLY)) {
                     mDelivered.setChecked(true);
-                } else if (action.equals(MAP_CLIENT_ACTION_MESSAGE_RECEIVED)) {
+                } else if (Objects.equals(action, MAP_CLIENT_ACTION_MESSAGE_RECEIVED)) {
                     String senderUri =
                             intent.getStringExtra(MAP_CLIENT_EXTRA_SENDER_CONTACT_URI);
                     if (senderUri == null) {
@@ -437,7 +438,7 @@ public class MapMceTestFragment extends Fragment {
 
             Log.v(TAG, "mPickerReceiver got " + action);
 
-            if (BluetoothDevicePicker.ACTION_DEVICE_SELECTED.equals(action)) {
+            if (Objects.equals(action, BluetoothDevicePicker.ACTION_DEVICE_SELECTED)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.v(TAG, "mPickerReceiver got " + device);
                 if (device == null) {

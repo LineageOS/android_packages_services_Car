@@ -66,6 +66,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserSwitchRequest;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AsyncFuture;
 import android.car.watchdog.CarWatchdogManager;
@@ -254,6 +255,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String DRIVING_STATE_DRIVE = "drive";
     private static final String DRIVING_STATE_PARK = "park";
     private static final String DRIVING_STATE_REVERSE = "reverse";
+    private static final String DRIVING_STATE_NEUTRAL = "neutral";
 
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
@@ -808,8 +810,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "displays the silent state");
         pw.println("\t  and shows how many listeners are monitoring the state.");
 
-        pw.printf("\t%s [%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
-                DRIVING_STATE_PARK, DRIVING_STATE_REVERSE);
+        pw.printf("\t%s [%s|%s|%s|%s]\n", COMMAND_EMULATE_DRIVING_STATE, DRIVING_STATE_DRIVE,
+                DRIVING_STATE_PARK, DRIVING_STATE_REVERSE, DRIVING_STATE_NEUTRAL);
         pw.println("\t  Emulates the giving driving state.");
 
         pw.printf("\t%s <POLICY_ID> [--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
@@ -2117,15 +2119,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
-        // TODO(b/235991826): Update this call with new switchUser call
-        AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
 
-        showUserSwitchResult(writer, future, timeout);
+        SyncResultCallback<UserSwitchResult> syncResultCallback = new SyncResultCallback<>();
+
+        carUserManager.switchUser(
+                new UserSwitchRequest.Builder(UserHandle.of(targetUserId)).build(), Runnable::run,
+                syncResultCallback);
+
+        try {
+            showUserSwitchResult(writer, syncResultCallback.get(timeout, TimeUnit.MILLISECONDS));
+        } catch (TimeoutException e) {
+            writer.printf("UserSwitchResult: timed out waitng for result");
+        } catch (InterruptedException e) {
+            writer.printf("UserSwitchResult: interrupted waitng for result");
+            Thread.currentThread().interrupt();
+        }
     }
 
-    private void showUserSwitchResult(IndentingPrintWriter writer,
-            AsyncFuture<UserSwitchResult> future, int timeout) {
-        UserSwitchResult result = waitForFuture(writer, future, timeout);
+    private void showUserSwitchResult(IndentingPrintWriter writer, UserSwitchResult result) {
         if (result == null) return;
         writer.printf("UserSwitchResult: status=%s",
                 UserSwitchResult.statusToString(result.getStatus()));
@@ -2157,7 +2168,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         CarUserManager carUserManager = getCarUserManager(mContext);
         AsyncFuture<UserSwitchResult> future = carUserManager.logoutUser();
-        showUserSwitchResult(writer, future, timeout);
+        UserSwitchResult result = waitForFuture(writer, future, timeout);
+        showUserSwitchResult(writer, result);
     }
 
     private void createUser(String[] args, IndentingPrintWriter writer) {
@@ -2350,6 +2362,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         int userId = Integer.parseInt(args[1]);
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         boolean halOnly = false;
 
         for (int i = 2; i < args.length; i++) {
@@ -2383,11 +2396,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         CarUserManager carUserManager = getCarUserManager(mContext);
+        SyncResultCallback<UserRemovalResult> syncResultCallback = new SyncResultCallback<>();
         carUserManager.removeUser(new UserRemovalRequest.Builder(
-                        UserHandle.of(userId)).build(), Runnable::run,
-                response -> writer.printf("UserRemovalResult: status = %s\n",
-                        UserRemovalResult.statusToString(response.getStatus()))
-        );
+                UserHandle.of(userId)).build(), Runnable::run, syncResultCallback);
+        try {
+            UserRemovalResult result = syncResultCallback.get(timeout, TimeUnit.MILLISECONDS);
+            writer.printf("UserRemovalResult: status = %s\n",
+                    UserRemovalResult.statusToString(result.getStatus()));
+        } catch (TimeoutException e) {
+            writer.printf("UserRemovalResult: timed out waitng for result");
+        } catch (InterruptedException e) {
+            writer.printf("UserRemovalResult: interrupted waitng for result");
+            Thread.currentThread().interrupt();
+        }
     }
 
     private static <T> T waitForFuture(IndentingPrintWriter writer,
@@ -2841,6 +2862,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case DRIVING_STATE_REVERSE:
                 emulateReverse();
                 break;
+            case DRIVING_STATE_NEUTRAL:
+                emulateNeutral();
+                break;
             default:
                 writer.printf("invalid driving mode %s; must be %s or %s\n", mode,
                         DRIVING_STATE_DRIVE, DRIVING_STATE_PARK);
@@ -2885,6 +2909,20 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
                 /* zone= */ 0, Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ 0);
+    }
+
+    /**
+     * Emulates neutral driving state. Called by
+     * {@code adb shell cmd car_service emulate-driving-state neutral}.
+     */
+    private void emulateNeutral() {
+        Slogf.i(TAG, "Emulating neutral driving mode");
+        mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
+                /* zone= */ 0, Integer.toString(VehicleGear.GEAR_NEUTRAL), /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.PARKING_BRAKE_ON,
+                /* zone= */ 0, /* value= */ "true", /* delayTime= */ 0);
     }
 
     private int definePowerPolicy(String[] args, IndentingPrintWriter writer) {

@@ -35,6 +35,7 @@ import com.android.systemui.dagger.SysUISingleton;
 public class CarUiPortraitButtonSelectionStateController extends ButtonSelectionStateController {
 
     private CarUiPortraitAppGridButton mAppGridButton;
+    private CarUiPortraitNotificationButton mNotificationButton;
 
     public CarUiPortraitButtonSelectionStateController(Context context) {
         super(context);
@@ -50,6 +51,8 @@ public class CarUiPortraitButtonSelectionStateController extends ButtonSelection
     protected void addAllButtonsWithSelectionState(View v) {
         if (v instanceof CarUiPortraitAppGridButton) {
             mAppGridButton = (CarUiPortraitAppGridButton) v;
+        } else if (v instanceof CarUiPortraitNotificationButton) {
+            mNotificationButton = (CarUiPortraitNotificationButton) v;
         } else {
             super.addAllButtonsWithSelectionState(v);
         }
@@ -61,4 +64,12 @@ public class CarUiPortraitButtonSelectionStateController extends ButtonSelection
             mAppGridButton.setSelected(isSelected);
         }
     }
+
+    /** Updates the selected state of the notification button */
+    void setNotificationButtonSelected(boolean isSelected) {
+        if (mNotificationButton != null) {
+            mNotificationButton.setSelected(isSelected);
+        }
+    }
+
 }

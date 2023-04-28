@@ -156,6 +156,9 @@ public final class WatchdogStorageUnitTest {
 
         assertWithMessage("User package settings").that(mService.getUserPackageSettings())
                 .containsExactlyElementsIn(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -182,6 +185,9 @@ public final class WatchdogStorageUnitTest {
 
         assertWithMessage("User package settings after overwrite")
                 .that(mService.getUserPackageSettings()).containsExactlyElementsIn(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -200,6 +206,9 @@ public final class WatchdogStorageUnitTest {
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -221,6 +230,9 @@ public final class WatchdogStorageUnitTest {
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -279,6 +291,9 @@ public final class WatchdogStorageUnitTest {
         IoUsageStatsEntrySubject.assertWithMessage(mService.getTodayIoUsageStats(),
                 "I/O usage stats fetched from database after restart")
                 .containsExactlyElementsIn(statsAfterOverwrite);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -295,6 +310,9 @@ public final class WatchdogStorageUnitTest {
                 .that(mService.getHistoricalIoOveruseStats(
                         /* userId= */ 100, "system_package.non_critical.A", retentionDaysAgo))
                 .isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -336,6 +354,9 @@ public final class WatchdogStorageUnitTest {
                 "Fetched stats only for 4 days. Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual)
                 .isEqualTo(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -377,6 +398,9 @@ public final class WatchdogStorageUnitTest {
                 "Fetched stats only for 2 days. Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual)
                 .isEqualTo(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -408,6 +432,9 @@ public final class WatchdogStorageUnitTest {
         }
 
         assertWithMessage("Daily system I/O usage summary stats").that(actual).isEqualTo(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -432,6 +459,9 @@ public final class WatchdogStorageUnitTest {
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 
         assertWithMessage("Daily system I/O usage summary stats").that(actual).isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -455,6 +485,9 @@ public final class WatchdogStorageUnitTest {
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 
         assertWithMessage("Daily system I/O usage summary stats").that(actual).isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -507,6 +540,9 @@ public final class WatchdogStorageUnitTest {
                         user101SystemPkgSummaries));
 
         assertWithMessage("Top users daily I/O usage summaries").that(actual).isEqualTo(expected);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -531,6 +567,9 @@ public final class WatchdogStorageUnitTest {
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 
         assertWithMessage("Top users daily I/O usage summaries").that(actual).isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -554,6 +593,9 @@ public final class WatchdogStorageUnitTest {
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 
         assertWithMessage("Top users daily I/O usage summaries").that(actual).isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -581,6 +623,9 @@ public final class WatchdogStorageUnitTest {
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -604,6 +649,9 @@ public final class WatchdogStorageUnitTest {
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -630,6 +678,9 @@ public final class WatchdogStorageUnitTest {
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
 
         assertWithMessage("Fetched historical I/O overuse stats").that(actual).isNull();
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -651,6 +702,9 @@ public final class WatchdogStorageUnitTest {
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
+
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -677,6 +731,8 @@ public final class WatchdogStorageUnitTest {
                 .that(actualSystemPackage).isNull();
         assertWithMessage("Fetched vendor I/O overuse stats for deleted user")
                 .that(actualVendorPackage).isNull();
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -694,6 +750,8 @@ public final class WatchdogStorageUnitTest {
                 .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -738,6 +796,8 @@ public final class WatchdogStorageUnitTest {
         IoOveruseStatsSubject.assertWithMessage("Fetched stats only within retention period. "
                         + "Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual).isEqualTo(expected);
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test
@@ -774,6 +834,8 @@ public final class WatchdogStorageUnitTest {
         assertWithMessage("Not forgiven historical overuses after forgiving")
                 .that(mService.getNotForgivenHistoricalIoOveruses(/* numDaysAgo= */ 7))
                 .containsExactlyElementsIn(expectedOveruses);
+        assertWithMessage("Has close DbHelper message")
+                .that(mService.hasPendingCloseDbHelperMessage()).isTrue();
     }
 
     @Test

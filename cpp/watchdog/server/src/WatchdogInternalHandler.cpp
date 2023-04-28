@@ -201,6 +201,7 @@ ScopedAStatus WatchdogInternalHandler::registerCarWatchdogService(
     checkAndRegisterIoOveruseMonitor();
     auto status = mWatchdogServiceHelper->registerService(service);
     if (status.isOk()) {
+        mWatchdogPerfService->onCarWatchdogServiceRegistered();
         mIoOveruseMonitor->onCarWatchdogServiceRegistered();
     }
     return status;

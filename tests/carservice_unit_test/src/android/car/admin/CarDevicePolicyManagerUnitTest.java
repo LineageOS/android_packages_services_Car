@@ -200,9 +200,9 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
     private void mockCreateUser(String name, @NonNull UserInfo user, int status) throws Exception {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
-            AndroidFuture<UserCreationResult> future =
-                    (AndroidFuture<UserCreationResult>) invocation.getArguments()[2];
-            future.complete(new UserCreationResult(status, user.getUserHandle()));
+            ResultCallbackImpl<UserCreationResult> resultCallbackImpl =
+                    (ResultCallbackImpl<UserCreationResult>) invocation.getArguments()[2];
+            resultCallbackImpl.complete(new UserCreationResult(status, user.getUserHandle()));
             return null;
         }).when(mService).createUser(eq(name), eq(user.id), notNull());
     }

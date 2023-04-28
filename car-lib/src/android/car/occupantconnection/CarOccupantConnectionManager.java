@@ -179,10 +179,15 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
 
     private static final String TAG = CarOccupantConnectionManager.class.getSimpleName();
 
-    /** The connection request failed because of a different error than the errors listed below. */
+    /** The connection request has no error. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static final int CONNECTION_ERROR_UNKNOWN = 0;
+    public static final int CONNECTION_ERROR_NONE = 0;
+
+    /** The connection request failed because of an error of unidentified cause. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_UNKNOWN = 1;
 
     /**
      * The connection request failed because the peer occupant zone was not ready for connection.
@@ -192,7 +197,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static final int CONNECTION_ERROR_NOT_READY = 1;
+    public static final int CONNECTION_ERROR_NOT_READY = 2;
 
     /**
      * The connection request failed because the peer app was not installed. To avoid this error,
@@ -202,7 +207,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 2;
+    public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 3;
 
     /**
      * Flags for the error type of connection request.
@@ -210,6 +215,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * @hide
      */
     @IntDef(flag = false, prefix = {"CONNECTION_ERROR_"}, value = {
+            CONNECTION_ERROR_NONE,
             CONNECTION_ERROR_UNKNOWN,
             CONNECTION_ERROR_NOT_READY,
             CONNECTION_ERROR_PEER_APP_NOT_INSTALLED
@@ -525,8 +531,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * @param receiverZone the occupant zone to connect to
      * @param executor     the Executor to run the callback
      * @param callback     the callback notified for the request result
-     * @throws IllegalStateException if the {@code receiverZone} is not ready for connection, or
-     *                               there is an established connection or pending connection to
+     * @throws IllegalStateException if there is an established connection or pending connection to
      *                               {@code receiverZone}
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,

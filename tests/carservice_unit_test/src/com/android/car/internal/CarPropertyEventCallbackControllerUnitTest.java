@@ -18,9 +18,13 @@ package com.android.car.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -93,6 +97,7 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     @Before
     public void setUp() {
         when(mRegistrationUpdateCallback.register(anyInt(), anyFloat())).thenReturn(true);
+        when(mRegistrationUpdateCallback.unregister(anyInt())).thenReturn(true);
         mCarPropertyEventCallbackController = new CarPropertyEventCallbackController(PROPERTY_ID,
                 new Object(), mRegistrationUpdateCallback);
     }
@@ -214,6 +219,35 @@ public final class CarPropertyEventCallbackControllerUnitTest {
     }
 
     @Test
+    public void add_throwsExceptionIfRegistrationCallbackThrowsException() {
+        doThrow(SecurityException.class).when(mRegistrationUpdateCallback).register(
+                eq(PROPERTY_ID), eq(FIRST_UPDATE_RATE_HZ));
+        assertThrows(SecurityException.class,
+                () -> mCarPropertyEventCallbackController.add(mCarPropertyEventCallback,
+                        FIRST_UPDATE_RATE_HZ));
+
+        verify(mRegistrationUpdateCallback).register(PROPERTY_ID, FIRST_UPDATE_RATE_HZ);
+        verify(mRegistrationUpdateCallback, never()).unregister(anyInt());
+    }
+
+    @Test
+    public void add_registersAgainIfFirstCallbackThrowsException() {
+        doThrow(SecurityException.class).when(mRegistrationUpdateCallback).register(
+                eq(PROPERTY_ID), eq(FIRST_UPDATE_RATE_HZ));
+        assertThrows(SecurityException.class,
+                () -> mCarPropertyEventCallbackController.add(mCarPropertyEventCallback,
+                        FIRST_UPDATE_RATE_HZ));
+
+        doReturn(true).when(mRegistrationUpdateCallback).register(
+                eq(PROPERTY_ID), eq(FIRST_UPDATE_RATE_HZ));
+        assertThat(mCarPropertyEventCallbackController.add(mCarPropertyEventCallback,
+                FIRST_UPDATE_RATE_HZ)).isTrue();
+
+        verify(mRegistrationUpdateCallback, times(2)).register(PROPERTY_ID, FIRST_UPDATE_RATE_HZ);
+        verify(mRegistrationUpdateCallback, never()).unregister(anyInt());
+    }
+
+    @Test
     public void remove_noCallbackCalledIfNoCallbacksAdded() {
         assertThat(mCarPropertyEventCallbackController.remove(mCarPropertyEventCallback)).isTrue();
 
@@ -298,6 +332,29 @@ public final class CarPropertyEventCallbackControllerUnitTest {
                 PROPERTY_ID);
         assertThat(mUpdateRateHzCaptor.getAllValues()).containsExactly(FIRST_UPDATE_RATE_HZ,
                 SECOND_BIGGER_UPDATE_RATE_HZ, FIRST_UPDATE_RATE_HZ);
+    }
+
+    @Test
+    public void remove_returnsFalseIfUnregisterReturnsFalse() {
+        when(mRegistrationUpdateCallback.unregister(PROPERTY_ID)).thenReturn(false);
+        assertThat(mCarPropertyEventCallbackController.add(mCarPropertyEventCallback,
+                FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyEventCallbackController.remove(mCarPropertyEventCallback)).isFalse();
+
+        verify(mRegistrationUpdateCallback).register(PROPERTY_ID, FIRST_UPDATE_RATE_HZ);
+        verify(mRegistrationUpdateCallback).unregister(PROPERTY_ID);
+    }
+
+    @Test
+    public void remove_unregisterAgainIfTheFirstUnregisterReturnsFalse() {
+        when(mRegistrationUpdateCallback.unregister(PROPERTY_ID)).thenReturn(false, true);
+        assertThat(mCarPropertyEventCallbackController.add(mCarPropertyEventCallback,
+                FIRST_UPDATE_RATE_HZ)).isTrue();
+        assertThat(mCarPropertyEventCallbackController.remove(mCarPropertyEventCallback)).isFalse();
+        assertThat(mCarPropertyEventCallbackController.remove(mCarPropertyEventCallback)).isTrue();
+
+        verify(mRegistrationUpdateCallback).register(PROPERTY_ID, FIRST_UPDATE_RATE_HZ);
+        verify(mRegistrationUpdateCallback, times(2)).unregister(PROPERTY_ID);
     }
 
     @Test

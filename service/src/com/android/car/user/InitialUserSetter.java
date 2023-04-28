@@ -860,6 +860,8 @@ final class InitialUserSetter {
     private List<UserHandle> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.SYSTEM.getIdentifier());
+        } else if (isPlatformVersionAtLeastU()) {
+            return UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
         } else {
             return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
                     /* excludeDying= */ false, /* excludePreCreated */ true);
@@ -873,8 +875,13 @@ final class InitialUserSetter {
      * @return All users other than system user and user with userId.
      */
     private List<UserHandle> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
-        List<UserHandle> users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                /* excludeDying= */ false, /* excludePreCreated */ true);
+        List<UserHandle> users;
+        if (isPlatformVersionAtLeastU()) {
+            users = UserManagerHelper.getUserHandles(mUm, /* excludeDying= */ false);
+        } else {
+            users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
+                    /* excludeDying= */ false, /* excludePreCreated */ true);
+        }
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
             UserHandle user = iterator.next();

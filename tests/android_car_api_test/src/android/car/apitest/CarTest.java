@@ -33,6 +33,8 @@ import android.os.Build;
 import android.os.IBinder;
 import android.test.suitebuilder.annotation.SmallTest;
 
+import androidx.test.filters.FlakyTest;
+
 import org.junit.Test;
 
 import java.util.concurrent.Semaphore;
@@ -175,6 +177,7 @@ public final class CarTest extends CarLessApiTestBase {
      * in {@link PlatformVersion.VERSION_CODES}. All {@code isAtLeast} checks are there to
      * identify the right {@link PlatformVersion.VERSION_CODES} to compare.
      */
+    @FlakyTest(bugId = 277672027)
     @Test
     public void testPlatformVersionMatch() throws Exception {
         PlatformVersion platformVersion = Car.getPlatformVersion();

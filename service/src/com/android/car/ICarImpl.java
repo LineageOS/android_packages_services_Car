@@ -76,6 +76,7 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.occupantconnection.CarOccupantConnectionService;
+import com.android.car.occupantconnection.CarRemoteDeviceService;
 import com.android.car.oem.CarOemProxyService;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
@@ -83,6 +84,7 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systemui.keyguard.ExperimentalCarKeyguardService;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
@@ -148,6 +150,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarUserService mCarUserService;
     @Nullable
     private final ExperimentalCarUserService mExperimentalCarUserService;
+    @Nullable
+    private final ExperimentalCarKeyguardService mExperimentalCarKeyguardService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
     private final VmsBrokerService mVmsBrokerService;
@@ -301,6 +305,14 @@ public class ICarImpl extends ICar.Stub {
                             userManager), allServices);
         } else {
             mExperimentalCarUserService = null;
+        }
+        if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE)) {
+            mExperimentalCarKeyguardService = constructWithTrace(t,
+                        ExperimentalCarKeyguardService.class,
+                    () -> new ExperimentalCarKeyguardService(serviceContext, mCarUserService,
+                            mCarOccupantZoneService), allServices);
+        } else {
+            mExperimentalCarKeyguardService = null;
         }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
@@ -667,6 +679,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarUserService;
             case Car.EXPERIMENTAL_CAR_USER_SERVICE:
                 return mExperimentalCarUserService;
+            case Car.EXPERIMENTAL_CAR_KEYGUARD_SERVICE:
+                return mExperimentalCarKeyguardService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
             case Car.CAR_PERFORMANCE_SERVICE:

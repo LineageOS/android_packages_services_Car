@@ -227,18 +227,27 @@
     <uses-permission android:name="android.car.permission.USE_REMOTE_ACCESS"/>
     <uses-permission android:name="android.car.permission.CONTROL_REMOTE_ACCESS"/>
 
+    <!-- use for BiometricPromptTestFragment to test the API -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
     <application android:label="@string/app_title"
                  android:allowBackup="false"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
-        <!-- This is for embedded mode. -->
+        <!-- This is for embedded mode.
+            showForAllUsers is required to be able to launch Kitchensink as system user for
+            remote access test fragment. The KitchenSinkRemoteTaskService is launched as system
+            user and we need to launch the activity as system user as well to access the data stored
+            by the service.
+        -->
         <activity android:name=".KitchenSinkActivity"
              android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/app_title"
              android:configChanges="uiMode"
              android:launchMode="singleTask"
-             android:exported="true">
+             android:exported="true"
+             android:showForAllUsers="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>

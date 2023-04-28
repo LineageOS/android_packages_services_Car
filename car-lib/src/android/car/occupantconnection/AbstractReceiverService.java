@@ -250,7 +250,10 @@ public abstract class AbstractReceiverService extends Service {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public abstract void onConnected(@NonNull OccupantZoneInfo senderZone);
 
-    /** Invoked when the connection request has been canceled by the sender. */
+    /**
+     * Invoked when the sender has canceled the pending connection request, or has become
+     * unreachable after sending the connection request.
+     */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public abstract void onConnectionCanceled(@NonNull OccupantZoneInfo senderZone);

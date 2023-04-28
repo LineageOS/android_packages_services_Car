@@ -41,7 +41,6 @@ import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.Lists;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -371,8 +370,13 @@ public class CarOccupantZoneManager extends CarManagerBase {
     private final CopyOnWriteArrayList<OccupantZoneConfigChangeListener> mListeners =
             new CopyOnWriteArrayList<>();
 
-    /** @hide */
-    @VisibleForTesting
+    /**
+     * Gets an instance of the CarOccupantZoneManager.
+     *
+     * <p>Should not be obtained directly by clients, use {@link Car#getCarManager(String)} instead.
+     *
+     * @hide
+     */
     public CarOccupantZoneManager(Car car, IBinder service) {
         super(car);
         mService = ICarOccupantZone.Stub.asInterface(service);

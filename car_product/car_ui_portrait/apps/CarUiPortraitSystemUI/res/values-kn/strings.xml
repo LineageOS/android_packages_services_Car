@@ -20,7 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"ಅನ್ವಯ ಇಲ್ಲ"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"ಸಿಸ್ಟಂ ಲೋಡ್ ಆಗುವವರೆಗೂ ನಿರೀಕ್ಷಿಸಿ"</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"ಪ್ರಸ್ತುತ ಪ್ರೊಫೈಲ್"</string>
-    <!-- no translation found for aloha_welcome_message (4150763169818898412) -->
-    <skip />
+    <string name="aloha_welcome_message" msgid="4150763169818898412">"AAOS"</string>
     <string name="aloha_action_button_text" msgid="168403306904814629">"ಮುಂದುವರಿಸಿ"</string>
 </resources>

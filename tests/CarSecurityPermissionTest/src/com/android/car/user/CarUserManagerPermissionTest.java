@@ -37,7 +37,9 @@ import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserHandleSwitchUiCallback;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.CarUserManager.UserSwitchUiCallback;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserRemovalRequest;
+import android.car.user.UserSwitchRequest;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.Handler;
@@ -71,14 +73,36 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
-    public void testSwitchUserPermission() throws Exception {
+    public void testSwitchUser() throws Exception {
+        Exception e = assertThrows(SecurityException.class,
+                () -> mCarUserManager.switchUser(
+                        new UserSwitchRequest.Builder(UserHandle.of(100)).build(), Runnable::run,
+                        (response) -> {
+                        }));
+        assertThat(e).hasMessageThat().contains(CREATE_USERS);
+        assertThat(e).hasMessageThat().contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testSwitchUserId() throws Exception {
         Exception e = assertThrows(SecurityException.class, () -> mCarUserManager.switchUser(100));
         assertThat(e).hasMessageThat().contains(CREATE_USERS);
         assertThat(e).hasMessageThat().contains(MANAGE_USERS);
     }
 
     @Test
-    public void testCreateUserPermission() throws Exception {
+    public void testCreateUser() throws Exception {
+        Exception e = assertThrows(SecurityException.class,
+                () -> mCarUserManager.createUser(
+                        new UserCreationRequest.Builder().setName("dude").build(), Runnable::run,
+                        (response) -> {
+                        }));
+        assertThat(e).hasMessageThat().contains(CREATE_USERS);
+        assertThat(e).hasMessageThat().contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testCreateUserId() throws Exception {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarUserManager.createUser(null, 0));
         assertThat(e).hasMessageThat().contains(CREATE_USERS);

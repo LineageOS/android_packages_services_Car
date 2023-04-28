@@ -18,6 +18,9 @@
 # automotive device.
 $(call inherit-product, $(SRC_TARGET_DIR)/product/handheld_system_ext.mk)
 
+# Window Extensions
+$(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
+
 PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarProvision \
@@ -40,10 +43,3 @@ PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.carrier=unknown \
     ro.com.android.dataroaming?=true \
     ro.hardware.type=automotive \
-
-ifeq ($(ENABLE_EVS_SAMPLE), true)
-# ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
-# the device.mk with the corresponding selinux policies
-PRODUCT_PACKAGES += evs_app cardisplayproxyd
-include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
-endif  # ENABLE_EVS_SAMPLE

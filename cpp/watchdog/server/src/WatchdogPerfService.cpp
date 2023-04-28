@@ -52,6 +52,8 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 
+const int32_t kMaxCachedUnsentResourceStats = 10;
+const std::chrono::nanoseconds kPrevUnsentResourceStatsDelayNs = 3s;
 // Minimum required collection polling interval between subsequent collections.
 const std::chrono::nanoseconds kMinEventInterval = 1s;
 const std::chrono::seconds kDefaultSystemEventCollectionInterval = 1s;
@@ -282,6 +284,7 @@ void WatchdogPerfService::terminate() {
             processor->terminate();
         }
         mCurrCollectionEvent = EventType::TERMINATED;
+        mUnsentResourceStats.clear();
     }
     if (mCollectionThread.joinable()) {
         mCollectionThread.join();
@@ -298,6 +301,15 @@ void WatchdogPerfService::setSystemState(SystemState systemState) {
               toString(systemState));
     }
     mSystemState = systemState;
+}
+
+void WatchdogPerfService::onCarWatchdogServiceRegistered() {
+    Mutex::Autolock lock(mMutex);
+    if (mUnsentResourceStats.empty()) {
+        return;
+    }
+    mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
+                                TaskMessage::SEND_RESOURCE_STATS);
 }
 
 Result<void> WatchdogPerfService::onBootFinished() {
@@ -746,6 +758,9 @@ void WatchdogPerfService::handleMessage(const Message& message) {
             switchToPeriodicLocked(/*startNow=*/true);
             return;
         }
+        case static_cast<int>(TaskMessage::SEND_RESOURCE_STATS):
+            result = sendResourceStats();
+            break;
         default:
             result = Error() << "Unknown message: " << message.what;
     }
@@ -855,24 +870,21 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
                            << " collection: " << result.error();
         }
     }
-    if (isEmpty(resourceStats) || !mWatchdogServiceHelper->isServiceConnected()) {
+
+    if (!isEmpty(resourceStats)) {
+        cacheUnsentResourceStatsLocked(std::move(resourceStats));
+    }
+
+    if (mUnsentResourceStats.empty() || !mWatchdogServiceHelper->isServiceConnected()) {
+        if (DEBUG && !mWatchdogServiceHelper->isServiceConnected()) {
+            ALOGD("Cannot send resource stats since CarWatchdogService not connected.");
+        }
         return {};
     }
 
-    auto status = mWatchdogServiceHelper->onLatestResourceStats({resourceStats});
-    if (!status.isOk()) {
-        ALOGW("Failed to push the latest resource stats to watchdog service: %s",
-              status.getDescription().c_str());
-    } else if (DEBUG) {
-        ALOGD("Pushed latest resource usage and I/O overuse stats to watchdog service");
-    }
-
-    for (const auto& processor : mDataProcessors) {
-        if (const auto result = processor->onResourceStatsSent(status.isOk()); !result.ok()) {
-            ALOGE("%s failed to process resource stats sent event", processor->name().c_str());
-            return Error() << processor->name() << " failed to process resource stats sent event";
-        }
-    }
+    // Send message to send resource stats
+    mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
+                                TaskMessage::SEND_RESOURCE_STATS);
 
     return {};
 }
@@ -945,6 +957,38 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     return {};
 }
 
+Result<void> WatchdogPerfService::sendResourceStats() {
+    std::vector<ResourceStats> unsentResourceStats = {};
+    {
+        Mutex::Autolock lock(mMutex);
+        nsecs_t now = mHandlerLooper->now();
+        for (auto it = mUnsentResourceStats.begin(); it != mUnsentResourceStats.end();) {
+            if (now - std::get<nsecs_t>(*it) >= kPrevUnsentResourceStatsMaxDurationNs.count()) {
+                // Drop the expired stats
+                it = mUnsentResourceStats.erase(it);
+                continue;
+            }
+            unsentResourceStats.push_back(std::get<ResourceStats>(*it));
+            ++it;
+        }
+    }
+    if (unsentResourceStats.empty()) {
+        return {};
+    }
+    if (auto status = mWatchdogServiceHelper->onLatestResourceStats(unsentResourceStats);
+        !status.isOk()) {
+        ALOGW("Failed to push the unsent resource stats to watchdog service: %s",
+              status.getDescription().c_str());
+        return {};
+    }
+    Mutex::Autolock lock(mMutex);
+    mUnsentResourceStats.clear();
+    if (DEBUG) {
+        ALOGD("Pushed latest resource usage and I/O overuse stats to watchdog service");
+    }
+    return {};
+}
+
 Result<void> WatchdogPerfService::notifySystemStartUpLocked() {
     for (const auto& processor : mDataProcessors) {
         if (const auto result = processor->onSystemStartup(); !result.ok()) {
@@ -953,6 +997,14 @@ Result<void> WatchdogPerfService::notifySystemStartUpLocked() {
         }
     }
     return {};
+}
+
+void WatchdogPerfService::cacheUnsentResourceStatsLocked(ResourceStats resourceStats) {
+    mUnsentResourceStats.push_back(
+            std::make_tuple(mHandlerLooper->now(), std::move(resourceStats)));
+    if (mUnsentResourceStats.size() > kMaxCachedUnsentResourceStats) {
+        mUnsentResourceStats.erase(mUnsentResourceStats.begin());
+    }
 }
 
 WatchdogPerfService::EventMetadata* WatchdogPerfService::getCurrentCollectionMetadataLocked() {

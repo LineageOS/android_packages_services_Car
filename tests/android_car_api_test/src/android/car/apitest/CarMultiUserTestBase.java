@@ -31,17 +31,18 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.SyncResultCallback;
 import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.util.AndroidHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalRequest;
 import android.car.user.UserStartRequest;
 import android.car.user.UserStopRequest;
-import android.car.user.UserSwitchResult;
-import android.car.util.concurrent.AsyncFuture;
+import android.car.user.UserSwitchRequest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -252,10 +253,21 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         assertCanAddUser();
 
-        UserCreationResult result = (isGuest
-                ? mCarUserManager.createGuest(name)
-                : mCarUserManager.createUser(name, /* flags= */ 0))
-                    .get(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        UserCreationRequest.Builder userCreationRequestBuilder = new UserCreationRequest.Builder();
+
+        if (isGuest) {
+            userCreationRequestBuilder.setGuest();
+        }
+
+        SyncResultCallback<UserCreationResult> userCreationResultCallback =
+                new SyncResultCallback<>();
+
+        mCarUserManager.createUser(userCreationRequestBuilder.setName(name).build(), Runnable::run,
+                userCreationResultCallback);
+
+        UserCreationResult result = userCreationResultCallback.get(
+                DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+
         Log.d(TAG, "result: " + result);
         assertWithMessage("user creation result (waited for %sms)", DEFAULT_WAIT_TIMEOUT_MS)
                 .that(result).isNotNull();
@@ -314,12 +326,13 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
         try {
             Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
-            AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
-            UserSwitchResult result = future.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-            Log.d(TAG, "Result: " + result);
-
-            assertWithMessage("User %s switched in %sms. Result: %s", userId,
-                    SWITCH_USER_TIMEOUT_MS, result).that(result.isSuccess()).isTrue();
+            mCarUserManager.switchUser(new UserSwitchRequest.Builder(
+                    UserHandle.of(userId)).build(), Runnable::run, response -> {
+                    Log.d(TAG, "result: " + response);
+                    assertWithMessage("User %s switched in %sms. Result: %s", userId,
+                        SWITCH_USER_TIMEOUT_MS, response).that(response.isSuccess()).isTrue();
+                }
+            );
 
             if (waitForUserSwitchToComplete) {
                 listener.waitForEvents();

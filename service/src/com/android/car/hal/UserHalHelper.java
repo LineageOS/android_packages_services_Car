@@ -17,6 +17,7 @@ package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 import static com.android.internal.util.Preconditions.checkArgument;
 
 import android.annotation.UserIdInt;
@@ -591,8 +592,13 @@ public final class UserHalHelper {
         Preconditions.checkArgument(um != null, "UserManager cannot be null");
         Preconditions.checkArgument(userHandleHelper != null, "UserHandleHelper cannot be null");
 
-        List<UserHandle> users = UserManagerHelper.getUserHandles(um, /* excludePartial= */ false,
-                /* excludeDying= */ false, /* excludePreCreated= */ true);
+        List<UserHandle> users;
+        if (isPlatformVersionAtLeastU()) {
+            users = UserManagerHelper.getUserHandles(um, /* excludeDying= */ false);
+        } else {
+            users = UserManagerHelper.getUserHandles(um, /* excludePartial= */ false,
+                    /* excludeDying= */ false, /* excludePreCreated= */ true);
+        }
 
         if (users == null || users.isEmpty()) {
             Log.w(TAG, "newUsersInfo(): no users");

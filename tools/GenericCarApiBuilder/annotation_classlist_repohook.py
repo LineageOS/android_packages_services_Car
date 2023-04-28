@@ -24,10 +24,18 @@ from pathlib import Path
 # parameter names for hidden apis without mistaking them as having been removed.
 # [^ ]* --> Negation set on SPACE character. This wll match everything until a SPACE.
 # *?(?=\)) --> This means the character ')' will not be included in the match.
-# [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature. It excludes matching any '(' characters when there are no parameters, i.e. method().
+# [^ (]*?(?=\)) --> This will handle the last parameter at the end of a method signature.
+# It excludes matching any '(' characters when there are no parameters, i.e. method().
 # [^ ]*?(?=,) --> This will handle multiple parameters delimited by commas.
 def strip_param_names(api):
-    return re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', " ", api)
+    # get the arguments first
+    argGroup = re.search("\((.*)\)",api)
+    if argGroup is None:
+        return api
+    arg = argGroup.group(0)
+    new_arg = re.sub('[^ (]*?(?=\))|[^ ]*?(?=,)', "", arg)
+    return re.sub("\((.*)\)", new_arg, api)
+
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if rootDir is None or rootDir == "":
@@ -43,49 +51,45 @@ if javaHomeDir is None or javaHomeDir == "":
         sys.exit(1)
 
 # This generates a list of all classes.
+marker = "Start-"
+options = ["--print-classes", "--print-hidden-apis", "--print-all-apis-with-constr",
+           "--print-incorrect-requires-api-usage-in-car-service"]
+
 java_cmd = javaHomeDir + "/bin/java -jar " + rootDir + \
            "/packages/services/Car/tools/GenericCarApiBuilder" \
-           "/GenericCarApiBuilder.jar --print-classes-only " \
-           "--ANDROID-BUILD-TOP " + rootDir
+           "/GenericCarApiBuilder.jar --root-dir " + rootDir + " " + " ".join(options)
 
-# This produces a list of current hidden apis to determine if they have been modified or removed.
-java_cmd_2 = javaHomeDir + "/bin/java -jar " + rootDir + \
-             "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
-             "--ANDROID-BUILD-TOP " + rootDir
+all_data = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
+all_results = []
+marker_index = []
+for i in range(len(all_data)):
+    if all_data[i].replace(marker, "") in options:
+        marker_index.append(i)
 
-# This determines all remaining hidden, system or public APIs.
-java_cmd_3 = javaHomeDir + "/bin/java -jar " + rootDir + \
-             "/packages/services/Car/tools/GenericCarApiBuilder" \
-             "/GenericCarApiBuilder.jar --print-shortform-full-api-for-test " \
-             "--include-constructors --ANDROID-BUILD-TOP " + rootDir
+previous_mark = 0
+for mark in marker_index:
+    if mark > previous_mark:
+        all_results.append(all_data[previous_mark+1:mark])
+        previous_mark = mark
+all_results.append(all_data[previous_mark+1:])
 
-processes = []
-cmds = [java_cmd, java_cmd_2, java_cmd_3]
-for cmd in cmds:
-    f = NamedTemporaryFile()
-    p = subprocess.Popen(cmd, shell=True, stdout=f)
-    processes.append((p, f))
-
-results = []
-for p, f in processes:
-    p.wait()
-    f.seek(0)
-    results.append(f.read().decode('utf-8').strip().split("\n"))
-    f.close()
-
-new_class_list, new_hidden_apis, all_apis = results[0], results[1], results[2]
+# Update this line when adding more options
+new_class_list, new_hidden_apis, all_apis = all_results[0], all_results[1], all_results[2]
+incorrect_api_usage_errors = all_results[3]
+new_hidden_apis = set(new_hidden_apis)
+all_apis = [strip_param_names(i) for i in all_apis]
 
 # Read current class list
-car_api = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw/car_api_classes.txt"
-car_built_in_api = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
-                             "/car_built_in_api_classes.txt"
+existing_car_api_classes_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/" \
+                                          "res/raw/car_api_classes.txt"
+existing_car_built_in_classes_path = rootDir + "/packages/services/Car/tests/" \
+                                               "carservice_unit_test/res/raw/" \
+                                               "car_built_in_api_classes.txt"
 existing_class_list = []
-with open(car_api) as f:
+with open(existing_car_api_classes_path) as f:
     existing_class_list.extend(f.read().splitlines())
-with open(car_built_in_api) as f:
+with open(existing_car_built_in_classes_path) as f:
     existing_class_list.extend(f.read().splitlines())
-
 
 # Find the diff in both class list
 extra_new_classes = [i for i in new_class_list if i not in existing_class_list]
@@ -102,16 +106,13 @@ if error != "":
     print(error)
     print("\nRun following command to generate classlist for annotation test")
     print("cd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-classes-for-test")
+          "--update-classes")
     print("\nThen run following test to make sure classes are properly annotated")
     print("atest CarServiceUnitTest:android.car.AnnotationTest")
     sys.exit(1)
 
-for index, value in enumerate(all_apis):
-    all_apis[index] = strip_param_names(value)
-
 # read existing hidden APIs
-previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+existing_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
                              "/car_hidden_apis.txt"
 
 # hidden_apis_previous_releases contains all the cumulative hidden apis added in previous releases.
@@ -123,9 +124,9 @@ hidden_apis_previous_releases_paths = [
     "/packages/services/Car/tests/carservice_unit_test/res/raw/car_hidden_apis_release_33.1.txt"
 ]
 
-previous_hidden_apis = []
-with open(previous_hidden_apis_path) as f:
-    previous_hidden_apis.extend(f.read().splitlines())
+existing_hidden_apis = set()
+with open(existing_hidden_apis_path) as f:
+    existing_hidden_apis = set(f.read().splitlines())
 
 hidden_apis_previous_releases = set()
 for path in hidden_apis_previous_releases_paths:
@@ -133,20 +134,10 @@ for path in hidden_apis_previous_releases_paths:
         hidden_apis = set(f.read().splitlines())
         hidden_apis_previous_releases = hidden_apis_previous_releases.union(hidden_apis)
 
-excluded_removed_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
-                                      "/car_hidden_apis_excluded.txt"
-
-with open(excluded_removed_hidden_apis_path) as f:
-    excluded_removed_hidden_apis = set(f.read().splitlines())
-
-hidden_apis_previous_releases = hidden_apis_previous_releases - excluded_removed_hidden_apis
-
-# All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
+# All new_hidden_apis should be in previous_hidden_apis. There can be some entry in
+# previous_hidden_apis
 # which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
-modified_or_added_hidden_api = []
-for api in new_hidden_apis:
-    if api not in previous_hidden_apis:
-        modified_or_added_hidden_api.append(api)
+modified_or_added_hidden_api = new_hidden_apis - existing_hidden_apis
 
 # TODO(b/266849922): Add a pre-submit test to also check for added or modified hidden apis,
 # since one could also bypass the repohook tool using --no-verify.
@@ -159,7 +150,7 @@ if len(modified_or_added_hidden_api) > 0:
         " upgrade of the hidden API. \nTo learn more about hidden API usage and removal in the Car stack please visit go/car-hidden-api-usage-removal."
         "\nTo add a hidden API, please run the following command after creating the bug:")
     print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
-          "--update-hidden-api-for-test")
+          "--update-hidden-apis")
     print("\nPlease do not use \"no-verify\" to bypass this check. Reach out to gargmayank@ or"
           " ethanalee@ if there is any confusion or repo upload is not working for you even after running the previous command.")
     sys.exit(1)
@@ -178,4 +169,45 @@ if len(removed_hidden_api) > 0:
           "To learn more about hidden API deprecation and removal visit go/car-hidden-api-usage-removal. "
           "\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
           "removing hidden APIs.")
+    sys.exit(1)
+
+# If a hidden API was upgraded to system or public API, the car_hidden_apis.txt should be updated to
+# reflect its upgrade.
+# Added hidden API and removed hidden APIs are checked. So if there is diff between
+# existing_hidden_apis and new_hidden_apis, these are the APIs upgraded.
+upgraded_hidden_apis = existing_hidden_apis - new_hidden_apis
+if len(upgraded_hidden_apis) > 0:
+    print("\nThe following hidden APIs were upgraded to either system or public APIs.")
+    print("\n".join(upgraded_hidden_apis))
+    print("\nPlease run the following command to update: ")
+    print("\ncd $ANDROID_BUILD_TOP && m -j GenericCarApiBuilder && GenericCarApiBuilder "
+          "--update-hidden-apis")
+    print("\nReach out to gargmayank@ or ethanalee@ if you have any questions or concerns regarding "
+          "upgrading hidden APIs. Visit go/upgrade-hidden-api for more info.")
+    print("\n\n")
+    sys.exit(1)
+
+# Check if Car Service is throwing platform mismatch exception
+folder = rootDir + "/packages/services/Car/service/"
+files = [str(v) for v in list(Path(folder).rglob("*.java"))]
+errors = []
+for f in files:
+    with open(f, "r") as tmp_f:
+        lines = tmp_f.readlines()
+        for i in range(len(lines)):
+            if "assertPlatformVersionAtLeast" in lines[i]:
+                errors.append("line: " + str(i) + ". assertPlatformVersionAtLeast used.")
+            if "PlatformVersionMismatchException" in lines[i]:
+                errors.append("line: " + str(i) + ". PlatformVersionMismatchException used.")
+if len(errors) > 0:
+    print("\nassertPlatformVersionAtLeast or PlatformVersionMismatchException should not be used in"
+          " car service. see go/car-mainline-version-assertion")
+    print("\n".join(errors))
+    sys.exit(1)
+
+if len(incorrect_api_usage_errors) > 0:
+    print("\nOnly non-public classes and methods can have RequiresApi annotation. Following public "
+          "methods/classes also have requiresAPI annotation which is not allowed. See "
+          "go/car-api-version-annotation#using-requiresapi-for-version-check")
+    print("\n".join(incorrect_api_usage_errors))
     sys.exit(1)

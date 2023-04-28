@@ -22,7 +22,7 @@ import android.text.TextUtils;
 import java.util.Objects;
 
 /** A class used to identify a client. */
-public final class ClientId {
+final class ClientId {
 
     /** The occupant zone that the client runs in. */
     public final OccupantZoneInfo occupantZone;

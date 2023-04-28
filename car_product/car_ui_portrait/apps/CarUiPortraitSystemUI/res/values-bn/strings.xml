@@ -20,7 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"প্রযোজ্য নয়"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"সিস্টেম লোড হওয়া পর্যন্ত অপেক্ষা করুন"</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"বর্তমান প্রোফাইল"</string>
-    <!-- no translation found for aloha_welcome_message (4150763169818898412) -->
-    <skip />
+    <string name="aloha_welcome_message" msgid="4150763169818898412">"AAOS"</string>
     <string name="aloha_action_button_text" msgid="168403306904814629">"চালিয়ে যান"</string>
 </resources>

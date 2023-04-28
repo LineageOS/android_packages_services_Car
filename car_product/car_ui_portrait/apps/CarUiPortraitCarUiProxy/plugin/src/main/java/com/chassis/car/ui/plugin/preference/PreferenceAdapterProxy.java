@@ -34,7 +34,7 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 
-import com.android.car.ui.plugin.oemapis.preference.PreferenceOEM1;
+import com.android.car.ui.plugin.oemapis.preference.PreferenceOEMV1;
 import com.android.car.ui.plugin.oemapis.preference.PreferenceViewAttributesOEMV1;
 import com.android.car.ui.preference.CarUiPreferenceViewStub.PreferenceType;
 import com.android.car.ui.sharedlibrary.R;
@@ -43,7 +43,7 @@ import com.android.car.ui.sharedlibrary.R;
 /**
  * Adapter to load preference from plugin.
  */
-public class PreferenceAdapterProxy implements PreferenceOEM1 {
+public class PreferenceAdapterProxy implements PreferenceOEMV1 {
 
     private final Context mPluginContext;
     private final Context mSourceContext;

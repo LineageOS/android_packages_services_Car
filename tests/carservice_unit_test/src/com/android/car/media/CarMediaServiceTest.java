@@ -58,6 +58,7 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
 import android.media.session.MediaController;
+import android.media.session.MediaController.TransportControls;
 import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
@@ -239,6 +240,27 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(MEDIA_COMPONENT2);
         assertThat(mCarMediaService.getMediaSource(MEDIA_SOURCE_MODE_PLAYBACK))
                 .isEqualTo(MEDIA_COMPONENT2);
+    }
+
+    @Test
+    public void testSetMediaSource_settingPlaybackSourcePausesAndStopsPreviousMedia() {
+        MediaController mockController = mock(MediaController.class);
+        TransportControls mockTransportControls = mock(TransportControls.class);
+        when(mockController.getTransportControls()).thenReturn(mockTransportControls);
+        when(mockController.getPackageName()).thenReturn(MEDIA_PACKAGE);
+        when(mockController.getPlaybackState()).thenReturn(
+                createPlaybackState(PlaybackState.STATE_PLAYING, PlaybackState.ACTION_PAUSE));
+        when(mMediaSessionManager.getActiveSessionsForUser(any(), eq(UserHandle.of(TEST_USER_ID))))
+                .thenReturn(List.of(mockController));
+        initMediaService();
+
+        // Set the playback media source to MEDIA_COMPONENT, and then to MEDIA_COMPONENT2
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK);
+        mCarMediaService.setMediaSource(MEDIA_COMPONENT2, MEDIA_SOURCE_MODE_PLAYBACK);
+
+        verify(mockController).unregisterCallback(any());
+        verify(mockTransportControls).pause();
+        verify(mockTransportControls).stop();
     }
 
     @Test
@@ -469,7 +491,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
      */
     @Test
     public void testActiveSessionListener_StateActiveChangesSource() {
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_BUFFERING));
+        mockPlaybackStateChange(
+                createPlaybackState(PlaybackState.STATE_BUFFERING, /* actions= */ 0));
 
         initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
 
@@ -481,7 +504,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     // Tests that PlaybackState changing to STATE_PLAYING will result the media source changing
     @Test
     public void testActiveSessionListener_StatePlayingChangesSource() {
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING));
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
 
         initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
 
@@ -492,7 +515,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testActiveSessionListener_StatePlayingNonMediaAppDoesntChangesSource() {
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING));
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
 
         // setup media source info only for MEDIA Component
         // second one will stay null
@@ -507,7 +530,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testActiveSessionListener_IndependentBrowseUnchanged() {
         mCarMediaService.setIndependentPlaybackConfig(true);
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING));
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
 
         initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
 
@@ -521,7 +544,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testActiveSessionListener_DependentBrowseChanged() {
         mCarMediaService.setIndependentPlaybackConfig(false);
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING));
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PLAYING, /* actions= */ 0));
 
         initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
 
@@ -534,7 +557,7 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testActiveSessionListener_StatePaused() {
-        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PAUSED));
+        mockPlaybackStateChange(createPlaybackState(PlaybackState.STATE_PAUSED, /* actions= */ 0));
 
         initMediaService(MEDIA_CLASS, MEDIA_CLASS2);
 
@@ -684,7 +707,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(packageList);
     }
 
-    private PlaybackState createPlaybackState(@PlaybackState.State int state) {
-        return new PlaybackState.Builder().setState(state, 0, 0).build();
+    private PlaybackState createPlaybackState(
+            @PlaybackState.State int state, @PlaybackState.Actions long actions) {
+        return new PlaybackState.Builder().setState(state, 0, 0).setActions(actions).build();
     }
 }

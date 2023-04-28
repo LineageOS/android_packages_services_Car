@@ -371,10 +371,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
 
-    // Since |WatchdogPerfService| is the component that sends the stats to the car watchdog
-    // service, we need to explicitly let |IoOveruseMonitor| know the stats were sent successfully.
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
             {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/false,
                                             /*isKillable=*/false, /*remaining=*/
@@ -421,8 +417,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     const auto expectedOverusingNativeStats = constructResourceOveruseStats(
             constructIoOveruseStats(/*isKillable=*/false,
@@ -478,8 +472,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     const auto [nextDayStartTime, nextDayDuration] = calculateStartAndDuration(currentTime);
     expectedIoOveruseStats =
@@ -542,8 +534,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     const auto expectedOverusingNativeStats = constructResourceOveruseStats(
             constructIoOveruseStats(/*isKillable=*/false,
@@ -625,8 +615,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
 
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     std::vector<PackageIoOveruseStats> expectedPackageIoOveruseStats =
             {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
                                             /*isKillable=*/false, /*remaining=*/
@@ -663,8 +651,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageM
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     std::vector<PackageIoOveruseStats> expectedPackageIoOveruseStats =
             {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
@@ -708,8 +694,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
             {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/false,
@@ -759,8 +743,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     expectedIoOveruseStats =
             {constructPackageIoOveruseStats(/*uid=*/1112345, /*shouldNotify=*/true,
@@ -835,8 +817,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
 
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
             {constructPackageIoOveruseStats(
                      /*uid*=*/1001000, /*shouldNotify=*/false, /*isKillable=*/false,
@@ -880,8 +860,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
 
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     expectedIoOveruseStats = {constructPackageIoOveruseStats(
                                       /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
                                       /*remaining=*/constructPerStateBytes(5'000, 0, 0),
@@ -917,8 +895,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootSt
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     std::vector<UserPackageIoUsageStats> todayIoUsageStats = {constructUserPackageIoUsageStats(
             /*userId=*/11, "com.android.google.package",
@@ -1106,8 +1082,6 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &resourceStats));
 
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     const auto expected =
             constructIoOveruseStats(/*isKillable=*/false,
                                     /*remaining=*/
@@ -1138,8 +1112,6 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
                                                     SystemState::NORMAL_MODE,
                                                     mMockUidStatsCollector, nullptr,
                                                     &resourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     IoOveruseStats actual;
     ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
@@ -1236,8 +1208,6 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
 
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
-
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
             {constructPackageIoOveruseStats(
                      /*uid*=*/1001000, /*shouldNotify=*/false, /*isKillable=*/false,
@@ -1268,8 +1238,6 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr,
                                                              &actualResourceStats));
-
-    ASSERT_RESULT_OK(mIoOveruseMonitor->onResourceStatsSent(/*successful=*/true));
 
     expectedIoOveruseStats = {constructPackageIoOveruseStats(
                                       /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,

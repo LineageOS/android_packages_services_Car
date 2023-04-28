@@ -182,8 +182,6 @@ public:
             time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
             const std::function<void()>& alertHandler) override;
 
-    android::base::Result<void> onResourceStatsSent(bool successful) override;
-
     android::base::Result<void> onDump(int fd) const override;
 
     bool dumpHelpText(int fd) const override;

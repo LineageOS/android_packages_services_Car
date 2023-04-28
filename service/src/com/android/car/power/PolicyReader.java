@@ -336,8 +336,8 @@ public final class PolicyReader {
                 writer.increaseIndent();
                 SparseArray<String> group = mPolicyGroups.get(key);
                 for (int j = 0; j < group.size(); j++) {
-                    writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(i)),
-                            group.valueAt(i));
+                    writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(j)),
+                            group.valueAt(j));
                 }
                 writer.decreaseIndent();
             }

@@ -41,7 +41,6 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehiclePropErrors;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropValues;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -68,6 +67,14 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
      */
     public interface VehicleHalPropertyHandler {
         default void onPropertySet(VehiclePropValue value) {}
+
+        // Same as onPropertySet, except that it returns whether to generate property change event
+        // for the new value. By default, this will return true.
+        // Caller can override this to control whether to generate property change event.
+        default boolean onPropertySet2(VehiclePropValue value) {
+            onPropertySet(value);
+            return true;
+        }
 
         default VehiclePropValue onPropertyGet(VehiclePropValue value) {
             return null;
@@ -132,7 +139,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 // Update property if requested
                 VehicleHalPropertyHandler handler = mPropertyHandlerMap.get(value.prop);
                 if (handler != null) {
-                    handler.onPropertySet(value);
+                    handler.onPropertySet2(value);
                 }
             }
 
@@ -279,12 +286,11 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                 } else {
                     try {
                         requestedPropValue.timestamp = SystemClock.elapsedRealtimeNanos();
-                        handler.onPropertySet(requestedPropValue);
+                        boolean generateEvent = handler.onPropertySet2(requestedPropValue);
                         result.status = StatusCode.OK;
                         int propId = requestedPropValue.prop;
                         // VMS has special logic.
-                        if (mSubscribers.get(propId) != null
-                                && propId != VehicleProperty.VEHICLE_MAP_SERVICE) {
+                        if (generateEvent && mSubscribers.get(propId) != null) {
                             for (IVehicleCallback subCallback: mSubscribers.get(propId)) {
                                 if (subCallbackToValues.get(subCallback) == null) {
                                     subCallbackToValues.put(subCallback, new ArrayList<>());

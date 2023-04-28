@@ -20,7 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"해당 사항 없음"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"시스템이 로드될 동안 기다려 주시기 바랍니다."</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"현재 프로필"</string>
-    <!-- no translation found for aloha_welcome_message (4150763169818898412) -->
-    <skip />
+    <string name="aloha_welcome_message" msgid="4150763169818898412">"AAOS"</string>
     <string name="aloha_action_button_text" msgid="168403306904814629">"계속"</string>
 </resources>

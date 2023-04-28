@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
@@ -33,6 +34,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.graphics.Rect;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -289,7 +291,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks(int displayId) {
         try {
@@ -325,7 +327,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createTaskMirroringToken(int taskId) {
         try {
@@ -344,7 +346,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_MIRROR_DISPLAY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder createDisplayMirroringToken(int displayId) {
         try {
@@ -438,6 +440,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @MainThread

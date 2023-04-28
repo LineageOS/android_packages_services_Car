@@ -22,12 +22,14 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import android.Manifest;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.app.Activity;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.os.Build;
 import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Dumpable;
@@ -43,6 +45,7 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class CarTaskViewController {
     private static final String TAG = CarTaskViewController.class.getSimpleName();
     static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
@@ -97,7 +100,8 @@ public final class CarTaskViewController {
                         mHostActivity.getSystemService(UserManager.class));
 
         try {
-            ICarTaskViewHost host = mService.createCarTaskView(taskViewClient.mICarTaskViewClient);
+            ICarTaskViewHost host = mService.createControlledCarTaskView(
+                    taskViewClient.mICarTaskViewClient);
             taskViewClient.setRemoteHost(host);
             mControlledRemoteCarTaskViews.add(taskViewClient);
 

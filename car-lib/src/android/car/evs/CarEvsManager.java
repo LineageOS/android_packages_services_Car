@@ -98,9 +98,9 @@ public final class CarEvsManager extends CarManagerBase {
      * Service type to represent the front exterior view camera service.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_FRONTVIEW = 2;
 
     /**
@@ -108,9 +108,9 @@ public final class CarEvsManager extends CarManagerBase {
      * the virtual side mirror.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_LEFTVIEW = 3;
 
     /**
@@ -118,9 +118,9 @@ public final class CarEvsManager extends CarManagerBase {
      * the virtual side mirror.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_RIGHTVIEW = 4;
 
     /**
@@ -128,9 +128,9 @@ public final class CarEvsManager extends CarManagerBase {
      * with the driver.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_DRIVERVIEW = 5;
 
     /**
@@ -138,9 +138,9 @@ public final class CarEvsManager extends CarManagerBase {
      * with the front-seat passengers.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_FRONT_PASSENGERSVIEW = 6;
 
     /**
@@ -148,9 +148,9 @@ public final class CarEvsManager extends CarManagerBase {
      * with the rear-seat passengers.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_REAR_PASSENGERSVIEW = 7;
 
   /**
@@ -158,9 +158,9 @@ public final class CarEvsManager extends CarManagerBase {
      * the user defines.
      */
     @ApiRequirements(minCarVersion =
-                     ApiRequirements.CarVersion.TIRAMISU_3,
+                     ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                      minPlatformVersion =
-                     ApiRequirements.PlatformVersion.TIRAMISU_3)
+                     ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static final int SERVICE_TYPE_USER_DEFINED = 1000;
 
     /** @hide */
