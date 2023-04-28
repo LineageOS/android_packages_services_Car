@@ -186,7 +186,7 @@ public final class AudioMirrorTestFragment extends Fragment {
     }
 
     private void connectCar() {
-        mContext = getContext();
+        mContext = requireContext();
         Car.createCar(mContext, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, (car,
                 ready) -> onCarReady(car, ready));
     }
@@ -257,7 +257,7 @@ public final class AudioMirrorTestFragment extends Fragment {
     }
 
     private void showToast(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
         Log.v(TAG, "Showed toast message: " + message);
     }
 }
