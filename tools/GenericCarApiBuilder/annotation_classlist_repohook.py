@@ -217,8 +217,7 @@ if len(incorrect_requires_api_usage_in_car_service_errors) > 0:
     sys.exit(1)
 
 if len(incorrect_addedin_api_usage_in_car_built_in_errors) > 0:
-    print("\nOnly non-public classes and methods can have RequiresApi annotation. Following public "
-          "methods/classes also have requiresAPI annotation which is not allowed. See "
+    print("\nFollowing APIs are missing RequiresAPI annotations. See "
           "go/car-api-version-annotation#using-requiresapi-for-version-check")
     print("\n".join(incorrect_addedin_api_usage_in_car_built_in_errors))
     sys.exit(1)
