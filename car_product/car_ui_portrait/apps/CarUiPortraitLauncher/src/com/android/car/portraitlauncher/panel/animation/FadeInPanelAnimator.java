@@ -19,6 +19,7 @@ package com.android.car.portraitlauncher.panel.animation;
 import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.view.animation.Interpolator;
 import android.view.animation.PathInterpolator;
 
@@ -34,6 +35,7 @@ public class FadeInPanelAnimator extends PanelAnimator {
 
     private final View mTaskView;
     private final Rect mBounds;
+    private ViewPropertyAnimator mViewPropertyAnimator;
 
     /**
      * A {@code PanelAnimator} to animate the panel into the open state using the fade-in animation.
@@ -53,12 +55,22 @@ public class FadeInPanelAnimator extends PanelAnimator {
         updateBounds(mBounds);
         mTaskView.setScaleX(INITIAL_SCALE);
         mTaskView.setScaleY(INITIAL_SCALE);
-        mTaskView.post(() -> mTaskView.animate()
+        mViewPropertyAnimator = mTaskView.animate()
                 .scaleX(FINAL_SCALE)
                 .scaleY(FINAL_SCALE)
                 .setDuration(DURATION)
                 .setInterpolator(INTERPOLATOR)
                 .setStartDelay(DELAY)
-                .withEndAction(endAction));
+                .withEndAction(endAction);
+    }
+
+    @Override
+    public void cancel() {
+        if (mViewPropertyAnimator != null) {
+            mViewPropertyAnimator.cancel();
+        }
+        mPanel.setScaleX(FINAL_SCALE);
+        mPanel.setScaleY(FINAL_SCALE);
+        updateBounds(mBounds);
     }
 }
