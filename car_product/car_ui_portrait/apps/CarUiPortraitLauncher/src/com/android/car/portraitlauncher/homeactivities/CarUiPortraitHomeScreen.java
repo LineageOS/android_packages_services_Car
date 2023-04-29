@@ -643,12 +643,34 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
                 mStatusBarHeight);
 
-        logIfDebuggable(
-                "Applying bottom insets: " + bottomInsets + " top insets: " + topInsets);
+        logIfDebuggable("Applying inset to backgroundTaskView bottom: " + bottomInsets + " top: "
+                + topInsets);
         mBackgroundTaskView.addInsets(
-                0 /* index */, WindowInsets.Type.systemOverlays(), bottomInsets);
+                /* index= */ 0, WindowInsets.Type.systemOverlays(), bottomInsets);
         mBackgroundTaskView.addInsets(
-                1 /* index */, WindowInsets.Type.systemOverlays(), topInsets);
+                /* index= */ 1, WindowInsets.Type.systemOverlays(), topInsets);
+    }
+
+    private void updateFullScreenTaskViewInsets() {
+        if (mFullScreenTaskView == null) {
+            return;
+        }
+
+        Rect appAreaBounds = new Rect();
+        mFullScreenTaskView.getBoundsOnScreen(appAreaBounds);
+
+        Rect bottomInsets = new Rect(appAreaBounds.left, appAreaBounds.height(),
+                appAreaBounds.right, appAreaBounds.bottom);
+
+        Rect topInsets = new Rect(appAreaBounds.left, appAreaBounds.top, appAreaBounds.right,
+                mStatusBarHeight);
+
+        logIfDebuggable("Applying inset to fullScreenTaskView bottom: " + bottomInsets + " top: "
+                + topInsets);
+        mFullScreenTaskView.addInsets(
+                /* index= */ 0, WindowInsets.Type.systemOverlays(), bottomInsets);
+        mFullScreenTaskView.addInsets(
+                /* index= */ 1, WindowInsets.Type.systemOverlays(), topInsets);
     }
 
     private void updateTaskViewInsets() {
@@ -910,6 +932,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         logIfDebuggable("FullScreen Task View is ready");
                         mIsFullScreenTaskViewReady = true;
                         onTaskViewReadinessUpdated();
+                        updateFullScreenTaskViewInsets();
                     }
                 });
     }
