@@ -49,5 +49,6 @@
      A list of all the apps that are meant to stay in full-screen.
     -->
     <string-array name="config_fullScreenActivities" translatable="false">
+        <item>android.assist.cts/android.assist.cts.TestStartActivity</item>
     </string-array>
 </resources>
