@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ចូលប្រើ​ព័ត៌មាន​អំពី​ការអនុញ្ញាត​ពី​អ្នកលក់​របស់​រថយន្ត​។"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"អានស្ថានភាពភ្លើងផ្នែក​ខាងក្រៅ​រថយន្ត"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ចូលប្រើ​ស្ថានភាពភ្លើង​ផ្នែកខាងក្រៅ​រថយន្ត។"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"ចូលប្រើស្ថានភាព​ថតដាក់ស្រោមដៃ​របស់រថយន្ត"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"ចូលប្រើ​ថតដាក់ស្រោមដៃ​របស់រថយន្ត។"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ពេលវេលា​ចូលប្រើ​ជំនាន់របស់​រថយន្ត"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ពេលវេលា​ចូលប្រើ​ជំនាន់របស់​រថយន្ត។"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"អានភ្លើងផ្នែកខាងក្រៅ​រថយន្ត"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"អាន​ព័ត៌មានអំពី​ស្ថានភាព ADAS របស់រថយន្ត។"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"គ្រប់គ្រង​ព័ត៌មានអំពី​ស្ថានភាព ADAS របស់រថយន្ត"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"គ្រប់គ្រង​ព័ត៌មានអំពី​ស្ថានភាព ADAS របស់រថយន្ត។"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"អានព័ត៌មាន​ទាក់ទងនឹងផ្លិតទឹក​របស់រថយន្ត"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"អានព័ត៌មាន​ទាក់ទងនឹងផ្លិតទឹក​របស់រថយន្ត។"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"គ្រប់គ្រង​ផ្លិតទឹករបស់រថយន្ត"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"គ្រប់គ្រង​ផ្លិតទឹករបស់រថយន្ត។"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"តាមដានស្ថានភាព​នៃតំបន់អ្នកជិះផ្សេងទៀតក្នុង​រថយន្ត និងកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹង​ខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់ទាំងនោះ និងគ្រប់គ្រងថាមពល​នៃតំបន់ទាំងនោះ។"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"តាមដានស្ថានភាព​នៃតំបន់អ្នកជិះផ្សេងទៀតក្នុង​រថយន្ត និងកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹង​ខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់ទាំងនោះ និងគ្រប់គ្រងថាមពល​នៃតំបន់ទាំងនោះ។"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"បង្កើតការតភ្ជាប់ និងភ្ជាប់ទំនាក់ទំនង​ជាមួយកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹងខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់អ្នកជិះផ្សេងទៀតក្នុងរថយន្ត"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"បង្កើតការតភ្ជាប់ និងភ្ជាប់ទំនាក់ទំនង​ជាមួយកម្មវិធីដូចគ្នា (កម្មវិធីដែលមាន​ឈ្មោះកញ្ចប់ដូចគ្នានឹងខាងហៅ) ដែលបានដំឡើង​នៅក្នុងតំបន់អ្នកជិះផ្សេងទៀតក្នុងរថយន្ត។"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"ធ្វើសមកាលកម្មអេក្រង់​របស់កម្មវិធីផ្សេងទៀត​ទៅវិញទៅមក"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"ធ្វើសមកាលកម្មអេក្រង់​របស់កម្មវិធីផ្សេងទៀត​ទៅវិញទៅមក។"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"ធ្វើសមកាលកម្មផ្ទាំងអេក្រង់​របស់អ្នកប្រើប្រាស់​ផ្សេងទៀតទៅវិញទៅមក"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"ធ្វើសមកាលកម្មផ្ទាំងអេក្រង់​របស់អ្នកប្រើប្រាស់​ផ្សេងទៀតទៅវិញទៅមក។"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"ផ្ដល់​ប្រូកស៊ី ui ប្រព័ន្ធ​ដែលកម្មវិធីផ្សេងទៀត​អាចប្រើ ដើម្បីគ្រប់គ្រង ui ប្រព័ន្ធ និងបង្កើត​ទិដ្ឋភាពកិច្ចការ។"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"ផ្ដល់​ប្រូកស៊ី ui ប្រព័ន្ធ​ដែលកម្មវិធីផ្សេងទៀត​អាចប្រើ ដើម្បីគ្រប់គ្រង ui ប្រព័ន្ធ និងបង្កើត​ទិដ្ឋភាពកិច្ចការ។"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ទំនាក់ទំនង​ជាមួយ ui ប្រព័ន្ធសម្រាប់​ការបង្កើតទិដ្ឋភាពកិច្ចការ ឬទទួលបាន​ការជូនដំណឹងអំពី​ការផ្លាស់ប្ដូរ ui ប្រព័ន្ធ។"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ទំនាក់ទំនង​ជាមួយ ui ប្រព័ន្ធសម្រាប់​ការបង្កើតទិដ្ឋភាពកិច្ចការ ឬទទួលបាន​ការជូនដំណឹងអំពី​ការផ្លាស់ប្ដូរ ui ប្រព័ន្ធ។"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>

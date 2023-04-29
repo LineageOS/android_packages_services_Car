@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"کار کے وینڈر کے اجازت کی معلومات تک رسائی حاصل کریں۔"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"کار کی بیرونی روشنیوں کی صورتحال کے بارے میں پڑھیں"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"کار کی بیرونی روشنیوں کی صورتحال تک رسائی حاصل کریں۔"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"کار کے گلوو باکس کی صورتحال تک رسائی حاصل کریں"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"کار کے گلوو باکس کی صورتحال تک رسائی حاصل کریں۔"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"کار کے epoch وقت تک رسائی حاصل کریں"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"کار کے epoch وقت تک رسائی حاصل کریں۔"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"کار کی بیرونی روشنیوں کے بارے میں پڑھیں"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"کار کے ADAS کے اعداد و شمار کی معلومات پڑھیں۔"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"کار کے ADAS کے اعداد و شمار کی معلومات کنٹرول کریں"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"کار کے ADAS کے اعداد و شمار کی معلومات کنٹرول کریں۔"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"کار کے ونڈشیلڈ وائپرز کو پڑھیں"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"کار کے ونڈشیلڈ وائپرز کو پڑھیں۔"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"کار کے ونڈشیلڈ وائپرز کو کنٹرول کریں"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"کار کے ونڈشیلڈ وائپرز کو کنٹرول کریں۔"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"کار میں ساکن کے دیگر زونز کی حالتوں اور ان زونز میں انسٹال کردہ پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) کو مانیٹر کریں اور ان زونز کے پاور کا نظم کریں۔"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) سے کنکشن قائم کریں اور کار میں ساکن کے دیگر زونز میں انسٹال کردہ پیئر ایپس کے ساتھ مواصلت کریں"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"پیئر ایپس (ایسی ایپس جن کے کالر اور پیکیج کا نام ایک ہو) سے کنکشن قائم کریں اور کار میں ساکن کے دیگر زونز میں انسٹال کردہ پیئر ایپس کے ساتھ مواصلت کریں۔"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"دوسرے ایپس کی اسکرین کو دو طرفہ مطابقت پذیر بنائیں"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"دیگر ایپس کی اسکرین کو دو طرفہ مطابقت پذیر بنائیں۔"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"دوسرے صارفین کے ڈسپلے کو دو طرفہ مطابقت پذیر بنائیں"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"دوسرے صارفین کے ڈسپلے کو دو طرفہ مطابقت پذیر بنائیں۔"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"سسٹم UI پراکسی فراہم کرتا ہے جسے دیگر ایپس سسٹم UI کا نظم کرنے اور ٹاسک کے مناظر تخلیق کرنے کے لیے استعمال کر سکتی ہیں۔"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"سسٹم UI پراکسی فراہم کرتا ہے جسے دیگر ایپس سسٹم UI کا نظم کرنے اور ٹاسک کے مناظر تخلیق کرنے کے لیے استعمال کر سکتی ہیں۔"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ٹاسک کے مناظر تخلیق کرنے یا سسٹم UI تبدیلیوں کے بارے میں مطلع کرنے کے لیے کار سسٹم UI کے ساتھ مواصلت کریں۔"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ٹاسک کے مناظر تخلیق کرنے یا سسٹم UI تبدیلیوں کے بارے میں مطلع کرنے کے لیے کار سسٹم UI کے ساتھ مواصلت کریں۔"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"کین بس ناکام ہو گئی"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"کین بس جواب نہیں دیتی ہے۔ ہیڈیونٹ باکس کو ان پلگ کر کے دوبارہ پلگ کریں اور کار کو دوبارہ شروع کریں"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"میرا آلہ"</string>

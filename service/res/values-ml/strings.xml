@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"കാറിന്റെ വെൻഡർ അനുമതി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില വായിക്കുക"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില ആക്‌സസ് ചെയ്യുക."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"കാറിന്റെ ഗ്ലൗ ബോക്‌സ് സ്‌റ്റേറ്റ് ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"കാറിന്റെ ഗ്ലൗ ബോക്‌സ് സ്‌റ്റേറ്റ് ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"കാറിന്റെ epoch സമയം ആക്സസ് ചെയ്യുക"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"കാറിന്റെ epoch സമയം ആക്സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില വായിക്കുക"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"കാറിന്റെ ADAS നിലകൾ സംബന്ധിച്ച വിവരങ്ങൾ വായിക്കുക."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"കാറിന്റെ ADAS നിലകൾ സംബന്ധിച്ച വിവരങ്ങൾ നിയന്ത്രിക്കുക"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"കാറിന്റെ ADAS നിലകൾ സംബന്ധിച്ച വിവരങ്ങൾ നിയന്ത്രിക്കുക."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"കാറിന്റെ വിൻഡ്‌ഷീൽഡ് വെെപ്പറുകൾ വായിക്കുക"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"കാറിന്റെ വിൻഡ്‌ഷീൽഡ് വെെപ്പറുകൾ വായിക്കുക."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"കാറിന്റെ വിൻഡ്‌ഷീൽഡ് വെെപ്പറുകൾ നിയന്ത്രിക്കുക"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"കാറിന്റെ വിൻഡ്‌ഷീൽഡ് വെെപ്പറുകൾ നിയന്ത്രിക്കുക."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളുടെയും ആ സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുടെയും (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) നിലകൾ നിരീക്ഷിച്ച് ആ സോണുകളുടെ പവർ മാനേജ് ചെയ്യുക."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളുടെയും ആ സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുടെയും (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) നിലകൾ നിരീക്ഷിച്ച് ആ സോണുകളുടെ പവർ മാനേജ് ചെയ്യുക."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുമായി (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) കണക്ഷൻ സ്ഥാപിച്ച് ആശയവിനിമയം നടത്തുക"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"കാറിലെ മറ്റ് ഒക്യുപന്റ് സോണുകളിൽ ഇൻസ്റ്റാൾ ചെയ്തിരിക്കുന്ന പിയർ ആപ്പുകളുമായി (കോളറുടെ അതേ പാക്കേജ് പേരുള്ള ആപ്പുകൾ) കണക്ഷൻ സ്ഥാപിച്ച് ആശയവിനിമയം നടത്തുക."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"മറ്റ് ആപ്പുകളുടെ സ്ക്രീൻ മിറർ ചെയ്യുക"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"മറ്റ് ആപ്പുകളുടെ സ്ക്രീൻ മിറർ ചെയ്യുക."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"മറ്റ് ഉപയോക്താക്കളുടെ ഡിസ്പ്ലേ മിറർ ചെയ്യുക"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"മറ്റ് ഉപയോക്താക്കളുടെ ഡിസ്പ്ലേ മിറർ ചെയ്യുക."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"സിസ്റ്റം UI മാനേജ് ചെയ്യാനും ടാസ്‌ക് കാഴ്ചകൾ സൃഷ്ടിക്കാനും മറ്റ് ആപ്പുകൾക്ക് ഉപയോഗിക്കാനാകുന്ന സിസ്റ്റം UI പ്രോക്‌സി നൽകുക."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"സിസ്റ്റം UI മാനേജ് ചെയ്യാനും ടാസ്‌ക് കാഴ്ചകൾ സൃഷ്ടിക്കാനും മറ്റ് ആപ്പുകൾക്ക് ഉപയോഗിക്കാനാകുന്ന സിസ്റ്റം UI പ്രോക്‌സി നൽകുക."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ടാസ്‌ക് കാഴ്ചകൾ സൃഷ്ടിക്കാനോ സിസ്റ്റം UI മാറ്റങ്ങളെ കുറിച്ചുള്ള അറിയിപ്പ് നേടാനോ കാർ സിസ്റ്റം UI-യുമായി ആശയവിനിമയം നടത്തുക."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ടാസ്‌ക് കാഴ്ചകൾ സൃഷ്ടിക്കാനോ സിസ്റ്റം UI മാറ്റങ്ങളെ കുറിച്ചുള്ള അറിയിപ്പ് നേടാനോ കാർ സിസ്റ്റം UI-യുമായി ആശയവിനിമയം നടത്തുക."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ബസ് പരാജയപ്പെട്ടു"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ബസ് പ്രതികരിക്കുന്നില്ല. ഹെഡ്‌യൂണിറ്റ് ബോക്‌സ്, അൺപ്ലഗ് ചെയ്‌ത്, വീണ്ടും പ്ലഗ് ചെയ്‌ത്, കാർ റീസ്‌റ്റാർട്ട് ചെയ്യുക"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"എന്റെ ഉപകരണം"</string>

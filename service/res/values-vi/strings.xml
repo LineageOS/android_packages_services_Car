@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Truy cập vào thông tin về quyền của nhà sản xuất ô tô."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"đọc trạng thái đèn bên ngoài ô tô"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Truy cập vào trạng thái đèn bên ngoài ô tô."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"truy cập dữ liệu trạng thái của hộc trước ô tô"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Truy cập vào trạng thái của hộc trước ô tô."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"truy cập vào thời gian bắt đầu của hệ thống trên ô tô"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Truy cập vào thời gian bắt đầu của hệ thống trên ô tô"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"đọc đèn bên ngoài ô tô"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Xem thông tin trạng thái Hệ thống hỗ trợ người lái nâng cao (ADAS) của ô tô."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"quản lý thông tin trạng thái Hệ thống hỗ trợ người lái nâng cao (ADAS) của ô tô"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Quản lý thông tin trạng thái Hệ thống hỗ trợ người lái nâng cao (ADAS) của ô tô."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"đọc dữ liệu của cần gạt nước ô tô"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Đọc dữ liệu của cần gạt nước ô tô."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"kiểm soát cần gạt nước của ô tô"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Kiểm soát cần gạt nước của ô tô."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"theo dõi trạng thái và quản lý điện năng ở khu vực của những người khác trong xe cũng như các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt trong những khu vực đó."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Theo dõi trạng thái và quản lý điện năng ở khu vực của những người khác trong xe cũng như các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt trong những khu vực đó."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"thiết lập kết nối và giao tiếp với các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt ở khu vực của những người khác trong xe."</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Thiết lập kết nối và giao tiếp với các ứng dụng ngang hàng (ứng dụng có cùng tên gói với ứng dụng gọi) được cài đặt ở khu vực của những người khác trong xe."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"phản chiếu màn hình của ứng dụng khác"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Phản chiếu màn hình của ứng dụng khác."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"phản chiếu màn hình của người dùng khác"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Phản chiếu màn hình của người dùng khác."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Cung cấp proxy giao diện người dùng hệ thống cho các ứng dụng khác sử dụng để quản lý giao diện người dùng hệ thống và tạo các chế độ xem tác vụ."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Cung cấp proxy giao diện người dùng hệ thống cho các ứng dụng khác sử dụng để quản lý giao diện người dùng hệ thống và tạo các chế độ xem tác vụ."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Giao tiếp với giao diện người dùng hệ thống ô tô để tạo các chế độ xem tác vụ hoặc nhận thông báo về các thay đổi đối với giao diện người dùng hệ thống."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Giao tiếp với giao diện người dùng hệ thống ô tô để tạo các chế độ xem tác vụ hoặc nhận thông báo về các thay đổi đối với giao diện người dùng hệ thống."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Đường dẫn chính CAN không hoạt động"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Đường dẫn chính CAN không phản hồi. Rút rồi cắm lại hộp bộ đầu và khởi động lại ô tô"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Thiết bị của tôi"</string>

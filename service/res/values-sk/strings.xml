@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Prístup k informáciám o povoleniach dodávateľa auta."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"čítať stav vonkajších svetiel auta"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Prístup k stavu vonkajších svetiel auta."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"prístup k stavu priehradky spolujazdca v aute"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Prístup k stavu priehradky spolujazdca v aute."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"prístup k času epochy v aute"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Prístup k času epochy v aute."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"čítať vonkajšie svetlá auta"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Čítanie informácií o stavoch systému ADAS v aute."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ovládanie informácií o stavoch systému ADAS v aute"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Ovládanie informácií o stavoch systému ADAS v aute."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"čítanie informácií o stieračoch auta"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Čítanie informácií o stieračoch auta."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ovládanie stieračov auta"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Ovládanie stieračov auta."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"monitorujte stav ďalších miest pre spolucestujúcich v aute a podobných aplikácií (aplikácie, ktoré majú rovnaký názov balíka ako zdroj spätného volania) nainštalovaných na týchto miestach a spravujte výkon týchto miest."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Monitorujte stav ďalších miest pre spolucestujúcich v aute a podobných aplikácií (aplikácie, ktoré majú rovnaký názov balíka ako zdroj spätného volania) nainštalovaných na týchto miestach a spravujte výkon týchto miest."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"nadviažte spojenie a komunikujte s podobnými aplikáciami (aplikácie, ktoré majú rovnaký názov balíka ako zdroj spätného volania) nainštalovanými na ďalších miestach pre spolucestujúcich v aute"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Nadviažte spojenie a komunikujte s podobnými aplikáciami (aplikácie, ktoré majú rovnaký názov balíka ako zdroj spätného volania) nainštalovanými na ďalších miestach pre spolucestujúcich v aute."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"zrkadlenie obrazovky ostatných aplikácií"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Zrkadlenie obrazovky ostatných aplikácií."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"zrkadlenie obrazovky ostatných používateľov"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Zrkadlenie obrazovky ostatných používateľov."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Poskytovanie proxy servera používateľského rozhrania systému, pomocou ktorého môžu ďalšie aplikácie spravovať používateľské rozhranie systému a vytvárať zobrazenia úloh."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Poskytovanie proxy servera používateľského rozhrania systému, pomocou ktorého môžu ďalšie aplikácie spravovať používateľské rozhranie systému a vytvárať zobrazenia úloh."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Komunikácia s používateľským rozhraním systému na účely vytvárania zobrazení úloh alebo poskytovania upozornení na zmeny používateľského rozhrania systému."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komunikácia s používateľským rozhraním systému na účely vytvárania zobrazení úloh alebo poskytovania upozornení na zmeny používateľského rozhrania systému."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Zbernica CAN zlyhala"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Zbernica CAN nereaguje. Odpojte autorádio a znova ho pripojte. Potom auto znova naštartujte."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moje zariadenie"</string>

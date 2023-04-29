@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Dostop do podatkov o dovoljenjih prodajalca avtomobila."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"branje stanja zunanjih luči avtomobila"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Dostop do stanja zunanjih luči avtomobila."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"dostop do stanja predala pred sopotnikom v avtomobilu"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"Dostop do stanja predala pred sopotnikom v avtomobilu."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"dostop do časa epohe avtomobila"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Dostop do časa epohe avtomobila."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"branje zunanjih luči avtomobila"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"Branje podatkov o stanjih za ADAS v avtomobilu."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"nadziranje podatkov o stanjih za ADAS v avtomobilu"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"Nadziranje podatkov o stanjih za ADAS v avtomobilu."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"branje brisalcev vetrobranskega stekla avtomobila"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"Branje brisalcev vetrobranskega stekla avtomobila."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"nadziranje brisalcev vetrobranskega stekla avtomobila"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"Nadziranje brisalcev vetrobranskega stekla avtomobila."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"nadziranje stanj drugih območij potnikov v avtomobilu in primerljivih aplikacij (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenih na teh območjih, ter upravljanje napajanja teh območij"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"Nadziranje stanj drugih območij potnikov v avtomobilu in primerljivih aplikacij (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenih na teh območjih, ter upravljanje napajanja teh območij."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"vzpostavitev povezave in komuniciranje s primerljivimi aplikacijami (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenimi na drugih območjih potnikov v avtomobilu"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"Vzpostavitev povezave in komuniciranje s primerljivimi aplikacijami (aplikacije, ki imajo isto ime paketa kot klicatelj), nameščenimi na drugih območjih potnikov v avtomobilu."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"zrcaljenje zaslona drugih aplikacij"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"Zrcaljenje zaslona drugih aplikacij."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"zrcaljenje zaslona drugih uporabnikov"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"Zrcaljenje zaslona drugih uporabnikov."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"Zagotavljanje posrednika sistemskega uporabniškega vmesnika, ki ga lahko druge aplikacije uporabljajo za upravljanje sistemskega uporabniškega vmesnika in ustvarjanje pogledov opravil."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"Zagotavljanje posrednika sistemskega uporabniškega vmesnika, ki ga lahko druge aplikacije uporabljajo za upravljanje sistemskega uporabniškega vmesnika in ustvarjanje pogledov opravil."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"Komuniciranje s sistemskim uporabniškim vmesnikom avtomobila zaradi ustvarjanja pogledov opravil ali obveščanje o spremembah sistemskega uporabniškega vmesnika."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"Komuniciranje s sistemskim uporabniškim vmesnikom avtomobila zaradi ustvarjanja pogledov opravil ali obveščanje o spremembah sistemskega uporabniškega vmesnika."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Napaka vodila CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Vodilo CAN se ne odziva. Odklopite in znova priklopite ohišje avtomobilskega vmesnika ter znova zaženite avtomobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moja naprava"</string>

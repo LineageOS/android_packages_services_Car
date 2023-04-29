@@ -84,8 +84,8 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS మెసేజ్‌లను పబ్లిష్ చేయండి"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS సబ్‌స్క్రయిబర్"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS మెసేజ్‌లను పొందడానికి సబ్‌స్క్రయిబ్ చేయండి"</string>
-    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ఫ్లాష్ నిల్వ పర్యవేక్షణ"</string>
-    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ఫ్లాష్ నిల్వ వినియోగాన్ని పర్యవేక్షించండి"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ఫ్లాష్ స్టోరేజ్‌ పర్యవేక్షణ"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ఫ్లాష్ స్టోరేజ్‌ వినియోగాన్ని పర్యవేక్షించండి"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"డ్రైవింగ్ స్థితి మార్పులను వినగలవు"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"డ్రైవింగ్ స్థితి మార్పులను వినగలవు."</string>
     <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"కార్ టెలిమెట్రీ సర్వీస్‌ను ఉపయోగించండి"</string>
@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"కారు విక్రేత అనుమతి సమాచారాన్ని యాక్సెస్ చేయగలవు."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"కారు బయటి లైట్‌ల స్థితిని తెలుసుకోగలవు"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"కారు బయటి లైట్‌ల స్థితిని యాక్సెస్ చేయగలవు."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"కారు గ్లోవ్ బాక్స్ స్టేట్‌ను యాక్సెస్ చేయండి"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"కారు గ్లోవ్ బాక్స్ స్టేట్‌ను యాక్సెస్ చేయండి."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"కారు తేదీ సమయాన్ని యాక్సెస్ చేయండి."</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"కారు తేదీ సమయాన్ని యాక్సెస్ చేయండి."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"కారు బయటి లైట్‌ల స్థితిని తెలుసుకోగలవు"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"కారు ADAS స్టేట్స్ సమాచారాన్ని చదవండి."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"కారు ADAS స్టేట్స్ సమాచారాన్ని కంట్రోల్ చేయండి"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"కారు ADAS స్టేట్స్ సమాచారాన్ని కంట్రోల్ చేయండి."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"కారు విండ్‌షీల్డ్ వైపర్‌ల గురించి చదవండి"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"కారు విండ్‌షీల్డ్ వైపర్‌ల గురించి చదవండి."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"కారు విండ్‌షీల్డ్ వైపర్‌లను కంట్రోల్ చేయండి"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"కారు విండ్‌షీల్డ్ వైపర్‌లను కంట్రోల్ చేయండి."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"కారులోని ఇతర బస చేసే జోన్‌ల స్టేట్‌లను పర్యవేక్షించండి, ఆ జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు), ఆ జోన్‌ల పవర్‌ను మేనేజ్ చేయండి."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"కారులోని ఇతర బస చేసే జోన్‌ల స్టేట్‌లను పర్యవేక్షించండి, ఆ జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు), ఆ జోన్‌ల పవర్‌ను మేనేజ్ చేయండి."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"కారులోని ఇతర బస చేసే జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లకు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు) కనెక్షన్‌ను ఏర్పాటు చేయండి, కమ్యూనికేట్ చేయండి"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"కారులోని ఇతర బస చేసే జోన్‌లలో ఇన్‌స్టాల్ చేయబడిన పీర్ యాప్‌లకు (కాలర్ లాగా ఒకే ప్యాకేజీ పేరు ఉన్న యాప్‌లు) కనెక్షన్‌ను ఏర్పాటు చేయండి, కమ్యూనికేట్ చేయండి."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"ఇతర యాప్‌ల స్క్రీన్‌ను మిర్రర్ చేయండి"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"ఇతర యాప్‌ల స్క్రీన్‌ను మిర్రర్ చేయండి."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"ఇతర యూజర్‌ల డిస్‌ప్లే‌ను మిర్రర్ చేయండి"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"ఇతర యూజర్‌ల డిస్‌ప్లే‌ను మిర్రర్ చేయండి."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"సిస్టమ్ UIని మేనేజ్ చేయడానికి, టాస్క్ వీక్షణలను క్రియేట్ చేయడానికి ఇతర యాప్‌ల ద్వారా ఉపయోగించబడే సిస్టమ్ UI ప్రాక్సీని అందించండి."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"సిస్టమ్ UIని మేనేజ్ చేయడానికి, టాస్క్ వీక్షణలను క్రియేట్ చేయడానికి ఇతర యాప్‌ల ద్వారా ఉపయోగించబడే సిస్టమ్ UI ప్రాక్సీని అందించండి."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"టాస్క్‌వ్యూలను క్రియేట్ చేయడం లేదా సిస్టమ్ UI మార్పుల గురించి తెలియజేయడం కోసం కారు సిస్టమ్ UIతో కమ్యూనికేట్ చేయండి."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"టాస్క్‌వ్యూలను క్రియేట్ చేయడం లేదా సిస్టమ్ UI మార్పుల గురించి తెలియజేయడం కోసం కారు సిస్టమ్ UIతో కమ్యూనికేట్ చేయండి."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN బస్సు విఫలమైంది"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN బస్సు స్పందించలేదు. హెడ్ యూనిట్ బాక్స్‌‍‌ని ప్లగ్ మరియు అన్‌ప్లగ్ చేసి కారుని పునఃప్రారంభించుము"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"నా పరికరం"</string>

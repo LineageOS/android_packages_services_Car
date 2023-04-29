@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"গাড়ির তথ্য"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"আপনার গাড়ির তথ্য অ্যাক্সেস করুন"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"আপনার গাড়ির তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"গাড়ির ক্যামেরা অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"আপনার গাড়ির ক্যামেরা(গুলি) অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"আপনার গাড়ির এনার্জির তথ্য অ্যাক্সেস করা"</string>
@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"গাড়ির ভেন্ডরের অনুমতি সম্পর্কে তথ্য অ্যাক্সেস করুন।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"গাড়ির এক্সটিরিয়র বা বাইরের দিকের লাইটের স্ট্যাটাস দেখা"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"গাড়ির এক্সটিরিয়র বা বাইরের দিকের লাইটের স্ট্যাটাস অ্যাক্সেস করা।"</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"গাড়ির গ্লোভ বক্স স্টেট অ্যাক্সেস করতে পারে"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"গাড়ির গ্লোভ বক্স স্টেট অ্যাক্সেস করতে পারে।"</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"গাড়ির সময় পর্বের তথ্য ব্যবহার করুন"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"গাড়ির সময় পর্বের তথ্য ব্যবহার করুন।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"গাড়ির এক্সটিরিয়র বা বাইরের দিকের লাইট দেখা"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"গাড়ির ADAS স্ট্যাটাস সম্পর্কিত তথ্য পড়া।"</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"গাড়ির ADAS স্ট্যাটাস সম্পর্কিত তথ্য কন্ট্রোল করা"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"গাড়ির ADAS স্ট্যাটাস সম্পর্কিত তথ্য কন্ট্রোল করা।"</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"গাড়ির উইন্ডশিল্ড ওয়াইপার সংক্রান্ত তথ্য দেখতে পারে"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"গাড়ির উইন্ডশিল্ড ওয়াইপার সংক্রান্ত তথ্য দেখতে পারে।"</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"গাড়ির উইন্ডশিল্ড ওয়াইপার, নিয়ন্ত্রণ করতে পারে"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"গাড়ির উইন্ডশিল্ড ওয়াইপার, নিয়ন্ত্রণ করতে পারে।"</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"গাড়িতে থাকা অন্যান্য সিটিং জোন এবং সেই জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) স্ট্যাটাস মনিটর করুন, এছাড়া সেই জোনগুলির পাওয়ার ম্যানেজ করুন।"</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"গাড়িতে থাকা অন্যান্য সিটিং জোন এবং সেই জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) স্ট্যাটাস মনিটর করুন, এছাড়া সেই জোনগুলির পাওয়ার ম্যানেজ করুন।"</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"কানেক্ট করুন এবং গাড়ির অন্যান্য সিটিং জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) সাথে যোগাযোগ করুন"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"কানেক্ট করুন এবং গাড়ির অন্যান্য সিটিং জোনে ইনস্টল করা পিয়ার অ্যাপগুলির (কলারের মতো একই প্যাকেজ নাম আছে এমন অ্যাপ) সাথে যোগাযোগ করুন।"</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"অন্যান্য অ্যাপের স্ক্রিন মিরর করুন"</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"অন্যান্য অ্যাপের স্ক্রিন মিরর করুন।"</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"অন্যান্য ব্যবহারকারীর ডিসপ্লে মিরর করুন"</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"অন্যান্য ব্যবহারকারীর ডিসপ্লে মিরর করুন।"</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"সিস্টেম UI প্রক্সি প্রদান করুন যা অন্যান্য অ্যাপ, সিস্টেম UI ম্যানেজ এবং টাস্ক ভিউ তৈরি করার জন্য ব্যবহার করতে পারে।"</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"সিস্টেম UI প্রক্সি প্রদান করুন যা অন্যান্য অ্যাপ, সিস্টেম UI ম্যানেজ এবং টাস্ক ভিউ তৈরি করার জন্য ব্যবহার করতে পারে।"</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"টাস্কভিউ তৈরি করতে অথবা সিস্টেম UI সংক্রান্ত পরিবর্তন সম্পর্কে জানার জন্য গাড়ির সিস্টেম UI দেখুন।"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

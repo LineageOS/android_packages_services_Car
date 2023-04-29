@@ -34,7 +34,7 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"ಕಾರಿನ ವೇಗದ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"ಕಾರಿನ ಚಲನಶೀಲ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"ಕಾರಿನ ಚಲನಶೀಲ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"ಕಾರಿನ ಪೂರೈಕೆದಾರ ಚಾನಲ್‌ಗೆ ಪ್ರವೇಶ"</string>
+    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"ಕಾರಿನ ಪೂರೈಕೆದಾರ ಚಾನಲ್‌ಗೆ ಆ್ಯಕ್ಸೆಸ್"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ನಿಮ್ಮ ಕಾರಿನ ನಿರ್ದಿಷ್ಟ ಮಾಹಿತಿಯನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು, ನಿಮ್ಮ ಕಾರಿನ ಮಾರಾಟಗಾರ ಚಾನಲ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"ಕಾರಿನ ರೇಡಿಯೊವನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"ಕಾರಿನ ರೇಡಿಯೋವನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
@@ -126,10 +126,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ಕಾರಿನ ಮಾರಾಟಗಾರರ ಅನುಮತಿ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
-    <!-- no translation found for car_permission_label_control_glove_box (992118647212706782) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_glove_box (2888062136750123261) -->
-    <skip />
+    <string name="car_permission_label_control_glove_box" msgid="992118647212706782">"ಕಾರಿನ ಗ್ಲೋವ್ ಬಾಕ್ಸ್ ಸ್ಥಿತಿಯನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಿ"</string>
+    <string name="car_permission_desc_control_glove_box" msgid="2888062136750123261">"ಕಾರಿನ ಗ್ಲೋವ್ ಬಾಕ್ಸ್ ಸ್ಥಿತಿಯನ್ನು ಆ್ಯಕ್ಸೆಸ್ ಮಾಡಿ."</string>
     <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ಕಾರ್‌ನ epoch ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ಕಾರ್‌ನ epoch ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
@@ -194,26 +192,22 @@
     <string name="car_permission_desc_read_adas_states" msgid="5042430899788416991">"ಕಾರ್‌ನ ADAS ಸ್ಥಿತಿಗಳ ಮಾಹಿತಿಯನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_control_adas_states" msgid="758803765406463138">"ಕಾರ್‌ನ ADAS ಸ್ಥಿತಿಗಳ ಮಾಹಿತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_desc_control_adas_states" msgid="1893171217779342348">"ಕಾರ್‌ನ ADAS ಸ್ಥಿತಿಗಳ ಮಾಹಿತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
-    <!-- no translation found for car_permission_label_read_windshield_wipers (896867772546890348) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_read_windshield_wipers (597300271560195986) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_windshield_wipers (7971852482734087493) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_windshield_wipers (3803429825323199728) -->
-    <skip />
+    <string name="car_permission_label_read_windshield_wipers" msgid="896867772546890348">"ಕಾರಿನ ವಿಂಡ್‌ಶೀಲ್ಡ್ ವೈಪರ್‌ಗಳ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
+    <string name="car_permission_desc_read_windshield_wipers" msgid="597300271560195986">"ಕಾರಿನ ವಿಂಡ್‌ಶೀಲ್ಡ್ ವೈಪರ್‌ಗಳ ಮಾಹಿತಿಯನ್ನು ಓದಿ."</string>
+    <string name="car_permission_label_control_windshield_wipers" msgid="7971852482734087493">"ಕಾರಿನ ವಿಂಡ್‌ಶೀಲ್ಡ್ ವೈಪರ್‌ಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_windshield_wipers" msgid="3803429825323199728">"ಕಾರಿನ ವಿಂಡ್‌ಶೀಲ್ಡ್ ವೈಪರ್‌ಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_manage_remote_device" msgid="1144368625081074994">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳ ಸ್ಥಿತಿಯನ್ನು ಮತ್ತು ಆ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳನ್ನು (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ ಮತ್ತು ಆ ವಲಯಗಳ ಪವರ್ ಅನ್ನು ನಿರ್ವಹಿಸಿ."</string>
     <string name="car_permission_desc_manage_remote_device" msgid="4802785901453919948">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳ ಸ್ಥಿತಿಯನ್ನು ಮತ್ತು ಆ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳನ್ನು (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ ಮತ್ತು ಆ ವಲಯಗಳ ಪವರ್ ಅನ್ನು ನಿರ್ವಹಿಸಿ."</string>
     <string name="car_permission_label_manage_occupant_connection" msgid="6007579379849984187">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳಿಗೆ (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಕನೆಕ್ಷನ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ ಮತ್ತು ಅವುಗಳ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ"</string>
     <string name="car_permission_desc_manage_occupant_connection" msgid="6525045077082552965">"ಕಾರ್‌ನಲ್ಲಿನ ಇತರ ಲಭ್ಯವಿರುವ ವಲಯಗಳಲ್ಲಿ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಲಾದ ಪೀಯರ್ ಆ್ಯಪ್‌ಗಳಿಗೆ (ಕಾಲರ್ ಆ್ಯಪ್‌ಗಳ ಅದೇ ಪ್ಯಾಕೇಜ್ ಹೆಸರನ್ನು ಹೊಂದಿರುವ ಆ್ಯಪ್‌ಗಳು) ಕನೆಕ್ಷನ್ ಅನ್ನು ಸ್ಥಾಪಿಸಿ ಮತ್ತು ಅವುಗಳ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ."</string>
-    <!-- no translation found for car_permission_label_access_mirrored_surface (6235459468766618021) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_access_mirrored_surface (7701151689600074639) -->
-    <skip />
-    <!-- no translation found for car_permission_label_mirror_display (7591958768912962529) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_mirror_display (2403249980834394896) -->
-    <skip />
+    <string name="car_permission_label_access_mirrored_surface" msgid="6235459468766618021">"ಇತರ ಆ್ಯಪ್‌ಗಳ ಸ್ಕ್ರೀನ್ ಅನ್ನು ಪ್ರತಿಬಿಂಬಿಸಿ."</string>
+    <string name="car_permission_desc_access_mirrored_surface" msgid="7701151689600074639">"ಇತರ ಆ್ಯಪ್‌ಗಳ ಸ್ಕ್ರೀನ್ ಅನ್ನು ಪ್ರತಿಬಿಂಬಿಸಿ."</string>
+    <string name="car_permission_label_mirror_display" msgid="7591958768912962529">"ಇತರ ಆ್ಯಪ್‌ಗಳ ಡಿಸ್‌ಪ್ಲೇ ಅನ್ನು ಪ್ರತಿಬಿಂಬಿಸಿ."</string>
+    <string name="car_permission_desc_mirror_display" msgid="2403249980834394896">"ಇತರ ಆ್ಯಪ್‌ಗಳ ಡಿಸ್‌ಪ್ಲೇ ಅನ್ನು ಪ್ರತಿಬಿಂಬಿಸಿ."</string>
+    <string name="car_permission_label_register_car_system_ui_proxy" msgid="4211405049007842422">"ಸಿಸ್ಟಂ UI ಅನ್ನು ನಿರ್ವಹಿಸಲು ಮತ್ತು ಕಾರ್ಯ ವೀಕ್ಷಣೆಗಳನ್ನು ರಚಿಸಲು ಇತರ ಆ್ಯಪ್‌ಗಳು ಬಳಸಬಹುದಾದ ಸಿಸ್ಟಂ UI ಪ್ರಾಕ್ಸಿಯನ್ನು ಒದಗಿಸಿ."</string>
+    <string name="car_permission_desc_register_car_system_ui_proxy" msgid="8863676956785764681">"ಸಿಸ್ಟಂ UI ಅನ್ನು ನಿರ್ವಹಿಸಲು ಮತ್ತು ಕಾರ್ಯ ವೀಕ್ಷಣೆಗಳನ್ನು ರಚಿಸಲು ಇತರ ಆ್ಯಪ್‌ಗಳು ಬಳಸಬಹುದಾದ ಸಿಸ್ಟಂ UI ಪ್ರಾಕ್ಸಿಯನ್ನು ಒದಗಿಸಿ."</string>
+    <string name="car_permission_label_manage_car_system_ui" msgid="1361615518679353414">"ಕಾರ್ಯ ವೀಕ್ಷಣೆಗಳನ್ನು ರಚಿಸಲು ಅಥವಾ ಸಿಸ್ಟಂ UI ಬದಲಾವಣೆಗಳ ಕುರಿತು ಅಧಿಸೂಚನೆಗಳನ್ನು ಪಡೆಯಲು ಕಾರ್ ಸಿಸ್ಟಂ UI ಮೂಲಕ ಸಂವಹನ ನಡೆಸಿ."</string>
+    <string name="car_permission_desc_manage_car_system_ui" msgid="6201733970421818637">"ಕಾರ್ಯ ವೀಕ್ಷಣೆಗಳನ್ನು ರಚಿಸಲು ಅಥವಾ ಸಿಸ್ಟಂ UI ಬದಲಾವಣೆಗಳ ಕುರಿತು ಅಧಿಸೂಚನೆಗಳನ್ನು ಪಡೆಯಲು ಕಾರ್ ಸಿಸ್ಟಂ UI ಮೂಲಕ ಸಂವಹನ ನಡೆಸಿ."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"ಸಿಎಎನ್ ಬಸ್ ಕೆಟ್ಟಿದೆ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ಬಸ್ ಸ್ಪಂದಿಸುತ್ತಿಲ್ಲ. ಹೆಡ್ ಯುನಿಟ್ ಪೆಟ್ಟಿಗೆಯನ್ನು ಅನ್‌ಪ್ಲಗ್ ಮಾಡಿ ಮತ್ತೆ ಪ್ಲಗ್ ಮಾಡಿ ಕಾರನ್ನು ಪುನರಾರಂಭಿಸಿ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ನನ್ನ ಸಾಧನ"</string>
