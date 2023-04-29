@@ -1474,7 +1474,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     public void enableMirrorForAudioZones_whenServiceThrowsRemoteException_returnsInvalidId()
             throws Exception {
         List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
-        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        getAudioZonesMirrorStatusCallbackWrapper();
         doThrow(mRemoteException).when(mServiceMock).enableMirrorForAudioZones(any(
                 int[].class));
 
@@ -1513,7 +1513,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     @Test
     public void extendAudioMirrorRequest_whenServiceThrowsRemoteException() throws Exception {
         List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_FRONT_ZONE_ID);
-        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        getAudioZonesMirrorStatusCallbackWrapper();
         doThrow(mRemoteException).when(mServiceMock).extendAudioMirrorRequest(
                 eq(TEST_REQUEST_ID), any(int[].class));
 
@@ -1542,7 +1542,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
     @Test
     public void disableAudioMirror_whenServiceThrowsRemoteException() throws Exception {
         List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
-        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        getAudioZonesMirrorStatusCallbackWrapper();
         long requestId = mCarAudioManager.enableMirrorForAudioZones(zonesToMirrorList);
         doThrow(mRemoteException).when(mServiceMock).disableAudioMirror(requestId);
 
@@ -1569,8 +1569,7 @@ public final class CarAudioManagerUnitTest extends AbstractExpectableTestCase {
 
     @Test
     public void disableAudioMirrorForZone_whenServiceThrowsRemoteException() throws Exception {
-        List<Integer> zonesToMirrorList = List.of(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
-        IAudioZonesMirrorStatusCallback callback = getAudioZonesMirrorStatusCallbackWrapper();
+        getAudioZonesMirrorStatusCallbackWrapper();
         doThrow(mRemoteException).when(mServiceMock).disableAudioMirrorForZone(
                 TEST_REAR_RIGHT_ZONE_ID);
 

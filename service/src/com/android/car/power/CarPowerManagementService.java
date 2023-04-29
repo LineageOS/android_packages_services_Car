@@ -95,11 +95,14 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
@@ -287,8 +290,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final ScreenOffHandler mScreenOffHandler;
 
     @VisibleForTesting
-    PolicyReader getPowerPolicyReader() {
-        return mPolicyReader;
+    void readPowerPolicyFromXml(InputStream inputStream)
+            throws IOException, PolicyReader.PolicyXmlException, XmlPullParserException {
+        mPolicyReader.readPowerPolicyFromXml(inputStream);
+        Integer[] customComponents =
+                new Integer[mPolicyReader.getCustomComponents().values().size()];
+        mPolicyReader.getCustomComponents().values().toArray(customComponents);
+        mPowerComponentHandler.registerCustomComponents(customComponents);
     }
 
     interface ActionOnDeath<T extends IInterface> {
@@ -390,7 +398,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void init() {
         mPolicyReader.init();
-        mPowerComponentHandler.init();
+        mPowerComponentHandler.init(mPolicyReader.getCustomComponents());
         mHal.setListener(this);
         mSystemInterface.init(this, mUserService);
         mScreenOffHandler.init();

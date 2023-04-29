@@ -144,8 +144,7 @@ public final class ParsedDataHelper {
                                 return;
                             }
                             // Check that assertPlatformVersionAtLeast is called and that it has
-                            // the correct
-                            // version as its argument.
+                            // the correct version as its argument.
                             if (method.firstBodyStatement.getName().asString().contains(
                                     "assertPlatformVersionAtLeast")
                                     && Objects.equals(method.firstBodyStatement.getArgument(
@@ -169,8 +168,8 @@ public final class ParsedDataHelper {
                             if (field.annotationData.hasAddedInAnnotation) {
                                 minCarVersion = field.annotationData.addedInPlatformVersion;
                             } else if (field.annotationData.hasAddedInOrBefore) {
-                                minCarVersion =
-                                        "TIRAMISU_" + field.annotationData.addedInPlatformVersion;
+                                // The only car version for @AddedInOrBefore is TIRAMISU_0.
+                                minCarVersion = "TIRAMISU_0";
                             } else {
                                 minCarVersion = field.annotationData.minCarVersion;
                             }
@@ -185,8 +184,8 @@ public final class ParsedDataHelper {
                             if (method.annotationData.hasAddedInAnnotation) {
                                 minCarVersion = method.annotationData.addedInPlatformVersion;
                             } else if (method.annotationData.hasAddedInOrBefore) {
-                                minCarVersion =
-                                        "TIRAMISU_" + method.annotationData.addedInPlatformVersion;
+                                // The only car version for @AddedInOrBefore is TIRAMISU_0.
+                                minCarVersion = "TIRAMISU_0";
                             } else {
                                 minCarVersion = method.annotationData.minCarVersion;
                             }
@@ -199,7 +198,7 @@ public final class ParsedDataHelper {
     }
 
     /**
-     * Gives incorrect usage of requires APIs.
+     * Gives incorrect usage of requiresApi annotation in Car Service.
      */
     // TODO(b/277617236): add tests for this
     public static List<String> getIncorrectRequiresApiUsage(ParsedData parsedData) {
@@ -215,12 +214,45 @@ public final class ParsedDataHelper {
                 .forEach((classData) -> classData.methods.values().forEach(
                         (method) -> {
                             if (method.annotationData.hasRequiresApiAnnotation) {
-                                incorrectRequiresApiUsage.add(classData.useableClassName + "."
-                                        + method.methodName
-                                        + " " + method.annotationData.requiresApiVersion);
+                                incorrectRequiresApiUsage
+                                        .add(formatMethodString(packageData, classData, method)
+                                                + " " + method.annotationData.requiresApiVersion);
                             }
                         })));
         return incorrectRequiresApiUsage;
+    }
+
+    /**
+     * Gives incorrect usage of AddedIn annotation in Car built-in library.
+     */
+    // TODO(b/277617236): add tests for this
+    public static List<String> getIncorrectAddedInApi(ParsedData parsedData) {
+        List<String> incorrectAddedInApi = new ArrayList<>();
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> classData.methods.values().forEach(
+                        (method) -> {
+                            if (method.annotationData.hasAddedInAnnotation
+                                    && !method.annotationData.addedInPlatformVersion
+                                            .contains("TIRAMISU")) {
+                                if (!method.annotationData.hasRequiresApiAnnotation) {
+                                    // Require API annotation is missing.
+                                    incorrectAddedInApi.add(
+                                            formatMethodString(packageData, classData, method));
+                                }
+                                String platformVersion =
+                                        method.annotationData.addedInPlatformVersion;
+                                String platformVersionWithoutMinorVersion = platformVersion
+                                        .substring(0, platformVersion.length() - 2);
+                                if (method.annotationData.hasRequiresApiAnnotation
+                                        && !method.annotationData.requiresApiVersion
+                                                .equals(platformVersionWithoutMinorVersion)) {
+                                    // requires Api annotation is wrong
+                                    incorrectAddedInApi.add(
+                                            formatMethodString(packageData, classData, method));
+                                }
+                            }
+                        })));
+        return incorrectAddedInApi;
     }
 
     private static String formatMethodString(PackageData packageData, ClassData classData,

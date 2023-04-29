@@ -44,33 +44,6 @@ public final class CarSystemProperties {
                 PROP_BOOT_USER_OVERRIDE_ID)));
     }
 
-    /**
-     * Returns the value of the {@code android.car.number_pre_created_users} system property.
-     *
-     * <p>Check {@code system/libsysprop/srcs/android/sysprop/CarProperties.sysprop}
-     *
-     * @deprecated The system property is ignored and this method always returns 0 so no user will
-     *             be pre-created.
-     */
-    // TODO(b/253528462) Remove this method and the system property.
-    public static Optional<Integer> getNumberPreCreatedUsers() {
-        return Optional.of(0);
-    }
-
-
-    /**
-     * Returns the value of the {@code android.car.number_pre_created_guests} system property.
-     *
-     * <p>Check {@code system/libsysprop/srcs/android/sysprop/CarProperties.sysprop}
-     *
-     * @deprecated The system property is ignored and this method always returns 0 so no guest will
-     *             be pre-created.
-     */
-    // TODO(b/253528462) Remove this method and the system property.
-    public static Optional<Integer> getNumberPreCreatedGuests() {
-        return Optional.of(0);
-    }
-
     /** Check {@code system/libsysprop/srcs/android/sysprop/CarProperties.sysprop} */
     public static Optional<Boolean> getUserHalEnabled() {
         return Optional.ofNullable(Boolean.valueOf(SystemProperties.get(PROP_USER_HAL_ENABLED)));

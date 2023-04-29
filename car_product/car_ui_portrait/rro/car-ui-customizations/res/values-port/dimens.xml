@@ -21,7 +21,6 @@
 
     <dimen name="alert_dialog_margin">48dp</dimen>
     <dimen name="car_ui_header_list_item_text_start_margin">24dp</dimen>
-    <dimen name="car_ui_preference_icon_size">88dp</dimen>
     <dimen name="car_ui_toolbar_row_height">96dp</dimen>
     <dimen name="car_ui_toolbar_first_row_height">@dimen/car_ui_toolbar_row_height</dimen>
     <dimen name="car_ui_margin">112dp</dimen>
@@ -44,4 +43,9 @@
     <dimen name="car_ui_list_item_text_no_icon_start_margin">0dp</dimen>
 
     <dimen name="car_ui_dialog_icon_size">50dp</dimen>
+
+    <dimen name="car_ui_preference_content_margin_top">16dp</dimen>
+    <dimen name="car_ui_preference_content_margin_bottom">16dp</dimen>
+    <dimen name="car_ui_preference_icon_size">56dp</dimen>
+    <dimen name="car_ui_preference_icon_margin_end">16dp</dimen>
 </resources>

@@ -383,6 +383,7 @@ package android.car.app {
     method public boolean isCarSystemUIProxyRegistered();
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public void moveRootTaskToDisplay(int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void registerCarSystemUIProxy(@NonNull android.car.app.CarSystemUIProxy);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public void setPersistentActivitiesOnRootTask(@NonNull java.util.List<android.content.ComponentName>, @Nullable android.os.IBinder);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_APP_LAUNCH) public int setPersistentActivity(@NonNull android.content.ComponentName, int, int);
     method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public void startUserPickerOnDisplay(int);
     field public static final int RESULT_FAILURE = -1; // 0xffffffff
@@ -430,6 +431,7 @@ package android.car.app {
     method @MainThread public boolean isInitialized();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
+    method public void release();
     method @RequiresPermission(android.car.Car.PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY) public void removeInsets(int, int);
     method @MainThread public void setObscuredTouchRect(@NonNull android.graphics.Rect);
     method @MainThread public void setObscuredTouchRegion(@NonNull android.graphics.Region);

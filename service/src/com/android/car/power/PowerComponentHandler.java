@@ -42,6 +42,7 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Process;
 import android.os.RemoteException;
+import android.util.ArrayMap;
 import android.util.AtomicFile;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -49,9 +50,9 @@ import android.util.SparseBooleanArray;
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.IntArray;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -68,7 +69,6 @@ import java.nio.charset.StandardCharsets;
  * power component is created and registered to this class. A power component mediator encapsulates
  * the function of powering on/off.
  */
-@VisibleForTesting
 public final class PowerComponentHandler {
     private static final String TAG = CarLog.tagFor(PowerComponentHandler.class);
     private static final String FORCED_OFF_COMPONENTS_FILENAME =
@@ -87,6 +87,8 @@ public final class PowerComponentHandler {
     private final SparseBooleanArray mComponentsOffByPolicy = new SparseBooleanArray();
     @GuardedBy("mLock")
     private final SparseBooleanArray mLastModifiedComponents = new SparseBooleanArray();
+    @GuardedBy("mLock")
+    private final IntArray mRegisteredComponents = new IntArray();
     private final PackageManager mPackageManager;
 
     @GuardedBy("mLock")
@@ -105,7 +107,7 @@ public final class PowerComponentHandler {
         mOffComponentsByUserFile = componentStateFile;
     }
 
-    void init() {
+    void init(ArrayMap<String, Integer> customComponents) {
         if (isPlatformVersionAtLeastU()) {
             // Before Android U, this permission is not needed.
             // And, AppOpsManagerHelper.setTurnScreenOnAllowed is added in UDC.
@@ -117,6 +119,8 @@ public final class PowerComponentHandler {
             readUserOffComponentsLocked();
             for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
                     component++) {
+                // initialize set of known components with pre-defined components
+                mRegisteredComponents.add(component);
                 mComponentStates.put(component, false);
                 PowerComponentMediator mediator = factory.createPowerComponent(component);
                 if (mediator == null || !mediator.isComponentAvailable()) {
@@ -125,6 +129,11 @@ public final class PowerComponentHandler {
                 }
                 mPowerComponentMediators.put(component, mediator);
             }
+            if (customComponents != null) {
+                for (int i = 0; i < customComponents.size(); ++i)  {
+                    mRegisteredComponents.add(customComponents.valueAt(i));
+                }
+            }
         }
     }
 
@@ -132,9 +141,9 @@ public final class PowerComponentHandler {
         synchronized (mLock) {
             int enabledComponentsCount = 0;
             int disabledComponentsCount = 0;
-            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
-                    component++) {
-                if (mComponentStates.get(component, /* valueIfKeyNotFound= */ false)) {
+            for (int i = 0; i < mRegisteredComponents.size(); ++i) {
+                if (mComponentStates.get(mRegisteredComponents.get(i), /* valueIfKeyNotFound= */
+                        false)) {
                     enabledComponentsCount++;
                 } else {
                     disabledComponentsCount++;
@@ -144,8 +153,8 @@ public final class PowerComponentHandler {
             int[] disabledComponents = new int[disabledComponentsCount];
             int enabledIndex = 0;
             int disabledIndex = 0;
-            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
-                    component++) {
+            for (int i = 0; i < mRegisteredComponents.size(); ++i) {
+                int component = mRegisteredComponents.get(i);
                 if (mComponentStates.get(component, /* valueIfKeyNotFound= */ false)) {
                     enabledComponents[enabledIndex++] = component;
                 } else {
@@ -169,12 +178,21 @@ public final class PowerComponentHandler {
             mLastModifiedComponents.clear();
             for (int i = 0; i < enabledComponents.length; i++) {
                 int component = enabledComponents[i];
+                // if component wasn't used before, we save it for further reference
+                if (mRegisteredComponents.indexOf(component) == -1) {
+                    throw new IllegalStateException(
+                            "Component with id " + component + " is not registered");
+                }
                 if (setComponentEnabledLocked(component, /* enabled= */ true)) {
                     mLastModifiedComponents.put(component, /* value= */ true);
                 }
             }
             for (int i = 0; i < disabledComponents.length; i++) {
                 int component = disabledComponents[i];
+                if (mRegisteredComponents.indexOf(component) == -1) {
+                    throw new IllegalStateException(
+                            "Component with id " + component + " is not registered");
+                }
                 if (setComponentEnabledLocked(component, /* enabled= */ false)) {
                     mLastModifiedComponents.put(component, /* value= */ true);
                 }
@@ -200,8 +218,8 @@ public final class PowerComponentHandler {
         synchronized (mLock) {
             writer.println("Power components state:");
             writer.increaseIndent();
-            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
-                    component++) {
+            for (int i = 0; i < mRegisteredComponents.size(); ++i) {
+                int component = mRegisteredComponents.get(i);
                 writer.printf("%s: %s\n", powerComponentToString(component),
                         mComponentStates.get(component, /* valueIfKeyNotFound= */ false)
                                 ? "on" : "off");
@@ -317,6 +335,17 @@ public final class PowerComponentHandler {
         } catch (IOException e) {
             mOffComponentsByUserFile.failWrite(fos);
             Slogf.e(TAG, e, "Writing %s failed", FORCED_OFF_COMPONENTS_FILENAME);
+        }
+    }
+
+    /**
+     * Method to be used from tests and when policy is defined through command line
+     */
+    public void registerCustomComponents(Integer[] components) {
+        synchronized (mLock) {
+            for (int i = 0; i < components.length; i++) {
+                mRegisteredComponents.add(components[i]);
+            }
         }
     }
 

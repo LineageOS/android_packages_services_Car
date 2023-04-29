@@ -17,7 +17,7 @@
 <powerPolicy version="1.0">
 
     <customComponents>
-          <customComponent value="1000">CUSTOM_COMPONENT_1000</customComponent>
+        <customComponent value="1000">CUSTOM_COMPONENT_1000</customComponent>
         <customComponent value="1003">CUSTOM_COMPONENT_SPECIAL_SENSOR</customComponent>
         <customComponent value="1002">CUSTOM_COMPONENT_AUX_INPUT</customComponent>
     </customComponents>
