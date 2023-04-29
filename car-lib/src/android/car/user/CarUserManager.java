@@ -21,6 +21,7 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.os.Process.myUid;
 
 import static com.android.car.internal.util.FunctionalUtils.getLambdaName;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -455,14 +456,33 @@ public final class CarUserManager extends CarManagerBase {
     public void startUser(@NonNull UserStartRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStartResponse> callback) {
+        int uid = myUid();
+        int userId = request.getUserHandle().getIdentifier();
+        int displayId = request.getDisplayId();
+        if (isPlatformVersionAtLeastU()) {
+            EventLogHelper.writeCarUserManagerStartUserReq(uid, userId, displayId);
+        }
         try {
-            // TODO(b/271293309) Also update the service call to be async.
-            UserStartResponse response = mService.startUser(request);
-            executor.execute(() -> callback.onResult(response));
+            ResultCallbackImpl<UserStartResponse> callbackImpl = new ResultCallbackImpl<>(
+                    executor, callback) {
+                @Override
+                protected void onCompleted(UserStartResponse response) {
+                    if (isPlatformVersionAtLeastU()) {
+                        EventLogHelper.writeCarUserManagerStartUserResp(uid, userId, displayId,
+                                response != null ? response.getStatus()
+                                        : UserStartResponse.STATUS_ANDROID_FAILURE);
+                    }
+                    super.onCompleted(response);
+                }
+            };
+            mService.startUser(request, callbackImpl);
         } catch (SecurityException e) {
+            Log.e(TAG, "startUser(userId=" + userId + ", displayId=" + displayId + ")", e);
             throw e;
         } catch (RemoteException | RuntimeException e) {
-            handleExceptionFromCarService(e, /* returnValue= */ null);
+            UserStartResponse response = handleExceptionFromCarService(e,
+                    new UserStartResponse(UserStartResponse.STATUS_ANDROID_FAILURE));
+            callback.onResult(response);
         }
     }
 
@@ -479,14 +499,32 @@ public final class CarUserManager extends CarManagerBase {
     public void stopUser(@NonNull UserStopRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStopResponse> callback) {
+        int uid = myUid();
+        int userId = request.getUserHandle().getIdentifier();
+        if (isPlatformVersionAtLeastU()) {
+            EventLogHelper.writeCarUserManagerStopUserReq(uid, userId);
+        }
         try {
-            // TODO(b/271293309) Also update the service call to be async.
-            UserStopResponse response = mService.stopUser(request);
-            executor.execute(() -> callback.onResult(response));
+            ResultCallbackImpl<UserStopResponse> callbackImpl = new ResultCallbackImpl<>(
+                    executor, callback) {
+                @Override
+                protected void onCompleted(UserStopResponse response) {
+                    if (isPlatformVersionAtLeastU()) {
+                        EventLogHelper.writeCarUserManagerStopUserResp(uid, userId,
+                                response != null ? response.getStatus()
+                                        : UserStopResponse.STATUS_ANDROID_FAILURE);
+                    }
+                    super.onCompleted(response);
+                }
+            };
+            mService.stopUser(request, callbackImpl);
         } catch (SecurityException e) {
+            Log.e(TAG, "stopUser(userId=" + userId + ")", e);
             throw e;
         } catch (RemoteException | RuntimeException e) {
-            handleExceptionFromCarService(e, /* returnValue= */ null);
+            UserStopResponse response = handleExceptionFromCarService(e,
+                    new UserStopResponse(UserStopResponse.STATUS_ANDROID_FAILURE));
+            callback.onResult(response);
         }
     }
 
