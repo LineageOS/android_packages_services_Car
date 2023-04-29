@@ -141,6 +141,10 @@ option java_package android.car.builtin.util
 150185 car_user_mgr_pre_create_user_req (uid|1)
 150186 car_user_mgr_logout_user_req (uid|1)
 150187 car_user_mgr_logout_user_resp (uid|1),(status|1),(error_message|3)
+150188 car_user_mgr_start_user_req (uid|1),(user_id|1),(display_id|1)
+150189 car_user_mgr_start_user_resp (uid|1),(user_id|1),(display_id|1),(status|1)
+150190 car_user_mgr_stop_user_req (uid|1),(user_id|1)
+150191 car_user_mgr_stop_user_resp (uid|1),(user_id|1),(status|1)
 
 #### Device policy related tags (range 150200 - 150299)
 150200 car_dp_mgr_remove_user_req (uid|1),(user_id|1)
