@@ -31,6 +31,7 @@ public class ClosePanelAnimator extends PanelAnimator {
     private static final Interpolator INTERPOLATOR = new PathInterpolator(0.05f, 0.7f, 0.1f, 1);
     private static final long DURATION = 400;
 
+    private Animation mAnimation;
     private final Rect mBounds;
 
     /**
@@ -46,9 +47,16 @@ public class ClosePanelAnimator extends PanelAnimator {
 
     @Override
     public void animate(Runnable endAction) {
-        Animation animation = new BoundsAnimation(mPanel, mBounds, endAction);
-        animation.setInterpolator(INTERPOLATOR);
-        animation.setDuration(DURATION);
-        mPanel.startAnimation(animation);
+        mAnimation = new BoundsAnimation(mPanel, mBounds, endAction);
+        mAnimation.setInterpolator(INTERPOLATOR);
+        mAnimation.setDuration(DURATION);
+        mPanel.startAnimation(mAnimation);
+    }
+
+    @Override
+    public void cancel() {
+        if (mAnimation != null) {
+            mAnimation.cancel();
+        }
     }
 }

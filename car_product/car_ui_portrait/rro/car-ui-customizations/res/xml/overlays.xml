@@ -16,6 +16,7 @@
   -->
 <overlay>
     <item target="layout/car_ui_alert_dialog_title_with_subtitle" value="@layout/car_ui_alert_dialog_title_with_subtitle"/>
+    <item target="layout/car_ui_preference_primary_switch" value="@layout/car_ui_preference_primary_switch"/>
 
     <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
     <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
@@ -48,6 +49,8 @@
     <item target="color/car_ui_text_color_primary" value="@color/car_ui_text_color_primary" />
     <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary" />
     <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector" />
+    <item target="color/car_ui_preference_two_action_divider_color" value="@color/car_ui_preference_two_action_divider_color" />
+
 
     <item target="drawable/car_ui_list_item_background" value="@drawable/car_ui_list_item_background" />
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
@@ -56,6 +59,7 @@
     <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
     <item target="bool/car_ui_is_light_theme" value="@bool/car_ui_is_light_theme" />
 
+    <item target="style/Preference.CarUi.Icon" value="@style/PreferenceCarUiIcon" />
     <item target="style/TextAppearance.CarUi.AlertDialog.Title" value="@style/TextAppearance.CarUi.AlertDialog.Title" />
     <item target="style/TextAppearance.CarUi.AlertDialog.Subtitle" value="@style/TextAppearance.CarUi.AlertDialog.Subtitle" />
     <item target="style/TextAppearance.CarUi.PreferenceCategoryTitle" value="@style/TextAppearance.CarUi.PreferenceCategoryTitle" />

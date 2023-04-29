@@ -16,4 +16,5 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <dimen name="top_level_menu_width">362dp</dimen>
+    <dimen name="car_portrait_ui_tab_margin_vertical">1dp</dimen>
 </resources>
