@@ -61,7 +61,11 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartRequest;
+import android.car.user.UserStartResponse;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopRequest;
+import android.car.user.UserStopResponse;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -201,10 +205,18 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallback =
             new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForCreateUser);
     protected final SyncResultCallback<UserRemovalResult> mSyncResultCallbackForRemoveUser =
-            new SyncResultCallback<UserRemovalResult>();
+            new SyncResultCallback<>();
 
     protected final ResultCallbackImpl<UserRemovalResult> mUserRemovalResultCallbackImpl =
             new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForRemoveUser);
+    protected final SyncResultCallback<UserStartResponse> mSyncResultCallbackForStartUser =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserStartResponse> mUserStartResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForStartUser);
+    protected final SyncResultCallback<UserStopResponse> mSyncResultCallbackForStopUser =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserStopResponse> mUserStopResultCallbackImpl =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForStopUser);
     protected final AndroidFuture<UserIdentificationAssociationResponse>
             mUserAssociationRespFuture = new AndroidFuture<>();
     protected final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
@@ -484,6 +496,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         waitForHandlerThreadToFinish();
     }
 
+    protected void startUser(UserStartRequest request,
+            @NonNull ResultCallbackImpl<UserStartResponse> callback) {
+        mCarUserService.startUser(request, callback);
+        waitForHandlerThreadToFinish();
+    }
+
     protected void startUserInBackground(@UserIdInt int userId,
             @NonNull AndroidFuture<UserStartResult> userStartResultFuture) {
         mCarUserService.startUserInBackground(userId, userStartResultFuture);
@@ -493,6 +511,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected void stopUser(@UserIdInt int userId,
             @NonNull AndroidFuture<UserStopResult> userStopResultFuture) {
         mCarUserService.stopUser(userId, userStopResultFuture);
+        waitForHandlerThreadToFinish();
+    }
+
+    protected void stopUser(UserStopRequest request,
+            @NonNull ResultCallbackImpl<UserStopResponse> callback) {
+        mCarUserService.stopUser(request, callback);
         waitForHandlerThreadToFinish();
     }
 
@@ -538,6 +562,24 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @NonNull
     protected UserRemovalResult getUserRemovalResult() throws Exception {
         return (UserRemovalResult) mSyncResultCallbackForRemoveUser.get();
+    }
+
+    /**
+     * Gets the result of a user start call that was made using
+     * {@link #mUserStartResultCallbackImpl}.
+     */
+    @NonNull
+    protected UserStartResponse getUserStartResponse() throws Exception {
+        return (UserStartResponse) mSyncResultCallbackForStartUser.get();
+    }
+
+    /**
+     * Gets the result of a user stop call that was made using
+     * {@link #mUserStopResultCallbackImpl}.
+     */
+    @NonNull
+    protected UserStopResponse getUserStopResponse() throws Exception {
+        return (UserStopResponse) mSyncResultCallbackForStopUser.get();
     }
 
     /**
