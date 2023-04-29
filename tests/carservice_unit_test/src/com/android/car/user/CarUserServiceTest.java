@@ -902,10 +902,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
-        UserStopResponse result = mCarUserService.stopUser(request);
+        stopUser(request, mUserStopResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
-        assertThat(result.isSuccess()).isTrue();
+        assertThat(getUserStopResponse().getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
+        assertThat(getUserStopResponse().isSuccess()).isTrue();
     }
 
     @Test
@@ -915,7 +915,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
-        assertThrows(SecurityException.class, () -> mCarUserService.stopUser(request));
+        assertThrows(SecurityException.class, () -> stopUser(request, mUserStopResultCallbackImpl));
     }
 
     @Test
@@ -924,10 +924,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID)).setForce().build();
-        UserStopResponse result = mCarUserService.stopUser(request);
+        stopUser(request, mUserStopResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStopResponse().getStatus())
+                .isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
+        assertThat(getUserStopResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -937,10 +938,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID))
                         .setForce().withDelayedLocking(false).build();
-        UserStopResponse result = mCarUserService.stopUser(request);
+        stopUser(request, mUserStopResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
-        assertThat(result.isSuccess()).isTrue();
+        assertThat(getUserStopResponse().getStatus()).isEqualTo(UserStopResponse.STATUS_SUCCESSFUL);
+        assertThat(getUserStopResponse().isSuccess()).isTrue();
     }
 
     @Test
@@ -950,10 +951,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserStopRequest request =
                 new UserStopRequest.Builder(UserHandle.of(TEST_USER_ID))
                         .setForce().withDelayedLocking(false).build();
-        UserStopResponse result = mCarUserService.stopUser(request);
+        stopUser(request, mUserStopResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStopResponse().getStatus())
+                .isEqualTo(UserStopResponse.STATUS_ANDROID_FAILURE);
+        assertThat(getUserStopResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -2282,10 +2284,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
-        assertThat(result.isSuccess()).isTrue();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
+        assertThat(getUserStartResponse().isSuccess()).isTrue();
     }
 
     @Test
@@ -2296,11 +2299,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus())
+        assertThat(getUserStartResponse().getStatus())
                 .isEqualTo(UserStartResponse.STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY);
-        assertThat(result.isSuccess()).isTrue();
+        assertThat(getUserStartResponse().isSuccess()).isTrue();
     }
 
     @Test
@@ -2311,27 +2314,29 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
         assertThrows(SecurityException.class,
-                () -> mCarUserService.startUser(request));
+                () -> startUser(request, mUserStartResultCallbackImpl));
     }
 
     @Test
     public void testStartUser_userInvalid() throws Exception {
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.SYSTEM)
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_USER_INVALID);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_USER_INVALID);
+        assertThat(getUserStartResponse().isSuccess()).isFalse();
     }
 
     @Test
     public void testStartUser_userDoesNotExist() throws Exception {
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_USER_DOES_NOT_EXIST);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_USER_DOES_NOT_EXIST);
+        assertThat(getUserStartResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -2341,10 +2346,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_DISPLAY_UNAVAILABLE);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_DISPLAY_UNAVAILABLE);
+        assertThat(getUserStartResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -2354,11 +2360,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request = new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                 .setDisplayId(TEST_DISPLAY_ID).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus())
+        assertThat(getUserStartResponse().getStatus())
                 .isEqualTo(UserStartResponse.STATUS_USER_ASSIGNED_TO_ANOTHER_DISPLAY);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStartResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -2373,10 +2379,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID))
                     .setDisplayId(Display.DEFAULT_DISPLAY)
                     .build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_DISPLAY_INVALID);
-        assertThat(result.isSuccess()).isFalse();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_DISPLAY_INVALID);
+        assertThat(getUserStartResponse().isSuccess()).isFalse();
     }
 
     @Test
@@ -2387,10 +2394,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserStartRequest request =
                 new UserStartRequest.Builder(UserHandle.of(TEST_USER_ID)).build();
-        UserStartResponse result = mCarUserService.startUser(request);
+        startUser(request, mUserStartResultCallbackImpl);
 
-        assertThat(result.getStatus()).isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
-        assertThat(result.isSuccess()).isTrue();
+        assertThat(getUserStartResponse().getStatus())
+                .isEqualTo(UserStartResponse.STATUS_SUCCESSFUL);
+        assertThat(getUserStartResponse().isSuccess()).isTrue();
     }
 
     @Test
