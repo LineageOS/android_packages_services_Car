@@ -93,7 +93,8 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testAssignDefaultIcon() {
         int userId = 20;
-        UserInfo newNonAdmin = newUser(userId);
+        String userName = "NewUser";
+        UserInfo newNonAdmin = newUser(userId, userName);
         when(mUserManager.getUserInfo(userId)).thenReturn(newNonAdmin);
 
         Bitmap bitmap = UserHelper.assignDefaultIcon(mContext, newNonAdmin.getUserHandle());
@@ -104,7 +105,8 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testAssignDefaultIcon_nullContext_throwsException() {
         int userId = 20;
-        UserInfo newNonAdmin = newUser(userId);
+        String userName = "NewUser";
+        UserInfo newNonAdmin = newUser(userId, userName);
 
         assertThrows(IllegalArgumentException.class,
                 () -> UserHelper.assignDefaultIcon(/* context= */ null,
