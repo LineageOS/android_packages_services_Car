@@ -16,6 +16,8 @@
 
 package android.car.user;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
@@ -61,6 +63,7 @@ public final class UserStopRequest implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull Builder withDelayedLocking(boolean value) {
+            assertPlatformVersionAtLeastU();
             mWithDelayedLocking = value;
             return this;
         }
@@ -73,6 +76,7 @@ public final class UserStopRequest implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull Builder setForce() {
+            assertPlatformVersionAtLeastU();
             mForce = true;
             return this;
         }
@@ -81,6 +85,7 @@ public final class UserStopRequest implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull UserStopRequest build() {
+            assertPlatformVersionAtLeastU();
             return new UserStopRequest(this);
         }
     }
@@ -110,6 +115,7 @@ public final class UserStopRequest implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @NonNull UserHandle getUserHandle() {
+        assertPlatformVersionAtLeastU();
         return mUserHandle;
     }
 
@@ -117,6 +123,7 @@ public final class UserStopRequest implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isWithDelayedLocking() {
+        assertPlatformVersionAtLeastU();
         return mWithDelayedLocking;
     }
 
@@ -124,6 +131,7 @@ public final class UserStopRequest implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isForce() {
+        assertPlatformVersionAtLeastU();
         return mForce;
     }
 
