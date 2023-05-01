@@ -152,6 +152,7 @@
     <item target="drawable/system_bar_background" value="@drawable/system_bar_background"/>
     <item target="attr/showDark" value="@attr/showDark"/>
     <item target="dimen/car_quick_controls_entry_points_icon_width" value="@dimen/car_quick_controls_entry_points_icon_width"/>
+    <item target="dimen/car_quick_controls_entry_points_icon_space" value="@dimen/car_quick_controls_entry_points_icon_space"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_top" value="@dimen/car_quick_controls_entry_points_button_margin_top"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_bottom" value="@dimen/car_quick_controls_entry_points_button_margin_bottom"/>
     <item target="dimen/car_quick_controls_entry_points_button_margin_start" value="@dimen/car_quick_controls_entry_points_button_margin_start"/>
