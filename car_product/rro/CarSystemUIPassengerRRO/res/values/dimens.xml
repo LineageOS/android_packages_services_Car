@@ -19,6 +19,8 @@
     <dimen name="car_padding_2">16dp</dimen>
     <dimen name="car_padding_3">24dp</dimen>
 
+    <dimen name="car_quick_controls_entry_points_icon_space">12dp</dimen>
+
     <dimen name="car_left_system_bar_width">280dp</dimen>
     <dimen name="car_keyline_1">24dp</dimen>
     <dimen name="system_bar_button_group_padding">64dp</dimen>
