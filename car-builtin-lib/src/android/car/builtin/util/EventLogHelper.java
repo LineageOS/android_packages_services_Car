@@ -559,12 +559,14 @@ public final class EventLogHelper {
 
     /** Logs a {@code EventLogTags.CAR_USER_MGR_START_USER_REQ} event. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static void writeCarUserManagerStartUserReq(int uid, int userId, int displayId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_START_USER_REQ, uid, userId, displayId);
     }
 
     /** Logs a {@code EventLogTags.CAR_USER_MGR_START_USER_RESP} event. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static void writeCarUserManagerStartUserResp(
             int uid, int userId, int displayId, int status) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_START_USER_RESP,
@@ -573,12 +575,14 @@ public final class EventLogHelper {
 
     /** Logs a {@code EventLogTags.CAR_USER_MGR_STOP_USER_REQ} event. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static void writeCarUserManagerStopUserReq(int uid, int userId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_STOP_USER_REQ, uid, userId);
     }
 
     /** Logs a {@code EventLogTags.CAR_USER_MGR_STOP_USER_RESP} event. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static void writeCarUserManagerStopUserResp(int uid, int userId, int status) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_STOP_USER_RESP, uid, userId, status);
     }
