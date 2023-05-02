@@ -36,6 +36,21 @@ public final class ParsedDataHelper {
         return classes;
     }
 
+    /**
+     * Returns all the non-hidden classes
+     */
+    public static List<String> getNonHiddenClassNamesOnly(ParsedData parsedData) {
+        List<String> classes = new ArrayList<>();
+        parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
+                .forEach((classData) -> {
+                    if (!classData.annotationData.isSystemApi && classData.isClassHidden) {
+                        return;
+                    }
+                    classes.add(classData.useableClassName);
+                }));
+        return classes;
+    }
+
     public static List<String> getAddedInOrBeforeApisOnly(ParsedData parsedData) {
         List<String> fieldsAndMethods = new ArrayList<>();
         parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
@@ -226,8 +241,8 @@ public final class ParsedDataHelper {
      * Gives incorrect usage of AddedIn annotation in Car built-in library.
      */
     // TODO(b/277617236): add tests for this
-    public static List<String> getIncorrectAddedInApi(ParsedData parsedData) {
-        List<String> incorrectAddedInApi = new ArrayList<>();
+    public static List<String> getIncorrectRequiresApi(ParsedData parsedData) {
+        List<String> incorrectRequiresApi = new ArrayList<>();
         parsedData.packages.values().forEach((packageData) -> packageData.classes.values()
                 .forEach((classData) -> classData.methods.values().forEach(
                         (method) -> {
@@ -236,7 +251,7 @@ public final class ParsedDataHelper {
                                             .contains("TIRAMISU")) {
                                 if (!method.annotationData.hasRequiresApiAnnotation) {
                                     // Require API annotation is missing.
-                                    incorrectAddedInApi.add(
+                                    incorrectRequiresApi.add(
                                             formatMethodString(packageData, classData, method));
                                 }
                                 String platformVersion =
@@ -247,12 +262,12 @@ public final class ParsedDataHelper {
                                         && !method.annotationData.requiresApiVersion
                                                 .equals(platformVersionWithoutMinorVersion)) {
                                     // requires Api annotation is wrong
-                                    incorrectAddedInApi.add(
+                                    incorrectRequiresApi.add(
                                             formatMethodString(packageData, classData, method));
                                 }
                             }
                         })));
-        return incorrectAddedInApi;
+        return incorrectRequiresApi;
     }
 
     private static String formatMethodString(PackageData packageData, ClassData classData,

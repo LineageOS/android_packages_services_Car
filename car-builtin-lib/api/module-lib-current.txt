@@ -456,10 +456,10 @@ package android.car.builtin.util {
     method public static void writeCarUserManagerRemoveUserResp(int, int);
     method public static void writeCarUserManagerSetUserAuthReq(@Nullable Object[]);
     method public static void writeCarUserManagerSetUserAuthResp(@Nullable Object[]);
-    method public static void writeCarUserManagerStartUserReq(int, int, int);
-    method public static void writeCarUserManagerStartUserResp(int, int, int, int);
-    method public static void writeCarUserManagerStopUserReq(int, int);
-    method public static void writeCarUserManagerStopUserResp(int, int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void writeCarUserManagerStartUserReq(int, int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void writeCarUserManagerStartUserResp(int, int, int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void writeCarUserManagerStopUserReq(int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void writeCarUserManagerStopUserResp(int, int, int);
     method public static void writeCarUserManagerSwitchUserReq(int, int);
     method public static void writeCarUserManagerSwitchUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceCreateUserReq(@Nullable String, @Nullable String, int, int, int);
