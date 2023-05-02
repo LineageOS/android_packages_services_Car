@@ -101,6 +101,15 @@ public final class UserTestingHelper {
     }
 
     /**
+     * Creates a simple {@link UserInfo}, containing just the given {@code userId}
+     * and {@code userName}.
+     */
+    @NonNull
+    public static UserInfo newUser(@UserIdInt int userId, @NonNull String userName) {
+        return new UserInfoBuilder(userId).setName(userName).build();
+    }
+
+    /**
      * Creates a list of {@link UserInfo UserInfos}, each containing just the given user ids.
      */
     @NonNull
