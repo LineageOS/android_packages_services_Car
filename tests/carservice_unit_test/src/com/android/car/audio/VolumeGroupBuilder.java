@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+
 import static com.android.car.audio.GainBuilder.DEFAULT_GAIN;
 import static com.android.car.audio.GainBuilder.MAX_GAIN;
 import static com.android.car.audio.GainBuilder.STEP_SIZE;
@@ -151,6 +153,9 @@ public final class VolumeGroupBuilder {
                 "Name: " + mName, mZoneId, mId).setMinVolumeGainIndex(0)
                 .setMaxVolumeGainIndex(MAX_GAIN / STEP_SIZE)
                 .setVolumeGainIndex(DEFAULT_GAIN / STEP_SIZE).build());
+
+        when(carVolumeGroup.calculateNewGainStageFromDeviceInfos())
+                .thenReturn(EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
 
         return carVolumeGroup;
     }
