@@ -17,10 +17,12 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.car.annotation.ApiRequirements;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.RemoteException;
 import android.view.SurfaceControl;
 
@@ -41,6 +43,7 @@ public final class CarTaskViewClient {
     /** Returns the current bounds (in pixels) on screen for the task view's view part. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public Rect getCurrentBoundsOnScreen() {
         try {
@@ -59,6 +62,7 @@ public final class CarTaskViewClient {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void setResizeBackgroundColor(@NonNull SurfaceControl.Transaction transaction,
             int color) {
         try {
@@ -71,6 +75,7 @@ public final class CarTaskViewClient {
     /** Called when a task has appeared on the TaskView. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo,
             @NonNull SurfaceControl leash) {
         try {
@@ -83,6 +88,7 @@ public final class CarTaskViewClient {
     /** Called when a task has vanished from the TaskView. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
         try {
             mICarTaskViewClient.onTaskVanished(taskInfo);
@@ -94,6 +100,7 @@ public final class CarTaskViewClient {
     /** Called when the task in the TaskView is changed. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
         try {
             mICarTaskViewClient.onTaskInfoChanged(taskInfo);

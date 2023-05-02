@@ -17,9 +17,11 @@
 package android.car.view;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 import android.view.WindowManager;
 
 /**
@@ -38,6 +40,7 @@ public final class WindowManagerHelper {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW)
     public static void setTrustedOverlay(@NonNull WindowManager.LayoutParams p) {
         android.car.builtin.window.WindowManagerHelper.setTrustedOverlay(p);
@@ -49,6 +52,7 @@ public final class WindowManagerHelper {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static void setInputFeatureSpy(@NonNull WindowManager.LayoutParams p) {
         android.car.builtin.window.WindowManagerHelper.setInputFeatureSpy(p);
     }
