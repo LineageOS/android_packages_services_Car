@@ -54,6 +54,19 @@ def create_timeofday_pb(date):
   return timeofday_pb
 
 
+def add_package_storage_io_stats_pb(storage_io_stats, storage_io_stats_pb):
+  storage_io_stats_pb.user_id = storage_io_stats.user_id
+  storage_io_stats_pb.package_name = storage_io_stats.package_name
+  storage_io_stats_pb.fg_bytes = storage_io_stats.fg_bytes
+  storage_io_stats_pb.fg_bytes_percent = storage_io_stats.fg_bytes_percent
+  storage_io_stats_pb.fg_fsync = storage_io_stats.fg_fsync
+  storage_io_stats_pb.fg_fsync_percent = storage_io_stats.fg_fsync_percent
+  storage_io_stats_pb.bg_bytes = storage_io_stats.bg_bytes
+  storage_io_stats_pb.bg_bytes_percent = storage_io_stats.bg_bytes_percent
+  storage_io_stats_pb.bg_fsync = storage_io_stats.bg_fsync
+  storage_io_stats_pb.bg_fsync_percent = storage_io_stats.bg_fsync_percent
+
+
 def add_system_event_pb(system_event_stats, system_event_pb):
   for collection in system_event_stats.collections:
     stats_collection_pb = system_event_pb.collections.add()
@@ -61,10 +74,12 @@ def add_system_event_pb(system_event_stats, system_event_pb):
     stats_collection_pb.date.CopyFrom(create_date_pb(collection.date))
     stats_collection_pb.time.CopyFrom(create_timeofday_pb(collection.date))
     stats_collection_pb.total_cpu_time_ms = collection.total_cpu_time_ms
+    stats_collection_pb.total_cpu_cycles = collection.total_cpu_cycles
     stats_collection_pb.idle_cpu_time_ms = collection.idle_cpu_time_ms
     stats_collection_pb.io_wait_time_ms = collection.io_wait_time_ms
     stats_collection_pb.context_switches = collection.context_switches
     stats_collection_pb.io_blocked_processes = collection.io_blocked_processes
+    stats_collection_pb.major_page_faults = collection.major_page_faults
 
     for package_cpu_stats in collection.package_cpu_stats:
       package_cpu_stats_pb = stats_collection_pb.package_cpu_stats.add()
@@ -85,8 +100,27 @@ def add_system_event_pb(system_event_stats, system_event_pb):
         )
         process_cpu_stats_pb.cpu_cycles = process_cpu_stats.cpu_cycles
 
+    for (
+        package_storage_io_read_stats
+    ) in collection.package_storage_io_read_stats:
+      add_package_storage_io_stats_pb(
+          package_storage_io_read_stats,
+          stats_collection_pb.package_storage_io_read_stats.add(),
+      )
+
+    for (
+        package_storage_io_write_stats
+    ) in collection.package_storage_io_write_stats:
+      add_package_storage_io_stats_pb(
+          package_storage_io_write_stats,
+          stats_collection_pb.package_storage_io_write_stats.add(),
+      )
+
 
 def get_system_event(system_event_pb):
+  if not system_event_pb.collections:
+    return None
+
   system_event_stats = SystemEventStats()
   for stats_collection_pb in system_event_pb.collections:
     stats_collection = StatsCollection()
@@ -102,32 +136,37 @@ def get_system_event(system_event_pb):
         time_pb.seconds,
     )
     stats_collection.total_cpu_time_ms = stats_collection_pb.total_cpu_time_ms
+    stats_collection.total_cpu_cycles = stats_collection_pb.total_cpu_cycles
     stats_collection.idle_cpu_time_ms = stats_collection_pb.idle_cpu_time_ms
     stats_collection.io_wait_time_ms = stats_collection_pb.io_wait_time_ms
     stats_collection.context_switches = stats_collection_pb.context_switches
     stats_collection.io_blocked_processes = (
         stats_collection_pb.io_blocked_processes
     )
+    stats_collection.major_page_faults = stats_collection_pb.major_page_faults
 
     for package_cpu_stats_pb in stats_collection_pb.package_cpu_stats:
-      package_cpu_stats = PackageCpuStats(
-          package_cpu_stats_pb.user_id,
-          package_cpu_stats_pb.package_name,
-          package_cpu_stats_pb.cpu_time_ms,
-          round(package_cpu_stats_pb.total_cpu_time_percent, 2),
-          package_cpu_stats_pb.cpu_cycles,
+      package_cpu_stats = PackageCpuStats.from_proto(package_cpu_stats_pb)
+      for process_cpu_stats_pb in package_cpu_stats_pb.process_cpu_stats:
+        package_cpu_stats.process_cpu_stats.append(
+              ProcessCpuStats.from_proto(process_cpu_stats_pb)
+        )
+      stats_collection.package_cpu_stats.append(package_cpu_stats)
+
+    for (
+        package_storage_io_read_stats_pb
+    ) in stats_collection_pb.package_storage_io_read_stats:
+      stats_collection.package_storage_io_read_stats.append(
+          PackageStorageIoStats.from_proto(package_storage_io_read_stats_pb)
       )
 
-      for process_cpu_stats_pb in package_cpu_stats_pb.process_cpu_stats:
-        process_cpu_stats = ProcessCpuStats(
-            process_cpu_stats_pb.command,
-            process_cpu_stats_pb.cpu_time_ms,
-            round(process_cpu_stats_pb.package_cpu_time_percent, 2),
-            process_cpu_stats_pb.cpu_cycles,
-        )
+    for (
+        package_storage_io_write_stats_pb
+    ) in stats_collection_pb.package_storage_io_write_stats:
+      stats_collection.package_storage_io_write_stats.append(
+          PackageStorageIoStats.from_proto(package_storage_io_write_stats_pb)
+      )
 
-        package_cpu_stats.process_cpu_stats.append(process_cpu_stats)
-      stats_collection.package_cpu_stats.append(package_cpu_stats)
     system_event_stats.add(stats_collection)
 
   return system_event_stats
@@ -136,6 +175,9 @@ def get_system_event(system_event_pb):
 def get_perf_stats(perf_stats_pb):
   perf_stats = PerformanceStats()
   perf_stats.boot_time_stats = get_system_event(perf_stats_pb.boot_time_stats)
+  perf_stats.last_n_minutes_stats = get_system_event(
+      perf_stats_pb.last_n_minutes_stats
+  )
   perf_stats.custom_collection_stats = get_system_event(
       perf_stats_pb.custom_collection_stats
   )
@@ -167,15 +209,22 @@ def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
   perf_stats_pb = performancestats_pb2.PerformanceStats()
 
   # Boot time proto
-  if perf_stats.has_boot_time():
+  if perf_stats.has_boot_time_stats():
     boot_time_stats_pb = performancestats_pb2.SystemEventStats()
     add_system_event_pb(perf_stats.boot_time_stats, boot_time_stats_pb)
     perf_stats_pb.boot_time_stats.CopyFrom(boot_time_stats_pb)
 
+  if perf_stats.has_last_n_minutes_stats():
+    last_n_minutes_stats_pb = performancestats_pb2.SystemEventStats()
+    add_system_event_pb(
+        perf_stats.last_n_minutes_stats, last_n_minutes_stats_pb
+    )
+    perf_stats_pb.last_n_minutes_stats.CopyFrom(last_n_minutes_stats_pb)
+
   # TODO(b/256654082): Add user switch events to proto
 
   # Custom collection proto
-  if perf_stats.has_custom_collection():
+  if perf_stats.has_custom_collection_stats():
     custom_collection_stats_pb = performancestats_pb2.SystemEventStats()
     add_system_event_pb(
         perf_stats.custom_collection_stats, custom_collection_stats_pb
@@ -331,7 +380,6 @@ if __name__ == "__main__":
     if args.json:
       print(json.dumps(performance_stats.to_dict()))
     else:
-      print("Reading performance stats proto:")
       print(performance_stats)
     sys.exit()
 
