@@ -16,8 +16,13 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEBUGGING_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.annotation.IntDef;
 import android.util.SparseArray;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -53,6 +58,7 @@ final class CarVolumeEventFlag {
         FLAG_NAMES.put(FLAG_EVENT_VOLUME_LIMITED, "FLAG_EVENT_VOLUME_LIMITED");
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CarVolumeEventFlag() {
         throw new UnsupportedOperationException("CarVolumeEventFlag is non-instantiable");
     }
@@ -70,6 +76,7 @@ final class CarVolumeEventFlag {
         return flags != 0;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     static String flagsToString(int flags) {
         StringBuilder stringBuffer = new StringBuilder();
         for (int index = 0; index < FLAG_NAMES.size(); index++) {
