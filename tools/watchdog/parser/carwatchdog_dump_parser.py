@@ -19,23 +19,56 @@ from datetime import datetime
 import re
 import sys
 
-BOOT_TIME_REPORT_HEADER = "Boot-time performance report:"
+
+BOOT_TIME_REPORT_HEADER_PATTERN = (
+    r"Boot-time (?:performance|collection) report:"
+)
+TOP_N_STORAGE_IO_READS_HEADER_PATTERN = r"Top N (?:Storage I/O )?Reads:"
+TOP_N_STORAGE_IO_WRITES_HEADER_PATTERN = r"Top N (?:Storage I/O )?Writes:"
+STATS_COLLECTION_PATTERN = r"Collection (?P<id>\d+): <(?P<date>.+)>"
+PACKAGE_STORAGE_IO_STATS_PATTERN = (
+    r"(?P<userId>\d+), (?P<packageName>.+), (?P<fgBytes>\d+),"
+    r" (?P<fgBytesPercent>\d+.\d+)%, "
+    r"(?P<fgFsync>\d+), (?P<fgFsyncPercent>\d+.\d+)%, (?P<bgBytes>\d+), "
+    r"(?P<bgBytesPercent>\d+.\d+)%, (?P<bgFsync>\d+),"
+    r" (?P<bgFsyncPercent>\d+.\d+)%"
+)
+PACKAGE_CPU_STATS_PATTERN = (
+    r"(?P<userId>\d+), (?P<packageName>.+), (?P<cpuTimeMs>\d+),"
+    r" (?P<cpuTimePercent>\d+\.\d+)%"
+    r"(, (?P<cpuCycles>\d+))?"
+)
+PROCESS_CPU_STATS_PATTERN = (
+    r"\s+(?P<command>.+), (?P<cpuTimeMs>\d+), (?P<uidCpuPercent>\d+.\d+)%"
+    r"(, (?P<cpuCycles>\d+))?"
+)
+TOTAL_CPU_TIME_PATTERN = r"Total CPU time \\(ms\\): (?P<totalCpuTimeMs>\d+)"
+TOTAL_CPU_CYCLES_PATTERN = r"Total CPU cycles: (?P<totalCpuCycles>\d+)"
+TOTAL_IDLE_CPU_TIME_PATTERN = (
+    r"Total idle CPU time \\(ms\\)/percent: (?P<idleCpuTimeMs>\d+) / .+"
+)
+CPU_IO_WAIT_TIME_PATTERN = (
+    r"CPU I/O wait time(?: \\(ms\\))?/percent: (?P<iowaitCpuTimeMs>\d+) / .+"
+)
+CONTEXT_SWITCHES_PATTERN = (
+    r"Number of context switches: (?P<totalCtxtSwitches>\d+)"
+)
+IO_BLOCKED_PROCESSES_PATTERN = (
+    r"Number of I/O blocked processes/percent: (?P<totalIoBlkProc>\d+)" r" / .+"
+)
+MAJOR_PAGE_FAULTS_PATTERN = (
+    r"Number of major page faults since last collection:"
+    r" (?P<totalMajPgFaults>\d+)"
+)
+
+COLLECTION_END_LINE_MIN_LEN = 50
+PERIODIC_COLLECTION_HEADER = "Periodic collection report:"
+LAST_N_MINS_COLLECTION_HEADER = "Last N minutes performance report:"
 CUSTOM_COLLECTION_REPORT_HEADER = "Custom performance data report:"
 TOP_N_CPU_TIME_HEADER = "Top N CPU Times:"
 
 DUMP_DATETIME_FORMAT = "%a %b %d %H:%M:%S %Y %Z"
 DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-STATS_COLLECTION_PATTERN = "Collection (\d+): <(.+)>"
-PACKAGE_CPU_STATS_PATTERN = "(\d+), (.+), (\d+), (\d+).(\d+)%(, (\d+))?"
-PROCESS_CPU_STATS_PATTERN = "\s+(.+), (\d+), (\d+).(\d+)%(, (\d+))?"
-TOTAL_CPU_TIME_PATTERN = "Total CPU time \\(ms\\): (\d+)"
-TOTAL_IDLE_CPU_TIME_PATTERN = "Total idle CPU time \\(ms\\)/percent: (\d+) / .+"
-CPU_IO_WAIT_TIME_PATTERN = "CPU I/O wait time \\(ms\\)/percent: (\d+) / .+"
-CONTEXT_SWITCHES_PATTERN = "Number of context switches: (\d+)"
-IO_BLOCKED_PROCESSES_PATTERN = (
-    "Number of I/O blocked processes/percent: (\d+) / .+"
-)
 
 
 class BuildInformation:
@@ -133,7 +166,7 @@ class PackageCpuStats:
       process_cpu_stats_str = "\n      {}\n    )".format(process_list_str)
     return (
         "PackageCpuStats (user id={}, package name={}, CPU time={}ms, "
-        "percent of total CPU time={}%, CPU cycles={}, process CPU stats={}"
+        "percent of total CPU time={}%, CPU cycles={}, process CPU stats={})"
         .format(
             self.user_id,
             self.package_name,
@@ -145,31 +178,100 @@ class PackageCpuStats:
     )
 
 
+class PackageStorageIoStats:
+
+  def __init__(
+      self,
+      user_id,
+      package_name,
+      fg_bytes,
+      fg_bytes_percent,
+      fg_fsync,
+      fg_fsync_percent,
+      bg_bytes,
+      bg_bytes_percent,
+      bg_fsync,
+      bg_fsync_percent,
+  ):
+    self.user_id = user_id
+    self.package_name = package_name
+    self.fg_bytes = fg_bytes
+    self.fg_bytes_percent = fg_bytes_percent
+    self.fg_fsync = fg_fsync
+    self.fg_fsync_percent = fg_fsync_percent
+    self.bg_bytes = bg_bytes
+    self.bg_bytes_percent = bg_bytes_percent
+    self.bg_fsync = bg_fsync
+    self.bg_fsync_percent = bg_fsync_percent
+
+  def to_dict(self):
+    return {
+        "user_id": self.user_id,
+        "package_name": self.package_name,
+        "fg_bytes": self.fg_bytes,
+        "fg_bytes_percent": self.fg_bytes_percent,
+        "fg_fsync": self.fg_fsync,
+        "fg_fsync_percent": self.fg_fsync_percent,
+        "bg_bytes": self.bg_bytes,
+        "bg_bytes_percent": self.bg_bytes_percent,
+        "bg_fsync": self.bg_fsync,
+        "bg_fsync_percent": self.bg_fsync_percent,
+    }
+
+  def __repr__(self):
+    return (
+        "PackageStorageIoStats (user id={}, package name={}, foreground"
+        " bytes={}, foreground bytes percent={}, foreground fsync={},"
+        " foreground fsync percent={}, background bytes={}, background bytes"
+        " percent={}, background fsync={}, background fsync percent={}) "
+        .format(
+            self.user_id,
+            self.package_name,
+            self.fg_bytes,
+            self.fg_bytes_percent,
+            self.fg_fsync,
+            self.fg_fsync_percent,
+            self.bg_bytes,
+            self.bg_bytes_percent,
+            self.bg_fsync,
+            self.bg_fsync_percent,
+        )
+    )
+
+
 class StatsCollection:
 
   def __init__(self):
     self.id = -1
     self.date = None
     self.total_cpu_time_ms = 0
+    self.total_cpu_cycles = 0
     self.idle_cpu_time_ms = 0
     self.io_wait_time_ms = 0
     self.context_switches = 0
     self.io_blocked_processes = 0
+    self.major_page_faults = 0
     self.package_cpu_stats = []
+    self.package_storage_io_read_stats = []
+    self.package_storage_io_write_stats = []
 
   def is_empty(self):
     val = (
         self.total_cpu_time_ms
+        + self.total_cpu_cycles
         + self.idle_cpu_time_ms
         + self.io_wait_time_ms
         + self.context_switches
         + self.io_blocked_processes
+        + self.major_page_faults
     )
     return (
         self.id == -1
         and not self.date
         and val == 0
-        and len(self.package_cpu_stats) == 0
+        and not self.package_cpu_stats
+        and not self.package_storage_io_read_stats
+        and not self.package_storage_io_write_stats
     )
 
   def to_dict(self):
@@ -177,29 +279,72 @@ class StatsCollection:
         "id": self.id,
         "date": self.date.strftime(DATETIME_FORMAT) if self.date else "",
         "total_cpu_time_ms": self.total_cpu_time_ms,
+        "total_cpu_cycles": self.total_cpu_cycles,
         "idle_cpu_time_ms": self.idle_cpu_time_ms,
         "io_wait_time_ms": self.io_wait_time_ms,
         "context_switches": self.context_switches,
         "io_blocked_processes": self.io_blocked_processes,
+        "major_page_faults": self.major_page_faults,
         "packages_cpu_stats": [p.to_dict() for p in self.package_cpu_stats],
+        "package_storage_io_read_stats": [
+            p.to_dict() for p in self.package_storage_io_read_stats
+        ],
+        "package_storage_io_write_stats": [
+            p.to_dict() for p in self.package_storage_io_write_stats
+        ],
     }
 
   def __repr__(self):
     date = self.date.strftime(DATETIME_FORMAT) if self.date else ""
-    pcs_str = "\n    ".join(list(map(repr, self.package_cpu_stats)))
+    package_cpu_stats_dump = ""
+    package_storage_io_read_stats_dump = ""
+    package_storage_io_write_stats_dump = ""
+
+    if self.package_cpu_stats:
+      package_cpu_stats_str = "\n    ".join(
+          list(map(repr, self.package_cpu_stats))
+      )
+      package_cpu_stats_dump = ", package CPU stats=\n    {}\n".format(
+          package_cpu_stats_str
+      )
+
+    if self.package_storage_io_read_stats:
+      package_storage_io_read_stats_str = "\n    ".join(
+          list(map(repr, self.package_storage_io_read_stats))
+      )
+      package_storage_io_read_stats_dump = (
+          ", package storage I/O read stats=\n    {}\n".format(
+              package_storage_io_read_stats_str
+          )
+      )
+
+    if self.package_storage_io_write_stats:
+      package_storage_io_write_stats_str = "\n    ".join(
+          list(map(repr, self.package_storage_io_write_stats))
+      )
+      package_storage_io_write_stats_dump = (
+          ", package storage I/O write stats=\n    {}\n".format(
+              package_storage_io_write_stats_str
+          )
+      )
+
     return (
-        "StatsCollection (id={}, date={}, total CPU time={}ms, "
-        "idle CPU time={}ms, I/O wait time={}ms, total context switches={}, "
-        "total I/O blocked processes={}, package CPU stats=\n    {}\n  )"
-        .format(
+        "StatsCollection (id={}, date={}, total CPU time={}ms, total CPU"
+        " cycles={}, idle CPU time={}ms, I/O wait time={}ms, total context"
+        " switches={}, total I/O blocked processes={}, major page"
+        " faults={}{}{}{})\n".format(
             self.id,
             date,
             self.total_cpu_time_ms,
+            self.total_cpu_cycles,
             self.idle_cpu_time_ms,
             self.io_wait_time_ms,
             self.context_switches,
             self.io_blocked_processes,
-            pcs_str,
+            self.major_page_faults,
+            package_cpu_stats_dump,
+            package_storage_io_read_stats_dump,
+            package_storage_io_write_stats_dump,
         )
     )
 
@@ -227,13 +372,19 @@ class PerformanceStats:
 
   def __init__(self):
     self.boot_time_stats = None
+    self.last_n_minutes_stats = None
     self.user_switch_stats = []
     self.custom_collection_stats = None
 
-  def has_boot_time(self):
+  def has_boot_time_stats(self):
     return self.boot_time_stats and not self.boot_time_stats.is_empty()
 
-  def has_custom_collection(self):
+  def has_last_n_minutes_stats(self):
+    return (
+        self.last_n_minutes_stats and not self.last_n_minutes_stats.is_empty()
+    )
+
+  def has_custom_collection_stats(self):
     return (
         self.custom_collection_stats
         and not self.custom_collection_stats.is_empty()
@@ -241,8 +392,9 @@ class PerformanceStats:
 
   def is_empty(self):
     return (
-        not self.has_boot_time()
-        and not self.has_custom_collection()
+        not self.has_boot_time_stats()
+        and not self.has_last_n_minutes_stats()
+        and not self.has_custom_collection_stats()
         and not any(map(lambda u: not u.is_empty(), self.user_switch_stats))
     )
 
@@ -250,6 +402,11 @@ class PerformanceStats:
     return {
         "boot_time_stats": (
             self.boot_time_stats.to_list() if self.boot_time_stats else None
+        ),
+        "last_n_minutes_stats": (
+            self.last_n_minutes_stats.to_list()
+            if self.last_n_minutes_stats
+            else None
         ),
         "user_switch_stats": [u.to_list() for u in self.user_switch_stats],
         "custom_collection_stats": (
@@ -263,9 +420,11 @@ class PerformanceStats:
     return (
         "PerformanceStats (\n"
         "boot-time stats={}\n"
+        "\nlast n minutes stats={}\n"
         "\nuser-switch stats={}\n"
         "\ncustom-collection stats={}\n)".format(
             self.boot_time_stats,
+            self.last_n_minutes_stats,
             self.user_switch_stats,
             self.custom_collection_stats,
         )
@@ -299,7 +458,7 @@ def parse_build_info(build_info_file):
     return line.split(":")[1].strip()
 
   with open(build_info_file, "r") as f:
-    for line in f.readlines():
+    for line in f:
       value = get_value(line)
       if line.startswith("fingerprint"):
         build_info.fingerprint = value
@@ -329,39 +488,40 @@ def parse_build_info(build_info_file):
     return build_info
 
 
-def parse_cpu_times(lines, idx):
+def _is_stats_section_end(line):
+  return (
+      line.startswith("Top N")
+      or re.match(STATS_COLLECTION_PATTERN, line)
+      or line.startswith("-" * COLLECTION_END_LINE_MIN_LEN)
+  )
+
+
+def _parse_cpu_stats(lines, idx):
   package_cpu_stats = []
   package_cpu_stat = None
 
-  while (
-      not (line := lines[idx].rstrip()).startswith("Top N")
-      and not re.match(STATS_COLLECTION_PATTERN, line)
-      and not line.startswith("-" * 50)
-  ):
+  while not _is_stats_section_end(line := lines[idx].rstrip()):
     if match := re.match(PACKAGE_CPU_STATS_PATTERN, line):
-      user_id = int(match.group(1))
-      package_name = match.group(2)
-      cpu_time_ms = int(match.group(3))
-      total_cpu_time_percent = float(
-          "{}.{}".format(match.group(4), match.group(5))
-      )
-      cpu_cycles = int(match.group(7)) if match.group(7) is not None else -1
+      cpu_cycles_str = match.group("cpuCycles")
 
       package_cpu_stat = PackageCpuStats(
-          user_id, package_name, cpu_time_ms, total_cpu_time_percent, cpu_cycles
+          int(match.group("userId")),
+          match.group("packageName"),
+          int(match.group("cpuTimeMs")),
+          float(match.group("cpuTimePercent")),
+          int(cpu_cycles_str) if cpu_cycles_str is not None else -1,
       )
       package_cpu_stats.append(package_cpu_stat)
     elif match := re.match(PROCESS_CPU_STATS_PATTERN, line):
-      command = match.group(1)
-      cpu_time_ms = int(match.group(2))
-      package_cpu_time_percent = float(
-          "{}.{}".format(match.group(3), match.group(4))
-      )
-      cpu_cycles = int(match.group(6)) if match.group(6) is not None else -1
+      command = match.group("command")
+      cpu_cycles_str = match.group("cpuCycles")
       if package_cpu_stat:
         package_cpu_stat.process_cpu_stats.append(
             ProcessCpuStats(
-                command, cpu_time_ms, package_cpu_time_percent, cpu_cycles
+                command,
+                int(match.group("cpuTimeMs")),
+                float(match.group("uidCpuPercent")),
+                int(cpu_cycles_str) if cpu_cycles_str is not None else -1,
             )
         )
       else:
@@ -374,41 +534,80 @@ def parse_cpu_times(lines, idx):
   return package_cpu_stats, idx
 
 
-def parse_collection(lines, idx, match):
-  collection = StatsCollection()
-  collection.id = int(match.group(1))
-  collection.date = datetime.strptime(match.group(2), DUMP_DATETIME_FORMAT)
+def _parse_storage_io_stats(lines, idx):
+  package_storage_io_stats = []
 
-  while not re.match(
-      STATS_COLLECTION_PATTERN, (line := lines[idx].strip())
-  ) and not line.startswith("-" * 50):
+  while not _is_stats_section_end(line := lines[idx].rstrip()):
+    if match := re.match(PACKAGE_STORAGE_IO_STATS_PATTERN, line):
+      package_storage_io_stats.append(
+          PackageStorageIoStats(
+              int(match.group("userId")),
+              match.group("packageName"),
+              int(match.group("fgBytes")),
+              float(match.group("fgBytesPercent")),
+              int(match.group("fgFsync")),
+              float(match.group("fgFsyncPercent")),
+              int(match.group("bgBytes")),
+              float(match.group("bgBytesPercent")),
+              int(match.group("bgFsync")),
+              float(match.group("bgFsyncPercent")),
+          )
+      )
+
+    idx += 1
+
+  return package_storage_io_stats, idx
+
+
+def _parse_collection(lines, idx, match):
+  collection = StatsCollection()
+  collection.id = int(match.group("id"))
+  collection.date = datetime.strptime(match.group("date"), DUMP_DATETIME_FORMAT)
+
+  while not (
+      re.match(STATS_COLLECTION_PATTERN, (line := lines[idx].strip()))
+      or line.startswith("-" * COLLECTION_END_LINE_MIN_LEN)
+  ):
     if match := re.match(TOTAL_CPU_TIME_PATTERN, line):
-      collection.total_cpu_time_ms = int(match.group(1))
+      collection.total_cpu_time_ms = int(match.group("totalCpuTimeMs"))
+    if match := re.match(TOTAL_CPU_CYCLES_PATTERN, line):
+      collection.total_cycles = int(match.group("totalCpuCycles"))
     elif match := re.match(TOTAL_IDLE_CPU_TIME_PATTERN, line):
-      collection.idle_cpu_time_ms = int(match.group(1))
+      collection.idle_cpu_time_ms = int(match.group("idleCpuTimeMs"))
     elif match := re.match(CPU_IO_WAIT_TIME_PATTERN, line):
-      collection.io_wait_time_ms = int(match.group(1))
+      collection.io_wait_time_ms = int(match.group("iowaitCpuTimeMs"))
     elif match := re.match(CONTEXT_SWITCHES_PATTERN, line):
-      collection.context_switches = int(match.group(1))
+      collection.context_switches = int(match.group("totalCtxtSwitches"))
     elif match := re.match(IO_BLOCKED_PROCESSES_PATTERN, line):
-      collection.io_blocked_processes = int(match.group(1))
+      collection.io_blocked_processes = int(match.group("totalIoBlkProc"))
+    elif match := re.match(MAJOR_PAGE_FAULTS_PATTERN, line):
+      collection.major_page_faults = int(match.group("totalMajPgFaults"))
     elif line == TOP_N_CPU_TIME_HEADER:
       idx += 1  # Skip subsection header
-      package_cpu_stats, idx = parse_cpu_times(lines, idx)
+      package_cpu_stats, idx = _parse_cpu_stats(lines, idx)
       collection.package_cpu_stats = package_cpu_stats
       continue
-
+    elif re.match(TOP_N_STORAGE_IO_READS_HEADER_PATTERN, line):
+      idx += 1
+      package_storage_io_stats, idx = _parse_storage_io_stats(lines, idx)
+      collection.package_storage_io_read_stats = package_storage_io_stats
+      continue
+    elif re.match(TOP_N_STORAGE_IO_WRITES_HEADER_PATTERN, line):
+      idx += 1
+      package_storage_io_stats, idx = _parse_storage_io_stats(lines, idx)
+      collection.package_storage_io_write_stats = package_storage_io_stats
+      continue
     idx += 1
 
   return collection, idx
 
 
-def parse_stats_collections(lines, idx):
+def _parse_stats_collections(lines, idx):
   system_event_stats = SystemEventStats()
   while not (line := lines[idx].strip()).startswith("-" * 50):
     if match := re.match(STATS_COLLECTION_PATTERN, line):
       idx += 1  # Skip the collection header
-      collection, idx = parse_collection(lines, idx, match)
+      collection, idx = _parse_collection(lines, idx, match)
       if not collection.is_empty():
         system_event_stats.add(collection)
     else:
@@ -422,13 +621,20 @@ def parse_dump(dump):
   idx = 0
   while idx < len(lines):
     line = lines[idx].strip()
-    if line == BOOT_TIME_REPORT_HEADER:
-      boot_time_stats, idx = parse_stats_collections(lines, idx)
+    if re.match(BOOT_TIME_REPORT_HEADER_PATTERN, line):
+      boot_time_stats, idx = _parse_stats_collections(lines, idx)
       if not boot_time_stats.is_empty():
         performance_stats.boot_time_stats = boot_time_stats
+    if (
+        line == PERIODIC_COLLECTION_HEADER
+        or line == LAST_N_MINS_COLLECTION_HEADER
+    ):
+      last_n_minutes_stats, idx = _parse_stats_collections(lines, idx)
+      if not last_n_minutes_stats.is_empty():
+        performance_stats.last_n_minutes_stats = last_n_minutes_stats
     if line == CUSTOM_COLLECTION_REPORT_HEADER:
       idx += 2  # Skip the dashed-line after the custom collection header
-      custom_collection_stats, idx = parse_stats_collections(lines, idx)
+      custom_collection_stats, idx = _parse_stats_collections(lines, idx)
       if not custom_collection_stats.is_empty():
         performance_stats.custom_collection_stats = custom_collection_stats
     else:
