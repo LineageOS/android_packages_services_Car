@@ -732,6 +732,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void searchForRemoteTaskClientPackages() {
         List<RemoteTaskClientServiceInfo> servicesToStart = new ArrayList<>();
         // TODO(b/266129982): Query for all users.
+        if (DEBUG) {
+            Slogf.d(TAG, "searchForRemoteTaskClientPackages");
+        }
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
                 new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
                 UserHandle.SYSTEM);
