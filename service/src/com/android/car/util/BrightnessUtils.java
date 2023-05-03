@@ -16,7 +16,11 @@
 
 package com.android.car.util;
 
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
+
 import android.car.builtin.power.PowerManagerHelper;
+
+import com.android.internal.annotations.VisibleForTesting;
 
 /**
  * This is the minimized version of {@code com.android.settingslib.display.BrightnessUtils} not to
@@ -26,6 +30,8 @@ public class BrightnessUtils {
 
     public static final int GAMMA_SPACE_MIN = 0;
     public static final int GAMMA_SPACE_MAX = 65535;
+    @VisibleForTesting
+    public static final float INVALID_BRIGHTNESS_IN_FLOAT = -1.f;
 
     // Hybrid Log Gamma constant values
     private static final float R = 0.5f;
@@ -127,6 +133,9 @@ public class BrightnessUtils {
      * {@code com.android.internal.display.BrightnessSynchronizer#brightnessIntToFloat}.
      */
     public static float brightnessIntToFloat(int brightnessInt) {
+        if (!isPlatformVersionAtLeastU()) {
+            return INVALID_BRIGHTNESS_IN_FLOAT;
+        }
         if (brightnessInt == PowerManagerHelper.BRIGHTNESS_OFF) {
             return PowerManagerHelper.BRIGHTNESS_OFF_FLOAT;
         } else if (brightnessInt == PowerManagerHelper.BRIGHTNESS_INVALID) {
@@ -160,6 +169,9 @@ public class BrightnessUtils {
      * {@code com.android.internal.display.BrightnessSynchronizer#brightnessFloatToIntRange}.
      */
     private static float brightnessFloatToIntRange(float brightnessFloat) {
+        if (!isPlatformVersionAtLeastU()) {
+            return INVALID_BRIGHTNESS_IN_FLOAT;
+        }
         if (floatEquals(brightnessFloat, PowerManagerHelper.BRIGHTNESS_OFF_FLOAT)) {
             return PowerManagerHelper.BRIGHTNESS_OFF;
         } else if (Float.isNaN(brightnessFloat)) {
