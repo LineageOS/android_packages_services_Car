@@ -174,7 +174,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected CarUxRestrictionsManagerService mCarUxRestrictionService;
     @Mock protected ICarUxRestrictionsChangeListener mCarUxRestrictionsListener;
     @Mock protected ICarServiceHelper mICarServiceHelper;
-    @Mock protected Handler mMockedHandler;
     @Mock protected UserHandleHelper mMockedUserHandleHelper;
     @Mock protected CarPackageManagerService mCarPackageManagerService;
     @Mock protected CarOccupantZoneService mCarOccupantZoneService;
@@ -204,6 +203,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             new SyncResultCallback<>();
     protected final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallback =
             new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForCreateUser);
+    protected final SyncResultCallback<UserCreationResult> mSyncResultCallbackForCreateUser2 =
+            new SyncResultCallback<>();
+    protected final ResultCallbackImpl<UserCreationResult> mUserCreationResultCallback2 =
+            new ResultCallbackImpl<>(Runnable::run, mSyncResultCallbackForCreateUser2);
     protected final SyncResultCallback<UserRemovalResult> mSyncResultCallbackForRemoveUser =
             new SyncResultCallback<>();
 
@@ -553,6 +556,15 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @NonNull
     protected UserCreationResult getUserCreationResult() throws Exception {
         return mSyncResultCallbackForCreateUser.get();
+    }
+
+    /**
+     * Gets the result of a user creation call that was made using
+     * {@link #mUserCreationResultCallback2}.
+     */
+    @NonNull
+    protected UserCreationResult getUserCreationResult2() throws Exception {
+        return mSyncResultCallbackForCreateUser2.get();
     }
 
     /**
