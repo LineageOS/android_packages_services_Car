@@ -17,6 +17,7 @@
 package com.android.car.portraitlauncher.panel;
 
 import android.annotation.SuppressLint;
+import android.app.TaskInfo;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Insets;
@@ -190,6 +191,9 @@ public class TaskViewPanel extends RelativeLayout {
     /** The flag indicating if the task view on the panel is ready. */
     private boolean mIsReady;
 
+    /** The current task running inside panel. */
+    private TaskInfo mCurrentTask;
+
     public TaskViewPanel(Context context) {
         this(context, null);
     }
@@ -217,6 +221,8 @@ public class TaskViewPanel extends RelativeLayout {
         mFullScreenState = new State(/* hasGripBar = */ false, /* isVisible = */ true,
                 /* isFullScreen */true, /* hasToolBar = */ true,
                 /* hasBackgroundSurfaceView = */ true);
+
+        mCurrentTask = null;
     }
 
     @Override
@@ -430,6 +436,7 @@ public class TaskViewPanel extends RelativeLayout {
     /** Should be called when the view is no longer in use. */
     public void onDestroy() {
         mTaskView = null;
+        mCurrentTask = null;
     }
 
     /** Should be called when the parent dimension changes. */
@@ -461,6 +468,21 @@ public class TaskViewPanel extends RelativeLayout {
      */
     public void setToolBarViewVisibility(boolean isVisible) {
         mToolBarView.updateToolBarContentVisibility(mActiveState.hasToolBar() && isVisible);
+    }
+
+    /**
+     * Set current {@link TaskInfo} for the panel.
+     */
+    public void setCurrentTask(TaskInfo task) {
+        mCurrentTask = task;
+    }
+
+    /**
+     * Get current {@link TaskInfo} from the panel.
+     */
+    @Nullable
+    public TaskInfo getCurrentTask() {
+        return mActiveState.isVisible() ? mCurrentTask : null;
     }
 
     private void recalculateBounds() {
