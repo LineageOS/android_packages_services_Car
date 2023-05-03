@@ -16,6 +16,8 @@
 
 package android.car.hardware.property;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.SystemApi;
@@ -53,6 +55,7 @@ public class CarInternalErrorException extends RuntimeException {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getVendorErrorCode() {
+        assertPlatformVersionAtLeastU();
         return mVendorErrorCode;
     }
 }

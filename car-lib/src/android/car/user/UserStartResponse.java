@@ -17,6 +17,7 @@
 package android.car.user;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
@@ -173,6 +174,7 @@ public final class UserStartResponse implements Parcelable, OperationResult {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isSuccess() {
+        assertPlatformVersionAtLeastU();
         return mStatus == STATUS_SUCCESSFUL || mStatus == STATUS_SUCCESSFUL_USER_IS_CURRENT_USER
                 || mStatus == STATUS_SUCCESSFUL_USER_ALREADY_VISIBLE_ON_DISPLAY;
     }
@@ -216,6 +218,7 @@ public final class UserStartResponse implements Parcelable, OperationResult {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static @NonNull String statusToString(@Status int value) {
+        assertPlatformVersionAtLeastU();
         switch (value) {
             case STATUS_SUCCESSFUL:
                     return "STATUS_SUCCESSFUL";
@@ -310,6 +313,7 @@ public final class UserStartResponse implements Parcelable, OperationResult {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @Status int getStatus() {
+        assertPlatformVersionAtLeastU();
         return mStatus;
     }
 
