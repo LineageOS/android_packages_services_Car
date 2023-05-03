@@ -84,6 +84,7 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(allOf = {Manifest.permission.INJECT_EVENTS,
             Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional = true)
     public void createControlledRemoteCarTaskView(
@@ -150,6 +151,7 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void release() {
         assertPlatformVersionAtLeastU();
         if (mReleased) {
@@ -177,6 +179,7 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void showEmbeddedTasks() {
         assertPlatformVersionAtLeastU();
         if (mReleased) {
