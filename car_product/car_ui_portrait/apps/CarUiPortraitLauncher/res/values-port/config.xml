@@ -50,5 +50,11 @@
     -->
     <string-array name="config_fullScreenActivities" translatable="false">
         <item>android.assist.cts/android.assist.cts.TestStartActivity</item>
+        <item>android.widget.cts/android.widget.cts.ListViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.TextViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.RelativeLayoutCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.NumberPickerCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.AdapterViewCtsActivity</item>
+        <item>android.widget.cts/android.widget.cts.EditTextCtsActivity</item>
     </string-array>
 </resources>
