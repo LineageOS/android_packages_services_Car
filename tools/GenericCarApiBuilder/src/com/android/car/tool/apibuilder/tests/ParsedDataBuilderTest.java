@@ -242,7 +242,7 @@ public final class ParsedDataBuilderTest extends TestHelper {
         PackageData packageData = data.getPackageData(packageName);
         String className = "android.car.user.Test1";
         ClassData classData = packageData.classes.get(className);
-        assertThat(classData.methods.size()).isEqualTo(3);
+        assertThat(classData.methods.size()).isEqualTo(4);
 
         MethodData methodData = classData.methods.get("method_1(UserStopRequest request, "
                 + "Executor executor, ResultCallback<UserStopResponse> callback)");
