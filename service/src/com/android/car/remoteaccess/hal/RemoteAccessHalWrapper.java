@@ -81,7 +81,9 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
             mRemoteAccessHal = null;
         }
         try {
-            remoteAccessHal.clearRemoteTaskCallback();
+            if (remoteAccessHal != null) {
+                remoteAccessHal.clearRemoteTaskCallback();
+            }
         } catch (RemoteException e) {
             Slogf.w(TAG, e, "Failed to clear remote task callback");
         }
