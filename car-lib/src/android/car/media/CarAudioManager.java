@@ -17,6 +17,7 @@ package android.car.media;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
@@ -909,6 +910,7 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Nullable
     public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.getCurrentAudioZoneConfigInfo(zoneId);
         } catch (RemoteException e) {
@@ -937,6 +939,7 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @NonNull
     public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.getAudioZoneConfigInfos(zoneId);
         } catch (RemoteException e) {
@@ -971,6 +974,7 @@ public final class CarAudioManager extends CarManagerBase {
     public void switchAudioZoneToConfig(@NonNull CarAudioZoneConfigInfo zoneConfig,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull SwitchAudioZoneConfigCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(zoneConfig, "Audio zone configuration can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback,
@@ -1075,6 +1079,7 @@ public final class CarAudioManager extends CarManagerBase {
     public boolean setPrimaryZoneMediaAudioRequestCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull PrimaryZoneMediaAudioRequestCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Audio media request callback can not be null");
         synchronized (mLock) {
@@ -1112,6 +1117,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearPrimaryZoneMediaAudioRequestCallback() {
+        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mPrimaryZoneMediaAudioRequestCallback == null) {
                 return;
@@ -1145,6 +1151,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
+        assertPlatformVersionAtLeastU();
         try {
             if (removeMediaRequestCallback(requestId)) {
                 return mService.cancelMediaAudioOnPrimaryZone(requestId);
@@ -1182,6 +1189,7 @@ public final class CarAudioManager extends CarManagerBase {
     public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull MediaAudioRequestStatusCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(info, "Occupant zone info can not be null");
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Media audio request status callback can not be null");
@@ -1226,6 +1234,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean allowMediaAudioOnPrimaryZone(long requestId, boolean allow) {
+        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mPrimaryZoneMediaAudioRequestCallback == null) {
                 throw new IllegalStateException("Primary zone media audio request callback must be "
@@ -1256,6 +1265,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean resetMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info) {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.resetMediaAudioOnPrimaryZone(info);
         } catch (RemoteException e) {
@@ -1277,6 +1287,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean isMediaAudioAllowedInPrimaryZone(@NonNull OccupantZoneInfo info) {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.isMediaAudioAllowedInPrimaryZone(info);
         } catch (RemoteException e) {
@@ -1307,6 +1318,7 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean setAudioZoneMirrorStatusCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull AudioZonesMirrorStatusCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Audio zones mirror status callback can not be null");
 
@@ -1367,6 +1379,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearAudioZonesMirrorStatusCallback() {
+        assertPlatformVersionAtLeastU();
         AudioZonesMirrorStatusCallbackWrapper wrapper;
 
         synchronized (mLock) {
@@ -1404,6 +1417,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public @AudioMirrorStatus int canEnableAudioMirror() {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.canEnableAudioMirror();
         } catch (RemoteException e) {
@@ -1439,6 +1453,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public long enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
 
         try {
@@ -1479,6 +1494,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void extendAudioMirrorRequest(long mirrorId, @NonNull List<Integer> audioZonesToMirror) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(audioZonesToMirror, "Audio zones to mirror should not be null");
 
         try {
@@ -1514,6 +1530,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirrorForZone(int zoneId) {
+        assertPlatformVersionAtLeastU();
         try {
             mService.disableAudioMirrorForZone(zoneId);
         } catch (RemoteException e) {
@@ -1542,6 +1559,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirror(long mirrorId) {
+        assertPlatformVersionAtLeastU();
         try {
             mService.disableAudioMirror(mirrorId);
         } catch (RemoteException e) {
@@ -1572,6 +1590,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForAudioZone(int zoneId) {
+        assertPlatformVersionAtLeastU();
         try {
             return asList(mService.getMirrorAudioZonesForAudioZone(zoneId));
         } catch (RemoteException e) {
@@ -1599,6 +1618,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForMirrorRequest(long mirrorId) {
+        assertPlatformVersionAtLeastU();
         try {
             return asList(mService.getMirrorAudioZonesForMirrorRequest(mirrorId));
         } catch (RemoteException e) {
@@ -1750,6 +1770,7 @@ public final class CarAudioManager extends CarManagerBase {
     public boolean registerCarVolumeGroupEventCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarVolumeGroupEventCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(executor, "Executor can not be null");
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
@@ -1793,6 +1814,7 @@ public final class CarAudioManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void unregisterCarVolumeGroupEventCallback(
             @NonNull CarVolumeGroupEventCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(callback, "Car volume event callback can not be null");
 
         CarVolumeGroupEventCallbackWrapper callbackWrapper =

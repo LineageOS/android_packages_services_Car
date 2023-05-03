@@ -33,9 +33,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
 // Copied from frameworks/base
-
 /**
  * Utility methods for common functionality using java.util.concurrent package
  *

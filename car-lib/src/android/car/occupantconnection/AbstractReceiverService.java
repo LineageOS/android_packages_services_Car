@@ -18,6 +18,8 @@ package android.car.occupantconnection;
 
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
@@ -155,6 +157,7 @@ public abstract class AbstractReceiverService extends Service {
     @Nullable
     @Override
     public final IBinder onBind(@NonNull Intent intent) {
+        assertPlatformVersionAtLeastU();
         if (CAR_INTENT_ACTION_RECEIVER_SERVICE.equals(intent.getAction())) {
             return mBackendReceiver.asBinder();
         }
@@ -170,6 +173,7 @@ public abstract class AbstractReceiverService extends Service {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Nullable
     public IBinder onLocalServiceBind(@NonNull Intent intent) {
+        assertPlatformVersionAtLeastU();
         return null;
     }
 
@@ -273,6 +277,7 @@ public abstract class AbstractReceiverService extends Service {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public final void acceptConnection(@NonNull OccupantZoneInfo senderZone) {
+        assertPlatformVersionAtLeastU();
         try {
             mBackendConnectionResponder.acceptConnection(senderZone);
         } catch (RemoteException e) {
@@ -289,6 +294,7 @@ public abstract class AbstractReceiverService extends Service {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public final void rejectConnection(@NonNull OccupantZoneInfo senderZone, int rejectionReason) {
+        assertPlatformVersionAtLeastU();
         try {
             mBackendConnectionResponder.rejectConnection(senderZone, rejectionReason);
         } catch (RemoteException e) {
@@ -314,6 +320,7 @@ public abstract class AbstractReceiverService extends Service {
     public final boolean forwardPayload(@NonNull OccupantZoneInfo senderZone,
             @NonNull String receiverEndpointId,
             @NonNull Payload payload) {
+        assertPlatformVersionAtLeastU();
         IPayloadCallback callback = mReceiverEndpointMap.get(receiverEndpointId);
         if (callback == null) {
             Slogf.e(TAG, "The receiver endpoint has been unregistered: %s", receiverEndpointId);
@@ -335,6 +342,7 @@ public abstract class AbstractReceiverService extends Service {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public final Set<String> getAllReceiverEndpoints() {
+        assertPlatformVersionAtLeastU();
         return mReceiverEndpointMap.keySet();
     }
 
@@ -342,6 +350,7 @@ public abstract class AbstractReceiverService extends Service {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @Override
     public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
+        assertPlatformVersionAtLeastU();
         return START_STICKY;
     }
 
@@ -350,6 +359,7 @@ public abstract class AbstractReceiverService extends Service {
     @Override
     public void dump(@Nullable FileDescriptor fd, @NonNull PrintWriter writer,
             @Nullable String[] args) {
+        assertPlatformVersionAtLeastU();
         writer.println("*AbstractReceiverService*");
         writer.printf("%smReceiverEndpointMap:\n", INDENTATION_2);
         for (int i = 0; i < mReceiverEndpointMap.size(); i++) {

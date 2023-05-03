@@ -24,7 +24,6 @@ import com.android.internal.util.Preconditions;
 import java.io.IOException;
 
 // Copied from frameworks/base
-
 /**
  * Utility methods for proxying richer exceptions across Binder calls.
  *
