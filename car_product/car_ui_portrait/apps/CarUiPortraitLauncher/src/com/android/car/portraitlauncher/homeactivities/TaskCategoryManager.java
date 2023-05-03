@@ -90,6 +90,10 @@ class TaskCategoryManager {
         return mBackgroundActivities.contains(taskInfo.baseActivity);
     }
 
+    boolean isBackgroundApp(ComponentName componentName) {
+        return mBackgroundActivities.contains(componentName);
+    }
+
     boolean isCurrentBackgroundApp(TaskInfo taskInfo) {
         return mCurrentBackgroundApp.equals(taskInfo.baseActivity);
     }

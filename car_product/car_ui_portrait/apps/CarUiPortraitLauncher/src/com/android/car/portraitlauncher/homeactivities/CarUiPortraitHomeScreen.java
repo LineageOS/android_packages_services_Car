@@ -229,10 +229,23 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     // This listener lets us know when actives are added and removed from any of the display regions
     // we care about, so we can trigger the opening and closing of the app containers as needed.
     private final TaskStackListener mTaskStackListener = new TaskStackListener() {
+
+        @Override
+        public void onTaskCreated(int taskId, ComponentName componentName) throws RemoteException {
+            if (componentName != null) {
+                logIfDebuggable("On task created, task = " + taskId
+                        + " componentName " + componentName);
+            }
+
+            if (mTaskCategoryManager.isBackgroundApp(componentName)) {
+                mTaskCategoryManager.setCurrentBackgroundApp(componentName);
+            }
+        }
+
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
-            logIfDebuggable("On task moved to front, task = " + taskInfo);
+            logIfDebuggable("On task moved to front, task = " + taskInfo.taskId);
             if (!mRootTaskViewPanel.isReady()) {
                 logIfDebuggable("Root Task View is not ready yet.");
                 if (!TaskCategoryManager.isHomeIntent(taskInfo)
@@ -248,7 +261,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
             if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
-                mRootTaskViewPanel.closePanel(/* animated = */ false);
                 return;
             }
 
@@ -266,7 +278,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
 
             if (shouldTaskShowOnRootTaskView(taskInfo)) {
-                logIfDebuggable("Opening in root task view: " + taskInfo);
+                logIfDebuggable("Opening in root task view: ");
                 mRootTaskViewPanel.setCurrentTask(taskInfo);
 
                 if (mAppGridTaskViewPanel.isOpen()) {
@@ -297,7 +309,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 throws RemoteException {
             super.onActivityRestartAttempt(taskInfo, homeTaskVisible, clearedTask, wasVisible);
 
-            logIfDebuggable("On Activity restart attempt, task = " + taskInfo);
+            logIfDebuggable("On Activity restart attempt, task = " + taskInfo.taskId);
             if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
                 return;
             }
@@ -311,7 +323,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
-            logIfDebuggable("Update UI state on app restart attempt, task = " + taskInfo);
+            logIfDebuggable("Update UI state on app restart attempt");
             if (mTaskCategoryManager.isAppGridActivity(taskInfo)) {
                 if (mRootTaskViewPanel.isAnimating()) {
                     mRootTaskViewPanel.closePanel(/* animated = */ false);
@@ -606,10 +618,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void cacheTask(ActivityManager.RunningTaskInfo taskInfo) {
-        logIfDebuggable("Caching the task: " + taskInfo);
+        logIfDebuggable("Caching the task: " + taskInfo.taskId);
         if (mTaskInfoCache.cancelTask(taskInfo)) {
             boolean cached = mTaskInfoCache.cacheTask(taskInfo);
-            logIfDebuggable("Task " + taskInfo + " is cached = " + cached);
+            logIfDebuggable("Task " + taskInfo.taskId + " is cached = " + cached);
         }
     }
 
@@ -755,8 +767,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         mIsBackgroundTaskViewReady = true;
                         onTaskViewReadinessUpdated();
                         updateBackgroundTaskViewInsets();
-                        mTaskCategoryManager.setCurrentBackgroundApp(
-                                backgroundIntent.getComponent());
                     }
                 }
         );
