@@ -18,14 +18,12 @@ package android.car.app;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
 import android.app.PendingIntent;
 import android.car.annotation.ApiRequirements;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.SurfaceControl;
 
@@ -39,7 +37,6 @@ public interface CarTaskViewHost {
     /** Releases the resources held by this task view's host side. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void release();
 
     /**
@@ -48,7 +45,6 @@ public interface CarTaskViewHost {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void startActivity(
             @NonNull PendingIntent pendingIntent, @Nullable Intent intent, @NonNull Bundle options,
             @Nullable Rect launchBounds);
@@ -60,7 +56,6 @@ public interface CarTaskViewHost {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void notifySurfaceCreated(@NonNull SurfaceControl control);
 
     /**
@@ -70,19 +65,16 @@ public interface CarTaskViewHost {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void setWindowBounds(@NonNull Rect windowBoundsOnScreen);
 
     /** Notifies the host side that the client surface has been destroyed. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void notifySurfaceDestroyed();
 
     /** Brings the embedded Task to the front in the WM Hierarchy. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void showEmbeddedTask();
 
     /**
@@ -105,7 +97,6 @@ public interface CarTaskViewHost {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void addInsets(int index, int type, @NonNull Rect frame);
 
     /**
@@ -114,6 +105,5 @@ public interface CarTaskViewHost {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void removeInsets(int index, int type);
 }
