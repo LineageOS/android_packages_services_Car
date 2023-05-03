@@ -16,6 +16,8 @@
 
 package android.car.remoteaccess;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
@@ -109,6 +111,7 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
                      minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getServiceId() {
+        assertPlatformVersionAtLeastU();
         return mServiceId;
     }
 
@@ -119,6 +122,7 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
                      minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getVehicleId() {
+        assertPlatformVersionAtLeastU();
         return mVehicleId;
     }
 
@@ -129,6 +133,7 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
                      minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getProcessorId() {
+        assertPlatformVersionAtLeastU();
         return mProcessorId;
     }
 
@@ -139,6 +144,7 @@ public final class RemoteTaskClientRegistrationInfo implements Parcelable {
                      minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @DataClass.Generated.Member
     public @NonNull String getClientId() {
+        assertPlatformVersionAtLeastU();
         return mClientId;
     }
 

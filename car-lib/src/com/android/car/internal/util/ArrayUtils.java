@@ -38,9 +38,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.IntFunction;
 
-
 // Copy of frameworks/base/core/java/com/android/internal/util/ArrayUtils.java
-
 /**
  * ArrayUtils contains some methods that you can call to find out
  * the most efficient increments by which to grow arrays.
