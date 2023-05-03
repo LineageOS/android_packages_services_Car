@@ -21,10 +21,8 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -52,7 +50,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
@@ -61,7 +58,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
@@ -70,7 +66,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
@@ -79,7 +74,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_FAILURE_SYSTEM_USER = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
@@ -88,7 +82,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Status
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_FAILURE_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 3;
 
     /**
@@ -110,7 +103,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static boolean isSuccess(@Status int status) {
         assertPlatformVersionAtLeastU();
         return status == STATUS_SUCCESSFUL;
@@ -119,7 +111,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean isSuccess() {
         assertPlatformVersionAtLeastU();
         return isSuccess(mStatus);
@@ -157,7 +148,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static @NonNull String statusToString(@Status int value) {
         assertPlatformVersionAtLeastU();
@@ -224,7 +214,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @Status int getStatus() {
         assertPlatformVersionAtLeastU();
         return mStatus;
@@ -246,7 +235,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -259,7 +247,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -294,7 +281,6 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final @android.annotation.NonNull Parcelable.Creator<UserStopResponse> CREATOR
             = new Parcelable.Creator<UserStopResponse>() {
         @Override
