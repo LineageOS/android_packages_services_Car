@@ -19,6 +19,5 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="system_bar_passenger_home_label" msgid="3847285608670637034">"මඟී මුල් තිරය"</string>
     <string name="system_bar_control_center_label" msgid="958644321806830440">"පාලන මධ්‍යස්ථානය"</string>
-    <!-- no translation found for system_bar_notifications_label (2885882152000501006) -->
-    <skip />
+    <string name="system_bar_notifications_label" msgid="2885882152000501006">"දැනුම්දීම්"</string>
 </resources>
