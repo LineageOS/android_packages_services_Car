@@ -22,7 +22,6 @@ import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER;
-import static android.car.CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
@@ -34,6 +33,8 @@ import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_RIGHT;
 import static android.car.VehicleAreaSeat.SEAT_ROW_2_RIGHT;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCreateContextAsUser;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
 import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_APP_STATE;
 import static com.android.car.occupantconnection.CarRemoteDeviceService.INITIAL_OCCUPANT_ZONE_STATE;
@@ -54,13 +55,13 @@ import android.app.ActivityManager;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
-import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.occupantconnection.IStateCallback;
+import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
@@ -72,6 +73,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
@@ -80,6 +82,7 @@ import com.android.car.SystemActivityMonitoringService;
 import com.android.car.internal.util.BinderKeyValueContainer;
 import com.android.car.occupantconnection.CarRemoteDeviceService.PerUserInfo;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -90,6 +93,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarRemoteDeviceServiceTest {
@@ -115,6 +119,8 @@ public class CarRemoteDeviceServiceTest {
     private CarPowerManagementService mPowerManagementService;
     @Mock
     private SystemActivityMonitoringService mSystemActivityMonitoringService;
+    @Mock
+    private CarUserService mUserService;
     @Mock
     private ActivityManager mActivityManager;
     @Mock
@@ -149,6 +155,8 @@ public class CarRemoteDeviceServiceTest {
         CarLocalServices.removeServiceForTest(SystemActivityMonitoringService.class);
         CarLocalServices.addService(SystemActivityMonitoringService.class,
                 mSystemActivityMonitoringService);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
+        CarLocalServices.addService(CarUserService.class, mUserService);
 
         mService = new CarRemoteDeviceService(mContext, mOccupantZoneService,
                 mPowerManagementService, mSystemActivityMonitoringService, mActivityManager,
@@ -164,6 +172,7 @@ public class CarRemoteDeviceServiceTest {
         CarLocalServices.removeServiceForTest(CarOccupantZoneService.class);
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.removeServiceForTest(SystemActivityMonitoringService.class);
+        CarLocalServices.removeServiceForTest(CarUserService.class);
     }
 
     @Test
@@ -203,21 +212,20 @@ public class CarRemoteDeviceServiceTest {
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
         PerUserInfo peerUserInfo = mockPerUserInfo(USER_ID, peerZone);
+        // The BroadcastReceiver in the peerUserInfo is a mock and will do nothing when calling
+        // peerUserInfo.receiver.onReceive(), so remove it from the map. When mService.init() is
+        // called, because the map doesn't have the PerUserInfo, it will create a real
+        // BroadcastReceiver, create a new PerUserInfo with the real BroadcastReceiver, and put it
+        // into the map.
+        mPerUserInfoMap.remove(USER_ID);
 
         List<OccupantZoneInfo> allZones = Arrays.asList(mOccupantZone, peerZone);
         when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
 
-        // Intercept the real receiver.
-        BroadcastReceiver[] peerReceiver = new BroadcastReceiver[1];
-        doAnswer((invocation) -> {
-            Object[] args = invocation.getArguments();
-            peerReceiver[0] = (BroadcastReceiver) args[0];
-            return null;
-        }).when(peerUserInfo.context)
-                .registerReceiver(any(BroadcastReceiver.class), any(IntentFilter.class));
-
         mService.init();
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
+        // Get the PerUserInfo containing the real BroadcastReceiver.
+        peerUserInfo = mPerUserInfoMap.get(USER_ID);
 
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);
@@ -230,7 +238,7 @@ public class CarRemoteDeviceServiceTest {
         Intent intent = mock(Intent.class);
         when(intent.getData()).thenReturn(uri);
         when(intent.getAction()).thenReturn(Intent.ACTION_PACKAGE_REMOVED);
-        peerReceiver[0].onReceive(mock(Context.class), intent);
+        peerUserInfo.receiver.onReceive(mock(Context.class), intent);
 
         assertThat(mAppStateMap.get(peerClient)).isEqualTo(INITIAL_APP_STATE);
 
@@ -243,7 +251,7 @@ public class CarRemoteDeviceServiceTest {
         }
 
         when(intent.getAction()).thenReturn(Intent.ACTION_PACKAGE_ADDED);
-        peerReceiver[0].onReceive(mock(Context.class), intent);
+        peerUserInfo.receiver.onReceive(mock(Context.class), intent);
 
         assertThat(mAppStateMap.get(peerClient)).isEqualTo(
                 FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
@@ -257,22 +265,20 @@ public class CarRemoteDeviceServiceTest {
         OccupantZoneInfo peerZone = new OccupantZoneInfo(/* zoneId= */ 0,
                 OCCUPANT_TYPE_DRIVER, SEAT_ROW_1_LEFT);
         PerUserInfo peerUserInfo = mockPerUserInfo(USER_ID, peerZone);
+        // The BroadcastReceiver in the peerUserInfo is a mock and will do nothing when calling
+        // peerUserInfo.receiver.onReceive(), so remove it from the map. When mService.init() is
+        // called, because the map doesn't have the PerUserInfo, it will create a real
+        // BroadcastReceiver, create a new PerUserInfo with the real BroadcastReceiver, and put it
+        // into the map.
+        mPerUserInfoMap.remove(USER_ID);
 
         List<OccupantZoneInfo> allZones = Arrays.asList(mOccupantZone, peerZone);
         when(mOccupantZoneService.getAllOccupantZones()).thenReturn(allZones);
 
-        // Intercept the real receiver.
-        BroadcastReceiver[] peerReceiver = new BroadcastReceiver[1];
-        doAnswer((invocation) -> {
-            Object[] args = invocation.getArguments();
-            peerReceiver[0] = (BroadcastReceiver) args[0];
-            return null;
-        }).when(peerUserInfo.context)
-                .registerReceiver(any(BroadcastReceiver.class), any(IntentFilter.class));
-
         mService.init();
-
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
+        // Get the PerUserInfo containing the real BroadcastReceiver.
+        peerUserInfo = mPerUserInfoMap.get(USER_ID);
 
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);
@@ -286,7 +292,7 @@ public class CarRemoteDeviceServiceTest {
         Intent intent = mock(Intent.class);
         when(intent.getData()).thenReturn(uri);
         when(intent.getAction()).thenReturn(Intent.ACTION_PACKAGE_REMOVED);
-        peerReceiver[0].onReceive(mock(Context.class), intent);
+        peerUserInfo.receiver.onReceive(mock(Context.class), intent);
 
         assertThat(mAppStateMap.get(peerClient)).isEqualTo(
                 FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
@@ -581,12 +587,12 @@ public class CarRemoteDeviceServiceTest {
 
     @Test
     public void testOccupantZoneStateChanged() throws RemoteException {
-        ICarOccupantZoneCallback[] zoneStateCallback = new ICarOccupantZoneCallback[1];
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            zoneStateCallback[0] = (ICarOccupantZoneCallback) args[0];
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
             return null;
-        }).when(mOccupantZoneService).registerCallback(any());
+        }).when(mUserService).addUserLifecycleListener(any(), any());
 
         // There are three occupant zones assigned with a foreground user.
         OccupantZoneInfo myZone = new OccupantZoneInfo(/* zoneId= */ 0,
@@ -607,6 +613,7 @@ public class CarRemoteDeviceServiceTest {
         mService.init();
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
 
+        // The callback should be invoked when it is registered.
         verify(mCallback).onOccupantZoneStateChanged(eq(peerZone1), anyInt());
         verify(mCallback).onOccupantZoneStateChanged(eq(peerZone2), anyInt());
 
@@ -615,7 +622,9 @@ public class CarRemoteDeviceServiceTest {
         mockPerUserInfo(newPeerUserId1, peerZone1);
         mockOccupantZonePowerOn(peerZone1);
         mockOccupantZoneConnectionReady(peerZone1, newPeerUserId1);
-        zoneStateCallback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
+                /* from= */ newPeerUserId1, /* to= */ newPeerUserId1);
+        userLifecycleListeners[0].onEvent(event);
 
         verify(mCallback).onOccupantZoneStateChanged(peerZone1,
                 FLAG_OCCUPANT_ZONE_POWER_ON | FLAG_OCCUPANT_ZONE_CONNECTION_READY);
@@ -624,7 +633,9 @@ public class CarRemoteDeviceServiceTest {
         int newPeerUserId2 = peerUserId2 + 10;
         mockPerUserInfo(newPeerUserId2, peerZone2);
         mockOccupantZonePowerOn(peerZone2);
-        zoneStateCallback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
+        event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
+                /* from= */ newPeerUserId2, /* to= */ newPeerUserId2);
+        userLifecycleListeners[0].onEvent(event);
 
         verify(mCallback).onOccupantZoneStateChanged(peerZone2, FLAG_OCCUPANT_ZONE_POWER_ON);
     }
@@ -651,33 +662,35 @@ public class CarRemoteDeviceServiceTest {
 
     @Test
     public void testUserAssigned() throws RemoteException {
-        ICarOccupantZoneCallback[] callback = new ICarOccupantZoneCallback[1];
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            callback[0] = (ICarOccupantZoneCallback) args[0];
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
             return null;
-        }).when(mOccupantZoneService).registerCallback(any());
+        }).when(mUserService).addUserLifecycleListener(any(), any());
 
         mService.init();
         mOccupantZoneStateMap.put(mOccupantZone, FLAG_OCCUPANT_ZONE_POWER_ON);
 
         mockPerUserInfo(USER_ID, mOccupantZone);
         // Remove the item added by previous line, then check whether it can be added back
-        // after onOccupantZoneConfigChanged().
+        // after onEvent().
         mPerUserInfoMap.remove(USER_ID);
-        callback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
+                /* from= */ USER_ID, /* to= */ USER_ID);
+        userLifecycleListeners[0].onEvent(event);
 
         assertThat(mPerUserInfoMap.get(USER_ID).zone).isEqualTo(mOccupantZone);
     }
 
     @Test
     public void testUserUnassigned() throws RemoteException {
-        ICarOccupantZoneCallback[] callback = new ICarOccupantZoneCallback[1];
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            callback[0] = (ICarOccupantZoneCallback) args[0];
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
             return null;
-        }).when(mOccupantZoneService).registerCallback(any());
+        }).when(mUserService).addUserLifecycleListener(any(), any());
 
         mService.init();
         mOccupantZoneStateMap.put(mOccupantZone, FLAG_OCCUPANT_ZONE_POWER_ON);
@@ -687,19 +700,21 @@ public class CarRemoteDeviceServiceTest {
 
         when(mOccupantZoneService.getUserForOccupant(mOccupantZone.zoneId))
                 .thenReturn(INVALID_USER_ID);
-        callback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
+                /* from= */ USER_ID, /* to= */ USER_ID);
+        userLifecycleListeners[0].onEvent(event);
 
         assertThat(mPerUserInfoMap.size()).isEqualTo(0);
     }
 
     @Test
     public void testUserSwitched() throws RemoteException {
-        ICarOccupantZoneCallback[] callback = new ICarOccupantZoneCallback[1];
+        UserLifecycleListener[] userLifecycleListeners = new UserLifecycleListener[1];
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            callback[0] = (ICarOccupantZoneCallback) args[0];
+            userLifecycleListeners[0] = (UserLifecycleListener) args[1];
             return null;
-        }).when(mOccupantZoneService).registerCallback(any());
+        }).when(mUserService).addUserLifecycleListener(any(), any());
 
         mService.init();
         mOccupantZoneStateMap.put(mOccupantZone, FLAG_OCCUPANT_ZONE_POWER_ON);
@@ -710,9 +725,11 @@ public class CarRemoteDeviceServiceTest {
         when(mOccupantZoneService.getUserForOccupant(mOccupantZone.zoneId)).thenReturn(USER_ID2);
         mockPerUserInfo(USER_ID2, mOccupantZone);
         // Remove the item added by previous line, then check whether it can be added back
-        // after onOccupantZoneConfigChanged().
+        // after onEvent().
         mPerUserInfoMap.remove(USER_ID2);
-        callback[0].onOccupantZoneConfigChanged(ZONE_CONFIG_CHANGE_FLAG_USER);
+        UserLifecycleEvent event = new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE,
+                /* from= */ USER_ID, /* to= */ USER_ID);
+        userLifecycleListeners[0].onEvent(event);
 
         assertThat(mPerUserInfoMap.get(USER_ID2).zone).isEqualTo(mOccupantZone);
     }
@@ -830,6 +847,9 @@ public class CarRemoteDeviceServiceTest {
         UserHandle userHandle = UserHandle.of(userId);
         when(mUserManager.isUserRunning(userHandle)).thenReturn(true);
         when(mUserManager.isUserUnlocked(userHandle)).thenReturn(true);
+        Set<UserHandle> visibleUsers = new ArraySet<>();
+        visibleUsers.add(userHandle);
+        when(mUserManager.getVisibleUsers()).thenReturn(visibleUsers);
     }
 
     private PerUserInfo mockPerUserInfo(int userId, OccupantZoneInfo occupantZone) {
