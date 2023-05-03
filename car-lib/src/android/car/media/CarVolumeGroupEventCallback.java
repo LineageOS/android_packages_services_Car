@@ -17,8 +17,10 @@
 package android.car.media;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ import java.util.List;
 @SystemApi
 @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
         minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public interface CarVolumeGroupEventCallback {
     /**
      * This is called when audio framework acts on events that causes changes to
@@ -40,5 +43,6 @@ public interface CarVolumeGroupEventCallback {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void onVolumeGroupEvent(@NonNull List<CarVolumeGroupEvent> volumeGroupEvents);
 }

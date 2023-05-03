@@ -130,6 +130,7 @@ public final class MirroredSurfaceView extends SurfaceView {
     @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public boolean mirrorSurface(@NonNull IBinder token) {
         assertPlatformVersionAtLeastU();
@@ -163,6 +164,7 @@ public final class MirroredSurfaceView extends SurfaceView {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public void setObscuredTouchRegion(@Nullable Region obscuredRegion) {
         assertPlatformVersionAtLeastU();
@@ -174,6 +176,7 @@ public final class MirroredSurfaceView extends SurfaceView {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public void release() {
         assertPlatformVersionAtLeastU();
@@ -259,6 +262,7 @@ public final class MirroredSurfaceView extends SurfaceView {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onAttachedToWindow() {
         assertPlatformVersionAtLeastU();
@@ -268,6 +272,7 @@ public final class MirroredSurfaceView extends SurfaceView {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onDetachedFromWindow() {
         assertPlatformVersionAtLeastU();
