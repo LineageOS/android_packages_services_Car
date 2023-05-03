@@ -20,6 +20,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import static com.android.car.CarServiceUtils.isEventOfType;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -304,6 +305,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         int getCurrentUser();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private class CarRemoteAccessServiceDepImpl implements CarRemoteAccessServiceDep {
         public int getCallingUid() {
             return Binder.getCallingUid();
@@ -525,6 +527,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return mHalCallback;
     }
 
+    @VisibleForTesting
+    long getAllowedSystemUptimeMs() {
+        return mAllowedSystemUptimeMs;
+    }
+
     private void populatePackageClientIdMapping() {
         List<ClientIdEntry> clientIdEntries = mRemoteAccessStorage.getClientIdEntries();
         if (clientIdEntries == null) return;
@@ -636,6 +643,13 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     (double) mAllowedSystemUptimeMs / MILLI_TO_SECOND);
         }
         return taskMaxDurationInSec;
+    }
+
+    @VisibleForTesting
+    int getActiveTaskCount() {
+        synchronized (mLock) {
+            return getActiveTaskCountLocked();
+        }
     }
 
     @GuardedBy("mLock")
@@ -890,6 +904,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 + CarServiceUtils.generateRandomAlphaNumericString(RANDOM_STRING_LENGTH);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private static String nextPowerStateToString(int nextPowerState) {
         switch (nextPowerState) {
             case CarRemoteAccessManager.NEXT_POWER_STATE_ON:
