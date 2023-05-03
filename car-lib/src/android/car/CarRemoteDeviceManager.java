@@ -22,6 +22,7 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -30,6 +31,7 @@ import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
 import android.content.pm.PackageInfo;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -63,6 +65,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_OCCUPANT_ZONE_POWER_ON = 1 << 0;
 
     /**
@@ -73,6 +76,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED = 1 << 1;
 
     /**
@@ -85,6 +89,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_OCCUPANT_ZONE_CONNECTION_READY = 1 << 2;
 
     /**
@@ -93,6 +98,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_CLIENT_INSTALLED = 1 << 0;
 
     /**
@@ -103,6 +109,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_CLIENT_SAME_VERSION = 1 << 1;
 
     /**
@@ -113,6 +120,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_CLIENT_SAME_SIGNATURE = 1 << 2;
 
     /**
@@ -121,6 +129,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_CLIENT_RUNNING = 1 << 3;
 
     /**
@@ -130,6 +139,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int FLAG_CLIENT_IN_FOREGROUND = 1 << 4;
 
     /**
@@ -145,6 +155,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @interface OccupantZoneState {
     }
 
@@ -163,6 +174,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @interface AppState {
     }
 
@@ -190,6 +202,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onOccupantZoneStateChanged(@NonNull OccupantZoneInfo occupantZone,
                 @OccupantZoneState int occupantZoneStates);
 
@@ -204,6 +217,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onAppStateChanged(@NonNull OccupantZoneInfo occupantZone,
                 @AppState int appStates);
     }
@@ -269,6 +283,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onCarDisconnected() {
         assertPlatformVersionAtLeastU();
         synchronized (mLock) {
@@ -290,6 +305,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void registerStateCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull StateCallback callback) {
@@ -323,6 +339,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public void unregisterStateCallback() {
         assertPlatformVersionAtLeastU();
@@ -346,6 +363,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     @Nullable
     public PackageInfo getEndpointPackageInfo(@NonNull OccupantZoneInfo occupantZone) {
@@ -372,6 +390,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(allOf = {Car.PERMISSION_CAR_POWER, Car.PERMISSION_MANAGE_REMOTE_DEVICE})
     public void setOccupantZonePower(@NonNull OccupantZoneInfo occupantZone, boolean powerOn) {
         assertPlatformVersionAtLeastU();
@@ -390,6 +409,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_REMOTE_DEVICE)
     public boolean isOccupantZonePowerOn(@NonNull OccupantZoneInfo occupantZone) {
         assertPlatformVersionAtLeastU();

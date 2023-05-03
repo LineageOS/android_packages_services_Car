@@ -51,6 +51,7 @@ public final class ControlledRemoteCarTaskViewConfig {
     /** See {@link Builder#setActivityIntent(Intent)}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public Intent getActivityIntent() {
         assertPlatformVersionAtLeastU();
@@ -60,6 +61,7 @@ public final class ControlledRemoteCarTaskViewConfig {
     /** See {@link Builder#setShouldAutoRestartOnTaskRemoval(boolean)}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean shouldAutoRestartOnCrash() {
         assertPlatformVersionAtLeastU();
         return mShouldAutoRestartOnTaskRemoval;
@@ -68,6 +70,7 @@ public final class ControlledRemoteCarTaskViewConfig {
     /** See {@link Builder#setShouldCaptureGestures(boolean)}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean shouldCaptureGestures() {
         assertPlatformVersionAtLeastU();
         return mShouldCaptureGestures;
@@ -76,6 +79,7 @@ public final class ControlledRemoteCarTaskViewConfig {
     /** See {@link Builder#setShouldCaptureLongPress(boolean)}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean shouldCaptureLongPress() {
         assertPlatformVersionAtLeastU();
         return mShouldCaptureLongPress;
@@ -114,6 +118,7 @@ public final class ControlledRemoteCarTaskViewConfig {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setActivityIntent(@NonNull Intent activityIntent) {
             assertPlatformVersionAtLeastU();
@@ -138,6 +143,7 @@ public final class ControlledRemoteCarTaskViewConfig {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setShouldAutoRestartOnTaskRemoval(boolean shouldAutoRestartOnTaskRemoval) {
             assertPlatformVersionAtLeastU();
@@ -155,6 +161,7 @@ public final class ControlledRemoteCarTaskViewConfig {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setShouldCaptureGestures(boolean shouldCaptureGestures) {
             assertPlatformVersionAtLeastU();
@@ -177,6 +184,7 @@ public final class ControlledRemoteCarTaskViewConfig {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setShouldCaptureLongPress(boolean shouldCaptureLongPress) {
             assertPlatformVersionAtLeastU();
@@ -187,6 +195,7 @@ public final class ControlledRemoteCarTaskViewConfig {
         /** Creates the {@link ControlledRemoteCarTaskViewConfig} object. */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public ControlledRemoteCarTaskViewConfig build() {
             assertPlatformVersionAtLeastU();
