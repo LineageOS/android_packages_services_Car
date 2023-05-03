@@ -39,7 +39,8 @@ android_app {
         "car-ui-lib",
         "CarLauncher-core",
         "WindowManager-Shell",
-        "car-portrait-ui-common"
+        "car-portrait-ui-common",
+        "car-media-common"
     ],
 
     libs: ["android.car"],
