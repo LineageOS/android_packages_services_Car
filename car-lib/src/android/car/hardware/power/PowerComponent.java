@@ -16,10 +16,8 @@
 
 package android.car.hardware.power;
 
-import android.annotation.RequiresApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 
 /**
  * Copy from android.frameworks.automotive.powerpolicy-java-source/gen/android/frameworks/automotive
@@ -113,7 +111,6 @@ public @interface PowerComponent {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     int MINIMUM_CUSTOM_COMPONENT_VALUE = 1000;
 
 }

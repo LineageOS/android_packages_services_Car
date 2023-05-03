@@ -166,7 +166,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void setPersistentActivitiesOnRootTask(@NonNull List<ComponentName> activities,
             @Nullable IBinder rootTaskToken) {
         assertPlatformVersionAtLeastU();
@@ -340,7 +339,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void startUserPickerOnDisplay(int displayId) {
         assertPlatformVersionAtLeastU();
         try {
@@ -360,7 +358,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Nullable
     public IBinder createTaskMirroringToken(int taskId) {
         assertPlatformVersionAtLeastU();
@@ -381,7 +378,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MIRROR_DISPLAY)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Nullable
     public IBinder createDisplayMirroringToken(int displayId) {
         assertPlatformVersionAtLeastU();
@@ -404,7 +400,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Nullable
     public Pair<SurfaceControl, Rect> getMirroredSurface(@NonNull IBinder token) {
         assertPlatformVersionAtLeastU();
@@ -438,7 +433,6 @@ public final class CarActivityManager extends CarManagerBase {
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void registerCarSystemUIProxy(@NonNull CarSystemUIProxy carSystemUIProxy) {
         assertPlatformVersionAtLeastU();
         try {
@@ -457,7 +451,6 @@ public final class CarActivityManager extends CarManagerBase {
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean isCarSystemUIProxyRegistered() {
         assertPlatformVersionAtLeastU();
         try {
@@ -482,9 +475,9 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_MANAGE_CAR_SYSTEM_UI)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public void getCarTaskViewController(
             @NonNull Activity hostActivity,
@@ -518,7 +511,6 @@ public final class CarActivityManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void moveRootTaskToDisplay(int taskId, int displayId) {
         assertPlatformVersionAtLeastU();
         try {
