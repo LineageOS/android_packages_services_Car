@@ -614,7 +614,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         writer.println("*CarMediaService*");
         writer.increaseIndent();
         writer.printf("DEBUG=%b\n", DEBUG);
-        writer.printf("mPlayOnBootConfig=%d\n", mPlayOnMediaSourceChangedConfig);
+        writer.printf("mPlayOnBootConfig=%d\n", mPlayOnBootConfig);
         writer.printf("mPlayOnMediaSourceChangedConfig=%d\n", mPlayOnMediaSourceChangedConfig);
         writer.printf("mDefaultIndependentPlaybackConfig=%b\n", mDefaultIndependentPlaybackConfig);
         writer.println();
