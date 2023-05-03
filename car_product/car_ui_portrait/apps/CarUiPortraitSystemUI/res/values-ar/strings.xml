@@ -20,8 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"لا ينطبق"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"يُرجى الانتظار إلى أن يتم تحميل النظام."</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"الملف الشخصي الحالي"</string>
-    <!-- no translation found for loading_welcome_message (2351582619179505398) -->
-    <skip />
-    <!-- no translation found for loading_action_button_text (1296096984805774507) -->
-    <skip />
+    <string name="loading_welcome_message" msgid="2351582619179505398">"نظام التشغيل Android Automotive ‏(AAOS)"</string>
+    <string name="loading_action_button_text" msgid="1296096984805774507">"متابعة"</string>
 </resources>

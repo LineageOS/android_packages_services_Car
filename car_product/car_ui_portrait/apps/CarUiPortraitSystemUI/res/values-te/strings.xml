@@ -20,8 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"N/A"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"దయచేసి సిస్టమ్ లోడ్ అయ్యే వరకు వేచి ఉండండి"</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"ప్రస్తుత ప్రొఫైల్"</string>
-    <!-- no translation found for loading_welcome_message (2351582619179505398) -->
-    <skip />
-    <!-- no translation found for loading_action_button_text (1296096984805774507) -->
-    <skip />
+    <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
+    <string name="loading_action_button_text" msgid="1296096984805774507">"కొనసాగించండి"</string>
 </resources>

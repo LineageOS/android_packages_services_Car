@@ -20,8 +20,6 @@
     <string name="default_sensor_string" msgid="3994996854548513870">"Yok"</string>
     <string name="task_view_not_ready_message" msgid="3019570837236183122">"Lütfen sistemin yüklenmesini bekleyin"</string>
     <string name="current_profile_subtitle" msgid="2466874755719023023">"Geçerli profil"</string>
-    <!-- no translation found for loading_welcome_message (2351582619179505398) -->
-    <skip />
-    <!-- no translation found for loading_action_button_text (1296096984805774507) -->
-    <skip />
+    <string name="loading_welcome_message" msgid="2351582619179505398">"AAOS"</string>
+    <string name="loading_action_button_text" msgid="1296096984805774507">"Devam"</string>
 </resources>
