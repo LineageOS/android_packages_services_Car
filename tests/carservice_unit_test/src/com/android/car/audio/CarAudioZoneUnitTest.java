@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM;
 import static android.media.AudioAttributes.USAGE_ALARM;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_ASSISTANT;
@@ -45,7 +46,10 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.SparseIntArray;
+
+import com.android.car.audio.hal.HalAudioDeviceInfo;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,6 +83,13 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     private static final int TEST_NAV_GROUP_ID = 1;
     private static final int TEST_VOICE_GROUP_ID = 2;
     private static final int TEST_OTHER_GROUP_ID = 0;
+    private static final int TEST_PORT_ID_MUSIC =  0;
+    private static final int TEST_PORT_ID_NAV = 1;
+    private static final int TEST_GAIN_MIN_VALUE = -3000;
+    private static final int TEST_GAIN_MAX_VALUE = -1000;
+    private static final int TEST_GAIN_DEFAULT_VALUE = -2000;
+    private static final int TEST_GAIN_STEP_VALUE = 2;
+
 
     private static final AudioAttributes TEST_MEDIA_ATTRIBUTE =
             CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
@@ -625,6 +636,80 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void onAudioPortsChanged_withDeviceAddressInZone() {
+        HalAudioDeviceInfo musicDeviceInfo = new HalAudioDeviceInfoBuilder()
+                .setId(TEST_PORT_ID_MUSIC).setAddress(MUSIC_ADDRESS).build();
+        HalAudioDeviceInfo navDeviceInfo = new HalAudioDeviceInfoBuilder().setId(TEST_PORT_ID_NAV)
+                .setAddress(NAV_ADDRESS).build();
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        List<HalAudioDeviceInfo> deviceInfoList = List.of(musicDeviceInfo, navDeviceInfo);
+
+        expectWithMessage("Car volume group events list size")
+                .that(mTestAudioZone.onAudioPortsChanged(deviceInfoList))
+                .hasSize(deviceInfoList.size());
+        verify(mMockMusicGroup0).updateAudioDeviceInfo(eq(musicDeviceInfo));
+        verify(mMockNavGroup0).updateAudioDeviceInfo(eq(navDeviceInfo));
+        verify(mMockVoiceGroup0, never()).updateAudioDeviceInfo(any());
+        verify(mMockMusicGroup0).calculateNewGainStageFromDeviceInfos();
+        verify(mMockNavGroup0).calculateNewGainStageFromDeviceInfos();
+        verify(mMockVoiceGroup0, never()).calculateNewGainStageFromDeviceInfos();
+    }
+
+    @Test
+    public void onAudioPortsChanged_withMultipledeviceInfoForSameGroup_createsNoDuplicateEvents() {
+        HalAudioDeviceInfo musicDeviceInfo = new HalAudioDeviceInfoBuilder()
+                .setId(TEST_PORT_ID_MUSIC).setAddress(MUSIC_ADDRESS)
+                .setMinValue(TEST_GAIN_MIN_VALUE).setMaxValue(TEST_GAIN_MAX_VALUE)
+                .setDefaultValue(TEST_GAIN_DEFAULT_VALUE).setStepValue(TEST_GAIN_STEP_VALUE)
+                .build();
+        HalAudioDeviceInfo musicDeviceInfoDup = new HalAudioDeviceInfoBuilder()
+                .setId(TEST_PORT_ID_MUSIC).setAddress(MUSIC_ADDRESS)
+                .setMinValue(TEST_GAIN_MIN_VALUE).setMaxValue(TEST_GAIN_MAX_VALUE)
+                .setDefaultValue(TEST_GAIN_DEFAULT_VALUE).setStepValue(TEST_GAIN_STEP_VALUE)
+                .build();
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        List<HalAudioDeviceInfo> deviceInfos = List.of(musicDeviceInfo, musicDeviceInfoDup);
+
+        expectWithMessage("Car volume group events list size for duplicate audio device info")
+                .that(mTestAudioZone.onAudioPortsChanged(deviceInfos)).hasSize(1);
+    }
+
+    @Test
+    public void onAudioPortsChanged_withoutAnyDeviceAddressInZone() {
+        HalAudioDeviceInfo navDeviceInfo = new HalAudioDeviceInfoBuilder().setId(TEST_PORT_ID_NAV)
+                .setAddress(NAV_ADDRESS).build();
+        CarAudioZoneConfig zoneConfig = new TestCarAudioZoneConfigBuilder(TEST_ZONE_ID,
+                TEST_ZONE_CONFIG_ID_0, "zone config test").setIsDefault(true)
+                .addVolumeGroup(mMockMusicGroup0).build();
+        mTestAudioZone.addZoneConfig(zoneConfig);
+
+        expectWithMessage("Car volume group events list size")
+                .that(mTestAudioZone.onAudioPortsChanged(List.of(navDeviceInfo))).isEmpty();
+        verify(mMockMusicGroup0, never()).updateAudioDeviceInfo(any());
+        verify(mMockNavGroup0, never()).updateAudioDeviceInfo(any());
+        verify(mMockVoiceGroup0, never()).updateAudioDeviceInfo(any());
+        verify(mMockMusicGroup0, never()).calculateNewGainStageFromDeviceInfos();
+        verify(mMockNavGroup0, never()).calculateNewGainStageFromDeviceInfos();
+        verify(mMockVoiceGroup0, never()).calculateNewGainStageFromDeviceInfos();
+    }
+
+    @Test
+    public void onAudioPortsChanged_forMultipleZoneConfig_generateEventsForActiveZoneConfig() {
+        HalAudioDeviceInfo musicDeviceInfo = new HalAudioDeviceInfoBuilder()
+                .setId(TEST_PORT_ID_MUSIC).setAddress(MUSIC_ADDRESS).build();
+        HalAudioDeviceInfo configDeviceInfo = new HalAudioDeviceInfoBuilder()
+                .setId(TEST_PORT_ID_NAV).setAddress(CONFIG_1_ALL_ADDRESS).build();
+        mTestAudioZone.addZoneConfig(mMockZoneConfig0);
+        mTestAudioZone.addZoneConfig(mMockZoneConfig1);
+        List<HalAudioDeviceInfo> deviceInfos = List.of(musicDeviceInfo, configDeviceInfo);
+
+        expectWithMessage("Car volume group events list size for active zone config")
+                .that(mTestAudioZone.onAudioPortsChanged(deviceInfos)).hasSize(1);
+    }
+
+    @Test
     public void getCarAudioContext() {
         expectWithMessage("Audio context in audio zone")
                 .that(mTestAudioZone.getCarAudioContext()).isEqualTo(TEST_CAR_AUDIO_CONTEXT);
@@ -646,6 +731,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
 
     private static final class TestCarAudioZoneConfigBuilder {
         private static final int INVALID_GROUP_ID = -1;
+        private static final int INVALID_EVENT_TYPE = 0;
+
         private List<CarVolumeGroup> mCarVolumeGroups = new ArrayList<>();
         int mConfigId;
         int mZoneId;
@@ -685,6 +772,8 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                     .thenReturn(mCarVolumeGroups.toArray(new CarVolumeGroup[0]));
             when(zoneConfig.validateVolumeGroups(eq(TEST_CAR_AUDIO_CONTEXT), anyBoolean()))
                     .thenReturn(true);
+            when(zoneConfig.getCarAudioZoneConfigInfo())
+                    .thenReturn(new CarAudioZoneConfigInfo(mName, mZoneId, mConfigId));
 
             doAnswer(invocation -> {
                 List<Integer> halReasons = (List<Integer>) invocation.getArguments()[0];
@@ -722,8 +811,35 @@ public final class CarAudioZoneUnitTest extends AbstractExpectableTestCase {
                 }
                 return events;
             }).when(zoneConfig).onAudioGainChanged(anyList(), anyList());
-            when(zoneConfig.getCarAudioZoneConfigInfo())
-                    .thenReturn(new CarAudioZoneConfigInfo(mName, mZoneId, mConfigId));
+
+            doAnswer(invocation -> {
+                List<HalAudioDeviceInfo> deviceInfos =
+                        (List<HalAudioDeviceInfo>) invocation.getArguments()[0];
+                List<CarVolumeGroupEvent> events = new ArrayList<>();
+                ArraySet<Integer> updatedGroupIds = new ArraySet<>();
+
+                for (int index = 0; index < deviceInfos.size(); index++) {
+                    HalAudioDeviceInfo deviceInfo = deviceInfos.get(index);
+                    int groupId = mDeviceAddressToGroupId.getOrDefault(deviceInfo.getAddress(),
+                            INVALID_GROUP_ID);
+                    if (groupId == INVALID_GROUP_ID) {
+                        continue;
+                    }
+                    mCarVolumeGroups.get(groupId).updateAudioDeviceInfo(deviceInfo);
+                    updatedGroupIds.add(groupId);
+                }
+
+                for (int index = 0; index < updatedGroupIds.size(); index++) {
+                    CarVolumeGroup group = mCarVolumeGroups.get(updatedGroupIds.valueAt(index));
+                    int eventType = group.calculateNewGainStageFromDeviceInfos();
+                    if (eventType != INVALID_EVENT_TYPE) {
+                        events.add(new CarVolumeGroupEvent.Builder(
+                                List.of(group.getCarVolumeGroupInfo()), eventType,
+                                List.of(EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM)).build());
+                    }
+                }
+                return events;
+            }).when(zoneConfig).onAudioPortsChanged(anyList());
             return zoneConfig;
         }
 
