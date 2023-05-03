@@ -18,6 +18,7 @@ package com.android.car.portraitlauncher.homeactivities;
 
 import android.app.ActivityManager;
 import android.app.TaskInfo;
+import android.car.media.CarMediaIntents;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -89,6 +90,10 @@ class TaskCategoryManager {
         return mBackgroundActivities.contains(taskInfo.baseActivity);
     }
 
+    boolean isBackgroundApp(ComponentName componentName) {
+        return mBackgroundActivities.contains(componentName);
+    }
+
     boolean isCurrentBackgroundApp(TaskInfo taskInfo) {
         return mCurrentBackgroundApp.equals(taskInfo.baseActivity);
     }
@@ -136,6 +141,14 @@ class TaskCategoryManager {
         if (DBG) {
             Log.d(TAG, message);
         }
+    }
+
+    /**
+     * @return {@code true} if current task in panel was launched using media intent.
+     */
+    public static boolean isMediaApp(TaskInfo taskInfo) {
+        return taskInfo != null && taskInfo.baseIntent != null
+                && CarMediaIntents.ACTION_MEDIA_TEMPLATE.equals(taskInfo.baseIntent.getAction());
     }
 
     private static ArraySet<ComponentName> convertToComponentNames(String[] componentStrings) {

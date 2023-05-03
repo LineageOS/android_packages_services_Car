@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -14,10 +14,13 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources>
-    <!-- A list of package names that provide the cards to display on the home screen -->
-    <string-array name="config_homeCardModuleClasses" translatable="false">
-        <item>com.android.car.portraitlauncher.homescreen.audio.PortraitAudioCard</item>
-    </string-array>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.messenger.caruiportrait.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="20"
+             android:targetName="CarMessengerApp"
+             android:targetPackage="com.android.car.messenger"
+             android:resourcesMap="@xml/overlays"
+             android:category="caruiportrait.carmessenger"
+             android:isStatic="false" />
+</manifest>
