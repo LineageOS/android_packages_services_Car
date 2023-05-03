@@ -17,4 +17,12 @@
             line="254"/>
     </issue>
 
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.os.UserManager#getVisibleUsers`">
+        <location
+            file="packages/services/Car/service/src/com/android/car/occupantconnection/CarRemoteDeviceService.java"
+            line="780"/>
+    </issue>
+
 </issues>
