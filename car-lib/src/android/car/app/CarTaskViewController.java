@@ -81,7 +81,6 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(allOf = {Manifest.permission.INJECT_EVENTS,
             Manifest.permission.INTERNAL_SYSTEM_WINDOW}, conditional = true)
     public void createControlledRemoteCarTaskView(
@@ -134,7 +133,6 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void release() {
         if (mReleased) {
             Slogf.w(TAG, "CarTaskViewController is already released");
@@ -157,7 +155,6 @@ public final class CarTaskViewController {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void showEmbeddedTasks() {
         if (mReleased) {
             throw new IllegalStateException("CarTaskViewController is already released");

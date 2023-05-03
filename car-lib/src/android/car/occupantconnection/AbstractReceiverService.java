@@ -20,7 +20,6 @@ import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
@@ -28,7 +27,6 @@ import android.car.CarRemoteDeviceManager.AppState;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -154,7 +152,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Nullable
     @Override
     public final IBinder onBind(@NonNull Intent intent) {
@@ -171,7 +168,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Nullable
     public IBinder onLocalServiceBind(@NonNull Intent intent) {
         return null;
@@ -190,7 +186,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public abstract void onPayloadReceived(@NonNull OccupantZoneInfo senderZone,
             @NonNull Payload payload);
 
@@ -205,7 +200,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onReceiverRegistered(@NonNull String receiverEndpointId) {
     }
 
@@ -239,7 +233,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public abstract void onConnectionInitiated(@NonNull OccupantZoneInfo senderZone,
             @AppState int senderAppState);
 
@@ -255,7 +248,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public abstract void onConnected(@NonNull OccupantZoneInfo senderZone);
 
     /**
@@ -264,7 +256,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public abstract void onConnectionCanceled(@NonNull OccupantZoneInfo senderZone);
 
     /**
@@ -276,13 +267,11 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public abstract void onDisconnected(@NonNull OccupantZoneInfo senderZone);
 
     /** Accepts the connection request from {@code senderZone}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public final void acceptConnection(@NonNull OccupantZoneInfo senderZone) {
         try {
             mBackendConnectionResponder.acceptConnection(senderZone);
@@ -299,7 +288,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public final void rejectConnection(@NonNull OccupantZoneInfo senderZone, int rejectionReason) {
         try {
             mBackendConnectionResponder.rejectConnection(senderZone, rejectionReason);
@@ -323,7 +311,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public final boolean forwardPayload(@NonNull OccupantZoneInfo senderZone,
             @NonNull String receiverEndpointId,
             @NonNull Payload payload) {
@@ -346,7 +333,6 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public final Set<String> getAllReceiverEndpoints() {
         return mReceiverEndpointMap.keySet();
@@ -354,7 +340,6 @@ public abstract class AbstractReceiverService extends Service {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     public int onStartCommand(@NonNull Intent intent, int flags, int startId) {
         return START_STICKY;
@@ -362,7 +347,6 @@ public abstract class AbstractReceiverService extends Service {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     public void dump(@Nullable FileDescriptor fd, @NonNull PrintWriter writer,
             @Nullable String[] args) {

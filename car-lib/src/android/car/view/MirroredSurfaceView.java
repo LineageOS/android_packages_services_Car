@@ -129,7 +129,6 @@ public final class MirroredSurfaceView extends SurfaceView {
     @RequiresPermission(Car.PERMISSION_ACCESS_MIRRORRED_SURFACE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public boolean mirrorSurface(@NonNull IBinder token) {
         if (mCarAM == null) {
@@ -162,7 +161,6 @@ public final class MirroredSurfaceView extends SurfaceView {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public void setObscuredTouchRegion(@Nullable Region obscuredRegion) {
         mTouchableInsetsProvider.setObscuredTouchRegion(obscuredRegion);
@@ -173,7 +171,6 @@ public final class MirroredSurfaceView extends SurfaceView {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @MainThread
     public void release() {
         getHolder().removeCallback(mSurfaceCallback);
@@ -258,7 +255,6 @@ public final class MirroredSurfaceView extends SurfaceView {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -267,7 +263,6 @@ public final class MirroredSurfaceView extends SurfaceView {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     protected void onDetachedFromWindow() {
         mTouchableInsetsProvider.removeFromViewTreeObserver();

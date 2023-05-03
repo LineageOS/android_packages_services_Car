@@ -28,7 +28,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager;
@@ -37,7 +36,6 @@ import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.os.BuildHelper;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -231,7 +229,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int getOccupantZoneId() {
         return mOccupantZoneId;
     }
@@ -252,7 +249,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @DisplayTypeEnum int getDisplayType() {
         return mDisplayType;
     }
@@ -862,7 +858,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static int validateOccupantZoneId(int zoneId) {
             if (zoneId > OccupantZoneInfo.INVALID_ZONE_ID) {
                 return zoneId;
@@ -881,7 +876,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static int validateDisplayType(int displayType) {
             if (displayType > CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN) {
                 return displayType;
@@ -943,7 +937,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public Builder setOccupantZoneId(int occupantZoneId) {
             // TODO(241589812): Call validation method here rather than separately.
             mOccupantZoneId = occupantZoneId;
@@ -959,7 +952,6 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public Builder setDisplayType(@DisplayTypeEnum int displayType) {
             mDisplayType = displayType;
             return this;

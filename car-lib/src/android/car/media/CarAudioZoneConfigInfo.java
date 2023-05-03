@@ -19,10 +19,8 @@ package android.car.media;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -39,7 +37,6 @@ import java.util.Objects;
 @SystemApi
 @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
         minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class CarAudioZoneConfigInfo implements Parcelable {
 
     private final String mName;
@@ -75,7 +72,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public static final Creator<CarAudioZoneConfigInfo> CREATOR = new Creator<>() {
         @Override
@@ -95,7 +91,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int describeContents() {
         return 0;
     }
@@ -105,7 +100,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public String getName() {
         return mName;
@@ -116,7 +110,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int getZoneId() {
         return mZoneId;
     }
@@ -126,7 +119,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int getConfigId() {
         return mConfigId;
     }
@@ -142,7 +134,6 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(mName);
         dest.writeInt(mZoneId);

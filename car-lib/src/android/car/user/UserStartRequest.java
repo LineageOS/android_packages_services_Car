@@ -17,10 +17,8 @@
 package android.car.user;
 
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.Parcelable;
 import android.os.UserHandle;
 import android.view.Display;
@@ -57,7 +55,6 @@ public final class UserStartRequest implements Parcelable {
         /** Set the displayId on which to start the user in background. */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public @NonNull Builder setDisplayId(int displayId) {
             Preconditions.checkArgument(displayId != Display.INVALID_DISPLAY,
                     "setDisplayId: displayId must be valid");
@@ -69,7 +66,6 @@ public final class UserStartRequest implements Parcelable {
         /** Builds and returns a {@link UserStartRequest}. */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public @NonNull UserStartRequest build() {
             return new UserStartRequest(this);
         }
@@ -98,7 +94,6 @@ public final class UserStartRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
@@ -106,7 +101,6 @@ public final class UserStartRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int getDisplayId() {
         return mDisplayId;
     }
@@ -115,7 +109,6 @@ public final class UserStartRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -128,7 +121,6 @@ public final class UserStartRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -152,7 +144,6 @@ public final class UserStartRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final @NonNull Parcelable.Creator<UserStartRequest> CREATOR
             = new Parcelable.Creator<UserStartRequest>() {
         @Override

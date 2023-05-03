@@ -17,10 +17,8 @@
 package android.car.user;
 
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
@@ -62,7 +60,6 @@ public final class UserStopRequest implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public @NonNull Builder withDelayedLocking(boolean value) {
             mWithDelayedLocking = value;
             return this;
@@ -75,7 +72,6 @@ public final class UserStopRequest implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public @NonNull Builder setForce() {
             mForce = true;
             return this;
@@ -84,7 +80,6 @@ public final class UserStopRequest implements Parcelable {
         /** Builds and returns a {@link UserStopRequest}. */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public @NonNull UserStopRequest build() {
             return new UserStopRequest(this);
         }
@@ -114,7 +109,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @NonNull UserHandle getUserHandle() {
         return mUserHandle;
     }
@@ -122,7 +116,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean isWithDelayedLocking() {
         return mWithDelayedLocking;
     }
@@ -130,7 +123,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean isForce() {
         return mForce;
     }
@@ -139,7 +131,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -155,7 +146,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -182,7 +172,6 @@ public final class UserStopRequest implements Parcelable {
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final @NonNull Parcelable.Creator<UserStopRequest> CREATOR
             = new Parcelable.Creator<UserStopRequest>() {
         @Override
