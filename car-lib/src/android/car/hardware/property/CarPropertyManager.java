@@ -19,6 +19,7 @@ package android.car.hardware.property;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
@@ -556,6 +557,7 @@ public class CarPropertyManager extends CarManagerBase {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public int getVendorErrorCode() {
+            assertPlatformVersionAtLeastU();
             return mVendorErrorCode;
         }
 

@@ -16,6 +16,8 @@
 
 package android.car.app;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
@@ -43,6 +45,7 @@ public final class CarTaskViewClient {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public Rect getCurrentBoundsOnScreen() {
+        assertPlatformVersionAtLeastU();
         try {
             return mICarTaskViewClient.getCurrentBoundsOnScreen();
         } catch (RemoteException ex) {
@@ -61,6 +64,7 @@ public final class CarTaskViewClient {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setResizeBackgroundColor(@NonNull SurfaceControl.Transaction transaction,
             int color) {
+        assertPlatformVersionAtLeastU();
         try {
             mICarTaskViewClient.setResizeBackgroundColor(transaction, color);
         } catch (RemoteException ex) {
@@ -73,6 +77,7 @@ public final class CarTaskViewClient {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo,
             @NonNull SurfaceControl leash) {
+        assertPlatformVersionAtLeastU();
         try {
             mICarTaskViewClient.onTaskAppeared(taskInfo, leash);
         } catch (RemoteException ex) {
@@ -84,6 +89,7 @@ public final class CarTaskViewClient {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
+        assertPlatformVersionAtLeastU();
         try {
             mICarTaskViewClient.onTaskVanished(taskInfo);
         } catch (RemoteException ex) {
@@ -95,6 +101,7 @@ public final class CarTaskViewClient {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {
+        assertPlatformVersionAtLeastU();
         try {
             mICarTaskViewClient.onTaskInfoChanged(taskInfo);
         } catch (RemoteException ex) {
