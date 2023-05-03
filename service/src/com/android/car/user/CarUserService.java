@@ -142,6 +142,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -232,6 +233,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private boolean mUser0Unlocked;
     @GuardedBy("mLockUser")
     private final ArrayList<Runnable> mUser0UnlockTasks = new ArrayList<>();
+    /** A queue for createUser tasks, to prevent creating multiple users concurrently. */
+    @GuardedBy("mLockUser")
+    private final ArrayDeque<Runnable> mCreateUserQueue;
     /**
      * Background users that will be restarted in garage mode. This list can include the
      * current foreground user but the current foreground user should not be restarted.
@@ -382,6 +386,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mCarPackageManagerService = carPackageManagerService;
         mIsVisibleBackgroundUsersOnDefaultDisplaySupported =
                 isVisibleBackgroundUsersOnDefaultDisplaySupported(mUserManager);
+        mCreateUserQueue = new ArrayDeque<>(UserManagerHelper.getMaxRunningUsers(context));
     }
 
     /**
@@ -466,6 +471,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     mStartBackgroundUsersOnGarageMode);
             writer.printf("Initial user: %s\n", mInitialUser);
             writer.println("Users not visible at starting: " + mNotVisibleAtStartingUsers);
+            writer.println("createUser queue size: " + mCreateUserQueue.size());
         }
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
 
@@ -1330,8 +1336,47 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, callback,
+        // We use a queue to avoid concurrent user creations. Just posting the tasks to the handler
+        // will not work here because handleCreateUser() calls UserHalService#createUser(),
+        // which is an asynchronous call. Two consecutive createUser requests would result in
+        // STATUS_CONCURRENT_OPERATION error from UserHalService.
+        enqueueCreateUser(() -> handleCreateUser(name, userType, flags, timeoutMs, callback,
                 callingUser, hasCallerRestrictions));
+    }
+
+    private void enqueueCreateUser(Runnable runnable) {
+        // If the createUser queue is empty, add the task to the queue and post it to handler.
+        // Otherwise, just add it to the queue. It will be handled once the current task finishes.
+        synchronized (mLockUser) {
+            if (mCreateUserQueue.isEmpty()) {
+                // We need to push the current job to the queue and keep it in the queue until it
+                // finishes, so that we can know the service is busy when the next job arrives.
+                mCreateUserQueue.offer(runnable);
+                mHandler.post(runnable);
+            } else {
+                mCreateUserQueue.offer(runnable);
+                if (DBG) {
+                    Slogf.d(TAG, "createUser: Another user is currently being created."
+                            + " The request is queued for later execution.");
+                }
+            }
+        }
+    }
+
+    private void postNextCreateUserIfAvailable() {
+        synchronized (mLockUser) {
+            // Remove the current job from the queue.
+            mCreateUserQueue.poll();
+
+            // Post the next job if there is any left in the queue.
+            Runnable runnable = mCreateUserQueue.peek();
+            if (runnable != null) {
+                mHandler.post(runnable);
+                if (DBG) {
+                    Slogf.d(TAG, "createUser: A previously queued request is now being executed.");
+                }
+            }
+        }
     }
 
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
@@ -1671,13 +1716,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 new UserSwitchResult(userSwitchStatus, androidFailureStatus, errorMessage));
     }
 
-    static void sendUserCreationFailure(ResultCallbackImpl<UserCreationResult> callback,
+    void sendUserCreationFailure(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, String internalErrorMessage) {
         sendUserCreationResult(callback, status, /* androidFailureStatus= */ null, /* user= */ null,
                 /* errorMessage= */ null, internalErrorMessage);
     }
 
-    private static void sendUserCreationResult(ResultCallbackImpl<UserCreationResult> callback,
+    private void sendUserCreationResult(ResultCallbackImpl<UserCreationResult> callback,
             @UserCreationResult.Status int status, @Nullable Integer androidFailureStatus,
             @NonNull UserHandle user, @Nullable String errorMessage,
             @Nullable String internalErrorMessage) {
@@ -1690,6 +1735,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         callback.complete(new UserCreationResult(status, androidFailureStatus, user, errorMessage,
                 internalErrorMessage));
+
+        // When done creating a user, post the next user creation task from the queue, if any.
+        postNextCreateUserIfAvailable();
     }
 
     /**
