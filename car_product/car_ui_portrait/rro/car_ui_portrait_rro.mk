@@ -31,6 +31,7 @@ PRODUCT_PACKAGES += \
     CarUiPortraitLauncherReferenceRRO \
     CarUiPortraitMediaCommonRRO \
     CarUiPortraitMediaRRO \
+    CarUiPortraitMessengerRRO \
     CarUiPortraitNotificationRRO \
     CarUiPortraitRadioRRO \
     CarUiPortraitSettingsRRO \
@@ -63,7 +64,9 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.media.common.caruiportrait.rro; \
     com.android.car.media.googlecaruiportrait.rro; \
     com.android.car.media.googlecaruiportrait.toolbar.rro; \
+    com.nadroid.car.messenger.caruiportrait.rro; \
     com.android.car.messenger.googlecaruiportrait.rro; \
+    com.android.car.messenger.googlecaruiportrait.toolbar.rro; \
     com.android.car.notification.caruiportrait.rro; \
     com.android.car.portraitlauncher.googlecaruiportrait.rro; \
     com.android.car.portraitlauncher.rro; \
