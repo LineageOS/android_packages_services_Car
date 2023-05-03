@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.annotation.Nullable;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -25,6 +27,7 @@ import android.media.audiopolicy.AudioProductStrategy;
 import android.media.audiopolicy.AudioVolumeGroup;
 import android.util.SparseArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.VersionUtils;
 import com.android.internal.util.Preconditions;
 
@@ -39,6 +42,7 @@ final class CoreAudioHelper {
 
     private static final boolean DEBUG = false;
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private CoreAudioHelper() {
         throw new UnsupportedOperationException("CoreAudioHelper class is non-instantiable, "
                 + "contains static members only");
