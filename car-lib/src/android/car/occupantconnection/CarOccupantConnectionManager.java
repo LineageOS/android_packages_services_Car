@@ -16,6 +16,8 @@
 
 package android.car.occupantconnection;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -425,6 +427,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onCarDisconnected() {
+        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             mConnectionRequestMap.clear();
             mReceiverPayloadCallbackMap.clear();
@@ -454,6 +457,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void registerReceiver(@NonNull String receiverEndpointId,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull PayloadCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
@@ -484,6 +488,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void unregisterReceiver(@NonNull String receiverEndpointId) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverEndpointId, "receiverEndpointId cannot be null");
         synchronized (mLock) {
             try {
@@ -540,6 +545,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public void requestConnection(@NonNull OccupantZoneInfo receiverZone,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ConnectionRequestCallback callback) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(callback, "callback cannot be null");
@@ -572,6 +578,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         synchronized (mLock) {
             Preconditions.checkState(mConnectionRequestMap.contains(receiverZone.zoneId),
@@ -604,6 +611,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void sendPayload(@NonNull OccupantZoneInfo receiverZone, @NonNull Payload payload)
             throws PayloadTransferException {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         Objects.requireNonNull(payload, "payload cannot be null");
         try {
@@ -636,6 +644,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void disconnect(@NonNull OccupantZoneInfo receiverZone) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
             mService.disconnect(mPackageName, receiverZone);
@@ -657,6 +666,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public boolean isConnected(@NonNull OccupantZoneInfo receiverZone) {
+        assertPlatformVersionAtLeastU();
         Objects.requireNonNull(receiverZone, "receiverZone cannot be null");
         try {
             return mService.isConnected(mPackageName, receiverZone);
