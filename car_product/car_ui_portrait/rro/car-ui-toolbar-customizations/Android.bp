@@ -48,3 +48,11 @@ override_runtime_resource_overlay {
     target_package_name: "com.android.car.radio",
     category: "caruiportrait.toolbar.radio",
 }
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_toolbar-com-android-car-messenger",
+    base: "GoogleCarUiPortraitToolbarBase",
+    package_name: "com.android.car.messenger.googlecaruiportrait.toolbar.rro",
+    target_package_name: "com.android.car.messenger",
+    category: "caruiportrait.toolbar.messenger",
+}
