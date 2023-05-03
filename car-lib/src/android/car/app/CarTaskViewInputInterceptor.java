@@ -44,6 +44,7 @@ import android.view.WindowManager;
 
 import java.util.List;
 
+
 /**
  * This class is responsible to intercept the swipe gestures & long press over {@link
  * ControlledRemoteCarTaskView}.
