@@ -30,8 +30,10 @@ import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
@@ -55,6 +57,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.res.Resources;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -143,6 +147,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Mock private UserManager mUserManager;
 
     @Captor private ArgumentCaptor<UserLifecycleListener> mUserLifecycleListenerCaptor;
+    @Captor private ArgumentCaptor<RemoteTaskClientRegistrationInfo> mRegistrationInfoCaptor;
 
     private CarRemoteAccessService newServiceWithSystemUpTime(long systemUpTime) {
         return new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService,
@@ -279,7 +284,7 @@ public final class CarRemoteAccessServiceUnitTest {
         verify(mContext, never()).bindServiceAsUser(any(), any(), anyInt(), any());
 
         // Simulate a task arrives for PACKAGE_ONE which will try to start it.
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
         halCallback.onRemoteTaskRequested(clientId, data);
@@ -318,7 +323,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
         // Simulate a task arrives for PACKAGE_ONE which will try to start it.
         // Should start waiting for user unlock again.
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
         halCallback.onRemoteTaskRequested(clientId, data);
@@ -432,7 +437,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testRemoteTaskRequested() throws Exception {
         mService.init();
         mBootComplete.run();
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
 
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
@@ -448,7 +453,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testRemoteTaskRequested_removedClient() throws Exception {
         mService.init();
         mBootComplete.run();
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
 
@@ -461,7 +466,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testRemoteTaskRequested_clientRegisteredAfterRequest() throws Exception {
         mService.init();
         mBootComplete.run();
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
@@ -678,7 +683,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
                 /* runGarageMode= */ false);
 
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
         SystemClock.sleep(100);
@@ -703,7 +708,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 /* runGarageMode= */ false);
         setVehicleInUse(true);
 
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
         SystemClock.sleep(100);
@@ -727,7 +732,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_ON,
                 /* runGarageMode= */ false);
 
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
         SystemClock.sleep(100);
@@ -738,6 +743,50 @@ public final class CarRemoteAccessServiceUnitTest {
                 () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
+    @Test
+    public void testAllowedSystemUptimeMs() {
+        when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
+                .thenReturn(300);
+
+        mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService);
+
+        assertThat(mService.getAllowedSystemUptimeMs()).isEqualTo(300_000L);
+    }
+
+    @Test
+    public void testAllowedSystemUptimeMs_lessThanMinSystemUptime() {
+        // MIN_SYSTEM_UPTIME_FOR_REMOTE_ACCESS_IN_SEC is 30s.
+        when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
+                .thenReturn(10);
+
+        mService = new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService);
+
+        assertThat(mService.getAllowedSystemUptimeMs()).isEqualTo(30_000L);
+    }
+
+    @Test
+    public void testCallbackOnRemoteTaskRequestedException_activieTasksCleared() throws Exception {
+        mBootComplete.run();
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
+        RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
+        ICarRemoteAccessCallback clientCallback = mock(ICarRemoteAccessCallback.class);
+        IBinder mockBinder = mock(IBinder.class);
+        when(clientCallback.asBinder()).thenReturn(mockBinder);
+        doThrow(new RemoteException()).when(clientCallback).onRemoteTaskRequested(any(), any(),
+                any(), anyInt());
+        mService.addCarRemoteTaskClient(clientCallback);
+
+        verify(clientCallback, timeout(WAIT_TIMEOUT_MS)).onClientRegistrationUpdated(
+                mRegistrationInfoCaptor.capture());
+
+        String clientId = mRegistrationInfoCaptor.getValue().getClientId();
+
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+
+        verify(clientCallback).onRemoteTaskRequested(eq(clientId), any(), eq(null), anyInt());
+        assertThat(mService.getActiveTaskCount()).isEqualTo(0);
+    }
+
     private ICarPowerStateListener getCarPowerStateListener() {
         ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
                 ArgumentCaptor.forClass(ICarPowerStateListener.class);
@@ -746,7 +795,7 @@ public final class CarRemoteAccessServiceUnitTest {
         return internalListenerCaptor.getValue();
     }
 
-    private RemoteAccessHalCallback prepareCarRemoteTastClient() throws Exception {
+    private RemoteAccessHalCallback prepareCarRemoteTaskClient() throws Exception {
         when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
@@ -757,7 +806,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     private void prepareReportTaskDoneTest() throws Exception {
         mBootComplete.run();
-        RemoteAccessHalCallback halCallback = prepareCarRemoteTastClient();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
         PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
