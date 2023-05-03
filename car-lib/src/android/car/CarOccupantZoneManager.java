@@ -17,6 +17,7 @@
 package android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -649,6 +650,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @UserAssignmentResult
     public int assignVisibleUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
             @NonNull UserHandle user) {
+        assertPlatformVersionAtLeastU();
         assertNonNullOccupant(occupantZone);
         try {
             return mService.assignVisibleUserToOccupantZone(occupantZone.zoneId, user);
@@ -677,6 +679,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @UserAssignmentResult
     public int unassignOccupantZone(@NonNull OccupantZoneInfo occupantZone) {
+        assertPlatformVersionAtLeastU();
         try {
             return mService.unassignOccupantZone(occupantZone.zoneId);
         } catch (RemoteException e) {

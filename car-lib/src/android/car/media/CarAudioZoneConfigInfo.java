@@ -17,6 +17,7 @@
 package android.car.media;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
@@ -102,6 +103,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @NonNull
     public String getName() {
+        assertPlatformVersionAtLeastU();
         return mName;
     }
 
@@ -111,6 +113,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getZoneId() {
+        assertPlatformVersionAtLeastU();
         return mZoneId;
     }
 
@@ -120,6 +123,7 @@ public final class CarAudioZoneConfigInfo implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getConfigId() {
+        assertPlatformVersionAtLeastU();
         return mConfigId;
     }
 
