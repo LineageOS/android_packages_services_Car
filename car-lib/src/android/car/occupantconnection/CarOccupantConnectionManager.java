@@ -21,7 +21,6 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -30,7 +29,6 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager.AppState;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -186,13 +184,11 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     /** The connection request has no error. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int CONNECTION_ERROR_NONE = 0;
 
     /** The connection request failed because of an error of unidentified cause. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int CONNECTION_ERROR_UNKNOWN = 1;
 
     /**
@@ -203,7 +199,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int CONNECTION_ERROR_NOT_READY = 2;
 
     /**
@@ -214,7 +209,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 3;
 
     /**
@@ -231,7 +225,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @Retention(RetentionPolicy.SOURCE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @interface ConnectionError {
     }
 
@@ -253,7 +246,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onConnected(@NonNull OccupantZoneInfo receiverZone);
 
         /**
@@ -264,7 +256,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onRejected(@NonNull OccupantZoneInfo receiverZone, int rejectionReason);
 
         /**
@@ -273,7 +264,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onFailed(@NonNull OccupantZoneInfo receiverZone,
                 @ConnectionError int connectionError);
 
@@ -287,7 +277,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onDisconnected(@NonNull OccupantZoneInfo receiverZone);
     }
 
@@ -299,7 +288,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         void onPayloadReceived(@NonNull OccupantZoneInfo senderZone,
                 @NonNull Payload payload);
     }
@@ -307,7 +295,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     /** An exception to indicate that it failed to send the {@link Payload}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final class PayloadTransferException extends Exception {
     }
 
@@ -439,7 +426,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void onCarDisconnected() {
         assertPlatformVersionAtLeastU();
         synchronized (mLock) {
@@ -467,7 +453,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void registerReceiver(@NonNull String receiverEndpointId,
             @NonNull @CallbackExecutor Executor executor,
@@ -501,7 +486,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void unregisterReceiver(@NonNull String receiverEndpointId) {
         assertPlatformVersionAtLeastU();
@@ -557,7 +541,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void requestConnection(@NonNull OccupantZoneInfo receiverZone,
             @NonNull @CallbackExecutor Executor executor,
@@ -593,7 +576,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void cancelConnection(@NonNull OccupantZoneInfo receiverZone) {
         assertPlatformVersionAtLeastU();
@@ -626,7 +608,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void sendPayload(@NonNull OccupantZoneInfo receiverZone, @NonNull Payload payload)
             throws PayloadTransferException {
@@ -661,7 +642,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public void disconnect(@NonNull OccupantZoneInfo receiverZone) {
         assertPlatformVersionAtLeastU();
@@ -684,7 +664,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     @SuppressWarnings("[NotCloseable]")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION)
     public boolean isConnected(@NonNull OccupantZoneInfo receiverZone) {
         assertPlatformVersionAtLeastU();

@@ -20,11 +20,9 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 
 import static java.lang.Integer.toHexString;
 
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.VehiclePropertyIds;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 
 /**
  * Exception thrown when the vehicle property is not available because of the current state of the
@@ -77,7 +75,6 @@ public class PropertyNotAvailableException extends IllegalStateException {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int getVendorErrorCode() {
         assertPlatformVersionAtLeastU();
         return mVendorErrorCode;
