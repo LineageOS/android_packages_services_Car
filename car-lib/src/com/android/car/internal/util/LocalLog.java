@@ -29,7 +29,6 @@ import java.util.Deque;
 import java.util.Iterator;
 
 // Copied from frameworks/base
-
 /**
  * Utility for in memory logging
  *

@@ -16,6 +16,8 @@
 
 package android.car.user;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
@@ -56,6 +58,7 @@ public final class UserStartRequest implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull Builder setDisplayId(int displayId) {
+            assertPlatformVersionAtLeastU();
             Preconditions.checkArgument(displayId != Display.INVALID_DISPLAY,
                     "setDisplayId: displayId must be valid");
 
@@ -67,6 +70,7 @@ public final class UserStartRequest implements Parcelable {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public @NonNull UserStartRequest build() {
+            assertPlatformVersionAtLeastU();
             return new UserStartRequest(this);
         }
     }
@@ -95,6 +99,7 @@ public final class UserStartRequest implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @NonNull UserHandle getUserHandle() {
+        assertPlatformVersionAtLeastU();
         return mUserHandle;
     }
 
@@ -102,6 +107,7 @@ public final class UserStartRequest implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getDisplayId() {
+        assertPlatformVersionAtLeastU();
         return mDisplayId;
     }
 
