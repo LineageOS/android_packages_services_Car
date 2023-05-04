@@ -1145,7 +1145,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (components == null || components.length == 0) {
             enableSourcePreferred = false;
             Slogf.i(TAG, "CarLaunchParamsModifier: disable source-preferred");
-        } else if (components.length == 1 && components[0].equals(ALL_COMPONENTS)) {
+        } else if (components.length == 1 && Objects.equals(components[0], ALL_COMPONENTS)) {
             enableSourcePreferred = true;
             Slogf.i(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
         } else {

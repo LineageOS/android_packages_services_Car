@@ -32,6 +32,7 @@ import com.android.car.internal.util.VersionUtils;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Helper for audio related operations for core audio routing and volume management
@@ -207,7 +208,7 @@ final class CoreAudioHelper {
             if (!attributes.equals(DEFAULT_ATTRIBUTES)) {
                 bestAttributes = attributes;
                 if (!VersionUtils.isPlatformVersionAtLeastU()
-                        || AudioManagerHelper.getFormattedTags(attributes).equals("")) {
+                        || Objects.equals(AudioManagerHelper.getFormattedTags(attributes), "")) {
                     break;
                 }
             }
