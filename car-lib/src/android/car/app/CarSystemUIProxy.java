@@ -17,8 +17,10 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 
 /**
  * A blueprint for the system ui proxy which is meant to host all the system ui interaction that is
@@ -34,6 +36,7 @@ public interface CarSystemUIProxy {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     CarTaskViewHost createControlledCarTaskView(@NonNull CarTaskViewClient carTaskViewClient);
 }

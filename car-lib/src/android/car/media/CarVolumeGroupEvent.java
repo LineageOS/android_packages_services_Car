@@ -25,8 +25,10 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
@@ -50,6 +52,7 @@ import java.util.concurrent.Executor;
 @SystemApi
 @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
         minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 public final class CarVolumeGroupEvent implements Parcelable {
 
     /**
@@ -60,6 +63,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED = 1 << 0;
 
     /**
@@ -70,6 +74,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED = 1 << 1;
 
     /**
@@ -80,6 +85,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED = 1 << 2;
 
     /**
@@ -90,6 +96,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_MUTE_CHANGED = 1 << 3;
 
     /**
@@ -103,6 +110,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_VOLUME_BLOCKED_CHANGED = 1 << 4;
 
     /**
@@ -116,6 +124,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_ATTENUATION_CHANGED = 1 << 5;
 
     /**
@@ -130,6 +139,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EVENT_TYPE_ZONE_CONFIGURATION_CHANGED = 1 << 6;
 
     /** @hide */
@@ -150,6 +160,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_NONE = 100;
 
     /**
@@ -157,6 +168,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_UI = 101;
 
     /**
@@ -166,6 +178,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_KEYEVENT = 102;
 
     /**
@@ -175,6 +188,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_VOLUME_INDEX_CHANGED_BY_AUDIO_SYSTEM = 103;
 
     /**
@@ -188,6 +202,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_ATTENUATION_ACTIVATION = 110;
 
     /**
@@ -196,6 +211,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_THERMAL = 120;
 
     /**
@@ -203,6 +219,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_DUCKED = 121;
 
     /**
@@ -211,6 +228,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_PROJECTION = 122;
 
     /**
@@ -219,6 +237,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_NAVIGATION = 123;
 
     /**
@@ -226,6 +245,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_TRANSIENT_ATTENUATION_EXTERNAL = 124;
 
     /**
@@ -233,6 +253,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_UI = 200;
 
     /**
@@ -242,6 +263,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_KEYEVENT = 201;
 
     /**
@@ -250,6 +272,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_EMERGENCY = 202;
 
     /**
@@ -259,6 +282,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_MUTE_TOGGLED_BY_AUDIO_SYSTEM = 203;
 
     /**
@@ -267,6 +291,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_MUTE_LOCKED = 210;
 
     /**
@@ -275,6 +300,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_SHOW_UI = 300;
 
     /**
@@ -283,6 +309,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int EXTRA_INFO_PLAY_SOUND = 301;
 
     private final @EventTypeEnum int mEventTypes;
@@ -305,6 +332,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @NonNull List<CarVolumeGroupInfo> getCarVolumeGroupInfos() {
         assertPlatformVersionAtLeastU();
         return List.copyOf(mCarVolumeGroupInfos);
@@ -327,6 +355,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @EventTypeEnum
     public int getEventTypes() {
         assertPlatformVersionAtLeastU();
@@ -369,6 +398,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public @NonNull List<Integer> getExtraInfos() {
         assertPlatformVersionAtLeastU();
         return List.copyOf(mExtraInfos);
@@ -387,6 +417,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static int convertExtraInfoToFlags(@NonNull List<Integer> extraInfos) {
         assertPlatformVersionAtLeastU();
         int flags = 0;
@@ -418,6 +449,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public static List<Integer> convertFlagsToExtraInfo(int flags, int eventTypes) {
         assertPlatformVersionAtLeastU();
@@ -473,6 +505,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public static String eventTypeToString(@EventTypeEnum int eventTypes) {
         assertPlatformVersionAtLeastU();
@@ -537,6 +570,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public static String extraInfosToString(@NonNull List<Integer> extraInfos) {
         assertPlatformVersionAtLeastU();
@@ -564,6 +598,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public int describeContents() {
         return 0;
     }
@@ -571,6 +606,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
     @Override
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeParcelableList(mCarVolumeGroupInfos, flags);
         dest.writeInt(mEventTypes);
@@ -614,6 +650,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
 
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public static final Creator<CarVolumeGroupEvent> CREATOR = new Creator<>() {
         @Override
@@ -640,6 +677,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
     @SuppressWarnings("WeakerAccess")
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final class Builder {
         private static final long IS_USED_FIELD_SET = 0x01;
         private @NonNull List<CarVolumeGroupInfo> mCarVolumeGroupInfos;
@@ -672,6 +710,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
         /** @see CarVolumeGroupEvent#getCarVolumeGroupInfos() **/
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder addCarVolumeGroupInfo(@NonNull CarVolumeGroupInfo volumeGroupInfo) {
             assertPlatformVersionAtLeastU();
@@ -684,6 +723,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
         /** @see CarVolumeGroupEvent#getEventTypes()  **/
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder addEventType(@EventTypeEnum int eventType) {
             assertPlatformVersionAtLeastU();
@@ -694,6 +734,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
         /** @see CarVolumeGroupEvent#getExtraInfos **/
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setExtraInfos(@NonNull List<Integer> extraInfos) {
             assertPlatformVersionAtLeastU();
@@ -705,6 +746,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
         /** @see #setExtraInfos(List)  **/
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder addExtraInfo(int extraInfo) {
             assertPlatformVersionAtLeastU();
@@ -722,6 +764,7 @@ public final class CarVolumeGroupEvent implements Parcelable {
         /** Builds the instance. This builder should not be touched after calling this! */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public CarVolumeGroupEvent build() {
             assertPlatformVersionAtLeastU();
