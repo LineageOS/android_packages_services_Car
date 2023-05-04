@@ -17,9 +17,11 @@
 package android.car.app;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 
 /**
  * A callback interface for {@link ControlledRemoteCarTaskView}.
@@ -36,6 +38,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskViewCreated(@NonNull ControlledRemoteCarTaskView taskView) {}
 
@@ -46,6 +49,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskViewInitialized() {}
 
@@ -55,6 +59,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskViewReleased() {}
 
@@ -65,6 +70,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskAppeared(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
@@ -75,6 +81,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskInfoChanged(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 
@@ -85,6 +92,7 @@ public interface ControlledRemoteCarTaskViewCallback
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Override
     default void onTaskVanished(@NonNull ActivityManager.RunningTaskInfo taskInfo) {}
 }

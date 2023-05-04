@@ -28,6 +28,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -557,6 +558,7 @@ public class CarPropertyManager extends CarManagerBase {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public int getVendorErrorCode() {
             assertPlatformVersionAtLeastU();
             return mVendorErrorCode;
