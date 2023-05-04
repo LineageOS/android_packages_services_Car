@@ -21,6 +21,7 @@ import static android.car.CarLibLog.TAG_CAR;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
@@ -75,6 +76,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -275,6 +277,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String CAR_OCCUPANT_CONNECTION_SERVICE = "car_occupant_connection_service";
 
     /**
@@ -286,6 +289,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String CAR_REMOTE_DEVICE_SERVICE = "car_remote_device_service";
 
     /** Service name for {@link CarOccupantZoneManager} */
@@ -323,6 +327,7 @@ public final class Car {
     @OptionalFeature
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String EXPERIMENTAL_CAR_KEYGUARD_SERVICE =
             "experimental_car_keyguard_service";
 
@@ -571,6 +576,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String CAR_REMOTE_ACCESS_SERVICE = "car_remote_access_service";
 
     /**
@@ -1272,6 +1278,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_MANAGE_OCCUPANT_ZONE =
             "android.car.permission.MANAGE_OCCUPANT_ZONE";
 
@@ -1280,6 +1287,7 @@ public final class Car {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_USE_REMOTE_ACCESS =
             "android.car.permission.USE_REMOTE_ACCESS";
 
@@ -1291,6 +1299,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_CONTROL_REMOTE_ACCESS =
             "android.car.permission.CONTROL_REMOTE_ACCESS";
     /**
@@ -1365,6 +1374,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_MANAGE_REMOTE_DEVICE =
             "android.car.permission.MANAGE_REMOTE_DEVICE";
 
@@ -1377,6 +1387,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_MANAGE_OCCUPANT_CONNECTION =
             "android.car.permission.MANAGE_OCCUPANT_CONNECTION";
 
@@ -1389,6 +1400,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_ACCESS_MIRRORRED_SURFACE =
             "android.car.permission.ACCESS_MIRRORED_SURFACE";
 
@@ -1401,6 +1413,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_MIRROR_DISPLAY =
             "android.car.permission.MIRROR_DISPLAY";
 
@@ -1434,6 +1447,7 @@ public final class Car {
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_REGISTER_CAR_SYSTEM_UI_PROXY =
             "android.car.permission.REGISTER_CAR_SYSTEM_UI_PROXY";
 
@@ -1446,6 +1460,7 @@ public final class Car {
     @ApiRequirements(
             minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String PERMISSION_MANAGE_CAR_SYSTEM_UI =
             "android.car.permission.MANAGE_CAR_SYSTEM_UI";
 
@@ -1513,6 +1528,7 @@ public final class Car {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE =
             "android.car.remoteaccess.RemoteTaskClientService";
 
@@ -1525,6 +1541,7 @@ public final class Car {
     @SdkConstant(SdkConstantType.SERVICE_ACTION)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final String CAR_INTENT_ACTION_RECEIVER_SERVICE =
             "android.car.intent.action.RECEIVER_SERVICE";
 

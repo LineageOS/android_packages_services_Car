@@ -16,11 +16,13 @@
 
 package android.car.settings;
 
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
 import android.car.annotation.ApiRequirements.PlatformVersion;
+import android.os.Build;
 
 /**
  * System-level, car-related settings.
@@ -127,6 +129,7 @@ public class CarSettings {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
 
@@ -145,6 +148,7 @@ public class CarSettings {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static final String DISPLAY_INPUT_LOCK =
                         "android.car.DISPLAY_INPUT_LOCK";
 
@@ -175,6 +179,7 @@ public class CarSettings {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static final String DISPLAY_POWER_MODE = "android.car.DISPLAY_POWER_MODE";
     }
 
@@ -367,6 +372,7 @@ public class CarSettings {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static final String VISIBLE_USER_ALLOCATION_PER_ZONE =
                 "android.car.VISIBLE_USER_ALLOCATION_PER_ZONE";
 
@@ -383,6 +389,7 @@ public class CarSettings {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public static final String KEY_DRIVER_ALLOWED_TO_CONTROL_MEDIA =
                 "android.car.DRIVER_ALLOWED_TO_CONTROL_MEDIA";
     }
