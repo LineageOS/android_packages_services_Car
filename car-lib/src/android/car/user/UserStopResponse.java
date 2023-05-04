@@ -17,6 +17,7 @@
 package android.car.user;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -103,6 +104,7 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isSuccess(@Status int status) {
+        assertPlatformVersionAtLeastU();
         return status == STATUS_SUCCESSFUL;
     }
 
@@ -110,6 +112,7 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public boolean isSuccess() {
+        assertPlatformVersionAtLeastU();
         return isSuccess(mStatus);
     }
 
@@ -147,6 +150,7 @@ public final class UserStopResponse implements Parcelable, OperationResult {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @SystemApi
     public static @NonNull String statusToString(@Status int value) {
+        assertPlatformVersionAtLeastU();
         switch (value) {
             case STATUS_SUCCESSFUL:
                     return "STATUS_SUCCESSFUL";
@@ -211,6 +215,7 @@ public final class UserStopResponse implements Parcelable, OperationResult {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public @Status int getStatus() {
+        assertPlatformVersionAtLeastU();
         return mStatus;
     }
 

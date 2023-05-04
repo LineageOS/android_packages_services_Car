@@ -63,6 +63,10 @@ public class CarUiPortraitService extends Service {
     public static final String INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE =
             "INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE";
 
+    // key name for the intent's extra that tells the Recents' visibility status
+    public static final String INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE =
+            "INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE";
+
     // key name for the intent's extra that tells if suw is in progress
     public static final String INTENT_EXTRA_SUW_IN_PROGRESS =
             "INTENT_EXTRA_SUW_IN_PROGRESS";
@@ -78,6 +82,10 @@ public class CarUiPortraitService extends Service {
     // key name for the intent's extra that tells if notification panel should be collapsed.
     public static final String INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL =
             "INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL";
+
+    // key name for the intent's extra that tells if recents panel should be collapsed.
+    public static final String INTENT_EXTRA_COLLAPSE_RECENTS_PANEL =
+            "INTENT_EXTRA_COLLAPSE_RECENTS_PANEL";
 
     // Keeps track of all current registered clients.
     private final ArrayList<Messenger> mClients = new ArrayList<Messenger>();
@@ -139,9 +147,19 @@ public class CarUiPortraitService extends Service {
     public static final int MSG_NOTIFICATIONS_VISIBILITY_CHANGE = 10;
 
     /**
+     * Command to service to set a new value for Recents visibility.
+     */
+    public static final int MSG_RECENTS_VISIBILITY_CHANGE = 11;
+
+    /**
      * Command to service to collapse notification panel if open.
      */
-    public static final int MSG_COLLAPSE_NOTIFICATION = 11;
+    public static final int MSG_COLLAPSE_NOTIFICATION = 12;
+
+    /**
+     * Command to service to collapse recents panel.
+     */
+    public static final int MSG_COLLAPSE_RECENTS = 13;
 
     private boolean mIsSystemInImmersiveMode;
     private boolean mIsSuwInProgress;
@@ -176,6 +194,12 @@ public class CarUiPortraitService extends Service {
                     notificationIntent.putExtra(INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE,
                             intToBoolean(msg.arg1));
                     CarUiPortraitService.this.sendBroadcast(notificationIntent);
+                    break;
+                case MSG_RECENTS_VISIBILITY_CHANGE:
+                    Intent recentsIntent = new Intent(REQUEST_FROM_LAUNCHER);
+                    recentsIntent.putExtra(INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE,
+                            intToBoolean(msg.arg1));
+                    CarUiPortraitService.this.sendBroadcast(recentsIntent);
                     break;
                 case MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE:
                     int val = msg.arg1;
@@ -227,6 +251,10 @@ public class CarUiPortraitService extends Service {
 
                 if (intent.hasExtra(INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL)) {
                     notifyClients(MSG_COLLAPSE_NOTIFICATION, 1);
+                }
+
+                if (intent.hasExtra(INTENT_EXTRA_COLLAPSE_RECENTS_PANEL)) {
+                    notifyClients(MSG_COLLAPSE_RECENTS, 1);
                 }
             }
         };

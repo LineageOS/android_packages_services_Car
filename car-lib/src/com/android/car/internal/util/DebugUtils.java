@@ -19,7 +19,6 @@ package com.android.car.internal.util;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-
 // Copied from frameworks/base and kept only used codes
 /**
  * <p>Various utilities for debugging and logging.</p>

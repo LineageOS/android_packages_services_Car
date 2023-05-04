@@ -39,6 +39,7 @@ import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -92,6 +93,7 @@ import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.hardware.automotive.vehicle.CreateUserRequest;
+import android.hardware.automotive.vehicle.CreateUserResponse;
 import android.hardware.automotive.vehicle.CreateUserStatus;
 import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.InitialUserInfoResponseAction;
@@ -119,6 +121,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Unit tests for the {@link CarUserService}.
@@ -2147,6 +2150,53 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testCreateUser_concurrentRequests_success() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        when(mMockedUserManager.createUser(any()))
+                .thenReturn(new NewUserResponse(UserHandle.of(mGuestUserId),
+                        UserManager.USER_OPERATION_SUCCESS));
+
+        CreateUserResponse successResponse = new CreateUserResponse();
+        successResponse.status = CreateUserStatus.SUCCESS;
+        CreateUserResponse failResponse = new CreateUserResponse();
+        failResponse.status = CreateUserStatus.FAILURE;
+        AtomicBoolean halInUse = new AtomicBoolean(false);
+        doAnswer((invocation) -> {
+            Log.d(TAG, "Answering user HAL createUser invication: " + invocation);
+            @SuppressWarnings("unchecked")
+            HalCallback<CreateUserResponse> callback =
+                    (HalCallback<CreateUserResponse>) invocation.getArguments()[2];
+            if (halInUse.getAndSet(/* newValue= */ true)) {
+                Log.d(TAG, "HAL is in use. Concurrent operation fails");
+                // HAL is in use. Fail with STATUS_CONCURRENT_OPERATION.
+                callback.onResponse(HalCallback.STATUS_CONCURRENT_OPERATION, failResponse);
+                halInUse.set(false);
+            } else {
+                Log.d(TAG, "HAL not in use. Posting a delayed job to create user HAL");
+                mHandler.postDelayed(() -> {
+                    callback.onResponse(HalCallback.STATUS_OK, successResponse);
+                    halInUse.set(false);
+                }, ASYNC_CALL_TIMEOUT_MS);
+            }
+            return null;
+        }).when(mUserHal).createUser(any(), anyInt(), any());
+
+        // Request creating 2 users concurretnly.
+        mCarUserService.createUser("guest1", UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0,
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback, NO_CALLER_RESTRICTIONS);
+        mCarUserService.createUser("guest2", UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0,
+                ASYNC_CALL_TIMEOUT_MS, mUserCreationResultCallback2, NO_CALLER_RESTRICTIONS);
+        waitForHandlerThreadToFinish();
+
+        assertWithMessage("1st user creation result status")
+                .that(getUserCreationResult().getStatus())
+                .isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertWithMessage("2nd user creation result status")
+                .that(getUserCreationResult2().getStatus())
+                .isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+    }
+
+    @Test
     public void testCreateUser_guest_failsWithNonZeroFlags() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
@@ -2658,11 +2708,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halNotSupported() {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halNotSupported() {
         mockUserHalSupported(false);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2672,12 +2721,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halNullResponse() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halNullResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mockHalGetInitialInfo(mAdminUserId, null);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2686,14 +2734,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halDefaultResponse() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halDefaultResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mGetUserInfoResponse.userLocales = "LOL";
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2703,15 +2750,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halSwitchResponse() throws Exception {
+    public void testPriorityInit_halSwitchResponse() throws Exception {
         int switchUserId = mGuestUserId;
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2721,17 +2767,16 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halCreateResponse() throws Exception {
+    public void testPriorityInit_halCreateResponse() throws Exception {
         int newUserFlags = 42;
         String newUserName = "TheDude";
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
         mGetUserInfoResponse.userNameToCreate = newUserName;
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {

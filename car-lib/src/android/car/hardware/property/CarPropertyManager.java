@@ -19,6 +19,7 @@ package android.car.hardware.property;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.property.CarPropertyHelper.STATUS_OK;
 import static com.android.car.internal.property.CarPropertyHelper.SYNC_OP_LIMIT_TRY_AGAIN;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import static java.lang.Integer.toHexString;
 import static java.util.Objects.requireNonNull;
@@ -54,6 +55,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -556,6 +558,7 @@ public class CarPropertyManager extends CarManagerBase {
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         public int getVendorErrorCode() {
+            assertPlatformVersionAtLeastU();
             return mVendorErrorCode;
         }
 
@@ -2089,8 +2092,8 @@ public class CarPropertyManager extends CarManagerBase {
                 getPropertyCallback);
 
         try {
-            mService.getPropertiesAsync(getPropertyServiceRequests, mAsyncPropertyResultCallback,
-                    timeoutInMs);
+            mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(
+                    getPropertyServiceRequests), mAsyncPropertyResultCallback, timeoutInMs);
         } catch (RemoteException e) {
             clearRequestIdToAsyncRequestInfo(getPropertyRequests);
             handleRemoteExceptionFromCarService(e);
@@ -2205,8 +2208,8 @@ public class CarPropertyManager extends CarManagerBase {
                 setPropertyCallback);
 
         try {
-            mService.setPropertiesAsync(setPropertyServiceRequests, mAsyncPropertyResultCallback,
-                    timeoutInMs);
+            mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(
+                    setPropertyServiceRequests), mAsyncPropertyResultCallback, timeoutInMs);
         } catch (RemoteException e) {
             clearRequestIdToAsyncRequestInfo(setPropertyRequests);
             handleRemoteExceptionFromCarService(e);

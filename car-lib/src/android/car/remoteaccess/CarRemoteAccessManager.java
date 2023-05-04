@@ -16,6 +16,8 @@
 
 package android.car.remoteaccess;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -274,6 +276,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setRemoteTaskClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull RemoteTaskClientCallback callback) {
+        assertPlatformVersionAtLeastU();
         Preconditions.checkArgument(executor != null, "Executor cannot be null");
         Preconditions.checkArgument(callback != null, "Callback cannot be null");
 
@@ -310,6 +313,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void clearRemoteTaskClient() {
+        assertPlatformVersionAtLeastU();
         synchronized (mLock) {
             if (mRemoteTaskClientCallback == null) {
                 Slogf.w(TAG, "No registered remote task client to clear");
@@ -338,6 +342,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void reportRemoteTaskDone(@NonNull String taskId) {
+        assertPlatformVersionAtLeastU();
         Preconditions.checkArgument(taskId != null, "Task ID cannot be null");
 
         String currentClientId;
@@ -378,6 +383,7 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPowerStatePostTaskExecution(@NextPowerState int nextPowerState,
             boolean runGarageMode) {
+        assertPlatformVersionAtLeastU();
         try {
             mService.setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
         } catch (RemoteException e) {
