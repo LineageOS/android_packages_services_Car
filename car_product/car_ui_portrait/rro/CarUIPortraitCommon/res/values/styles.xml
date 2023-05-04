@@ -41,9 +41,9 @@
     </style>
 
 
-    <style name="TextAppearance.Car.Body">
-        <item name="android:textFontWeight">400</item>
-    </style>
+    <!-- Attributes here affects textAppearanceSmall and might cause CTS failures. Careful when adding item like textFontWeight. -->
+    <style name="TextAppearance.Car.Body"></style>
+
     <style name="TextAppearance.Car.Body.Large">
         <item name="android:lineHeight">44dp</item>
         <item name="android:textSize">34sp</item>
