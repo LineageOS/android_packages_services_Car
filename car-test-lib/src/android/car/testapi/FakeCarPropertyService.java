@@ -32,6 +32,7 @@ import android.os.RemoteException;
 
 import com.android.car.internal.PropertyPermissionMapping;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -103,13 +104,15 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public void getPropertiesAsync(List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+    public void getPropertiesAsync(AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback, long timeoutInMs)
             throws RemoteException {
+        List<AsyncPropertyServiceRequest> asyncPropertyServiceRequestList =
+                asyncPropertyServiceRequests.getList();
         List<GetSetValueResult> getValueResults = new ArrayList<>();
-        for (int i = 0; i < asyncPropertyServiceRequests.size(); i++) {
+        for (int i = 0; i < asyncPropertyServiceRequestList.size(); i++) {
             AsyncPropertyServiceRequest asyncPropertyServiceRequest =
-                    asyncPropertyServiceRequests.get(i);
+                    asyncPropertyServiceRequestList.get(i);
             getValueResults.add(GetSetValueResult.newGetValueResult(
                     asyncPropertyServiceRequest.getRequestId(),
                     getProperty(asyncPropertyServiceRequest.getPropertyId(),
@@ -119,13 +122,15 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     }
 
     @Override
-    public void setPropertiesAsync(List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+    public void setPropertiesAsync(AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback, long timeoutInMs)
             throws RemoteException {
+        List<AsyncPropertyServiceRequest> asyncPropertyServiceRequestList =
+                asyncPropertyServiceRequests.getList();
         List<GetSetValueResult> setValueResults = new ArrayList<>();
-        for (int i = 0; i < asyncPropertyServiceRequests.size(); i++) {
+        for (int i = 0; i < asyncPropertyServiceRequestList.size(); i++) {
             AsyncPropertyServiceRequest asyncPropertyServiceRequest =
-                    asyncPropertyServiceRequests.get(i);
+                    asyncPropertyServiceRequestList.get(i);
             setProperty(asyncPropertyServiceRequest.getCarPropertyValue(), /* listener= */ null);
             setValueResults.add(GetSetValueResult.newSetValueResult(
                     asyncPropertyServiceRequest.getRequestId(), /* updateTimestampNanos= */ 0));
