@@ -44,6 +44,7 @@ import android.os.SystemClock;
 import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -95,6 +96,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     private static final int MAX_DURATION_FOR_RETRIABLE_RESULT_MS = 2000;
 
     private static final int SLEEP_BETWEEN_RETRIABLE_INVOKES_MS = 100;
+    private static final float PRECISION_THRESHOLD = 0.001f;
 
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
@@ -126,7 +128,8 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     @GuardedBy("mLock")
     private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
-    private final SparseArray<SubscribeOptions> mSubscribedProperties = new SparseArray<>();
+    private final ArrayMap<Pair<Integer, Integer>, Float> mUpdateRateByPropIdAreadId =
+            new ArrayMap<>();
     @GuardedBy("mLock")
     private final SparseArray<HalPropConfig> mAllProperties = new SparseArray<>();
 
@@ -406,21 +409,21 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     @Override
     public void release() {
-        ArrayList<Integer> subscribedProperties = new ArrayList<>();
+        ArraySet<Integer> subscribedProperties = new ArraySet<>();
         synchronized (mLock) {
             // release in reverse order from init
             for (int i = mAllServices.size() - 1; i >= 0; i--) {
                 mAllServices.get(i).release();
             }
-            for (int i = 0; i < mSubscribedProperties.size(); i++) {
-                subscribedProperties.add(mSubscribedProperties.keyAt(i));
+            for (int i = 0; i < mUpdateRateByPropIdAreadId.size(); i++) {
+                subscribedProperties.add(mUpdateRateByPropIdAreadId.keyAt(i).first);
             }
-            mSubscribedProperties.clear();
+            mUpdateRateByPropIdAreadId.clear();
             mAllProperties.clear();
         }
         for (int i = 0; i < subscribedProperties.size(); i++) {
             try {
-                mSubscriptionClient.unsubscribe(subscribedProperties.get(i));
+                mSubscriptionClient.unsubscribe(subscribedProperties.valueAt(i));
             } catch (RemoteException | ServiceSpecificException e) {
                 //  Ignore exceptions on shutdown path.
                 Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
@@ -498,9 +501,24 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz)
             throws IllegalArgumentException {
+        subscribeProperty(service, property, samplingRateHz, new int[0]);
+    }
+
+    /**
+     * Subscribe given property. Only Hal service owning the property can subscribe it.
+     *
+     * @param service HalService that owns this property
+     * @param property property id (VehicleProperty)
+     * @param samplingRateHz sampling rate in Hz for continuous properties
+     * @param areaIds The areaId that is being subscribed to, if empty subscribe to all areas
+     * @throws IllegalArgumentException thrown if property is not supported by VHAL
+     */
+    public void subscribeProperty(HalServiceBase service, int property, float samplingRateHz,
+            int[] areaIds) {
         if (DBG) {
-            Slogf.i(CarLog.TAG_HAL, "subscribeProperty, service:" + service
-                    + ", " + toCarPropertyLog(property));
+            Slogf.d(CarLog.TAG_HAL, "subscribeProperty, service, areaIds, SamplingRateHz:"
+                    + toCarPropertyLog(property) + ", " + service + ", "
+                    + CarServiceUtils.asList(areaIds) + ", " + samplingRateHz);
         }
         HalPropConfig config;
         synchronized (mLock) {
@@ -511,19 +529,25 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             throw new IllegalArgumentException(
                     String.format("subscribe error: config is null for property 0x%x", property));
         } else if (isPropertySubscribable(config)) {
+            if (areaIds.length == 0) {
+                areaIds = getAllAreaIdsFromPropertyId(config);
+            }
             SubscribeOptions opts = new SubscribeOptions();
             opts.propId = property;
             opts.sampleRate = samplingRateHz;
-            opts.areaIds = new int[0];
+            int[] filteredAreaIds = checkAlreadySubscribed(property, areaIds, samplingRateHz);
+            opts.areaIds = filteredAreaIds;
+            if (opts.areaIds.length == 0) {
+                Slogf.w(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
+                        + " is already subscribed at rate: " + samplingRateHz + " hz");
+                return;
+            }
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
-                if (mSubscribedProperties.get(property) != null
-                        && mSubscribedProperties.get(property).sampleRate == samplingRateHz) {
-                    Slogf.w(CarLog.TAG_HAL, "property: " + VehiclePropertyIds.toString(property)
-                            + " is already subscribed at rate: " + samplingRateHz + " hz");
-                    return;
+                for (int i = 0; i < filteredAreaIds.length; i++) {
+                    mUpdateRateByPropIdAreadId.put(Pair.create(property,
+                                    filteredAreaIds[i]), samplingRateHz);
                 }
-                mSubscribedProperties.put(property, opts);
             }
             try {
                 mSubscriptionClient.subscribe(new SubscribeOptions[]{opts});
@@ -534,6 +558,34 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         } else {
             Slogf.w(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
         }
+    }
+
+    private int[] checkAlreadySubscribed(int property, int[] areaIds, float sampleRateHz) {
+        List<Integer> areaIdList = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < areaIds.length; i++) {
+                Pair<Integer, Integer> propertyAndAreadId = Pair.create(property, areaIds[i]);
+                Float savedSampleRateHz = mUpdateRateByPropIdAreadId.get(propertyAndAreadId);
+                if (savedSampleRateHz != null
+                        && savedSampleRateHz - sampleRateHz < PRECISION_THRESHOLD) {
+                    continue;
+                }
+                areaIdList.add(areaIds[i]);
+            }
+        }
+        return CarServiceUtils.toIntArray(areaIdList);
+    }
+
+    private int[] getAllAreaIdsFromPropertyId(HalPropConfig config) {
+        HalAreaConfig[] allAreaConfigs = config.getAreaConfigs();
+        if (allAreaConfigs.length == 0) {
+            return new int[]{/* areaId= */ 0};
+        }
+        int[] areaId = new int[allAreaConfigs.length];
+        for (int i = 0; i < allAreaConfigs.length; i++) {
+            areaId[i] = allAreaConfigs[i].getAreaId();
+        }
+        return areaId;
     }
 
     /**
@@ -556,7 +608,10 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         } else if (isPropertySubscribable(config)) {
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
-                mSubscribedProperties.remove(property);
+                int[] areaIds = getAllAreaIdsFromPropertyId(config);
+                for (int i = 0; i < areaIds.length; i++) {
+                    mUpdateRateByPropIdAreadId.remove(Pair.create(property, areaIds[i]));
+                }
             }
             try {
                 mSubscriptionClient.unsubscribe(property);
@@ -749,24 +804,6 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     public HalPropValue get(HalPropValue requestedPropValue)
             throws IllegalArgumentException, ServiceSpecificException {
         return getValueWithRetry(requestedPropValue);
-    }
-
-    /**
-     * Returns the sample rate for a subscribed property. Returns {@link VehicleHal#NO_SAMPLE_RATE}
-     * if the property id passed as parameter is not linked to any subscribed property.
-     */
-    public float getSampleRate(int propId) {
-        SubscribeOptions opts;
-        synchronized (mLock) {
-            opts = mSubscribedProperties.get(propId);
-        }
-
-        if (opts == null) {
-            // No sample rate for this property
-            return NO_SAMPLE_RATE;
-        } else {
-            return opts.sampleRate;
-        }
     }
 
     /**
