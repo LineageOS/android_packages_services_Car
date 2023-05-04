@@ -2027,7 +2027,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             if (dataString == null) return null;
 
             String scheme = intent.getScheme();
-            if (!scheme.equals("package")) return null;
+            if (!Objects.equals(scheme, "package")) return null;
 
             String[] splitData = intent.getDataString().split(":");
             if (splitData.length < 2) return null;
