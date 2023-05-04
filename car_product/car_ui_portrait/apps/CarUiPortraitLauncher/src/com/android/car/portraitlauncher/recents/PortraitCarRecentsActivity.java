@@ -20,15 +20,28 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.android.car.carlauncher.recents.CarRecentsActivity;
+import com.android.car.carlauncher.recents.RecentTasksViewModel;
 import com.android.car.portraitlauncher.homeactivities.CarUiPortraitHomeScreen;
 
 /**
  * Recents activity to display list of recent tasks in Car.
  */
 public class PortraitCarRecentsActivity extends CarRecentsActivity {
+    private RecentTasksViewModel mRecentTasksViewModel;
+    private PortraitHiddenTaskProvider mPortraitHiddenTaskProvider;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mRecentTasksViewModel = RecentTasksViewModel.getInstance();
+        mPortraitHiddenTaskProvider = new PortraitHiddenTaskProvider(this);
+        mRecentTasksViewModel.addHiddenTaskProvider(mPortraitHiddenTaskProvider);
+    }
+
+    @Override
+    protected void onDestroy() {
+        mRecentTasksViewModel.removeHiddenTaskProvider(mPortraitHiddenTaskProvider);
+        super.onDestroy();
     }
 
     @Override
