@@ -66,7 +66,7 @@
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
-    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶ"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಆ್ಯಕ್ಸೆಸ್"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶವನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ಮೋಡ್‌ನಲ್ಲಿ USB ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP ಮೋಡ್‌ನಲ್ಲಿ ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
