@@ -2708,11 +2708,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halNotSupported() {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halNotSupported() {
         mockUserHalSupported(false);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2722,12 +2721,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halNullResponse() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halNullResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mockHalGetInitialInfo(mAdminUserId, null);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2736,14 +2734,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halDefaultResponse() throws Exception {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+    public void testPriorityInit_halDefaultResponse() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.DEFAULT;
         mGetUserInfoResponse.userLocales = "LOL";
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2753,15 +2750,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halSwitchResponse() throws Exception {
+    public void testPriorityInit_halSwitchResponse() throws Exception {
         int switchUserId = mGuestUserId;
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.SWITCH;
         mGetUserInfoResponse.userToSwitchOrCreate.userId = switchUserId;
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
@@ -2771,17 +2767,16 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testInitBootUser_halCreateResponse() throws Exception {
+    public void testPriorityInit_halCreateResponse() throws Exception {
         int newUserFlags = 42;
         String newUserName = "TheDude";
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         mockExistingUsersAndCurrentUser(mAdminUser);
         mGetUserInfoResponse.action = InitialUserInfoResponseAction.CREATE;
         mGetUserInfoResponse.userToSwitchOrCreate.flags = newUserFlags;
         mGetUserInfoResponse.userNameToCreate = newUserName;
         mockHalGetInitialInfo(mAdminUserId, mGetUserInfoResponse);
 
-        mCarUserService.initBootUser();
+        mCarUserService.priorityInit();
         waitForHandlerThreadToFinish();
 
         verify(mInitialUserSetter).set(argThat((info) -> {
