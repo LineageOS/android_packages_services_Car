@@ -121,7 +121,16 @@ public class AnnotationHelper {
         }
 
         if (!errorsNoAnnotation.isEmpty()) {
-            errorFlatten.append("\nErrors:\nMissing ApiRequirements annotation for-\n");
+            List<Class<?>> annotations = Arrays.stream(annotationClasses).toList();
+            if (annotations.isEmpty()) {
+                errorFlatten.append("Errors:\nannotationClasses argument should not be empty\n");
+            } else {
+                if (annotations.contains(android.car.annotation.ApiRequirements.class)) {
+                    errorFlatten.append("\nErrors:\nMissing ApiRequirements annotation for-\n");
+                } else {
+                    errorFlatten.append("\nErrors:\nMissing AddedIn annotation for-\n");
+                }
+            }
             errorFlatten.append(String.join("\n", errorsNoAnnotation));
         }
 
