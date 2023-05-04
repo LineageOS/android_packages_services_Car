@@ -42,6 +42,7 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public final class ParsedDataBuilder {
 
@@ -284,7 +285,7 @@ public final class ParsedDataBuilder {
                     hasAddedInAnnotation = true;
                     String fullPlatformVersion = getVersion(annotations.get(j),
                             "value");
-                    if (fullPlatformVersion.equals("0")) {
+                    if (Objects.equals(fullPlatformVersion, "0")) {
                         fullPlatformVersion = annotations.get(j).toString()
                                 .split("\\(")[1].split("\\)")[0];
                     }
@@ -307,12 +308,12 @@ public final class ParsedDataBuilder {
                 String fullRequiresApi = getVersion(annotations.get(j), "api");
 
                 // if RequiresApi doesn't have "api" parameter
-                if (fullRequiresApi.equals("0")) {
+                if (Objects.equals(fullRequiresApi, "0")) {
                     fullRequiresApi = getVersion(annotations.get(j), "value");
                 }
 
                 // if RequiresApi doesn't have "value" parameter. Means no parameter
-                if (fullRequiresApi.equals("0")) {
+                if (Objects.equals(fullRequiresApi, "0")) {
                     fullRequiresApi = annotations.get(j).toString()
                             .split("\\(")[1].split("\\)")[0];
                 }

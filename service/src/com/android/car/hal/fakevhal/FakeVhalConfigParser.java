@@ -54,6 +54,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A JSON parser class to get configs and values from JSON config files.
@@ -572,7 +573,7 @@ public final class FakeVhalConfigParser {
     private String parseStringValue(JSONObject parentObject, String fieldName,
             List<String> errors) {
         String value = parentObject.optString(fieldName);
-        if (value.equals("")) {
+        if (Objects.equals(value, "")) {
             errors.add(fieldName + " doesn't have a mapped value.");
             return null;
         }
@@ -653,7 +654,7 @@ public final class FakeVhalConfigParser {
         String enumClassName = ENUM_CLASS_DIRECTORY + propIdStrings[0];
         String constantName = propIdStrings[1];
 
-        if (propIdStrings[0].equals("Constants")) {
+        if (Objects.equals(propIdStrings[0], "Constants")) {
             if (CONSTANTS_BY_NAME.containsKey(constantName)) {
                 return CONSTANTS_BY_NAME.get(constantName);
             }
