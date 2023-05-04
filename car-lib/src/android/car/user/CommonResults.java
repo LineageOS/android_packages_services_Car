@@ -18,8 +18,10 @@ package android.car.user;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
+import android.annotation.RequiresApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -69,6 +71,7 @@ final class CommonResults {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int STATUS_UNSUPPORTED_PLATFORM_FAILURE = 7;
 
     /**

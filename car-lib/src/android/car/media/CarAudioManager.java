@@ -23,6 +23,7 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
@@ -38,6 +39,7 @@ import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -139,6 +141,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int AUDIO_FEATURE_VOLUME_GROUP_EVENTS = 4;
 
     /**
@@ -155,6 +158,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int AUDIO_FEATURE_AUDIO_MIRRORING = 5;
 
     /** @hide */
@@ -219,6 +223,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_APPROVED = 1;
 
@@ -229,6 +234,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_REJECTED = 2;
 
@@ -239,6 +245,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_CANCELLED = 3;
 
@@ -249,6 +256,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_REQUEST_STATUS_STOPPED = 4;
 
@@ -270,6 +278,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_MIRROR_INTERNAL_ERROR = -1;
 
@@ -281,6 +290,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_MIRROR_CAN_ENABLE = 1;
 
@@ -293,6 +303,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @SystemApi
     public static final int AUDIO_MIRROR_OUT_OF_OUTPUT_DEVICES = 2;
 
@@ -907,6 +918,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @Nullable
     public CarAudioZoneConfigInfo getCurrentAudioZoneConfigInfo(int zoneId) {
@@ -936,6 +948,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     @NonNull
     public List<CarAudioZoneConfigInfo> getAudioZoneConfigInfos(int zoneId) {
@@ -970,6 +983,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void switchAudioZoneToConfig(@NonNull CarAudioZoneConfigInfo zoneConfig,
             @NonNull @CallbackExecutor Executor executor,
@@ -1075,6 +1089,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean setPrimaryZoneMediaAudioRequestCallback(
             @NonNull @CallbackExecutor Executor executor,
@@ -1115,6 +1130,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearPrimaryZoneMediaAudioRequestCallback() {
         assertPlatformVersionAtLeastU();
@@ -1149,6 +1165,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean cancelMediaAudioOnPrimaryZone(long requestId) {
         assertPlatformVersionAtLeastU();
@@ -1185,6 +1202,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public long requestMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info,
             @NonNull @CallbackExecutor Executor executor,
@@ -1232,6 +1250,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean allowMediaAudioOnPrimaryZone(long requestId, boolean allow) {
         assertPlatformVersionAtLeastU();
@@ -1263,6 +1282,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean resetMediaAudioOnPrimaryZone(@NonNull OccupantZoneInfo info) {
         assertPlatformVersionAtLeastU();
@@ -1285,6 +1305,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean isMediaAudioAllowedInPrimaryZone(@NonNull OccupantZoneInfo info) {
         assertPlatformVersionAtLeastU();
@@ -1315,6 +1336,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public boolean setAudioZoneMirrorStatusCallback(@NonNull @CallbackExecutor Executor executor,
             @NonNull AudioZonesMirrorStatusCallback callback) {
@@ -1377,6 +1399,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void clearAudioZonesMirrorStatusCallback() {
         assertPlatformVersionAtLeastU();
@@ -1415,6 +1438,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public @AudioMirrorStatus int canEnableAudioMirror() {
         assertPlatformVersionAtLeastU();
@@ -1451,6 +1475,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public long enableMirrorForAudioZones(@NonNull List<Integer> audioZonesToMirror) {
         assertPlatformVersionAtLeastU();
@@ -1492,6 +1517,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void extendAudioMirrorRequest(long mirrorId, @NonNull List<Integer> audioZonesToMirror) {
         assertPlatformVersionAtLeastU();
@@ -1528,6 +1554,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirrorForZone(int zoneId) {
         assertPlatformVersionAtLeastU();
@@ -1557,6 +1584,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public void disableAudioMirror(long mirrorId) {
         assertPlatformVersionAtLeastU();
@@ -1588,6 +1616,7 @@ public final class CarAudioManager extends CarManagerBase {
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForAudioZone(int zoneId) {
         assertPlatformVersionAtLeastU();
@@ -1616,6 +1645,7 @@ public final class CarAudioManager extends CarManagerBase {
     @NonNull
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
     public List<Integer> getMirrorAudioZonesForMirrorRequest(long mirrorId) {
         assertPlatformVersionAtLeastU();
@@ -1767,6 +1797,7 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public boolean registerCarVolumeGroupEventCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarVolumeGroupEventCallback callback) {
@@ -1812,6 +1843,7 @@ public final class CarAudioManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void unregisterCarVolumeGroupEventCallback(
             @NonNull CarVolumeGroupEventCallback callback) {
         assertPlatformVersionAtLeastU();
