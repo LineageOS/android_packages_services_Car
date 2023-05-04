@@ -626,11 +626,11 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         Builder.SpeedRange speedRange = null;
         while (reader.hasNext()) {
             String name = reader.nextName();
-            if (name.equals(JSON_NAME_REQ_OPT)) {
+            if (Objects.equals(name, JSON_NAME_REQ_OPT)) {
                 reqOpt = reader.nextBoolean();
-            } else if (name.equals(JSON_NAME_RESTRICTIONS)) {
+            } else if (Objects.equals(name, JSON_NAME_RESTRICTIONS)) {
                 restrictions = reader.nextInt();
-            } else if (name.equals(JSON_NAME_SPEED_RANGE)) {
+            } else if (Objects.equals(name, JSON_NAME_SPEED_RANGE)) {
                 reader.beginObject();
                 // Okay to set min initial value as MAX_SPEED because SpeedRange() won't allow it.
                 float minSpeed = Builder.SpeedRange.MAX_SPEED;
@@ -638,9 +638,9 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
                 while (reader.hasNext()) {
                     String n = reader.nextName();
-                    if (n.equals(JSON_NAME_MIN_SPEED)) {
+                    if (Objects.equals(n, JSON_NAME_MIN_SPEED)) {
                         minSpeed = Double.valueOf(reader.nextDouble()).floatValue();
-                    } else if (n.equals(JSON_NAME_MAX_SPEED)) {
+                    } else if (Objects.equals(n, JSON_NAME_MAX_SPEED)) {
                         maxSpeed = Double.valueOf(reader.nextDouble()).floatValue();
                     } else {
                         Log.e(TAG, "Unknown name parsing json config: " + n);

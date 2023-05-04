@@ -1133,7 +1133,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (argNum < 3 || argNum > 6) {
                     return showInvalidArguments(writer);
                 }
-                String delayTime = args[argNum - 2].equals("-t") ?  args[argNum - 1] : "0";
+                String delayTime = Objects.equals(args[argNum - 2], "-t") ?  args[argNum - 1] : "0";
                 if (argNum == 4 || argNum == 6) {
                     // Zoned
                     zone = args[2];
@@ -2700,7 +2700,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private void runSuspendCommand(String[] args, IndentingPrintWriter writer) {
         // args[0] is always either COMMAND_SUSPEND or COMMAND_HIBERNE.
         String command = args[0];
-        boolean isHibernation = command.equals(COMMAND_HIBERNATE);
+        boolean isHibernation = Objects.equals(command, COMMAND_HIBERNATE);
         // Default is --auto, so simulate is decided based on device capability.
         boolean simulate = !mCarPowerManagementService.isSuspendAvailable(isHibernation);
         boolean modeSet = false;
@@ -3163,16 +3163,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
             showInvalidArguments(writer);
             return;
         }
-        if (!args[1].equals("true") && !args[1].equals("false")) {
+        if (!Objects.equals(args[1], "true") && !Objects.equals(args[1], "false")) {
             writer.println("Failed to parse killable state argument. "
                     + "Valid arguments: killable | not-killable");
             return;
         }
         int currentUserId = ActivityManager.getCurrentUser();
         mCarWatchdogService.setKillablePackageAsUser(
-                args[2], UserHandle.of(currentUserId), args[1].equals("true"));
+                args[2], UserHandle.of(currentUserId), Objects.equals(args[1], "true"));
         writer.printf("Set package killable state as '%s' for user '%d' and package '%s'\n",
-                args[1].equals("true") ? "killable" : "not killable", currentUserId, args[2]);
+                Objects.equals(args[1], "true") ? "killable" : "not killable", currentUserId,
+                args[2]);
     }
 
     // Set third-party foreground I/O threshold for car watchdog
@@ -3274,11 +3275,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             showInvalidArguments(writer);
             return;
         }
-        if (!args[1].equals("enable") && !args[1].equals("disable")) {
+        if (!Objects.equals(args[1], "enable") && !Objects.equals(args[1], "disable")) {
             writer.println("Failed to parse argument. Valid arguments: enable | disable");
             return;
         }
-        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("enable"));
+        mCarWatchdogService.controlProcessHealthCheck(Objects.equals(args[1], "enable"));
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
     }
 
@@ -3705,7 +3706,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         String packageName = args[2];
         int currentUserId = ActivityManager.getCurrentUser();
 
-        if ("get".equals(args[1])) {
+        if (Objects.equals(args[1], "get")) {
             try {
                 int curState = PackageManagerHelper
                         .getApplicationEnabledSettingForUser(packageName, currentUserId);
@@ -3890,14 +3891,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         // TODO(b/234499460): move --user logic to private helper / support 'all'
         int userId = UserHandle.CURRENT.getIdentifier();
-        if (args[1].equals("--user")) {
+        if (Objects.equals(args[1], "--user")) {
             if (args.length < 4) {
                 showInvalidArguments(writer);
                 return;
             }
             String userArg = args[2];
             firstAppArg += 2;
-            if (!"current".equals(userArg) && !"cur".equals(userArg)) {
+            if (!Objects.equals(userArg, "current") && !Objects.equals(userArg, "cur")) {
                 try {
                     userId = Integer.parseInt(args[2]);
                 } catch (NumberFormatException e) {
@@ -3984,7 +3985,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         String userIdArg = args[1];
         int userId;
 
-        if ("current".equals(userIdArg) || "cur".equals(userIdArg)) {
+        if (Objects.equals(userIdArg, "current") || Objects.equals(userIdArg, "cur")) {
             userId = ActivityManager.getCurrentUser();
         } else {
             try {
