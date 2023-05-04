@@ -149,7 +149,7 @@ public class UptimeTracker {
             try {
                 JsonReader reader = new JsonReader(new FileReader(mUptimeFile));
                 reader.beginObject();
-                if (!reader.nextName().equals("uptime")) {
+                if (!Objects.equals(reader.nextName(), "uptime")) {
                     throw new IllegalArgumentException(
                         mUptimeFile + " is not in a valid format");
                 } else {
