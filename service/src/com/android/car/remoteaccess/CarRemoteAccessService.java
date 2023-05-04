@@ -114,6 +114,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final RemoteTaskClientServiceHandler mHandler =
             new RemoteTaskClientServiceHandler(mHandlerThread.getLooper(), this);
+    private long mAllowedTimeForRemoteTaskClientInitMs =
+            ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValule= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValule= */ 0);
     @GuardedBy("mLock")
@@ -347,6 +349,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @VisibleForTesting
     public void setPowerHal(PowerHalService powerHalService) {
         mPowerHalService = powerHalService;
+    }
+
+    @VisibleForTesting
+    public void setAllowedTimeForRemoteTaskClientInitMs(long allowedTimeForRemoteTaskClientInitMs) {
+        mAllowedTimeForRemoteTaskClientInitMs = allowedTimeForRemoteTaskClientInitMs;
     }
 
     @Override
@@ -792,7 +799,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 serviceName.flattenToString());
         if (scheduleUnbind) {
             mHandler.postUnbindServiceAfterRegistration(serviceInfo,
-                    ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS);
+                    mAllowedTimeForRemoteTaskClientInitMs);
         }
     }
 
