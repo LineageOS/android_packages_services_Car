@@ -16,6 +16,8 @@
 
 package android.car.view;
 
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
+
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
@@ -40,6 +42,7 @@ public final class WindowManagerHelper {
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     @RequiresPermission(android.Manifest.permission.INTERNAL_SYSTEM_WINDOW)
     public static void setTrustedOverlay(@NonNull WindowManager.LayoutParams p) {
+        assertPlatformVersionAtLeastU();
         android.car.builtin.window.WindowManagerHelper.setTrustedOverlay(p);
     }
 
@@ -50,6 +53,7 @@ public final class WindowManagerHelper {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static void setInputFeatureSpy(@NonNull WindowManager.LayoutParams p) {
+        assertPlatformVersionAtLeastU();
         android.car.builtin.window.WindowManagerHelper.setInputFeatureSpy(p);
     }
 }

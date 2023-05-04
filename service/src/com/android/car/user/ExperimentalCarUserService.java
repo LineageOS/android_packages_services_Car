@@ -24,7 +24,6 @@ import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
-import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
 
 import android.annotation.Nullable;
@@ -224,7 +223,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                 String internalErrorMsg =
                         "Only admin users and system user can create other admins.";
                 Slogf.e(TAG, internalErrorMsg);
-                sendUserCreationFailure(resultResultCallbackImpl,
+                mCarUserService.sendUserCreationFailure(resultResultCallbackImpl,
                         UserCreationResult.STATUS_INVALID_REQUEST,
                         internalErrorMsg);
                 return future;

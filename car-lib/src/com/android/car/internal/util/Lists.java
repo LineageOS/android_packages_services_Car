@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 // Copy from frameworks/base/core/java/com/google/android/collect
-
 /**
  * Provides static methods for creating {@code List} instances easily, and other
  * utility methods for working with lists.

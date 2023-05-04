@@ -18,7 +18,6 @@ package com.android.car.occupantconnection;
 
 import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
-import static android.car.CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
@@ -28,6 +27,8 @@ import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_CONNECTION_R
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
 import static android.car.builtin.display.DisplayManagerHelper.EVENT_FLAG_DISPLAY_CHANGED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
 import static com.android.car.CarServiceUtils.assertPermission;
@@ -45,12 +46,13 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarRemoteDeviceManager.AppState;
 import android.car.CarRemoteDeviceManager.OccupantZoneState;
-import android.car.ICarOccupantZoneCallback;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.display.DisplayManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.occupantconnection.ICarRemoteDevice;
 import android.car.occupantconnection.IStateCallback;
+import android.car.user.CarUserManager;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +70,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.SystemActivityMonitoringService;
@@ -75,6 +78,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.BinderKeyValueContainer;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -167,6 +171,11 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     private final SparseArray<PerUserInfo> mPerUserInfoMap;
 
     private final ProcessObserverCallback mProcessObserver = new ProcessObserver();
+
+    private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
+        Slogf.v(TAG, "onEvent(%s)", event);
+        handleUserChange();
+    };
 
     private final class PackageChangeReceiver extends BroadcastReceiver {
 
@@ -291,7 +300,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             return;
         }
         initAllOccupantZones();
-        registerOccupantZoneCallback();
+        registerUserLifecycleListener();
         initAssignedUsers();
         registerDisplayListener();
     }
@@ -423,46 +432,58 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         }
     }
 
-    private void registerOccupantZoneCallback() {
-        mOccupantZoneService.registerCallback(new ICarOccupantZoneCallback.Stub() {
-            @Override
-            public void onOccupantZoneConfigChanged(int flags) {
-                if ((flags & ZONE_CONFIG_CHANGE_FLAG_USER) == 0) {
-                    return;
-                }
-                Slogf.i(TAG, "User changed in occupant zones");
-                synchronized (mLock) {
-                    for (int i = 0; i < mOccupantZoneStateMap.size(); i++) {
-                        OccupantZoneInfo occupantZone = mOccupantZoneStateMap.keyAt(i);
-                        int oldUserId = getAssignedUserLocked(occupantZone);
-                        int newUserId =
-                                mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
-                        Slogf.i(TAG, "In %s, old user was %d, new user is %d",
-                                occupantZone, oldUserId, newUserId);
-                        boolean hasOldUser = (oldUserId != INVALID_USER_ID);
-                        boolean hasNewUser = isNonSystemUser(newUserId);
+    private void registerUserLifecycleListener() {
+        CarUserService userService = CarLocalServices.getService(CarUserService.class);
+        UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
+                // UNLOCKED event indicates the connection becomes ready, while INVISIBLE event
+                // indicates the connection changes to not ready.
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_INVISIBLE)
+                .build();
+        userService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
+    }
 
-                        if ((!hasOldUser && !hasNewUser) || (oldUserId == newUserId)) {
-                            // No secondary user change in this occupant zone, so do nothing.
-                            Slogf.v(TAG, "No user change in %s", occupantZone);
-                            continue;
-                        }
-                        if (hasOldUser && !hasNewUser) {
-                            // The old user was unassigned.
-                            handleUserUnassignedLocked(oldUserId, occupantZone);
-                            continue;
-                        }
-                        if (!hasOldUser && hasNewUser) {
-                            // The new user was assigned.
-                            handleUserAssignedLocked(newUserId, occupantZone);
-                            continue;
-                        }
-                        // The old user switched to a different new user.
-                        handleUserSwitchedLocked(oldUserId, newUserId, occupantZone);
-                    }
+    /**
+     * Handles the user change in all the occpant zones, including the driver occupant zone and
+     * passenger occupant zones.
+     */
+    private void handleUserChange() {
+        synchronized (mLock) {
+            for (int i = 0; i < mOccupantZoneStateMap.size(); i++) {
+                OccupantZoneInfo occupantZone = mOccupantZoneStateMap.keyAt(i);
+                int oldUserId = getAssignedUserLocked(occupantZone);
+                int newUserId =
+                        mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
+                Slogf.i(TAG, "In %s, old user was %d, new user is %d",
+                        occupantZone, oldUserId, newUserId);
+                boolean hasOldUser = (oldUserId != INVALID_USER_ID);
+                boolean hasNewUser = isNonSystemUser(newUserId);
+
+                if (!hasOldUser && !hasNewUser) {
+                    // Still no user secondary assigned in this occupant zone, so do nothing.
+                    Slogf.v(TAG, "Still no user secondary assigned in %s", occupantZone);
+                    continue;
                 }
+                if (oldUserId == newUserId) {
+                    // The user ID doesn't change in this occupant zone, but the user lifecycle
+                    // might have changed, so try to update the occupant zone state.
+                    handleSameUserUpdateLocked(newUserId, occupantZone);
+                    continue;
+                }
+                if (hasOldUser && !hasNewUser) {
+                    // The old user was unassigned.
+                    handleUserUnassignedLocked(oldUserId, occupantZone);
+                    continue;
+                }
+                if (!hasOldUser && hasNewUser) {
+                    // The new user was assigned.
+                    handleUserAssignedLocked(newUserId, occupantZone);
+                    continue;
+                }
+                // The old user switched to a different new user.
+                handleUserSwitchedLocked(oldUserId, newUserId, occupantZone);
             }
-        });
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
@@ -557,6 +578,12 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             Slogf.w(TAG, "%s is assigned to user %d", occupantZone, userId);
             return false;
         }
+        PerUserInfo userInfo = mPerUserInfoMap.get(userId);
+        if (userInfo != null && userInfo.zone.equals(occupantZone)) {
+            Slogf.v(TAG, "Skip initializing PerUserInfo of user %d because it exists already",
+                    userId);
+            return true;
+        }
 
         // Init PackageChangeReceiver.
         PackageChangeReceiver receiver = new PackageChangeReceiver(userId, occupantZone);
@@ -583,7 +610,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             return false;
         }
 
-        PerUserInfo userInfo = new PerUserInfo(occupantZone, userContext, pm, receiver);
+        userInfo = new PerUserInfo(occupantZone, userContext, pm, receiver);
         mPerUserInfoMap.put(userId, userInfo);
         return true;
     }
@@ -596,13 +623,19 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     private void removeUnassignedUserLocked(int userId) {
         PerUserInfo userInfo = mPerUserInfoMap.get(userId);
         if (userInfo == null) {
-            Slogf.e(TAG, "Failed to find PerUserInfo of user %d", userId);
+            Slogf.v(TAG, "Skip removing PerUserInfo of user %d because it doesn't exist", userId);
             return;
         }
         Slogf.v(TAG, "unregisterReceiver() as user %d", userId);
         userInfo.context.unregisterReceiver(userInfo.receiver);
 
         mPerUserInfoMap.remove(userId);
+    }
+
+    @GuardedBy("mLock")
+    private void handleSameUserUpdateLocked(int userId, OccupantZoneInfo occupantZone) {
+        Slogf.v(TAG, "User %d lifecycle might have changed in %s", userId, occupantZone);
+        updateOccupantZoneStateLocked(occupantZone, /* callbackToNotify= */ null);
     }
 
     @GuardedBy("mLock")
@@ -730,17 +763,21 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
      * means the user is ready. If the {@code occupantZone} is on another SoC, connection ready
      * means user ready and internet connection from the caller occupant zone to the {@code
      * occupantZone} is good. User ready means the user has been allocated to the occupant zone,
-     * is actively running, and is unlocked.
+     * is actively running, is unlocked, and is visible.
      */
     // TODO(b/257118327): support multi-SoC.
     boolean isConnectionReady(OccupantZoneInfo occupantZone) {
+        if (!isPlatformVersionAtLeastU()) {
+            Slogf.w(TAG, "CarRemoteDeviceService should run on Android U+");
+            return false;
+        }
         int userId = mOccupantZoneService.getUserForOccupant(occupantZone.zoneId);
-        Slogf.v(TAG, "User ID of %s is %d now", occupantZone, userId);
         if (!isNonSystemUser(userId)) {
             return false;
         }
         UserHandle userHandle = UserHandle.of(userId);
-        return mUserManager.isUserRunning(userHandle) && mUserManager.isUserUnlocked(userHandle);
+        return mUserManager.isUserRunning(userHandle) && mUserManager.isUserUnlocked(userHandle)
+                && mUserManager.getVisibleUsers().contains(userHandle);
     }
 
     /**

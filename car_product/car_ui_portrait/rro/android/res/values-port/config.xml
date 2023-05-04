@@ -49,4 +49,8 @@
     <!-- Whether the device allows users to start in background visible on displays.
      Should be false for most devices, except automotive vehicle with passenger displays. -->
     <bool name="config_multiuserVisibleBackgroundUsers">false</bool>
+
+    <string name="config_recentsComponentName" translatable="false">
+        com.android.car.portraitlauncher/.recents.PortraitCarRecentsActivity
+    </string>
 </resources>

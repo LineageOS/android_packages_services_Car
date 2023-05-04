@@ -27,7 +27,6 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
-import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -330,12 +329,16 @@ public class CarAudioZone {
     }
 
     List<CarVolumeGroupEvent> onAudioPortsChanged(List<HalAudioDeviceInfo> deviceInfos) {
-        ArraySet<CarVolumeGroupEvent> events = new ArraySet<>();
+        List<CarVolumeGroupEvent> events = new ArrayList<>();
         for (int index = 0; index < mCarAudioZoneConfigs.size(); index++) {
-            // filter out duplicate volume group events from different zone configs
-            events.addAll(mCarAudioZoneConfigs.valueAt(index).onAudioPortsChanged(deviceInfos));
+            List<CarVolumeGroupEvent> eventsForZoneConfig = mCarAudioZoneConfigs.valueAt(index)
+                    .onAudioPortsChanged(deviceInfos);
+            // Use events for callback only if current zone configuration
+            if (mCarAudioZoneConfigs.keyAt(index) == getCurrentConfigId()) {
+                events.addAll(eventsForZoneConfig);
+            }
         }
-        return new ArrayList<>(events);
+        return events;
     }
 
     /**

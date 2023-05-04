@@ -21,6 +21,7 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.os.Process.myUid;
 
 import static com.android.car.internal.util.FunctionalUtils.getLambdaName;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeastU;
 
 import android.annotation.CallbackExecutor;
@@ -456,6 +457,7 @@ public final class CarUserManager extends CarManagerBase {
     public void startUser(@NonNull UserStartRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStartResponse> callback) {
+        assertPlatformVersionAtLeastU();
         int uid = myUid();
         int userId = request.getUserHandle().getIdentifier();
         int displayId = request.getDisplayId();
@@ -499,6 +501,7 @@ public final class CarUserManager extends CarManagerBase {
     public void stopUser(@NonNull UserStopRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStopResponse> callback) {
+        assertPlatformVersionAtLeastU();
         int uid = myUid();
         int userId = request.getUserHandle().getIdentifier();
         if (isPlatformVersionAtLeastU()) {

@@ -18,6 +18,7 @@ package com.android.systemui.car.systembar;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
 
 import android.content.BroadcastReceiver;
@@ -30,6 +31,7 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
     private CarUiPortraitButtonSelectionStateController mPortraitButtonStateController;
     private boolean mIsAppGridVisible;
     private boolean mIsNotificationVisible;
+    private boolean mIsRecentsVisible;
 
     CarUiPortraitButtonSelectionStateListener(Context context,
             ButtonSelectionStateController carSystemButtonController) {
@@ -55,6 +57,10 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
                             INTENT_EXTRA_NOTIFICATION_VISIBILITY_CHANGE, false);
                     mPortraitButtonStateController.setNotificationButtonSelected(
                             mIsNotificationVisible);
+                } else if (intent.hasExtra(INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE)) {
+                    mIsRecentsVisible = intent.getBooleanExtra(
+                            INTENT_EXTRA_RECENTS_VISIBILITY_CHANGE, false);
+                    mPortraitButtonStateController.setRecentsButtonSelected(mIsRecentsVisible);
                 }
             }
         };
