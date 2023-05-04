@@ -1009,30 +1009,14 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartSecondaryHome() {
+    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartyHome() {
         doAnswer((invocation) -> null).when(() -> CarServiceUtils.startHomeForUserAndDisplay(
                 any(Context.class), anyInt(), anyInt()));
-
-        // TODO(b/266473227): add to AbstractExtendedMockitoTestCase.
-        when(mUserManager.isVisibleBackgroundUsersOnDefaultDisplaySupported()).thenReturn(false);
 
         send(Key.UP, KeyEvent.KEYCODE_HOME, Display.MAIN, PASSENGER_SEAT);
 
         verify(() -> CarServiceUtils.startHomeForUserAndDisplay(mContext, PASSENGER_USER_ID,
                 PASSENGER_DISPLAY_ID));
-    }
-
-    @Test
-    public void onKeyEvent_homeKeyUpToPassengerSeat_triggersStartSecondaryHome_noDriver() {
-        doAnswer((invocation) -> null).when(
-                () -> CarServiceUtils.startSecondaryHomeForUserAndDisplay(
-                        any(Context.class), anyInt(), anyInt()));
-        when(mUserManager.isVisibleBackgroundUsersOnDefaultDisplaySupported()).thenReturn(true);
-
-        send(Key.UP, KeyEvent.KEYCODE_HOME, Display.MAIN, PASSENGER_SEAT);
-
-        verify(() -> CarServiceUtils.startSecondaryHomeForUserAndDisplay(
-                mContext, PASSENGER_USER_ID, PASSENGER_DISPLAY_ID));
     }
 
     @Test

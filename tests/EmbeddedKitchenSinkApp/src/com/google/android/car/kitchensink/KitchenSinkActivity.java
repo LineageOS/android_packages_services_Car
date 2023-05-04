@@ -36,7 +36,6 @@ import android.os.Handler;
 import android.os.SystemProperties;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -465,10 +464,7 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     private void launchHome() {
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        int displayId = getDisplayId();
-        String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
-                : Intent.CATEGORY_SECONDARY_HOME;
-        homeIntent.addCategory(category);
+        homeIntent.addCategory(Intent.CATEGORY_HOME);
         startActivity(homeIntent);
     }
 
