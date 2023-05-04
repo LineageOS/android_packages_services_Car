@@ -54,7 +54,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.view.Display;
+import android.util.Log;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
@@ -83,10 +83,11 @@ import javax.crypto.spec.GCMParameterSpec;
 /** Utility class */
 public final class CarServiceUtils {
 
-    private static final boolean DBG = false;
     // https://developer.android.com/reference/java/util/UUID
     private static final int UUID_LENGTH = 16;
     private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+
     /** Empty int array */
     public  static final int[] EMPTY_INT_ARRAY = new int[0];
     private static final String COMMON_HANDLER_THREAD_NAME =
@@ -711,10 +712,8 @@ public final class CarServiceUtils {
         if (DBG) {
             Slogf.d(TAG, "Starting HOME for user: %d, display:%d", userId, displayId);
         }
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
-                : Intent.CATEGORY_SECONDARY_HOME;
-        homeIntent.addCategory(category);
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN)
+                .addCategory(Intent.CATEGORY_HOME);
         ActivityOptions activityOptions = ActivityOptions.makeBasic()
                 .setLaunchDisplayId(displayId);
         try {
@@ -726,35 +725,6 @@ public final class CarServiceUtils {
             return true;
         } catch (Exception e) {
             Slogf.w(TAG, e, "Cannot start HOME for user: %d, display:%d", userId, displayId);
-            return false;
-        }
-    }
-
-    /**
-     * Starts Secondary Home Activity for the given {@code userId} and {@code displayId}.
-     *
-     * @return {@code true} when starting activity succeeds. It can fail in situation like secondary
-     *         home package not existing.
-     */
-    public static boolean startSecondaryHomeForUserAndDisplay(Context context,
-            @UserIdInt int userId, int displayId) {
-        if (DBG) {
-            Slogf.d(TAG, "Starting secondary HOME for user: %d, display:%d", userId, displayId);
-        }
-        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-        homeIntent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
-        ActivityOptions activityOptions = ActivityOptions.makeBasic()
-                .setLaunchDisplayId(displayId);
-        try {
-            ContextHelper.startActivityAsUser(context, homeIntent, activityOptions.toBundle(),
-                    UserHandle.of(userId));
-            if (DBG) {
-                Slogf.d(TAG, "Started secondary HOME for user: %d, display:%d", userId, displayId);
-            }
-            return true;
-        } catch (Exception e) {
-            Slogf.w(TAG, e, "Could not start secondary HOME for user: %d, display:%d", userId,
-                    displayId);
             return false;
         }
     }
