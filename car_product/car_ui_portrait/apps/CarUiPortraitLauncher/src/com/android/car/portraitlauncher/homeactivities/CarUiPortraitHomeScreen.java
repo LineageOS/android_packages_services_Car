@@ -274,9 +274,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 if (!mTaskCategoryManager.isCurrentBackgroundApp(taskInfo)) {
                     mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
                     recreate();
-                } else {
-                    mRootTaskViewPanel.closePanel();
-                    mAppGridTaskViewPanel.closePanel();
                 }
                 return;
             }
