@@ -60,7 +60,6 @@ import android.util.Log;
 
 import org.mockito.ArgumentMatcher;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -272,7 +271,7 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager#getAliveUsers()} to return the given users.
+     * Mocks {@link UserManager#getAliveUsers()} to return the given users.
      */
     public static void mockUmGetAliveUsers(UserManager um, UserInfo... users) {
         Objects.requireNonNull(um);
@@ -280,7 +279,7 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager#getAliveUsers()} to return the simple users with the given ids.
+     * Mocks {@link UserManager#getAliveUsers()} to return the simple users with the given ids.
      */
     public static void mockUmGetAliveUsers(UserManager um,
             @UserIdInt int... userIds) {
@@ -290,18 +289,7 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the
-     * given users.
-     */
-    public static void mockUmGetUsers(UserManager um, boolean excludePartial,
-            boolean excludeDying, boolean excludePreCreated, List<UserInfo> users) {
-        Objects.requireNonNull(um);
-        when(um.getUsers(excludePartial, excludeDying, excludePreCreated)).thenReturn(users);
-    }
-
-    /**
-     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
-     * given users.
+     * Mocks {@link UserManager#getUserHandles(boolean)} to return the given users.
      */
     public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
             UserHandle... users) {
@@ -310,45 +298,26 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the given users.
-     *
-     * TODO(b/213374587): replace UserInfo with UserHandle. getUserHandles doesn't take
-     * excludePartial which is required in UserHalHelper. In the next CL, UserHalHelper would be
-     * updated so that current user is always available in the usersInfo.
+     * Mocks {@link UserManager#getUserHandles(boolean)} to return the given users.
      */
     public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
             List<UserHandle> users) {
         Objects.requireNonNull(um);
         Objects.requireNonNull(users);
         when(um.getUserHandles(excludeDying)).thenReturn(users);
-        // TODO(b/213374587): Remove following code
-        // convert List<UserHandle> to List<UserInfos>
-        List<UserInfo> userInfos = new ArrayList<UserInfo>();
-        for (UserHandle userHandle : users) {
-            userInfos.add(UserTestingHelper.newUser(userHandle.getIdentifier()));
-        }
-        mockUmGetUsers(um, /* excludePartial= */ false, excludeDying, /* excludePreCreated= */ true,
-                userInfos);
     }
 
     /**
-     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
-     * given users.
+     * Mocks {@link UserManager#getUserHandles(boolean)} to return the given users.
      */
     public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
             int... userIds) {
         mockUmGetUserHandles(um, excludeDying, UserTestingHelper.newUserHandles(userIds));
     }
 
-    /**
-     * Mocks a call to {@code UserManager#getUsers()}, which includes dying users.
-     */
-    public static void mockUmGetAllUsers(UserManager um, UserInfo... userInfos) {
-        when(um.getUsers()).thenReturn(UserTestingHelper.toList(userInfos));
-    }
-
+    /** Mocks a call to {@link UserManager#getUserHandles(boolean)}. */
     public static void mockUmGetAllUsers(UserManager um, UserHandle... users) {
-        mockUmGetUserHandles(um, false, users);
+        mockUmGetUserHandles(um, /* excludeDying= */ false, users);
     }
 
     /**
