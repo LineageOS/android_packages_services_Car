@@ -56,6 +56,7 @@ import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import org.junit.Before;
@@ -233,7 +234,8 @@ public final class CarPropertyServiceUnitTest {
                 SPEED_ID, 0);
         List<AsyncPropertyServiceRequest> requests = List.of(getPropertyServiceRequest);
 
-        mService.getPropertiesAsync(requests, mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+        mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
         verify(mHalService).getCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
     }
@@ -248,7 +250,8 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testGetPropertiesAsync_throwsExceptionBecauseOfNullCallback() {
         assertThrows(NullPointerException.class,
-                () -> mService.getPropertiesAsync(List.of(), null, ASYNC_TIMEOUT_MS));
+                () -> mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(List.of()),
+                        null, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -258,7 +261,7 @@ public final class CarPropertyServiceUnitTest {
                 invalidPropertyID, 0);
 
         assertThrows(IllegalArgumentException.class, () -> mService.getPropertiesAsync(
-                List.of(getPropertyServiceRequest),
+                new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
@@ -269,7 +272,7 @@ public final class CarPropertyServiceUnitTest {
         when(mHalService.getReadPermission(SPEED_ID)).thenReturn(DENIED_PERMISSION);
 
         assertThrows(SecurityException.class, () -> mService.getPropertiesAsync(
-                List.of(getPropertyServiceRequest),
+                new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
@@ -279,7 +282,7 @@ public final class CarPropertyServiceUnitTest {
                 WRITE_ONLY_INT_PROPERTY_ID, 0);
 
         assertThrows(IllegalArgumentException.class, () -> mService.getPropertiesAsync(
-                List.of(getPropertyServiceRequest),
+                new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
@@ -289,7 +292,7 @@ public final class CarPropertyServiceUnitTest {
                 HVAC_TEMP, NOT_SUPPORTED_AREA_ID);
 
         assertThrows(IllegalArgumentException.class, () -> mService.getPropertiesAsync(
-                List.of(getPropertyServiceRequest),
+                new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
@@ -299,7 +302,7 @@ public final class CarPropertyServiceUnitTest {
                 SPEED_ID, 0);
 
         assertThrows(IllegalArgumentException.class, () -> mService.getPropertiesAsync(
-                List.of(getPropertyServiceRequest),
+                new AsyncPropertyServiceRequestList(List.of(getPropertyServiceRequest)),
                 mAsyncPropertyResultCallback, /* timeoutInMs= */ 0));
     }
 
@@ -309,7 +312,8 @@ public final class CarPropertyServiceUnitTest {
                 0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
         List<AsyncPropertyServiceRequest> requests = List.of(request);
 
-        mService.setPropertiesAsync(requests, mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+        mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
         verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
     }
@@ -322,7 +326,8 @@ public final class CarPropertyServiceUnitTest {
         request.setWaitForPropertyUpdate(false);
         List<AsyncPropertyServiceRequest> requests = List.of(request);
 
-        mService.setPropertiesAsync(requests, mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
+        mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
         verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
     }
@@ -337,7 +342,8 @@ public final class CarPropertyServiceUnitTest {
     @Test
     public void testSetPropertiesAsync_throwsExceptionBecauseOfNullCallback() {
         assertThrows(NullPointerException.class,
-                () -> mService.setPropertiesAsync(List.of(), null, ASYNC_TIMEOUT_MS));
+                () -> mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(List.of()),
+                        null, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -346,7 +352,8 @@ public final class CarPropertyServiceUnitTest {
                 0, READ_WRITE_INT_PROPERTY_ID, 0, new CarPropertyValue(SPEED_ID, 0, 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -356,7 +363,8 @@ public final class CarPropertyServiceUnitTest {
                         READ_WRITE_INT_PROPERTY_ID, /* areaId= */ 1, 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -365,7 +373,8 @@ public final class CarPropertyServiceUnitTest {
                 0, READ_WRITE_INT_PROPERTY_ID, 0, /* carPropertyValue= */ null);
 
         assertThrows(NullPointerException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -375,7 +384,8 @@ public final class CarPropertyServiceUnitTest {
                         0, /* value= */ null));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -385,7 +395,8 @@ public final class CarPropertyServiceUnitTest {
                         0, Float.valueOf(1.1f)));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -395,7 +406,8 @@ public final class CarPropertyServiceUnitTest {
                         0, MAX_INT_VALUE + 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -405,7 +417,8 @@ public final class CarPropertyServiceUnitTest {
                         0, MIN_INT_VALUE - 1));
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -415,7 +428,8 @@ public final class CarPropertyServiceUnitTest {
                 0, invalidPropertyID, 0, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -426,7 +440,8 @@ public final class CarPropertyServiceUnitTest {
                 DENIED_PERMISSION);
 
         assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -435,7 +450,8 @@ public final class CarPropertyServiceUnitTest {
                 SPEED_ID, 0, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     // By default waitForPropertyUpdate is true, which requires the read permisison as well.
@@ -447,7 +463,8 @@ public final class CarPropertyServiceUnitTest {
                 DENIED_PERMISSION);
 
         assertThrows(SecurityException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     // By default waitForPropertyUpdate is true, which requires the read permisison as well.
@@ -457,7 +474,8 @@ public final class CarPropertyServiceUnitTest {
                 WRITE_ONLY_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -466,7 +484,8 @@ public final class CarPropertyServiceUnitTest {
                 0, READ_WRITE_INT_PROPERTY_ID, NOT_SUPPORTED_AREA_ID, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS));
     }
 
     @Test
@@ -475,7 +494,8 @@ public final class CarPropertyServiceUnitTest {
                 0, READ_WRITE_INT_PROPERTY_ID, 0, TEST_PROPERTY_VALUE);
 
         assertThrows(IllegalArgumentException.class, () -> mService.setPropertiesAsync(
-                List.of(request), mAsyncPropertyResultCallback, /* timeoutInMs= */ 0));
+                new AsyncPropertyServiceRequestList(List.of(request)),
+                mAsyncPropertyResultCallback, /* timeoutInMs= */ 0));
     }
 
     @Test
