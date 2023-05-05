@@ -56,6 +56,7 @@ import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -143,9 +144,11 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
             when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE))
                     .thenReturn(true);
             when(mPackageManager.queryIntentServicesAsUser(any(), anyInt(), any())).thenReturn(
-                    List.of(newResolveInfo(PACKAGE_NAME_1, SERVICE_NAME_1, 0),
-                    newResolveInfo(PACKAGE_NAME_2, SERVICE_NAME_2, 9),
+                    List.of(newResolveInfo(PACKAGE_NAME_1, SERVICE_NAME_1, Process.myUid()),
+                    newResolveInfo(PACKAGE_NAME_2, SERVICE_NAME_2, 12345),
                     newResolveInfo(NO_PERMISSION_PACKAGE, SERVICE_NAME_1, 0)));
+            when(mPackageManager.getNameForUid(Process.myUid())).thenReturn(SERVICE_NAME_1);
+            when(mPackageManager.getNameForUid(12345)).thenReturn(SERVICE_NAME_2);
             when(mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS, PACKAGE_NAME_1))
                     .thenReturn(PackageManager.PERMISSION_GRANTED);
             when(mPackageManager.checkPermission(Car.PERMISSION_USE_REMOTE_ACCESS, PACKAGE_NAME_2))
@@ -379,7 +382,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
     @Test
     public void testSetRemoteTaskClientGetRegistrationInfo() throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
 
@@ -397,8 +399,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testSetRemoteTaskClientGetRegistrationInfo_sameClientIdForSameUid()
             throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
-
         mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
 
         verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRegistrationUpdated(
@@ -419,34 +419,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         assertThat(newClientId).isEqualTo(oldClientId);
     }
 
-    @Test
-    public void testSetRemoteTaskClientGetRegistrationInfo_diffClientIdForDiffUid()
-            throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
-
-        mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
-
-        verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRegistrationUpdated(
-                mRegistrationInfoCaptor.capture());
-        RemoteTaskClientRegistrationInfo registrationInfo = mRegistrationInfoCaptor.getValue();
-        String oldClientId = registrationInfo.getClientId();
-
-        mCarRemoteAccessManager.clearRemoteTaskClient();
-
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_2);
-
-        mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
-
-        clearInvocations(mRemoteTaskClientCallback);
-        verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRegistrationUpdated(
-                mRegistrationInfoCaptor.capture());
-        registrationInfo = mRegistrationInfoCaptor.getValue();
-        String newClientId = registrationInfo.getClientId();
-
-        assertWithMessage("Client ID must be different for different UID").that(newClientId)
-                .isNotEqualTo(oldClientId);
-    }
-
     private IRemoteTaskCallback getRemoteAccessHalCallback() throws Exception {
         verify(mRemoteAccessHal, timeout(DEFAULT_TIME_OUT_MS)).setRemoteTaskCallback(
                 mRemoteTaskCallbackCaptor.capture());
@@ -463,7 +435,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testRemoteTaskDeliveredToClient_taskArriveAfterClientRegistration()
             throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
 
         // Wait for the remote task client services to be started.
@@ -494,7 +465,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testRemoteTaskDeliveredToClient_taskArriveBeforePackageDiscovery()
             throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
 
         // This simulates a previous registration process when the remote task server registered
@@ -520,7 +490,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testRemoteTaskDeliveredToClient_taskArriveAfterPackageDiscoveryBeforeRegister()
             throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
 
         // This simulates a previous registration process when the remote task server registered
@@ -556,7 +525,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
     @Test
     public void testRemoteTaskNotDeliveredAfterClearClient() throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -569,7 +537,7 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
     @Test
     public void testUnbindInitRemoteTaskClientService_rebindOnRemoteTask() throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
+        mPropertyHandler.setVehicleInUse(true);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -593,7 +561,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
     @Test
     public void testNotUnbindInitRemoteTaskClientServiceIfRemoteTaskArrive() throws Exception {
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -621,7 +588,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutdownDeviceAfterAllTaskComplete() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -660,7 +626,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateOn() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_ON, false);
 
@@ -674,7 +639,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateOffGarageMode()
             throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_OFF, true);
 
@@ -686,7 +650,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateSTR() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_SUSPEND_TO_RAM,
                 false);
@@ -700,7 +663,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateSTRGarageMode()
             throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_SUSPEND_TO_RAM,
                 true);
@@ -713,7 +675,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateSTD() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_SUSPEND_TO_DISK,
                 false);
@@ -727,7 +688,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     public void testShutDownDeviceAfterAllTaskComplete_nextPowerStateSTDGarageMode()
             throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
 
         mCarRemoteAccessManager.setPowerStatePostTaskExecution(NEXT_POWER_STATE_SUSPEND_TO_DISK,
                 true);
@@ -740,7 +700,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testNotShutdownDeviceIfVehicleInUse() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -753,6 +712,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         mPropertyHandler.setVehicleInUse(true);
         mCarRemoteAccessManager.reportRemoteTaskDone(taskId);
+        assertWithMessage("service should be unbound when all tasks complete").that(
+                getRemoteTaskClientServices()).doesNotContain(
+                        new ComponentName(PACKAGE_NAME_1, SERVICE_NAME_1));
 
         assertWithMessage("shutdown request must not be sent when vehicle is in use")
                 .that(mPropertyHandler.getSetPropValues()).isEmpty();
@@ -761,7 +723,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutdownDeviceAfterAllowedSystemUptime() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -783,7 +744,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testNotShutdownDeviceAfterAllowedSystemUptimeIfVehicleInUse() throws Exception {
         mPropertyHandler.setVehicleInUse(true);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -802,7 +762,6 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     @Test
     public void testShutdownDeviceUponReadyForShutdown() throws Exception {
         mPropertyHandler.setVehicleInUse(false);
-        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
         IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
         String clientId = getClientIdAndWaitForSystemBoot();
 
@@ -820,5 +779,28 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         future.complete();
 
         verifyShutdownRequestSent(VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+    }
+
+    @Test
+    public void testUnbindServiceAfterTimeout() throws Exception {
+        mPropertyHandler.setVehicleInUse(true);
+        IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
+        String clientId = getClientIdAndWaitForSystemBoot();
+
+        mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
+        remoteAccessHalCallback.onRemoteTaskRequested(clientId, TEST_DATA);
+
+        PollingCheck.check("remote task client service must be unbound after timeout",
+                TEST_ALLOWED_SYSTEM_UPTIME_IN_MS + DEFAULT_TIME_OUT_MS,
+                () -> getRemoteTaskClientServices().size() == 0);
+
+        remoteAccessHalCallback.onRemoteTaskRequested(clientId, TEST_DATA);
+
+        PollingCheck.check("remote task client service must be bound when new task arrive",
+                DEFAULT_TIME_OUT_MS, () -> getRemoteTaskClientServices().size() == 1);
+
+        PollingCheck.check("remote task client service must be unbound after timeout",
+                TEST_ALLOWED_SYSTEM_UPTIME_IN_MS + DEFAULT_TIME_OUT_MS,
+                () -> getRemoteTaskClientServices().size() == 0);
     }
 }
