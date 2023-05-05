@@ -75,24 +75,28 @@ final class ScreenOffHandler {
      * Display power mode is unknown. After initialization, needs to be
      * replaced with other mode as below.
      */
-    private static final int DISPLAY_POWER_MODE_NONE = -1;
+    @VisibleForTesting
+    static final int DISPLAY_POWER_MODE_NONE = -1;
     /**
      * With this mode, screen keeps off.
      * And user cannot manually turn on the display.
      */
-    private static final int DISPLAY_POWER_MODE_OFF = 0;
+    @VisibleForTesting
+    static final int DISPLAY_POWER_MODE_OFF = 0;
     /**
      * With this mode, two kinds of behavior is applied.
      * When user logged out, screen off timeout involves.
      * When user logged in, screen keeps on.
      * And user can manually turn off the display.
      */
-    private static final int DISPLAY_POWER_MODE_ON = 1;
+    @VisibleForTesting
+    static final int DISPLAY_POWER_MODE_ON = 1;
     /**
      * With this mode, screen keeps on.
      * And user can manually turn off the display.
      */
-    private static final int DISPLAY_POWER_MODE_ALWAYS_ON = 2;
+    @VisibleForTesting
+    static final int DISPLAY_POWER_MODE_ALWAYS_ON = 2;
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(prefix = "DISPLAY_POWER_MODE_", value = {
             DISPLAY_POWER_MODE_NONE,
@@ -205,18 +209,6 @@ final class ScreenOffHandler {
         }
         synchronized (mLock) {
             return canTurnOnDisplayLocked(displayId);
-        }
-    }
-
-    @VisibleForTesting
-    boolean canTurnOffDisplay(int displayId) {
-        synchronized (mLock) {
-            DisplayPowerInfo info = mDisplayPowerInfos.get(displayId);
-            if (info == null) {
-                Slogf.w(TAG, "display(%d) power info is not ready yet.", displayId);
-                return false;
-            }
-            return info.getMode() == DISPLAY_POWER_MODE_ON;
         }
     }
 
