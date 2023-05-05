@@ -17,10 +17,8 @@
 package android.car.media;
 
 import android.annotation.NonNull;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 
 /**
  * Callback to informed about car audio zone configuration request results
@@ -29,7 +27,6 @@ import android.os.Build;
  */
 @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
         minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SystemApi
 public interface SwitchAudioZoneConfigCallback {
     /**
@@ -41,7 +38,6 @@ public interface SwitchAudioZoneConfigCallback {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void onAudioZoneConfigSwitched(@NonNull CarAudioZoneConfigInfo zoneConfig,
             boolean isSuccessful);
 }
