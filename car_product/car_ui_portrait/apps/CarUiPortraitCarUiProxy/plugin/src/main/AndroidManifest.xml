@@ -29,8 +29,8 @@
         <provider
             android:name="com.android.car.ui.plugin.PluginNameProvider"
             android:authorities="com.android.car.ui.plugin"
-            android:enabled="true"
-            android:exported="true"
+            android:enabled="false"
+            android:exported="false"
             tools:ignore="MissingClass"/>
     </application>
 </manifest>
