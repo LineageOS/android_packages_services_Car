@@ -20,8 +20,9 @@ python_binary_host {
     name: "perf_stats_parser",
     main: "parser/perf_stats_parser.py",
     srcs: [
-        "parser/perf_stats_parser.py",
         "parser/carwatchdog_dump_parser.py",
+        "parser/perf_stats_parser.py",
+        "parser/perf_stats_proto_utils.py",
     ],
     libs: [
         "perf_stats_proto",

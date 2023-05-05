@@ -16,6 +16,7 @@
 #
 
 from datetime import datetime
+import json
 import re
 import sys
 
@@ -320,7 +321,7 @@ class StatsCollection:
         "context_switches": self.context_switches,
         "io_blocked_processes": self.io_blocked_processes,
         "major_page_faults": self.major_page_faults,
-        "packages_cpu_stats": [p.to_dict() for p in self.package_cpu_stats],
+        "package_cpu_stats": [p.to_dict() for p in self.package_cpu_stats],
         "package_storage_io_read_stats": [
             p.to_dict() for p in self.package_storage_io_read_stats
         ],
@@ -676,3 +677,7 @@ def parse_dump(dump):
       idx += 1
 
   return performance_stats
+
+
+def parse_dump_to_json(dump):
+  return json.loads(json.dumps(parse_dump(dump).to_dict()))
