@@ -28,7 +28,6 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
@@ -46,7 +45,6 @@ import android.car.builtin.util.EventLogHelper;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -223,7 +221,6 @@ public final class CarUserManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int USER_LIFECYCLE_EVENT_TYPE_VISIBLE =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_VISIBLE;
 
@@ -235,7 +232,6 @@ public final class CarUserManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public static final int USER_LIFECYCLE_EVENT_TYPE_INVISIBLE =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_INVISIBLE;
 
@@ -458,7 +454,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void startUser(@NonNull UserStartRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStartResponse> callback) {
@@ -503,7 +498,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.INTERACT_ACROSS_USERS})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void stopUser(@NonNull UserStopRequest request,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull ResultCallback<UserStopResponse> callback) {
