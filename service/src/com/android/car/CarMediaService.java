@@ -614,7 +614,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         writer.println("*CarMediaService*");
         writer.increaseIndent();
         writer.printf("DEBUG=%b\n", DEBUG);
-        writer.printf("mPlayOnBootConfig=%d\n", mPlayOnMediaSourceChangedConfig);
+        writer.printf("mPlayOnBootConfig=%d\n", mPlayOnBootConfig);
         writer.printf("mPlayOnMediaSourceChangedConfig=%d\n", mPlayOnMediaSourceChangedConfig);
         writer.printf("mDefaultIndependentPlaybackConfig=%b\n", mDefaultIndependentPlaybackConfig);
         writer.println();
@@ -1245,14 +1245,16 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                             [MEDIA_SOURCE_MODE_PLAYBACK])) {
                 getRemovedMediaSourceComponentsForUser(userId)[MEDIA_SOURCE_MODE_PLAYBACK] = null;
             }
+            notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
             startMediaConnectorService(
                     shouldStartPlayback(mPlayOnMediaSourceChangedConfig, userId), userId);
         } else {
             Slogf.i(TAG, "Media source is null for user %d, skip starting media "
                     + "connector service", userId);
+            // We will still notify the listeners that playback changed
+            notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
         }
 
-        notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK, userId);
         // Reset current playback state for the new source, in the case that the app is in an error
         // state (e.g. not signed in). This state will be updated from the app callback registered
         // below, to make sure mCurrentPlaybackState reflects the current source only.

@@ -28,6 +28,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RequiresApi;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
@@ -55,6 +56,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.SingleMessageHandler;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
+import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.GetSetValueResult;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
@@ -556,6 +558,7 @@ public class CarPropertyManager extends CarManagerBase {
         @SystemApi
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         public int getVendorErrorCode() {
             assertPlatformVersionAtLeastU();
             return mVendorErrorCode;
@@ -2091,8 +2094,8 @@ public class CarPropertyManager extends CarManagerBase {
                 getPropertyCallback);
 
         try {
-            mService.getPropertiesAsync(getPropertyServiceRequests, mAsyncPropertyResultCallback,
-                    timeoutInMs);
+            mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(
+                    getPropertyServiceRequests), mAsyncPropertyResultCallback, timeoutInMs);
         } catch (RemoteException e) {
             clearRequestIdToAsyncRequestInfo(getPropertyRequests);
             handleRemoteExceptionFromCarService(e);
@@ -2207,8 +2210,8 @@ public class CarPropertyManager extends CarManagerBase {
                 setPropertyCallback);
 
         try {
-            mService.setPropertiesAsync(setPropertyServiceRequests, mAsyncPropertyResultCallback,
-                    timeoutInMs);
+            mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(
+                    setPropertyServiceRequests), mAsyncPropertyResultCallback, timeoutInMs);
         } catch (RemoteException e) {
             clearRequestIdToAsyncRequestInfo(setPropertyRequests);
             handleRemoteExceptionFromCarService(e);

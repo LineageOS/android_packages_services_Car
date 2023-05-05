@@ -23,6 +23,7 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.CarPropertyConfigList;
+import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 
 /**
  * @hide
@@ -48,7 +49,7 @@ interface ICarProperty {
     /**
      * Gets CarPropertyValues asynchronously.
      */
-    void getPropertiesAsync(in List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+    void getPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs) = 8;
 
@@ -62,7 +63,7 @@ interface ICarProperty {
     /**
      * Sets CarPropertyValues asynchronously.
      */
-    void setPropertiesAsync(in List<AsyncPropertyServiceRequest> asyncPropertyServiceRequests,
+    void setPropertiesAsync(in AsyncPropertyServiceRequestList asyncPropertyServiceRequests,
                 in IAsyncPropertyResultCallback asyncPropertyResultCallback,
                 long timeoutInMs) = 10;
 }

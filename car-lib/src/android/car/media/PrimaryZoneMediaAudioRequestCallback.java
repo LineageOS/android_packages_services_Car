@@ -17,9 +17,11 @@
 package android.car.media;
 
 import android.annotation.NonNull;
+import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.CarOccupantZoneManager;
 import android.car.annotation.ApiRequirements;
+import android.os.Build;
 
 /**
  * Interface to listen for audio media requests in primary zone
@@ -28,6 +30,7 @@ import android.car.annotation.ApiRequirements;
  */
 @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
         minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @SystemApi
 public interface PrimaryZoneMediaAudioRequestCallback {
 
@@ -39,6 +42,7 @@ public interface PrimaryZoneMediaAudioRequestCallback {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void onRequestMediaOnPrimaryZone(@NonNull CarOccupantZoneManager.OccupantZoneInfo info,
             long requestId);
 
@@ -55,6 +59,7 @@ public interface PrimaryZoneMediaAudioRequestCallback {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     void onMediaAudioRequestStatusChanged(@NonNull CarOccupantZoneManager.OccupantZoneInfo info,
             long requestId, @CarAudioManager.MediaAudioRequestStatus int status);
 }

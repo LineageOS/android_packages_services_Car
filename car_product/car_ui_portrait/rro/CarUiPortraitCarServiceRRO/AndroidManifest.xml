@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.caruiportrait.rro">
     <application android:hasCode="false" />
-    <overlay android:priority="20"
+    <overlay android:priority="2500"
              android:targetName="CarServiceCustomization"
              android:targetPackage="com.android.car.updatable"
              android:resourcesMap="@xml/overlays"
