@@ -246,7 +246,8 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
-    public void testUpdateUserActivity_noUserAssigned() throws Exception {
+    public void testUpdateUserActivity_noUserAssignedInModeOn_shouldTurnOffDisplay()
+            throws Exception {
         bootComplete();
         OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
                 CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
@@ -259,11 +260,8 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
                 .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
                 .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
-        if (!mScreenOffHandler.canTurnOffDisplay(displayId)) {
-            // The screen cannot be turned off. Skipping the test.
-            return;
-        }
 
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
         mScreenOffHandler.updateUserActivity(displayId, mClock.now());
 
         advanceTime(SCREEN_OFF_TIMEOUT + 1);
@@ -271,7 +269,7 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
     }
 
     @Test
-    public void testUpdateUserActivity_userAssigned() throws Exception {
+    public void testUpdateUserActivity_userAssignedInModeOn_shouldKeepScreenOn() throws Exception {
         bootComplete();
         OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
                 CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
@@ -291,6 +289,7 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         ICarOccupantZoneCallback callback = getOccupantZoneCallback();
         callback.onOccupantZoneConfigChanged(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
         mScreenOffHandler.updateUserActivity(displayId, mClock.now());
 
         advanceTime(SCREEN_OFF_TIMEOUT + 1);
@@ -312,6 +311,7 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
                 zoneInfo.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
         assertThat(displayId).isNotEqualTo(Display.INVALID_DISPLAY);
 
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
         mScreenOffHandler.updateUserActivity(displayId, mClock.now());
 
         advanceTime(SCREEN_OFF_TIMEOUT + 1);
@@ -331,23 +331,19 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
                 zoneInfo.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
         assertThat(displayId).isNotEqualTo(Display.INVALID_DISPLAY);
 
-        DisplayPowerModeBuilder builder = new DisplayPowerModeBuilder(mDisplayManager);
-        builder.setDisplayMode(createMockDisplay(displayId, displayPort), /* OFF */ 0);
-
-        updateDisplayPowerModeSetting(builder.build());
+        updateDisplayPowerModeSetting(displayId, displayPort,
+                ScreenOffHandler.DISPLAY_POWER_MODE_OFF);
         assertWithMessage("Display off")
                 .that(mScreenOffHandler.canTurnOnDisplay(displayId)).isFalse();
 
-        builder = new DisplayPowerModeBuilder(mDisplayManager);
-        builder.setDisplayMode(createMockDisplay(displayId, displayPort), /* ON */ 1);
-
-        updateDisplayPowerModeSetting(builder.build());
+        updateDisplayPowerModeSetting(displayId, displayPort,
+                ScreenOffHandler.DISPLAY_POWER_MODE_ON);
         assertWithMessage("Display on")
                 .that(mScreenOffHandler.canTurnOnDisplay(displayId)).isTrue();
     }
 
     @Test
-    public void testHandleDisplayStateChange() throws Exception {
+    public void testHandleDisplayStateChange_modeOn() throws Exception {
         bootComplete();
         OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
                 CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
@@ -360,11 +356,53 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
                 .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
                 .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
-        if (!mScreenOffHandler.canTurnOffDisplay(displayId)) {
-            // The screen cannot be turned off. Skipping the test.
-            return;
-        }
 
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ON);
+        mScreenOffHandler.handleDisplayStateChange(displayId, /* on= */ true);
+
+        advanceTime(SCREEN_OFF_TIMEOUT + 1);
+        verify(mSystemInterface).setDisplayState(displayId, false);
+    }
+
+    @Test
+    public void testHandleDisplayStateChange_modeAlwaysOn() throws Exception {
+        bootComplete();
+        OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
+                VehicleAreaSeat.SEAT_ROW_2_LEFT);
+        assertThat(zoneInfo).isNotNull();
+
+        int displayId = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfo.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        assertThat(displayId).isNotEqualTo(Display.INVALID_DISPLAY);
+        assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
+                .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
+                .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
+
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_ALWAYS_ON);
+        mScreenOffHandler.handleDisplayStateChange(displayId, /* on= */ true);
+
+        advanceTime(SCREEN_OFF_TIMEOUT + 1);
+        verify(mSystemInterface, never()).setDisplayState(displayId, false);
+    }
+
+    @Test
+    public void testHandleDisplayStateChange_modeOff() throws Exception {
+        bootComplete();
+        // TODO(b/279041525): Replace OccupantZoneHelper with mocking logics.
+        OccupantZoneInfo zoneInfo = mCarOccupantZoneService.getOccupantZone(
+                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
+                VehicleAreaSeat.SEAT_ROW_2_LEFT);
+        assertThat(zoneInfo).isNotNull();
+
+        int displayId = mCarOccupantZoneService.getDisplayForOccupant(
+                zoneInfo.zoneId, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        assertThat(displayId).isNotEqualTo(Display.INVALID_DISPLAY);
+        assertWithMessage("User for occupant zone(%s)", zoneInfo.zoneId)
+                .that((mCarOccupantZoneService.getUserForOccupant(zoneInfo.zoneId)))
+                .isEqualTo(CarOccupantZoneManager.INVALID_USER_ID);
+
+        updateDisplayPowerModeSetting(displayId, ScreenOffHandler.DISPLAY_POWER_MODE_OFF);
         mScreenOffHandler.handleDisplayStateChange(displayId, /* on= */ true);
 
         advanceTime(SCREEN_OFF_TIMEOUT + 1);
@@ -397,6 +435,11 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         mRunnableAtBootComplete.run();
     }
 
+    private Display createMockDisplay(int displayId) {
+        int displayPort = displayId;
+        return createMockDisplay(displayId, displayPort);
+    }
+
     private Display createMockDisplay(int displayId, int displayPort) {
         Display display = mock(Display.class);
         DisplayAddress.Physical displayAddress = mock(DisplayAddress.Physical.class);
@@ -423,8 +466,22 @@ public final class ScreenOffHandlerUnitTest extends AbstractExtendedMockitoTestC
         return captor.getValue();
     }
 
-    private void updateDisplayPowerModeSetting(String value) {
-        Settings.Global.putString(mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE, value);
+    private void updateDisplayPowerModeSetting(int displayId, int displayMode) {
+        DisplayPowerModeBuilder builder = new DisplayPowerModeBuilder(mDisplayManager);
+        builder.setDisplayMode(createMockDisplay(displayId), displayMode);
+
+        Settings.Global.putString(mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE,
+                builder.build());
+        ContentObserver osbserver = getSettingsObserver();
+        osbserver.onChange(/* selfChange= */ false, /* uri= */ null);
+    }
+
+    private void updateDisplayPowerModeSetting(int displayId, int displayPort, int displayMode) {
+        DisplayPowerModeBuilder builder = new DisplayPowerModeBuilder(mDisplayManager);
+        builder.setDisplayMode(createMockDisplay(displayId, displayPort), displayMode);
+
+        Settings.Global.putString(mContentResolver, CarSettings.Global.DISPLAY_POWER_MODE,
+                builder.build());
         ContentObserver osbserver = getSettingsObserver();
         osbserver.onChange(/* selfChange= */ false, /* uri= */ null);
     }
