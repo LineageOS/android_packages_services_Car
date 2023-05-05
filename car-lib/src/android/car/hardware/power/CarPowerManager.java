@@ -24,7 +24,6 @@ import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
@@ -32,7 +31,6 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
@@ -698,7 +696,6 @@ public class CarPowerManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void setDisplayPowerState(int displayId, boolean enable) {
         assertPlatformVersionAtLeastU();
         try {
@@ -717,7 +714,6 @@ public class CarPowerManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     public void notifyUserActivity(int displayId) {
         assertPlatformVersionAtLeastU();
         try {

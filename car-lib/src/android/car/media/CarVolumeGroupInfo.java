@@ -21,11 +21,9 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.SystemApi;
 import android.car.annotation.ApiRequirements;
 import android.media.AudioAttributes;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -226,7 +224,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @NonNull
     public List<AudioAttributes> getAudioAttributes() {
         assertPlatformVersionAtLeastU();
@@ -414,7 +411,6 @@ public final class CarVolumeGroupInfo implements Parcelable {
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @NonNull
         public Builder setAudioAttributes(@NonNull List<AudioAttributes> audioAttributes) {
             assertPlatformVersionAtLeastU();
