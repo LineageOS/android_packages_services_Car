@@ -118,6 +118,15 @@ class ProcessCpuStats:
     self.package_cpu_time_percent = package_cpu_time_percent
     self.cpu_cycles = cpu_cycles
 
+  @classmethod
+  def from_proto(cls, stats_pb):
+    return cls(
+        stats_pb.command,
+        stats_pb.cpu_time_ms,
+        round(stats_pb.package_cpu_time_percent, 2),
+        stats_pb.cpu_cycles,
+    )
+
   def __repr__(self):
     return (
         "ProcessCpuStats (command={}, CPU time={}ms, percent of "
@@ -146,6 +155,17 @@ class PackageCpuStats:
     self.total_cpu_time_percent = total_cpu_time_percent
     self.cpu_cycles = cpu_cycles
     self.process_cpu_stats = []
+
+  @classmethod
+  def from_proto(cls, stats_pb):
+    return cls(
+        stats_pb.user_id,
+        stats_pb.package_name,
+        stats_pb.cpu_time_ms,
+        round(stats_pb.total_cpu_time_percent, 2),
+        stats_pb.cpu_cycles,
+        [],
+    )
 
   def to_dict(self):
     return {
@@ -203,6 +223,21 @@ class PackageStorageIoStats:
     self.bg_bytes_percent = bg_bytes_percent
     self.bg_fsync = bg_fsync
     self.bg_fsync_percent = bg_fsync_percent
+
+  @classmethod
+  def from_proto(cls, stats_pb):
+    return cls(
+        stats_pb.user_id,
+        stats_pb.package_name,
+        stats_pb.fg_bytes,
+        round(stats_pb.fg_bytes_percent, 2),
+        stats_pb.fg_fsync,
+        round(stats_pb.fg_fsync_percent, 2),
+        stats_pb.bg_bytes,
+        round(stats_pb.bg_bytes_percent, 2),
+        stats_pb.bg_fsync,
+        round(stats_pb.bg_fsync_percent, 2),
+    )
 
   def to_dict(self):
     return {

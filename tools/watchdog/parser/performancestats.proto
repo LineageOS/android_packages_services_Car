@@ -88,6 +88,19 @@ message PackageCpuStats {
   repeated ProcessCpuStats process_cpu_stats = 6;
 }
 
+message PackageStorageIoStats {
+  optional int32 user_id = 1;
+  optional string package_name = 2;
+  optional int64 fg_bytes = 3;
+  optional float fg_bytes_percent = 4;
+  optional int32 fg_fsync = 5;
+  optional float fg_fsync_percent = 6;
+  optional int64 bg_bytes = 7;
+  optional float bg_bytes_percent = 8;
+  optional int32 bg_fsync = 9;
+  optional float bg_fsync_percent = 10;
+}
+
 message StatsCollection {
   optional int32 id = 1;
   optional Date date = 2;
@@ -98,6 +111,10 @@ message StatsCollection {
   optional int64 context_switches = 7;
   optional int32 io_blocked_processes = 8;
   repeated PackageCpuStats package_cpu_stats = 9;
+  optional int64 total_cpu_cycles = 10;
+  optional int32 major_page_faults = 11;
+  repeated PackageStorageIoStats package_storage_io_read_stats = 12;
+  repeated PackageStorageIoStats package_storage_io_write_stats = 13;
 }
 
 message SystemEventStats {
@@ -108,4 +125,5 @@ message PerformanceStats {
   optional SystemEventStats boot_time_stats = 1;
   repeated SystemEventStats user_switch_stats = 2;
   optional SystemEventStats custom_collection_stats = 3;
+  optional SystemEventStats last_n_minutes_stats = 4;
 }
