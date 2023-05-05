@@ -22,14 +22,12 @@ import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAt
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.annotation.RequiresApi;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.hardware.display.DisplayManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -649,7 +647,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @UserAssignmentResult
     public int assignVisibleUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
             @NonNull UserHandle user) {
@@ -680,7 +677,6 @@ public class CarOccupantZoneManager extends CarManagerBase {
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @UserAssignmentResult
     public int unassignOccupantZone(@NonNull OccupantZoneInfo occupantZone) {
         assertPlatformVersionAtLeastU();
