@@ -16,6 +16,9 @@
 
 package com.android.car.multidisplay.launcher;
 
+import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER;
+import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER;
+
 import static com.android.car.multidisplay.launcher.PinnedAppListViewModel.PINNED_APPS_KEY;
 
 import android.animation.Animator;
@@ -26,6 +29,7 @@ import android.app.Application;
 import android.app.WallpaperManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.app.CarActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -291,6 +295,16 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         if (assignedUserId == getUserId()) {
             Log.i(TAG, "Right user:" + getUserId() + " is assigned to Display#:"
                     + myDisplayId);
+            return;
+        }
+        // To pass MultiDisplaySystemDecorationTests, UserPicker should be launched only in
+        // the passenger zones.
+        // TODO(b/280122459): Elaborate the logic for MUPAND case.
+        OccupantZoneInfo zone = occupantZoneManager.getOccupantZoneForDisplayId(myDisplayId);
+        if (zone == null
+                || (zone.occupantType != OCCUPANT_TYPE_FRONT_PASSENGER
+                        && zone.occupantType != OCCUPANT_TYPE_REAR_PASSENGER)) {
+            Log.i(TAG, "Not a passenger zone, don't start UserPicker: Display#:" + myDisplayId);
             return;
         }
         UserManager userManager = getSystemService(UserManager.class);
