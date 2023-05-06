@@ -18,5 +18,5 @@
     <color name="button_background_color">#E8EAED</color>
     <color name="fragment_error_text_primary_color">@color/car_ui_text_color_primary</color>
     <color name="queue_playing_icon_color">@color/car_on_surface</color>
-    <color name="icon_tint">?android:attr/textColorPrimary</color>
+    <color name="icon_tint">@color/car_ui_text_color_primary</color>
 </resources>
