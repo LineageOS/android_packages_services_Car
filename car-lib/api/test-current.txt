@@ -1631,7 +1631,9 @@ package android.car.media {
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void addMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
     method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public java.util.List<android.content.ComponentName> getLastMediaSources(int);
     method @NonNull @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public android.content.ComponentName getMediaSource(int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public boolean isIndependentPlaybackConfig();
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void removeMediaSourceListener(@NonNull android.car.media.CarMediaManager.MediaSourceChangedListener, int);
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setIndependentPlaybackConfig(boolean);
     method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setMediaSource(@NonNull android.content.ComponentName, int);
     field public static final int MEDIA_SOURCE_MODE_BROWSE = 1; // 0x1
     field public static final int MEDIA_SOURCE_MODE_PLAYBACK = 0; // 0x0
@@ -2496,7 +2498,9 @@ package android.car.util.concurrent {
 package android.car.view {
 
   public final class DisplayHelper {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static int getPhysicalPort(@NonNull android.view.Display);
     method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @Nullable public static String getUniqueId(@NonNull android.view.Display);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int INVALID_PORT = -1; // 0xffffffff
   }
 
   public final class MirroredSurfaceView extends android.view.SurfaceView {
