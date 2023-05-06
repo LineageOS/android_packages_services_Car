@@ -433,6 +433,7 @@ public class CarInputService extends ICarInput.Stub
             mProjectionKeyEventHandler = null;
             mProjectionKeyEventsSubscribed.clear();
             mInstrumentClusterKeyListener = null;
+            mListeners.clear();
         }
         mUserService.removeUserLifecycleListener(mUserLifecycleListener);
     }
