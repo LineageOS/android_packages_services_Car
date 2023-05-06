@@ -178,7 +178,6 @@ public final class PowerComponentHandler {
             mLastModifiedComponents.clear();
             for (int i = 0; i < enabledComponents.length; i++) {
                 int component = enabledComponents[i];
-                // if component wasn't used before, we save it for further reference
                 if (mRegisteredComponents.indexOf(component) == -1) {
                     throw new IllegalStateException(
                             "Component with id " + component + " is not registered");
@@ -249,8 +248,11 @@ public final class PowerComponentHandler {
      */
     @GuardedBy("mLock")
     private boolean setComponentEnabledLocked(int component, boolean enabled) {
+        int componentIndex = mComponentStates.indexOfKey(component); // check if component exists
         boolean oldState = mComponentStates.get(component, /* valueIfKeyNotFound= */ false);
-        if (oldState == enabled) {
+        // If components is not in mComponentStates and enabled is false, oldState will be false,
+        // as result function will return false without adding component to mComponentStates
+        if (oldState == enabled && componentIndex >= 0) {
             return false;
         }
 
@@ -344,7 +346,11 @@ public final class PowerComponentHandler {
     public void registerCustomComponents(Integer[] components) {
         synchronized (mLock) {
             for (int i = 0; i < components.length; i++) {
-                mRegisteredComponents.add(components[i]);
+                int componentId = components[i];
+                // Add only new components
+                if (mRegisteredComponents.indexOf(componentId) == -1) {
+                    mRegisteredComponents.add(componentId);
+                }
             }
         }
     }

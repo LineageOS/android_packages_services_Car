@@ -55,6 +55,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -232,9 +233,11 @@ public final class PolicyReader {
     @PolicyOperationStatus.ErrorCode
     int definePowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents) {
-        if (policyId == null) {
+        // policyId cannot be empty or null
+        if (policyId == null || policyId.length() == 0) {
             int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
-            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, "policyId cannot be null"));
+            Slogf.w(TAG,
+                    PolicyOperationStatus.errorCodeToString(error, "policyId cannot be empty"));
             return error;
         }
         if (isSystemPowerPolicy(policyId)) {
@@ -813,12 +816,22 @@ public final class PolicyReader {
 
     @PolicyOperationStatus.ErrorCode
     int parseComponents(String[] componentArr, boolean enabled, SparseBooleanArray components) {
+        ArrayList<Integer> customComponentIds = new ArrayList<>();
         for (int i = 0; i < componentArr.length; i++) {
             int component = toPowerComponent(componentArr[i], false);
             if (component == INVALID_POWER_COMPONENT) {
-                int error = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
-                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
-                return error;
+                try {
+                    component = Integer.parseInt(componentArr[i]);
+                } catch (NumberFormatException e) {
+                    Slogf.e(TAG, "Error parsing component ID " + e.toString());
+                    return PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                }
+
+                if (component < MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                    int error = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                    Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
+                    return error;
+                }
             }
             if (components.indexOfKey(component) >= 0) {
                 int error = PolicyOperationStatus.ERROR_DUPLICATED_POWER_COMPONENT;
@@ -826,6 +839,14 @@ public final class PolicyReader {
                 return error;
             }
             components.put(component, enabled);
+            customComponentIds.add(component);
+        }
+        for (int i = 0; i < customComponentIds.size(); ++i) {
+            int componentId = customComponentIds.get(i);
+            // Add only new components
+            if (!mCustomComponents.containsValue(componentId)) {
+                mCustomComponents.put(String.valueOf(componentId), componentId);
+            }
         }
         return PolicyOperationStatus.OK;
     }
