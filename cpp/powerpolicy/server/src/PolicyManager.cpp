@@ -19,6 +19,8 @@
 
 #include "PolicyManager.h"
 
+#include "android-base/parseint.h"
+
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
@@ -532,14 +534,21 @@ void configureComponents(const std::vector<PowerComponent>& configComponents,
 }
 
 Result<void> stringsToComponents(const std::vector<std::string>& arr,
-                                 std::vector<PowerComponent>* components) {
+                                 std::vector<PowerComponent>* components,
+                                 std::vector<int>* customComponents) {
     for (const auto& c : arr) {
         const char* component = c.c_str();
         PowerComponent componentId = toPowerComponent(component, "");
         if (componentId == INVALID_POWER_COMPONENT) {
-            return Error() << StringPrintf("%s is not a valid component", component);
+            int customComponentId = 0;
+            bool result = android::base::ParseInt(component, &customComponentId);
+            if (!result || customComponentId < MINIMUM_CUSTOM_COMPONENT_VALUE) {
+                return Error() << StringPrintf("%s is not a valid component", component);
+            }
+            customComponents->push_back(customComponentId);
+        } else {
+            components->push_back(componentId);
         }
-        components->push_back(componentId);
     }
     return {};
 }
@@ -637,11 +646,13 @@ Result<void> PolicyManager::definePowerPolicy(const std::string& policyId,
     }
     auto policy = std::make_shared<CarPowerPolicy>();
     policy->policyId = policyId;
-    auto ret = stringsToComponents(enabledComponents, &policy->enabledComponents);
+    auto ret = stringsToComponents(enabledComponents, &policy->enabledComponents,
+                                   &policy->enabledCustomComponents);
     if (!ret.ok()) {
         return ret;
     }
-    ret = stringsToComponents(disabledComponents, &policy->disabledComponents);
+    ret = stringsToComponents(disabledComponents, &policy->disabledComponents,
+                              &policy->disabledCustomComponents);
     if (!ret.ok()) {
         return ret;
     }
