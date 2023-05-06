@@ -59,7 +59,8 @@ public final class RemoteAccessStorageUnitTest {
         mContext = InstrumentationRegistry.getTargetContext().createDeviceProtectedStorageContext();
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
         when(mSystemInterface.getSystemCarDir()).thenReturn(mDatabaseFile.getParentFile());
-        mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
+        mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
+                /* inMemoryStorage= */ true);
         RemoteAccessStorage.setKeyAlias(KEY_ALIAS_REMOTE_ACCESS_STORAGE_UNIT_TEST);
     }
 

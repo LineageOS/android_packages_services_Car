@@ -137,7 +137,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
-    @Mock private RemoteAccessHalWrapper mRemoteAccessHal;
+    @Mock private RemoteAccessHalWrapper mRemoteAccessHalWrapper;
     @Mock private SystemInterface mSystemInterface;
     @Mock private CarPowerManagementService mCarPowerManagementService;
     @Mock private CarUserService mCarUserService;
@@ -149,8 +149,11 @@ public final class CarRemoteAccessServiceUnitTest {
     @Captor private ArgumentCaptor<RemoteTaskClientRegistrationInfo> mRegistrationInfoCaptor;
 
     private CarRemoteAccessService newServiceWithSystemUpTime(long systemUpTime) {
-        return new CarRemoteAccessService(mContext, mSystemInterface, mPowerHalService,
-                mDep, mRemoteAccessHal, mRemoteAccessStorage, systemUpTime);
+        CarRemoteAccessService service =  new CarRemoteAccessService(mContext, mSystemInterface,
+                mPowerHalService, mDep, /* remoteAccessHal= */ null, mRemoteAccessStorage,
+                systemUpTime, /* inMemoryStorage= */ false);
+        service.setRemoteAccessHalWrapper(mRemoteAccessHalWrapper);
+        return service;
     }
 
     @Before
@@ -175,10 +178,11 @@ public final class CarRemoteAccessServiceUnitTest {
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
         when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
                 .thenReturn(300);
-        when(mRemoteAccessHal.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
-        when(mRemoteAccessHal.getVehicleId()).thenReturn(TEST_VEHICLE_ID);
-        when(mRemoteAccessHal.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);
-        when(mRemoteAccessHal.notifyApStateChange(anyBoolean(), anyBoolean())).thenReturn(true);
+        when(mRemoteAccessHalWrapper.getWakeupServiceName()).thenReturn(WAKEUP_SERVICE_NAME);
+        when(mRemoteAccessHalWrapper.getVehicleId()).thenReturn(TEST_VEHICLE_ID);
+        when(mRemoteAccessHalWrapper.getProcessorId()).thenReturn(TEST_PROCESSOR_ID);
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(true);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_OFF);
         when(mSystemInterface.getSystemCarDir()).thenReturn(mDatabaseFile.getParentFile());
@@ -193,7 +197,8 @@ public final class CarRemoteAccessServiceUnitTest {
                 PERMISSION_GRANTED_PACKAGE_TWO);
 
         mRemoteAccessCallback = new ICarRemoteAccessCallbackImpl();
-        mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface);
+        mRemoteAccessStorage = new RemoteAccessStorage(mContext, mSystemInterface,
+                /* inMemoryStorage= */ true);
         mService = newServiceWithSystemUpTime(ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS);
     }
 
@@ -336,17 +341,18 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testCarRemoteAccessServiceInit() throws Exception {
         mService.init();
 
-        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
                 /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
     }
 
     @Test
     public void testCarRemoteAccessServiceInit_retryNotifyApState() throws Exception {
-        when(mRemoteAccessHal.notifyApStateChange(anyBoolean(), anyBoolean())).thenReturn(false);
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(false);
 
         mService.init();
 
-        verify(mRemoteAccessHal, timeout(1500).times(10)).notifyApStateChange(
+        verify(mRemoteAccessHalWrapper, timeout(1500).times(10)).notifyApStateChange(
                 /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
     }
 
@@ -607,11 +613,12 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_waitForVhal() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
-        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_WAIT_FOR_VHAL, 0);
         // notifyApStateChange is also called when initializaing CarRemoteAccessService.
-        verify(mRemoteAccessHal, times(2)).notifyApStateChange(
+        verify(mRemoteAccessHalWrapper, times(2)).notifyApStateChange(
                 /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
         verify(mCarPowerManagementService, never())
                 .finished(eq(CarPowerManager.STATE_WAIT_FOR_VHAL), any());
@@ -621,11 +628,12 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_shutdownPrepare() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
-        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
         // TODO(b/268810241): Restore isWakeupRequired to false.
-        verify(mRemoteAccessHal).notifyApStateChange(/* isReadyForRemoteTask= */ false,
+        verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
                 /* isWakeupRequired= */ true);
         verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
                 any());
@@ -635,10 +643,11 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyApPowerState_postShutdownEnter() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
-        verify(mRemoteAccessHal, timeout(1000)).notifyApStateChange(anyBoolean(), anyBoolean());
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_POST_SHUTDOWN_ENTER, 0);
-        verify(mRemoteAccessHal).notifyApStateChange(/* isReadyForRemoteTask= */ false,
+        verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
                 /* isWakeupRequired= */ true);
         verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_POST_SHUTDOWN_ENTER),
                 any());
