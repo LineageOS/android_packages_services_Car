@@ -42,6 +42,7 @@ import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.hardware.automotive.remoteaccess.IRemoteAccess;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -179,7 +180,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     mIsWakeupRequired = isWakeupRequired;
                 }
                 mHandler.cancelNotifyApStateChange();
-                if (!mRemoteAccessHal.notifyApStateChange(
+                if (!mRemoteAccessHalWrapper.notifyApStateChange(
                         isReadyForRemoteTask, isWakeupRequired)) {
                     Slogf.e(TAG, "Cannot notify AP state change according to power state(%d)",
                             state);
@@ -264,8 +265,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             maybeStartNewRemoteTask(clientId);
         }
     };
-    private final RemoteAccessHalWrapper mRemoteAccessHal;
-    private final PowerHalService mPowerHalService;
+    private RemoteAccessHalWrapper mRemoteAccessHalWrapper;
+    private PowerHalService mPowerHalService;
     private final UserManager mUserManager;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
@@ -285,8 +286,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
             PowerHalService powerHalService) {
         this(context, systemInterface, powerHalService, /* dep= */ null,
-                /* remoteAccessHal= */ null, new RemoteAccessStorage(context, systemInterface),
-                INVALID_ALLOWED_SYSTEM_UPTIME);
+                /* remoteAccessHal= */ null, /* remoteAccessStorage= */ null,
+                INVALID_ALLOWED_SYSTEM_UPTIME, /* inMemoryStorage= */ false);
     }
 
     /**
@@ -319,33 +320,44 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @VisibleForTesting
     public CarRemoteAccessService(Context context, SystemInterface systemInterface,
             PowerHalService powerHalService, @Nullable CarRemoteAccessServiceDep dep,
-            @Nullable RemoteAccessHalWrapper remoteAccessHal,
-            @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs) {
+            @Nullable IRemoteAccess remoteAccessHal,
+            @Nullable RemoteAccessStorage remoteAccessStorage, long allowedSystemUptimeMs,
+            boolean inMemoryStorage) {
         mContext = context;
         mUserManager = mContext.getSystemService(UserManager.class);
         mPowerHalService = powerHalService;
         mDep = dep != null ? dep : new CarRemoteAccessServiceDepImpl();
         mPackageManager = mContext.getPackageManager();
-        mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
-        mRemoteAccessHal = remoteAccessHal != null ? remoteAccessHal
-                : new RemoteAccessHalWrapper(mHalCallback);
+        mRemoteAccessHalWrapper = new RemoteAccessHalWrapper(mHalCallback, remoteAccessHal);
         mAllowedSystemUptimeMs = allowedSystemUptimeMs == INVALID_ALLOWED_SYSTEM_UPTIME
                 ? getAllowedSystemUptimeForRemoteTaskInMs() : allowedSystemUptimeMs;
         mShutdownTimeInMs = SystemClock.uptimeMillis() + mAllowedSystemUptimeMs;
-        mRemoteAccessStorage = remoteAccessStorage;
+        mRemoteAccessStorage = remoteAccessStorage != null ? remoteAccessStorage :
+                new RemoteAccessStorage(context, systemInterface, inMemoryStorage);
         // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
                 PACKAGE_SEARCH_DELAY);
     }
 
+    @VisibleForTesting
+    public void setRemoteAccessHalWrapper(RemoteAccessHalWrapper remoteAccessHalWrapper) {
+        mRemoteAccessHalWrapper = remoteAccessHalWrapper;
+    }
+
+    @VisibleForTesting
+    public void setPowerHal(PowerHalService powerHalService) {
+        mPowerHalService = powerHalService;
+    }
+
     @Override
     public void init() {
+        mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
         populatePackageClientIdMapping();
-        mRemoteAccessHal.init();
+        mRemoteAccessHalWrapper.init();
         try {
-            mWakeupServiceName = mRemoteAccessHal.getWakeupServiceName();
-            mVehicleId = mRemoteAccessHal.getVehicleId();
-            mProcessorId = mRemoteAccessHal.getProcessorId();
+            mWakeupServiceName = mRemoteAccessHalWrapper.getWakeupServiceName();
+            mVehicleId = mRemoteAccessHalWrapper.getVehicleId();
+            mProcessorId = mRemoteAccessHalWrapper.getProcessorId();
         } catch (IllegalStateException e) {
             Slogf.e(TAG, e, "Cannot get vehicle/processor/service info from remote access HAL");
         }
@@ -369,8 +381,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @Override
     public void release() {
         mHandler.cancelAll();
-        mRemoteAccessHal.release();
+        mRemoteAccessHalWrapper.release();
         mRemoteAccessStorage.release();
+        mHandlerThread.quitSafely();
     }
 
     @Override
@@ -792,6 +805,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     private void notifyApStateChange() {
+        if (DEBUG) {
+            Slogf.d(TAG, "notify ap state change");
+        }
         boolean isReadyForRemoteTask;
         boolean isWakeupRequired;
         synchronized (mLock) {
@@ -801,7 +817,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 return;
             }
         }
-        if (!mRemoteAccessHal.notifyApStateChange(isReadyForRemoteTask, isWakeupRequired)) {
+        if (!mRemoteAccessHalWrapper.notifyApStateChange(isReadyForRemoteTask, isWakeupRequired)) {
             Slogf.e(TAG, "Cannot notify AP state change, waiting for "
                     + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
             mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
@@ -1328,6 +1344,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             cancelAllUnbindServiceAfterRegistration();
             cancelWrapUpRemoteAccessService();
             cancelNotifyShutdownStarting();
+            cancelNotifyApStateChange();
         }
 
         @Override
