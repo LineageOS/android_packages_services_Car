@@ -602,6 +602,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         if (userMediaContext.mContext != null) {
             userMediaContext.mContext.unregisterReceiver(mPackageUpdateReceiver);
+            userMediaContext.mContext = null;
         }
         userMediaContext.mMediaSessionUpdater.unregisterCallbacks();
         mMediaSessionManager.removeOnActiveSessionsChangedListener(
