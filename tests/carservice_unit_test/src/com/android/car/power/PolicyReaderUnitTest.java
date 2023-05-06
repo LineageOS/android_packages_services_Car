@@ -284,6 +284,39 @@ public final class PolicyReaderUnitTest {
                 SYSTEM_POWER_POLICY_CUSTOM_COMPONENTS);
     }
 
+    @Test
+    public void testDefinePowerPolicy() throws Exception {
+        readPowerPolicyXml(R.raw.valid_power_policy_custom_components);
+        // test definition with system_ prefix
+        assertThat(mPolicyReader.definePowerPolicy("system_power_policy_no_user_interaction",
+                new String[]{}, new String[]{})).isEqualTo(
+                PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID);
+        // test definition with empty
+        assertThat(mPolicyReader.definePowerPolicy("", new String[]{}, new String[]{})).isEqualTo(
+                PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID);
+        // test definition with null string
+        assertThat(mPolicyReader.definePowerPolicy(null, new String[]{}, new String[]{})).isEqualTo(
+                PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID);
+        // test policies with duplicate names
+        assertThat(mPolicyReader.definePowerPolicy("duplicate_policy", new String[]{},
+                new String[]{})).isEqualTo(PolicyOperationStatus.OK);
+        assertThat(mPolicyReader.definePowerPolicy("duplicate_policy", new String[]{},
+                new String[]{})).isEqualTo(
+                PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
+        // test policy with duplicate components
+        assertThat(mPolicyReader.definePowerPolicy("policy_with_duplicate_elements",
+                new String[]{"AUDIO", "MEDIA", "DISPLAY"}, new String[]{"DISPLAY"})).isEqualTo(
+                PolicyOperationStatus.ERROR_DUPLICATED_POWER_COMPONENT);
+        // test policy with duplicate custom components
+        assertThat(mPolicyReader.definePowerPolicy("policy_with_duplicate_custom_elements",
+                new String[]{"1000", "MEDIA"}, new String[]{"1000", "DISPLAY"})).isEqualTo(
+                PolicyOperationStatus.ERROR_DUPLICATED_POWER_COMPONENT);
+        // test policy with duplicate custom components
+        assertThat(mPolicyReader.definePowerPolicy("policy_with_custom_elements",
+                new String[]{"1001", "MEDIA"}, new String[]{"1000", "DISPLAY"})).isEqualTo(
+                PolicyOperationStatus.OK);
+    }
+
     private void assertDefaultPolicies() {
         assertThat(mPolicyReader.getPowerPolicy(ALL_ON_POLICY_ID)).isNotNull();
         assertThat(mPolicyReader.getPreemptivePowerPolicy(NO_USER_INTERACTION_POLICY_ID))
