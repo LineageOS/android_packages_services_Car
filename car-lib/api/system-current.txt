@@ -2397,7 +2397,9 @@ package android.car.user {
 package android.car.view {
 
   public final class DisplayHelper {
+    method public static int getPhysicalPort(@NonNull android.view.Display);
     method @Nullable public static String getUniqueId(@NonNull android.view.Display);
+    field public static final int INVALID_PORT = -1; // 0xffffffff
   }
 
   public final class MirroredSurfaceView extends android.view.SurfaceView {
