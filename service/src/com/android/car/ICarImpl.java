@@ -166,8 +166,10 @@ public class ICarImpl extends ICar.Stub {
     private final CarTelemetryService mCarTelemetryService;
     private final CarActivityService mCarActivityService;
     private final CarOccupantConnectionService mCarOccupantConnectionService;
-    private final CarRemoteAccessService mCarRemoteAccessService;
     private final CarRemoteDeviceService mCarRemoteDeviceService;
+    // Only modified at setCarRemoteAccessService for testing.
+    @Nullable
+    private CarRemoteAccessService mCarRemoteAccessService;
 
     private final CarSystemService[] mAllServices;
 
@@ -198,8 +200,8 @@ public class ICarImpl extends ICar.Stub {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
                 /* carPerformanceService= */ null, /* garageModeService= */ null,
-                /* powerPolicyDaemon= */ null, /*carTelemetryService= */
-                null, /* doPriorityInitInConstruction= */ true);
+                /* powerPolicyDaemon= */ null, /* carTelemetryService= */ null,
+                /* carRemoteAccessService= */ null, /* doPriorityInitInConstruction= */ true);
     }
 
     @VisibleForTesting
@@ -211,6 +213,7 @@ public class ICarImpl extends ICar.Stub {
             @Nullable GarageModeService garageModeService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon,
             @Nullable CarTelemetryService carTelemetryService,
+            @Nullable CarRemoteAccessService carRemoteAccessService,
             boolean doPriorityInitInConstruction) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
@@ -458,9 +461,15 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled((Car.CAR_REMOTE_ACCESS_SERVICE))) {
-            mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
-                    () -> new CarRemoteAccessService(
-                            serviceContext, systemInterface, mHal.getPowerHal()), allServices);
+            if (carRemoteAccessService == null) {
+                mCarRemoteAccessService = constructWithTrace(t, CarRemoteAccessService.class,
+                        () -> new CarRemoteAccessService(
+                                serviceContext, systemInterface, mHal.getPowerHal()), allServices);
+            } else {
+                mCarRemoteAccessService = carRemoteAccessService;
+                mCarRemoteAccessService.setPowerHal(mHal.getPowerHal());
+                allServices.add(mCarRemoteAccessService);
+            }
         } else {
             mCarRemoteAccessService = null;
         }
