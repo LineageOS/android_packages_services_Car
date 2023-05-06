@@ -708,6 +708,28 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     @Test
+    public void testUnbindAllServiceOnShutdownPrepare() throws Exception {
+        mService.init();
+        ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
+        mBootComplete.run();
+
+        powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
+
+        verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
+                /* isWakeupRequired= */ false);
+        verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
+                any());
+        verify(mContext, times(2)).unbindService(any());
+
+        // Unbind service multiple times must do nothing.
+        powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
+
+        verify(mContext, times(2)).unbindService(any());
+    }
+
+    @Test
     public void testNotifyApPowerState_postShutdownEnter() throws Exception {
         mService.init();
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();

@@ -161,6 +161,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     isWakeupRequired = false;
 
                     needsComplete = true;
+                    // If this shutdown is initiated by remote access service, then all remote task
+                    // client services should already be unbound and this will do nothing. This is
+                    // useful for cases when the shutdown is not initiated by us (e.g. by user).
+                    unbindAllServices();
                     break;
                 case CarPowerManager.STATE_WAIT_FOR_VHAL:
                 case CarPowerManager.STATE_SUSPEND_EXIT:
