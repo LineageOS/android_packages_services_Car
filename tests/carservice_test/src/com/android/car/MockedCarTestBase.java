@@ -54,6 +54,7 @@ import com.android.car.hal.test.HidlVehiclePropConfigBuilder;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -106,6 +107,7 @@ public class MockedCarTestBase {
     private CarTelemetryService mCarTelemetryService;
     private CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
     private CarPerformanceService mCarPerformanceService;
+    private CarRemoteAccessService mCarRemoteAccessService;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -192,6 +194,15 @@ public class MockedCarTestBase {
     }
 
     /**
+     * Set the CarRemoteAccessService to be used during the test.
+     *
+     * If not called, the real service would be used.
+     */
+    protected void setCarRemoteAccessService(CarRemoteAccessService service) {
+        mCarRemoteAccessService = service;
+    }
+
+    /**
      * Called after {@code ICarImpl} is created and before {@code ICarImpl.init()} is called.
      *
      * <p> Subclass that intend to apply spyOn() to the service under testing should override this.
@@ -208,13 +219,17 @@ public class MockedCarTestBase {
 
     protected SystemInterface.Builder getSystemInterfaceBuilder() {
         return SystemInterface.Builder.newSystemInterface()
-                .withSystemStateInterface(new MockSystemStateInterface())
+                .withSystemStateInterface(createMockSystemStateInterface())
                 .withActivityManagerInterface(new MockActivityManagerInterface())
                 .withDisplayInterface(new MockDisplayInterface())
                 .withIOInterface(mMockIOInterface)
                 .withStorageMonitoringInterface(new MockStorageMonitoringInterface())
                 .withTimeInterface(new MockTimeInterface())
                 .withWakeLockInterface(new MockWakeLockInterface());
+    }
+
+    protected SystemStateInterface createMockSystemStateInterface() {
+        return new MockSystemStateInterface();
     }
 
     protected void configureFakeSystemInterface() {}
@@ -320,7 +335,7 @@ public class MockedCarTestBase {
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
                 mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
-                mPowerPolicyDaemon, mCarTelemetryService, false);
+                mPowerPolicyDaemon, mCarTelemetryService, mCarRemoteAccessService, false);
 
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper,
@@ -625,18 +640,18 @@ public class MockedCarTestBase {
     }
 
     /**
-     * Special version of {@link ContextWrapper} that overrides {@method getResources} by returning
+     * Special version of {@link ContextWrapper} that overrides {@code getResources} by returning
      * a {@link MockResources}, so tests are free to set resources. This class represents an
      * alternative of using Mockito spy (see b/148240178).
      *
      * Tests may specialize this class. If they decide so, then they are required to override
-     * {@method newMockedCarContext} to provide their own context.
+     * {@link createMockedCarTestContext} to provide their own context.
      */
     protected static class MockedCarTestContext extends ContextWrapper {
 
         private final Resources mMockedResources;
 
-        MockedCarTestContext(Context base) {
+        protected MockedCarTestContext(Context base) {
             super(base);
             mMockedResources = new MockResources(base.getResources());
         }
