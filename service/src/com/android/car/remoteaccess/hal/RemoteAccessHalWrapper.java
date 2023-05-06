@@ -61,11 +61,24 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
     private IRemoteAccess mRemoteAccessHal;
 
     public RemoteAccessHalWrapper(RemoteAccessHalCallback callback) {
+        this(callback, /* testRemoteAccessHal= */ null);
+    }
+
+    /* For car service test. */
+    @VisibleForTesting
+    public RemoteAccessHalWrapper(RemoteAccessHalCallback callback,
+            IRemoteAccess testRemoteAccessHal) {
         mRemoteAccessHalCallback = Objects.requireNonNull(callback, "Callback cannot be null");
+        mRemoteAccessHal = testRemoteAccessHal;
     }
 
     /** Initializes connection to remote task HAL service. */
     public void init() {
+        synchronized (mLock) {
+            if (mRemoteAccessHal != null) {
+                return;
+            }
+        }
         try {
             connectToHal();
         } catch (Exception e) {

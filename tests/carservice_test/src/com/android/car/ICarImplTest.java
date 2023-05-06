@@ -44,6 +44,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.os.CarPerformanceService;
+import com.android.car.remoteaccess.CarRemoteAccessService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -97,6 +98,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     @Mock private CarPerformanceService mMockCarPerformanceService;
     @Mock private GarageModeService mMockGarageModeService;
     @Mock private CarTelemetryService mMockCarTelemetryService;
+    @Mock private CarRemoteAccessService mMockCarRemoteAccessService;
     @Mock private ICarServiceHelper mICarServiceHelper;
 
     private Context mContext;
@@ -195,7 +197,8 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
         ICarImpl carImpl = new ICarImpl(mContext, null, mMockVehicle, mFakeSystemInterface,
                 "MockedCar", /* carUserService= */ null, mMockCarWatchdogService,
                 mMockCarPerformanceService, mMockGarageModeService,
-                new MockedCarTestBase.FakeCarPowerPolicyDaemon(), mMockCarTelemetryService, false);
+                new MockedCarTestBase.FakeCarPowerPolicyDaemon(), mMockCarTelemetryService,
+                mMockCarRemoteAccessService, false);
         doNothing().when(() -> ICarImpl.assertCallingFromSystemProcess());
         carImpl.setSystemServerConnections(mICarServiceHelper, new CarServiceConnectedCallback());
         carImpl.init();
