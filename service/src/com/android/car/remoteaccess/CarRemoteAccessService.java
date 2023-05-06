@@ -158,8 +158,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 case CarPowerManager.STATE_SHUTDOWN_PREPARE:
                     apStateChangeRequired = true;
                     isReadyForRemoteTask = false;
-                    // TODO(b/268810241): Restore isWakeupRequired to false.
-                    isWakeupRequired = true;
+                    isWakeupRequired = false;
 
                     needsComplete = true;
                     break;

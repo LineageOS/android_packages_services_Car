@@ -701,9 +701,8 @@ public final class CarRemoteAccessServiceUnitTest {
                 anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
-        // TODO(b/268810241): Restore isWakeupRequired to false.
         verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
-                /* isWakeupRequired= */ true);
+                /* isWakeupRequired= */ false);
         verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
                 any());
     }
