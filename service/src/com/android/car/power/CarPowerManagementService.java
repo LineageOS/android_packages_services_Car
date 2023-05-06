@@ -108,6 +108,7 @@ import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -2468,6 +2469,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 enabledComponents, disabledComponents);
         if (status != PolicyOperationStatus.OK) {
             return status;
+        }
+        // Get custom power components and update components list in PowerComponentHandler
+        Collection<Integer> customComponents = mPolicyReader.getCustomComponents().values();
+        if (customComponents.size() > 0) {
+            mPowerComponentHandler.registerCustomComponents(
+                    customComponents.toArray(new Integer[customComponents.size()]));
         }
         ICarPowerPolicySystemNotification daemon;
         synchronized (mLock) {
