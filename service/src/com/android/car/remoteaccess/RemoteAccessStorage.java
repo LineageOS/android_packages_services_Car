@@ -46,9 +46,9 @@ final class RemoteAccessStorage {
 
     private final RemoteAccessDbHelper mDbHelper;
 
-    RemoteAccessStorage(Context context, SystemInterface systemInterface) {
+    RemoteAccessStorage(Context context, SystemInterface systemInterface, boolean inMemoryStorage) {
         mDbHelper = new RemoteAccessDbHelper(context,
-                systemInterface.getSystemCarDir().getAbsolutePath());
+                systemInterface.getSystemCarDir().getAbsolutePath(), inMemoryStorage);
     }
 
     void release() {
@@ -258,9 +258,14 @@ final class RemoteAccessStorage {
 
         private static final int DATABASE_VERSION = 1;
 
-        RemoteAccessDbHelper(Context context, String systemCarDirPath) {
+        private static String getName(String systemCarDirPath, boolean inMemoryStorage) {
+            return inMemoryStorage ? null : new File(systemCarDirPath, DATABASE_NAME)
+                    .getAbsolutePath();
+        }
+
+        RemoteAccessDbHelper(Context context, String systemCarDirPath, boolean inMemoryStorage) {
             super(context.createDeviceProtectedStorageContext(),
-                    new File(systemCarDirPath, DATABASE_NAME).getAbsolutePath(), /* name= */ null,
+                    getName(systemCarDirPath, inMemoryStorage), /* factory= */ null,
                     DATABASE_VERSION);
         }
 
