@@ -113,6 +113,11 @@ package android.car.media {
     method @Deprecated public boolean isDynamicRoutingEnabled();
   }
 
+  public final class CarMediaManager {
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public boolean isIndependentPlaybackConfig();
+    method @RequiresPermission(android.Manifest.permission.MEDIA_CONTENT_CONTROL) public void setIndependentPlaybackConfig(boolean);
+  }
+
 }
 
 package android.car.test {
