@@ -18,6 +18,8 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.car.CarOccupantZoneManager;
 import android.car.builtin.util.Slogf;
@@ -34,6 +36,8 @@ import android.util.ArraySet;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -364,6 +368,47 @@ final class MediaRequestHandler {
         return handled;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dump(IndentingPrintWriter writer) {
+        synchronized (mLock) {
+            writer.println("Media request handler:");
+            writer.increaseIndent();
+            int n = mPrimaryZoneMediaAudioRequestCallbacks.beginBroadcast();
+            writer.printf("Media request callbacks[%d]:\n", n);
+            writer.increaseIndent();
+            for (int index = 0; index < mPrimaryZoneMediaAudioRequestCallbacks
+                    .getRegisteredCallbackCount(); index++) {
+                writer.printf("Callback[%d]: %s\n", index,
+                        mPrimaryZoneMediaAudioRequestCallbacks.getBroadcastItem(index).asBinder());
+            }
+            mPrimaryZoneMediaAudioRequestCallbacks.finishBroadcast();
+            writer.decreaseIndent();
+            writer.printf("Assigned occupant zones[%d]:\n", mAssignedOccupants.size());
+            writer.increaseIndent();
+            for (int index = 0; index < mAssignedOccupants.size(); index++) {
+                CarOccupantZoneManager.OccupantZoneInfo info = mAssignedOccupants.valueAt(index);
+                writer.println(info);
+            }
+            writer.decreaseIndent();
+            writer.printf("Request id to callback[%d]:\n", mMediaAudioRequestIdToCallback.size());
+            writer.increaseIndent();
+            for (int index = 0; index < mMediaAudioRequestIdToCallback.size(); index++) {
+                long key = mMediaAudioRequestIdToCallback.keyAt(index);
+                InternalMediaAudioRequest value = mMediaAudioRequestIdToCallback.valueAt(index);
+                writer.printf("%d : %s\n", key, value);
+            }
+            writer.increaseIndent();
+            writer.printf("Request id to approver[%d]\n", mRequestIdToApprover.size());
+            writer.increaseIndent();
+            for (int index = 0; index < mRequestIdToApprover.size(); index++) {
+                long key = mRequestIdToApprover.keyAt(index);
+                IBinder value = mRequestIdToApprover.valueAt(index);
+                writer.printf("%d : %s\n", key, value);
+            }
+            writer.decreaseIndent();
+            writer.decreaseIndent();
+        }
+    }
 
     private static class InternalMediaAudioRequest {
         private final IMediaAudioRequestStatusCallback mIMediaAudioRequestStatusCallback;
