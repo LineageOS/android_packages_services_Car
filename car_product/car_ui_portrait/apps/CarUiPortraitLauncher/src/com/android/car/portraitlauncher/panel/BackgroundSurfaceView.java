@@ -19,6 +19,8 @@ package com.android.car.portraitlauncher.panel;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -39,6 +41,9 @@ public class BackgroundSurfaceView extends SurfaceView {
 
     // The color used in the surface view.
     private int mColor;
+
+    // The Text at the center of the surface view.
+    private String mText;
 
     public BackgroundSurfaceView(Context context) {
         this(context, null);
@@ -71,13 +76,13 @@ public class BackgroundSurfaceView extends SurfaceView {
         getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(@NonNull SurfaceHolder holder) {
-                drawColorOnSurface(holder);
+                drawSurface(holder);
             }
 
             @Override
             public void surfaceChanged(@NonNull SurfaceHolder holder, int format, int width,
                     int height) {
-                drawColorOnSurface(holder);
+                drawSurface(holder);
             }
 
             @Override
@@ -87,12 +92,23 @@ public class BackgroundSurfaceView extends SurfaceView {
         });
     }
 
-    private void drawColorOnSurface(SurfaceHolder holder) {
+    private void drawSurface(SurfaceHolder holder) {
         Canvas canvas = holder.lockCanvas();
         if (canvas == null) {
             return;
         }
         canvas.drawColor(mColor);
+
+        if (mText != null) {
+            Paint paint = new Paint();
+            paint.setColor(Color.WHITE);
+            paint.setTextSize(20);
+            paint.setTextAlign(Paint.Align.CENTER);
+            float xPos = (canvas.getWidth() / 2f);
+            float yPos = (canvas.getHeight() / 2f - ((paint.descent() + paint.ascent()) / 2));
+            canvas.drawText(mText, xPos, yPos, paint);
+        }
+
         holder.unlockCanvasAndPost(canvas);
     }
 
@@ -100,14 +116,20 @@ public class BackgroundSurfaceView extends SurfaceView {
     public void setFixedColor(int color) {
         mColor = color;
         mUseFixedColor = true;
-        drawColorOnSurface(getHolder());
+        drawSurface(getHolder());
+    }
+
+    /** Sets the fixed color and centered text on the surface view */
+    public void setFixedColorAndText(int color, String text) {
+        mText = text;
+        setFixedColor(color);
     }
 
     /** refreshes the color of the surface view if needed. */
     public void refresh(Resources.Theme theme) {
         if (!mUseFixedColor) {
             mColor = getResources().getColor(R.color.car_background, theme);
-            drawColorOnSurface(getHolder());
+            drawSurface(getHolder());
         }
     }
 }
