@@ -60,6 +60,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -88,6 +89,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
     private static final String ALL_COMPONENTS = "*";
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final String HANDLER_THREAD_NAME = "CarOccupantZoneService";
 
@@ -218,8 +220,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @VisibleForTesting
     final UserLifecycleListener mUserLifecycleListener = event -> {
-        Slogf.d(TAG, "onEvent(%s)", event);
-
+        if (DBG) Slogf.d(TAG, "onEvent(%s)", event);
         handleUserChange();
     };
 
@@ -908,7 +909,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         occupantZoneId, userId);
                 return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             }
-            Slogf.d(TAG, "Assigned user %d to zone %d", userId, occupantZoneId);
+            if (DBG) Slogf.d(TAG, "Assigned user %d to zone %d", userId, occupantZoneId);
             config.userId = userId;
         }
 
@@ -961,7 +962,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 Slogf.w(TAG, "Cannot unassign driver zone");
                 return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE;
             }
-            Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
+            if (DBG) Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
             config.userId = CarOccupantZoneManager.INVALID_USER_ID;
         }
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
@@ -995,7 +996,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             return null;
         }
         int occupantZoneId = getOccupantZoneIdForUserId(user.getIdentifier());
-        Slogf.i(TAG, "occupantZoneId that was gotten was %d", occupantZoneId);
+        if (DBG) Slogf.d(TAG, "occupantZoneId that was gotten was %d", occupantZoneId);
         synchronized (mLock) {
             return mOccupantsConfig.get(occupantZoneId);
         }
@@ -1144,10 +1145,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         ArrayList<ComponentName> componentNames = null;
         if (components == null || components.length == 0) {
             enableSourcePreferred = false;
-            Slogf.i(TAG, "CarLaunchParamsModifier: disable source-preferred");
+            if (DBG) Slogf.d(TAG, "CarLaunchParamsModifier: disable source-preferred");
         } else if (components.length == 1 && Objects.equals(components[0], ALL_COMPONENTS)) {
             enableSourcePreferred = true;
-            Slogf.i(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
+            if (DBG) {
+                Slogf.d(TAG, "CarLaunchParamsModifier: enable source-preferred for all Components");
+            }
         } else {
             componentNames = new ArrayList<>((components.length));
             for (String item : components) {
@@ -1539,8 +1542,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
             OccupantConfig occupantConfig = mActiveOccupantConfigs.valueAt(i);
             if (occupantConfig.displayInfos.size() == 0) {
-                Slogf.i(TAG, "handleActiveDisplaysLocked: removing zone %d due to no display",
-                        mActiveOccupantConfigs.keyAt(i));
+                if (DBG) {
+                    Slogf.d(TAG, "handleActiveDisplaysLocked: removing zone %d due to no display",
+                            mActiveOccupantConfigs.keyAt(i));
+                }
                 mActiveOccupantConfigs.removeAt(i);
             }
         }
@@ -1623,8 +1628,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     && config.userId != currentUserId) {
                 config.userId = currentUserId;
                 changed = true;
-                Slogf.d(TAG, "Changed driver, current user change to %d",
-                        currentUserId);
+                if (DBG) {
+                    Slogf.d(TAG, "Changed driver, current user change to %d",
+                            currentUserId);
+                }
                 continue;
             }
             // Do not touch if the zone is un-assigned.
@@ -1633,7 +1640,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             // Now it will be non-driver valid user id.
             if (!isUserVisible(UserHandle.of(config.userId))) {
-                Slogf.d(TAG, "Unassigned no longer visible user:%d", config.userId);
+                if (DBG) Slogf.d(TAG, "Unassigned no longer visible user:%d", config.userId);
                 config.userId = CarOccupantZoneManager.INVALID_USER_ID;
                 changed = true;
             }
