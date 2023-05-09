@@ -562,6 +562,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 }
 
                 mCarAudioMirrorRequestHandler.dump(writer);
+                mMediaRequestHandler.dump(writer);
             }
             writer.decreaseIndent();
         }
