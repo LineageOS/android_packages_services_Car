@@ -102,6 +102,7 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final String TAG = CarRemoteAccessServiceUnitTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 5000;
     private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 5000;
+    private static final int TASK_UNBIND_DELAY_MS = 1000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
     private static final String TEST_VEHICLE_ID = "test_vehicle";
     private static final String TEST_PROCESSOR_ID = "test_processor";
@@ -546,7 +547,9 @@ public final class CarRemoteAccessServiceUnitTest {
 
         mService.reportRemoteTaskDone(clientId, taskId);
 
-        verify(mCarPowerManagementService).requestShutdownAp(
+        // Need to wait TASK_UNBIND_DELAY_MS before shutdown happens.
+        verify(mCarPowerManagementService, never()).requestShutdownAp(anyInt(), anyBoolean());
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ true);
     }
 
@@ -561,7 +564,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
         mService.reportRemoteTaskDone(clientId, taskId);
 
-        verify(mCarPowerManagementService).requestShutdownAp(
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
     }
 
@@ -575,6 +578,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 CarRemoteAccessManager.NEXT_POWER_STATE_ON, /* runGarageMode= */ false);
 
         mService.reportRemoteTaskDone(clientId, taskId);
+        SystemClock.sleep(TASK_UNBIND_DELAY_MS);
 
         verify(mCarPowerManagementService, never()).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
@@ -591,6 +595,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ false);
 
         mService.reportRemoteTaskDone(clientId, taskId);
+        SystemClock.sleep(TASK_UNBIND_DELAY_MS);
 
         verify(mCarPowerManagementService, never()).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
@@ -621,6 +626,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testUnbindServiceAfterTaskComplete() throws Exception {
         mService.init();
+        mService.setTaskUnbindDelayMs(100);
         setVehicleInUse(/* inUse= */ true);
         ICarRemoteAccessCallbackImpl callback1 = new ICarRemoteAccessCallbackImpl();
         ICarRemoteAccessCallbackImpl callback2 = new ICarRemoteAccessCallbackImpl();
@@ -637,15 +643,15 @@ public final class CarRemoteAccessServiceUnitTest {
         when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         mService.reportRemoteTaskDone(clientId1, taskId1);
 
-        // package one should be unbound since no active tasks.
-        verify(mContext).unbindService(any());
+        // package one should be unbound after 100ms.
+        verify(mContext, timeout(WAIT_TIMEOUT_MS)).unbindService(any());
         verify(mCarPowerManagementService, never()).requestShutdownAp(anyInt(), anyBoolean());
 
         when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
         mService.reportRemoteTaskDone(clientId2, taskId2);
 
         // package two should be unbound since no active tasks.
-        verify(mContext, times(2)).unbindService(any());
+        verify(mContext, timeout(WAIT_TIMEOUT_MS).times(2)).unbindService(any());
     }
 
     @Test
@@ -681,6 +687,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testNotifyApPowerState_waitForVhal() throws Exception {
         mService.init();
+        mService.setTaskUnbindDelayMs(100);
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
         verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
                 anyBoolean(), anyBoolean());

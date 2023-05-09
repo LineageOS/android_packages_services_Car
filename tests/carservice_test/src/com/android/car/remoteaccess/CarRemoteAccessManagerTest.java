@@ -109,6 +109,8 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     private static final long TEST_REMOTE_TASK_CLIENT_INIT_MS = 1_000;
     // This must be larger than 5 seconds so we have a chance to send out onShutdownStarting.
     private static final int TEST_ALLOWED_SYSTEM_UPTIME_IN_MS = 7_000;
+    // This is the same as TASK_UNBIND_DELAY_MS defined in CarRemoteAccessService.
+    private static final int TASK_UNBIND_DELAY_MS = 1000;
 
     private Executor mExecutor = Executors.newSingleThreadExecutor();
     private CarRemoteAccessManager mCarRemoteAccessManager;
@@ -712,12 +714,36 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         mPropertyHandler.setVehicleInUse(true);
         mCarRemoteAccessManager.reportRemoteTaskDone(taskId);
-        assertWithMessage("service should be unbound when all tasks complete").that(
-                getRemoteTaskClientServices()).doesNotContain(
-                        new ComponentName(PACKAGE_NAME_1, SERVICE_NAME_1));
+        SystemClock.sleep(1000);
 
         assertWithMessage("shutdown request must not be sent when vehicle is in use")
                 .that(mPropertyHandler.getSetPropValues()).isEmpty();
+    }
+
+    @Test
+    public void testUnbindServiceIfTaskComplete() throws Exception {
+        mPropertyHandler.setVehicleInUse(true);
+        IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
+        String clientId = getClientIdAndWaitForSystemBoot();
+
+        mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
+        remoteAccessHalCallback.onRemoteTaskRequested(clientId, TEST_DATA);
+
+        verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRemoteTaskRequested(
+                mStringCaptor.capture(), eq(TEST_DATA), anyInt());
+        String taskId = mStringCaptor.getValue();
+        assertThat(getRemoteTaskClientServices()).contains(new ComponentName(
+                PACKAGE_NAME_1, SERVICE_NAME_1));
+
+        mCarRemoteAccessManager.reportRemoteTaskDone(taskId);
+
+        assertThat(getRemoteTaskClientServices()).contains(new ComponentName(
+                PACKAGE_NAME_1, SERVICE_NAME_1));
+        // The service should be unbound after TASK_UNBIND_DELAY_MS.
+        PollingCheck.check("service should be unbound when all tasks complete",
+                TASK_UNBIND_DELAY_MS + DEFAULT_TIME_OUT_MS,
+                () -> !(getRemoteTaskClientServices().contains(
+                        new ComponentName(PACKAGE_NAME_1, SERVICE_NAME_1))));
     }
 
     @Test

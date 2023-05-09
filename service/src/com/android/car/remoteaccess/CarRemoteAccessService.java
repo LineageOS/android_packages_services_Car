@@ -108,6 +108,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private static final long INVALID_ALLOWED_SYSTEM_UPTIME = -1;
     private static final int NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
     private static final int NOTIFY_AP_STATE_MAX_RETRY = 10;
+    // The buffer time after all the tasks for a specific remote task client service is completed
+    // before we unbind the service.
+    private static final int TASK_UNBIND_DELAY_MS = 1000;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -118,6 +121,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             new RemoteTaskClientServiceHandler(mHandlerThread.getLooper(), this);
     private long mAllowedTimeForRemoteTaskClientInitMs =
             ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS;
+    private long mTaskUnbindDelayMs = TASK_UNBIND_DELAY_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValue= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValue= */ 0);
     @GuardedBy("mLock")
@@ -373,6 +377,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mAllowedTimeForRemoteTaskClientInitMs = allowedTimeForRemoteTaskClientInitMs;
     }
 
+    @VisibleForTesting
+    public void setTaskUnbindDelayMs(long taskUnbindDelayMs) {
+        mTaskUnbindDelayMs = taskUnbindDelayMs;
+    }
+
     @Override
     public void init() {
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
@@ -582,7 +591,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         if (!serviceConnection.removeActiveTasks(new ArraySet<>(Set.of(taskId)))) {
             throw new IllegalArgumentException("Task ID(" + taskId + ") is not valid");
         }
-        shutdownIfNeeded(/* force= */ false);
+        mHandler.postMaybeShutdown(/* delayMs= */ mTaskUnbindDelayMs);
     }
 
     @Override
@@ -618,7 +627,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
 
         if (isAllClientReadyForShutDown) {
-            mHandler.cancelWrapUpRemoteAccessService();
             mHandler.postWrapUpRemoteAccessService(/* delayMs= */ 0);
         }
     }
@@ -859,7 +867,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             } else {
                 int uid = mUidByName.get(uidName);
                 serviceConnection = new RemoteTaskClientServiceConnection(mContext, mHandler,
-                        mUserManager, serviceName, UserHandle.SYSTEM, uid);
+                        mUserManager, serviceName, UserHandle.SYSTEM, uid, mTaskUnbindDelayMs);
                 serviceInfo.setServiceConnection(serviceConnection);
             }
         }
@@ -1185,6 +1193,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private final RemoteTaskClientServiceHandler mHandler;
         private final UserManager mUserManager;
         private final int mUid;
+        private final long mTaskUnbindDelayMs;
 
         private final CarUserService mCarUserService;
 
@@ -1213,7 +1222,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
         private RemoteTaskClientServiceConnection(Context context,
                 RemoteTaskClientServiceHandler handler, UserManager userManager,
-                ComponentName serviceName, UserHandle user, int uid) {
+                ComponentName serviceName, UserHandle user, int uid, long taskUnbindDelayMs) {
             mContext = context;
             mHandler = handler;
             mUserManager = userManager;
@@ -1221,6 +1230,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             mIntent.setComponent(serviceName);
             mUser = user;
             mUid = uid;
+            mTaskUnbindDelayMs = taskUnbindDelayMs;
             mCarUserService = CarLocalServices.getService(CarUserService.class);
             mUserLifecycleListener = event -> {
                 if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
@@ -1393,7 +1403,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     return;
                 }
                 mTaskTimeoutMs = taskTimeoutMs;
-                mHandler.cancelServiceTimeout(mUid);
                 mHandler.postServiceTimeout(mUid, taskTimeoutMs);
             }
         }
@@ -1430,7 +1439,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     mActiveTasks.remove(tasks.valueAt(i));
                 }
                 if (mActiveTasks.isEmpty()) {
-                    unbindServiceLocked(/* force= */ true);
+                    // All active tasks are completed for this package, we can now unbind the
+                    // service after mTaskUnbindDelayMs.
+                    mTaskTimeoutMs = SystemClock.uptimeMillis() + mTaskUnbindDelayMs;
+                    mHandler.postServiceTimeout(mUid, mTaskTimeoutMs);
                 }
             }
             return true;
@@ -1444,7 +1456,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private static final int MSG_WRAP_UP_REMOTE_ACCESS_SERVICE = 2;
         private static final int MSG_NOTIFY_SHUTDOWN_STARTING = 3;
         private static final int MSG_NOTIFY_AP_STATE_CHANGE = 4;
+        private static final int MSG_MAYBE_SHUTDOWN = 5;
 
+        // Lock to synchronize remove messages and add messages.
+        private final Object mHandlerLock = new Object();
         private final WeakReference<CarRemoteAccessService> mService;
 
         private RemoteTaskClientServiceHandler(Looper looper, CarRemoteAccessService service) {
@@ -1455,27 +1470,46 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         // Must use uid instead of uidName here because message object is compared using "=="
         // instead fo equals, so two same string might not "==" each other.
         private void postServiceTimeout(Integer uid, long msgTimeMs) {
-            Message msg = obtainMessage(MSG_SERVICE_TIMEOUT, uid);
-            sendMessageAtTime(msg, msgTimeMs);
+            synchronized (mHandlerLock) {
+                removeMessages(MSG_SERVICE_TIMEOUT, uid);
+                Message msg = obtainMessage(MSG_SERVICE_TIMEOUT, uid);
+                sendMessageAtTime(msg, msgTimeMs);
+            }
         }
 
         private void postNotifyShutdownStarting(long delayMs) {
-            Message msg = obtainMessage(MSG_NOTIFY_SHUTDOWN_STARTING);
-            sendMessageDelayed(msg, delayMs);
+            synchronized (mHandlerLock) {
+                removeMessages(MSG_NOTIFY_SHUTDOWN_STARTING);
+                Message msg = obtainMessage(MSG_NOTIFY_SHUTDOWN_STARTING);
+                sendMessageDelayed(msg, delayMs);
+            }
         }
 
         private void postWrapUpRemoteAccessService(long delayMs) {
-            Message msg = obtainMessage(MSG_WRAP_UP_REMOTE_ACCESS_SERVICE);
-            sendMessageDelayed(msg, delayMs);
+            synchronized (mHandlerLock) {
+                removeMessages(MSG_WRAP_UP_REMOTE_ACCESS_SERVICE);
+                Message msg = obtainMessage(MSG_WRAP_UP_REMOTE_ACCESS_SERVICE);
+                sendMessageDelayed(msg, delayMs);
+            }
         }
 
         private void postNotifyApStateChange(long delayMs) {
-            removeMessages(MSG_NOTIFY_AP_STATE_CHANGE);
-            Message msg = obtainMessage(MSG_NOTIFY_AP_STATE_CHANGE);
-            sendMessageDelayed(msg, delayMs);
+            synchronized (mHandlerLock) {
+                removeMessages(MSG_NOTIFY_AP_STATE_CHANGE);
+                Message msg = obtainMessage(MSG_NOTIFY_AP_STATE_CHANGE);
+                sendMessageDelayed(msg, delayMs);
+            }
         }
 
-        private void cancelServiceTimeout(Integer uid) {
+        private void postMaybeShutdown(long delayMs) {
+            synchronized (mHandlerLock) {
+                removeMessages(MSG_MAYBE_SHUTDOWN);
+                Message msg = obtainMessage(MSG_MAYBE_SHUTDOWN);
+                sendMessageDelayed(msg, delayMs);
+            }
+        }
+
+        private void cancelServiceTimeout(int uid) {
             removeMessages(MSG_SERVICE_TIMEOUT, uid);
         }
 
@@ -1495,11 +1529,16 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             removeMessages(MSG_NOTIFY_AP_STATE_CHANGE);
         }
 
+        private void cancelMaybeShutdown() {
+            removeMessages(MSG_MAYBE_SHUTDOWN);
+        }
+
         private void cancelAll() {
             cancelAllServiceTimeout();
             cancelNotifyShutdownStarting();
             cancelWrapUpRemoteAccessService();
             cancelNotifyApStateChange();
+            cancelMaybeShutdown();
         }
 
         @Override
@@ -1521,6 +1560,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     break;
                 case MSG_NOTIFY_AP_STATE_CHANGE:
                     service.notifyApStateChange();
+                    break;
+                case MSG_MAYBE_SHUTDOWN:
+                    service.shutdownIfNeeded(/* force= */ false);
                     break;
                 default:
                     Slogf.w(TAG, "Unknown(%d) message", msg.what);
