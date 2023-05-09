@@ -291,12 +291,13 @@ import java.util.stream.Collectors;
                 continue;
             }
             if (TAG_AUDIO_ATTRIBUTES.equals(parser.getName())) {
-                List<AudioAttributes> attributes = parseAudioAttributes(parser);
+                List<AudioAttributes> attributes = parseAudioAttributes(parser, contextName);
                 if (mUseCoreAudioRouting) {
                     contextId = CoreAudioHelper.getStrategyForAudioAttributes(attributes.get(0));
                     if (contextId == CoreAudioHelper.INVALID_STRATEGY) {
-                        throw new RuntimeException("Cannot find strategy id for context: "
-                                + contextName);
+                        throw new IllegalArgumentException(TAG_AUDIO_ATTRIBUTES
+                                + ": Cannot find strategy id for context: "
+                                + contextName + " and attributes \"" + attributes.get(0) + "\" .");
                     }
                 }
                 validateCarAudioContextAttributes(contextId, attributes, contextName);
@@ -320,13 +321,13 @@ import java.util.stream.Collectors;
             AudioAttributes aa = attributes.get(index);
             if (!strategy.supportsAudioAttributes(aa)
                     && !CoreAudioHelper.isDefaultStrategy(strategy.getId())) {
-                throw new RuntimeException(" Invalid attributes " + aa + " for context: "
+                throw new IllegalArgumentException("Invalid attributes " + aa + " for context: "
                         + contextName);
             }
         }
     }
 
-    private List<AudioAttributes> parseAudioAttributes(XmlPullParser parser)
+    private List<AudioAttributes> parseAudioAttributes(XmlPullParser parser, String contextName)
             throws XmlPullParserException, IOException {
         List<AudioAttributes> supportedAttributes = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -340,21 +341,33 @@ import java.util.stream.Collectors;
                 supportedAttributes.add(attributes);
             } else if (TAG_AUDIO_ATTRIBUTE.equals(parser.getName())) {
                 AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
-                parseUsage(parser, attributesBuilder, ATTR_USAGE);
-                parseContentType(parser, attributesBuilder);
-                parseTags(parser, attributesBuilder);
+                // Usage, ContentType and tags are optional but at least one value must be
+                // provided to build a valid audio attributes
+                boolean hasValidUsage = parseUsage(parser, attributesBuilder, ATTR_USAGE);
+                boolean hasValidContentType = parseContentType(parser, attributesBuilder);
+                boolean hasValidTags = parseTags(parser, attributesBuilder);
+                if (!(hasValidUsage || hasValidContentType || hasValidTags)) {
+                    throw new RuntimeException("Empty attributes for context: " + contextName);
+                }
                 AudioAttributes attributes = attributesBuilder.build();
                 supportedAttributes.add(attributes);
             }
             // Always skip to upper level since we're at the lowest.
             skip(parser);
         }
+        if (supportedAttributes.isEmpty()) {
+            throw new IllegalArgumentException("No attributes for context: " + contextName);
+        }
         return supportedAttributes;
     }
 
-    private void parseUsage(XmlPullParser parser, AudioAttributes.Builder builder, String attrValue)
+    private boolean parseUsage(XmlPullParser parser, AudioAttributes.Builder builder,
+                               String attrValue)
             throws XmlPullParserException, IOException {
         String usageLiteral = parser.getAttributeValue(NAMESPACE, attrValue);
+        if (usageLiteral == null) {
+            return false;
+        }
         int usage = AudioManagerHelper.xsdStringToUsage(usageLiteral);
         // TODO (b/248106031): Remove once AUDIO_USAGE_NOTIFICATION_EVENT is fixed in core
         if (Objects.equals(usageLiteral, "AUDIO_USAGE_NOTIFICATION_EVENT")) {
@@ -365,9 +378,10 @@ import java.util.stream.Collectors;
         } else {
             builder.setUsage(usage);
         }
+        return true;
     }
 
-    private void parseContentType(XmlPullParser parser, AudioAttributes.Builder builder)
+    private boolean parseContentType(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
         if (!VersionUtils.isPlatformVersionAtLeastU()) {
             throw new IllegalArgumentException("car_audio_configuration.xml tag "
@@ -375,11 +389,15 @@ import java.util.stream.Collectors;
                     + UPSIDE_DOWN_CAKE_0 + " and higher");
         }
         String contentTypeLiteral = parser.getAttributeValue(NAMESPACE, ATTR_CONTENT_TYPE);
+        if (contentTypeLiteral == null) {
+            return false;
+        }
         int contentType = AudioManagerHelper.xsdStringToContentType(contentTypeLiteral);
         builder.setContentType(contentType);
+        return true;
     }
 
-    private void parseTags(XmlPullParser parser, AudioAttributes.Builder builder)
+    private boolean parseTags(XmlPullParser parser, AudioAttributes.Builder builder)
             throws XmlPullParserException, IOException {
         String tagsLiteral = parser.getAttributeValue(NAMESPACE, ATTR_TAGS);
         if (!VersionUtils.isPlatformVersionAtLeastU()) {
@@ -387,9 +405,11 @@ import java.util.stream.Collectors;
                     + ", is only supported for release version " + UPSIDE_DOWN_CAKE_0
                     + " and higher");
         }
-        if (tagsLiteral != null) {
-            AudioManagerHelper.addTagToAudioAttributes(builder, tagsLiteral);
+        if (tagsLiteral == null) {
+            return false;
         }
+        AudioManagerHelper.addTagToAudioAttributes(builder, tagsLiteral);
+        return true;
     }
 
     private SparseArray<CarAudioZone> parseAudioZones(XmlPullParser parser)
