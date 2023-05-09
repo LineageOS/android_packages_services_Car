@@ -1123,6 +1123,40 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void loadAudioZones_usingCoreAudioVersionThree_succeedsOnAttributesWithOptionalFields()
+            throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_routing_attr_valid_optional_fields)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ true,
+                    /* useCoreAudioRouting= */ true);
+
+            SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
+
+            expectWithMessage("Succeeded to parse zones").that(zones.size()).isEqualTo(1);
+        }
+    }
+
+    @Test
+    public void loadAudioZones_usingCoreAudioVersionThree_failsOnEmptyAttributes()
+            throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_routing_attr_invalid_empty_fields)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false, /* useCoreAudioVolume= */ true,
+                    /* useCoreAudioRouting= */ true);
+
+            RuntimeException thrown =
+                    assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
+
+            expectWithMessage("Music context has empty attributes").that(thrown)
+                    .hasMessageThat().contains("Empty attributes for context: MUSIC_CONTEXT");
+        }
+    }
+
+    @Test
     public void getMirrorDeviceInfos() throws Exception {
         CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
                 mInputStream, mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
