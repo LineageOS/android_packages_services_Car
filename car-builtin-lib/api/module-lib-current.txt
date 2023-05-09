@@ -127,6 +127,7 @@ package android.car.builtin.content.pm {
 
   public final class PackageManagerHelper {
     method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void forceStopPackageAsUser(@NonNull android.content.Context, @NonNull String, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static void forceStopPackageAsUserEvenWhenStopping(@NonNull android.content.Context, @NonNull String, int);
     method public static int getApplicationEnabledSettingForUser(@NonNull String, int) throws android.os.RemoteException;
     method public static android.content.ComponentName getComponentName(android.content.pm.ComponentInfo);
     method @Nullable public static String[] getNamesForUids(@NonNull android.content.pm.PackageManager, int[]);
