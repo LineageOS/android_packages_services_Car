@@ -28,8 +28,6 @@ import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
-import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED;
-import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.ADJUST_RAISE;
@@ -2984,17 +2982,17 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 return;
             }
             int volumeEventFlags = group.onAudioVolumeGroupChanged(flags);
-
+            if (volumeEventFlags == 0) {
+                return;
+            }
             if (CarVolumeEventFlag.hasInvalidFlag(volumeEventFlags)) {
                 Slogf.e(TAG, "onAudioVolumeGroupChanged has invalid flag(%s)",
                         CarVolumeEventFlag.flagsToString(volumeEventFlags));
                 return;
             }
-
-            int eventTypes = (EVENT_TYPE_VOLUME_MIN_INDEX_CHANGED
-                    | EVENT_TYPE_VOLUME_MAX_INDEX_CHANGED);
+            int eventTypes = 0;
             if ((volumeEventFlags & CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE) != 0) {
-                callbackGroupVolumeChange(zoneId, group.getId(), /* flags= */ 0);
+                callbackGroupVolumeChange(zoneId, group.getId(), FLAG_SHOW_UI);
                 volumeEventFlags &= ~CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE;
                 eventTypes |= EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
                 if (mUseDynamicRouting && !isPlaybackOnVolumeGroupActive(zoneId, group.getId())) {
@@ -3002,7 +3000,7 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 }
             }
             if ((volumeEventFlags & CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE) != 0) {
-                callbackGroupMuteChanged(zoneId, group.getId(), /* flags= */ 0);
+                handleMuteChanged(zoneId, group.getId(), FLAG_SHOW_UI);
                 volumeEventFlags &= ~CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE;
                 eventTypes |= EVENT_TYPE_MUTE_CHANGED;
             }
