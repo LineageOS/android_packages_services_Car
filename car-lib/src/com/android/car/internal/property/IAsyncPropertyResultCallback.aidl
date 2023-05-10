@@ -16,7 +16,7 @@
 
 package com.android.car.internal.property;
 
-import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.GetSetValueResultList;
 
 /**
  * Callback interface for async {@link CarPropertyService#getPropertiesAsync} when successful.
@@ -27,7 +27,7 @@ oneway interface IAsyncPropertyResultCallback {
     /**
      * Method called when {@link com.android.car.getPropertiesAsync} return results.
      */
-    void onGetValueResults(in List<GetSetValueResult> getValueResults);
+    void onGetValueResults(in GetSetValueResultList getValueResults);
 
     /**
      * Method called when {@link com.android.car.setPropertiesAsync} return results.
@@ -36,5 +36,5 @@ oneway interface IAsyncPropertyResultCallback {
      * is not successful, it means either the request fails to get through or the property is not
      * updated to the target value within timeout.
      */
-    void onSetValueResults(in List<GetSetValueResult> setValueResults);
+    void onSetValueResults(in GetSetValueResultList setValueResults);
 }
