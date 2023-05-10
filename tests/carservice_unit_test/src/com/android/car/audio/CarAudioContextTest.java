@@ -189,6 +189,25 @@ public class CarAudioContextTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void isOemExtensionAudioContext_whenUsingCoreRouting() {
+        CarAudioContext carAudioContextUsingCoreRouting = new CarAudioContext(
+                CoreAudioRoutingUtils.getCarAudioContextInfos(), /* useCoreAudioRouting= */ true);
+
+        assertWithMessage("Oem extension Context for music audio attributes")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.MUSIC_STRATEGY_ID))
+                .isTrue();
+        assertWithMessage("Nav Context for USAGE_ASSISTANCE_NAVIGATION_GUIDANCE")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.NAV_STRATEGY_ID))
+                .isFalse();
+        assertWithMessage("Oem extension Context for oem audio attributes")
+                .that(carAudioContextUsingCoreRouting.isOemExtensionAudioContext(
+                        CoreAudioRoutingUtils.OEM_STRATEGY_ID))
+                .isTrue();
+    }
+
+    @Test
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
 
