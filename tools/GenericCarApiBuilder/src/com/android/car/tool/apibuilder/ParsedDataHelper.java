@@ -23,11 +23,16 @@ import com.android.car.tool.data.MethodData;
 import com.android.car.tool.data.PackageData;
 import com.android.car.tool.data.ParsedData;
 
+import com.github.javaparser.ast.expr.MethodCallExpr;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public final class ParsedDataHelper {
+
+    private static final ArrayList<String> EXEMPT_METHODS = new ArrayList<>(
+            List.of("toString", "equals", "hashCode", "finalize", "writeToParcel",
+                    "describeContents"));
 
     public static List<String> getClassNamesOnly(ParsedData parsedData) {
         List<String> classes = new ArrayList<>();
@@ -158,18 +163,39 @@ public final class ParsedDataHelper {
                                     "TIRAMISU") || method.firstBodyStatement == null) {
                                 return;
                             }
-                            // Check that assertPlatformVersionAtLeast is called and that it has
-                            // the correct version as its argument.
-                            if (method.firstBodyStatement.getName().asString().contains(
-                                    "assertPlatformVersionAtLeast")
-                                    && Objects.equals(method.firstBodyStatement.getArgument(
-                                            0).asNameExpr().getNameAsString(),
-                                    method.annotationData.minPlatformVersion)) {
+
+                            for (String exempt : EXEMPT_METHODS) {
+                                if (method.methodName.contains(exempt)) {
+                                    return;
+                                }
+                            }
+
+                            int line = 0;
+                            if (method.firstBodyStatement.getBegin().isPresent()) {
+                                line = method.firstBodyStatement.getBegin().get().line;
+                            }
+
+                            // Case where the first body statement is not a method call expression.
+                            if (!method.firstBodyStatement.isExpressionStmt()
+                                    || !method.firstBodyStatement.asExpressionStmt()
+                                            .getExpression().isMethodCallExpr()) {
+                                apis.add(formatMethodString(packageData, classData, method) + " | "
+                                        + line + " | " + method.fileName);
                                 return;
                             }
-                            apis.add(formatMethodString(packageData, classData, method));
-                        })));
 
+                            MethodCallExpr methodCallExpr = (MethodCallExpr)
+                                    method.firstBodyStatement.asExpressionStmt().getExpression();
+
+                            // Case where no `assertPlatformVersionAtLeastU` method call exists in
+                            // the first line of the method body.
+                            // TODO(b/280357275): Add the version (ex. U, V, ...) as an argument
+                            if (!methodCallExpr.getName().asString().contains(
+                                    "assertPlatformVersionAtLeastU")) {
+                                apis.add(formatMethodString(packageData, classData, method) + " | "
+                                        + line + " | " + method.fileName);
+                            }
+                        })));
         return apis;
     }
 
