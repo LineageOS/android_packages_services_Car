@@ -47,6 +47,7 @@ android_test {
         "android.car.cluster.navigation",
         "android.car.testapi",
         "android.car.test.utils",
+        "com.android.car.test.lib",
         "androidx.test.runner",
 // TODO(b/236153976): comment back once guava is supported
 //      "guava-android-testlib",
@@ -59,6 +60,13 @@ android_test {
         "android.car",
         "android.test.runner",
         "android.test.base",
+    ],
+
+    // mockito-target-inline dependency
+    jni_libs: [
+        "libdexmakerjvmtiagent",
+        "libstaticjvmtiagent",
+        "libcarservicejni",
     ],
 
     test_suites: [

@@ -58,6 +58,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.internal.annotations.GuardedBy;
@@ -853,15 +854,15 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         @Override
-        public void onGetValueResults(List<GetSetValueResult> getValueResults) {
+        public void onGetValueResults(GetSetValueResultList getValueResults) {
             this.<GetPropertyRequest, GetPropertyCallback, GetPropertyResult>onResults(
-                    getValueResults, mGetPropertyResultCallback);
+                    getValueResults.getList(), mGetPropertyResultCallback);
         }
 
         @Override
-        public void onSetValueResults(List<GetSetValueResult> setValueResults) {
+        public void onSetValueResults(GetSetValueResultList setValueResults) {
             this.<SetPropertyRequest<?>, SetPropertyCallback, SetPropertyResult>onResults(
-                    setValueResults, mSetPropertyResultCallback);
+                    setValueResults.getList(), mSetPropertyResultCallback);
         }
 
         @SuppressLint("WrongConstant")
