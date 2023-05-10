@@ -230,8 +230,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 mTasksToBeNotifiedByClientId.remove(clientId);
                 return;
             }
-            RemoteTaskClientServiceInfo serviceInfo =
-                    mClientServiceInfoByUid.get(uidName);
+            RemoteTaskClientServiceInfo serviceInfo = mClientServiceInfoByUid.get(uidName);
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
                         + "for %s is not registered yet", uidName);
