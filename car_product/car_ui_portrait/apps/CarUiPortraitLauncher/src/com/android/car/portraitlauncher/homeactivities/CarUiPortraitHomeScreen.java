@@ -897,7 +897,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             public void onStateChangeEnd(TaskViewPanel.State oldState,
                     TaskViewPanel.State newState, boolean animated) {
                 updateObscuredTouchRegion();
-                updateBackgroundTaskViewInsets();
 
                 // Hide the control bar after the animation if in full screen.
                 if (newState.isFullScreen()) {
@@ -905,6 +904,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 } else {
                     // Adjust the bottom margin to count for the nav bar.
                     setHomeScreenBottomPadding(mNavBarHeight);
+                    // Update the background task view insets to make sure their content is not
+                    // covered with our panels. We only need to do this when we are not in
+                    // fullscreen.
+                    updateBackgroundTaskViewInsets();
                     // Show the nav bar if not showing Setup Wizard
                     if (!mIsSUWInProgress) {
                         notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE,
