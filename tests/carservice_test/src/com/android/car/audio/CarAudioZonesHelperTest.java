@@ -127,7 +127,10 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(AudioManager.class).spyStatic(Car.class);
+        session
+                .spyStatic(AudioManager.class)
+                .spyStatic(Car.class)
+                .spyStatic(CoreAudioHelper.class);
     }
 
     @Before
@@ -1085,6 +1088,53 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void loadAudioZones_usingCoreAudioVersionThree_failsOnFirstInvalidAttributes()
+            throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_routing_and_volume_invalid_strategy)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
+            AudioAttributes unsupportedAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
+
+            assertWithMessage("First unsupported attributes exception").that(thrown)
+                    .hasMessageThat().contains("audioAttributes: Cannot find strategy id for "
+                            + "context: OEM_CONTEXT and attributes \"" + unsupportedAttributes
+                            + "\"");
+        }
+    }
+
+    @Test
+    public void loadAudioZones_usingCoreAudioVersionThree_failsOnInvalidAttributes()
+            throws Exception {
+        try (InputStream versionOneStream = mContext.getResources().openRawResource(
+                R.raw.car_audio_configuration_using_core_routing_and_volume_invalid_strategy_2)) {
+            CarAudioZonesHelper cazh = new CarAudioZonesHelper(mAudioManager, mCarAudioSettings,
+                    versionOneStream,
+                    mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos,
+                    /* useCarVolumeGroupMute= */ false,
+                    /* useCoreAudioVolume= */ true, /* useCoreAudioRouting= */ true);
+            AudioAttributes unsupportedAttributes = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .build();
+
+            IllegalArgumentException thrown =
+                    assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
+
+            assertWithMessage("Validation of all supported attributes exception").that(thrown)
+                    .hasMessageThat().contains("Invalid attributes "
+                            + unsupportedAttributes.toString() + " for context: NAV_CONTEXT");
+        }
+    }
+
+    @Test
     public void loadAudioZones_usingCoreAudioVersionThree_failsOnEmptyGroupName()
             throws Exception {
         try (InputStream versionOneStream = mContext.getResources().openRawResource(
@@ -1098,7 +1148,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             RuntimeException thrown =
                     assertThrows(RuntimeException.class, () -> cazh.loadAudioZones());
 
-            assertThat(thrown).hasMessageThat().contains(
+            assertWithMessage("Empty group name exception").that(thrown).hasMessageThat().contains(
                     "group name attribute can not be empty when relying on core volume groups");
         }
     }
@@ -1117,7 +1167,7 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
             RuntimeException thrown =
                     assertThrows(IllegalArgumentException.class, () -> cazh.loadAudioZones());
 
-            expectWithMessage("Exception thrown when OEM audio contexts was defined after zones")
+            expectWithMessage("After zone OEM audio contexts definition exception")
                     .that(thrown).hasMessageThat().matches("Car audio context .* is invalid");
         }
     }
@@ -1225,5 +1275,26 @@ public class CarAudioZonesHelperTest extends AbstractExtendedMockitoTestCase {
                 .when(() -> AudioManager.getAudioProductStrategies());
         doReturn(CoreAudioRoutingUtils.getVolumeGroups())
                 .when(() -> AudioManager.getAudioVolumeGroups());
+
+        doReturn(CoreAudioRoutingUtils.MUSIC_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.MUSIC_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.MUSIC_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.MUSIC_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.NAV_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.NAV_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.NAV_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.NAV_GROUP_NAME));
+
+        doReturn(CoreAudioRoutingUtils.OEM_GROUP_ID)
+                .when(() -> CoreAudioHelper.getVolumeGroupIdForAudioAttributes(
+                        CoreAudioRoutingUtils.OEM_ATTRIBUTES));
+        doReturn(CoreAudioRoutingUtils.OEM_ATTRIBUTES)
+                .when(() -> CoreAudioHelper.selectAttributesForVolumeGroupName(
+                        CoreAudioRoutingUtils.OEM_GROUP_NAME));
     }
 }
