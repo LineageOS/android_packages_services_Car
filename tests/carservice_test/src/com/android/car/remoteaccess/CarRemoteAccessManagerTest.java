@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
+import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture;
 import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.ComponentName;
@@ -104,8 +105,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     private static final byte[] TEST_DATA = new byte[]{(byte) 0xDE, (byte) 0xAD, (byte) 0xBE,
             (byte) 0xEF};
     private static final byte[] TEST_DATA_2 = new byte[]{(byte) 0xBE, (byte) 0xEF};
-    private static final long TEST_REMOTE_TASK_CLIENT_INIT_MS = 5_000;
-    private static final int TEST_ALLOWED_SYSTEM_UPTIME_IN_MS = 10_000;
+    private static final long TEST_REMOTE_TASK_CLIENT_INIT_MS = 1_000;
+    // This must be larger than 5 seconds so we have a chance to send out onShutdownStarting.
+    private static final int TEST_ALLOWED_SYSTEM_UPTIME_IN_MS = 7_000;
 
     private Executor mExecutor = Executors.newSingleThreadExecutor();
     private CarRemoteAccessManager mCarRemoteAccessManager;
@@ -126,6 +128,8 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
     private ArgumentCaptor<RemoteTaskClientRegistrationInfo> mRegistrationInfoCaptor;
     @Captor
     private ArgumentCaptor<String> mStringCaptor;
+    @Captor
+    private ArgumentCaptor<CompletableRemoteTaskFuture> mFutureCaptor;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -767,8 +771,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRemoteTaskRequested(
                 mStringCaptor.capture(), eq(TEST_DATA), anyInt());
 
-        // TODO(253304673): verify clientCallback.onShutdownStarting once it is implemented.
         SystemClock.sleep(TEST_ALLOWED_SYSTEM_UPTIME_IN_MS);
+
+        verify(mRemoteTaskClientCallback).onShutdownStarting(any());
 
         verifyShutdownRequestSent(VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
         assertWithMessage("all remote task client services must be unbound before shutdown")
@@ -792,5 +797,28 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
 
         assertWithMessage("shutdown request must not be sent when vehicle is in use")
                 .that(mPropertyHandler.getSetPropValues()).isEmpty();
+    }
+
+    @Test
+    public void testShutdownDeviceUponReadyForShutdown() throws Exception {
+        mPropertyHandler.setVehicleInUse(false);
+        when(mPackageManager.getNameForUid(anyInt())).thenReturn(SERVICE_NAME_1);
+        IRemoteTaskCallback remoteAccessHalCallback = getRemoteAccessHalCallback();
+        String clientId = getClientIdAndWaitForSystemBoot();
+
+        mCarRemoteAccessManager.setRemoteTaskClient(mExecutor, mRemoteTaskClientCallback);
+        remoteAccessHalCallback.onRemoteTaskRequested(clientId, TEST_DATA);
+
+        verify(mRemoteTaskClientCallback, timeout(DEFAULT_TIME_OUT_MS)).onRemoteTaskRequested(
+                mStringCaptor.capture(), eq(TEST_DATA), anyInt());
+
+        verify(mRemoteTaskClientCallback, timeout(TEST_ALLOWED_SYSTEM_UPTIME_IN_MS))
+                .onShutdownStarting(mFutureCaptor.capture());
+        CompletableRemoteTaskFuture future = mFutureCaptor.getValue();
+
+        // Client finishes the future and the device should shutdown.
+        future.complete();
+
+        verifyShutdownRequestSent(VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
     }
 }
