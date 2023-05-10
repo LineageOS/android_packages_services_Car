@@ -16,7 +16,7 @@
 
 package com.android.car.tool.data;
 
-import com.github.javaparser.ast.expr.MethodCallExpr;
+import com.github.javaparser.ast.stmt.Statement;
 
 public class MethodData {
 
@@ -25,7 +25,8 @@ public class MethodData {
     public String fullMethodname;
     public AnnotationData annotationData;
     public boolean isHidden;
-    public MethodCallExpr firstBodyStatement;
+    public Statement firstBodyStatement;
+    public String fileName;
 
     public MethodData(String methodName, String returnType) {
         this.methodName = methodName;
