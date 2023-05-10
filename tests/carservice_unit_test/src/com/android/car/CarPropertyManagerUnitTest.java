@@ -77,6 +77,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import com.google.common.collect.ImmutableList;
@@ -884,7 +885,8 @@ public final class CarPropertyManagerUnitTest {
         GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, /* vendorErrorCode= */ 0);
         assertThat(callbackWrapper.size()).isEqualTo(1);
-        callbackWrapper.get(0).onGetValueResults(List.of(getValueResult));
+        callbackWrapper.get(0).onGetValueResults(
+                new GetSetValueResultList(List.of(getValueResult)));
 
         // No client callbacks should be called.
         verify(mGetPropertyCallback, never()).onFailure(any());
@@ -909,7 +911,8 @@ public final class CarPropertyManagerUnitTest {
             CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
             GetSetValueResult getValueResult = GetSetValueResult.newGetValueResult(0, value);
 
-            getAsyncPropertyResultCallback.onGetValueResults(List.of(getValueResult));
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -950,7 +953,8 @@ public final class CarPropertyManagerUnitTest {
                     GetSetValueResult.newGetValueResult(0, value),
                     GetSetValueResult.newGetValueResult(1, value));
 
-            getAsyncPropertyResultCallback.onGetValueResults(getValueResults);
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(getValueResults));
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -992,7 +996,8 @@ public final class CarPropertyManagerUnitTest {
             GetSetValueResult getValueResult = GetSetValueResult.newErrorResult(0,
                     CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE);
 
-            getAsyncPropertyResultCallback.onGetValueResults(List.of(getValueResult));
+            getAsyncPropertyResultCallback.onGetValueResults(
+                    new GetSetValueResultList(List.of(getValueResult)));
             return null;
         }).when(mICarProperty).getPropertiesAsync(any(), any(), anyLong());
 
@@ -1398,7 +1403,8 @@ public final class CarPropertyManagerUnitTest {
             GetSetValueResult setValueResult = GetSetValueResult.newSetValueResult(0,
                         /* updateTimestampNanos= */ TEST_TIMESTAMP);
 
-            setAsyncPropertyResultCallback.onSetValueResults(List.of(setValueResult));
+            setAsyncPropertyResultCallback.onSetValueResults(
+                    new GetSetValueResultList(List.of(setValueResult)));
             return null;
         }).when(mICarProperty).setPropertiesAsync(any(), any(), anyLong());
 
@@ -1439,7 +1445,8 @@ public final class CarPropertyManagerUnitTest {
                     GetSetValueResult.newSetValueResult(1,
                             /* updateTimestampNanos= */ TEST_TIMESTAMP));
 
-            setAsyncPropertyResultCallback.onSetValueResults(setValueResults);
+            setAsyncPropertyResultCallback.onSetValueResults(
+                    new GetSetValueResultList(setValueResults));
             return null;
         }).when(mICarProperty).setPropertiesAsync(any(), any(), anyLong());
 
@@ -1481,7 +1488,8 @@ public final class CarPropertyManagerUnitTest {
             GetSetValueResult setValueResult = GetSetValueResult.newErrorSetValueResult(0,
                     CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR, VENDOR_ERROR_CODE);
 
-            setAsyncPropertyResultCallback.onSetValueResults(List.of(setValueResult));
+            setAsyncPropertyResultCallback.onSetValueResults(
+                    new GetSetValueResultList(List.of(setValueResult)));
             return null;
         }).when(mICarProperty).setPropertiesAsync(any(), any(), anyLong());
 
