@@ -22,11 +22,16 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.remoteaccess.CarRemoteAccessManager;
+import android.car.remoteaccess.CarRemoteAccessManager.CompletableRemoteTaskFuture;
+import android.car.remoteaccess.CarRemoteAccessManager.RemoteTaskClientCallback;
 import android.car.remoteaccess.ICarRemoteAccessCallback;
 import android.car.remoteaccess.ICarRemoteAccessService;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
@@ -41,6 +46,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -55,10 +61,13 @@ public final class CarRemoteAccessManagerUnitTest {
     private final Executor mExecutor = mContext.getMainExecutor();
 
     private CarRemoteAccessManager mRemoteAccessManager;
+    private static final int DEFAULT_TIMEOUT = 3000;
 
     @Mock private Car mCar;
     @Mock private IBinder mBinder;
     @Mock private ICarRemoteAccessService mService;
+    @Captor
+    private ArgumentCaptor<CompletableRemoteTaskFuture> mFutureCaptor;
 
     @Before
     public void setUp() throws Exception {
@@ -256,7 +265,34 @@ public final class CarRemoteAccessManagerUnitTest {
         verify(mService).setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
     }
 
-    private ICarRemoteAccessCallback setClientAndGetCallback(RemoteTaskClient client)
+    @Test
+    public void testOnShutdownStarting() throws Exception {
+        RemoteTaskClientCallback remoteTaskClient = mock(RemoteTaskClientCallback.class);
+        String clientId = "clientId_testing";
+        String serviceId = "serviceId_testing";
+        String vehicleId = "vehicleId_testing";
+        String processorId = "processorId_testing";
+        ICarRemoteAccessCallback internalCallback = setClientAndGetCallback(remoteTaskClient);
+
+        internalCallback.onClientRegistrationUpdated(
+                new RemoteTaskClientRegistrationInfo(serviceId, vehicleId, processorId, clientId));
+
+        verify(remoteTaskClient, timeout(DEFAULT_TIMEOUT)).onRegistrationUpdated(any());
+
+        internalCallback.onShutdownStarting();
+
+        verify(remoteTaskClient, timeout(DEFAULT_TIMEOUT)).onShutdownStarting(
+                mFutureCaptor.capture());
+        CompletableRemoteTaskFuture future = mFutureCaptor.getValue();
+
+        verify(mService, never()).confirmReadyForShutdown(any());
+
+        future.complete();
+
+        verify(mService).confirmReadyForShutdown(clientId);
+    }
+
+    private ICarRemoteAccessCallback setClientAndGetCallback(RemoteTaskClientCallback client)
             throws Exception {
         ArgumentCaptor<ICarRemoteAccessCallback> internalCallbackCaptor =
                 ArgumentCaptor.forClass(ICarRemoteAccessCallback.class);
@@ -278,9 +314,8 @@ public final class CarRemoteAccessManagerUnitTest {
                 /* taskMaximumDurationInSec= */ 10);
     }
 
-    private static final class RemoteTaskClient
-            implements CarRemoteAccessManager.RemoteTaskClientCallback {
-        private static final int WAIT_TIME_MS = 3000;
+    private static final class RemoteTaskClient implements RemoteTaskClientCallback {
+        private static final int DEFAULT_TIMEOUT = 3000;
 
         private final CountDownLatch mLatch;
         private String mServiceId;
@@ -323,37 +358,37 @@ public final class CarRemoteAccessManagerUnitTest {
         }
 
         public String getServiceId() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mServiceId;
         }
 
         public String getVehicleId() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mVehicleId;
         }
 
         public String getProcessorId() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mProcessorId;
         }
 
         public String getClientId() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mClientId;
         }
 
         public String getTaskId() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mTaskId;
         }
 
         public byte[] getData() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mData;
         }
 
         public boolean isRegistrationFail() throws Exception {
-            JavaMockitoHelper.await(mLatch, WAIT_TIME_MS);
+            JavaMockitoHelper.await(mLatch, DEFAULT_TIMEOUT);
             return mRegistrationFailed;
         }
     }
