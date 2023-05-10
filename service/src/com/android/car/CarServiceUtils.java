@@ -770,7 +770,7 @@ public final class CarServiceUtils {
                 "Cannot stop SystemUI for the system user");
         // TODO (b/261192740): add EventLog for SystemUI stopping
         String sysUiPackage = PackageManagerHelper.getSystemUiPackageName(context);
-        PackageManagerHelper.forceStopPackageAsUser(context, sysUiPackage, userId);
+        PackageManagerHelper.forceStopPackageAsUserEvenWhenStopping(context, sysUiPackage, userId);
     }
 
     /**
