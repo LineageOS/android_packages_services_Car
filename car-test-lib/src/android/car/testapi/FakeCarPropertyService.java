@@ -35,6 +35,7 @@ import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
 import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 
 import java.util.ArrayList;
@@ -118,7 +119,7 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
                     getProperty(asyncPropertyServiceRequest.getPropertyId(),
                             asyncPropertyServiceRequest.getAreaId())));
         }
-        asyncPropertyResultCallback.onGetValueResults(getValueResults);
+        asyncPropertyResultCallback.onGetValueResults(new GetSetValueResultList(getValueResults));
     }
 
     @Override
@@ -135,7 +136,7 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
             setValueResults.add(GetSetValueResult.newSetValueResult(
                     asyncPropertyServiceRequest.getRequestId(), /* updateTimestampNanos= */ 0));
         }
-        asyncPropertyResultCallback.onSetValueResults(setValueResults);
+        asyncPropertyResultCallback.onSetValueResults(new GetSetValueResultList(setValueResults));
     }
 
     @Override
