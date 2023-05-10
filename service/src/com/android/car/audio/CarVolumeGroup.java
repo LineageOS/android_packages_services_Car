@@ -239,7 +239,7 @@ import java.util.Objects;
     }
 
     @GuardedBy("mLock")
-    private boolean isHalMutedLocked() {
+    protected boolean isHalMutedLocked() {
         return mIsHalMuted;
     }
 
@@ -558,6 +558,7 @@ import java.util.Objects;
                         + "hal mute restriction!");
                 return;
             }
+            applyMuteLocked(mute);
             setMuteLocked(mute);
         }
     }
@@ -570,6 +571,10 @@ import java.util.Objects;
         }
     }
 
+    @GuardedBy("mLock")
+    protected void applyMuteLocked(boolean mute) {
+    }
+
     boolean isMuted() {
         synchronized (mLock) {
             return isMutedLocked();
@@ -577,9 +582,19 @@ import java.util.Objects;
     }
 
     @GuardedBy("mLock")
-    private boolean isMutedLocked() {
+    protected boolean isMutedLocked() {
         // if either of the mute states is set, it results in group being muted.
-        return mIsMuted || mIsHalMuted;
+        return isUserMutedLocked() || isHalMutedLocked();
+    }
+
+    @GuardedBy("mLock")
+    protected boolean isUserMutedLocked() {
+        return mIsMuted;
+    }
+
+    @GuardedBy("mLock")
+    protected boolean isFullyMutedLocked() {
+        return isUserMutedLocked() || isHalMutedLocked() || isBlockedLocked();
     }
 
     private static boolean containsCriticalAttributes(List<AudioAttributes> volumeAttributes) {
@@ -643,6 +658,7 @@ import java.util.Objects;
             return;
         }
         mIsMuted = mSettingsManager.getVolumeGroupMuteForUser(mUserId, mZoneId, mConfigId, mId);
+        applyMuteLocked(isFullyMutedLocked());
     }
 
     /**
@@ -707,6 +723,9 @@ import java.util.Objects;
             // Do not update current gain cache, keep it for restoring rather using reported index
             // when the event is cleared.
             setCurrentGainIndexLocked(getRestrictedGainForIndexLocked(mCurrentGainIndex));
+            // Hal or user mute state can change (only user mute enabled while hal muted allowed).
+            // Force a sync of mute application.
+            applyMuteLocked(isFullyMutedLocked());
         }
         return eventType;
     }
