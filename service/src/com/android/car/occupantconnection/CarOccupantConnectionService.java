@@ -503,7 +503,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         checkCalledByPackage(mContext, packageName);
 
         ClientId senderClient = getCallingClientId(packageName);
-        int connectionError = calculateConnectionError(receiverZone, packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        int receiverUserId = receiverClient == null ? INVALID_USER_ID : receiverClient.userId;
+        int connectionError = calculateConnectionError(receiverZone, receiverUserId, packageName);
         if (connectionError != CONNECTION_ERROR_NONE) {
             try {
                 callback.onFailed(receiverZone, connectionError);
@@ -514,7 +516,6 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             return;
         }
 
-        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         synchronized (mLock) {
             assertNoDuplicateConnectionRequestLocked(connectionId);
@@ -965,7 +966,8 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     }
 
     @ConnectionError
-    private static int calculateConnectionError(OccupantZoneInfo receiverZone, String packageName) {
+    private static int calculateConnectionError(OccupantZoneInfo receiverZone, int userId,
+            String packageName) {
         CarRemoteDeviceService remoteDeviceService =
                 CarLocalServices.getService(CarRemoteDeviceService.class);
         if (remoteDeviceService == null) {
@@ -976,8 +978,11 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             Slogf.e(TAG, "%s is not ready for connection", receiverZone);
             return CONNECTION_ERROR_NOT_READY;
         }
-        PackageInfo receiverInfo =
-                remoteDeviceService.getEndpointPackageInfo(receiverZone.zoneId, packageName);
+        PackageInfo receiverInfo = userId == INVALID_USER_ID
+                ? null
+                // Note: don't call remoteDeviceService.getEndpointPackageInfo() because it
+                // requires PERMISSION_MANAGE_REMOTE_DEVICE.
+                : remoteDeviceService.getPackageInfoAsUser(packageName, userId);
         if (receiverInfo == null) {
             Slogf.e(TAG, "Peer app %s is not installed in %s", packageName, receiverZone);
             return CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
