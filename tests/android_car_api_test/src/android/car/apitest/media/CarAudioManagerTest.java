@@ -23,6 +23,7 @@ import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -214,15 +215,38 @@ public final class CarAudioManagerTest extends CarApiTestBase {
     @Test
     public void setGroupVolume_whileMuted_unMutesVolumeGroup() throws Exception {
         assumeVolumeGroupMutingIsEnabled();
-        int groupId = 0;
-        boolean  muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
-        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
+        int groupId = mCarAudioManager.getVolumeGroupIdForUsage(USAGE_MEDIA);
         int minVolume = mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
+        assumeTrue("Mutable group shall have zero min index", minVolume == 0);
+        boolean muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
+        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
 
         try {
-            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, true, TEST_FLAGS);
-
+            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, /* mute= */ true,
+                    TEST_FLAGS);
             mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, minVolume, TEST_FLAGS);
+
+            assertWithMessage("Un-muted volume group for group %s in zone %s", groupId,
+                    PRIMARY_AUDIO_ZONE).that(mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE,
+                    groupId)).isEqualTo(false);
+        } finally {
+            mCarAudioManager.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, muteState, TEST_FLAGS);
+            mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, volume, TEST_FLAGS);
+        }
+    }
+
+    @Test
+    public void setGroupVolumeToZero_doesNotMuteVolumeGroup() throws Exception {
+        assumeVolumeGroupMutingIsEnabled();
+        int groupId = mCarAudioManager.getVolumeGroupIdForUsage(USAGE_MEDIA);
+        int minVolume = mCarAudioManager.getGroupMinVolume(PRIMARY_AUDIO_ZONE, groupId);
+        assumeTrue("Mutable group shall have zero min index", minVolume == 0);
+        boolean muteState = mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId);
+        int volume = mCarAudioManager.getGroupVolume(PRIMARY_AUDIO_ZONE, groupId);
+
+        try {
+            mCarAudioManager.setGroupVolume(PRIMARY_AUDIO_ZONE, groupId, minVolume, TEST_FLAGS);
+
             assertThat(mCarAudioManager.isVolumeGroupMuted(PRIMARY_AUDIO_ZONE, groupId))
                     .isEqualTo(false);
         } finally {
