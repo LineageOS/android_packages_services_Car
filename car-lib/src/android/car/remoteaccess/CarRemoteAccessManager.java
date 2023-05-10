@@ -172,7 +172,21 @@ public final class CarRemoteAccessManager extends CarManagerBase {
 
         @Override
         public void onShutdownStarting() {
-            // TODO(b/253304673): Implememnt async future completion handling.
+            String clientId;
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                clientId = mCurrentClientId;
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            if (clientId == null || callback == null || executor == null) {
+                Slogf.w(TAG, "Cannot call onShutdownStarting because no remote task client is "
+                        + "registered");
+                return;
+            }
+            executor.execute(() ->
+                    callback.onShutdownStarting(new MyCompletableRemoteTaskFuture(clientId)));
         }
     };
 
@@ -197,6 +211,23 @@ public final class CarRemoteAccessManager extends CarManagerBase {
         @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
         void complete();
+    }
+
+    private final class MyCompletableRemoteTaskFuture implements CompletableRemoteTaskFuture {
+        private final String mClientIdToComplete;
+
+        MyCompletableRemoteTaskFuture(String clientId) {
+            mClientIdToComplete = clientId;
+        }
+
+        @Override
+        public void complete() {
+            try {
+                mService.confirmReadyForShutdown(mClientIdToComplete);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
+            }
+        }
     }
 
     /**
