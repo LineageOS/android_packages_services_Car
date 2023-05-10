@@ -115,6 +115,7 @@ cc_fuzz {
     defaults: [
         "evsmanagerd_defaults",
         "service_fuzzer_defaults",
+        "fuzzer_disable_leaks",
     ],
     static_libs: [
         "liblog",
