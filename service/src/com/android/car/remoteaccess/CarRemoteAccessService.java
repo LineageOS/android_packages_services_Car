@@ -114,6 +114,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final RemoteTaskClientServiceHandler mHandler =
             new RemoteTaskClientServiceHandler(mHandlerThread.getLooper(), this);
+    private long mAllowedTimeForRemoteTaskClientInitMs =
+            ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValule= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValule= */ 0);
     @GuardedBy("mLock")
@@ -228,8 +230,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 mTasksToBeNotifiedByClientId.remove(clientId);
                 return;
             }
-            RemoteTaskClientServiceInfo serviceInfo =
-                    mClientServiceInfoByUid.get(uidName);
+            RemoteTaskClientServiceInfo serviceInfo = mClientServiceInfoByUid.get(uidName);
             if (serviceInfo == null) {
                 Slogf.w(TAG, "Notifying task is delayed: the remote client service information "
                         + "for %s is not registered yet", uidName);
@@ -347,6 +348,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @VisibleForTesting
     public void setPowerHal(PowerHalService powerHalService) {
         mPowerHalService = powerHalService;
+    }
+
+    @VisibleForTesting
+    public void setAllowedTimeForRemoteTaskClientInitMs(long allowedTimeForRemoteTaskClientInitMs) {
+        mAllowedTimeForRemoteTaskClientInitMs = allowedTimeForRemoteTaskClientInitMs;
     }
 
     @Override
@@ -732,6 +738,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private void searchForRemoteTaskClientPackages() {
         List<RemoteTaskClientServiceInfo> servicesToStart = new ArrayList<>();
         // TODO(b/266129982): Query for all users.
+        if (DEBUG) {
+            Slogf.d(TAG, "searchForRemoteTaskClientPackages");
+        }
         List<ResolveInfo> services = mPackageManager.queryIntentServicesAsUser(
                 new Intent(Car.CAR_REMOTEACCESS_REMOTE_TASK_CLIENT_SERVICE), /* flags= */ 0,
                 UserHandle.SYSTEM);
@@ -789,7 +798,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 serviceName.flattenToString());
         if (scheduleUnbind) {
             mHandler.postUnbindServiceAfterRegistration(serviceInfo,
-                    ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS);
+                    mAllowedTimeForRemoteTaskClientInitMs);
         }
     }
 

@@ -33,11 +33,9 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarInternalErrorException;
 import android.car.hardware.property.CarPropertyManager;
-import android.car.hardware.property.CarPropertyManager.GetPropertyCallback;
 import android.car.hardware.property.CarPropertyManager.GetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.GetPropertyResult;
 import android.car.hardware.property.CarPropertyManager.PropertyAsyncError;
-import android.car.hardware.property.CarPropertyManager.SetPropertyCallback;
 import android.car.hardware.property.CarPropertyManager.SetPropertyRequest;
 import android.car.hardware.property.CarPropertyManager.SetPropertyResult;
 import android.car.hardware.property.PropertyAccessDeniedSecurityException;
@@ -62,12 +60,12 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.test.TestPropertyAsyncCallback;
 
 import com.google.common.truth.Truth;
 
@@ -1613,119 +1611,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             synchronized (mLock) {
                 return mInitialValues;
             }
-        }
-    }
-
-    private static final class TestPropertyAsyncCallback implements
-            GetPropertyCallback, SetPropertyCallback {
-        private final CountDownLatch mCountDownLatch;
-        private final Set<Integer> mPendingRequests;
-        private final int mNumberOfRequests;
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
-        private final List<String> mTestErrors = new ArrayList<>();
-        @GuardedBy("mLock")
-        private final List<GetPropertyResult<?>> mGetResultList = new ArrayList<>();
-        @GuardedBy("mLock")
-        private final List<SetPropertyResult> mSetResultList = new ArrayList<>();
-        @GuardedBy("mLock")
-        private final List<PropertyAsyncError> mErrorList = new ArrayList<>();
-
-        TestPropertyAsyncCallback(Set<Integer> pendingRequests) {
-            mNumberOfRequests = pendingRequests.size();
-            mCountDownLatch = new CountDownLatch(mNumberOfRequests);
-            mPendingRequests = pendingRequests;
-        }
-
-        @Override
-        public void onSuccess(@NonNull SetPropertyResult setPropertyResult) {
-            int requestId = setPropertyResult.getRequestId();
-            synchronized (mLock) {
-                if (!mPendingRequests.contains(requestId)) {
-                    mTestErrors.add("Request ID: " + requestId + " not present");
-                    return;
-                } else {
-                    mSetResultList.add(setPropertyResult);
-                    mPendingRequests.remove(requestId);
-                }
-            }
-            mCountDownLatch.countDown();
-        }
-
-        @Override
-        public void onSuccess(@NonNull GetPropertyResult<?> getPropertyResult) {
-            int requestId = getPropertyResult.getRequestId();
-            synchronized (mLock) {
-                if (!mPendingRequests.contains(requestId)) {
-                    mTestErrors.add("Request ID: " + requestId + " not present");
-                    return;
-                } else {
-                    mGetResultList.add(getPropertyResult);
-                    mPendingRequests.remove(requestId);
-                }
-            }
-            mCountDownLatch.countDown();
-        }
-
-        @Override
-        public void onFailure(@NonNull PropertyAsyncError propertyAsyncError) {
-            int requestId = propertyAsyncError.getRequestId();
-            synchronized (mLock) {
-                if (!mPendingRequests.contains(requestId)) {
-                    mTestErrors.add("Request ID: " + requestId + " not present");
-                    return;
-                } else {
-                    mErrorList.add(propertyAsyncError);
-                    mPendingRequests.remove(requestId);
-                }
-            }
-            mCountDownLatch.countDown();
-        }
-
-        public void waitAndFinish(int timeoutInMs) throws InterruptedException {
-            boolean res = mCountDownLatch.await(timeoutInMs, TimeUnit.MILLISECONDS);
-            synchronized (mLock) {
-                if (!res) {
-                    int gotRequestsCount = mNumberOfRequests - mPendingRequests.size();
-                    mTestErrors.add(
-                            "Not enough responses received before timeout "
-                                    + "(" + timeoutInMs
-                                    + "ms), expected " + mNumberOfRequests + " responses, got "
-                                    + gotRequestsCount);
-                }
-            }
-        }
-
-        public List<String> getTestErrors() {
-            List<String> testErrors;
-            synchronized (mLock) {
-                testErrors = new ArrayList<>(mTestErrors);
-            }
-            return testErrors;
-        }
-
-        public List<GetPropertyResult<?>> getGetResultList() {
-            List<GetPropertyResult<?>> resultList;
-            synchronized (mLock) {
-                resultList = new ArrayList<>(mGetResultList);
-            }
-            return resultList;
-        }
-
-        public List<SetPropertyResult> getSetResultList() {
-            List<SetPropertyResult> resultList;
-            synchronized (mLock) {
-                resultList = new ArrayList<>(mSetResultList);
-            }
-            return resultList;
-        }
-
-        public List<PropertyAsyncError> getErrorList() {
-            List<PropertyAsyncError> errorList;
-            synchronized (mLock) {
-                errorList = new ArrayList<>(mErrorList);
-            }
-            return errorList;
         }
     }
 

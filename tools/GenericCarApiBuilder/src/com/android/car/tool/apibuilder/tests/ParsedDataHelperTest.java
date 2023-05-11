@@ -122,4 +122,27 @@ public final class ParsedDataHelperTest extends TestHelper {
                 + "(int eventType, int to)",
                 "android.car.user Test1 Test1 Test1(Car car, IBinder service)");
     }
+
+    @Test
+    public void testGetApisWithVersion() throws Exception {
+        ParsedData data = new ParsedData();
+        ParsedDataBuilder.populateParsedDataForFile(getResourceFile("Test1.txt"), data);
+        List<String> result = ParsedDataHelper.getApisWithVersion(data);
+        assertThat(result).containsExactly("android.car.user Test1 String FIELD_1 | TIRAMISU_0",
+                "android.car.user Test1 int FIELD_2 | ",
+                "android.car.user Test1 int FIELD_3 | ",
+                "android.car.user Test1 int FIELD_4 | TIRAMISU_0",
+                "android.car.user Test1 int FIELD_5 | UPSIDE_DOWN_CAKE_0",
+                "android.car.user Test1 int FIELD_6 | TIRAMISU_0",
+                "android.car.user Test1 void method_1(UserStopRequest request, Executor executor, "
+                        + "ResultCallback<UserStopResponse> callback) | UPSIDE_DOWN_CAKE_0",
+                "android.car.user Test1 void method_2() | TIRAMISU_0",
+                "android.car.user Test1 int method_3() | TIRAMISU_0",
+                "android.car.user Test1.UserLifecycleListener void onEvent"
+                        + "(UserLifecycleEvent event) | TIRAMISU_0",
+                "android.car.user Test1.UserLifecycleEvent int getEventType() | TIRAMISU_0",
+                "android.car.user Test1.UserLifecycleEvent.UserLifecycleListener2 void onEvent"
+                        + "(UserLifecycleEvent event) | TIRAMISU_0");
+    }
+
 }

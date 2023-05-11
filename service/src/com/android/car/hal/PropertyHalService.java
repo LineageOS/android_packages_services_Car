@@ -77,6 +77,7 @@ import com.android.car.internal.LongRequestIdWithTimeout;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.GetSetValueResult;
+import com.android.car.internal.property.GetSetValueResultList;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.internal.annotations.GuardedBy;
 
@@ -391,7 +392,7 @@ public class PropertyHalService extends HalServiceBase {
                 return;
             }
             try {
-                mAsyncPropertyResultCallback.onGetValueResults(results);
+                mAsyncPropertyResultCallback.onGetValueResults(new GetSetValueResultList(results));
             } catch (RemoteException e) {
                 Slogf.w(TAG, "sendGetValueResults: Client might have died already", e);
             }
@@ -402,7 +403,7 @@ public class PropertyHalService extends HalServiceBase {
                 return;
             }
             try {
-                mAsyncPropertyResultCallback.onSetValueResults(results);
+                mAsyncPropertyResultCallback.onSetValueResults(new GetSetValueResultList(results));
             } catch (RemoteException e) {
                 Slogf.w(TAG, "sendSetValueResults: Client might have died already", e);
             }
