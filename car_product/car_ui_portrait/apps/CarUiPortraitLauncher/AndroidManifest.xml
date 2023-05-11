@@ -55,8 +55,7 @@
                   android:stateNotNeeded="true"
                   android:resumeWhilePausing="true"
                   android:exported="true"
-                  android:windowSoftInputMode="adjustPan"
-                  android:excludeFromRecents="true">
+                  android:windowSoftInputMode="adjustPan">
             <meta-data android:name="distractionOptimized" android:value="true"/>
 
             <intent-filter>
