@@ -275,8 +275,8 @@ public final class RemoteAccessHalWrapper implements IBinder.DeathRecipient {
         @Override
         public void onRemoteTaskRequested(String clientId, byte[] data) {
             if (DEBUG) {
-                Slogf.d("onRemoteTaskRequested is called: clientId = %s, data size = %d", clientId,
-                        data == null ? 0 : data.length);
+                Slogf.d(TAG, "onRemoteTaskRequested is called: clientId = %s, data size = %d",
+                        clientId, data == null ? 0 : data.length);
             }
             RemoteAccessHalWrapper halWrapper = mHalWrapper.get();
             if (halWrapper == null) {
