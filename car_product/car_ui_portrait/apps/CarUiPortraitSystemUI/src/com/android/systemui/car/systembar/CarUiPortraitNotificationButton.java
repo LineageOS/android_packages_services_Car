@@ -20,7 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 /** The button used to show the notification in the system bar. */
-public class CarUiPortraitNotificationButton extends CarUiPortraitSystemBarButton{
+public class CarUiPortraitNotificationButton extends CarUiPortraitSystemBarButton {
     public CarUiPortraitNotificationButton(Context context,
             AttributeSet attrs) {
         super(context, attrs);
