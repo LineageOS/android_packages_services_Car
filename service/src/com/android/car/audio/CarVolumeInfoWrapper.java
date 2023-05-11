@@ -85,6 +85,6 @@ final class CarVolumeInfoWrapper {
     }
 
     public void onVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
-        mCarAudioService.callbackVolumeGroupEvent(events);
+        mCarAudioService.onVolumeGroupEvent(events);
     }
 }
