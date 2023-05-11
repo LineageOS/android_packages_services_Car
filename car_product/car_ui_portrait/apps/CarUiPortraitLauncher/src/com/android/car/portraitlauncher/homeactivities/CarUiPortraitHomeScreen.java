@@ -35,6 +35,7 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.app.IActivityManager;
 import android.app.ActivityOptions;
 import android.app.TaskInfo;
 import android.app.TaskStackListener;
@@ -147,7 +148,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private static final boolean DBG = Build.IS_DEBUGGABLE;
     private static final String SAVED_BACKGROUND_APP_COMPONENT_NAME =
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
+    private static final IActivityManager sActivityManager = ActivityManager.getService();
 
+    private int mCurrentBackgroundTaskId;
     private int mStatusBarHeight;
     private FrameLayout mContainer;
     private View mControlBarView;
@@ -276,6 +279,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
             if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
+                setFocusToBackgroundApp();
                 return;
             }
 
@@ -286,6 +290,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
                     recreate();
                 }
+                mCurrentBackgroundTaskId = taskInfo.taskId;
                 return;
             }
 
@@ -384,6 +389,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             }
         }
     };
+
+    private void setFocusToBackgroundApp() {
+        try {
+            sActivityManager.setFocusedRootTask(mCurrentBackgroundTaskId);
+        } catch (RemoteException e) {
+            Log.w(TAG, "Unable to set focus on background app: ", e);
+        }
+    }
 
     /**
      * Only resize the size of rootTaskView when SUW is in progress. This is to resize the height of
@@ -834,6 +847,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 updateObscuredTouchRegion();
                 updateBackgroundTaskViewInsets();
+                if (!newState.isVisible()) {
+                    setFocusToBackgroundApp();
+                }
             }
         });
     }
