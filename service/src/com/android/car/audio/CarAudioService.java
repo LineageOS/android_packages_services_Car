@@ -2972,6 +2972,31 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         }
     }
 
+    void onVolumeGroupEvent(List<CarVolumeGroupEvent> events) {
+        for (int index = 0; index < events.size(); index++) {
+            CarVolumeGroupEvent event = events.get(index);
+            List<CarVolumeGroupInfo> infos = event.getCarVolumeGroupInfos();
+            boolean volumeEvent =
+                    (event.getEventTypes() & EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED) != 0;
+            boolean muteEvent = (event.getEventTypes() & EVENT_TYPE_MUTE_CHANGED) != 0;
+            if (!volumeEvent && !muteEvent) {
+                continue;
+            }
+            for (int infoIndex = 0; infoIndex < infos.size(); infoIndex++) {
+                CarVolumeGroupInfo info = infos.get(infoIndex);
+                int groupId = info.getId();
+                int zoneId = info.getZoneId();
+                if (volumeEvent) {
+                    mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, /* flags= */ 0);
+                }
+                if (muteEvent) {
+                    handleMuteChanged(zoneId, groupId, /* flags= */ 0);
+                }
+            }
+        }
+        callbackVolumeGroupEvent(events);
+    }
+
     void onAudioVolumeGroupChanged(int zoneId, String groupName, int flags) {
         int callbackFlags = flags;
         synchronized (mImplLock) {
