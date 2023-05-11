@@ -246,6 +246,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         }
 
         @Override
+        public void onTaskFocusChanged(int taskId, boolean focused) {
+            super.onTaskFocusChanged(taskId, focused);
+            boolean hostFocused = taskId == CarUiPortraitHomeScreen.this.getTaskId() && focused;
+            if (hostFocused && mTaskViewManager != null) {
+                mTaskViewManager.showEmbeddedTasks();
+            }
+        }
+
+        @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
             logIfDebuggable("On task moved to front, task = " + taskInfo.taskId);
