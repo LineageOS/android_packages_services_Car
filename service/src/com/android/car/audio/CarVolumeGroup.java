@@ -680,6 +680,7 @@ import java.util.Objects;
             return eventType;
         }
         synchronized (mLock) {
+            int previousRestrictedIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
             mReasons = new ArrayList<>(halReasons);
 
             boolean shouldBlock = CarAudioGainMonitor.shouldBlockVolumeRequest(halReasons);
@@ -712,7 +713,7 @@ import java.util.Objects;
             }
 
             if (CarAudioGainMonitor.shouldUpdateVolumeIndex(halReasons)
-                    && (halIndex != mCurrentGainIndex)) {
+                    && (halIndex != getRestrictedGainForIndexLocked(mCurrentGainIndex))) {
                 mCurrentGainIndex = halIndex;
                 eventType |= EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
             }
@@ -722,10 +723,15 @@ import java.util.Objects;
             //
             // Do not update current gain cache, keep it for restoring rather using reported index
             // when the event is cleared.
-            setCurrentGainIndexLocked(getRestrictedGainForIndexLocked(mCurrentGainIndex));
+            int newRestrictedIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
+            setCurrentGainIndexLocked(newRestrictedIndex);
             // Hal or user mute state can change (only user mute enabled while hal muted allowed).
             // Force a sync of mute application.
             applyMuteLocked(isFullyMutedLocked());
+
+            if (newRestrictedIndex != previousRestrictedIndex) {
+                eventType |= EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+            }
         }
         return eventType;
     }
@@ -736,10 +742,10 @@ import java.util.Objects;
         boolean isBlocked;
         boolean isAttenuated;
         synchronized (mLock) {
-            gainIndex = mCurrentGainIndex;
+            gainIndex = getRestrictedGainForIndexLocked(mCurrentGainIndex);
             isMuted = isMutedLocked();
             isBlocked = isBlockedLocked();
-            isAttenuated = isAttenuatedLocked();
+            isAttenuated = isAttenuatedLocked() || isLimitedLocked();
         }
 
         return new CarVolumeGroupInfo.Builder("group id " + mId, mZoneId, mId)
