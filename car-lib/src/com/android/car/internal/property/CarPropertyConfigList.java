@@ -21,48 +21,57 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.os.Parcel;
 
-import com.android.car.internal.LargeParcelableBase;
+import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @hide
  */
-public final class CarPropertyConfigList extends LargeParcelableBase {
+public final class CarPropertyConfigList extends LargeParcelableList<CarPropertyConfig> {
 
-    private @Nullable List<CarPropertyConfig> mCarPropertyConfigList;
-
-    private CarPropertyConfigList(@Nullable Parcel in) {
+    private CarPropertyConfigList(Parcel in) {
         super(in);
     }
 
-    public CarPropertyConfigList(@Nullable List<CarPropertyConfig> carPropertyConfigs) {
-        mCarPropertyConfigList = carPropertyConfigs;
+    public CarPropertyConfigList(List<CarPropertyConfig> carPropertyConfigs) {
+        super(carPropertyConfigs);
     }
 
     public List<CarPropertyConfig> getConfigs() {
-        return mCarPropertyConfigList;
+        return super.getList();
     }
 
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PRIVATE)
     @Override
     public void serialize(@NonNull Parcel dest, int flags) {
-        dest.writeTypedList(mCarPropertyConfigList);
+        super.serialize(dest, flags);
     }
 
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PRIVATE)
     @Override
     public void serializeNullPayload(@NonNull Parcel dest) {
-        dest.writeTypedList(null);
+        super.serializeNullPayload(dest);
+    }
+
+    @VisibleForTesting(visibility = VisibleForTesting.Visibility.PRIVATE)
+    @Override
+    public void deserialize(@NonNull Parcel src) {
+        super.deserialize(src);
     }
 
     @Override
-    public void deserialize(@NonNull Parcel src) {
-        mCarPropertyConfigList = src.createTypedArrayList(CarPropertyConfig.CREATOR);
+    protected Creator<CarPropertyConfig> getCreator() {
+        return CarPropertyConfig.CREATOR;
     }
 
-    public static final @NonNull Creator<CarPropertyConfigList> CREATOR =
-            new Creator<CarPropertyConfigList>() {
+    public static final @NonNull Creator<CarPropertyConfigList> CREATOR = new Creator<>() {
         @Override
         public CarPropertyConfigList createFromParcel(@Nullable Parcel in) {
+            if (in == null) {
+                return new CarPropertyConfigList(new ArrayList<>());
+            }
             return new CarPropertyConfigList(in);
         }
 

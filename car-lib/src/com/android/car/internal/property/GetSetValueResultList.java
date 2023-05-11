@@ -20,21 +20,16 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcel;
 
-import com.android.car.internal.LargeParcelableBase;
-
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO(b/281564033): Generalize list for large parcelables
 /**
  * @hide
  */
-public final class GetSetValueResultList extends LargeParcelableBase {
-    @Nullable
-    private List<GetSetValueResult> mGetSetValueResultList;
+public final class GetSetValueResultList extends LargeParcelableList<GetSetValueResult> {
 
     public GetSetValueResultList(@NonNull List<GetSetValueResult> getSetValueResultsList) {
-        mGetSetValueResultList = getSetValueResultsList;
+        super(getSetValueResultsList);
     }
 
     private GetSetValueResultList(@NonNull Parcel source) {
@@ -42,31 +37,15 @@ public final class GetSetValueResultList extends LargeParcelableBase {
     }
 
     @Override
-    protected void serialize(@NonNull Parcel dest, int flags) {
-        dest.writeTypedList(mGetSetValueResultList);
+    protected Creator<GetSetValueResult> getCreator() {
+        return GetSetValueResult.CREATOR;
     }
 
-    @Override
-    protected void serializeNullPayload(@NonNull Parcel dest) {
-        dest.writeTypedList(null);
-    }
-
-    @Override
-    protected void deserialize(@NonNull Parcel src) {
-        mGetSetValueResultList = src.createTypedArrayList(GetSetValueResult.CREATOR);
-    }
-
-    public List<GetSetValueResult> getList() {
-        return mGetSetValueResultList;
-    }
-
-    public static final @NonNull Creator<GetSetValueResultList> CREATOR =
-            new Creator<GetSetValueResultList>() {
+    public static final @NonNull Creator<GetSetValueResultList> CREATOR = new Creator<>() {
         @Override
         public GetSetValueResultList createFromParcel(@Nullable Parcel in) {
             if (in == null) {
-                return new GetSetValueResultList(
-                        new ArrayList<GetSetValueResult>());
+                return new GetSetValueResultList(new ArrayList<>());
             }
             return new GetSetValueResultList(in);
         }
