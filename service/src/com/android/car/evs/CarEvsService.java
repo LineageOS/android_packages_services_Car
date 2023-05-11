@@ -65,6 +65,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.BuiltinPackageDependency;
@@ -903,6 +904,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             writer.printf("Current session token = %s\n", mSessionToken);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Registers a {@link ICarEvsStatusListener} to listen requests to control the camera

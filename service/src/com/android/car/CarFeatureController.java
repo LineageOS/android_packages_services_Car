@@ -30,6 +30,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.AtomicFile;
 import android.util.Pair;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -219,6 +220,10 @@ public final class CarFeatureController implements CarServiceBase {
             writer.println(" mPendingDisabledFeatures:" + mPendingDisabledFeatures);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /** Check {@link Car#isFeatureEnabled(String)} */
     public boolean isFeatureEnabled(String featureName) {

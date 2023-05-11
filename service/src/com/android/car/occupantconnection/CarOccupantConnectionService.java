@@ -49,6 +49,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
@@ -433,6 +434,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void registerReceiver(String packageName, String receiverEndpointId,

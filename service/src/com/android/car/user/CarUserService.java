@@ -111,6 +111,7 @@ import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -500,6 +501,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mInitialUserSetter.dump(writer);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     // TODO(b/248608281): clean up.
     @Nullable

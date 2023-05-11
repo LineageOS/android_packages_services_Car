@@ -58,6 +58,7 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.CarActivityService;
@@ -97,6 +98,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -760,14 +762,29 @@ public class ICarImpl extends ICar.Stub {
                 dumpVersions(writer);
                 return;
             case "--services": {
-                if (args.length < 2) {
+                int length = args.length;
+                boolean dumpToProto = false;
+                if (length < 2) {
                     writer.println("Must pass services to dump when using --services");
                     return;
                 }
-                int length = args.length - 1;
+                if (args[length - 1].equals("--proto")) {
+                    length -= 2;
+                    dumpToProto = true;
+                    if (length > 1) {
+                        writer.println("Cannot dump multiple services to proto");
+                        return;
+                    }
+                } else {
+                    length -= 1;
+                }
                 String[] services = new String[length];
                 System.arraycopy(args, 1, services, 0, length);
-                dumpIndividualServices(writer, services);
+                if (dumpToProto) {
+                    dumpServiceProto(writer, fd, services[0]);
+                } else {
+                    dumpIndividualServices(writer, services);
+                }
                 return;
             }
             case "--metrics":
@@ -986,6 +1003,22 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpServiceProto(IndentingPrintWriter writer, FileDescriptor fd,
+            String serviceName) {
+        CarSystemService service = getCarServiceBySubstring(serviceName);
+        if (service == null) {
+            writer.println("No such service!");
+        } else {
+            if (service instanceof CarServiceBase) {
+                CarServiceBase carService = (CarServiceBase) service;
+                dumpServiceProto(carService, writer, fd);
+            } else {
+                writer.println("Only services that extend CarServiceBase can dump to proto");
+            }
+        }
+    }
+
     @Nullable
     private CarSystemService getCarServiceBySubstring(String className) {
         return Arrays.asList(mAllServices).stream()
@@ -997,6 +1030,18 @@ public class ICarImpl extends ICar.Stub {
     private void dumpService(CarSystemService service, IndentingPrintWriter writer) {
         try {
             service.dump(writer);
+        } catch (Exception e) {
+            writer.println("Failed dumping: " + service.getClass().getName());
+            e.printStackTrace(writer);
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpServiceProto(CarServiceBase service, IndentingPrintWriter writer,
+            FileDescriptor fd) {
+        try (FileOutputStream fileStream = new FileOutputStream(fd)) {
+            ProtoOutputStream proto = new ProtoOutputStream(fileStream);
+            service.dumpProto(proto);
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);

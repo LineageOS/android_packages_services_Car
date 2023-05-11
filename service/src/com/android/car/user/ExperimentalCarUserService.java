@@ -48,6 +48,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -197,6 +198,10 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
         writer.printf("User HAL timeout: %dms\n",  mHalTimeoutMs);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public AndroidFuture<UserCreationResult> createDriver(String name, boolean admin) {

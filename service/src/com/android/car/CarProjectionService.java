@@ -68,6 +68,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.car.bluetooth.CarBluetoothService;
@@ -896,6 +897,10 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             writer.println("WifiScanner: " + mWifiScanner);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void onKeyEvent(@CarProjectionManager.KeyEventNum int keyEvent) {

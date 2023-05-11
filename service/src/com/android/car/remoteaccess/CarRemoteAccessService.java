@@ -57,6 +57,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -484,6 +485,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             writer.decreaseIndent();
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Registers {@code ICarRemoteAccessCallback}.

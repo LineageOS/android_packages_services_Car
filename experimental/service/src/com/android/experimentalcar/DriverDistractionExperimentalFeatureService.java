@@ -16,6 +16,8 @@
 
 package com.android.experimentalcar;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -46,8 +48,10 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 import android.util.Pair;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceBase;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
@@ -347,6 +351,10 @@ public final class DriverDistractionExperimentalFeatureService extends
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Bind to a {@link DriverAwarenessSupplierService} by its component name.

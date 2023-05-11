@@ -49,6 +49,7 @@ import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.hal.PropertyHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -323,6 +324,10 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         writer.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void registerListener(int propertyId, float updateRateHz,

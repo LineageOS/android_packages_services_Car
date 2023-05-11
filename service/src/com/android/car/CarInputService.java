@@ -64,6 +64,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.InputDevice;
 import android.view.InputEvent;
@@ -998,6 +999,10 @@ public class CarInputService extends ICarInput.Stub
                 + mShouldCallButtonEndOngoingCallSupplier.getAsBoolean());
         mCaptureController.dump(writer);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     private void updateCarAccessibilityServicesSettings(@UserIdInt int userId) {
         if (UserHelperLite.isHeadlessSystemUser(userId)) {

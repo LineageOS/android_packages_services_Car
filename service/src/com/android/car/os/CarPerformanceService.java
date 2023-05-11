@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.Binder;
 import android.os.RemoteException;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -70,6 +71,10 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
         writer.printf("DEBUG=%s", DEBUG);
         writer.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Sets the thread priority for a specific thread.

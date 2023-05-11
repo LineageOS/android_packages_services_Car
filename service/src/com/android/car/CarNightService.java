@@ -27,6 +27,7 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.RemoteException;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -200,4 +201,8 @@ public class CarNightService implements CarServiceBase {
                     : (mForcedMode == FORCED_DAY_MODE ? "day" : "night")));
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

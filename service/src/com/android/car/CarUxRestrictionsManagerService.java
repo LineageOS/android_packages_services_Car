@@ -69,6 +69,7 @@ import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -854,6 +855,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * {@link CarDrivingStateEvent} listener registered with the {@link CarDrivingStateService}

@@ -32,6 +32,7 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCallback;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -138,6 +139,10 @@ public class OccupantAwarenessService
                         "%d change listeners subscribed.",
                         mListeners.getRegisteredCallbackCount()));
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /** Attempts to connect to the HAL service if it is not already connected. */
     private void connectToHalServiceIfNotConnected(boolean forceConnect) {

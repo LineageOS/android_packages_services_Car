@@ -91,6 +91,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseLongArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -1294,6 +1295,10 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             mVendorServiceController.dump(writer);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @GuardedBy("mLock")
     private String dumpPoliciesLocked(boolean dumpAll) {

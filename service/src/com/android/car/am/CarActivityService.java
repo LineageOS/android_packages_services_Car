@@ -61,6 +61,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 import android.view.SurfaceControl;
 
@@ -713,4 +714,8 @@ public final class CarActivityService extends ICarActivityService.Stub
             writer.println(" Surfaces: " + mTaskToSurfaceMap.toString());
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

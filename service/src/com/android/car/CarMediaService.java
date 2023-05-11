@@ -77,6 +77,7 @@ import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.KeyEvent;
 
 import com.android.car.CarInputService.KeyEventListener;
@@ -670,6 +671,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
         writer.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @GuardedBy("mLock")
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
