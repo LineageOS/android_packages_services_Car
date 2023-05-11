@@ -29,6 +29,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
@@ -61,6 +62,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
@@ -92,6 +94,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarRemoteAccessServiceUnitTest {
@@ -99,6 +102,7 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final String TAG = CarRemoteAccessServiceUnitTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 5000;
     private static final long ALLOWED_SYSTEM_UP_TIME_FOR_TESTING_MS = 5000;
+    private static final int TASK_UNBIND_DELAY_MS = 1000;
     private static final String WAKEUP_SERVICE_NAME = "android_wakeup_service";
     private static final String TEST_VEHICLE_ID = "test_vehicle";
     private static final String TEST_PROCESSOR_ID = "test_processor";
@@ -111,15 +115,15 @@ public final class CarRemoteAccessServiceUnitTest {
     private static final String CLASS_NAME_ONE = "Hello";
     private static final String CLASS_NAME_TWO = "Best";
     private static final List<PackagePrepForTest> AVAILABLE_PACKAGES = List.of(
-            createPackagePrepForTest(PERMISSION_NOT_GRANTED_PACKAGE, "Happy",
-                    /* permissionGranted= */ false,
-                    UID_PERMISSION_NOT_GRANTED_PACKAGE),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_ONE,
                     CLASS_NAME_ONE, /* permissionGranted= */ true,
                     UID_PERMISSION_GRANTED_PACKAGE_ONE),
             createPackagePrepForTest(PERMISSION_GRANTED_PACKAGE_TWO,
                     CLASS_NAME_TWO, /* permissionGranted= */ true,
-                    UID_PERMISSION_GRANTED_PACKAGE_TWO)
+                    UID_PERMISSION_GRANTED_PACKAGE_TWO),
+            createPackagePrepForTest(PERMISSION_NOT_GRANTED_PACKAGE, "Happy",
+                    /* permissionGranted= */ false,
+                    UID_PERMISSION_NOT_GRANTED_PACKAGE)
     );
     private static final List<ClientIdEntry> PERSISTENT_CLIENTS = List.of(
             new ClientIdEntry("12345", System.currentTimeMillis(), "we.are.the.world"),
@@ -134,6 +138,7 @@ public final class CarRemoteAccessServiceUnitTest {
     private Context mContext;
     private RemoteAccessStorage mRemoteAccessStorage;
     private Runnable mBootComplete;
+    private boolean mBootCompleted;
 
     @Mock private Resources mResources;
     @Mock private PackageManager mPackageManager;
@@ -151,7 +156,7 @@ public final class CarRemoteAccessServiceUnitTest {
     private CarRemoteAccessService newServiceWithSystemUpTime(long systemUpTime) {
         CarRemoteAccessService service =  new CarRemoteAccessService(mContext, mSystemInterface,
                 mPowerHalService, mDep, /* remoteAccessHal= */ null, mRemoteAccessStorage,
-                systemUpTime, /* inMemoryStorage= */ false);
+                systemUpTime, /* inMemoryStorage= */ true);
         service.setRemoteAccessHalWrapper(mRemoteAccessHalWrapper);
         return service;
     }
@@ -174,6 +179,7 @@ public final class CarRemoteAccessServiceUnitTest {
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
         doReturn(true).when(mContext).bindServiceAsUser(any(), any(), anyInt(), any());
+        doNothing().when(mContext).unbindService(any());
         when(mUserManager.isUserUnlocked(any())).thenReturn(true);
         mDatabaseFile = mContext.getDatabasePath(DATABASE_NAME);
         when(mResources.getInteger(R.integer.config_allowedSystemUptimeForRemoteAccess))
@@ -212,7 +218,7 @@ public final class CarRemoteAccessServiceUnitTest {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mOldCarUserService);
 
-        if (!mDatabaseFile.delete()) {
+        if (mDatabaseFile.exists() && !mDatabaseFile.delete()) {
             Log.e(TAG, "Failed to delete the database file: " + mDatabaseFile.getAbsolutePath());
         }
     }
@@ -225,15 +231,15 @@ public final class CarRemoteAccessServiceUnitTest {
         verify(mContext, times(packageNames.length)).bindServiceAsUser(intentCaptor.capture(),
                 any(ServiceConnection.class), anyInt(), any(UserHandle.class));
 
+        Set<ComponentName> gotComponents = new ArraySet<>();
+        Set<ComponentName> wantComponents = new ArraySet<>();
         for (int i = 0; i < packageNames.length; i++) {
             Intent intent = intentCaptor.getAllValues().get(i);
-            ComponentName component = intent.getComponent();
-
-            assertWithMessage("Package name to start").that(component.getPackageName())
-                    .isEqualTo(packageNames[i]);
-            assertWithMessage("Class name to start").that(component.getClassName())
-                    .isEqualTo(classNames[i]);
+            gotComponents.add(intent.getComponent());
+            wantComponents.add(new ComponentName(packageNames[i], classNames[i]));
         }
+
+        assertThat(gotComponents).isEqualTo(wantComponents);
     }
 
     @Test
@@ -242,10 +248,12 @@ public final class CarRemoteAccessServiceUnitTest {
                 PERMISSION_GRANTED_PACKAGE_TWO};
         String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO};
 
-        mBootComplete.run();
+        mService.setAllowedTimeForRemoteTaskClientInitMs(100);
+        runBootComplete();
         mService.init();
 
         verifyBindingStartedForPackages(packageNames, classNames);
+        verify(mContext, timeout(WAIT_TIMEOUT_MS).times(2)).unbindService(any());
     }
 
     @Test
@@ -255,7 +263,7 @@ public final class CarRemoteAccessServiceUnitTest {
         String[] classNames = new String[]{CLASS_NAME_ONE, CLASS_NAME_TWO};
         when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
 
         verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
@@ -280,7 +288,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 PERMISSION_GRANTED_PACKAGE_TWO};
         when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
 
         verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
@@ -313,7 +321,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testStartRemoteTaskClientServiceUserLocked_unbindWhileWaiting() throws Exception {
         when(mUserManager.isUserUnlocked(any())).thenReturn(false);
 
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
 
         verify(mUserManager, times(2)).isUserUnlocked(eq(UserHandle.SYSTEM));
@@ -384,7 +392,9 @@ public final class CarRemoteAccessServiceUnitTest {
                 () -> Objects.equals(secondCallback.getServiceName(), WAKEUP_SERVICE_NAME)
                         && Objects.equals(secondCallback.getVehicleId(), TEST_VEHICLE_ID)
                         && Objects.equals(secondCallback.getProcessorId(), TEST_PROCESSOR_ID)
-                        && secondCallback.getClientId() != null);
+                        && secondCallback.getClientId() != null
+                        && secondCallback.getClientId().equals(
+                                mRemoteAccessCallback.getClientId()));
     }
 
     @Test
@@ -442,7 +452,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testRemoteTaskRequested() throws Exception {
         mService.init();
-        mBootComplete.run();
+        runBootComplete();
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
 
         String clientId = mRemoteAccessCallback.getClientId();
@@ -458,7 +468,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testRemoteTaskRequested_removedClient() throws Exception {
         mService.init();
-        mBootComplete.run();
+        runBootComplete();
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
@@ -471,7 +481,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testRemoteTaskRequested_clientRegisteredAfterRequest() throws Exception {
         mService.init();
-        mBootComplete.run();
+        runBootComplete();
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
@@ -492,7 +502,7 @@ public final class CarRemoteAccessServiceUnitTest {
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         setupDatabase();
         mService.init();
-        mBootComplete.run();
+        runBootComplete();
 
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
         SystemClock.sleep(500);
@@ -508,7 +518,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 .thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
         ICarRemoteAccessCallbackImpl secondCallback = new ICarRemoteAccessCallbackImpl();
         mService.init();
-        mBootComplete.run();
+        runBootComplete();
         mService.addCarRemoteTaskClient(mRemoteAccessCallback);
         mService.addCarRemoteTaskClient(secondCallback);
         PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
@@ -537,7 +547,9 @@ public final class CarRemoteAccessServiceUnitTest {
 
         mService.reportRemoteTaskDone(clientId, taskId);
 
-        verify(mCarPowerManagementService).requestShutdownAp(
+        // Need to wait TASK_UNBIND_DELAY_MS before shutdown happens.
+        verify(mCarPowerManagementService, never()).requestShutdownAp(anyInt(), anyBoolean());
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ true);
     }
 
@@ -552,7 +564,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
         mService.reportRemoteTaskDone(clientId, taskId);
 
-        verify(mCarPowerManagementService).requestShutdownAp(
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
     }
 
@@ -566,6 +578,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 CarRemoteAccessManager.NEXT_POWER_STATE_ON, /* runGarageMode= */ false);
 
         mService.reportRemoteTaskDone(clientId, taskId);
+        SystemClock.sleep(TASK_UNBIND_DELAY_MS);
 
         verify(mCarPowerManagementService, never()).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
@@ -582,6 +595,7 @@ public final class CarRemoteAccessServiceUnitTest {
                 CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ false);
 
         mService.reportRemoteTaskDone(clientId, taskId);
+        SystemClock.sleep(TASK_UNBIND_DELAY_MS);
 
         verify(mCarPowerManagementService, never()).requestShutdownAp(
                 CarRemoteAccessManager.NEXT_POWER_STATE_SUSPEND_TO_RAM, /* runGarageMode= */ true);
@@ -610,8 +624,70 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     @Test
+    public void testUnbindServiceAfterTaskComplete() throws Exception {
+        mService.init();
+        mService.setTaskUnbindDelayMs(100);
+        setVehicleInUse(/* inUse= */ true);
+        ICarRemoteAccessCallbackImpl callback1 = new ICarRemoteAccessCallbackImpl();
+        ICarRemoteAccessCallbackImpl callback2 = new ICarRemoteAccessCallbackImpl();
+        runBootComplete();
+        prepareReportTaskDoneTest(callback1, UID_PERMISSION_GRANTED_PACKAGE_ONE);
+        String clientId1 = callback1.getClientId();
+        String taskId1 = callback1.getTaskId();
+        prepareReportTaskDoneTest(callback2, UID_PERMISSION_GRANTED_PACKAGE_TWO);
+        String clientId2 = callback2.getClientId();
+        String taskId2 = callback2.getTaskId();
+        mService.setPowerStatePostTaskExecution(
+                CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ true);
+
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
+        mService.reportRemoteTaskDone(clientId1, taskId1);
+
+        // package one should be unbound after 100ms.
+        verify(mContext, timeout(WAIT_TIMEOUT_MS)).unbindService(any());
+        verify(mCarPowerManagementService, never()).requestShutdownAp(anyInt(), anyBoolean());
+
+        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_TWO);
+        mService.reportRemoteTaskDone(clientId2, taskId2);
+
+        // package two should be unbound since no active tasks.
+        verify(mContext, timeout(WAIT_TIMEOUT_MS).times(2)).unbindService(any());
+    }
+
+    @Test
+    public void testUnbindServiceAfterTimeout() throws Exception {
+        // Only use one package.
+        mockPackageInfo(1);
+        mService = newServiceWithSystemUpTime(2000L);
+        // If no task arrive, the service will be unbound after 1000ms.
+        mService.setAllowedTimeForRemoteTaskClientInitMs(1000);
+        mService.init();
+        setVehicleInUse(/* inUse= */ true);
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+
+        // This task will timeout at 2000.
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+
+        SystemClock.sleep(1000);
+
+        // This task will timeout at 3000.
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+
+        SystemClock.sleep(1000);
+
+        // This is time 2000, the first task timed out but the second task is still active.
+        verify(mContext, never()).unbindService(any());
+
+        // Techcnially the service should timeout at time 3000, we leave a 1000ms buffer.
+        verify(mContext, timeout(2000)).unbindService(any());
+    }
+
+    @Test
     public void testNotifyApPowerState_waitForVhal() throws Exception {
         mService.init();
+        mService.setTaskUnbindDelayMs(100);
         ICarPowerStateListener powerStateListener = getCarPowerStateListener();
         verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
                 anyBoolean(), anyBoolean());
@@ -632,11 +708,32 @@ public final class CarRemoteAccessServiceUnitTest {
                 anyBoolean(), anyBoolean());
 
         powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
-        // TODO(b/268810241): Restore isWakeupRequired to false.
         verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
-                /* isWakeupRequired= */ true);
+                /* isWakeupRequired= */ false);
         verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
                 any());
+    }
+
+    @Test
+    public void testUnbindAllServiceOnShutdownPrepare() throws Exception {
+        mService.init();
+        ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        verify(mRemoteAccessHalWrapper, timeout(1000)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
+        mBootComplete.run();
+
+        powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
+
+        verify(mRemoteAccessHalWrapper).notifyApStateChange(/* isReadyForRemoteTask= */ false,
+                /* isWakeupRequired= */ false);
+        verify(mCarPowerManagementService).finished(eq(CarPowerManager.STATE_SHUTDOWN_PREPARE),
+                any());
+        verify(mContext, times(2)).unbindService(any());
+
+        // Unbind service multiple times must do nothing.
+        powerStateListener.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, 0);
+
+        verify(mContext, times(2)).unbindService(any());
     }
 
     @Test
@@ -685,8 +782,9 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testTaskArriveAfterAllowedTime() throws Exception {
-        // Use a shorter time for testing.
-        mService = newServiceWithSystemUpTime(100L);
+        // Require at least 1 seconds for task to be executed. Otherwise, taskExecutionTimeInSec
+        // will become 0.
+        mService = newServiceWithSystemUpTime(1000L);
         mService.init();
         mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
                 /* runGarageMode= */ false);
@@ -694,11 +792,11 @@ public final class CarRemoteAccessServiceUnitTest {
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
-        SystemClock.sleep(100);
+        SystemClock.sleep(1000);
 
         halCallback.onRemoteTaskRequested(clientId, data);
 
-        SystemClock.sleep(100);
+        SystemClock.sleep(1000);
 
         assertWithMessage("Must not dispatch remote task after shutdown is supposed to start")
                 .that(mRemoteAccessCallback.getTaskId()).isNull();
@@ -707,10 +805,11 @@ public final class CarRemoteAccessServiceUnitTest {
     // Allowed system up time must not take effect if vehicle is currently in use.
     @Test
     public void testTaskArriveAfterAllowedTime_vehicleInUse() throws Exception {
-        // Use a shorter time for testing.
-        mService = newServiceWithSystemUpTime(100L);
+        // Require at least 1 seconds for task to be executed. Otherwise, taskExecutionTimeInSec
+        // will become 0.
+        mService = newServiceWithSystemUpTime(1000L);
         // Boot complete to trigger package search.
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_OFF,
                 /* runGarageMode= */ false);
@@ -719,7 +818,7 @@ public final class CarRemoteAccessServiceUnitTest {
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
-        SystemClock.sleep(100);
+        SystemClock.sleep(1000);
 
         halCallback.onRemoteTaskRequested(clientId, data);
 
@@ -732,10 +831,11 @@ public final class CarRemoteAccessServiceUnitTest {
     // Allowed system up time must not take effect if next power state is on.
     @Test
     public void testTaskArriveAfterAllowedTime_nextPowerStateOn() throws Exception {
-        // Use a shorter time for testing.
-        mService = newServiceWithSystemUpTime(100L);
+        // Require at least 1 seconds for task to be executed. Otherwise, taskExecutionTimeInSec
+        // will become 0.
+        mService = newServiceWithSystemUpTime(1000L);
         // Boot complete to trigger package search.
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         mService.setPowerStatePostTaskExecution(CarRemoteAccessManager.NEXT_POWER_STATE_ON,
                 /* runGarageMode= */ false);
@@ -743,7 +843,7 @@ public final class CarRemoteAccessServiceUnitTest {
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         byte[] data = new byte[]{1, 2, 3, 4};
-        SystemClock.sleep(100);
+        SystemClock.sleep(1000);
 
         halCallback.onRemoteTaskRequested(clientId, data);
 
@@ -774,7 +874,7 @@ public final class CarRemoteAccessServiceUnitTest {
 
     @Test
     public void testCallbackOnRemoteTaskRequestedException_activieTasksCleared() throws Exception {
-        mBootComplete.run();
+        runBootComplete();
         when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
         ICarRemoteAccessCallback clientCallback = mock(ICarRemoteAccessCallback.class);
@@ -799,7 +899,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyShutdownStarting() throws Exception {
         // Should be notified shutdown at 5100 - 5000 = 100ms.
         mService = newServiceWithSystemUpTime(5100);
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         prepareCarRemoteTaskClient();
 
@@ -811,7 +911,7 @@ public final class CarRemoteAccessServiceUnitTest {
     public void testNotifyShutdownStarting_noNotifyVehicleInUse() throws Exception {
         // Should be notified shutdown at 5100 - 5000 = 100ms.
         mService = newServiceWithSystemUpTime(5100);
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         prepareCarRemoteTaskClient();
         setVehicleInUse(true);
@@ -827,7 +927,7 @@ public final class CarRemoteAccessServiceUnitTest {
         mService = newServiceWithSystemUpTime(5100);
         when(mCarPowerManagementService.getLastShutdownState())
                 .thenReturn(CarRemoteAccessManager.NEXT_POWER_STATE_ON);
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         prepareCarRemoteTaskClient();
 
@@ -839,7 +939,7 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testReportReadyForShutdown() throws Exception {
         mService = newServiceWithSystemUpTime(10000);
-        mBootComplete.run();
+        runBootComplete();
         mService.init();
         ICarRemoteAccessCallback clientCallback1 = mock(ICarRemoteAccessCallback.class);
         IBinder mockBinder1 = mock(IBinder.class);
@@ -887,16 +987,29 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     private RemoteAccessHalCallback prepareCarRemoteTaskClient() throws Exception {
-        when(mDep.getCallingUid()).thenReturn(UID_PERMISSION_GRANTED_PACKAGE_ONE);
+        return prepareCarRemoteTaskClient(mRemoteAccessCallback,
+                UID_PERMISSION_GRANTED_PACKAGE_ONE);
+    }
+
+    private RemoteAccessHalCallback prepareCarRemoteTaskClient(
+            ICarRemoteAccessCallbackImpl callback, int uid) throws Exception {
+        when(mDep.getCallingUid()).thenReturn(uid);
         RemoteAccessHalCallback halCallback = mService.getRemoteAccessHalCallback();
-        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+        mService.addCarRemoteTaskClient(callback);
         PollingCheck.check("Client is registered", WAIT_TIMEOUT_MS,
-                () -> mRemoteAccessCallback.getClientId() != null);
+                () -> callback.getClientId() != null);
         return halCallback;
     }
 
+    private void runBootComplete() {
+        if (!mBootCompleted) {
+            mBootCompleted = true;
+            mBootComplete.run();
+        }
+    }
+
     private void prepareReportTaskDoneTest() throws Exception {
-        mBootComplete.run();
+        runBootComplete();
         RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
         String clientId = mRemoteAccessCallback.getClientId();
         halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
@@ -904,9 +1017,23 @@ public final class CarRemoteAccessServiceUnitTest {
                 () -> mRemoteAccessCallback.getTaskId() != null);
     }
 
+    private void prepareReportTaskDoneTest(ICarRemoteAccessCallbackImpl callback, int uid)
+            throws Exception {
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient(callback, uid);
+        String clientId = callback.getClientId();
+        halCallback.onRemoteTaskRequested(clientId, /* data= */ null);
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> callback.getTaskId() != null);
+    }
+
     private void mockPackageInfo() {
-        List<ResolveInfo> resolveInfos = new ArrayList<>(AVAILABLE_PACKAGES.size());
-        for (int i = 0; i < AVAILABLE_PACKAGES.size(); i++) {
+        mockPackageInfo(AVAILABLE_PACKAGES.size());
+    }
+
+    private void mockPackageInfo(int size) {
+        List<ResolveInfo> resolveInfos = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
             PackagePrepForTest packagePrep = AVAILABLE_PACKAGES.get(i);
             ResolveInfo resolveInfo = packagePrep.resolveInfo;
             resolveInfos.add(resolveInfo);
