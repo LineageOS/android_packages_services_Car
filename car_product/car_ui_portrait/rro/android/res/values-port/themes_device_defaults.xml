@@ -59,7 +59,7 @@
         <item name="android:alertDialogTheme">@android:style/Theme.DeviceDefault.Dialog.Alert</item>
     </style>
 
-    <style name="Theme.DeviceDefault.Dialog" parent="*android:Theme.DeviceDefault.Dialog">
+    <style name="Theme.DeviceDefault.Dialog" parent="android:Theme.Material.Dialog">
         <item name="android:textAppearanceLarge">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceMedium">@*android:style/TextAppearance.DeviceDefault.Medium</item>
         <item name="android:textAppearanceSmall">@*android:style/TextAppearance.DeviceDefault.Small</item>
