@@ -160,6 +160,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private int mNavBarHeight;
     private boolean mIsSUWInProgress;
     private TaskCategoryManager mTaskCategoryManager;
+    private boolean mIsNotificationCenterOnTop;
     private boolean mIsRecentsOnTop;
     private TaskInfoCache mTaskInfoCache;
     private TaskViewPanel mAppGridTaskViewPanel;
@@ -269,6 +270,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
+            mIsNotificationCenterOnTop = mTaskCategoryManager.isNotificationActivity(taskInfo);
             mIsRecentsOnTop = mTaskCategoryManager.isRecentsActivity(taskInfo);
             // Close the panel if the top application is a blank activity.
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
@@ -405,11 +407,6 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         if (DBG) {
             Log.d(TAG, message);
         }
-    }
-
-    private boolean isNotificationCenterOnTop() {
-        if (mRootTaskViewPanel.getCurrentTask() == null) return false;
-        return mTaskCategoryManager.isNotificationActivity(mRootTaskViewPanel.getCurrentTask());
     }
 
     private final View.OnLayoutChangeListener mControlBarOnLayoutChangeListener =
@@ -556,7 +553,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void collapseNotificationPanel() {
-        if (isNotificationCenterOnTop()) {
+        if (mIsNotificationCenterOnTop) {
             mRootTaskViewPanel.closePanel();
         }
     }
@@ -888,7 +885,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 }
 
                 // Update the notification button's selection state.
-                if (isNotificationCenterOnTop() && isVisible) {
+                if (mIsNotificationCenterOnTop && isVisible) {
                     notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(true));
                 } else {
                     notifySystemUI(MSG_NOTIFICATIONS_VISIBILITY_CHANGE, boolToInt(false));
