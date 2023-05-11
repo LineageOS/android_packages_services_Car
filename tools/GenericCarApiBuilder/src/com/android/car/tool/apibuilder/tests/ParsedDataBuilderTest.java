@@ -27,6 +27,8 @@ import com.android.car.tool.data.MethodData;
 import com.android.car.tool.data.PackageData;
 import com.android.car.tool.data.ParsedData;
 
+import com.github.javaparser.ast.expr.MethodCallExpr;
+
 import org.junit.Test;
 
 public final class ParsedDataBuilderTest extends TestHelper {
@@ -251,17 +253,26 @@ public final class ParsedDataBuilderTest extends TestHelper {
         assertThat(methodData.fullMethodname).isEqualTo("method_1(UserStopRequest request, "
                 + "Executor executor, ResultCallback<UserStopResponse> callback)");
         assertThat(methodData.returnType).isEqualTo("void");
+        assertThat(methodData.firstBodyStatement.isExpressionStmt()).isTrue();
 
         methodData = classData.methods.get("method_2()");
         assertThat(methodData.isHidden).isTrue();
         assertThat(methodData.methodName).isEqualTo("method_2");
         assertThat(methodData.fullMethodname).isEqualTo("method_2()");
         assertThat(methodData.returnType).isEqualTo("void");
+        assertThat(methodData.firstBodyStatement.isExpressionStmt()).isTrue();
+        MethodCallExpr methodCallExpr = (MethodCallExpr)
+                methodData.firstBodyStatement.asExpressionStmt().getExpression();
+        assertThat(methodCallExpr.getName().toString()).isEqualTo("w");
 
         methodData = classData.methods.get("method_3()");
         assertThat(methodData.isHidden).isFalse();
         assertThat(methodData.methodName).isEqualTo("method_3");
         assertThat(methodData.fullMethodname).isEqualTo("method_3()");
         assertThat(methodData.returnType).isEqualTo("int");
+        assertThat(methodData.firstBodyStatement.isExpressionStmt()).isTrue();
+        methodCallExpr = (MethodCallExpr)
+                methodData.firstBodyStatement.asExpressionStmt().getExpression();
+        assertThat(methodCallExpr.getName().toString()).isEqualTo("w");
     }
 }
