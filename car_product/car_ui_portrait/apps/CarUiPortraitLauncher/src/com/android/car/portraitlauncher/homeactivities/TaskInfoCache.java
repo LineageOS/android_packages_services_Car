@@ -64,8 +64,12 @@ class TaskInfoCache {
         logIfDebuggable("Start cached tasks, tasks size =" + mCachedTaskQueue.size());
         while (!mCachedTaskQueue.isEmpty()) {
             Intent intent = mCachedTaskQueue.remove().baseIntent;
-            mContext.startActivity(intent);
-            logIfDebuggable("Start cached task " + intent);
+            try {
+                logIfDebuggable("Start cached task " + intent);
+                mContext.startActivity(intent);
+            } catch (SecurityException e) {
+                Log.e(TAG, "Failed to launch cached task", e);
+            }
         }
     }
 
