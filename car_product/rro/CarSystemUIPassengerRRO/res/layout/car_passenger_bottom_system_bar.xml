@@ -79,6 +79,7 @@
                 android:id="@+id/notifications"
                 android:contentDescription="@string/system_bar_notifications_label"
                 style="@style/SystemBarButton"
+                android:layout_marginEnd="0dp"
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_notification"/>
 
