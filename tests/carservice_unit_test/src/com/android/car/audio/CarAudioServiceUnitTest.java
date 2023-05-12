@@ -3959,7 +3959,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(callback.getSwitchStatus()).isTrue();
         volumeEventCallback.waitForCallback();
         expectWithMessage("Volume events count after switching zone configuration")
-                .that(volumeEventCallback.getVolumeGroupEvents().size()).isEqualTo(1);
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
         CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
         expectWithMessage("Volume event type after switching zone configuration")
                 .that(groupEvent.getEventTypes())
@@ -4262,14 +4262,14 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         mCarAudioService.onVolumeGroupEvent(List.of(TEST_CAR_VOLUME_GROUP_EVENT));
 
-        expectWithMessage("Callback triggered state for volume event")
+        expectWithMessage("Volume event callback reception status")
                 .that(volumeEventCallback.waitForCallback()).isTrue();
         verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
         verify(mCarVolumeCallbackHandler)
                 .onVolumeGroupChange(PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID,
                         /* flags= */ 0);
         expectWithMessage("Volume events count after volume event")
-                .that(volumeEventCallback.getVolumeGroupEvents().size()).isEqualTo(1);
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
         CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
         expectWithMessage("Volume event type after volume event")
                 .that(groupEvent.getEventTypes())
@@ -4287,7 +4287,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         mCarAudioService.onVolumeGroupEvent(List.of(TEST_CAR_MUTE_GROUP_EVENT));
 
-        expectWithMessage("Callback triggered state for mute event")
+        expectWithMessage("Volume event callback reception status")
                 .that(volumeEventCallback.waitForCallback()).isTrue();
         verify(mCarVolumeCallbackHandler, never())
                 .onVolumeGroupChange(anyInt(), anyInt(), anyInt());
@@ -4295,7 +4295,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .onGroupMuteChange(PRIMARY_AUDIO_ZONE, CoreAudioRoutingUtils.MUSIC_CAR_GROUP_ID,
                         /* flags= */ 0);
         expectWithMessage("Volume events count after mute event")
-                .that(volumeEventCallback.getVolumeGroupEvents().size()).isEqualTo(1);
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
         CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
         expectWithMessage("Volume event type after mute event")
                 .that(groupEvent.getEventTypes())
@@ -4306,20 +4306,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
-    public void onVolumeGroupEvent_withoutMuteOrVolumeEvent_doesNotTrigCallback() throws Exception {
+    public void onVolumeGroupEvent_withoutMuteOrVolumeEvent_doesNotTriggerCallback()
+            throws Exception {
         mCarAudioService.init();
         CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
         mCarAudioService.registerCarVolumeEventCallback(volumeEventCallback);
 
         mCarAudioService.onVolumeGroupEvent(List.of(TEST_CAR_ZONE_RECONFIGURATION_EVENT));
 
-        expectWithMessage("Callback triggered state for no event")
+        expectWithMessage("Volume event callback reception status")
                 .that(volumeEventCallback.waitForCallback()).isTrue();
         verify(mCarVolumeCallbackHandler, never())
                 .onVolumeGroupChange(anyInt(), anyInt(), anyInt());
         verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
         expectWithMessage("Volume events count after reconfiguration event")
-                .that(volumeEventCallback.getVolumeGroupEvents().size()).isEqualTo(1);
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
         CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
         expectWithMessage("Volume event type after reconfiguration event")
                 .that(groupEvent.getEventTypes())
@@ -4327,6 +4328,90 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Volume group infos after reconfiguration event")
                 .that(groupEvent.getCarVolumeGroupInfos())
                 .containsExactly(TEST_PRIMARY_ZONE_UNMUTED_VOLUME_INFO_0);
+    }
+
+    @Test
+    public void setMuted_whenUnmuted_onActivation_triggersCallback() throws Exception {
+        mCarAudioService.init();
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        mCarAudioService.registerCarVolumeEventCallback(volumeEventCallback);
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ true, TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0, TEST_FLAGS);
+        expectWithMessage("Volume event callback reception status after mute")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count after mute")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume event type after mute")
+                .that(groupEvent.getEventTypes())
+                .isEqualTo(CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Volume group infos after mute")
+                .that(groupEvent.getCarVolumeGroupInfos())
+                .containsExactly(TEST_PRIMARY_ZONE_VOLUME_INFO_0);
+    }
+
+    @Test
+    public void setMuted_whenUnmuted_onDeactivation_doesNotTriggerCallback() throws Exception {
+        mCarAudioService.init();
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        mCarAudioService.registerCarVolumeEventCallback(volumeEventCallback);
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ false, TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+        expectWithMessage("Volume event callback reception status")
+                .that(volumeEventCallback.waitForCallback()).isFalse();
+    }
+
+    @Test
+    public void setMuted_whenMuted_onDeactivation_triggersCallback() throws Exception {
+        mCarAudioService.init();
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        mCarAudioService.registerCarVolumeEventCallback(volumeEventCallback);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ true, TEST_FLAGS);
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ false, TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler).onGroupMuteChange(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0, TEST_FLAGS);
+        expectWithMessage("Volume event callback reception status after unmute")
+                .that(volumeEventCallback.waitForCallback()).isTrue();
+        expectWithMessage("Volume events count after mute")
+                .that(volumeEventCallback.getVolumeGroupEvents()).hasSize(1);
+        CarVolumeGroupEvent groupEvent = volumeEventCallback.getVolumeGroupEvents().get(0);
+        expectWithMessage("Volume event type after unmute")
+                .that(groupEvent.getEventTypes())
+                .isEqualTo(CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED);
+        expectWithMessage("Volume group infos after unmute")
+                .that(groupEvent.getCarVolumeGroupInfos())
+                .containsExactly(TEST_PRIMARY_ZONE_UNMUTED_VOLUME_INFO_0);
+    }
+
+    @Test
+    public void setMuted_whenMuted_onActivation_doesNotTriggerCallback() throws Exception {
+        mCarAudioService.init();
+        CarVolumeEventCallbackImpl volumeEventCallback = new CarVolumeEventCallbackImpl();
+        mCarAudioService.registerCarVolumeEventCallback(volumeEventCallback);
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ true, TEST_FLAGS);
+        volumeEventCallback.waitForCallback();
+        volumeEventCallback.reset();
+        reset(mCarVolumeCallbackHandler);
+
+        mCarAudioService.setVolumeGroupMute(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_ZONE_GROUP_0,
+                /* mute= */ true, TEST_FLAGS);
+
+        verify(mCarVolumeCallbackHandler, never()).onGroupMuteChange(anyInt(), anyInt(), anyInt());
+        expectWithMessage("Volume event callback reception status")
+                .that(volumeEventCallback.waitForCallback()).isFalse();
     }
 
     private String removeUpToEquals(String command) {
@@ -4804,7 +4889,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private static final class CarVolumeEventCallbackImpl extends ICarVolumeEventCallback.Stub {
-        private final CountDownLatch mStatusLatch = new CountDownLatch(1);
+        private CountDownLatch mStatusLatch = new CountDownLatch(1);
         private List<CarVolumeGroupEvent> mVolumeGroupEvents;
 
         @Override
@@ -4824,6 +4909,10 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         List<CarVolumeGroupEvent> getVolumeGroupEvents() {
             return mVolumeGroupEvents;
+        }
+
+        public void reset() {
+            mStatusLatch = new CountDownLatch(1);
         }
     }
 }
