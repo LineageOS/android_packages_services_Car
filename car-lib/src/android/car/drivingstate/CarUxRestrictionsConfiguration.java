@@ -231,7 +231,10 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public int getOccupantZoneId() {
-        assertPlatformVersionAtLeastU();
+        // TODO(b/273843708): add assertion back. getOccupantZoneId is not version guarded
+        // properly when it is used within Car module. Assertion should be added backed once
+        // b/280700896 is resolved
+        // assertPlatformVersionAtLeastU();
         return mOccupantZoneId;
     }
 
