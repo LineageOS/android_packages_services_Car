@@ -30,12 +30,8 @@
     <string name="hvac_increase_button_label">Raise temperature</string>
 
     <color name="system_bar_background_pill_color">#282A2D</color>
-    <color name="privacy_chip_indicator_color">#66BB6A</color>
-    <color name="privacy_chip_dark_icon_color">#000000</color>
-    <color name="privacy_chip_indicator_outside_stroke_color">#000000</color>
     <color name="status_icon_selected_button_color">#66B5FF</color>
     <color name="car_nav_icon_fill_color_selected">#ffffff</color>
-
     <color name="system_bar_icon_selected_color">#000000</color>
     <color name="system_bar_icon_color">#FFFFFF</color>
     <color name="system_bar_text_selected_color">#000000</color>
