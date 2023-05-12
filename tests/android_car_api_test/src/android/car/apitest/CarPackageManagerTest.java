@@ -30,8 +30,6 @@ import android.os.Build;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
-import androidx.test.filters.FlakyTest;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,7 +80,6 @@ public class CarPackageManagerTest extends CarApiTestBase {
         assertWithMessage("exception msg").that(e.getMessage()).contains(pkg);
     }
 
-    @FlakyTest(bugId = 277671902)
     @Test
     public void testGetTargetCarMajorAndMinorVersion_notSet() throws Exception {
         String pkg = "com.android.car";
