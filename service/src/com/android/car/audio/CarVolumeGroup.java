@@ -20,7 +20,6 @@ import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_BLOCKED_CHANGED;
 import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
 
-import static com.android.car.audio.CarVolumeEventFlag.VolumeEventFlags;
 import static com.android.car.audio.hal.HalAudioGainCallback.reasonToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -549,26 +548,34 @@ import java.util.Objects;
         }
     }
 
-    void setMute(boolean mute) {
+    /**
+     * Set the mute state of the Volume Group
+     *
+     * @param mute state requested
+     * @return true if mute state has changed, false otherwiser (already set or change not allowed)
+     */
+    boolean setMute(boolean mute) {
         synchronized (mLock) {
             // if hal muted the audio devices, then do not allow other incoming requests
             // to perform unmute.
             if (!mute && isHalMutedLocked()) {
                 Slogf.e(CarLog.TAG_AUDIO, "Un-mute request cannot be processed due to active "
                         + "hal mute restriction!");
-                return;
+                return false;
             }
             applyMuteLocked(mute);
-            setMuteLocked(mute);
+            return setMuteLocked(mute);
         }
     }
 
     @GuardedBy("mLock")
-    protected void setMuteLocked(boolean mute) {
+    protected boolean setMuteLocked(boolean mute) {
+        boolean hasChanged = mIsMuted != mute;
         mIsMuted = mute;
         if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
             mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mConfigId, mId, mute);
         }
+        return hasChanged;
     }
 
     @GuardedBy("mLock")
@@ -769,10 +776,10 @@ import java.util.Objects;
     }
 
     /**
-     * Returns one or more {@link VolumeEventFlags}
+     * @return one or more {@link CarVolumeGroupEvent#EventTypeEnum}
      */
-    public @VolumeEventFlags int onAudioVolumeGroupChanged(int flags) {
-        return CarVolumeEventFlag.FLAG_EVENT_VOLUME_NONE;
+    public int onAudioVolumeGroupChanged(int flags) {
+        return 0;
     }
 
     /**
