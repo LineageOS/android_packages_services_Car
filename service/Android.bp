@@ -28,6 +28,42 @@ genrule {
     out: ["com/android/car/CarStatsLog.java"],
 }
 
+gensrcs {
+    name: "dump-javastream-protos",
+
+    tools: [
+        "aprotoc",
+        "protoc-gen-javastream",
+        "soong_zip",
+    ],
+
+    tool_files: [
+        ":libprotobuf-internal-protos",
+    ],
+
+    cmd: "mkdir -p $(genDir)/$(in) " +
+            "&& $(location aprotoc) " +
+            "  --plugin=$(location protoc-gen-javastream) " +
+            "  --javastream_out=$(genDir)/$(in) " +
+            "  -Iexternal/protobuf/src " +
+            "  -I . " +
+            "  $(in) " +
+            "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
+
+    srcs: [
+        "proto/**/car_power_dump.proto",
+    ],
+
+    output_extension: "srcjar",
+}
+
+filegroup {
+    name: "car-service-dump-proto-srcs",
+    srcs: [
+        "proto/**/car_power_dump.proto",
+    ],
+}
+
 java_defaults {
     name: "carservice-updatable-min-java-defaults",
 
@@ -41,9 +77,14 @@ java_defaults {
         ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
         ":iscriptexecutor_aidl",
+        ":dump-javastream-protos",
         "proto/**/*.proto",
         "src/**/*.java",
         ],
+
+    exclude_srcs: [
+        "proto/**/car_power_dump.proto",
+    ],
 
     aidl: {
         include_dirs: [

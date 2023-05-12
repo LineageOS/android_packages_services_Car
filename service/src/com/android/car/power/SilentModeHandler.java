@@ -23,10 +23,12 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.os.FileObserver;
 import android.os.SystemProperties;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerDumpProto.SilentModeHandlerProto;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -152,6 +154,23 @@ final class SilentModeHandler {
             writer.printf("Monitoring HW state signal: %b\n", mFileObserver != null);
             writer.printf("Silent mode by HW state signal: %b\n", mSilentModeByHwState);
             writer.printf("Forced silent mode: %b\n", mForcedMode);
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long silentModeHandlerToken = proto.start(
+                    CarPowerDumpProto.SILENT_MODE_HANDLER);
+            proto.write(SilentModeHandlerProto.HW_STATE_MONITORING_FILE_NAME,
+                    mHwStateMonitoringFileName);
+            proto.write(SilentModeHandlerProto.KERNEL_SILENT_MODE_FILE_NAME,
+                    mKernelSilentModeFileName);
+            proto.write(
+                    SilentModeHandlerProto.IS_MONITORING_HW_STATE_SIGNAL, mFileObserver != null);
+            proto.write(SilentModeHandlerProto.SILENT_MODE_BY_HW_STATE, mSilentModeByHwState);
+            proto.write(SilentModeHandlerProto.FORCED_SILENT_MODE, mForcedMode);
+            proto.end(silentModeHandlerToken);
         }
     }
 
