@@ -397,9 +397,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                     + "user assigned", packageName, occupantZoneId);
             return null;
         }
-        synchronized (mLock) {
-            return getPackageInfoAsUserLocked(packageName, userId, GET_SIGNING_CERTIFICATES);
-        }
+        return getPackageInfoAsUser(packageName, userId);
     }
 
     @Override
@@ -984,6 +982,12 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     @GuardedBy("mLock")
     private boolean isAppInstalledAsUserLocked(String packageName, int userId) {
         return getPackageInfoAsUserLocked(packageName, userId, /* flags= */ 0) != null;
+    }
+
+    PackageInfo getPackageInfoAsUser(String packageName, int userId) {
+        synchronized (mLock) {
+            return getPackageInfoAsUserLocked(packageName, userId, GET_SIGNING_CERTIFICATES);
+        }
     }
 
     @GuardedBy("mLock")

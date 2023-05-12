@@ -148,6 +148,8 @@
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
     <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_ZONE" />
+    <!-- Permissions required for CarOccupantConnectionManagerPermissionTest -->
+    <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
     <!-- Permissions required for CarRemoteDeviceManagerPermissionTest -->
     <uses-permission android:name="android.car.permission.MANAGE_REMOTE_DEVICE" />
 </manifest>
