@@ -13,105 +13,122 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from datetime import datetime
+"""Performance stats proto parser utils."""
 
-from .carwatchdog_dump_parser import *
-from .deviceperformancestats_pb2 import *
-from .performancestats_pb2 import *
-
-
-def create_date_pb(date):
-  date_pb = performancestats_pb2.Date()
-  date_pb.year = date.year
-  date_pb.month = date.month
-  date_pb.day = date.day
-  return date_pb
+import datetime
+from typing import Optional, TypeVar
+from . import carwatchdog_dump_parser
+from . import deviceperformancestats_pb2
+from . import performancestats_pb2
 
 
-def create_timeofday_pb(date):
-  timeofday_pb = performancestats_pb2.TimeOfDay()
-  timeofday_pb.hours = date.hour
-  timeofday_pb.minutes = date.minute
-  timeofday_pb.seconds = date.second
-  return timeofday_pb
+def _create_date_pb(date: datetime.datetime) -> performancestats_pb2.Date:
+  return performancestats_pb2.Date(
+      year=date.year, month=date.month, day=date.day
+  )
 
 
-def add_package_storage_io_stats_pb(storage_io_stats, storage_io_stats_pb):
-  storage_io_stats_pb.user_id = storage_io_stats.user_id
-  storage_io_stats_pb.package_name = storage_io_stats.package_name
-  storage_io_stats_pb.fg_bytes = storage_io_stats.fg_bytes
-  storage_io_stats_pb.fg_bytes_percent = storage_io_stats.fg_bytes_percent
-  storage_io_stats_pb.fg_fsync = storage_io_stats.fg_fsync
-  storage_io_stats_pb.fg_fsync_percent = storage_io_stats.fg_fsync_percent
-  storage_io_stats_pb.bg_bytes = storage_io_stats.bg_bytes
-  storage_io_stats_pb.bg_bytes_percent = storage_io_stats.bg_bytes_percent
-  storage_io_stats_pb.bg_fsync = storage_io_stats.bg_fsync
-  storage_io_stats_pb.bg_fsync_percent = storage_io_stats.bg_fsync_percent
+def _create_timeofday_pb(date) -> performancestats_pb2.TimeOfDay:
+  return performancestats_pb2.TimeOfDay(
+      hours=date.hour, minutes=date.minute, seconds=date.second
+  )
 
 
-def add_system_event_pb(system_event_stats, system_event_pb):
+def _add_system_event_pb(
+    system_event_stats: carwatchdog_dump_parser.SystemEventStats,
+    system_event_pb: performancestats_pb2.SystemEventStats,
+) -> None:
+  """Adds the parser SystemEventStats object to the proto object."""
   for collection in system_event_stats.collections:
-    stats_collection_pb = system_event_pb.collections.add()
-    stats_collection_pb.id = collection.id
-    stats_collection_pb.date.CopyFrom(create_date_pb(collection.date))
-    stats_collection_pb.time.CopyFrom(create_timeofday_pb(collection.date))
-    stats_collection_pb.total_cpu_time_ms = collection.total_cpu_time_ms
-    stats_collection_pb.total_cpu_cycles = collection.total_cpu_cycles
-    stats_collection_pb.idle_cpu_time_ms = collection.idle_cpu_time_ms
-    stats_collection_pb.io_wait_time_ms = collection.io_wait_time_ms
-    stats_collection_pb.context_switches = collection.context_switches
-    stats_collection_pb.io_blocked_processes = collection.io_blocked_processes
-    stats_collection_pb.major_page_faults = collection.major_page_faults
+    stats_collection_pb = performancestats_pb2.StatsCollection(
+        id=collection.id,
+        date=_create_date_pb(collection.date),
+        time=_create_timeofday_pb(collection.date),
+        total_cpu_time_ms=collection.total_cpu_time_ms,
+        total_cpu_cycles=collection.total_cpu_cycles,
+        idle_cpu_time_ms=collection.idle_cpu_time_ms,
+        io_wait_time_ms=collection.io_wait_time_ms,
+        context_switches=collection.context_switches,
+        io_blocked_processes=collection.io_blocked_processes,
+        major_page_faults=collection.major_page_faults,
+    )
 
     for package_cpu_stats in collection.package_cpu_stats:
-      package_cpu_stats_pb = stats_collection_pb.package_cpu_stats.add()
-      package_cpu_stats_pb.user_id = package_cpu_stats.user_id
-      package_cpu_stats_pb.package_name = package_cpu_stats.package_name
-      package_cpu_stats_pb.cpu_time_ms = package_cpu_stats.cpu_time_ms
-      package_cpu_stats_pb.total_cpu_time_percent = (
-          package_cpu_stats.total_cpu_time_percent
+      package_cpu_stats_pb = performancestats_pb2.PackageCpuStats(
+          user_id=package_cpu_stats.user_id,
+          package_name=package_cpu_stats.package_name,
+          cpu_time_ms=package_cpu_stats.cpu_time_ms,
+          total_cpu_time_percent=package_cpu_stats.total_cpu_time_percent,
+          cpu_cycles=package_cpu_stats.cpu_cycles,
       )
-      package_cpu_stats_pb.cpu_cycles = package_cpu_stats.cpu_cycles
 
       for process_cpu_stats in package_cpu_stats.process_cpu_stats:
-        process_cpu_stats_pb = package_cpu_stats_pb.process_cpu_stats.add()
-        process_cpu_stats_pb.command = process_cpu_stats.command
-        process_cpu_stats_pb.cpu_time_ms = process_cpu_stats.cpu_time_ms
-        process_cpu_stats_pb.package_cpu_time_percent = (
-            process_cpu_stats.package_cpu_time_percent
+        package_cpu_stats_pb.process_cpu_stats.append(
+            performancestats_pb2.ProcessCpuStats(
+                command=process_cpu_stats.command,
+                cpu_time_ms=process_cpu_stats.cpu_time_ms,
+                package_cpu_time_percent=(
+                    process_cpu_stats.package_cpu_time_percent
+                ),
+                cpu_cycles=process_cpu_stats.cpu_cycles,
+            )
         )
-        process_cpu_stats_pb.cpu_cycles = process_cpu_stats.cpu_cycles
+
+    stats_collection_pb.package_cpu_stats.append(package_cpu_stats_pb)
+    system_event_pb.collections.append(stats_collection_pb)
 
     for (
         package_storage_io_read_stats
     ) in collection.package_storage_io_read_stats:
-      add_package_storage_io_stats_pb(
-          package_storage_io_read_stats,
-          stats_collection_pb.package_storage_io_read_stats.add(),
+      stats_collection_pb.package_storage_io_read_stats.append(
+          performancestats_pb2.PackageStorageIoStats(
+              user_id=package_storage_io_read_stats.user_id,
+              package_name=package_storage_io_read_stats.package_name,
+              fg_bytes=package_storage_io_read_stats.fg_bytes,
+              fg_bytes_percent=package_storage_io_read_stats.fg_bytes_percent,
+              fg_fsync=package_storage_io_read_stats.fg_fsync,
+              fg_fsync_percent=package_storage_io_read_stats.fg_fsync_percent,
+              bg_bytes=package_storage_io_read_stats.bg_bytes,
+              bg_bytes_percent=package_storage_io_read_stats.bg_bytes_percent,
+              bg_fsync=package_storage_io_read_stats.bg_fsync,
+              bg_fsync_percent=package_storage_io_read_stats.bg_fsync_percent,
+          )
       )
 
     for (
         package_storage_io_write_stats
     ) in collection.package_storage_io_write_stats:
-      add_package_storage_io_stats_pb(
-          package_storage_io_write_stats,
-          stats_collection_pb.package_storage_io_write_stats.add(),
+      stats_collection_pb.package_storage_io_read_stats.append(
+          performancestats_pb2.PackageStorageIoStats(
+              user_id=package_storage_io_write_stats.user_id,
+              package_name=package_storage_io_write_stats.package_name,
+              fg_bytes=package_storage_io_write_stats.fg_bytes,
+              fg_bytes_percent=package_storage_io_write_stats.fg_bytes_percent,
+              fg_fsync=package_storage_io_write_stats.fg_fsync,
+              fg_fsync_percent=package_storage_io_write_stats.fg_fsync_percent,
+              bg_bytes=package_storage_io_write_stats.bg_bytes,
+              bg_bytes_percent=package_storage_io_write_stats.bg_bytes_percent,
+              bg_fsync=package_storage_io_write_stats.bg_fsync,
+              bg_fsync_percent=package_storage_io_write_stats.bg_fsync_percent,
+          )
       )
 
 
-def get_system_event(system_event_pb):
+def _get_system_event(
+    system_event_pb: performancestats_pb2.SystemEventStats,
+) -> Optional[carwatchdog_dump_parser.SystemEventStats]:
+  """Generates carwatchdog_dump_parser.SystemEventStats from the given proto."""
   if not system_event_pb.collections:
     return None
 
-  system_event_stats = SystemEventStats()
+  system_event_stats = carwatchdog_dump_parser.SystemEventStats()
   for stats_collection_pb in system_event_pb.collections:
-    stats_collection = StatsCollection()
+    stats_collection = carwatchdog_dump_parser.StatsCollection()
     stats_collection.id = stats_collection_pb.id
     date_pb = stats_collection_pb.date
     time_pb = stats_collection_pb.time
-    stats_collection.date = datetime(
+    stats_collection.date = datetime.datetime(
         date_pb.year,
         date_pb.month,
         date_pb.day,
@@ -130,10 +147,14 @@ def get_system_event(system_event_pb):
     stats_collection.major_page_faults = stats_collection_pb.major_page_faults
 
     for package_cpu_stats_pb in stats_collection_pb.package_cpu_stats:
-      package_cpu_stats = PackageCpuStats.from_proto(package_cpu_stats_pb)
+      package_cpu_stats = carwatchdog_dump_parser.PackageCpuStats.from_proto(
+          package_cpu_stats_pb
+      )
       for process_cpu_stats_pb in package_cpu_stats_pb.process_cpu_stats:
         package_cpu_stats.process_cpu_stats.append(
-              ProcessCpuStats.from_proto(process_cpu_stats_pb)
+            carwatchdog_dump_parser.ProcessCpuStats.from_proto(
+                process_cpu_stats_pb
+            )
         )
       stats_collection.package_cpu_stats.append(package_cpu_stats)
 
@@ -141,14 +162,18 @@ def get_system_event(system_event_pb):
         package_storage_io_read_stats_pb
     ) in stats_collection_pb.package_storage_io_read_stats:
       stats_collection.package_storage_io_read_stats.append(
-          PackageStorageIoStats.from_proto(package_storage_io_read_stats_pb)
+          carwatchdog_dump_parser.PackageStorageIoStats.from_proto(
+              package_storage_io_read_stats_pb
+          )
       )
 
     for (
         package_storage_io_write_stats_pb
     ) in stats_collection_pb.package_storage_io_write_stats:
       stats_collection.package_storage_io_write_stats.append(
-          PackageStorageIoStats.from_proto(package_storage_io_write_stats_pb)
+          carwatchdog_dump_parser.PackageStorageIoStats.from_proto(
+              package_storage_io_write_stats_pb
+          )
       )
 
     system_event_stats.add(stats_collection)
@@ -156,20 +181,26 @@ def get_system_event(system_event_pb):
   return system_event_stats
 
 
-def get_perf_stats(perf_stats_pb):
-  perf_stats = PerformanceStats()
-  perf_stats.boot_time_stats = get_system_event(perf_stats_pb.boot_time_stats)
-  perf_stats.last_n_minutes_stats = get_system_event(
+def _get_perf_stats(
+    perf_stats_pb: performancestats_pb2.PerformanceStats,
+) -> carwatchdog_dump_parser.PerformanceStats:
+  """Generates carwatchdog_dump_parser.PerformanceStats from the given proto."""
+  perf_stats = carwatchdog_dump_parser.PerformanceStats()
+  perf_stats.boot_time_stats = _get_system_event(perf_stats_pb.boot_time_stats)
+  perf_stats.last_n_minutes_stats = _get_system_event(
       perf_stats_pb.last_n_minutes_stats
   )
-  perf_stats.custom_collection_stats = get_system_event(
+  perf_stats.custom_collection_stats = _get_system_event(
       perf_stats_pb.custom_collection_stats
   )
   return perf_stats
 
 
-def get_build_info(build_info_pb):
-  build_info = BuildInformation()
+def _get_build_info(
+    build_info_pb: deviceperformancestats_pb2.BuildInformation,
+) -> carwatchdog_dump_parser.BuildInformation:
+  """Generates carwatchdog_dump_parser.BuildInformation from the given proto."""
+  build_info = carwatchdog_dump_parser.BuildInformation()
   build_info.fingerprint = build_info_pb.fingerprint
   build_info.brand = build_info_pb.brand
   build_info.product = build_info_pb.product
@@ -185,7 +216,13 @@ def get_build_info(build_info_pb):
   return build_info
 
 
-def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
+def write_pb(
+    perf_stats: carwatchdog_dump_parser.PerformanceStats,
+    out_file: str,
+    build_info: Optional[carwatchdog_dump_parser.BuildInformation] = None,
+    out_build_file: Optional[str] = None,
+) -> bool:
+  """Generates proto from parser objects and writes text proto to out files."""
   if perf_stats.is_empty():
     print("Cannot write proto since performance stats are empty")
     return False
@@ -193,26 +230,22 @@ def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
   perf_stats_pb = performancestats_pb2.PerformanceStats()
 
   # Boot time proto
-  if perf_stats.has_boot_time_stats():
+  if (stats := perf_stats.get_boot_time_stats()) is not None:
     boot_time_stats_pb = performancestats_pb2.SystemEventStats()
-    add_system_event_pb(perf_stats.boot_time_stats, boot_time_stats_pb)
+    _add_system_event_pb(stats, boot_time_stats_pb)
     perf_stats_pb.boot_time_stats.CopyFrom(boot_time_stats_pb)
 
-  if perf_stats.has_last_n_minutes_stats():
+  if (stats := perf_stats.get_last_n_minutes_stats()) is not None:
     last_n_minutes_stats_pb = performancestats_pb2.SystemEventStats()
-    add_system_event_pb(
-        perf_stats.last_n_minutes_stats, last_n_minutes_stats_pb
-    )
+    _add_system_event_pb(stats, last_n_minutes_stats_pb)
     perf_stats_pb.last_n_minutes_stats.CopyFrom(last_n_minutes_stats_pb)
 
   # TODO(b/256654082): Add user switch events to proto
 
   # Custom collection proto
-  if perf_stats.has_custom_collection_stats():
+  if (stats := perf_stats.get_custom_collection_stats()) is not None:
     custom_collection_stats_pb = performancestats_pb2.SystemEventStats()
-    add_system_event_pb(
-        perf_stats.custom_collection_stats, custom_collection_stats_pb
-    )
+    _add_system_event_pb(stats, custom_collection_stats_pb)
     perf_stats_pb.custom_collection_stats.CopyFrom(custom_collection_stats_pb)
 
   # Write pb binary to disk
@@ -221,19 +254,20 @@ def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
       f.write(perf_stats_pb.SerializeToString())
 
   if build_info is not None:
-    build_info_pb = deviceperformancestats_pb2.BuildInformation()
-    build_info_pb.fingerprint = build_info.fingerprint
-    build_info_pb.brand = build_info.brand
-    build_info_pb.product = build_info.product
-    build_info_pb.device = build_info.device
-    build_info_pb.version_release = build_info.version_release
-    build_info_pb.id = build_info.id
-    build_info_pb.version_incremental = build_info.version_incremental
-    build_info_pb.type = build_info.type
-    build_info_pb.tags = build_info.tags
-    build_info_pb.sdk = build_info.sdk
-    build_info_pb.platform_minor = build_info.platform_minor
-    build_info_pb.codename = build_info.codename
+    build_info_pb = deviceperformancestats_pb2.BuildInformation(
+        fingerprint=build_info.fingerprint,
+        brand=build_info.brand,
+        product=build_info.product,
+        device=build_info.device,
+        version_release=build_info.version_release,
+        id=build_info.id,
+        version_incremental=build_info.version_incremental,
+        type=build_info.type,
+        tags=build_info.tags,
+        sdk=build_info.sdk,
+        platform_minor=build_info.platform_minor,
+        codename=build_info.codename,
+    )
 
     device_run_perf_stats_pb = (
         deviceperformancestats_pb2.DevicePerformanceStats()
@@ -247,35 +281,62 @@ def write_pb(perf_stats, out_file, build_info=None, out_build_file=None):
   return True
 
 
-def read_pb(pb_file, is_device_run=False):
-  perf_stats_pb = (
-      deviceperformancestats_pb2.DevicePerformanceStats()
-      if is_device_run
-      else performancestats_pb2.PerformanceStats()
-  )
+T = TypeVar("T")
 
+
+def _read_proto_from_file(pb_file: str, proto: T) -> Optional[T]:
+  """Reads the text proto from the given file and returns the proto object."""
+  pb_type = (
+      "DevicePerformanceStats"
+      if isinstance(proto, deviceperformancestats_pb2.DevicePerformanceStats)
+      else "PerformanceStats"
+  )
   with open(pb_file, "rb") as f:
     try:
-      perf_stats_pb.ParseFromString(f.read())
-      perf_stats_pb.DiscardUnknownFields()
+      proto.ParseFromString(f.read())
+      proto.DiscardUnknownFields()
     except UnicodeDecodeError:
-      proto_type = (
-          "DevicePerformanceStats" if is_device_run else "PerformanceStats"
-      )
-      print(f"Error: Proto in {pb_file} probably is not '{proto_type}'")
+      print(f"Error: Proto in {pb_file} probably is not '{pb_type}'")
       return None
 
-  if not perf_stats_pb:
+  if not proto:
     print(f"Error: Proto stored in {pb_file} has incorrect format.")
     return None
 
-  if not is_device_run:
-    return get_perf_stats(perf_stats_pb)
+  return proto
 
-  device_run_perf_stats = DevicePerformanceStats()
-  device_run_perf_stats.build_info = get_build_info(perf_stats_pb.build_info)
 
-  for perf_stat in perf_stats_pb.perf_stats:
-    device_run_perf_stats.perf_stats.append(get_perf_stats(perf_stat))
+def read_performance_stats_pb(
+    pb_file: str,
+) -> Optional[carwatchdog_dump_parser.PerformanceStats]:
+  """Reads text proto from file and returns a PerformanceStats object."""
+  performance_stats_pb = performancestats_pb2.PerformanceStats()
+  performance_stats_pb = _read_proto_from_file(pb_file, performance_stats_pb)
+  if performance_stats_pb is None:
+    return None
+  return _get_perf_stats(performance_stats_pb)
+
+
+def read_device_performance_stats_pb(
+    pb_file: str,
+) -> Optional[carwatchdog_dump_parser.DevicePerformanceStats]:
+  """Reads text proto from file and returns a DevicePerformanceStats object."""
+
+  device_performance_stats_pb = (
+      deviceperformancestats_pb2.DevicePerformanceStats()
+  )
+  device_performance_stats_pb = _read_proto_from_file(
+      pb_file, device_performance_stats_pb
+  )
+  if device_performance_stats_pb is None:
+    return None
+
+  device_run_perf_stats = carwatchdog_dump_parser.DevicePerformanceStats()
+  device_run_perf_stats.build_info = _get_build_info(
+      device_performance_stats_pb.build_info
+  )
+
+  for perf_stat in device_performance_stats_pb.perf_stats:
+    device_run_perf_stats.perf_stats.append(_get_perf_stats(perf_stat))
 
   return device_run_perf_stats

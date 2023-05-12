@@ -32,11 +32,12 @@ import json
 import os
 import sys
 
-from .carwatchdog_dump_parser import *
-from .perf_stats_proto_utils import *
+from . import carwatchdog_dump_parser
+from . import perf_stats_proto_utils
 
 
-def init_arguments():
+def init_arguments() -> argparse.Namespace:
+  """Initializes the program arguments."""
   parser = argparse.ArgumentParser(description="Parses CarWatchdog's dump.")
   parser.add_argument(
       "-f",
@@ -112,7 +113,16 @@ if __name__ == "__main__":
     if not os.path.isfile(args.read_proto):
       print("Error: Proto binary '%s' does not exist" % args.read_proto)
       sys.exit(1)
-    performance_stats = read_pb(args.read_proto, args.device_run)
+    if args.device_run:
+      performance_stats = (
+          perf_stats_proto_utils.read_device_performance_stats_pb(
+              args.read_proto
+          )
+      )
+    else:
+      performance_stats = perf_stats_proto_utils.read_performance_stats_pb(
+          args.read_proto
+      )
     if performance_stats is None:
       print(f"Error: Could not read '{args.read_proto}'")
       sys.exit(1)
@@ -127,11 +137,11 @@ if __name__ == "__main__":
     sys.exit(1)
 
   with open(args.file, "r", encoding="UTF-8", errors="ignore") as f:
-    performance_stats = parse_dump(f.read())
+    performance_stats = carwatchdog_dump_parser.parse_dump(f.read())
 
     build_info = None
     if args.build:
-      build_info = parse_build_info(args.build)
+      build_info = carwatchdog_dump_parser.parse_build_info(args.build)
       print(build_info)
 
     if performance_stats.is_empty():
@@ -141,7 +151,7 @@ if __name__ == "__main__":
       )
       sys.exit(1)
 
-    if (args.out or args.build) and write_pb(
+    if (args.out or args.build) and perf_stats_proto_utils.write_pb(
         performance_stats, args.out, build_info, args.device_out
     ):
       out_file = args.out if args.out else args.device_out
