@@ -26,6 +26,7 @@
     <attr name="categories" format="string"/>
     <attr name="packages" format="string" />
     <attr name="clearBackStack" format="boolean" />
+    <attr name="unselectedAlpha" format="float"/>
 
     <!-- Custom attributes to configure hvac values -->
     <declare-styleable name="AnimatedTemperatureView">
