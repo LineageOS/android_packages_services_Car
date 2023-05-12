@@ -1095,6 +1095,469 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void onAudioGainChanged_comboAttenuationLimitation_simultaneously() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        expectWithMessage("Attenuated state in combo limited / attenuated")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Limit state in combo limited / attenuated")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuated gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(comboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_resetAttenuation_whileComboAttenuationLimitation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        // Set a gain under the limit
+        carVolumeGroup.setCurrentGainIndex(comboLimitAttenuation - 1);
+
+        expectWithMessage("Attenuation state after attempt to set the index")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limitation state after from attempt to set the gain")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Limited gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(comboLimitAttenuation - 1);
+    }
+
+    @Test
+    public void onAudioGainChanged_withGainUpdate_whileComboAttenuationLimitation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        // any new callback will be interpreted as an update of the current reasons
+        // (limit and attenuation)
+        int updatedComboLimitAttenuation = DEFAULT_GAIN_INDEX + 1;
+        musicGain.volumeIndex = updatedComboLimitAttenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        expectWithMessage("Attenuated state in combo limited / attenuated")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Limit state in combo limited / attenuated")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuated gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(updatedComboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_limitation_withLimitUpdate() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialLimit = DEFAULT_GAIN_INDEX - 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = initialLimit;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        // any new callback will be interpreted as an update of the limitation, allowing higher
+        // volume index
+        int updatedLimit = DEFAULT_GAIN_INDEX;
+        musicGain.volumeIndex = updatedLimit;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        expectWithMessage("Limitation state after limitation with less restrictive limit update")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Gain index after limitation with less restrictive limit update")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(updatedLimit);
+    }
+
+    @Test
+    public void onAudioGainChanged_endOfRestrictions_afterLimitationWithLimitUpdate() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialLimit = DEFAULT_GAIN_INDEX - 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        List<Integer> reasons = List.of(Reasons.THERMAL_LIMITATION);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = initialLimit;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        musicGain.volumeIndex = initialLimit + 1;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+
+        // End of restrictions
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after end of restrictions")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Gain index after end of restrictions")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(initialIndex);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationHigherLimit_limitationStartFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitation = DEFAULT_GAIN_INDEX;
+        int initialIndex = MAX_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        // Limitation starts first, gain is the limited index
+        List<Integer> limitationReasons = List.of(Reasons.THERMAL_LIMITATION);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = limitation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(limitationReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / new limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        musicGain.volumeIndex = comboLimitAttenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo").that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationWithHigerLimit_whilelimited() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitation = DEFAULT_GAIN_INDEX;
+        int initialIndex = MAX_GAIN_INDEX;
+        int comboLimitAttenuation = limitation + 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        // Limitation starts first, gain is the limited index
+        List<Integer> limitationReasons = List.of(Reasons.THERMAL_LIMITATION);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = limitation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(limitationReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / new limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        musicGain.volumeIndex = comboLimitAttenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationWithHigherLimit_whileAttenuated() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialIndex = MAX_GAIN_INDEX;
+        int attenuation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX + 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        List<Integer> attenuationReasons = List.of(Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = attenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(attenuationReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the new attenuation / limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        musicGain.volumeIndex = comboLimitAttenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationWithLowerLimit_whileAttenuated() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialIndex = MAX_GAIN_INDEX;
+        int attenuation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuation = attenuation - 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        List<Integer> attenuationReasons = List.of(Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = attenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(attenuationReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the new attenuation/ limit, lower than previous
+        // attenuation
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        musicGain.volumeIndex = comboLimitAttenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitation_withHigherLimitUpdate() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuationUpdate = DEFAULT_GAIN_INDEX + 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / new limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the new limit / new attenuation
+        musicGain.volumeIndex = comboLimitAttenuationUpdate;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo with gain update")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo with gain update")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo with gain update")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuationUpdate);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitation_withLowerLimitUpdate() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuationUpdate = DEFAULT_GAIN_INDEX - 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        // COMBO ATTENUATION + LIMITATION, gain is the new attenuation / new limit
+        musicGain.volumeIndex = comboLimitAttenuationUpdate;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after combo with gain update")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after combo with gain update")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo with gain update")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(comboLimitAttenuationUpdate);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationHigerLimit_attenuationEndsFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        // End of Attenuation first
+        musicGain.volumeIndex = limitation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        List<Integer> limitationReasons = List.of(Reasons.THERMAL_LIMITATION);
+        carVolumeGroup.onAudioGainChanged(limitationReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after end of combo")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after end of combo")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Gain index after end of combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(limitation);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitationLowerLimit_attenuationEndsFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitation = DEFAULT_GAIN_INDEX - 1;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        // End of Attenuation first
+        musicGain.volumeIndex = limitation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        List<Integer> limitationReasons = List.of(Reasons.THERMAL_LIMITATION);
+        carVolumeGroup.onAudioGainChanged(limitationReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after end of combo")
+                .that(carVolumeGroup.isLimited()).isTrue();
+        expectWithMessage("Attenuation state after end of combo")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Gain index after end of combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(limitation);
+    }
+
+    @Test
+    public void onAudioGainChanged_endOfRestrictions_whileComboAndattenuationEndsFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int limitation = DEFAULT_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        int initialIndex = MAX_GAIN_INDEX;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+        // End of Attenuation first
+        musicGain.volumeIndex = limitation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        List<Integer> limitationReasons = List.of(Reasons.THERMAL_LIMITATION);
+        carVolumeGroup.onAudioGainChanged(limitationReasons, musicCarGain);
+
+        // End of restrictions
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        expectWithMessage("Attenuation state after end of restrictions")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limitation state after end of restrictions")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Gain index after end of restrictions")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(initialIndex);
+    }
+
+    @Test
+    public void onAudioGainChanged_comboAttenuationLimitation_limitationEndsFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialIndex = MAX_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / new limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+
+        // End of limitation first, lets change the attenuation also (higher than previous limit)
+        int attenuation = comboLimitAttenuation + 1;
+        musicGain.volumeIndex = attenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        List<Integer> attenuationReasons = List.of(Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(attenuationReasons, musicCarGain);
+
+        expectWithMessage("Limitation state after end of combo")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Attenuation state after end of combo")
+                .that(carVolumeGroup.isAttenuated()).isTrue();
+        expectWithMessage("Gain index after combo")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(attenuation);
+    }
+
+    @Test
+    public void onAudioGainChanged_endOfRestriction_afterComboAndlimitationEndsFirst() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        int initialIndex = MAX_GAIN_INDEX;
+        int comboLimitAttenuation = DEFAULT_GAIN_INDEX - 1;
+        carVolumeGroup.setCurrentGainIndex(initialIndex);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = comboLimitAttenuation;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        // COMBO ATTENUATION + LIMITATION, gain is the attenuation / new limit
+        List<Integer> comboReasons = List.of(Reasons.THERMAL_LIMITATION, Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(comboReasons, musicCarGain);
+        // End of limitation first, lets change the attenuation also (higher than previous limit)
+        int attenuation = comboLimitAttenuation + 1;
+        musicGain.volumeIndex = attenuation;
+        musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        List<Integer> attenuationReasons = List.of(Reasons.ADAS_DUCKING);
+        carVolumeGroup.onAudioGainChanged(attenuationReasons, musicCarGain);
+
+        // End of restrictions
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        expectWithMessage("Attenuation state after end of restrictions")
+                .that(carVolumeGroup.isAttenuated()).isFalse();
+        expectWithMessage("Limitation state after end of restrictions")
+                .that(carVolumeGroup.isLimited()).isFalse();
+        expectWithMessage("Gain index after end of restrictions")
+                .that(carVolumeGroup.getCurrentGainIndex()).isEqualTo(initialIndex);
+    }
+
+    @Test
     public void getCarVolumeGroupInfo() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setCurrentGainIndex(0);
