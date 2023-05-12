@@ -79,4 +79,7 @@
     <dimen name="seekbar_with_times_margin_bottom">6dp</dimen>
     <dimen name="seekbar_with_times_margin_top">30dp</dimen>
 
+    <dimen name="recent_task_icon_size">88dp</dimen>
+    <dimen name="recent_task_width_first">874dp</dimen>
+    <dimen name="recent_task_width">369dp</dimen>
 </resources>
