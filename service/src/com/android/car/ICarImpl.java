@@ -486,15 +486,17 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_OCCUPANT_CONNECTION_SERVICE)
                 || mFeatureController.isFeatureEnabled(Car.CAR_REMOTE_DEVICE_SERVICE)) {
-            mCarOccupantConnectionService = constructWithTrace(
-                    t, CarOccupantConnectionService.class,
-                    () -> new CarOccupantConnectionService(serviceContext, mCarOccupantZoneService),
-                    allServices);
             mCarRemoteDeviceService = constructWithTrace(
                     t, CarRemoteDeviceService.class,
                     () -> new CarRemoteDeviceService(serviceContext, mCarOccupantZoneService,
                             mCarPowerManagementService, mSystemActivityMonitoringService),
                     allServices);
+            mCarOccupantConnectionService = constructWithTrace(
+                    t, CarOccupantConnectionService.class,
+                    () -> new CarOccupantConnectionService(serviceContext, mCarOccupantZoneService,
+                            mCarRemoteDeviceService),
+                    allServices);
+
         } else {
             mCarOccupantConnectionService = null;
             mCarRemoteDeviceService = null;

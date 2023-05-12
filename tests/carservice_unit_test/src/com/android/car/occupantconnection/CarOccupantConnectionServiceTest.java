@@ -19,11 +19,6 @@ package com.android.car.occupantconnection;
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_RIGHT;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_NOT_READY;
@@ -131,6 +126,7 @@ public final class CarOccupantConnectionServiceTest {
 
         mService = new CarOccupantConnectionService(mContext,
                 mOccupantZoneService,
+                mRemoteDeviceService,
                 mConnectingReceiverServices,
                 mConnectedReceiverServiceMap,
                 mReceiverServiceConnectionMap,
@@ -503,9 +499,8 @@ public final class CarOccupantConnectionServiceTest {
         assertThat(mPendingConnectionRequestMap.size()).isEqualTo(1);
 
         // The receiver service should be notified for the connection request.
-        verify(receiverService).onConnectionInitiated(mSenderZone,
-                /* senderAppState= */ FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
-                | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING | FLAG_CLIENT_IN_FOREGROUND);
+        verify(receiverService).onConnectionInitiated(mSenderZone, /* senderVersion= */
+                0, /* senderSigningInfo= */ null);
     }
 
     @Test
@@ -532,9 +527,8 @@ public final class CarOccupantConnectionServiceTest {
         assertThat(connectionId.senderClient.packageName).isEqualTo(PACKAGE_NAME);
 
         // The receiver service should be notified for the connection request.
-        verify(receiverService).onConnectionInitiated(mSenderZone,
-                /* senderAppState= */ FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
-                | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING | FLAG_CLIENT_IN_FOREGROUND);
+        verify(receiverService).onConnectionInitiated(mSenderZone, /* senderVersion= */
+                0, /* senderSigningInfo= */ null);
     }
 
     @Test
@@ -1025,10 +1019,6 @@ public final class CarOccupantConnectionServiceTest {
 
         @Override
         public void onConnected(OccupantZoneInfo receiverZone) {
-        }
-
-        @Override
-        public void onRejected(OccupantZoneInfo receiverZone, int rejectionReason) {
         }
 
         @Override
