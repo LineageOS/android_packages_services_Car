@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeNotNull;
 
+import android.app.UiAutomation;
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.occupantconnection.CarOccupantConnectionManager;
@@ -54,9 +55,12 @@ public final class CarOccupantConnectionManagerPermissionTest {
 
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
+    private final UiAutomation mUiAutomation =
+            InstrumentationRegistry.getInstrumentation().getUiAutomation();
 
     private CarOccupantConnectionManager mCarOccupantConnectionManager;
     private OccupantZoneInfo mReceiverZone;
+    private ConnectionRequestCallback mConnectionRequestCallback;
 
     @Before
     public void setUp() {
@@ -70,6 +74,25 @@ public final class CarOccupantConnectionManagerPermissionTest {
 
         mReceiverZone = new OccupantZoneInfo(/* zoneId= */ 0, OCCUPANT_TYPE_DRIVER,
                 SEAT_ROW_1_LEFT);
+
+        mConnectionRequestCallback = new ConnectionRequestCallback() {
+            @Override
+            public void onConnected(@NonNull OccupantZoneInfo receiverZone) {
+            }
+
+            @Override
+            public void onRejected(@NonNull OccupantZoneInfo receiverZone, int rejectionReason) {
+            }
+
+            @Override
+            public void onFailed(@NonNull OccupantZoneInfo receiverZone,
+                    int connectionError) {
+            }
+
+            @Override
+            public void onDisconnected(@NonNull OccupantZoneInfo receiverZone) {
+            }
+        };
     }
 
     @Test
@@ -93,31 +116,20 @@ public final class CarOccupantConnectionManagerPermissionTest {
     public void testRequestConnection() {
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.requestConnection(mReceiverZone, Runnable::run,
-                        new ConnectionRequestCallback() {
-                            @Override
-                            public void onConnected(@NonNull OccupantZoneInfo receiverZone) {
-                            }
-
-                            @Override
-                            public void onRejected(@NonNull OccupantZoneInfo receiverZone,
-                                    int rejectionReason) {
-                            }
-
-                            @Override
-                            public void onFailed(@NonNull OccupantZoneInfo receiverZone,
-                                    int connectionError) {
-                            }
-
-                            @Override
-                            public void onDisconnected(@NonNull OccupantZoneInfo receiverZone) {
-                            }
-                        }));
+                        mConnectionRequestCallback));
 
         assertThat(e).hasMessageThat().contains(PERMISSION_MANAGE_OCCUPANT_CONNECTION);
     }
 
     @Test
     public void testCancelConnection() {
+        try {
+            mUiAutomation.adoptShellPermissionIdentity(Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
+            mCarOccupantConnectionManager.requestConnection(mReceiverZone, Runnable::run,
+                    mConnectionRequestCallback);
+        } finally {
+            mUiAutomation.dropShellPermissionIdentity();
+        }
         Exception e = assertThrows(SecurityException.class,
                 () -> mCarOccupantConnectionManager.cancelConnection(mReceiverZone));
 
