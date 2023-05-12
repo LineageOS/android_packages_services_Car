@@ -158,7 +158,8 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
             Looper.prepare();
         }
         mNavigationService = new ClusterNavigationService(mContext, mAppFocusService);
-        mService = new InstrumentClusterService(mContext, mNavigationService, mCarInputService);
+        mService = new InstrumentClusterService(mContext, mNavigationService, mCarInputService,
+                /* rendererServiceWaitTimeoutMs= */ 1000);
     }
 
     @After
@@ -254,6 +255,14 @@ public final class InstrumentClusterServiceTest extends AbstractExtendedMockitoT
         });
         checkValidClusterNavigation();
         verify(mContext).bindServiceAsUser(any(), any(), anyInt(), any());
+    }
+
+    @Test
+    public void testNoConnection_throwsIllegalStateException() throws Exception {
+        initService(/* connect= */ false);
+        assertThrows(IllegalStateException.class, () -> {
+            mService.getInstrumentClusterInfo();
+        });
     }
 
     @Test
