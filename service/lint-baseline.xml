@@ -33,4 +33,12 @@
             line="780"/>
     </issue>
 
+    <issue
+        id="NewApi"
+        message="Call requires API level 34 (current min is 33): `android.media.AudioManager#setVolumeGroupVolumeIndex`">
+        <location
+            file="packages/services/Car/service/src/com/android/car/audio/CoreAudioVolumeGroup.java"
+            line="122"/>
+    </issue>
+
 </issues>
