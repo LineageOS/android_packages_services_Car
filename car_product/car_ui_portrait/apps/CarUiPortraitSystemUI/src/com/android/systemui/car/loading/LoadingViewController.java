@@ -17,7 +17,6 @@
 package com.android.systemui.car.loading;
 
 import com.android.systemui.R;
-import com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView;
 import com.android.systemui.car.hvac.HvacController;
 import com.android.systemui.car.window.OverlayViewController;
 import com.android.systemui.car.window.OverlayViewGlobalStateController;
@@ -31,23 +30,11 @@ import javax.inject.Inject;
 @SysUISingleton
 public class LoadingViewController extends OverlayViewController {
 
-    private HvacController mHvacController;
-
     @Inject
     public LoadingViewController(
             OverlayViewGlobalStateController overlayViewGlobalStateController,
             HvacController controller) {
         super(R.id.loading_screen_stub, overlayViewGlobalStateController);
-
-        mHvacController = controller;
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        CarUiPortraitTemperatureControlView view =
-                (CarUiPortraitTemperatureControlView) getLayout().findViewById(R.id.driver_hvac);
-
-        mHvacController.registerHvacViews(view);
     }
 
     @Override
