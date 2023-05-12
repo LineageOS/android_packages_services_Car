@@ -20,6 +20,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.occupantconnection.IBackendConnectionResponder;
 import android.car.occupantconnection.IPayloadCallback;
 import android.car.occupantconnection.Payload;
+import android.content.pm.SigningInfo;
 
 /**
   * AIDL used by CarOccupantConnectionService to communicate to AbstractReceiverService.
@@ -38,7 +39,7 @@ oneway interface IBackendReceiver {
         in Payload payload);
 
     void onConnectionInitiated(in CarOccupantZoneManager.OccupantZoneInfo senderZone,
-        int senderAppState);
+        long senderVersion, in SigningInfo senderSigningInfo);
 
     void onConnected(in CarOccupantZoneManager.OccupantZoneInfo senderZone);
 

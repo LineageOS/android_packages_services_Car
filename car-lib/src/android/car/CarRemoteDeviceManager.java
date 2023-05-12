@@ -103,7 +103,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static final int FLAG_CLIENT_SAME_VERSION = 1 << 1;
+    public static final int FLAG_CLIENT_SAME_LONG_VERSION = 1 << 1;
 
     /**
      * Flag to indicate whether the client app with the same signing info ({@link
@@ -155,7 +155,7 @@ public final class CarRemoteDeviceManager extends CarManagerBase {
      */
     @IntDef(flag = true, prefix = {"FLAG_CLIENT_"}, value = {
             FLAG_CLIENT_INSTALLED,
-            FLAG_CLIENT_SAME_VERSION,
+            FLAG_CLIENT_SAME_LONG_VERSION,
             FLAG_CLIENT_SAME_SIGNATURE,
             FLAG_CLIENT_RUNNING,
             FLAG_CLIENT_IN_FOREGROUND

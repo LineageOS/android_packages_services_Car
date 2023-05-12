@@ -81,10 +81,6 @@ public final class CarOccupantConnectionManagerPermissionTest {
             }
 
             @Override
-            public void onRejected(@NonNull OccupantZoneInfo receiverZone, int rejectionReason) {
-            }
-
-            @Override
             public void onFailed(@NonNull OccupantZoneInfo receiverZone,
                     int connectionError) {
             }
