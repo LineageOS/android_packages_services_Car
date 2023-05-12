@@ -31,4 +31,7 @@
     <color name="seek_bar_background_tint_color">@color/car_secondary_80</color>
 
     <color name="app_item_on_hover_border_color">@color/car_primary</color>
+
+    <color name="recents_background_color">@color/car_background</color>
+    <color name="default_recents_thumbnail_color">@color/car_surface_2</color>
 </resources>
