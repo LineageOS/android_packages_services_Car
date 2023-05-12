@@ -18,6 +18,7 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_USER_REJECTED;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -148,7 +149,7 @@ public final class CarOccupantConnectionManagerUnitTest {
 
         mOccupantConnectionManager.requestConnection(mReceiverZone, mCallbackExecutor,
                 mock(ConnectionRequestCallback.class));
-        binderCallback[0].onRejected(mReceiverZone, /* rejectionReason= */ 0);
+        binderCallback[0].onFailed(mReceiverZone, CONNECTION_ERROR_USER_REJECTED);
 
         // The client can request another connection to the same occupant zone since the previous
         // request was rejected.
