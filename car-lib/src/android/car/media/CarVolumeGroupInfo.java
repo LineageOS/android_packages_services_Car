@@ -413,7 +413,10 @@ public final class CarVolumeGroupInfo implements Parcelable {
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
         @NonNull
         public Builder setAudioAttributes(@NonNull List<AudioAttributes> audioAttributes) {
-            assertPlatformVersionAtLeastU();
+            // TODO(b/273843708): add assertion back. getOccupantZoneId is not version guarded
+            // properly when it is used within Car module. Assertion should be added backed once
+            // b/280702422 is resolved
+            // assertPlatformVersionAtLeastU();
             checkNotUsed();
             mAudioAttributes = Objects.requireNonNull(audioAttributes,
                     "Audio Attributes can not be null");
