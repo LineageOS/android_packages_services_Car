@@ -141,6 +141,73 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
     }
 
     @Test
+    public void setMuted_whenUnmuted_onActivation_returnsTrue() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        expectWithMessage("Status returned from set mute while unmuted")
+                .that(carVolumeGroup.setMute(true)).isTrue();
+    }
+
+    @Test
+    public void setMuted_whenUnmuted_onDeactivation_returnsFalse() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        expectWithMessage("Status returned from set unmute while unmuted")
+                .that(carVolumeGroup.setMute(false)).isFalse();
+    }
+
+
+    @Test
+    public void setMuted_whenMuted_onDeactivation_returnsTrue() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setMute(true);
+
+        expectWithMessage("Status returned from set unmute while muted")
+                .that(carVolumeGroup.setMute(false)).isTrue();
+    }
+
+    @Test
+    public void setMuted_whenMuted_onActivation_returnsFalse() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setMute(true);
+
+        expectWithMessage("Status returned from set mute while muted")
+                .that(carVolumeGroup.setMute(true)).isFalse();
+    }
+
+    @Test
+    public void setMuted_whenHalMuted_onActivation_returnsTrue() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain);
+
+        expectWithMessage("Status returned from set mute while HAL muted")
+                .that(carVolumeGroup.setMute(true)).isTrue();
+    }
+
+    @Test
+    public void setMuted_whenHalMuted_onDeactivation_returnsFalse() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        List<Integer> muteReasons = List.of(Reasons.TCU_MUTE);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+        carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain);
+
+        expectWithMessage("Status returned from set unmute while HAL muted")
+                .that(carVolumeGroup.setMute(false)).isFalse();
+    }
+
+    @Test
     public void isMuted_whenDefault_returnsFalse() {
         CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
 
@@ -154,8 +221,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         carVolumeGroup.setMute(true);
 
-        expectWithMessage("Set mute state")
-                .that(carVolumeGroup.isMuted()).isTrue();
+        expectWithMessage("Get mute state").that(carVolumeGroup.isMuted()).isTrue();
     }
 
     @Test
