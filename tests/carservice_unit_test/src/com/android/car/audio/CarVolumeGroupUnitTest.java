@@ -681,7 +681,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio gain changed with over limit")
                 .that(carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Over limit gain index")
                 .that(carVolumeGroup.getCurrentGainIndex())
                 .isEqualTo(DEFAULT_GAIN_INDEX);
@@ -699,7 +699,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         List<Integer> noReasons = new ArrayList<>(0);
         expectWithMessage("Audio gain changed with over limit")
                 .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after reset limited")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset limited")
@@ -775,7 +775,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio gain changed with blocked")
                 .that(carVolumeGroup.onAudioGainChanged(blockReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED
+                        | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after set blocked")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after set blocked")
@@ -793,7 +794,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         List<Integer> noReasons = new ArrayList<>(0);
         expectWithMessage("Audio gain changed with blocked")
                 .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED
+                        | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after reset blocked")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset blocked")
@@ -823,7 +825,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio gain changed with attenuated gain")
                 .that(carVolumeGroup.onAudioGainChanged(attenuateReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after set attenuated")
                 .that(carVolumeGroup.isAttenuated()).isTrue();
         expectWithMessage("Limit state after set attenuated")
@@ -841,7 +843,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         List<Integer> noReasons = new ArrayList<>(0);
         expectWithMessage("Audio gain changed with attenuated gain")
                 .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED);
+                .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after reset attenuated")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset attenuated")
@@ -870,7 +872,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio gain changed with muted")
                 .that(carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED);
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED
+                        | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after set muted")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after set muted")
@@ -888,7 +891,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         List<Integer> noReasons = new ArrayList<>(0);
         expectWithMessage("Audio gain changed with blocked")
                 .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED);
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED | EVENT_TYPE_MUTE_CHANGED
+                        | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after reset muted")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset muted")
@@ -917,7 +921,8 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
 
         expectWithMessage("Audio gain changed with muted")
                 .that(carVolumeGroup.onAudioGainChanged(muteReasons, musicCarGain))
-                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED);
+                .isEqualTo(EVENT_TYPE_VOLUME_BLOCKED_CHANGED
+                        | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Mute state").that(carVolumeGroup.isMuted()).isFalse();
     }
 
@@ -974,7 +979,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Audio gain changed with blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain))
                 .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_BLOCKED_CHANGED
-                        | EVENT_TYPE_MUTE_CHANGED);
+                        | EVENT_TYPE_MUTE_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state while blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isAttenuated()).isTrue();
         expectWithMessage("Limit state while blocked, limited, muted and attenuated")
@@ -1031,7 +1036,7 @@ public class CarVolumeGroupUnitTest extends AbstractExpectableTestCase {
         expectWithMessage("Audio gain changed with reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain))
                 .isEqualTo(EVENT_TYPE_ATTENUATION_CHANGED | EVENT_TYPE_VOLUME_BLOCKED_CHANGED
-                        | EVENT_TYPE_MUTE_CHANGED);
+                        | EVENT_TYPE_MUTE_CHANGED | EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED);
         expectWithMessage("Attenuated state after reset of blocked, limited, muted and attenuated")
                 .that(carVolumeGroup.isAttenuated()).isFalse();
         expectWithMessage("Limit state after reset of blocked, limited, muted and attenuated")
