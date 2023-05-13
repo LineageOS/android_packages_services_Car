@@ -64,7 +64,6 @@ import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -137,7 +136,6 @@ public class CarPropertyService extends ICarProperty.Stub
                 WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES);
     }
 
-    private final Formatter mFormatter = new Formatter();
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -853,6 +851,7 @@ public class CarPropertyService extends ICarProperty.Stub
     /**
      * Sets CarPropertyValues asynchronously.
      */
+    @SuppressWarnings("FormatString")
     public void setPropertiesAsync(AsyncPropertyServiceRequestList setPropertyServiceRequests,
             IAsyncPropertyResultCallback asyncPropertyResultCallback,
             long timeoutInMs) {
@@ -869,12 +868,12 @@ public class CarPropertyService extends ICarProperty.Stub
             int valueAreaId = carPropertyValueToSet.getAreaId();
             String propertyName = VehiclePropertyIds.toString(propertyId);
             if (valuePropertyId != propertyId) {
-                throw new IllegalArgumentException(mFormatter.format(
+                throw new IllegalArgumentException(String.format(
                         "Property ID in request and CarPropertyValue mismatch: %s vs %s",
                         VehiclePropertyIds.toString(valuePropertyId), propertyName).toString());
             }
             if (valueAreaId != areaId) {
-                throw new IllegalArgumentException(mFormatter.format(
+                throw new IllegalArgumentException(String.format(
                         "For property: %s, area ID in request and CarPropertyValue mismatch: %d vs"
                         + " %d", propertyName, valueAreaId, areaId).toString());
             }
