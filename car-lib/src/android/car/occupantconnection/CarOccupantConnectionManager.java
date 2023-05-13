@@ -212,6 +212,37 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
     public static final int CONNECTION_ERROR_PEER_APP_NOT_INSTALLED = 3;
 
     /**
+     * The connection request failed because its long version code ({@link
+     * PackageInfo#getLongVersionCode}) didn't match the peer app's long version code.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_LONG_VERSION_NOT_MATCH = 4;
+
+    /**
+     * The connection request failed because its signing info ({@link PackageInfo#signingInfo}
+     * didn't match the peer app's signing info.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_SIGNATURE_NOT_MATCH = 5;
+
+    /** The connection request failed because the user rejected it. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_USER_REJECTED = 6;
+
+    /**
+     * The maximum value of predefined connection error code. If the client app wants to pass a
+     * custom value in {@link AbstractReceiverService#rejectConnection}, the custom value must be
+     * larger than this value, otherwise the sender client might get the wrong connection error code
+     * when its connection request fails.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final int CONNECTION_ERROR_PREDEFINED_MAXIMUM_VALUE = 10000;
+
+    /**
      * Flags for the error type of connection request.
      *
      * @hide
@@ -220,7 +251,11 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
             CONNECTION_ERROR_NONE,
             CONNECTION_ERROR_UNKNOWN,
             CONNECTION_ERROR_NOT_READY,
-            CONNECTION_ERROR_PEER_APP_NOT_INSTALLED
+            CONNECTION_ERROR_PEER_APP_NOT_INSTALLED,
+            CONNECTION_ERROR_LONG_VERSION_NOT_MATCH,
+            CONNECTION_ERROR_SIGNATURE_NOT_MATCH,
+            CONNECTION_ERROR_USER_REJECTED,
+            CONNECTION_ERROR_PREDEFINED_MAXIMUM_VALUE
     })
     @Retention(RetentionPolicy.SOURCE)
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -249,23 +284,16 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
         void onConnected(@NonNull OccupantZoneInfo receiverZone);
 
         /**
-         * Invoked when the connection request has been rejected by the receiver client.
-         *
-         * @param rejectionReason the reason for rejection, such as the user rejected, UX
-         *                        restricted. The client app is responsible for defining this value.
-         */
-        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-                minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        void onRejected(@NonNull OccupantZoneInfo receiverZone, int rejectionReason);
-
-        /**
          * Invoked when there was an error when establishing the connection. For example, the
-         * receiver client is not ready for connection.
+         * receiver client is not ready for connection, or the receiver client rejected the
+         * connection request.
+         *
+         * @param connectionError could be any value of {@link ConnectionError}, or an app-defined
+         *                        value
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                 minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-        void onFailed(@NonNull OccupantZoneInfo receiverZone,
-                @ConnectionError int connectionError);
+        void onFailed(@NonNull OccupantZoneInfo receiverZone, int connectionError);
 
         /**
          * Invoked when the connection is terminated. For example, the receiver {@link
@@ -330,24 +358,6 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
 
                         // Unlike other onFoo() methods, we shouldn't remove the callback here
                         // because we need to invoke it once it is disconnected.
-                    }
-                }
-
-                @Override
-                public void onRejected(OccupantZoneInfo receiverZone, int rejectionReason) {
-                    synchronized (mLock) {
-                        Pair<ConnectionRequestCallback, Executor> pair =
-                                mConnectionRequestMap.get(receiverZone.zoneId);
-                        if (pair == null) {
-                            Slog.e(TAG, "onRejected: no pending connection request");
-                            return;
-                        }
-                        // Notify the sender of rejection.
-                        ConnectionRequestCallback callback = pair.first;
-                        Executor executor = pair.second;
-                        executor.execute(() -> callback.onRejected(receiverZone, rejectionReason));
-
-                        mConnectionRequestMap.remove(receiverZone.zoneId);
                     }
                 }
 
@@ -515,7 +525,7 @@ public final class CarOccupantConnectionManager extends CarManagerBase {
      * <p>
      * For security, it is highly recommended that the sender not request a connection to the
      * receiver client if the state of the receiver client doesn't contain
-     * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_VERSION} or
+     * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_LONG_VERSION} or
      * {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_SIGNATURE}. If the sender still
      * wants to request the connection in the case above, it should call
      * {@link android.car.CarRemoteDeviceManager#getEndpointPackageInfo} to get the receiver's

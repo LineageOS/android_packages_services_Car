@@ -24,6 +24,7 @@ import android.util.SparseArray;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -82,6 +83,23 @@ public final class CarPropertyHelper {
     public static String toString(int propertyId) {
         String name = cachePropertyIdsToNameMapping().get(propertyId);
         return name != null ? name : "0x" + Integer.toHexString(propertyId);
+    }
+
+    /**
+     * Gets a user-friendly representation of a list of properties.
+     */
+    public static String propertyIdsToString(Collection<Integer> propertyIds) {
+        String names = "[";
+        boolean first = true;
+        for (int propertyId : propertyIds) {
+            if (first) {
+                first = false;
+            } else {
+                names += ", ";
+            }
+            names += toString(propertyId);
+        }
+        return names + "]";
     }
 
     /**

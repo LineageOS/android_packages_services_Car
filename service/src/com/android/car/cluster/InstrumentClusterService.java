@@ -83,6 +83,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     private final Context mContext;
     private final CarInputService mCarInputService;
     private final ClusterNavigationService mClusterNavigationService;
+    private final long mRendererServiceWaitTimeoutMs;
     /**
      * TODO(b/121277787): Remove this on main.
      *
@@ -213,18 +214,25 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
 
     public InstrumentClusterService(Context context, ClusterNavigationService navigationService,
             CarInputService carInputService) {
+        this(context, navigationService, carInputService, RENDERER_SERVICE_WAIT_TIMEOUT_MS);
+    }
+
+    @VisibleForTesting
+    InstrumentClusterService(Context context, ClusterNavigationService navigationService,
+            CarInputService carInputService, long rendererServiceWaitTimeoutMs) {
         mContext = context;
         mClusterNavigationService = navigationService;
         mCarInputService = carInputService;
         mRenderingServiceConfig = mContext.getString(R.string.instrumentClusterRendererService);
         mDeferredRebinder = new DeferredRebinder(this);
+        mRendererServiceWaitTimeoutMs = rendererServiceWaitTimeoutMs;
     }
 
     @GuardedBy("mLock")
     private IInstrumentCluster waitForRendererLocked() {
         if (mRendererService == null) {
             try {
-                mLock.wait(RENDERER_SERVICE_WAIT_TIMEOUT_MS);
+                mLock.wait(mRendererServiceWaitTimeoutMs);
             } catch (InterruptedException e) {
                 Slogf.d(TAG, "waitForRenderer, interrupted", e);
                 Thread.currentThread().interrupt();
@@ -246,6 +254,9 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             if (renderer == null) {
                 synchronized (mLock) {
                     renderer = waitForRendererLocked();
+                }
+                if (renderer == null) {
+                    continue;
                 }
             }
             try {

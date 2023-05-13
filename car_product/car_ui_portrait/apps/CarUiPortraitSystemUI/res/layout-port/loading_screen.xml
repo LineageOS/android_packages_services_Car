@@ -27,20 +27,10 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/loading_title_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:gravity="center"
-            android:text="@string/loading_welcome_message"
-            android:textSize="200sp"/>
-
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="350dp"
-            android:layout_height="100dp"
+            android:layout_height="50dp"
             android:layout_marginTop="40dp"
             style="?android:attr/progressBarStyleHorizontal"
             android:indeterminate="true"
@@ -48,16 +38,5 @@
             android:layout_below="@+id/loading_title_text"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"/>
-
-        <com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView
-            android:id="@+id/driver_hvac"
-            android:layout_width="wrap_content"
-            android:layout_height="200dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:gravity="center"
-            systemui:hvacAreaId="49">
-            <include layout="@layout/adjustable_temperature_view"/>
-        </com.android.systemui.car.hvac.CarUiPortraitTemperatureControlView>
     </RelativeLayout>
 </FrameLayout>

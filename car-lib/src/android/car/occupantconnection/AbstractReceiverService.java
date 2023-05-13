@@ -17,18 +17,24 @@
 package android.car.occupantconnection;
 
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_LONG_VERSION_NOT_MATCH;
+import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_SIGNATURE_NOT_MATCH;
+import static android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES;
 
 import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeastU;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
-import android.car.CarRemoteDeviceManager.AppState;
 import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.SigningInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -100,6 +106,7 @@ public abstract class AbstractReceiverService extends Service {
             new BinderKeyValueContainer<>();
 
     private IBackendConnectionResponder mBackendConnectionResponder;
+    private long mMyVersionCode;
 
     private final IBackendReceiver.Stub mBackendReceiver = new IBackendReceiver.Stub() {
         @Override
@@ -124,9 +131,24 @@ public abstract class AbstractReceiverService extends Service {
         }
 
         @Override
-        public void onConnectionInitiated(OccupantZoneInfo senderZone,
-                @AppState int senderAppState) {
-            AbstractReceiverService.this.onConnectionInitiated(senderZone, senderAppState);
+        public void onConnectionInitiated(OccupantZoneInfo senderZone, long senderVersion,
+                SigningInfo senderSigningInfo) {
+            if (!isSenderCompatible(senderVersion)) {
+                Slogf.w(TAG, "Reject the connection request from %s because its long version"
+                                + " code %d doesn't match the receiver's %d ", senderZone,
+                        senderVersion, mMyVersionCode);
+                AbstractReceiverService.this.rejectConnection(senderZone,
+                        CONNECTION_ERROR_LONG_VERSION_NOT_MATCH);
+                return;
+            }
+            if (!isSenderAuthorized(senderSigningInfo)) {
+                Slogf.w(TAG, "Reject the connection request from %s because its SigningInfo"
+                        + " doesn't match", senderZone);
+                AbstractReceiverService.this.rejectConnection(senderZone,
+                        CONNECTION_ERROR_SIGNATURE_NOT_MATCH);
+                return;
+            }
+            AbstractReceiverService.this.onConnectionInitiated(senderZone);
         }
 
         @Override
@@ -144,6 +166,24 @@ public abstract class AbstractReceiverService extends Service {
             AbstractReceiverService.this.onDisconnected(senderZone);
         }
     };
+
+    /**
+     * {@inheritDoc}
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        assertPlatformVersionAtLeastU();
+        try {
+            PackageInfo myInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    GET_SIGNING_CERTIFICATES);
+            mMyVersionCode = myInfo.getLongVersionCode();
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new RuntimeException("Couldn't find the PackageInfo of " + getPackageName(), e);
+        }
+    }
 
     /**
      * {@inheritDoc}
@@ -205,54 +245,76 @@ public abstract class AbstractReceiverService extends Service {
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void onReceiverRegistered(@NonNull String receiverEndpointId) {
+        assertPlatformVersionAtLeastU();
     }
 
-
     /**
-     * Invoked when the sender client on {@code senderZone} has requested a connection to this
-     * client.
+     * Returns whether the long version code ({@link PackageInfo#getLongVersionCode}) of the sender
+     * app is compatible with the receiver app's. If it doesn't match, this service will reject the
+     * connection request from the sender.
      * <p>
-     * When the connection is initiated, the inheritance of this service can call {@link
-     * #acceptConnection} or {@link #rejectConnection}.
-     * <ul>
-     *   <li> If user confirmation is not needed to establish the connection, the inheritance can
-     *        just call {@link #acceptConnection}.
-     *   <li> Otherwise, the inheritance can call {@link
-     *        android.app.Activity#startActivityForResult} to launch a permission activity, and call
-     *        {@link #acceptConnection} or {@link #rejectConnection} based on the activity result.
-     *        For driving safety, the permission activity must be distraction optimized. If this
-     *        is infeasible, the inheritance should just call {@link #rejectConnection}.
-     *   <li> For security, it is highly recommended that the inheritance not accept the connection
-     *        if {@code senderAppState} doesn't contain
-     *        {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_VERSION} or
-     *        {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_SIGNATURE}. If the
-     *        inheritance still wants to accept the connection in the case above, it should call
-     *        {@link android.car.CarRemoteDeviceManager#getEndpointPackageInfo} to get the sender's
-     *        {@link android.content.pm.PackageInfo} and check if it's valid before accepting the
-     *        connection.
-     * </ul>
-     *
-     * @param senderZone     the occupant zone that the sender client runs in
-     * @param senderAppState the {@link AppState} of the sender
+     * The default implementation checks whether the version codes are identical. This is fine if
+     * all the peer clients run on the same Android instance, since PackageManager doesn't allow to
+     * install two different apps with the same package name - even for different users.
+     * However, if the peer clients run on different Android instances, and the app wants to support
+     * connection between them even if they have different versions, the app will need to override
+     * this method.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public abstract void onConnectionInitiated(@NonNull OccupantZoneInfo senderZone,
-            @AppState int senderAppState);
+    @SuppressLint("OnNameExpected")
+    public boolean isSenderCompatible(long senderVersion) {
+        assertPlatformVersionAtLeastU();
+        return mMyVersionCode == senderVersion;
+    }
+
+    /**
+     * Returns whether the signing info ({@link PackageInfo#signingInfo} of the sender app is
+     * authorized. If it is not authorized, this service will reject the connection request from
+     * the sender.
+     * <p>
+     * The default implementation simply returns {@code true}. This is fine if all the peer clients
+     * run on the same Android instance, since PackageManager doesn't allow to install two different
+     * apps with the same package name - even for different users.
+     * However, if the peer clients run on different Android instances, the app must override this
+     * method for security.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @SuppressLint("OnNameExpected")
+    public boolean isSenderAuthorized(@NonNull SigningInfo senderSigningInfo) {
+        assertPlatformVersionAtLeastU();
+        return true;
+    }
+
+    /**
+     * Invoked when the sender client in {@code senderZone} has requested a connection to this
+     * client.
+     * <p>
+     * If user confirmation is needed to establish the connection, the inheritance can override
+     * this method to launch a permission activity, and call {@link #acceptConnection} or
+     * {@link #rejectConnection} based on the result. For driving safety, the permission activity
+     * must be distraction optimized. Alternatively, the permission can be granted during device
+     * setup.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public abstract void onConnectionInitiated(@NonNull OccupantZoneInfo senderZone);
 
     /**
      * Invoked when the one-way connection has been established.
      * <p>
      * In order to establish the connection, the inheritance of this service must call
      * {@link #acceptConnection}, and the sender must NOT call {@link
-     * android.car.occupantconnection.CarOccupantConnectionManager#cancelConnection} before the
-     * connection is established.
+     * CarOccupantConnectionManager#cancelConnection} before the connection is established.
      * <p>
      * Once the connection is established, the sender can send {@link Payload} to this client.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public abstract void onConnected(@NonNull OccupantZoneInfo senderZone);
+    public void onConnected(@NonNull OccupantZoneInfo senderZone) {
+        assertPlatformVersionAtLeastU();
+    }
 
     /**
      * Invoked when the sender has canceled the pending connection request, or has become
@@ -260,18 +322,22 @@ public abstract class AbstractReceiverService extends Service {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public abstract void onConnectionCanceled(@NonNull OccupantZoneInfo senderZone);
+    public void onConnectionCanceled(@NonNull OccupantZoneInfo senderZone) {
+        assertPlatformVersionAtLeastU();
+    }
 
     /**
      * Invoked when the connection is terminated. For example, the sender on {@code senderZone}
-     * has called {@link android.car.occupantconnection.CarOccupantConnectionManager#disconnect},
-     * or the sender has become unreachable.
+     * has called {@link CarOccupantConnectionManager#disconnect}, or the sender has become
+     * unreachable.
      * <p>
      * When disconnected, the sender can no longer send {@link Payload} to this client.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public abstract void onDisconnected(@NonNull OccupantZoneInfo senderZone);
+    public void onDisconnected(@NonNull OccupantZoneInfo senderZone) {
+        assertPlatformVersionAtLeastU();
+    }
 
     /** Accepts the connection request from {@code senderZone}. */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
@@ -288,8 +354,12 @@ public abstract class AbstractReceiverService extends Service {
     /**
      * Rejects the connection request from {@code senderZone}.
      *
-     * @param rejectionReason the reason for rejection, such as user rejected, UX restricted.
-     *                        The client app is responsible for defining this value
+     * @param rejectionReason the reason for rejection. It could be a predefined value (
+     *        {@link CarOccupantConnectionManager#CONNECTION_ERROR_LONG_VERSION_NOT_MATCH},
+     *        {@link CarOccupantConnectionManager#CONNECTION_ERROR_SIGNATURE_NOT_MATCH},
+     *        {@link CarOccupantConnectionManager#CONNECTION_ERROR_USER_REJECTED}), or app-defined
+     *        value that is larger than {@link
+     *        CarOccupantConnectionManager#CONNECTION_ERROR_PREDEFINED_MAXIMUM_VALUE}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)

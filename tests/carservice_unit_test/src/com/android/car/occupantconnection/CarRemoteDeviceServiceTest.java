@@ -25,8 +25,8 @@ import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_LONG_VERSION;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_CONNECTION_READY;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.VehicleAreaSeat.SEAT_ROW_1_LEFT;
@@ -230,7 +230,7 @@ public class CarRemoteDeviceServiceTest {
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);
         mAppStateMap.put(peerClient,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
 
         // Then the peer app is uninstalled.
         Uri uri = mock(Uri.class);
@@ -254,7 +254,7 @@ public class CarRemoteDeviceServiceTest {
         peerUserInfo.receiver.onReceive(mock(Context.class), intent);
 
         assertThat(mAppStateMap.get(peerClient)).isEqualTo(
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
     }
 
     @Test
@@ -283,7 +283,7 @@ public class CarRemoteDeviceServiceTest {
         // Pretend that the peer app is installed in the beginning.
         ClientId peerClient = new ClientId(peerZone, USER_ID, PACKAGE_NAME);
         mAppStateMap.put(peerClient,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
 
         // Nothing should happen if an app with another package name is uninstalled.
         String anotherPackageName = PACKAGE_NAME + "abc";
@@ -295,7 +295,7 @@ public class CarRemoteDeviceServiceTest {
         peerUserInfo.receiver.onReceive(mock(Context.class), intent);
 
         assertThat(mAppStateMap.get(peerClient)).isEqualTo(
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
     }
 
     @Test
@@ -382,7 +382,7 @@ public class CarRemoteDeviceServiceTest {
         mockAppInstalledAsUser(USER_ID, mOccupantZone);
 
         assertThat(mService.calculateAppState(clientId)).isEqualTo(
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
     }
 
     @Test
@@ -391,7 +391,7 @@ public class CarRemoteDeviceServiceTest {
         mockAppRunningAsUser(USER_ID, PID, mOccupantZone, IMPORTANCE_CACHED);
 
         assertThat(mService.calculateAppState(clientId))
-                .isEqualTo(FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
+                .isEqualTo(FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION
                         | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING);
     }
 
@@ -401,7 +401,7 @@ public class CarRemoteDeviceServiceTest {
         mockAppRunningAsUser(USER_ID, PID, mOccupantZone, IMPORTANCE_FOREGROUND);
 
         assertThat(mService.calculateAppState(clientId))
-                .isEqualTo(FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
+                .isEqualTo(FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION
                         | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
                         | FLAG_CLIENT_IN_FOREGROUND);
     }
@@ -485,7 +485,7 @@ public class CarRemoteDeviceServiceTest {
         mService.registerStateCallback(PACKAGE_NAME, mCallback);
 
         verify(mCallback).onAppStateChanged(peerZone1,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
         verify(mCallback).onAppStateChanged(peerZone2, INITIAL_APP_STATE);
 
         verify(mCallback).onOccupantZoneStateChanged(peerZone1, FLAG_OCCUPANT_ZONE_POWER_ON);
@@ -531,7 +531,7 @@ public class CarRemoteDeviceServiceTest {
                 /* foregroundActivities= */ true);
 
         verify(mCallback).onAppStateChanged(peerZone1,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE
                         | FLAG_CLIENT_RUNNING | FLAG_CLIENT_IN_FOREGROUND);
 
         // Peer app2 is running in background.
@@ -541,7 +541,7 @@ public class CarRemoteDeviceServiceTest {
                 /* foregroundActivities= */ false);
 
         verify(mCallback).onAppStateChanged(peerZone2,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE
                         | FLAG_CLIENT_RUNNING);
 
         // Peer app1 is dead.
@@ -549,7 +549,7 @@ public class CarRemoteDeviceServiceTest {
         processObserver[0].onProcessDied(peerPid1, userIdToUid(peerUserId1));
 
         verify(mCallback).onAppStateChanged(peerZone1,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
     }
 
     @Test
@@ -582,7 +582,7 @@ public class CarRemoteDeviceServiceTest {
         processObserver[0].onProcessDied(PID, userIdToUid(peerUserId));
 
         verify(mCallback).onAppStateChanged(peerZone,
-                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
+                FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE);
     }
 
     @Test

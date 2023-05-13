@@ -50,7 +50,7 @@ final class TestReceiverService extends AbstractReceiverService {
     }
 
     @Override
-    public void onConnectionInitiated(OccupantZoneInfo senderZone, int senderAppState) {
+    public void onConnectionInitiated(OccupantZoneInfo senderZone) {
         onConnectionInitiatedInvokedRecords.add(senderZone);
     }
 
