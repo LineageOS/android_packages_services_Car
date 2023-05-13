@@ -847,7 +847,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
 
-        callback.assertRegisterCompleted();
+        callback.assertRegisterCompleted(/* timeoutMs= */ 1000);
 
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = CUSTOM_SEAT_INT_PROP_1;
