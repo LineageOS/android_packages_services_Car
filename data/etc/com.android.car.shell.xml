@@ -121,6 +121,7 @@
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_9"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_10"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_10"/>
+        <permission name="android.car.permission.MANAGE_OCCUPANT_CONNECTION" />
         <permission name="android.car.permission.MANAGE_REMOTE_DEVICE" />
     </privapp-permissions>
 </permissions>

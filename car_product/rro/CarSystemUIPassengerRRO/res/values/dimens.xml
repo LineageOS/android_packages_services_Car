@@ -25,7 +25,7 @@
     <dimen name="car_keyline_1">24dp</dimen>
     <dimen name="system_bar_button_group_padding">64dp</dimen>
     <dimen name="system_bar_icon_drawing_size">44dp</dimen>
-    <dimen name="system_bar_pill_radius">30dp</dimen>
+    <dimen name="system_bar_pill_radius">38dp</dimen>
 
     <dimen name="hvac_container_padding">16dp</dimen>
     <dimen name="hvac_temperature_bar_margin">32dp</dimen>
@@ -36,17 +36,13 @@
     <item name="hvac_min_value_celsius" format="float" type="dimen">16</item>
     <item name="hvac_max_value_celsius" format="float" type="dimen">28</item>
 
-    <dimen name="privacy_chip_horizontal_padding">@dimen/car_padding_3</dimen>
-    <dimen name="privacy_chip_width">76dp</dimen>
-    <dimen name="privacy_chip_indicator_circle_diameter">21.5dp</dimen>
-    <dimen name="privacy_chip_icon_size">12dp</dimen>
-    <dimen name="privacy_chip_indicator_outside_stroke_width">4dp</dimen>
 
     <dimen name="car_quick_controls_entry_points_icon_width">36dp</dimen>
-    <dimen name="car_quick_controls_entry_points_button_margin_top">8dp</dimen>
-    <dimen name="car_quick_controls_entry_points_button_margin_bottom">8dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_top">10dp</dimen>
+    <dimen name="car_quick_controls_entry_points_button_margin_bottom">6dp</dimen>
     <dimen name="car_quick_controls_entry_points_button_margin_start">12dp</dimen>
     <dimen name="car_quick_controls_entry_points_button_margin_end">12dp</dimen>
+    <dimen name="car_quick_controls_entry_points_clock_text_size">28sp</dimen>
     <dimen name="car_body1_size">32sp</dimen>
     <dimen name="system_bar_user_icon_drawing_size">36dp</dimen>
     <dimen name="user_icon_background_size">128dp</dimen>

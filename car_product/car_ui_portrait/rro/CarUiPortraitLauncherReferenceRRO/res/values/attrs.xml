@@ -1,4 +1,4 @@
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,5 +15,12 @@
   -->
 
 <resources>
-    <integer name="privacy_chip_animation_transition_duration">500</integer>
+    <attr name="cornerFamily" format="enum" >
+        <enum name="rounded" value="0"/>
+        <enum name="cut" value="1"/>
+    </attr>
+    <attr name="cornerSize" format="dimension|fraction" />
+    <attr name="shapeAppearanceOverlay" format="reference" />
+    <attr name="strokeColor" format="color" />
+    <attr name="strokeWidth" format="dimension" />
 </resources>

@@ -15,8 +15,11 @@
  */
 package com.android.car.audio;
 
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_ATTENUATION_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_MUTE_CHANGED;
+import static android.car.media.CarVolumeGroupEvent.EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
+
 import static com.android.car.CarLog.TAG_AUDIO;
-import static com.android.car.audio.CarVolumeEventFlag.VolumeEventFlags;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.media.AudioManagerHelper;
@@ -108,15 +111,22 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     protected void setCurrentGainIndexLocked(int gainIndex) {
         // TODO(b/260298113): wait for orthogonal mute/volume in AM to bypass check of muted state
         if (!isBlockedLocked() && getAmLastAudibleIndex() != gainIndex) {
-            setCurrentGainIndexIntLocked(gainIndex);
+            setCurrentGainIndexLocked(gainIndex, /* canChangeMuteState= */ false);
         }
         super.setCurrentGainIndexLocked(gainIndex);
     }
 
     @GuardedBy("mLock")
     @SuppressWarnings("GuardedBy")
-    private void setCurrentGainIndexIntLocked(int gainIndex) {
-        mAudioManager.setVolumeIndexForAttributes(mAudioAttributes, gainIndex, /* flags= */ 0);
+    private void setCurrentGainIndexLocked(int gainIndex, boolean canChangeMuteState) {
+        int flags = 0;
+        if (canChangeMuteState || !isUserMutedLocked()) {
+            if (VersionUtils.isPlatformVersionAtLeastU()) {
+                mAudioManager.setVolumeGroupVolumeIndex(mAmId, gainIndex, flags);
+            } else {
+                mAudioManager.setVolumeIndexForAttributes(mAudioAttributes, gainIndex, flags);
+            }
+        }
     }
 
     @Override
@@ -150,7 +160,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                 int index = getRestrictedGainForIndexLocked(getCurrentGainIndexLocked());
                 // Sync index if needed before unmuting
                 if (getAmLastAudibleIndex() != index) {
-                    setCurrentGainIndexIntLocked(index);
+                    setCurrentGainIndexLocked(index, /* canChangeMuteState= */ true);
                 }
                 // TODO(b/260298113): index 0 mutes Am Group, wait for orthogonal mute/volume in AM
                 AudioManagerHelper.adjustVolumeGroupVolume(mAudioManager, mAmId,
@@ -185,7 +195,6 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                 }
                 Slogf.i(TAG, "onAudioVolumeGroupChanged group(%s) volume change not "
                         + "permitted while blocked changes reported by Gain callback", getName());
-                returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_BLOCKED;
                 return returnedFlags;
             }
             if (!muteChanged && !lastAudibleIndexChanged && !volumeChanged) {
@@ -194,10 +203,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
             }
             // check first if need to align mute state with AudioService
             returnedFlags |= syncMuteState();
-            // If muted or volume change handled, bailing out.
-            // Otherwise update of the cache in respect of limitation, blocking or attenuation.
-            if (isUserMutedLocked()
-                    || (returnedFlags & CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE) != 0) {
+            if (returnedFlags != 0 || isUserMutedLocked()) {
                 return returnedFlags;
             }
             returnedFlags |= syncGainIndex();
@@ -206,7 +212,7 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
     }
 
     @SuppressWarnings("GuardedBy")
-    @VolumeEventFlags int syncMuteState() {
+    int syncMuteState() {
         int returnedFlags = 0;
         synchronized (mLock) {
             boolean isAmMutedByVolumeZero = mAmGroupMuted && (mAmLastAudibleGainIndex == 0);
@@ -214,13 +220,29 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
                 Slogf.i(TAG, "syncMuteState group(%s) muted(%b) synced from AudioService",
                         getName(), mAmGroupMuted);
                 super.setMuteLocked(mAmGroupMuted);
-                returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_MUTE;
+                returnedFlags |= EVENT_TYPE_MUTE_CHANGED;
+                // When unmuting, ensure not breaking restrictions
+                if (!mAmGroupMuted) {
+                    // If thermal/attenuation while muted, am reports same index before restriction
+                    if (mAmCurrentGainIndex == mCurrentGainIndex) {
+                        if (isOverLimitLocked(mAmCurrentGainIndex)) {
+                            setCurrentGainIndexLocked(mLimitedGainIndex,
+                                    /* canChangeMuteState= */ false);
+                        } else if (isAttenuatedLocked()) {
+                            setCurrentGainIndexLocked(mAttenuatedGainIndex,
+                                    /* canChangeMuteState= */ false);
+                        }
+                    } else {
+                        returnedFlags |= syncGainIndex();
+                    }
+                }
             }
             if (isAmMutedByVolumeZero) {
                 if (getCurrentGainIndex() != 0) {
                     Slogf.i(TAG, "syncMuteState group(%s) muted at 0 on AM, sync index", getName());
                     mCurrentGainIndex = 0;
-                    returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE;
+                    returnedFlags |=
+                            isFullyMutedLocked() ? 0 : EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
                 }
                 if (!isFullyMutedLocked()) {
                     applyMuteLocked(/* mute= */ false);
@@ -230,34 +252,37 @@ final class CoreAudioVolumeGroup extends CarVolumeGroup {
         return returnedFlags;
     }
 
-    @VolumeEventFlags int syncGainIndex() {
+    int syncGainIndex() {
         int returnedFlags = 0;
         synchronized (mLock) {
-            // check if a limitation or ducking is active to prevent restoring am index
+            // check if a limitation or ducking is active to prevent sync with am index
             if (isOverLimitLocked(mAmCurrentGainIndex)) {
                 Slogf.i(TAG, "syncGainIndex group(%s) index(%d) over limit(%d)", getName(),
                         mAmCurrentGainIndex,
                         mLimitedGainIndex);
+                // AM Reports an overlimitation, if not already at the limit, set index as limit.
                 if (mCurrentGainIndex != mLimitedGainIndex) {
                     mCurrentGainIndex = mLimitedGainIndex;
-                    returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE;
+                    returnedFlags |= EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
                 }
-                returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_LIMITED;
-            } else if (isAttenuatedLocked() && (mAmCurrentGainIndex != mAttenuatedGainIndex)) {
-                Slogf.i(TAG, "syncGainIndex group(%s) index(%d) reset attenuation(%d)", getName(),
-                        mAmCurrentGainIndex, mAttenuatedGainIndex);
+                // Force a volume sync on AudioManager as overlimit
+                setCurrentGainIndexLocked(mLimitedGainIndex, /* canChangeMuteState= */ false);
+            } else if (isAttenuatedLocked() && mAmCurrentGainIndex != mAttenuatedGainIndex) {
+                Slogf.i(TAG, "syncGainIndex group(%s) index(%d) reset attenuation(%d)",
+                        getName(), mAmCurrentGainIndex, mAttenuatedGainIndex);
                 // reset attenuation
                 resetAttenuationLocked();
                 // Refresh the current gain with new AudioManager index
                 mCurrentGainIndex = mAmCurrentGainIndex;
-                returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE;
-            } else if (mCurrentGainIndex != mAmCurrentGainIndex) {
+                returnedFlags |=
+                        EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED | EVENT_TYPE_ATTENUATION_CHANGED;
+            } else if (getRestrictedGainForIndexLocked(mCurrentGainIndex) != mAmCurrentGainIndex) {
                 Slogf.i(TAG, "syncGainIndex group(%s) index(%d) synced from AudioService",
                         getName(),
                         mAmCurrentGainIndex);
                 // Refresh the current gain with new AudioManager index
                 mCurrentGainIndex = mAmCurrentGainIndex;
-                returnedFlags |= CarVolumeEventFlag.FLAG_EVENT_VOLUME_CHANGE;
+                returnedFlags |= EVENT_TYPE_VOLUME_GAIN_INDEX_CHANGED;
             } else {
                 Slogf.i(TAG, "syncGainIndex group(%s) index(%d) ack from AudioService", getName(),
                         mAmCurrentGainIndex);
