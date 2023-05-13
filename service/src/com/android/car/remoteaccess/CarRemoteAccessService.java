@@ -111,6 +111,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     // The buffer time after all the tasks for a specific remote task client service is completed
     // before we unbind the service.
     private static final int TASK_UNBIND_DELAY_MS = 1000;
+    // The max time in ms allowed for a task after it is received by the car service, before the
+    // remote task client service is started and it is delivered to that service. This period will
+    // include waiting for the remote task client service to be started if it is not already bound.
+    private static final int MAX_TASK_PENDING_MS = 60_000;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -122,6 +126,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private long mAllowedTimeForRemoteTaskClientInitMs =
             ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS;
     private long mTaskUnbindDelayMs = TASK_UNBIND_DELAY_MS;
+    private long mMaxTaskPendingMs = MAX_TASK_PENDING_MS;
     private final AtomicLong mTaskCount = new AtomicLong(/* initialValue= */ 0);
     private final AtomicLong mClientCount = new AtomicLong(/* initialValue= */ 0);
     @GuardedBy("mLock")
@@ -283,8 +288,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             if (DEBUG) {
                 Slogf.d(TAG, "Remote task is requested through the HAL to client(%s)", clientId);
             }
+            String taskId = generateNewTaskId();
+            long now = SystemClock.uptimeMillis();
+            long timeoutInMs = now + mMaxTaskPendingMs;
             synchronized (mLock) {
-                pushTaskToPendingQueueLocked(clientId, new RemoteTask(generateNewTaskId(), data));
+                pushTaskToPendingQueueLocked(clientId, new RemoteTask(taskId, data, clientId,
+                        timeoutInMs));
             }
             maybeStartNewRemoteTask(clientId);
         }
@@ -383,6 +392,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         mTaskUnbindDelayMs = taskUnbindDelayMs;
     }
 
+    @VisibleForTesting
+    public void setMaxTaskPendingMs(long maxTaskPendingMs) {
+        mMaxTaskPendingMs = maxTaskPendingMs;
+    }
+
     @Override
     public void init() {
         mPowerService = CarLocalServices.getService(CarPowerManagementService.class);
@@ -445,6 +459,18 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             printMap(writer, mClientServiceInfoByUid);
             writer.println("mUidAByName:");
             printMap(writer, mUidByName);
+            writer.println("mTasksToBeNotifiedByClientId");
+            writer.increaseIndent();
+            for (int i = 0; i < mTasksToBeNotifiedByClientId.size(); i++) {
+                String clientId = mTasksToBeNotifiedByClientId.keyAt(i);
+                List<String> taskIds = new ArrayList<>();
+                List<RemoteTask> tasks = mTasksToBeNotifiedByClientId.valueAt(i);
+                for (int j = 0; j < tasks.size(); j++) {
+                    taskIds.add(tasks.get(j).id);
+                }
+                writer.printf("%d: %s ==> %s\n", i, clientId, taskIds);
+            }
+            writer.decreaseIndent();
             writer.println("active task count by Uid:");
             writer.increaseIndent();
             for (int i = 0; i < mClientServiceInfoByUid.size(); i++) {
@@ -456,6 +482,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 }
                 writer.printf("%d: %s ==> %d\n", i, uidName, count);
             }
+            writer.decreaseIndent();
         }
     }
 
@@ -1033,18 +1060,50 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
 
     @GuardedBy("mLock")
     private void pushTaskToPendingQueueLocked(String clientId, RemoteTask task) {
+        if (DEBUG) {
+            Slogf.d(TAG, "received a new remote task: %s", task);
+        }
+
         ArrayList remoteTasks = mTasksToBeNotifiedByClientId.get(clientId);
         if (remoteTasks == null) {
             remoteTasks = new ArrayList<RemoteTask>();
             mTasksToBeNotifiedByClientId.put(clientId, remoteTasks);
         }
         remoteTasks.add(task);
+        mHandler.postPendingTaskTimeout(task, task.timeoutInMs);
+    }
+
+    private void onPendingTaskTimeout(RemoteTask task) {
+        long now = SystemClock.uptimeMillis();
+        Slogf.w(TAG, "Pending task: %s timeout at %d", task, now);
+        synchronized (mLock) {
+            List<RemoteTask> pendingTasks = mTasksToBeNotifiedByClientId.get(task.clientId);
+            if (pendingTasks == null) {
+                // The task is already delivered. Do nothing.
+                return;
+            }
+            pendingTasks.remove(task);
+        }
     }
 
     @GuardedBy("mLock")
     @Nullable
     private List<RemoteTask> popTasksFromPendingQueueLocked(String clientId) {
-        return mTasksToBeNotifiedByClientId.remove(clientId);
+        if (DEBUG) {
+            Slogf.d(TAG, "Pop pending remote tasks from queue for client ID: %s", clientId);
+        }
+        List<RemoteTask> pendingTasks = mTasksToBeNotifiedByClientId.get(clientId);
+        if (pendingTasks == null) {
+            return null;
+        }
+        mTasksToBeNotifiedByClientId.remove(clientId);
+        for (int i = 0; i < pendingTasks.size(); i++) {
+            if (DEBUG) {
+                Slogf.d(TAG, "Prepare to deliver remote task: %s", pendingTasks.get(i));
+            }
+            mHandler.cancelPendingTaskTimeout(pendingTasks.get(i));
+        }
+        return pendingTasks;
     }
 
     private String generateNewTaskId() {
@@ -1108,12 +1167,30 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     }
 
     private static final class RemoteTask {
-        public String id;
-        public byte[] data;
+        public final String id;
+        public final byte[] data;
+        public final String clientId;
+        public final long timeoutInMs;
 
-        private RemoteTask(String id, byte[] data) {
+        private RemoteTask(String id, byte[] data, String clientId, long timeoutInMs) {
             this.id = id;
             this.data = data;
+            this.clientId = clientId;
+            this.timeoutInMs = timeoutInMs;
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder()
+                    .append("RemoteTask[")
+                    .append("taskId=")
+                    .append(id)
+                    .append("clientId=")
+                    .append(clientId)
+                    .append("timeoutInMs=")
+                    .append(timeoutInMs)
+                    .append("]")
+                    .toString();
         }
     }
 
@@ -1473,6 +1550,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         private static final int MSG_NOTIFY_SHUTDOWN_STARTING = 3;
         private static final int MSG_NOTIFY_AP_STATE_CHANGE = 4;
         private static final int MSG_MAYBE_SHUTDOWN = 5;
+        private static final int MSG_PENDING_TASK_TIMEOUT = 6;
 
         // Lock to synchronize remove messages and add messages.
         private final Object mHandlerLock = new Object();
@@ -1525,6 +1603,11 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             }
         }
 
+        private void postPendingTaskTimeout(RemoteTask task, long msgTimeMs) {
+            Message msg = obtainMessage(MSG_PENDING_TASK_TIMEOUT, task);
+            sendMessageAtTime(msg, msgTimeMs);
+        }
+
         private void cancelServiceTimeout(int uid) {
             removeMessages(MSG_SERVICE_TIMEOUT, uid);
         }
@@ -1549,12 +1632,21 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             removeMessages(MSG_MAYBE_SHUTDOWN);
         }
 
+        private void cancelPendingTaskTimeout(RemoteTask task) {
+            removeMessages(MSG_PENDING_TASK_TIMEOUT, task);
+        }
+
+        private void cancelAllPendingTaskTimeout() {
+            removeMessages(MSG_PENDING_TASK_TIMEOUT);
+        }
+
         private void cancelAll() {
             cancelAllServiceTimeout();
             cancelNotifyShutdownStarting();
             cancelWrapUpRemoteAccessService();
             cancelNotifyApStateChange();
             cancelMaybeShutdown();
+            cancelAllPendingTaskTimeout();
         }
 
         @Override
@@ -1579,6 +1671,9 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                     break;
                 case MSG_MAYBE_SHUTDOWN:
                     service.shutdownIfNeeded(/* force= */ false);
+                    break;
+                case MSG_PENDING_TASK_TIMEOUT:
+                    service.onPendingTaskTimeout((RemoteTask) msg.obj);
                     break;
                 default:
                     Slogf.w(TAG, "Unknown(%d) message", msg.what);
