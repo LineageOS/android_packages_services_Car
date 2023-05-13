@@ -168,6 +168,7 @@ public interface DisplayInterface {
                 new ContentObserver(new Handler(Looper.getMainLooper())) {
                     @Override
                     public void onChange(boolean selfChange) {
+                        Slogf.i(TAG, "Brightness change from Settings: selfChange=%b", selfChange);
                         refreshDisplayBrightness();
                     }
                 };
@@ -253,6 +254,8 @@ public interface DisplayInterface {
                     DisplayManagerHelper.getBrightness(mContext, displayId));
             int gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
             int percentBright = convertGammaToPercentBright(gamma);
+            Slogf.i(TAG, "Refreshing percent brightness(from display %d) to %d", displayId,
+                    percentBright);
             carPowerManagementService.sendDisplayBrightness(displayId, percentBright);
         }
 
@@ -267,6 +270,7 @@ public interface DisplayInterface {
                 Slogf.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
             }
             int percentBright = convertGammaToPercentBright(gamma);
+            Slogf.i(TAG, "Refreshing percent brightness(from Setting) to %d", percentBright);
             carPowerManagementService.sendDisplayBrightness(percentBright);
         }
 
