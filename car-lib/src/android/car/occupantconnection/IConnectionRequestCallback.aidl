@@ -23,9 +23,6 @@ oneway interface IConnectionRequestCallback {
 
     void onConnected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone);
 
-    void onRejected(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
-        int rejectionReason);
-
     void onFailed(in CarOccupantZoneManager.OccupantZoneInfo receiverZone,
         int connectionError);
 

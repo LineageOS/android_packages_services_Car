@@ -19,6 +19,7 @@
         <item name="android:layout_height">75dp</item>
         <item name="android:layout_width">75dp</item>
         <item name="android:layout_marginEnd">30dp</item>
+        <item name="unselectedAlpha">0.46</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 
@@ -32,7 +33,7 @@
 
     <style name="TextAppearance.SystemBar.ClockWithSelection"
         parent="@*android:style/TextAppearance.StatusBar.Icon">
-        <item name="android:textSize">@dimen/car_body1_size</item>
+        <item name="android:textSize">@dimen/car_quick_controls_entry_points_clock_text_size</item>
         <item name="android:textColor">@color/system_bar_text_color_with_selection</item>
     </style>
 
@@ -42,6 +43,7 @@
         <item name="android:padding">@dimen/system_bar_button_padding</item>
         <item name="android:layout_marginEnd">30dp</item>
         <item name="android:gravity">center</item>
+        <item name="unselectedAlpha">0.46</item>
         <item name="android:background">?android:attr/selectableItemBackground</item>
     </style>
 </resources>

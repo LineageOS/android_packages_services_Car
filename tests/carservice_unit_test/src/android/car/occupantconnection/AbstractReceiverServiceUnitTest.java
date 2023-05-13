@@ -26,6 +26,7 @@ import static org.mockito.Mockito.when;
 
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.content.Intent;
+import android.content.pm.SigningInfo;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Pair;
@@ -113,7 +114,8 @@ public final class AbstractReceiverServiceUnitTest {
 
     @Test
     public void testOnConnectionInitiated() throws RemoteException {
-        mBackendReceiver.onConnectionInitiated(mSenderZone, /* senderAppState= */ 0);
+        mBackendReceiver.onConnectionInitiated(mSenderZone, /* senderVersion= */ 0,
+                mock(SigningInfo.class));
 
         assertThat(mService.onConnectionInitiatedInvokedRecords.contains(mSenderZone)).isTrue();
     }

@@ -24,10 +24,9 @@
     <item target="id/notifications" value="@id/notifications" />
     <item target="string/system_bar_notifications_label" value="@string/system_bar_notifications_label"/>
     <item target="drawable/car_ic_notification" value="@drawable/car_ic_notification" />
-    <item target="string/config_notificationPanelViewMediator" value="com.android.systemui.car.notification.BottomNotificationPanelViewMediator"/>
-
     <item target="attr/icon" value="@attr/icon"/>
     <item target="attr/selectedIcon" value="@attr/selectedIcon"/>
+    <item target="attr/unselectedAlpha" value="@attr/unselectedAlpha"/>
     <item target="attr/intent" value="@attr/intent"/>
     <item target="attr/longIntent" value="@attr/longIntent"/>
     <item target="attr/componentNames" value="@attr/componentNames"/>
@@ -69,61 +68,6 @@
     <item target="dimen/system_bar_button_padding" value="@dimen/system_bar_button_padding"/>
     <item target="style/ControlCenterSystemBarButton" value="@style/ControlCenterSystemBarButton"/>
 
-    <item target="id/mic_privacy_chip" value="@id/mic_privacy_chip"/>
-    <item target="id/camera_privacy_chip" value="@id/camera_privacy_chip"/>
-    <item target="id/sensorOffFromInvisible" value="@id/sensorOffFromInvisible"/>
-    <item target="id/sensorOffSelectedFromInvisible" value="@id/sensorOffSelectedFromInvisible"/>
-    <item target="id/activeInitFromInvisible" value="@id/activeInitFromInvisible"/>
-    <item target="id/sensorOffFromActiveInit" value="@id/sensorOffFromActiveInit"/>
-    <item target="id/sensorOffSelectedFromActiveInit" value="@id/sensorOffSelectedFromActiveInit"/>
-    <item target="id/activeInitFromInactive" value="@id/activeInitFromInactive"/>
-    <item target="id/activeInitFromInactiveSelected" value="@id/activeInitFromInactiveSelected"/>
-    <item target="id/activeFromActiveInit" value="@id/activeFromActiveInit"/>
-    <item target="id/activeSelectedFromActiveInit" value="@id/activeSelectedFromActiveInit"/>
-    <item target="id/activeSelectedFromActive" value="@id/activeSelectedFromActive"/>
-    <item target="id/sensorOffFromActive" value="@id/sensorOffFromActive"/>
-    <item target="id/sensorOffSelectedFromActive" value="@id/sensorOffSelectedFromActive"/>
-    <item target="id/sensorOffFromActiveSelected" value="@id/sensorOffFromActiveSelected"/>
-    <item target="id/sensorOffSelectedFromActiveSelected" value="@id/sensorOffSelectedFromActiveSelected"/>
-    <item target="id/invisibleFromInactive" value="@id/invisibleFromInactive"/>
-    <item target="id/invisibleFromInactiveSelected" value="@id/invisibleFromInactiveSelected"/>
-    <item target="id/sensorOffFromInactive" value="@id/sensorOffFromInactive"/>
-    <item target="id/sensorOffFromInactiveSelected" value="@id/sensorOffFromInactiveSelected"/>
-    <item target="id/sensorOffSelectedFromInactive" value="@id/sensorOffSelectedFromInactive"/>
-    <item target="id/sensorOffSelectedFromInactiveSelected" value="@id/sensorOffSelectedFromInactiveSelected"/>
-    <item target="id/sensorOffSelectedFromSensorOff" value="@id/sensorOffSelectedFromSensorOff"/>
-    <item target="id/sensorOffFromSensorOffSelected" value="@id/sensorOffFromSensorOffSelected"/>
-    <item target="id/invisibleFromSensorOff" value="@id/invisibleFromSensorOff"/>
-    <item target="id/inactiveFromActive" value="@id/inactiveFromActive"/>
-    <item target="id/inactiveSelectedFromActive" value="@id/inactiveSelectedFromActive"/>
-    <item target="id/inactiveFromActiveSelected" value="@id/inactiveFromActiveSelected"/>
-    <item target="id/activeFromActiveSelected" value="@id/activeFromActiveSelected"/>
-    <item target="id/inactiveSelectedFromInactive" value="@id/inactiveSelectedFromInactive"/>
-    <item target="id/inactiveSelectedFromActiveSelected" value="@id/inactiveSelectedFromActiveSelected"/>
-    <item target="id/activeInitFromSensorOff" value="@id/activeInitFromSensorOff"/>
-    <item target="id/activeInitFromSensorOffSelected" value="@id/activeInitFromSensorOffSelected"/>
-    <item target="id/inactiveSelectedFromSensorOffSelected" value="@id/inactiveSelectedFromSensorOffSelected"/>
-    <item target="id/inactiveFromActiveInit" value="@id/inactiveFromActiveInit"/>
-    <item target="id/inactiveSelectedFromActiveInit" value="@id/inactiveSelectedFromActiveInit"/>
-    <item target="id/invisible" value="@id/invisible"/>
-    <item target="id/active_init" value="@id/active_init"/>
-    <item target="id/active" value="@id/active"/>
-    <item target="id/active_selected" value="@id/active_selected"/>
-    <item target="id/inactive" value="@id/inactive"/>
-    <item target="id/inactive_selected" value="@id/inactive_selected"/>
-    <item target="id/sensor_off" value="@id/sensor_off"/>
-    <item target="id/sensor_off_selected" value="@id/sensor_off_selected"/>
-    <item target="id/max_width_guideline" value="@id/max_width_guideline"/>
-    <item target="id/inactive_background" value="@id/inactive_background"/>
-    <item target="id/inactive_selected_background" value="@id/inactive_selected_background"/>
-    <item target="id/circular_active_indicator_vertical_guideline" value="@id/circular_active_indicator_vertical_guideline"/>
-    <item target="id/circular_active_indicator_horizontal_guideline" value="@id/circular_active_indicator_horizontal_guideline"/>
-    <item target="id/active_background" value="@id/active_background"/>
-    <item target="id/light_muted_icon" value="@id/light_muted_icon"/>
-    <item target="id/dark_muted_icon" value="@id/dark_muted_icon"/>
-    <item target="id/light_icon" value="@id/light_icon"/>
-    <item target="id/dark_icon" value="@id/dark_icon"/>
-    <item target="id/focus_view" value="@id/focus_view"/>
 
     <!-- Passenger QuickControls related fields -->
     <item target="color/system_bar_icon_selected_color" value="@color/system_bar_icon_selected_color"/>

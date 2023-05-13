@@ -153,7 +153,7 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
 
         CarServiceUtils.stopSystemUiForUser(mMockContext, userId);
 
-        verify(mockActivityManager).forceStopPackageAsUser("test.systemui", userId);
+        verify(mockActivityManager).forceStopPackageAsUserEvenWhenStopping("test.systemui", userId);
     }
 
     @Test

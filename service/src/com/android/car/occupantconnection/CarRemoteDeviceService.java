@@ -21,8 +21,8 @@ import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
+import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_LONG_VERSION;
 import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_CONNECTION_READY;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_POWER_ON;
 import static android.car.CarRemoteDeviceManager.FLAG_OCCUPANT_ZONE_SCREEN_UNLOCKED;
@@ -106,7 +106,7 @@ import java.util.Set;
  * There are 5 {@link AppState}s:
  * <ul>
  *   <li> App install states ({@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_INSTALLED},
- *        {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_VERSION},
+ *        {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_LONG_VERSION},
  *        {@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_SAME_SIGNATURE}) are updated by the
  *        PackageChangeReceiver.
  *   <li> App running states ({@link android.car.CarRemoteDeviceManager#FLAG_CLIENT_RUNNING},
@@ -397,9 +397,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                     + "user assigned", packageName, occupantZoneId);
             return null;
         }
-        synchronized (mLock) {
-            return getPackageInfoAsUserLocked(packageName, userId, GET_SIGNING_CERTIFICATES);
-        }
+        return getPackageInfoAsUser(packageName, userId);
     }
 
     @Override
@@ -722,7 +720,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                 try {
                     callback.onOccupantZoneStateChanged(occupantZone, newState);
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to notify %s of OccupantZoneState change",
+                    Slogf.e(TAG, e, "Failed to notify %s of OccupantZoneState change",
                             discoveringClient);
                 }
             }
@@ -930,7 +928,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
                 try {
                     callback.onAppStateChanged(discoveredClient.occupantZone, newState);
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to notify %d of AppState change", discoveringClient);
+                    Slogf.e(TAG, e, "Failed to notify %d of AppState change", discoveringClient);
                 }
             }
         }
@@ -945,7 +943,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             // In single-SoC model, the peer client is guaranteed to have the same
             // signing info and long version code.
             // TODO(b/257118327): support multiple-SoC.
-            appState |= FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE;
+            appState |= FLAG_CLIENT_SAME_LONG_VERSION | FLAG_CLIENT_SAME_SIGNATURE;
 
             RunningAppProcessInfo info =
                     getRunningAppProcessInfoAsUserLocked(clientId.packageName, clientId.userId);
@@ -984,6 +982,12 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     @GuardedBy("mLock")
     private boolean isAppInstalledAsUserLocked(String packageName, int userId) {
         return getPackageInfoAsUserLocked(packageName, userId, /* flags= */ 0) != null;
+    }
+
+    PackageInfo getPackageInfoAsUser(String packageName, int userId) {
+        synchronized (mLock) {
+            return getPackageInfoAsUserLocked(packageName, userId, GET_SIGNING_CERTIFICATES);
+        }
     }
 
     @GuardedBy("mLock")
@@ -1071,14 +1075,15 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
         // TODO(b/257118327): support multiple-SoC.
         switch (state) {
             case PROCESS_RUNNING_IN_BACKGROUND:
-                return FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE
-                        | FLAG_CLIENT_RUNNING;
+                return FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION
+                        | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING;
             case PROCESS_RUNNING_IN_FOREGROUND:
-                return FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION | FLAG_CLIENT_SAME_SIGNATURE
-                        | FLAG_CLIENT_RUNNING | FLAG_CLIENT_IN_FOREGROUND;
+                return FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION
+                        | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
+                        | FLAG_CLIENT_IN_FOREGROUND;
             case PROCESS_NOT_RUNNING:
                 return isAppInstalledAsUserLocked(packageName, userId)
-                        ? FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
+                        ? FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_LONG_VERSION
                         | FLAG_CLIENT_SAME_SIGNATURE
                         : INITIAL_APP_STATE;
 
@@ -1117,7 +1122,7 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
     private static String appStateToString(@AppState int state) {
         boolean installed = (state & FLAG_CLIENT_INSTALLED) != 0;
-        boolean sameVersion = (state & FLAG_CLIENT_SAME_VERSION) != 0;
+        boolean sameVersion = (state & FLAG_CLIENT_SAME_LONG_VERSION) != 0;
         boolean sameSignature = (state & FLAG_CLIENT_SAME_SIGNATURE) != 0;
         boolean running = (state & FLAG_CLIENT_RUNNING) != 0;
         boolean inForeground = (state & FLAG_CLIENT_IN_FOREGROUND) != 0;

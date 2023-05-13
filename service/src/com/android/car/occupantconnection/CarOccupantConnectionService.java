@@ -18,11 +18,6 @@ package com.android.car.occupantconnection;
 
 import static android.car.Car.CAR_INTENT_ACTION_RECEIVER_SERVICE;
 import static android.car.CarOccupantZoneManager.INVALID_USER_ID;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_INSTALLED;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_IN_FOREGROUND;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_RUNNING;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_SIGNATURE;
-import static android.car.CarRemoteDeviceManager.FLAG_CLIENT_SAME_VERSION;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_NONE;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_NOT_READY;
 import static android.car.occupantconnection.CarOccupantConnectionManager.CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
@@ -37,7 +32,6 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.builtin.util.Slogf;
-import android.car.occupantconnection.CarOccupantConnectionManager.ConnectionError;
 import android.car.occupantconnection.IBackendConnectionResponder;
 import android.car.occupantconnection.IBackendReceiver;
 import android.car.occupantconnection.ICarOccupantConnection;
@@ -56,7 +50,6 @@ import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 
-import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -83,6 +76,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
 
     private static final int NOTIFY_ON_DISCONNECT = 1;
     private static final int NOTIFY_ON_FAILED = 2;
+
     @IntDef(flag = false, prefix = {"NOTIFY_ON_"}, value = {
             NOTIFY_ON_DISCONNECT,
             NOTIFY_ON_FAILED
@@ -94,6 +88,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     private final Context mContext;
     private final Object mLock = new Object();
     private final CarOccupantZoneService mOccupantZoneService;
+    private final CarRemoteDeviceService mRemoteDeviceService;
 
     /**
      * A set of receiver services that this service has requested to bind but has not connected
@@ -238,7 +233,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                                     senderZone.zoneId,
                                     receiverClient.occupantZone.zoneId));
                         } catch (RemoteException e) {
-                            Slogf.e(TAG, "Failed to notify connection success", e);
+                            Slogf.e(TAG, e, "Failed to notify connection success");
                         }
                     }
                 }
@@ -254,10 +249,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                         try {
                             // Only the sender needs to be notified for connection rejection
                             // since the connection was rejected by the receiver.
-                            callback.onRejected(receiverClient.occupantZone, rejectionReason);
+                            callback.onFailed(receiverClient.occupantZone, rejectionReason);
                         } catch (RemoteException e) {
-                            Slogf.e(TAG, "Failed to notify the sender for connection"
-                                    + " rejection", e);
+                            Slogf.e(TAG, e, "Failed to notify the sender for connection"
+                                    + " rejection");
                         }
                     }
                 }
@@ -271,7 +266,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             try {
                 mReceiverService.registerBackendConnectionResponder(mResponder);
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to register IBackendConnectionResponder", e);
+                Slogf.e(TAG, e, "Failed to register IBackendConnectionResponder");
             }
 
             synchronized (mLock) {
@@ -330,10 +325,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         }
     }
 
-    public CarOccupantConnectionService(Context context,
-            CarOccupantZoneService occupantZoneService) {
-        this(context,
-                occupantZoneService,
+    public CarOccupantConnectionService(Context context, CarOccupantZoneService occupantZoneService,
+            CarRemoteDeviceService remoteDeviceService) {
+        this(context, occupantZoneService, remoteDeviceService,
                 /* connectingReceiverServices= */ new ArraySet<>(),
                 /* connectedReceiverServiceMap= */ new BinderKeyValueContainer<>(),
                 /* receiverServiceConnectionMap= */ new ArrayMap<>(),
@@ -347,6 +341,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
     @VisibleForTesting
     CarOccupantConnectionService(Context context,
             CarOccupantZoneService occupantZoneService,
+            CarRemoteDeviceService remoteDeviceService,
             ArraySet<ClientId> connectingReceiverServices,
             BinderKeyValueContainer<ClientId, IBackendReceiver> connectedReceiverServiceMap,
             ArrayMap<ClientId, ServiceConnection> receiverServiceConnectionMap,
@@ -361,6 +356,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             ArraySet<ConnectionRecord> establishedConnections) {
         mContext = context;
         mOccupantZoneService = occupantZoneService;
+        mRemoteDeviceService = remoteDeviceService;
         mConnectingReceiverServices = connectingReceiverServices;
         mConnectedReceiverServiceMap = connectedReceiverServiceMap;
         mReceiverServiceConnectionMap = receiverServiceConnectionMap;
@@ -491,7 +487,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 mRegisteredReceiverEndpointMap.remove(receiverEndpoint);
                 maybeUnbindReceiverServiceLocked(receiverClient);
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed the unregister the receiver " + receiverEndpoint + e);
+                Slogf.e(TAG, e, "Failed the unregister the receiver %s", receiverEndpoint);
             }
         }
     }
@@ -502,19 +498,40 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         assertPermission(mContext, Car.PERMISSION_MANAGE_OCCUPANT_CONNECTION);
         checkCalledByPackage(mContext, packageName);
 
+        int connectionError = CONNECTION_ERROR_NONE;
         ClientId senderClient = getCallingClientId(packageName);
-        int connectionError = calculateConnectionError(receiverZone, packageName);
+        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
+        // Note: don't call mRemoteDeviceService.getEndpointPackageInfo() because it requires
+        // PERMISSION_MANAGE_REMOTE_DEVICE.
+        PackageInfo senderInfo =
+                mRemoteDeviceService.getPackageInfoAsUser(packageName, senderClient.userId);
+        if (senderInfo == null) {
+            // This should not happen, but let's be cautious.
+            Slogf.e(TAG, "Failed to get the PackageInfo of the sender %s", senderClient);
+            connectionError = CONNECTION_ERROR_UNKNOWN;
+        } else if (!mRemoteDeviceService.isConnectionReady(receiverZone)) {
+            Slogf.e(TAG, "%s is not ready for connection", receiverZone);
+            connectionError = CONNECTION_ERROR_NOT_READY;
+        } else {
+            PackageInfo receiverInfo = receiverClient == null
+                    ? null
+                    : mRemoteDeviceService.getPackageInfoAsUser(packageName, receiverClient.userId);
+            if (receiverInfo == null) {
+                Slogf.e(TAG, "Peer app %s is not installed in %s", packageName, receiverZone);
+                connectionError = CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
+            }
+        }
+
         if (connectionError != CONNECTION_ERROR_NONE) {
             try {
                 callback.onFailed(receiverZone, connectionError);
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to notify the sender %s of connection failure %s",
-                        senderClient, e);
+                Slogf.e(TAG, e, "Failed to notify the sender %s of connection failure %d",
+                        senderClient, connectionError);
             }
             return;
         }
 
-        ClientId receiverClient = getClientIdInOccupantZone(receiverZone, packageName);
         ConnectionId connectionId = new ConnectionId(senderClient, receiverClient);
         synchronized (mLock) {
             assertNoDuplicateConnectionRequestLocked(connectionId);
@@ -528,19 +545,10 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             IBackendReceiver receiverService = mConnectedReceiverServiceMap.get(receiverClient);
             if (receiverService != null) {
                 try {
-                    // Since the sender client is requesting connection, it must be running in the
-                    // foreground.
-                    // TODO(b/257118072): maybe we should evaluate it before setting
-                    //  FLAG_CLIENT_IN_FOREGROUND.
-                    // In single-SoC model, the sender client is guaranteed to have the same
-                    // signing info and long version code.
-                    // TODO(b/257118327): support multiple-SoC.
                     receiverService.onConnectionInitiated(senderClient.occupantZone,
-                            FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
-                                    | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
-                                    | FLAG_CLIENT_IN_FOREGROUND);
+                            senderInfo.getLongVersionCode(), senderInfo.signingInfo);
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to notify the receiver for connection request", e);
+                    Slogf.e(TAG, e, "Failed to notify the receiver for connection request");
                 }
                 return;
             }
@@ -642,7 +650,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                 mPreregisteredReceiverEndpointMap.removeAt(i);
                 mRegisteredReceiverEndpointMap.put(receiverEndpoint, callback);
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to register receiver", e);
+                Slogf.e(TAG, e, "Failed to register receiver");
             }
         }
     }
@@ -698,7 +706,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             receiverService.registerReceiver(receiverEndpoint.endpointId, callback);
             mRegisteredReceiverEndpointMap.put(receiverEndpoint, callback);
         } catch (RemoteException e) {
-            Slogf.e(TAG, "Failed to register receiver", e);
+            Slogf.e(TAG, e, "Failed to register receiver");
         }
     }
 
@@ -830,7 +838,7 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
                                 + callbackType);
                 }
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to notify the sender for connection failure", e);
+                Slogf.e(TAG, e, "Failed to notify the sender for connection failure");
             }
             connectionRequestMap.removeAt(i);
         }
@@ -884,19 +892,32 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             // not been notified of the request before, notify the receiver service now.
             if (connectionId.receiverClient.equals(receiverClient)
                     && !notifiedSenderClients.contains(connectionId.senderClient)) {
+                // Note: don't call mRemoteDeviceService.getEndpointPackageInfo() because
+                // sendCachedConnectionRequestLocked() is called on the main thread instead of the
+                // binder thread, so the calling UID check in
+                // mRemoteDeviceService.getEndpointPackageInfo() will fail.
+                PackageInfo senderInfo = mRemoteDeviceService.getPackageInfoAsUser(
+                        connectionId.senderClient.packageName,
+                        connectionId.senderClient.userId);
+                if (senderInfo == null) {
+                    // This should not happen, but let's be cautious.
+                    Slogf.e(TAG, "Failed to get the PackageInfo of the sender %s",
+                            connectionId.senderClient);
+                    IConnectionRequestCallback callback = mPendingConnectionRequestMap.valueAt(i);
+                    try {
+                        callback.onFailed(receiverClient.occupantZone, CONNECTION_ERROR_UNKNOWN);
+                    } catch (RemoteException e) {
+                        Slogf.e(TAG, e, "Failed to notify the sender %s of connection failure",
+                                connectionId.senderClient);
+                    }
+                    return;
+                }
                 try {
-                    // Since the sender client is requesting connection, it must be running in the
-                    // foreground.
-                    // In single-SoC model, the sender client is guaranteed to have the same
-                    // signing info and long version code.
-                    // TODO(b/257118327): support multiple-SoC.
                     receiverService.onConnectionInitiated(connectionId.senderClient.occupantZone,
-                            FLAG_CLIENT_INSTALLED | FLAG_CLIENT_SAME_VERSION
-                                    | FLAG_CLIENT_SAME_SIGNATURE | FLAG_CLIENT_RUNNING
-                                    | FLAG_CLIENT_IN_FOREGROUND);
+                            senderInfo.getLongVersionCode(), senderInfo.signingInfo);
                     notifiedSenderClients.add(connectionId.senderClient);
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to notify the receiver for connection request", e);
+                    Slogf.e(TAG, e, "Failed to notify the receiver for connection request");
                 }
             }
         }
@@ -930,9 +951,9 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
         } catch (RemoteException e) {
             // There is no need to propagate the Exception to the sender client because
             // the connection was terminated successfully anyway.
-            Slogf.e(TAG, "Failed to notify the receiver service of disconnection! "
+            Slogf.e(TAG, e, "Failed to notify the receiver service of disconnection! "
                             + "senderClient:%s, receiverClient:%s", staleConnection.senderClient,
-                    staleConnection.receiverClient, e);
+                    staleConnection.receiverClient);
         }
 
         maybeUnbindReceiverServiceLocked(staleConnection.receiverClient);
@@ -954,34 +975,13 @@ public class CarOccupantConnectionService extends ICarOccupantConnection.Stub im
             } catch (RemoteException e) {
                 // There is no need to propagate the Exception to the sender client because
                 // the connection was canceled successfully anyway.
-                Slogf.e(TAG, "Failed to notify the receiver service of connection request"
+                Slogf.e(TAG, e, "Failed to notify the receiver service of connection request"
                                 + " cancellation! senderClient:%s, receiverClient:%s",
-                        connectionToCancel.senderClient, connectionToCancel.receiverClient, e);
+                        connectionToCancel.senderClient, connectionToCancel.receiverClient);
             }
         }
         // The receiverService may be bound already, or being bound. In either case, it needs to be
         // unbound if it is not needed any more.
         maybeUnbindReceiverServiceLocked(connectionToCancel.receiverClient);
-    }
-
-    @ConnectionError
-    private static int calculateConnectionError(OccupantZoneInfo receiverZone, String packageName) {
-        CarRemoteDeviceService remoteDeviceService =
-                CarLocalServices.getService(CarRemoteDeviceService.class);
-        if (remoteDeviceService == null) {
-            Slogf.e(TAG, "CarRemoteDeviceService is not available on this device");
-            return CONNECTION_ERROR_UNKNOWN;
-        }
-        if (!remoteDeviceService.isConnectionReady(receiverZone)) {
-            Slogf.e(TAG, "%s is not ready for connection", receiverZone);
-            return CONNECTION_ERROR_NOT_READY;
-        }
-        PackageInfo receiverInfo =
-                remoteDeviceService.getEndpointPackageInfo(receiverZone.zoneId, packageName);
-        if (receiverInfo == null) {
-            Slogf.e(TAG, "Peer app %s is not installed in %s", packageName, receiverZone);
-            return CONNECTION_ERROR_PEER_APP_NOT_INSTALLED;
-        }
-        return CONNECTION_ERROR_NONE;
     }
 }

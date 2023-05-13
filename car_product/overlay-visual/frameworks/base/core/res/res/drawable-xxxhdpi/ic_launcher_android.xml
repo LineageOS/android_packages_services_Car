@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2023 The Android Open Source Project
   ~
@@ -14,15 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt">
-    <item>
-        <aapt:attr name="android:drawable">
-            <shape android:shape="rectangle">
-                <solid android:color="@color/status_icon_selected_button_color"/>
-                <corners android:radius="@dimen/system_bar_pill_radius"/>
-            </shape>
-        </aapt:attr>
-    </item>
-</layer-list>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@color/ic_launcher_android_background"/>
+    <foreground android:drawable="@drawable/ic_launcher_android_foreground"/>
+</adaptive-icon>
