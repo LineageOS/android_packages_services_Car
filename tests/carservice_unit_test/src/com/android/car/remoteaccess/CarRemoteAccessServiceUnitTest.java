@@ -450,6 +450,45 @@ public final class CarRemoteAccessServiceUnitTest {
     }
 
     @Test
+    public void testRemoveCarRemoteTaskClient_removeActiveTasks() throws Exception {
+        // Only use one package.
+        mockPackageInfo(1);
+        mService.init();
+        mService.setTaskUnbindDelayMs(100);
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
+
+        String clientId = mRemoteAccessCallback.getClientId();
+        byte[] data = new byte[]{1, 2, 3, 4};
+        // Starts an active task.
+        halCallback.onRemoteTaskRequested(clientId, data);
+
+        PollingCheck.check("onRemoteTaskRequested should be called", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+        String taskId = mRemoteAccessCallback.getTaskId();
+
+        // This should clear the active tasks, after 100ms, the client should be unbound and the
+        // device should be shutdown.
+        mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // This should throw exception because clientId is not valid.
+        assertThrows(IllegalArgumentException.class, () -> mService.reportRemoteTaskDone(
+                clientId, taskId));
+
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // This should throw exception because the task was cleared so the task ID is not valid.
+        assertThrows(IllegalArgumentException.class, () -> mService.reportRemoteTaskDone(
+                clientId, taskId));
+
+        // The client must be unbound.
+        verify(mContext, timeout(WAIT_TIMEOUT_MS)).unbindService(any());
+        // The device must be shutdown.
+        verify(mCarPowerManagementService, timeout(WAIT_TIMEOUT_MS)).requestShutdownAp(
+                anyInt(), anyBoolean());
+    }
+
+    @Test
     public void testRemoteTaskRequested() throws Exception {
         mService.init();
         runBootComplete();
