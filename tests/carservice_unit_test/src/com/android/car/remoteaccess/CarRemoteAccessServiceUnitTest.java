@@ -978,6 +978,53 @@ public final class CarRemoteAccessServiceUnitTest {
                 CarRemoteAccessManager.NEXT_POWER_STATE_OFF, /* runGarageMode= */ false);
     }
 
+    @Test
+    public void testPendingRequestTimeout() throws Exception {
+        mService.setMaxTaskPendingMs(100);
+        mService.init();
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // The task should be pending because client is not registered yet.
+        halCallback.onRemoteTaskRequested(clientId, new byte[]{});
+
+        SystemClock.sleep(100);
+
+        assertThat(mRemoteAccessCallback.getTaskId()).isNull();
+
+        // Register the client after max task pending time.
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        SystemClock.sleep(100);
+
+        assertThat(mRemoteAccessCallback.getTaskId()).isNull();
+    }
+
+    @Test
+    public void testPendingRequestNotTimeout() throws Exception {
+        mService.setMaxTaskPendingMs(1000);
+        mService.init();
+        runBootComplete();
+        RemoteAccessHalCallback halCallback = prepareCarRemoteTaskClient();
+        String clientId = mRemoteAccessCallback.getClientId();
+        mService.removeCarRemoteTaskClient(mRemoteAccessCallback);
+
+        // The task should be pending because client is not registered yet.
+        halCallback.onRemoteTaskRequested(clientId, new byte[]{});
+
+        SystemClock.sleep(100);
+
+        assertThat(mRemoteAccessCallback.getTaskId()).isNull();
+
+        // Register the client before max task pending time.
+        mService.addCarRemoteTaskClient(mRemoteAccessCallback);
+
+        PollingCheck.check("Task is delivered", WAIT_TIMEOUT_MS,
+                () -> mRemoteAccessCallback.getTaskId() != null);
+    }
+
     private ICarPowerStateListener getCarPowerStateListener() {
         ArgumentCaptor<ICarPowerStateListener> internalListenerCaptor =
                 ArgumentCaptor.forClass(ICarPowerStateListener.class);

@@ -145,16 +145,18 @@ public final class AreaIdConfig<T> implements Parcelable {
 
     @Override
     public String toString() {
-        return "AreaIdConfig{"
-                + "mAreaId="
-                + mAreaId
-                + "mMinValue="
-                + mMinValue
-                + ", mMaxValue="
-                + mMaxValue
-                + ", mSupportedEnumValues="
-                + mSupportedEnumValues
-                + '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append("AreaIdConfig{").append("mAreaId=").append(mAreaId);
+        if (mMinValue != null) {
+            sb.append(", mMinValue=").append(mMinValue);
+        }
+        if (mMaxValue != null) {
+            sb.append(", mMaxValue=").append(mMaxValue);
+        }
+        if (!mSupportedEnumValues.isEmpty()) {
+            sb.append(", mSupportedEnumValues=").append(mSupportedEnumValues);
+        }
+        return sb.append("}").toString();
     }
 
     /**
