@@ -13,12 +13,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
 
-from datetime import datetime
+"""Parser library to parse CarWatchdog dumpsys string."""
+
+import datetime
 import json
 import re
 import sys
+from typing import Any, Dict, List, Optional, Tuple
+from . import performancestats_pb2
 
 
 BOOT_TIME_REPORT_HEADER_PATTERN = (
@@ -73,6 +76,7 @@ DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 class BuildInformation:
+  """Contains Android build information."""
 
   def __init__(self):
     self.fingerprint = None
@@ -88,7 +92,7 @@ class BuildInformation:
     self.platform_minor = None
     self.codename = None
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return (
         "BuildInformation (fingerprint={}, brand={}, product={}, device={}, "
         "version_release={}, id={}, version_incremental={}, type={}, tags={}, "
@@ -110,6 +114,7 @@ class BuildInformation:
 
 
 class ProcessCpuStats:
+  """Contains the CPU stats for a top process in a package."""
 
   def __init__(
       self, command, cpu_time_ms, package_cpu_time_percent, cpu_cycles
@@ -120,7 +125,10 @@ class ProcessCpuStats:
     self.cpu_cycles = cpu_cycles
 
   @classmethod
-  def from_proto(cls, stats_pb):
+  def from_proto(
+      cls, stats_pb: performancestats_pb2.ProcessCpuStats
+  ) -> "ProcessCpuStats":
+    """Generates ProcessCpuStats instance from the proto object."""
     return cls(
         stats_pb.command,
         stats_pb.cpu_time_ms,
@@ -128,7 +136,7 @@ class ProcessCpuStats:
         stats_pb.cpu_cycles,
     )
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return (
         "ProcessCpuStats (command={}, CPU time={}ms, percent of "
         "package's CPU time={}%, CPU cycles={})".format(
@@ -141,6 +149,7 @@ class ProcessCpuStats:
 
 
 class PackageCpuStats:
+  """Contains the CPU stats for a top package."""
 
   def __init__(
       self,
@@ -158,17 +167,20 @@ class PackageCpuStats:
     self.process_cpu_stats = []
 
   @classmethod
-  def from_proto(cls, stats_pb):
+  def from_proto(
+      cls, stats_pb: performancestats_pb2.PackageCpuStats
+  ) -> "PackageCpuStats":
+    """Generates PackageCpuStats instance from the proto object."""
     return cls(
         stats_pb.user_id,
         stats_pb.package_name,
         stats_pb.cpu_time_ms,
         round(stats_pb.total_cpu_time_percent, 2),
         stats_pb.cpu_cycles,
-        [],
     )
 
-  def to_dict(self):
+  def to_dict(self) -> Dict[str, Any]:
+    """Generates a dictionary equivalent where the field names are the keys."""
     return {
         "user_id": self.user_id,
         "package_name": self.package_name,
@@ -178,9 +190,9 @@ class PackageCpuStats:
         "process_cpu_stats": [vars(p) for p in self.process_cpu_stats],
     }
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     process_cpu_stats_str = "[])"
-    if len(self.process_cpu_stats) > 0:
+    if self.process_cpu_stats:
       process_list_str = "\n      ".join(
           list(map(repr, self.process_cpu_stats))
       )
@@ -200,6 +212,7 @@ class PackageCpuStats:
 
 
 class PackageStorageIoStats:
+  """Contains a package's storage I/O read/write stats."""
 
   def __init__(
       self,
@@ -226,7 +239,10 @@ class PackageStorageIoStats:
     self.bg_fsync_percent = bg_fsync_percent
 
   @classmethod
-  def from_proto(cls, stats_pb):
+  def from_proto(
+      cls, stats_pb: performancestats_pb2.PackageStorageIoStats
+  ) -> "PackageStorageIoStats":
+    """Generates PackageStorageIoStats instance from the proto object."""
     return cls(
         stats_pb.user_id,
         stats_pb.package_name,
@@ -240,7 +256,8 @@ class PackageStorageIoStats:
         round(stats_pb.bg_fsync_percent, 2),
     )
 
-  def to_dict(self):
+  def to_dict(self) -> Dict[str, Any]:
+    """Generates a dictionary equivalent where the field names are the keys."""
     return {
         "user_id": self.user_id,
         "package_name": self.package_name,
@@ -254,7 +271,7 @@ class PackageStorageIoStats:
         "bg_fsync_percent": self.bg_fsync_percent,
     }
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return (
         "PackageStorageIoStats (user id={}, package name={}, foreground"
         " bytes={}, foreground bytes percent={}, foreground fsync={},"
@@ -276,6 +293,7 @@ class PackageStorageIoStats:
 
 
 class StatsCollection:
+  """Contains stats recorded during a single collection polling."""
 
   def __init__(self):
     self.id = -1
@@ -291,7 +309,8 @@ class StatsCollection:
     self.package_storage_io_read_stats = []
     self.package_storage_io_write_stats = []
 
-  def is_empty(self):
+  def is_empty(self) -> bool:
+    """Returns true when the object is empty."""
     val = (
         self.total_cpu_time_ms
         + self.total_cpu_cycles
@@ -310,7 +329,8 @@ class StatsCollection:
         and not self.package_storage_io_write_stats
     )
 
-  def to_dict(self):
+  def to_dict(self) -> Dict[str, Any]:
+    """Generates a dictionary equivalent where the field names are the keys."""
     return {
         "id": self.id,
         "date": self.date.strftime(DATETIME_FORMAT) if self.date else "",
@@ -330,7 +350,7 @@ class StatsCollection:
         ],
     }
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     date = self.date.strftime(DATETIME_FORMAT) if self.date else ""
     package_cpu_stats_dump = ""
     package_storage_io_read_stats_dump = ""
@@ -386,106 +406,149 @@ class StatsCollection:
 
 
 class SystemEventStats:
+  """Contains stats recorded from all pollings during a system event."""
 
   def __init__(self):
     self.collections = []
 
-  def add(self, collection):
+  def add(self, collection: StatsCollection) -> None:
+    """Adds the collection stats to the system event."""
     self.collections.append(collection)
 
-  def is_empty(self):
+  def is_empty(self) -> bool:
+    """Returns true when the object is empty."""
     return not any(map(lambda c: not c.is_empty(), self.collections))
 
-  def to_list(self):
+  def to_list(self) -> List[Dict[str, Any]]:
+    """Generates a list equivalent of the object."""
     return [c.to_dict() for c in self.collections]
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     collections_str = "\n  ".join(list(map(repr, self.collections)))
     return "SystemEventStats (\n  {}\n)".format(collections_str)
 
 
 class PerformanceStats:
+  """Contains CarWatchdog stats captured in a dumpsys output."""
 
   def __init__(self):
-    self.boot_time_stats = None
-    self.last_n_minutes_stats = None
-    self.user_switch_stats = []
-    self.custom_collection_stats = None
+    self._boot_time_stats = None
+    self._last_n_minutes_stats = None
+    self._user_switch_stats = []
+    self._custom_collection_stats = None
 
-  def has_boot_time_stats(self):
-    return self.boot_time_stats and not self.boot_time_stats.is_empty()
+  def _has_boot_time_stats(self) -> bool:
+    """Returns true when boot_time_stats are available."""
+    return self._boot_time_stats and not self._boot_time_stats.is_empty()
 
-  def has_last_n_minutes_stats(self):
+  def _has_last_n_minutes_stats(self) -> bool:
+    """Returns true when last_n_minutes_stats are available."""
     return (
-        self.last_n_minutes_stats and not self.last_n_minutes_stats.is_empty()
+        self._last_n_minutes_stats and not self._last_n_minutes_stats.is_empty()
     )
 
-  def has_custom_collection_stats(self):
+  def _has_custom_collection_stats(self) -> bool:
+    """Returns true when custom_collection_stats are available."""
     return (
-        self.custom_collection_stats
-        and not self.custom_collection_stats.is_empty()
+        self._custom_collection_stats
+        and not self._custom_collection_stats.is_empty()
     )
 
-  def is_empty(self):
+  def set_boot_time_stats(self, stats: SystemEventStats) -> None:
+    """Sets the boot time stats."""
+    self._boot_time_stats = stats
+
+  def set_last_n_minutes_stats(self, stats: SystemEventStats) -> None:
+    """Sets the last n minutes stats."""
+    self._last_n_minutes_stats = stats
+
+  def set_custom_collection_stats(self, stats: SystemEventStats) -> None:
+    """Sets the custom collection stats."""
+    self._custom_collection_stats = stats.collections
+
+  def get_boot_time_stats(self) -> Optional[SystemEventStats]:
+    """Returns the boot time stats."""
+    if self._has_boot_time_stats():
+      return self._boot_time_stats
+    return None
+
+  def get_last_n_minutes_stats(self) -> Optional[SystemEventStats]:
+    """Returns the last n minutes stats."""
+    if self._has_last_n_minutes_stats():
+      return self._last_n_minutes_stats
+    return None
+
+  def get_custom_collection_stats(self) -> Optional[SystemEventStats]:
+    """Returns the custom collection stats."""
+    if self._has_custom_collection_stats():
+      return self._custom_collection_stats
+    return None
+
+  def is_empty(self) -> bool:
+    """Return true when the object is empty."""
     return (
-        not self.has_boot_time_stats()
-        and not self.has_last_n_minutes_stats()
-        and not self.has_custom_collection_stats()
-        and not any(map(lambda u: not u.is_empty(), self.user_switch_stats))
+        not self._has_boot_time_stats()
+        and not self._has_last_n_minutes_stats()
+        and not self._has_custom_collection_stats()
+        and not any(map(lambda u: not u.is_empty(), self._user_switch_stats))
     )
 
-  def to_dict(self):
+  def to_dict(self) -> Optional[Dict[str, Any]]:
+    """Generates a dictionary equivalent where the field names are the keys."""
     return {
         "boot_time_stats": (
-            self.boot_time_stats.to_list() if self.boot_time_stats else None
+            self._boot_time_stats.to_list() if self._boot_time_stats else None
         ),
         "last_n_minutes_stats": (
-            self.last_n_minutes_stats.to_list()
-            if self.last_n_minutes_stats
+            self._last_n_minutes_stats.to_list()
+            if self._last_n_minutes_stats
             else None
         ),
-        "user_switch_stats": [u.to_list() for u in self.user_switch_stats],
+        "user_switch_stats": [u.to_list() for u in self._user_switch_stats],
         "custom_collection_stats": (
-            self.custom_collection_stats.to_list()
-            if self.custom_collection_stats
+            self._custom_collection_stats.to_list()
+            if self._custom_collection_stats
             else None
         ),
     }
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return (
         "PerformanceStats (\n"
         "boot-time stats={}\n"
         "\nlast n minutes stats={}\n"
         "\nuser-switch stats={}\n"
         "\ncustom-collection stats={}\n)".format(
-            self.boot_time_stats,
-            self.last_n_minutes_stats,
-            self.user_switch_stats,
-            self.custom_collection_stats,
+            self._boot_time_stats,
+            self._last_n_minutes_stats,
+            self._user_switch_stats,
+            self._custom_collection_stats,
         )
     )
 
 
 class DevicePerformanceStats:
+  """Contains the build information and the CarWatchdog stats."""
 
   def __init__(self):
     self.build_info = None
     self.perf_stats = []
 
-  def to_dict(self):
+  def to_dict(self) -> Dict[str, Any]:
+    """Generates a dictionary equivalent where the field names are the keys."""
     return {
         "build_info": vars(self.build_info),
         "perf_stats": [s.to_dict() for s in self.perf_stats],
     }
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return "DevicePerformanceStats (\nbuild_info={}\n\nperf_stats={}\n)".format(
         self.build_info, self.perf_stats
     )
 
 
-def parse_build_info(build_info_file):
+def parse_build_info(build_info_file: str) -> BuildInformation:
+  """Parses and returns the BuildInformation from the build info file."""
   build_info = BuildInformation()
 
   def get_value(line):
@@ -524,20 +587,23 @@ def parse_build_info(build_info_file):
     return build_info
 
 
-def _is_stats_section_end(line):
+def _is_stats_section_end(line: str) -> bool:
   return (
       line.startswith("Top N")
-      or re.match(STATS_COLLECTION_PATTERN, line)
+      or re.fullmatch(STATS_COLLECTION_PATTERN, line) is not None
       or line.startswith("-" * COLLECTION_END_LINE_MIN_LEN)
   )
 
 
-def _parse_cpu_stats(lines, idx):
+def _parse_cpu_stats(
+    lines: List[str], idx: int
+) -> Tuple[List[PackageCpuStats], int]:
+  """Parses the CPU stats from the lines."""
   package_cpu_stats = []
   package_cpu_stat = None
 
   while not _is_stats_section_end(line := lines[idx].rstrip()):
-    if match := re.match(PACKAGE_CPU_STATS_PATTERN, line):
+    if match := re.fullmatch(PACKAGE_CPU_STATS_PATTERN, line):
       cpu_cycles_str = match.group("cpuCycles")
 
       package_cpu_stat = PackageCpuStats(
@@ -548,7 +614,7 @@ def _parse_cpu_stats(lines, idx):
           int(cpu_cycles_str) if cpu_cycles_str is not None else -1,
       )
       package_cpu_stats.append(package_cpu_stat)
-    elif match := re.match(PROCESS_CPU_STATS_PATTERN, line):
+    elif match := re.fullmatch(PROCESS_CPU_STATS_PATTERN, line):
       command = match.group("command")
       cpu_cycles_str = match.group("cpuCycles")
       if package_cpu_stat:
@@ -570,11 +636,14 @@ def _parse_cpu_stats(lines, idx):
   return package_cpu_stats, idx
 
 
-def _parse_storage_io_stats(lines, idx):
+def _parse_storage_io_stats(
+    lines: List[str], idx: int
+) -> Tuple[List[PackageStorageIoStats], int]:
+  """Parses the storage I/O stats from the lines."""
   package_storage_io_stats = []
 
   while not _is_stats_section_end(line := lines[idx].rstrip()):
-    if match := re.match(PACKAGE_STORAGE_IO_STATS_PATTERN, line):
+    if match := re.fullmatch(PACKAGE_STORAGE_IO_STATS_PATTERN, line):
       package_storage_io_stats.append(
           PackageStorageIoStats(
               int(match.group("userId")),
@@ -595,40 +664,45 @@ def _parse_storage_io_stats(lines, idx):
   return package_storage_io_stats, idx
 
 
-def _parse_collection(lines, idx, match):
+def _parse_collection(
+    lines: List[str], idx: int, match: re.Match[str]
+) -> Tuple[StatsCollection, int]:
+  """Parses the stats recorded for a single polling."""
   collection = StatsCollection()
   collection.id = int(match.group("id"))
-  collection.date = datetime.strptime(match.group("date"), DUMP_DATETIME_FORMAT)
+  collection.date = datetime.datetime.strptime(
+      match.group("date"), DUMP_DATETIME_FORMAT
+  )
 
   while not (
-      re.match(STATS_COLLECTION_PATTERN, (line := lines[idx].strip()))
+      re.fullmatch(STATS_COLLECTION_PATTERN, (line := lines[idx].strip()))
       or line.startswith("-" * COLLECTION_END_LINE_MIN_LEN)
   ):
-    if match := re.match(TOTAL_CPU_TIME_PATTERN, line):
+    if match := re.fullmatch(TOTAL_CPU_TIME_PATTERN, line):
       collection.total_cpu_time_ms = int(match.group("totalCpuTimeMs"))
-    if match := re.match(TOTAL_CPU_CYCLES_PATTERN, line):
+    if match := re.fullmatch(TOTAL_CPU_CYCLES_PATTERN, line):
       collection.total_cycles = int(match.group("totalCpuCycles"))
-    elif match := re.match(TOTAL_IDLE_CPU_TIME_PATTERN, line):
+    elif match := re.fullmatch(TOTAL_IDLE_CPU_TIME_PATTERN, line):
       collection.idle_cpu_time_ms = int(match.group("idleCpuTimeMs"))
-    elif match := re.match(CPU_IO_WAIT_TIME_PATTERN, line):
+    elif match := re.fullmatch(CPU_IO_WAIT_TIME_PATTERN, line):
       collection.io_wait_time_ms = int(match.group("iowaitCpuTimeMs"))
-    elif match := re.match(CONTEXT_SWITCHES_PATTERN, line):
+    elif match := re.fullmatch(CONTEXT_SWITCHES_PATTERN, line):
       collection.context_switches = int(match.group("totalCtxtSwitches"))
-    elif match := re.match(IO_BLOCKED_PROCESSES_PATTERN, line):
+    elif match := re.fullmatch(IO_BLOCKED_PROCESSES_PATTERN, line):
       collection.io_blocked_processes = int(match.group("totalIoBlkProc"))
-    elif match := re.match(MAJOR_PAGE_FAULTS_PATTERN, line):
+    elif match := re.fullmatch(MAJOR_PAGE_FAULTS_PATTERN, line):
       collection.major_page_faults = int(match.group("totalMajPgFaults"))
     elif line == TOP_N_CPU_TIME_HEADER:
       idx += 1  # Skip subsection header
       package_cpu_stats, idx = _parse_cpu_stats(lines, idx)
       collection.package_cpu_stats = package_cpu_stats
       continue
-    elif re.match(TOP_N_STORAGE_IO_READS_HEADER_PATTERN, line):
+    elif re.fullmatch(TOP_N_STORAGE_IO_READS_HEADER_PATTERN, line):
       idx += 1
       package_storage_io_stats, idx = _parse_storage_io_stats(lines, idx)
       collection.package_storage_io_read_stats = package_storage_io_stats
       continue
-    elif re.match(TOP_N_STORAGE_IO_WRITES_HEADER_PATTERN, line):
+    elif re.fullmatch(TOP_N_STORAGE_IO_WRITES_HEADER_PATTERN, line):
       idx += 1
       package_storage_io_stats, idx = _parse_storage_io_stats(lines, idx)
       collection.package_storage_io_write_stats = package_storage_io_stats
@@ -638,10 +712,13 @@ def _parse_collection(lines, idx, match):
   return collection, idx
 
 
-def _parse_stats_collections(lines, idx):
+def _parse_stats_collections(
+    lines: List[str], idx: int
+) -> Tuple[SystemEventStats, int]:
+  """Parses the stats recorded for a system event."""
   system_event_stats = SystemEventStats()
   while not (line := lines[idx].strip()).startswith("-" * 50):
-    if match := re.match(STATS_COLLECTION_PATTERN, line):
+    if match := re.fullmatch(STATS_COLLECTION_PATTERN, line):
       idx += 1  # Skip the collection header
       collection, idx = _parse_collection(lines, idx, match)
       if not collection.is_empty():
@@ -651,33 +728,35 @@ def _parse_stats_collections(lines, idx):
   return system_event_stats, idx
 
 
-def parse_dump(dump):
+def parse_dump(dump: str) -> PerformanceStats:
+  """Parses/returns a PerformanceStats object from CarWatchdog dump string."""
   lines = dump.split("\n")
   performance_stats = PerformanceStats()
   idx = 0
   while idx < len(lines):
     line = lines[idx].strip()
-    if re.match(BOOT_TIME_REPORT_HEADER_PATTERN, line):
+    if re.fullmatch(BOOT_TIME_REPORT_HEADER_PATTERN, line):
       boot_time_stats, idx = _parse_stats_collections(lines, idx)
       if not boot_time_stats.is_empty():
-        performance_stats.boot_time_stats = boot_time_stats
+        performance_stats.set_boot_time_stats(boot_time_stats)
     if (
         line == PERIODIC_COLLECTION_HEADER
         or line == LAST_N_MINS_COLLECTION_HEADER
     ):
       last_n_minutes_stats, idx = _parse_stats_collections(lines, idx)
       if not last_n_minutes_stats.is_empty():
-        performance_stats.last_n_minutes_stats = last_n_minutes_stats
+        performance_stats.set_last_n_minutes_stats(last_n_minutes_stats)
     if line == CUSTOM_COLLECTION_REPORT_HEADER:
       idx += 2  # Skip the dashed-line after the custom collection header
       custom_collection_stats, idx = _parse_stats_collections(lines, idx)
       if not custom_collection_stats.is_empty():
-        performance_stats.custom_collection_stats = custom_collection_stats
+        performance_stats.set_custom_collection_stats(custom_collection_stats)
     else:
       idx += 1
 
   return performance_stats
 
 
-def parse_dump_to_json(dump):
+def parse_dump_to_json(dump: str) -> Any:
+  """Parses and returns a json object from the CarWatchdog dump string."""
   return json.loads(json.dumps(parse_dump(dump).to_dict()))
