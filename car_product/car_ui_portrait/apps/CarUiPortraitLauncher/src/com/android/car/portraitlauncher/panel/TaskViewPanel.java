@@ -244,6 +244,11 @@ public class TaskViewPanel extends RelativeLayout {
         return mActiveState == mOpenState;
     }
 
+    /** Whether the panel is visible */
+    public boolean isVisible() {
+        return mActiveState.isVisible();
+    }
+
     /** Whether the panel is actively animating. */
     public boolean isAnimating() {
         return mActiveAnimator != null;
