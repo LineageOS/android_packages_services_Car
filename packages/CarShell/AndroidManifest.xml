@@ -108,6 +108,9 @@
     <uses-permission android:name="android.car.permission.READ_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CONTROL_WINDSHIELD_WIPERS" />
     <uses-permission android:name="android.car.permission.CAR_EPOCH_TIME" />
+    <uses-permission android:name="android.car.permission.VMS_PUBLISHER" />
+    <uses-permission android:name="android.car.permission.VMS_SUBSCRIBER" />
+    <uses-permission android:name="android.car.permission.CLEAR_CAR_DIAGNOSTICS" />
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW"/>
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR"/>

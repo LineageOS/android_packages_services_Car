@@ -30,6 +30,7 @@
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
         <permission name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
         <permission name="android.car.permission.CAR_DIAGNOSTICS"/>
+        <permission name="android.car.permission.CLEAR_CAR_DIAGNOSTICS"/>
         <permission name="android.car.permission.CAR_DRIVING_STATE"/>
         <permission name="android.car.permission.CAR_POWER"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
@@ -85,6 +86,8 @@
         <permission name="android.car.permission.READ_WINDSHIELD_WIPERS"/>
         <permission name="android.car.permission.CONTROL_WINDSHIELD_WIPERS"/>
         <permission name="android.car.permission.CAR_EPOCH_TIME"/>
+        <permission name="android.car.permission.VMS_PUBLISHER"/>
+        <permission name="android.car.permission.VMS_SUBSCRIBER"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_WINDOW"/>
         <permission name="android.car.permission.SET_CAR_VENDOR_CATEGORY_WINDOW"/>
         <permission name="android.car.permission.GET_CAR_VENDOR_CATEGORY_DOOR"/>
