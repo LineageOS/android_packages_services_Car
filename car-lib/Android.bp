@@ -289,88 +289,79 @@ droiddoc {
         "-stubpackages android.car -dac_libraryroot android/car ",
 }
 
+java_defaults {
+    name: "android.car-stubs.jar_defaults",
+    java_version: "1.8",
+    installable: false,
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
+java_defaults {
+    name: "android.car-stubs-dex.jar_defaults",
+    compile_dex: true,
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
 java_library {
     name: "android.car-stubs",
+    defaults: ["android.car-stubs.jar_defaults"],
     srcs: [
         ":android.car-stub-docs",
     ],
     sdk_version: "current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    installable: false,
     dist: {
         targets: ["dist_files"],
-    }
+    },
 }
 
 java_library {
     name: "android.car-stubs-dex",
+    defaults: ["android.car-stubs-dex.jar_defaults"],
     static_libs: ["android.car-stubs"],
     sdk_version: "current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    compile_dex: true,
 }
 
 java_library {
     name: "android.car-system-stubs",
+    defaults: ["android.car-stubs.jar_defaults"],
     srcs: [
         ":android.car-system-stubs-docs",
     ],
     sdk_version: "system_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    installable: false,
     dist: {
         targets: ["dist_files"],
-    }
+    },
 }
 
 java_library {
     name: "android.car-system-stubs-dex",
+    defaults: ["android.car-stubs-dex.jar_defaults"],
     static_libs: ["android.car-system-stubs"],
     sdk_version: "system_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    compile_dex: true,
 }
 
 java_library {
     name: "android.car-test-stubs",
+    defaults: ["android.car-stubs.jar_defaults"],
     srcs: [
         ":android.car-test-stubs-docs",
     ],
     sdk_version: "test_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    installable: false,
 }
 
 java_library {
     name: "android.car-test-stubs-dex",
+    defaults: ["android.car-stubs-dex.jar_defaults"],
     static_libs: ["android.car-test-stubs"],
     sdk_version: "test_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    compile_dex: true,
     dist: {
         targets: ["dist_files"],
     }
