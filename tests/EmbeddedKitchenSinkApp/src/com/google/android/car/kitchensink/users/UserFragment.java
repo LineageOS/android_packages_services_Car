@@ -91,7 +91,6 @@ public final class UserFragment extends Fragment {
     private EditText mNewUserNameText;
     private CheckBox mNewUserIsAdminCheckBox;
     private CheckBox mNewUserIsGuestCheckBox;
-    private CheckBox mNewUserIsPreCreatedCheckBox;
     private EditText mNewUserExtraFlagsText;
     private Button mCreateUserButton;
 
@@ -120,7 +119,6 @@ public final class UserFragment extends Fragment {
         mNewUserNameText = view.findViewById(R.id.new_user_name);
         mNewUserIsAdminCheckBox = view.findViewById(R.id.new_user_is_admin);
         mNewUserIsGuestCheckBox = view.findViewById(R.id.new_user_is_guest);
-        mNewUserIsPreCreatedCheckBox = view.findViewById(R.id.new_user_is_pre_created);
 
         mNewUserExtraFlagsText = view.findViewById(R.id.new_user_flags);
         mCreateUserButton = view.findViewById(R.id.create_user);
@@ -159,35 +157,11 @@ public final class UserFragment extends Fragment {
         }
         int flags = 0;
         boolean isGuest = mNewUserIsGuestCheckBox.isChecked();
-        boolean isPreCreated = mNewUserIsPreCreatedCheckBox.isChecked();
         UserCreationResult result;
         UserInfo userInfo;
         Log.v(TAG, "Create user: name=" + name + ", flags="
-                + UserInfo.flagsToString(flags) + ", is guest=" + isGuest
-                + ", is pre-created=" + isPreCreated);
-        if (isPreCreated) {
-            try {
-                userInfo = mUserManager.preCreateUser(isGuest ? UserManager.USER_TYPE_FULL_GUEST :
-                        UserManager.USER_TYPE_FULL_SECONDARY);
-                if (userInfo != null) {
-                    result = new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL,
-                            userInfo.getUserHandle());
-                    Log.i(TAG, "userinfo successfully created. User: " + userInfo.toFullString());
-                } else {
-                    result = new UserCreationResult(UserCreationResult.STATUS_ANDROID_FAILURE,
-                            /* androidFailureStatus= */ null, /* user= */ null,
-                            /* errorMessage= */ null,
-                            /* internalErrorMessage= */ "User is not created");
-                    Log.e(TAG, "Failed to create userInfo.");
-                }
-            } catch (UserManager.UserOperationException e) {
-                result = new UserCreationResult(UserCreationResult.STATUS_ANDROID_FAILURE,
-                        /* androidFailureStatus= */ null, /* user= */ null,
-                        /* errorMessage= */ null,
-                        /* internalErrorMessage= */ e.getMessage());
-                Log.e(TAG, "Exception pre-created user: " + e);
-            }
-        } else if (isGuest) {
+                + UserInfo.flagsToString(flags) + ", is guest=" + isGuest);
+        if (isGuest) {
             result = getResult(mCarUserManager.createGuest(name));
         } else {
             if (mNewUserIsAdminCheckBox.isChecked()) {
