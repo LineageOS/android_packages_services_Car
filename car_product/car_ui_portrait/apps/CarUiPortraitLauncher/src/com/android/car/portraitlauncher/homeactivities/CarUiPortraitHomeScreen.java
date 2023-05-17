@@ -35,8 +35,8 @@ import static com.android.car.caruiportrait.common.service.CarUiPortraitService.
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
 import android.app.ActivityOptions;
+import android.app.IActivityManager;
 import android.app.TaskInfo;
 import android.app.TaskStackListener;
 import android.content.ComponentName;
@@ -261,7 +261,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         @Override
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
-            logIfDebuggable("On task moved to front, task = " + taskInfo.taskId);
+            logIfDebuggable("On task moved to front, task = " + taskInfo.taskId + ", cmp = "
+                    + taskInfo.baseActivity);
             if (!mRootTaskViewPanel.isReady()) {
                 logIfDebuggable("Root Task View is not ready yet.");
                 if (!TaskCategoryManager.isHomeIntent(taskInfo)
@@ -326,7 +327,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 throws RemoteException {
             super.onActivityRestartAttempt(taskInfo, homeTaskVisible, clearedTask, wasVisible);
 
-            logIfDebuggable("On Activity restart attempt, task = " + taskInfo.taskId);
+            logIfDebuggable("On Activity restart attempt, task = " + taskInfo.taskId + ", cmp ="
+                    + taskInfo.baseActivity);
             if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
                 return;
             }
@@ -847,7 +849,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     TaskViewPanel.State newState, boolean animated) {
                 updateObscuredTouchRegion();
                 updateBackgroundTaskViewInsets();
-                if (!newState.isVisible()) {
+                if (!newState.isVisible() && !mRootTaskViewPanel.isVisible()) {
                     setFocusToBackgroundApp();
                 }
             }
