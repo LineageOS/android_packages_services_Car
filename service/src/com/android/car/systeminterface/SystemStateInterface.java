@@ -24,10 +24,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.UserManager;
+import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.procfsinspector.ProcfsInspector;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.time.Duration;
@@ -93,22 +96,65 @@ public interface SystemStateInterface {
      */
     @VisibleForTesting
     class DefaultImpl implements SystemStateInterface {
-        private static final Duration MIN_BOOT_COMPLETE_ACTION_DELAY = Duration.ofSeconds(10);
+        private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private ScheduledExecutorService mExecutorService;
+        @GuardedBy("mLock")
+        private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
+        @GuardedBy("mLock")
+        private boolean mBootCompleted;
 
         private final Context mContext;
-        private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
-        private ScheduledExecutorService mExecutorService;
+
         private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                    for (Pair<Runnable, Duration> action : mActionsList) {
-                        mExecutorService.schedule(action.first,
-                                action.second.toMillis(), TimeUnit.MILLISECONDS);
-                    }
+                if (!Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                    return;
+                }
+                Slogf.i(TAG, "Received ACTION_BOOT_COMPLETED intent");
+                List<Pair<Runnable, Duration>> actionsListCopy;
+                synchronized (mLock) {
+                    // After mBootCompleted is set, no more actions will be added to mActionsList.
+                    mBootCompleted = true;
+                    actionsListCopy = new ArrayList<>(mActionsList);
+                    mActionsList.clear();
+                }
+                for (int i = 0; i < actionsListCopy.size(); i++) {
+                    runActionWithDelay(actionsListCopy.get(i).first, actionsListCopy.get(i).second);
                 }
             }
         };
+
+        private void runActionWithDelay(Runnable action, Duration delay) {
+            long delayInMs = delay.toMillis();
+            if (DEBUG) {
+                Slogf.d(TAG, "Schedule bootup action after: " + delayInMs + "ms");
+            }
+            getExecutorService().schedule(action, delayInMs, TimeUnit.MILLISECONDS);
+        }
+
+        @SuppressWarnings("FutureReturnValueIgnored")
+        private ScheduledExecutorService getExecutorService() {
+            synchronized (mLock) {
+                if (mExecutorService == null) {
+                    mExecutorService = Executors.newScheduledThreadPool(/* corePoolSize= */ 1);
+                }
+                return mExecutorService;
+            }
+        }
+
+        @GuardedBy("mLock")
+        private boolean isBootCompletedLocked() {
+            // There is no corresponding state for ACTION_BOOT_COMPLETED, so we use user unlock
+            // instead. Technically isUserUnlocked might be true slightly before
+            // ACTION_BOOT_COMPLETED intent is sent, however, the time difference is tiny and
+            // as long as system user is unlocked, we should be okay.
+            return mBootCompleted
+                    || mContext.getSystemService(UserManager.class).isUserUnlocked();
+        }
 
         @VisibleForTesting
         public DefaultImpl(Context context) {
@@ -147,21 +193,36 @@ public interface SystemStateInterface {
             return deviceHibernated;
         }
 
+        /**
+         * Schedule an action to be run with delay when this user (system) has finished booting.
+         *
+         * If the user has already finished booting, then the action will be executed with the
+         * speicified delay.
+         */
         @Override
         public void scheduleActionForBootCompleted(Runnable action, Duration bootCompleteDelay) {
-            Duration delay = bootCompleteDelay;
-            if (MIN_BOOT_COMPLETE_ACTION_DELAY.compareTo(delay) < 0) {
-                // TODO: consider adding some degree of randomness here
-                delay = MIN_BOOT_COMPLETE_ACTION_DELAY;
+            // TODO: consider adding some degree of randomness to bootCompleteDelay.
+            Slogf.i(TAG, "scheduleActionForBootCompleted, delay: " + bootCompleteDelay.toMillis()
+                    + "ms");
+            boolean receiverRegistered = false;
+            synchronized (mLock) {
+                if (isBootCompletedLocked()) {
+                    Slogf.i(TAG, "The boot is already completed");
+                    runActionWithDelay(action, bootCompleteDelay);
+                    return;
+                }
+                Slogf.i(TAG, "The boot is not completed yet, waiting for boot to complete");
+                if (!mActionsList.isEmpty()) {
+                    receiverRegistered = true;
+                }
+                mActionsList.add(Pair.create(action, bootCompleteDelay));
             }
-            if (mActionsList.isEmpty()) {
-                final int corePoolSize = 1;
-                mExecutorService = Executors.newScheduledThreadPool(corePoolSize);
+            if (!receiverRegistered) {
                 IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
+                Slogf.i(TAG, "register ACTION_BOOT_COMPLETED receiver");
                 mContext.registerReceiver(mBroadcastReceiver, intentFilter,
                         Context.RECEIVER_NOT_EXPORTED);
             }
-            mActionsList.add(Pair.create(action, delay));
         }
 
         @Override
