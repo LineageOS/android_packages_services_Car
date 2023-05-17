@@ -88,8 +88,6 @@ public final class UserInfoView extends LinearLayout {
         boolean running = am.isUserRunning(user.id);
         boolean visible = isUserVisible(user.id);
         String s = new StringBuilder()
-                .append(user.preCreated ? " (pre-created)" : "")
-                .append(user.convertedFromPreCreated ? " (converted)" : "")
                 .append(user.partial ? " (partial)" : "")
                 .append(running ? " (running)" : "")
                 .append(current ? " (current)" : "")
