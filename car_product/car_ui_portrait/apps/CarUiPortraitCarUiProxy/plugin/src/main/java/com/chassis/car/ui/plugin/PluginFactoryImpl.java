@@ -93,7 +93,7 @@ public class PluginFactoryImpl implements PluginFactoryOEMV6 {
             boolean b,
             boolean b1) {
         Context pluginContext = getPluginUiContext(context, mPluginContext);
-        ToolbarControllerImpl toolbarController = new ToolbarControllerImpl(view, pluginContext);
+        ToolbarControllerImpl toolbarController = new ToolbarControllerImpl(pluginContext, view);
         return new ToolbarAdapterProxy(pluginContext, toolbarController);
     }
 
