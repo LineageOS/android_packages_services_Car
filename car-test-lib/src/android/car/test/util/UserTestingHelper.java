@@ -218,7 +218,6 @@ public final class UserTestingHelper {
         private boolean mGuest;
         private boolean mEphemeral;
         private boolean mAdmin;
-        private boolean mPreCreated;
         private boolean mInitialized;
 
         /**
@@ -287,15 +286,6 @@ public final class UserTestingHelper {
         }
 
         /**
-         * Sets whether the user is an pre-created.
-         */
-        @NonNull
-        public UserInfoBuilder setPreCreated(boolean preCreated) {
-            mPreCreated = preCreated;
-            return this;
-        }
-
-        /**
          * Sets whether the user is initialized.
          */
         @NonNull
@@ -323,7 +313,6 @@ public final class UserTestingHelper {
                 mType = UserManager.USER_TYPE_FULL_GUEST;
             }
             UserInfo info = new UserInfo(mUserId, mName, /* iconPath= */ null, flags, mType);
-            info.preCreated = mPreCreated;
             return info;
         }
     }
