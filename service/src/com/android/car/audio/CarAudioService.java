@@ -2702,6 +2702,12 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                     userId, audioZoneId);
             return;
         }
+
+        // No need to undo focus or user device affinities.
+        // Focus is handled as user exits.
+        // User device affinities are handled below as the user id routing is undone.
+        removePrimaryZoneRequestForOccupantLocked(occupantZoneId, prevUserId);
+
         Slogf.d(TAG, "updateUserForOccupantZone assigning userId(%d) to audioZoneId(%d)",
                 userId, audioZoneId);
         // If the user has changed, be sure to remove from current routing
@@ -2723,6 +2729,20 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
         audioZone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
         setUserIdForAudioZoneLocked(userId, audioZoneId);
+    }
+
+    @GuardedBy("mImplLock")
+    private void removePrimaryZoneRequestForOccupantLocked(int occupantZoneId, int userId) {
+        long requestId = mMediaRequestHandler.getAssignedRequestIdForOccupantZoneId(occupantZoneId);
+
+        if (requestId == INVALID_REQUEST_ID) {
+            return;
+        }
+
+        Slogf.d(TAG, "removePrimaryZoneRequestForOccupant removing request for %d occupant %d"
+                        + " and user id %d", requestId, occupantZoneId, userId);
+        removeAssignedUserInfoLocked(userId);
+        mMediaRequestHandler.cancelMediaAudioOnPrimaryZone(requestId);
     }
 
     private int getOccupantZoneIdForDriver() {
