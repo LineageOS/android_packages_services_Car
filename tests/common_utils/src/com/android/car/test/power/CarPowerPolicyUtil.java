@@ -24,15 +24,14 @@ import java.util.Arrays;
 
 public final class CarPowerPolicyUtil {
 
-    public static void assertPolicyIdentical(CarPowerPolicy first, CarPowerPolicy second)
-            throws Exception {
+    public static void assertPolicyIdentical(CarPowerPolicy first, CarPowerPolicy second) {
         assertThat(first.getPolicyId()).isEqualTo(second.getPolicyId());
         assertComponentsIdentical(first.getEnabledComponents(), second.getEnabledComponents());
         assertComponentsIdentical(first.getDisabledComponents(), second.getDisabledComponents());
     }
 
-    private static void assertComponentsIdentical(int[] first, int[] second) throws Exception {
+    private static void assertComponentsIdentical(int[] first, int[] second) {
         Integer[] boxedArr = Arrays.stream(second).boxed().toArray(Integer[]::new);
-        assertThat(first).asList().containsExactly(boxedArr);
+        assertThat(first).asList().containsExactlyElementsIn(boxedArr);
     }
 }
