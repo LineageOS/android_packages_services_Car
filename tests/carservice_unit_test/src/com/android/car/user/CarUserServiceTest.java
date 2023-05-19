@@ -130,8 +130,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
 
-    private static final int PRE_CREATION_STAGE_BEFORE_SUSPEND = 1;
-    private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
     private static final int TEST_USER_ID = 101;
     private static final int TEST_DISPLAY_ID = 201;
     private static final int TEST_OCCUPANT_ZONE_ID = 2;
