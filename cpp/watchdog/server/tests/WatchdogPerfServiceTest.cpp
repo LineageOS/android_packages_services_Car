@@ -353,6 +353,7 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     // TODO(b/266008677): Add more data to the ResourceStats.
     std::optional<ResourceUsageStats> boottimeResourceUsageStats =
             std::make_optional<ResourceUsageStats>({});
+
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
@@ -1616,6 +1617,7 @@ TEST_F(WatchdogPerfServiceTest, TestOnCarWatchdogServiceRegistered) {
     // Expect because the next pollCache call will result in an onPeriodicMonitor call
     // because no message is sent to process unsent resource stats
     EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, _, _)).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onCarWatchdogServiceRegistered()).Times(1);
     EXPECT_CALL(*mMockWatchdogServiceHelper, onLatestResourceStats(_)).Times(0);
 
     mService->onCarWatchdogServiceRegistered();
@@ -1632,6 +1634,7 @@ TEST_F(WatchdogPerfServiceTest, TestOnCarWatchdogServiceRegisteredWithUnsentReso
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onCarWatchdogServiceRegistered()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
                                      Eq(mMockProcStatCollector), _))
@@ -1663,6 +1666,7 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsEviction) {
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onCarWatchdogServiceRegistered()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
                                      Eq(mMockProcStatCollector), _))
@@ -1762,7 +1766,9 @@ TEST_F(WatchdogPerfServiceTest, TestUnsentResourceStatsMaxCacheSize) {
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
-    ASSERT_EQ(actualResourceStats, expectedResourceStats);
+    ASSERT_EQ(actualResourceStats, expectedResourceStats)
+            << "Expected: " << toString(expectedResourceStats)
+            << "\nActual: " << toString(actualResourceStats);
 }
 
 }  // namespace watchdog
