@@ -487,8 +487,9 @@ Result<void> PerformanceProfiler::onSystemStartup() {
 }
 
 void PerformanceProfiler::onCarWatchdogServiceRegistered() {
-    // TODO(b/266008677): Get the value of the system property which flags the sending of
-    // resource usage stats.
+    Mutex::Autolock lock(mMutex);
+    mDoSendResourceUsageStats =
+            sysprop::syncResourceUsageStatsWithCarServiceEnabled().value_or(false);
 }
 
 Result<void> PerformanceProfiler::onBoottimeCollection(

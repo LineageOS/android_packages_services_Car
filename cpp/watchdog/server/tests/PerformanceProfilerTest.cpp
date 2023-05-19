@@ -532,6 +532,10 @@ public:
         mCollector->mSystemEventDataCacheDurationSec = value;
     }
 
+    void setSendResourceUsageStatsEnabled(bool enable) {
+        mCollector->mDoSendResourceUsageStats = enable;
+    }
+
     const CollectionInfo& getBoottimeCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mBoottimeCollection;
@@ -575,6 +579,7 @@ protected:
         mCollectorPeer->setTopNStatsPerSubcategory(kTestTopNStatsPerSubcategory);
         mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
         mCollectorPeer->setSystemEventDataCacheDuration(kTestSystemEventDataCacheDurationSec);
+        mCollectorPeer->setSendResourceUsageStatsEnabled(true);
     }
 
     void TearDown() override {

@@ -306,6 +306,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void init() {
+        // TODO(b/266008677): The daemon reads the sendResourceUsageStatsEnabled sysprop at the
+        // moment the CarWatchdogService connects to it. Therefore, the property must be set by
+        // CarWatchdogService before connecting with the CarWatchdog daemon. Set the property to
+        // true to enable the sending of resource usage stats from the daemon.
         mWatchdogProcessHandler.init();
         mWatchdogPerfHandler.init();
         subscribePowerManagementService();
