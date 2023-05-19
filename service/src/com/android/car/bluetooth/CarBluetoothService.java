@@ -654,7 +654,11 @@ public class CarBluetoothService implements CarServiceBase {
             }
 
             // Device Manager status
-            mDeviceManager.dump(writer);
+            if (mDeviceManager != null) {
+                mDeviceManager.dump(writer);
+            } else {
+                writer.printf("BluetoothDeviceManager: null\n");
+            }
 
             // Profile Inhibits
             if (mInhibitManager != null) {
