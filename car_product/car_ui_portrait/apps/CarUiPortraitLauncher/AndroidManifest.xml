@@ -52,7 +52,7 @@
 
         <activity android:name=".homeactivities.CarUiPortraitHomeScreen"
                   android:label="CarUiPortraitHomeScreen"
-                  android:configChanges="uiMode|mcc|mnc"
+                  android:configChanges="density|fontScale|keyboard|keyboardHidden|layoutDirection|locale|mcc|mnc|navigation|orientation|screenLayout|screenSize|smallestScreenSize|touchscreen|uiMode"
                   android:launchMode="singleTask"
                   android:clearTaskOnLaunch="true"
                   android:stateNotNeeded="true"
