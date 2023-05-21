@@ -57,6 +57,7 @@
         <item>android.widget.cts/android.widget.cts.NumberPickerCtsActivity</item>
         <item>android.widget.cts/android.widget.cts.AdapterViewCtsActivity</item>
         <item>android.widget.cts/android.widget.cts.EditTextCtsActivity</item>
+        <item>android.sdksandbox.webkit.cts/android.app.sdksandbox.testutils.testscenario.SdkSandboxCtsActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivity</item>
         <item>android.view.surfacecontrol.cts/.TrustedPresentationCallbackTest$TestActivity</item>
         <item>android.view.surfacecontrol.cts/android.view.cts.surfacevalidator.CapturedActivityWithResource</item>
