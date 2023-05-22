@@ -16,6 +16,8 @@
 
 package com.android.car.systeminterface;
 
+import static com.android.car.systeminterface.SystemStateInterface.DefaultImpl.getRandomizedDelay;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -169,5 +171,18 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
         }, Duration.ofMillis(100));
 
         JavaMockitoHelper.await(actionCompleted, /* timeoutMs= */ 1000);
+    }
+
+    @Test
+    public void testGetRandomizedDelay() throws Exception {
+        assertThat(getRandomizedDelay(Duration.ZERO, Duration.ZERO)).isEqualTo(Duration.ZERO);
+
+        Duration randomizedDelay = getRandomizedDelay(Duration.ZERO, Duration.ofMillis(1000));
+        assertThat(randomizedDelay).isAtLeast(Duration.ZERO);
+        assertThat(randomizedDelay).isLessThan(Duration.ofMillis(1000));
+
+        randomizedDelay = getRandomizedDelay(Duration.ofMillis(1000), Duration.ofMillis(2000));
+        assertThat(randomizedDelay).isAtLeast(Duration.ofMillis(1000));
+        assertThat(randomizedDelay).isLessThan(Duration.ofMillis(2000));
     }
 }

@@ -911,7 +911,8 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {
             mActionsList.add(Pair.create(action, delay));
             mActionsList.sort(Comparator.comparing(d -> d.second));
         }

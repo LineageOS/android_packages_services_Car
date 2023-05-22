@@ -56,10 +56,35 @@ public interface SystemStateInterface {
      * Puts the device into Suspend-to-disk (hibernation)
      *
      * @return boolean {@code true} if hibernation succeeded
-    */
+     */
     boolean enterHibernation();
 
-    void scheduleActionForBootCompleted(Runnable action, Duration delay);
+    /**
+     * Schedules an action to run after delay after boot completed for car service user.
+     *
+     * If the boot is already completed, the action will be run after delay.
+     *
+     * @param action The action to run after boot comoplete.
+     * @param delay The delay for the action. Can be 0.
+     */
+    default void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+        scheduleActionForBootCompleted(action, delay, /* delayRange= */ Duration.ZERO);
+    }
+
+    /**
+     * Schedules an action to run after delay after boot completed for car service user.
+     *
+     * If the boot is already completed, the action will be run after delay. If delayRange is not
+     * 0, then we will add randomness to the delay. The delay will be randomly picked between
+     * [max(0, delay-delayRange), delay+delayRange). This is useful to prevent all the boot complete
+     * actions to be executed at the same time.
+     *
+     * @param action The action to run after boot comoplete.
+     * @param delay The delay for the action. Can be 0.
+     * @param delayRange The range for the delay. If not 0, then delay will be randomized within
+     *   the range.
+     */
+    void scheduleActionForBootCompleted(Runnable action, Duration delay, Duration delayRange);
 
     default boolean isWakeupCausedByTimer() {
         //TODO bug: 32061842, check wake up reason and do necessary operation information should
@@ -193,6 +218,22 @@ public interface SystemStateInterface {
             return deviceHibernated;
         }
 
+        @VisibleForTesting
+        static Duration getRandomizedDelay(Duration delay, Duration delayRange) {
+            if (delayRange == Duration.ZERO) {
+                return delay;
+            }
+            Duration bootCompleteDelayMin = delay.minus(delayRange);
+            if (bootCompleteDelayMin.isNegative()) {
+                bootCompleteDelayMin = Duration.ZERO;
+            }
+            Duration bootCompleteDelayMax = delay.plus(delayRange);
+            long minMillis = bootCompleteDelayMin.toMillis();
+            long maxMillis = bootCompleteDelayMax.toMillis();
+            long delayMillis = minMillis + (long) (Math.random() * (maxMillis - minMillis));
+            return Duration.ofMillis(delayMillis);
+        }
+
         /**
          * Schedule an action to be run with delay when this user (system) has finished booting.
          *
@@ -200,8 +241,9 @@ public interface SystemStateInterface {
          * speicified delay.
          */
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration bootCompleteDelay) {
-            // TODO: consider adding some degree of randomness to bootCompleteDelay.
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {
+            Duration bootCompleteDelay = getRandomizedDelay(delay, delayRange);
             Slogf.i(TAG, "scheduleActionForBootCompleted, delay: " + bootCompleteDelay.toMillis()
                     + "ms");
             boolean receiverRegistered = false;
