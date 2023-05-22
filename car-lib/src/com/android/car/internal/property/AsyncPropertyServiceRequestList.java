@@ -20,21 +20,18 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcel;
 
-import com.android.car.internal.LargeParcelableBase;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @hide
  */
-public class AsyncPropertyServiceRequestList extends LargeParcelableBase {
-    @Nullable
-    private List<AsyncPropertyServiceRequest> mAsyncPropertyServiceRequestList;
+public final class AsyncPropertyServiceRequestList extends
+        LargeParcelableList<AsyncPropertyServiceRequest> {
 
     public AsyncPropertyServiceRequestList(
             @NonNull List<AsyncPropertyServiceRequest> asyncPropertyServiceRequestList) {
-        mAsyncPropertyServiceRequestList = asyncPropertyServiceRequestList;
+        super(asyncPropertyServiceRequestList);
     }
 
     private AsyncPropertyServiceRequestList(@NonNull Parcel in) {
@@ -42,32 +39,16 @@ public class AsyncPropertyServiceRequestList extends LargeParcelableBase {
     }
 
     @Override
-    protected void serialize(@NonNull Parcel dest, int flags) {
-        dest.writeTypedList(mAsyncPropertyServiceRequestList);
-    }
-
-    @Override
-    protected void serializeNullPayload(@NonNull Parcel dest) {
-        dest.writeTypedList(/* val= */ null);
-    }
-
-    @Override
-    protected void deserialize(@NonNull Parcel src) {
-        mAsyncPropertyServiceRequestList = src.createTypedArrayList(
-                AsyncPropertyServiceRequest.CREATOR);
-    }
-
-    public List<AsyncPropertyServiceRequest> getList() {
-        return mAsyncPropertyServiceRequestList;
+    protected Creator<AsyncPropertyServiceRequest> getCreator() {
+        return AsyncPropertyServiceRequest.CREATOR;
     }
 
     public static final @NonNull Creator<AsyncPropertyServiceRequestList> CREATOR =
-            new Creator<AsyncPropertyServiceRequestList>() {
+            new Creator<>() {
         @Override
         public AsyncPropertyServiceRequestList createFromParcel(@Nullable Parcel in) {
             if (in == null) {
-                return new AsyncPropertyServiceRequestList(
-                        new ArrayList<AsyncPropertyServiceRequest>());
+                return new AsyncPropertyServiceRequestList(new ArrayList<>());
             }
             return new AsyncPropertyServiceRequestList(in);
         }
