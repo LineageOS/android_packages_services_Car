@@ -17,8 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for system_bar_passenger_home_label (6669824047244356324) -->
-    <skip />
+    <string name="system_bar_passenger_home_label" msgid="6669824047244356324">"Pantalla d\'inici"</string>
     <string name="system_bar_control_center_label" msgid="958644321806830440">"Centre de control"</string>
     <string name="system_bar_notifications_label" msgid="2885882152000501006">"Notificacions"</string>
 </resources>
