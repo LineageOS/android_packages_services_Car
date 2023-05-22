@@ -244,8 +244,16 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         + " componentName " + componentName);
             }
 
+            // Re-launch the CarUiPortraitHomeScreen if coming background app is not current
+            // background app.
             if (mTaskCategoryManager.isBackgroundApp(componentName)) {
-                mTaskCategoryManager.setCurrentBackgroundApp(componentName);
+                mCurrentBackgroundTaskId = taskId;
+                if (!mTaskCategoryManager.isCurrentBackgroundApp(componentName)) {
+                    logIfDebuggable(
+                            "Re-create home screen on background app switch to " + componentName);
+                    mTaskCategoryManager.setCurrentBackgroundApp(componentName);
+                    recreate();
+                }
             }
         }
 
@@ -284,14 +292,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 return;
             }
 
-            // Re-launch the CarUiPortraitHomeScreen if coming background app is not current
-            // background app, close panel if already present in the background
             if (mTaskCategoryManager.isBackgroundApp(taskInfo)) {
-                if (!mTaskCategoryManager.isCurrentBackgroundApp(taskInfo)) {
-                    mTaskCategoryManager.setCurrentBackgroundApp(taskInfo.baseActivity);
-                    recreate();
-                }
-                mCurrentBackgroundTaskId = taskInfo.taskId;
                 return;
             }
 
@@ -783,10 +784,15 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 new ControlledCarTaskViewCallbacks() {
                     @Override
                     public void onTaskViewCreated(CarTaskView taskView) {
-                        logIfDebuggable("Background Task View is created");
+                        logIfDebuggable("Background Task View is created with component = "
+                                + backgroundIntent.getComponent());
                         taskView.setZOrderOnTop(false);
                         mBackgroundTaskView = taskView;
                         parent.addView(mBackgroundTaskView);
+                        // Set the background app here to avoid recreating
+                        // CarUiPortraitHomeScreen in onTaskCreated
+                        mTaskCategoryManager.setCurrentBackgroundApp(
+                                backgroundIntent.getComponent());
                     }
 
                     @Override
