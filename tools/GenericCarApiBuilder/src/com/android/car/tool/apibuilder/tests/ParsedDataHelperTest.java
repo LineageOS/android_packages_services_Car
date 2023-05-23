@@ -89,6 +89,7 @@ public final class ParsedDataHelperTest extends TestHelper {
                 + "ResultCallback<UserStopResponse> callback)",
                 "android.car.user Test1 void method_2()",
                 "android.car.user Test1 int method_3()",
+                "android.car.user Test1 int method_4()",
                 "android.car.user Test1.UserLifecycleListener void onEvent"
                 + "(UserLifecycleEvent event)",
                 "android.car.user Test1.UserLifecycleEvent int getEventType()",
@@ -111,6 +112,7 @@ public final class ParsedDataHelperTest extends TestHelper {
                 + "ResultCallback<UserStopResponse> callback)",
                 "android.car.user Test1 void method_2()",
                 "android.car.user Test1 int method_3()",
+                "android.car.user Test1 int method_4()",
                 "android.car.user Test1.UserLifecycleListener void onEvent"
                 + "(UserLifecycleEvent event)",
                 "android.car.user Test1.UserLifecycleEvent int getEventType()",
@@ -121,6 +123,16 @@ public final class ParsedDataHelperTest extends TestHelper {
                 "android.car.user Test1.UserLifecycleEvent UserLifecycleEvent UserLifecycleEvent"
                 + "(int eventType, int to)",
                 "android.car.user Test1 Test1 Test1(Car car, IBinder service)");
+    }
+
+    @Test
+    public void testCheckAssertPlatformVersionAtLeast() throws Exception {
+        ParsedData data = new ParsedData();
+        ParsedDataBuilder.populateParsedDataForFile(getResourceFile("Test1.txt"), data);
+        List<String> results = ParsedDataHelper.checkAssertPlatformVersionAtLeast(data);
+        assertThat(results.stream().anyMatch(result -> result.contains(
+                "android.car.user Test1 void method_1(UserStopRequest request, Executor executor,"
+                        + " ResultCallback<UserStopResponse> callback) | 89 |"))).isTrue();
     }
 
     @Test
@@ -138,6 +150,7 @@ public final class ParsedDataHelperTest extends TestHelper {
                         + "ResultCallback<UserStopResponse> callback) | UPSIDE_DOWN_CAKE_0",
                 "android.car.user Test1 void method_2() | TIRAMISU_0",
                 "android.car.user Test1 int method_3() | TIRAMISU_0",
+                "android.car.user Test1 int method_4() | UPSIDE_DOWN_CAKE_0",
                 "android.car.user Test1.UserLifecycleListener void onEvent"
                         + "(UserLifecycleEvent event) | TIRAMISU_0",
                 "android.car.user Test1.UserLifecycleEvent int getEventType() | TIRAMISU_0",
