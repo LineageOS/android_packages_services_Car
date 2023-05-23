@@ -520,6 +520,7 @@ public final class WatchdogProcessHandler {
         @Override
         public void binderDied() {
             Slogf.w(CarWatchdogService.TAG, "Client(pid: %d) died", pid);
+            unlinkToDeath();
             onClientDeath(client, timeout);
         }
 

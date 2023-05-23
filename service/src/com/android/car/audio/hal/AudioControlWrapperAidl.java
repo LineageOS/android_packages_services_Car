@@ -318,12 +318,19 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper, IBind
     @Override
     public void binderDied() {
         Slogf.w(TAG, "AudioControl HAL died. Fetching new handle");
+        mBinder.unlinkToDeath(this, 0);
         mListenerRegistered = false;
         mGainCallbackRegistered = false;
         mModuleChangeCallbackRegistered = false;
         mBinder = AudioControlWrapperAidl.getService();
         mAudioControl = IAudioControl.Stub.asInterface(mBinder);
-        linkToDeath(mDeathRecipient);
+        // TODO(b/284043199): Refactor the retry logic out and add delay between retry.
+        try {
+            mBinder.linkToDeath(this, 0);
+        } catch (RemoteException e) {
+            // Avoid crashing the binder thread.
+            Slogf.e(TAG, "Call to IAudioControl#linkToDeath failed", e);
+        }
         if (mDeathRecipient != null) {
             mDeathRecipient.serviceDied();
         }

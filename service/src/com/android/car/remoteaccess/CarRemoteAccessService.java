@@ -1276,6 +1276,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         public void binderDied() {
             synchronized (mTokenLock) {
                 Slogf.w(TAG, "Client token callback binder died");
+                mCallback.asBinder().unlinkToDeath(this, /* flags= */ 0);
                 mCallback = null;
             }
         }
