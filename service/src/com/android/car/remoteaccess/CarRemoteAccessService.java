@@ -102,6 +102,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     // Client ID remains valid for 30 days since issued.
     private static final long CLIENT_ID_EXPIRATION_IN_MILLIS = 30L * 24L * 60L * 60L * 1000L;
     private static final Duration PACKAGE_SEARCH_DELAY = Duration.ofSeconds(1);
+    // Add some randomness to package search delay to avoid thundering herd issue.
+    private static final Duration PACKAGE_SEARCH_DELAY_RAND_RANGE = Duration.ofMillis(100);
     // Remote task client can use up to 30 seconds to initialize and upload necessary info to the
     // server.
     private static final long ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS = 30_000;
@@ -370,7 +372,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
                 new RemoteAccessStorage(context, systemInterface, inMemoryStorage);
         // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
-                PACKAGE_SEARCH_DELAY);
+                PACKAGE_SEARCH_DELAY, PACKAGE_SEARCH_DELAY_RAND_RANGE);
     }
 
     @VisibleForTesting
