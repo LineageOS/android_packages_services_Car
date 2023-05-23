@@ -63,7 +63,6 @@ import com.google.common.truth.Expect;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
@@ -235,7 +234,6 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     @Test
-    @Ignore("b/250982055")
     public void testGetTopTasksOnMultiDisplay() throws Exception {
         // TaskOrganizer gets the callbacks only on the tasks launched in the actual Surface.
         try (VirtualDisplaySession session = new VirtualDisplaySession()) {
@@ -245,11 +243,11 @@ public class CarActivityServiceTaskMonitorUnitTest {
             startActivityAndAssertLaunched(mActivityA);
             assertTrue(topTasksHasComponent(mActivityA));
 
-            startActivityAndAssertLaunched(mActivityB);
+            startActivityAndAssertLaunched(mActivityB, virtualDisplayId);
             assertTrue(topTasksHasComponent(mActivityB));
             assertTrue(topTasksHasComponent(mActivityA));
 
-            startActivityAndAssertLaunched(mActivityC);
+            startActivityAndAssertLaunched(mActivityC, virtualDisplayId);
             assertTrue(topTasksHasComponent(mActivityC));
             assertFalse(topTasksHasComponent(mActivityB));
             assertTrue(topTasksHasComponent(mActivityA));
@@ -369,9 +367,14 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private FilteredLaunchListener startActivityAndAssertLaunched(ComponentName activity)
             throws InterruptedException {
+        return startActivityAndAssertLaunched(activity, Display.DEFAULT_DISPLAY);
+    }
+
+    private FilteredLaunchListener startActivityAndAssertLaunched(
+            ComponentName activity, int displayId) throws InterruptedException {
         FilteredLaunchListener listener = new FilteredLaunchListener(activity);
         mService.registerActivityLaunchListener(listener);
-        startActivity(activity);
+        startActivity(activity, displayId);
         listener.assertTopTaskActivityLaunched();
         return listener;
     }
