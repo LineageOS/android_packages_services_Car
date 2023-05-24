@@ -62,6 +62,7 @@ import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
+import com.android.modules.expresslog.Histogram;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -136,6 +137,11 @@ public class CarPropertyService extends ICarProperty.Stub
                 VehiclePropertyIds.WINDSHIELD_WIPERS_SWITCH,
                 WINDSHIELD_WIPERS_SWITCH_UNWRITABLE_STATES);
     }
+
+    private static final Histogram sConcurrentSyncOperationHistogram = new Histogram(
+            "automotive_os.value_concurrent_sync_operations",
+            new Histogram.UniformOptions(/* binCount= */ 17, /* minValue= */ 0,
+                    /* exclusiveMaxValue= */ 17));
 
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
@@ -600,9 +606,11 @@ public class CarPropertyService extends ICarProperty.Stub
     private <V> V runSyncOperationCheckLimit(Callable<V> c) {
         synchronized (mLock) {
             if (mSyncGetSetPropertyOpCount >= SYNC_GET_SET_PROPERTY_OP_LIMIT) {
+                sConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
                 throw new ServiceSpecificException(SYNC_OP_LIMIT_TRY_AGAIN);
             }
             mSyncGetSetPropertyOpCount += 1;
+            sConcurrentSyncOperationHistogram.logSample(mSyncGetSetPropertyOpCount);
             if (DBG) {
                 Slogf.d(TAG, "mSyncGetSetPropertyOpCount: %d", mSyncGetSetPropertyOpCount);
             }
