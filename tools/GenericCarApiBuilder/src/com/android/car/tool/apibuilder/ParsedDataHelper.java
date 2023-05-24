@@ -149,7 +149,6 @@ public final class ParsedDataHelper {
         return allApis;
     }
 
-    // TODO(b/278759600): add tests for assertPlatformVersionAtLeast check
     public static List<String> checkAssertPlatformVersionAtLeast(
             ParsedData parsedData) {
         List<String> apis = new ArrayList<>();
