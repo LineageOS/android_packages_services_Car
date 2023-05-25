@@ -255,6 +255,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Required to provide keyboard layouts to the KeyboardLayoutManager -->
+    <install-in-user-type package="com.android.inputdevices">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
     <!-- CarService updatable resources -->
     <install-in-user-type package="com.android.car.resources.vendor">
         <install-in user-type="FULL" />
@@ -293,9 +299,6 @@
   Here the apps will have FULL only.
 -->
     <install-in-user-type package="com.android.htmlviewer">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.inputdevices">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <!-- IntentResolver only consists of Activity and requires user interaction -->
