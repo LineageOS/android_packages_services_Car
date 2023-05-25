@@ -531,7 +531,6 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/235991826): Add CTS test.
     /**
      * Switches the foreground user to the given user.
      *
