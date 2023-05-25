@@ -45,6 +45,7 @@ import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 import android.view.KeyEvent;
 
 import com.android.car.CarInputService;
@@ -327,6 +328,10 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                     + mIInstrumentClusterNavigationFromRenderer);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     private static void notifyNavContextOwnerChanged(IInstrumentCluster service,
             ContextOwner owner) {

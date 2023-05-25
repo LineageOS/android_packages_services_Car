@@ -33,6 +33,7 @@ import android.os.Message;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -139,6 +140,10 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     "mAssignPassengerActivityToFgGroup:" + mAssignPassengerActivityToFgGroup);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Returns {@code true} if given pid-uid pair is in foreground.

@@ -73,6 +73,7 @@ import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.AtomicFile;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -480,6 +481,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSilentModeHandler.dump(writer);
         mScreenOffHandler.dump(writer);
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void onApPowerStateChange(PowerState state) {

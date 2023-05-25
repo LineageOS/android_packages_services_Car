@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import android.util.proto.ProtoOutputStream;
+
 /**
  * Base class for all Car specific services except for {@code VehicleHal} and
  * {@code CarStatsService}.
@@ -26,4 +28,6 @@ package com.android.car;
 // extends CarSystemService. This makes it easy for ICarImpl to handle dump differently
 // for VehicleHal and CarStatsService.
 public interface CarServiceBase extends CarSystemService {
+    /** Dumps its state to a proto buffer. */
+    void dumpProto(ProtoOutputStream proto);
 }

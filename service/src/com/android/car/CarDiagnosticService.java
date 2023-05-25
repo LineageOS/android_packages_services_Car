@@ -30,6 +30,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
@@ -689,4 +690,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 }

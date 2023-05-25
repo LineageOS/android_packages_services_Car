@@ -41,6 +41,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -373,6 +374,10 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     public void dump(IndentingPrintWriter writer) {
         // TODO(sgurun) implement
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Nullable
     private LocalSocket connectSocket(@NonNull String socketName) {

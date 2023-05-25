@@ -69,6 +69,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarOccupantZoneService;
@@ -344,6 +345,10 @@ public class CarRemoteDeviceService extends ICarRemoteDevice.Stub implements
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void registerStateCallback(String packageName, IStateCallback callback) {

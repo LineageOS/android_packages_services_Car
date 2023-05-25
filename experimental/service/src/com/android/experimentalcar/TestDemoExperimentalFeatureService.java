@@ -16,9 +16,13 @@
 
 package com.android.experimentalcar;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.experimental.ITestDemoExperimental;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarServiceBase;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
@@ -41,6 +45,10 @@ public final class TestDemoExperimentalFeatureService extends ITestDemoExperimen
     public void dump(IndentingPrintWriter writer) {
         writer.println("*TestExperimentalFeatureService*");
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public String ping(String msg) {

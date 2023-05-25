@@ -47,6 +47,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarOccupantZoneService;
@@ -410,6 +411,10 @@ public final class ExperimentalCarKeyguardService extends IExperimentalCarKeygua
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @VisibleForTesting
     static class KeyguardState {

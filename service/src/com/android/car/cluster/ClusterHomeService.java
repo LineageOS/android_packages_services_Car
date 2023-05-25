@@ -49,6 +49,7 @@ import android.os.Bundle;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.text.TextUtils;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLog;
@@ -187,6 +188,10 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     public void dump(IndentingPrintWriter writer) {
         // TODO: record the latest states from both sides
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     // ClusterHalEventListener starts
     @Override

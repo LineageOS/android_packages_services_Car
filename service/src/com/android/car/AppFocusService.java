@@ -32,6 +32,7 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -311,6 +312,10 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
             }
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Returns true if process with given uid and pid owns provided focus.

@@ -40,6 +40,7 @@ import android.os.RemoteException;
 import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -126,6 +127,10 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
                     .forEach(client -> client.dump(writer, "  "));
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public VmsRegistrationInfo registerClient(IBinder clientToken, IVmsClientCallback callback,

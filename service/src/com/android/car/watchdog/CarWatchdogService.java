@@ -75,6 +75,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.Log;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -344,6 +345,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogPerfHandler.dump(writer);
         writer.decreaseIndent();
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     /**
      * Registers {@link android.car.watchdog.ICarWatchdogServiceCallback} to

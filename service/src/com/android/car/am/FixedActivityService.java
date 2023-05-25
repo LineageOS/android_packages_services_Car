@@ -56,6 +56,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -280,6 +281,10 @@ public final class FixedActivityService implements CarServiceBase {
                     + " ,mEventMonitoringActive:" + mEventMonitoringActive);
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @GuardedBy("mLock")
     private void clearRunningActivitiesLocked() {

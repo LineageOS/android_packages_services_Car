@@ -27,6 +27,7 @@ import android.os.MessageQueue.OnFileDescriptorEventListener;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.proto.ProtoOutputStream;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -83,6 +84,10 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
             writer.println(" mTokens:" + Arrays.toString(mTokens.entrySet().toArray()));
         }
     }
+
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpProto(ProtoOutputStream proto) {}
 
     @Override
     public void stopCarService(IBinder token) throws RemoteException {
