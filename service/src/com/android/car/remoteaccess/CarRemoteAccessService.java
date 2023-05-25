@@ -413,7 +413,6 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             mNextPowerState = getLastShutdownState();
             mIsReadyForRemoteTask = true;
             mIsWakeupRequired = false;
-            mNotifyApPowerStateRetryCount += 1;
         }
 
         mPowerService.registerListenerWithCompletion(mCarPowerStateListener);
@@ -974,7 +973,10 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             isReadyForRemoteTask = mIsReadyForRemoteTask;
             isWakeupRequired = mIsWakeupRequired;
-            if (mNotifyApPowerStateRetryCount == NOTIFY_AP_STATE_MAX_RETRY) {
+            mNotifyApPowerStateRetryCount++;
+            if (mNotifyApPowerStateRetryCount > NOTIFY_AP_STATE_MAX_RETRY) {
+                Slogf.e(TAG, "Reached max retry count for trying to notify AP state change, "
+                        + "Failed to notify AP state Change!!!");
                 return;
             }
         }
@@ -982,6 +984,14 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
             Slogf.e(TAG, "Cannot notify AP state change, waiting for "
                     + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
             mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
+            return;
+        }
+        synchronized (mLock) {
+            mNotifyApPowerStateRetryCount = 0;
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Notified AP about new state, isReadyForRemoteTask: %B, "
+                    + "isWakeupRequired: %B", isReadyForRemoteTask, isWakeupRequired);
         }
     }
 

@@ -356,14 +356,52 @@ public final class CarRemoteAccessServiceUnitTest {
     @Test
     public void testCarRemoteAccessServiceInit_retryNotifyApState() throws Exception {
         when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(false).thenReturn(false).thenReturn(true);
+
+        mService.init();
+
+        // This should take about 300ms, so waiting 5s is definitely enough.
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(3)).notifyApStateChange(
+                anyBoolean(), anyBoolean());
+    }
+
+    @Test
+    public void testCarRemoteAccessServiceInit_maxRetryNotifyApState() throws Exception {
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
                 .thenReturn(false);
 
         mService.init();
 
-        verify(mRemoteAccessHalWrapper, timeout(1500).times(10)).notifyApStateChange(
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(10)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+
+        SystemClock.sleep(100);
+
+        // Verify no more retry.
+        verify(mRemoteAccessHalWrapper, times(10)).notifyApStateChange(
                 /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
     }
 
+    @Test
+    public void testCarRemoteAccessServiceInit_resetRetryCountAfterSuccess() throws Exception {
+        when(mRemoteAccessHalWrapper.notifyApStateChange(anyBoolean(), anyBoolean()))
+                .thenReturn(false).thenReturn(false).thenReturn(true);
+
+        mService.init();
+
+        verify(mRemoteAccessHalWrapper, timeout(WAIT_TIMEOUT_MS).times(3)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+
+        ICarPowerStateListener powerStateListener = getCarPowerStateListener();
+        // Success notifying should not be limited retry count and should reset retry count to 0.
+        for (int i = 0; i < 10; i++) {
+            powerStateListener.onStateChanged(CarPowerManager.STATE_WAIT_FOR_VHAL, 0);
+        }
+
+        // notifyApStateChange is also called when initializaing CarRemoteAccessService.
+        verify(mRemoteAccessHalWrapper, times(13)).notifyApStateChange(
+                /* isReadyForRemoteTask= */ true, /* isWakeupRequired= */ false);
+    }
 
     @Test
     public void testAddCarRemoteTaskClient() throws Exception {
