@@ -31,6 +31,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyFloat;
 import static org.mockito.Mockito.anyInt;
@@ -52,7 +53,9 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.HardwareBuffer;
@@ -61,9 +64,12 @@ import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.os.UserHandle;
+import android.view.Display;
 import android.util.Log;
 
 import com.android.car.BuiltinPackageDependency;
@@ -73,7 +79,9 @@ import com.android.car.hal.EvsHalService;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -106,6 +114,11 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     private static final CarPropertyValue<Integer> CURRENT_GEAR_PROPERTY_REVERSE =
         new CarPropertyValue<>(VehicleProperty.CURRENT_GEAR, VehicleArea.GLOBAL,
                                VehicleGear.GEAR_REVERSE);
+    private static final String VALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME =
+            "com.android.car.evs/com.android.car.evs.MockActivity";
+    // ComponentName.unflattenFromString() returns a null object on below String object because it
+    // does not contain an expected separator, '/'.
+    private static final String INVALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME = "InvalidComponentName";
 
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private ClassLoader mMockClassLoader;
@@ -116,9 +129,11 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
     @Mock private EvsHalWrapperImpl mMockEvsHalWrapper;
     @Mock private PackageManager mMockPackageManager;
     @Mock private Resources mMockResources;
+    @Mock private Display mMockDisplay;
 
     @Captor private ArgumentCaptor<ICarPropertyEventListener> mGearSelectionListenerCaptor;
     @Captor private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
+    @Captor private ArgumentCaptor<DisplayManager.DisplayListener> mDisplayListenerCaptor;
 
     private CarEvsService mCarEvsService;
     private Random mRandom = new Random();
@@ -137,6 +152,9 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
             .spyStatic(BuiltinPackageDependency.class);
     }
 
+    @Rule
+    public TestName mTestName = new TestName();
+
     @Before
     public void setUp() throws Exception {
         when(mMockContext.getPackageName()).thenReturn(SYSTEMUI_PACKAGE_NAME);
@@ -146,8 +164,13 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         when(mMockContext.getSystemService(DisplayManager.class)).thenReturn(mMockDisplayManager);
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
 
-        when(mMockResources.getString(com.android.car.R.string.config_evsCameraActivity))
-                .thenReturn("evsCameraActivity");
+        if (mTestName.getMethodName().endsWith("InvalidEvsCameraActivity")) {
+            when(mMockResources.getString(com.android.car.R.string.config_evsCameraActivity))
+                    .thenReturn(INVALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME);
+        } else {
+            when(mMockResources.getString(com.android.car.R.string.config_evsCameraActivity))
+                    .thenReturn(VALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME);
+        }
         when(mMockResources.getString(
                 com.android.internal.R.string.config_systemUIServiceComponent))
                 .thenReturn("com.android.systemui/com.android.systemui.SystemUIService");
@@ -519,6 +542,59 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
 
         assertThat(mCarEvsService.getCurrentStatus().getState())
                 .isEqualTo(CarEvsManager.SERVICE_STATE_REQUESTED);
+    }
+
+    @Test
+    public void testCarPropertyEventWithInvalidEvsCameraActivity() throws Exception {
+        CarPropertyEvent event = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                                                  GEAR_SELECTION_PROPERTY_REVERSE);
+        when(mMockEvsHalService.isEvsServiceRequestSupported()).thenReturn(false);
+        when(mMockCarPropertyService.getPropertySafe(anyInt(), anyInt()))
+                .thenReturn(GEAR_SELECTION_PROPERTY_REVERSE);
+
+        mCarEvsService.setToUseGearSelection(/* useGearSelection= */ true);
+        mCarEvsService.init();
+        mGearSelectionListenerCaptor.getValue().onEvent(Arrays.asList(event));
+
+        assertThat(mCarEvsService.getCurrentStatus().getState())
+                .isEqualTo(CarEvsManager.SERVICE_STATE_INACTIVE);
+    }
+
+    @Test
+    public void testDuplicatedDisplayEvent() throws Exception {
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        EvsStatusListenerImpl spiedStatusListener = spy(new EvsStatusListenerImpl());
+        when(mMockEvsHalService.isEvsServiceRequestSupported()).thenReturn(false);
+        when(mMockDisplayManager.getDisplay(Display.DEFAULT_DISPLAY)).thenReturn(mMockDisplay);
+        when(mMockDisplay.getState()).thenReturn(Display.STATE_ON);
+
+        // Set a last HAL event to require a camera activity and give onDisplayChanged() callback
+        // twice.
+        mCarEvsService.init();
+        mCarEvsService.setLastEvsHalEvent(/* timestamp= */ 0, CarEvsManager.SERVICE_TYPE_REARVIEW,
+                                          /* on= */ true);
+        mCarEvsService.setToUseGearSelection(/* useGearSelection= */ true);
+        mCarEvsService.registerStatusListener(spiedStatusListener);
+
+        verify(mMockDisplayManager).registerDisplayListener(
+                    mDisplayListenerCaptor.capture(), any(Handler.class));
+
+        mDisplayListenerCaptor.getValue().onDisplayChanged(Display.DEFAULT_DISPLAY);
+        mDisplayListenerCaptor.getValue().onDisplayChanged(Display.DEFAULT_DISPLAY);
+
+        // Confirm that we have received onStatusChanged() callback only twice.
+        verify(spiedStatusListener, times(2)).onStatusChanged(argThat(
+                received -> received.getState() == CarEvsManager.SERVICE_STATE_REQUESTED ||
+                        received.getState() == CarEvsManager.SERVICE_STATE_INACTIVE));
+        verify(mMockContext).startActivity(intentCaptor.capture());
+
+        // Also, verify that we have received an intent for a camera activity.
+        assertThat(intentCaptor.getValue().getComponent()).isEqualTo(
+                ComponentName.unflattenFromString(VALID_EVS_CAMERA_ACTIVITY_COMPONENT_NAME));
+
+        Bundle extras = intentCaptor.getValue().getExtras();
+        assertThat(extras).isNotNull();
+        assertThat(extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN)).isNotNull();
     }
 
     @Test

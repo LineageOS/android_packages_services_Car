@@ -707,6 +707,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return false;
         }
 
+        boolean alreadyRequested = mHandler.hasCallbacks(mActivityRequestTimeoutRunnable);
+        if (mEvsCameraActivity == null || alreadyRequested) {
+            if (DBG) {
+                Slogf.d(TAG_EVS,
+                        "No need to request an activity, mEvsCameraActivity=%s, " +
+                        "alreadyRequested=%s", mEvsCameraActivity, alreadyRequested);
+            }
+            return true;
+        }
+
         // Request to launch an activity again after cleaning up
         mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
         mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
@@ -1307,6 +1317,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @GuardedBy("mLock")
     private void handlePropertyEventLocked(CarPropertyEvent event) {
+        if (mEvsCameraActivity == null) {
+            // Nothing to do because we do not have an activity to manage.
+            return;
+        }
+
         if (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
             // CarEvsService is interested only in the property change event.
             return;
