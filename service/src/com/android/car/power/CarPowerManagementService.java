@@ -1281,6 +1281,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Broadcasts to the listeners that DO signal completion.
         notifyListeners(completingInternalListeners, newState, internalListenerExpirationTimeMs);
         notifyListeners(completingBinderListeners, newState, binderListenerExpirationTimeMs);
+
+        // Call unlinkToDeath inside RemoteCallbackList
+        completingInternalListeners.kill();
+        completingBinderListeners.kill();
     }
 
     private void notifyListeners(PowerManagerCallbackList<ICarPowerStateListener> listenerList,
