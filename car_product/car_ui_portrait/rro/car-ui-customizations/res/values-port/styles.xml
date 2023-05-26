@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="TextAppearance.CarUi.AlertDialog.Title" parent="TextAppearance.Car.Subhead.Large">
-        <item name="android:fontFamily">google-sans-display</item>
+        <item name="android:fontFamily">roboto-regular</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textColor">@color/car_on_surface</item>
         <item name="android:stateListAnimator">@null</item>
