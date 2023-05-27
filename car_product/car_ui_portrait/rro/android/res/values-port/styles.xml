@@ -18,7 +18,7 @@
 
 <resources>
     <style name="CarDialogActionButton" parent="TextAppearance.Car.Button.Medium">
-        <item name="android:fontFamily">google-sans-text</item>
+        <item name="android:fontFamily">roboto-regular</item>
         <item name="android:textStyle">normal</item>
         <item name="android:lineHeight">40dp</item>
         <item name="android:background">@drawable/car_dialog_button_background</item>
