@@ -82,6 +82,10 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     @Mock
     private PackageManager mPm;
 
+    public CarServiceUtilsTest() {
+        super(TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(ActivityManager.class).spyStatic(PackageManagerHelper.class);
@@ -264,6 +268,7 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    @ExpectWtf
     public void testIsEventOfType_returnsFalse() {
         assertThat(CarServiceUtils.isEventOfType(TAG, USER_STARTING_EVENT,
                 USER_LIFECYCLE_EVENT_TYPE_SWITCHING)).isFalse();
@@ -276,11 +281,13 @@ public class CarServiceUtilsTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    @ExpectWtf
     public void testIsEventAnyOfTypes_emptyEventTypes_returnsFalse() {
         assertThat(CarServiceUtils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT)).isFalse();
     }
 
     @Test
+    @ExpectWtf
     public void testIsEventAnyOfTypes_returnsFalse() {
         assertThat(CarServiceUtils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT,
                 USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_STOPPING)).isFalse();
