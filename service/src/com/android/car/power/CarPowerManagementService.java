@@ -484,7 +484,56 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpProto(ProtoOutputStream proto) {}
+    public void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            proto.write(CarPowerDumpProto.CURRENT_STATE, mCurrentState.mState);
+            proto.write(CarPowerDumpProto.SHUTDOWN_START_TIME, mShutdownStartTime);
+            proto.write(CarPowerDumpProto.LAST_SLEEP_ENTRY_TIME, mLastSleepEntryTime);
+            proto.write(CarPowerDumpProto.NEXT_WAKEUP_SEC, mNextWakeupSec);
+            proto.write(CarPowerDumpProto.SHUTDOWN_ON_NEXT_SUSPEND, mShutdownOnNextSuspend);
+            proto.write(
+                    CarPowerDumpProto.ACTION_ON_FINISH, actionOnFinishToString(mActionOnFinish));
+            proto.write(CarPowerDumpProto.SHUTDOWN_POLLING_INTERVAL_MS, mShutdownPollingIntervalMs);
+            proto.write(CarPowerDumpProto.SHUTDOWN_PREPARE_TIME_MS, mShutdownPrepareTimeMs);
+            proto.write(CarPowerDumpProto.REBOOT_AFTER_GARAGE_MODE, mRebootAfterGarageMode);
+            proto.write(
+                    CarPowerDumpProto.SWITCH_GUEST_USER_BEFORE_SLEEP, mSwitchGuestUserBeforeSleep);
+            proto.write(CarPowerDumpProto.CURRENT_POWER_POLICY_ID, mCurrentPowerPolicyId);
+            proto.write(CarPowerDumpProto.PENDING_POWER_POLICY_ID, mPendingPowerPolicyId);
+            proto.write(
+                    CarPowerDumpProto.CURRENT_POWER_POLICY_GROUP_ID, mCurrentPowerPolicyGroupId);
+            proto.write(CarPowerDumpProto.IS_POWER_POLICY_LOCKED, mIsPowerPolicyLocked);
+            proto.write(CarPowerDumpProto.MAX_SUSPEND_WAIT_DURATION_MS, mMaxSuspendWaitDurationMs);
+            proto.write(CarPowerDumpProto.MAX_SUSPEND_WAIT_DURATION_CONFIG,
+                    getMaxSuspendWaitDurationConfig());
+            proto.write(CarPowerDumpProto.WIFI_STATE_FILE, mWifiStateFile.toString());
+            proto.write(CarPowerDumpProto.TETHERING_STATE_FILE, mTetheringStateFile.toString());
+            proto.write(CarPowerDumpProto.WIFI_ADJUSTMENT_FOR_SUSPEND, mWifiAdjustmentForSuspend);
+            proto.write(CarPowerDumpProto.POWER_POLICY_LISTENERS,
+                    mPowerPolicyListeners.getRegisteredCallbackCount());
+            proto.write(CarPowerDumpProto.FACTORY_RESET_CALLBACK,
+                    mFactoryResetCallback != null ? mFactoryResetCallback.toString() : "");
+            proto.write(CarPowerDumpProto.IS_LISTENER_WAITING_CANCELLED,
+                    mIsListenerWaitingCancelled.get());
+            proto.write(CarPowerDumpProto.KERNEL_SUPPORTS_DEEP_SLEEP,
+                    mSystemInterface.isSystemSupportingDeepSleep());
+            proto.write(CarPowerDumpProto.KERNEL_SUPPORTS_HIBERNATION,
+                    mSystemInterface.isSystemSupportingHibernation());
+        }
+
+        synchronized (mSimulationWaitObject) {
+            proto.write(CarPowerDumpProto.WAKE_FROM_SIMULATED_SLEEP, mWakeFromSimulatedSleep);
+            proto.write(CarPowerDumpProto.IN_SIMULATED_DEEP_SLEEP_MODE, mInSimulatedDeepSleepMode);
+            proto.write(CarPowerDumpProto.RESUME_DELAY_FROM_SIMULATED_SUSPEND_SEC,
+                    mResumeDelayFromSimulatedSuspendSec);
+            proto.write(CarPowerDumpProto.FREE_MEMORY_BEFORE_SUSPEND, mFreeMemoryBeforeSuspend);
+        }
+
+        mPolicyReader.dumpProto(proto);
+        mPowerComponentHandler.dumpProto(proto);
+        mSilentModeHandler.dumpProto(proto);
+        mScreenOffHandler.dumpProto(proto);
+    }
 
     @Override
     public void onApPowerStateChange(PowerState state) {

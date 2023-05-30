@@ -1042,6 +1042,7 @@ public class ICarImpl extends ICar.Stub {
         try (FileOutputStream fileStream = new FileOutputStream(fd)) {
             ProtoOutputStream proto = new ProtoOutputStream(fileStream);
             service.dumpProto(proto);
+            proto.flush();
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);

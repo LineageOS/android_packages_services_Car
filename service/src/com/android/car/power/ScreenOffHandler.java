@@ -38,6 +38,7 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -46,6 +47,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerDumpProto.ScreenOffHandlerProto;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -657,6 +659,22 @@ final class ScreenOffHandler {
             for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
                 writer.println(mDisplayPowerInfos.valueAt(i));
             }
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProto(ProtoOutputStream proto) {
+        synchronized (mLock) {
+            long screenOffHandlerToken = proto.start(CarPowerDumpProto.SCREEN_OFF_HANDLER);
+            proto.write(ScreenOffHandlerProto.IS_AUTO_POWER_SAVING, mIsAutoPowerSaving);
+            proto.write(ScreenOffHandlerProto.BOOT_COMPLETED, mBootCompleted);
+            proto.write(
+                    ScreenOffHandlerProto.NO_USER_SCREEN_OFF_TIMEOUT_MS, mNoUserScreenOffTimeoutMs);
+            for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
+                proto.write(ScreenOffHandlerProto.DISPLAY_POWER_INFO,
+                        mDisplayPowerInfos.valueAt(i).toString());
+            }
+            proto.end(screenOffHandlerToken);
         }
     }
 
