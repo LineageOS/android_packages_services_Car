@@ -44,6 +44,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArraySet;
+import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -75,8 +76,8 @@ import java.util.function.Supplier;
  * @see android.hardware.automotive.vehicle.IVehicle
  */
 public class VmsHalService extends HalServiceBase {
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(VmsHalService.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int HAL_PROPERTY_ID = VehicleProperty.VEHICLE_MAP_SERVICE;
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             HAL_PROPERTY_ID

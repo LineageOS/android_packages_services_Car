@@ -45,7 +45,6 @@ import java.util.List;
  */
 public final class ClusterHalService extends HalServiceBase {
     private static final String TAG = ClusterHalService.class.getSimpleName();
-    private static final boolean DBG = false;
     public static final int DISPLAY_OFF = 0;
     public static final int DISPLAY_ON = 1;
     public static final int DONT_CARE = -1;

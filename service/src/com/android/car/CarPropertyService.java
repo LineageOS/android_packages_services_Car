@@ -47,6 +47,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.Trace;
 import android.util.ArrayMap;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.util.proto.ProtoOutputStream;
@@ -78,8 +79,8 @@ import java.util.concurrent.Callable;
  */
 public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarPropertyService.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     // Maximum count of sync get/set property operation allowed at once. The reason we limit this
     // is because each sync get/set property operation takes up one binder thread. If they take
     // all the binder thread, we do not have thread left for the result callback from VHAL. This
