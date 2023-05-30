@@ -20,8 +20,12 @@ import android.car.annotation.AddedInOrBefore;
 /**
  * Bit flags for fan direction.
  * This constant must be used with HVAC_FAN_DIRECTION property in {@link VehiclePropertyIds}.
+ *
+ * @deprecated use {@link android.car.hardware.CarHvacFanDirection} instead. This API will be marked
+ * as {@code @removed} in the next API release and then fully removed in two API releases.
  * @hide
  */
+@Deprecated
 public final class VehicleHvacFanDirection {
     @AddedInOrBefore(majorVersion = 33)
     public static final int FACE = 0x1;

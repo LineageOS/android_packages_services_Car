@@ -23,8 +23,8 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.VehicleHvacFanDirection;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.CarHvacFanDirection;
 import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.AutomaticEmergencyBrakingState;
 import android.hardware.automotive.vehicle.BlindSpotWarningState;
@@ -120,7 +120,7 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> VEHICLE_LIGHT_SWITCH =
             new HashSet<>(getIntegersFromDataEnums(VehicleLightSwitch.class));
     private static final int HVAC_FAN_DIRECTION_COMBINATIONS =
-            generateAllCombination(VehicleHvacFanDirection.class);
+            generateAllCombination(CarHvacFanDirection.class);
     private static final Set<Integer> ETC_CARD_TYPE =
             new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardType.class));
     private static final Set<Integer> ETC_CARD_STATUS =
