@@ -711,7 +711,8 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {}
 
         @Override
         public boolean isWakeupCausedByTimer() {

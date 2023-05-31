@@ -319,7 +319,8 @@ public class IoStatsTrackerTest extends TestCase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {
         }
 
         @Override

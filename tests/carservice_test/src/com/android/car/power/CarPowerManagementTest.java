@@ -985,7 +985,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {}
 
         public void setExpectedSuspendStatus(boolean expectedStatus) {
             synchronized (mLock) {

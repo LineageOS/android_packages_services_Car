@@ -736,7 +736,8 @@ public class MockedCarTestBase {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay,
+                Duration delayRange) {}
     }
 
     static final class MockTimeInterface implements TimeInterface {

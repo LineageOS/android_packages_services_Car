@@ -16,19 +16,36 @@
 
 package com.android.car.systeminterface;
 
+import static com.android.car.systeminterface.SystemStateInterface.DefaultImpl.getRandomizedDelay;
+
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.JavaMockitoHelper;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.os.SystemClock;
+import android.os.UserManager;
 
 import com.android.car.test.utils.TemporaryFile;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Unit tests for {@link SystemStateInterface}
@@ -41,6 +58,10 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
 
     @Mock
     private Context mMockContext;
+    @Mock
+    private UserManager mMockUserManager;
+    @Captor
+    private ArgumentCaptor<BroadcastReceiver> mReceiverCaptor;
     private SystemStateInterface.DefaultImpl mSystemStateInterface;
 
     public SystemStateInterfaceTest() {
@@ -92,5 +113,76 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
         ExtendedMockito.when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn("");
 
         assertThat(mSystemStateInterface.enterHibernation()).isFalse();
+    }
+
+    @Test
+    public void testScheduleActionForBootCompleted() throws Exception {
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(false);
+        CountDownLatch actionCompleted = new CountDownLatch(1);
+
+        mSystemStateInterface.scheduleActionForBootCompleted(() -> {
+            actionCompleted.countDown();
+        }, Duration.ofMillis(100));
+
+        verify(mMockContext).registerReceiver(mReceiverCaptor.capture(), any(), anyInt());
+
+        SystemClock.sleep(100);
+
+        assertWithMessage("action must not run if boot not completed").that(
+                actionCompleted.getCount()).isEqualTo(1);
+
+        BroadcastReceiver receiver = mReceiverCaptor.getValue();
+        receiver.onReceive(mMockContext, new Intent(Intent.ACTION_BOOT_COMPLETED));
+
+        JavaMockitoHelper.await(actionCompleted, /* timeoutMs= */ 1000);
+    }
+
+    @Test
+    public void testScheduleActionForBootCompleted_receivedIntent() throws Exception {
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(false);
+        CountDownLatch actionCompleted = new CountDownLatch(2);
+
+        mSystemStateInterface.scheduleActionForBootCompleted(() -> {
+            actionCompleted.countDown();
+        }, Duration.ofMillis(100));
+        verify(mMockContext).registerReceiver(mReceiverCaptor.capture(), any(), anyInt());
+        BroadcastReceiver receiver = mReceiverCaptor.getValue();
+        receiver.onReceive(mMockContext, new Intent(Intent.ACTION_BOOT_COMPLETED));
+        // After we received the boot completed intent, we should still invoke the action.
+        mSystemStateInterface.scheduleActionForBootCompleted(() -> {
+            actionCompleted.countDown();
+        }, Duration.ofMillis(100));
+
+        JavaMockitoHelper.await(actionCompleted, /* timeoutMs= */ 1000);
+    }
+
+    @Test
+    public void testScheduleActionForBootCompleted_userUnlocked() throws Exception {
+        // If car service (including SystemStateInterface) restarts after bootup complete, then
+        // it will never receive the intent again. However, isUserUnlocked should be true.
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(true);
+        CountDownLatch actionCompleted = new CountDownLatch(1);
+
+        mSystemStateInterface.scheduleActionForBootCompleted(() -> {
+            actionCompleted.countDown();
+        }, Duration.ofMillis(100));
+
+        JavaMockitoHelper.await(actionCompleted, /* timeoutMs= */ 1000);
+    }
+
+    @Test
+    public void testGetRandomizedDelay() throws Exception {
+        assertThat(getRandomizedDelay(Duration.ZERO, Duration.ZERO)).isEqualTo(Duration.ZERO);
+
+        Duration randomizedDelay = getRandomizedDelay(Duration.ZERO, Duration.ofMillis(1000));
+        assertThat(randomizedDelay).isAtLeast(Duration.ZERO);
+        assertThat(randomizedDelay).isLessThan(Duration.ofMillis(1000));
+
+        randomizedDelay = getRandomizedDelay(Duration.ofMillis(1000), Duration.ofMillis(2000));
+        assertThat(randomizedDelay).isAtLeast(Duration.ofMillis(1000));
+        assertThat(randomizedDelay).isLessThan(Duration.ofMillis(2000));
     }
 }
