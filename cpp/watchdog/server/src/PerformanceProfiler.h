@@ -203,6 +203,8 @@ public:
     // Implements DataProcessorInterface.
     android::base::Result<void> onSystemStartup() override;
 
+    void onCarWatchdogServiceRegistered() override;
+
     android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector,
@@ -252,10 +254,12 @@ protected:
 private:
     // Processes the collected data.
     android::base::Result<void> processLocked(
-            time_t time, const std::unordered_set<std::string>& filterPackages,
+            time_t time, SystemState systemState,
+            const std::unordered_set<std::string>& filterPackages,
             const android::sp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::sp<ProcStatCollectorInterface>& procStatCollector,
-            CollectionInfo* collectionInfo);
+            CollectionInfo* collectionInfo,
+            aidl::android::automotive::watchdog::internal::ResourceStats* resourceStats);
 
     // Processes per-UID performance data.
     void processUidStatsLocked(const std::unordered_set<std::string>& filterPackages,
