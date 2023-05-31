@@ -1012,7 +1012,14 @@ public class ICarImpl extends ICar.Stub {
         } else {
             if (service instanceof CarServiceBase) {
                 CarServiceBase carService = (CarServiceBase) service;
-                dumpServiceProto(carService, writer, fd);
+                try (FileOutputStream fileStream = new FileOutputStream(fd)) {
+                    ProtoOutputStream proto = new ProtoOutputStream(fileStream);
+                    carService.dumpProto(proto);
+                    proto.flush();
+                } catch (Exception e) {
+                    writer.println("Failed dumping: " + carService.getClass().getName());
+                    e.printStackTrace(writer);
+                }
             } else {
                 writer.println("Only services that extend CarServiceBase can dump to proto");
             }
@@ -1030,19 +1037,6 @@ public class ICarImpl extends ICar.Stub {
     private void dumpService(CarSystemService service, IndentingPrintWriter writer) {
         try {
             service.dump(writer);
-        } catch (Exception e) {
-            writer.println("Failed dumping: " + service.getClass().getName());
-            e.printStackTrace(writer);
-        }
-    }
-
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    private void dumpServiceProto(CarServiceBase service, IndentingPrintWriter writer,
-            FileDescriptor fd) {
-        try (FileOutputStream fileStream = new FileOutputStream(fd)) {
-            ProtoOutputStream proto = new ProtoOutputStream(fileStream);
-            service.dumpProto(proto);
-            proto.flush();
         } catch (Exception e) {
             writer.println("Failed dumping: " + service.getClass().getName());
             e.printStackTrace(writer);
