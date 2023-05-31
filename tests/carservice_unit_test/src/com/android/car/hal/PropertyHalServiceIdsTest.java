@@ -22,8 +22,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.Car;
-import android.car.VehicleHvacFanDirection;
 import android.car.VehiclePropertyIds;
+import android.car.hardware.CarHvacFanDirection;
 import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehicleUnit;
@@ -87,11 +87,11 @@ public class PropertyHalServiceIdsTest {
     private static final HalPropValue HVAC_FAN_DIRECTIONS_VALID =
             PROP_VALUE_BUILDER.build(VehicleProperty.HVAC_FAN_DIRECTION, /*areaId=*/0,
                     /*timestamp=*/SystemClock.elapsedRealtimeNanos(), /*status=*/0,
-                    VehicleHvacFanDirection.FACE | VehicleHvacFanDirection.FLOOR);
+                    CarHvacFanDirection.FACE | CarHvacFanDirection.FLOOR);
     private static final HalPropValue HVAC_FAN_DIRECTIONS_INVALID =
             PROP_VALUE_BUILDER.build(VehicleProperty.HVAC_FAN_DIRECTION, /*areaId=*/0,
                     /*timestamp=*/SystemClock.elapsedRealtimeNanos(), /*status=*/0,
-                    VehicleHvacFanDirection.FACE | 0x100);
+                    CarHvacFanDirection.FACE | 0x100);
 
     @Before
     public void setUp() {
