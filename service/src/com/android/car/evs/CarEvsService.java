@@ -251,6 +251,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
 
                     Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+                    if (mCurrentDisplayState == display.getState()) {
+                        // We already handled this display state change.
+                        return;
+                    }
+
                     switch (display.getState()) {
                         case Display.STATE_ON:
                             // We may want to request the system viewer.
@@ -276,6 +281,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                             // Nothing to do for all other state changes
                             break;
                     }
+
+                    mCurrentDisplayState = display.getState();
                 }
             };
 
@@ -647,6 +654,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     // The latest session token issued to the privileged clients
     @GuardedBy("mLock")
     private IBinder mSessionToken = null;
+
+    // The latest display state we have processed.
+    private int mCurrentDisplayState = Display.STATE_OFF;
 
     // This boolean flag is true if CarEvsService uses GEAR_SELECTION VHAL property instead of
     // EVS_SERVICE_REQUEST.
