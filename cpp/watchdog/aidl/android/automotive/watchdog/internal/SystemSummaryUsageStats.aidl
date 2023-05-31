@@ -25,22 +25,22 @@ parcelable SystemSummaryUsageStats {
     /**
      * Overall system CPU non-idle cycles.
      */
-    long cpuNonIdleCycles;
+    int cpuNonIdleCycles;
 
     /**
      * Overall system CPU non-idle time in milliseconds.
      */
-    long cpuNonIdleTimeMillis;
+    int cpuNonIdleTimeMillis;
 
     /**
      * Overall system CPU idle time in milliseconds.
      */
-    long cpuIdleTimeMillis;
+    int cpuIdleTimeMillis;
 
     /**
      * Overall system context switches.
      */
-    long contextSwitchesCount;
+    int contextSwitchesCount;
 
     /**
      * Number of I/O blocked processes
