@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -438,6 +439,7 @@ final class MediaRequestHandler {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("Occupant zone info: ");
