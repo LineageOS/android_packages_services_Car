@@ -48,6 +48,7 @@ import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerDumpProto.ScreenOffHandlerProto;
+import com.android.car.power.CarPowerDumpProto.ScreenOffHandlerProto.DisplayPowerInfoProto;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -671,8 +672,16 @@ final class ScreenOffHandler {
             proto.write(
                     ScreenOffHandlerProto.NO_USER_SCREEN_OFF_TIMEOUT_MS, mNoUserScreenOffTimeoutMs);
             for (int i = 0; i < mDisplayPowerInfos.size(); i++) {
-                proto.write(ScreenOffHandlerProto.DISPLAY_POWER_INFO,
-                        mDisplayPowerInfos.valueAt(i).toString());
+                long displayPowerInfosToken = proto.start(
+                        ScreenOffHandlerProto.DISPLAY_POWER_INFOS);
+                DisplayPowerInfo displayInfo = mDisplayPowerInfos.valueAt(i);
+                proto.write(DisplayPowerInfoProto.DISPLAY_ID, displayInfo.getDisplayId());
+                proto.write(DisplayPowerInfoProto.USER_ID, displayInfo.getUserId());
+                proto.write(DisplayPowerInfoProto.MODE, displayInfo.getMode());
+                proto.write(DisplayPowerInfoProto.IS_DRIVER_DISPLAY, displayInfo.isDriverDisplay());
+                proto.write(DisplayPowerInfoProto.LAST_USER_ACTIVITY_TIME,
+                        displayInfo.getLastUserActivityTime());
+                proto.end(displayPowerInfosToken);
             }
             proto.end(screenOffHandlerToken);
         }
