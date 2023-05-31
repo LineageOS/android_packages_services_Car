@@ -64,6 +64,7 @@ import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
+import android.util.proto.ProtoOutputStream;
 import android.view.Display;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -1118,6 +1119,20 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertWithMessage("Custom component is in enabled components of accumulated policy").that(
                 listener.getCurrentPowerPolicy().getEnabledComponents()).asList().doesNotContain(
                 custom_component_1000);
+    }
+
+    @Test
+    public void testDumpToProto() throws Exception {
+        int pollingIntervalMs = 1000;
+        int prepareTimeMs = 10 * 60 * 1000;
+        mService.setShutdownTimersForTest(pollingIntervalMs, prepareTimeMs);
+        ProtoOutputStream proto = new ProtoOutputStream();
+
+        mService.dumpProto(proto);
+
+        CarPowerDumpProto carPowerDumpProto = CarPowerDumpProto.parseFrom(proto.getBytes());
+        assertThat(carPowerDumpProto.getShutdownPollingIntervalMs()).isEqualTo(pollingIntervalMs);
+        assertThat(carPowerDumpProto.getShutdownPrepareTimeMs()).isEqualTo(prepareTimeMs);
     }
 
     private void suspendDevice() throws Exception {

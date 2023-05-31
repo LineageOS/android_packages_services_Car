@@ -24,7 +24,11 @@ android_test {
     srcs: [
             "src/**/*.java",
             "src/**/*.aidl",
+            ":car-service-dump-proto-srcs",
         ],
+    proto: {
+        type: "lite",
+    },
 
     aidl: {
             include_dirs: [
