@@ -16,9 +16,13 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcel;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +55,7 @@ public final class GetSetValueResultList extends LargeParcelableList<GetSetValue
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public GetSetValueResultList[] newArray(int size) {
             return new GetSetValueResultList[size];
         }
