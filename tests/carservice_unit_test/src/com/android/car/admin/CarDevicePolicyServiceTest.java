@@ -39,6 +39,7 @@ import android.app.admin.DevicePolicyManager;
 import android.car.SyncResultCallback;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.user.UserCreationRequest;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
@@ -52,6 +53,7 @@ import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 
 import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
@@ -64,6 +66,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTestCase {
+    private static final String TAG = CarDevicePolicyServiceTest.class.getSimpleName();
     @Mock
     private CarUserService mCarUserService;
 
@@ -170,10 +173,31 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     private void createUserOkTest(@UserInfoFlag int flags,
             @CarDevicePolicyManager.UserType int carDpmUserType, @NonNull String userType) {
         mService.createUser("name", carDpmUserType, mUserCreationResultCallbackImpl);
+        UserCreationRequest.Builder userCreationRequestBuilder =
+                new UserCreationRequest.Builder().setName("name");
+        switch(carDpmUserType) {
+            case CarDevicePolicyManager.USER_TYPE_REGULAR:
+                break;
+            case CarDevicePolicyManager.USER_TYPE_ADMIN:
+                userCreationRequestBuilder.setAdmin();
+                break;
+            case CarDevicePolicyManager.USER_TYPE_GUEST:
+                userCreationRequestBuilder.setGuest();
+                break;
+            default:
+                Log.d(TAG, "CarUserService.createUser(): invalid carDpmUserType (" + carDpmUserType
+                        + ")");
+                break;
+        }
+        UserCreationRequest userCreationRequest = userCreationRequestBuilder.build();
 
-        // TODO(b/278124479): Match based on name, userType, flags.
-        verify(mCarUserService).createUser(/* userCreationRequest= */ any(), /* timeoutMs= */
+        ArgumentCaptor<UserCreationRequest> argument = ArgumentCaptor.forClass(
+                UserCreationRequest.class);
+        verify(mCarUserService).createUser(argument.capture(), /* timeoutMs= */
                 anyInt(), eq(mUserCreationResultCallbackImpl));
+        assertWithMessage("UserCreationRequest").that(argument.getValue().toString()).isEqualTo(
+                userCreationRequest.toString());
+
     }
 
     @Test

@@ -152,6 +152,8 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     @Override
     public void createUser(@Nullable String name, @CarDevicePolicyManager.UserType int type,
             ResultCallbackImpl<UserCreationResult> callback) {
+        UserCreationRequest.Builder userCreationRequestBuilder =
+                new UserCreationRequest.Builder().setName(name);
         int userInfoFlags = 0;
         String userType = UserManager.USER_TYPE_FULL_SECONDARY;
         switch(type) {
@@ -159,9 +161,11 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 break;
             case CarDevicePolicyManager.USER_TYPE_ADMIN:
                 userInfoFlags = UserManagerHelper.FLAG_ADMIN;
+                userCreationRequestBuilder.setAdmin();
                 break;
             case CarDevicePolicyManager.USER_TYPE_GUEST:
                 userType = UserManager.USER_TYPE_FULL_GUEST;
+                userCreationRequestBuilder.setGuest();
                 break;
             default:
                 Slogf.d(TAG, "createUser(): invalid userType (%s) / flags (%08x) "
@@ -174,7 +178,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         Slogf.d(TAG, "calling createUser(%s, %s, %d, %d)",
                 UserHelperLite.safeName(name), userType, userInfoFlags, HAL_TIMEOUT_MS);
 
-        mCarUserService.createUser(new UserCreationRequest.Builder().build(), HAL_TIMEOUT_MS,
+        mCarUserService.createUser(userCreationRequestBuilder.build(), HAL_TIMEOUT_MS,
                 callback);
     }
 
