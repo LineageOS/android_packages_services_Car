@@ -194,7 +194,8 @@ public:
           mUserSwitchCollections({}),
           mWakeUpCollection({}),
           mCustomCollection({}),
-          mLastMajorFaults(0) {}
+          mLastMajorFaults(0),
+          mDoSendResourceUsageStats(false) {}
 
     ~PerformanceProfiler() { terminate(); }
 
@@ -311,6 +312,9 @@ private:
     // Major faults delta from last collection. Useful when calculating the percentage change in
     // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
+
+    // Enables the sending of resource usage stats to CarService.
+    bool mDoSendResourceUsageStats GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;
 

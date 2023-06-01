@@ -131,3 +131,12 @@ prop {
     access: Readonly
     prop_name: "ro.carwatchdog.io_overuse_warn_percentage"
 }
+
+# Flag for sending resource usage stats from daemon to CarService.
+prop {
+    api_name: "syncResourceUsageStatsWithCarServiceEnabled"
+    type: Boolean
+    scope: Internal
+    access: Writeonce
+    prop_name: "carwatchdog.sync_resource_usage_stats_with_carservice.enabled"
+}
