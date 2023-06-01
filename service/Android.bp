@@ -51,7 +51,7 @@ gensrcs {
             "&& $(location soong_zip) -jar -o $(out) -C $(genDir)/$(in) -D $(genDir)/$(in)",
 
     srcs: [
-        "proto/**/car_power_dump.proto",
+        ":car-service-dump-proto-srcs",
     ],
 
     output_extension: "srcjar",
@@ -60,7 +60,7 @@ gensrcs {
 filegroup {
     name: "car-service-dump-proto-srcs",
     srcs: [
-        "proto/**/car_power_dump.proto",
+        "proto/android/car/dump/*.proto",
     ],
 }
 
@@ -78,13 +78,11 @@ java_defaults {
         ":statslog-Car-java-gen",
         ":iscriptexecutor_aidl",
         ":dump-javastream-protos",
-        "proto/**/*.proto",
+        // list all non-dump proto srcs here
+        "proto/android/car/telemetry/*.proto",
+        "proto/android/car/watchdog/*.proto",
         "src/**/*.java",
         ],
-
-    exclude_srcs: [
-        "proto/**/car_power_dump.proto",
-    ],
 
     aidl: {
         include_dirs: [
