@@ -129,6 +129,64 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
         try {
             assertWithMessage("Created user named %s and type %s: %s", name, type,
                     result).that(result.isSuccess()).isTrue();
+            assertWithMessage("%s is not an admin user", user).that(
+                    mUserManager.isUserAdmin(user.getIdentifier())).isFalse();
+            assertWithMessage("Create user with name %s", name).that(
+                    mUserManager.getUserInfo(user.getIdentifier()).name).isEqualTo(name);
+        } finally {
+            if (user != null) {
+                removeUser(user.getIdentifier());
+            }
+        }
+    }
+
+    @Test
+    public void testCreateAdminUser() throws Exception {
+        assertCanAddUser();
+
+        String name = "CarDevicePolicyManagerTest.testCreateUser";
+        int type = CarDevicePolicyManager.USER_TYPE_ADMIN;
+        Log.d(TAG, "creating new user with name " + name + " and type " + type);
+        CreateUserResult result = mCarDpm.createUser(name, type);
+        Log.d(TAG, "result: " + result);
+        UserHandle user = result.getUserHandle();
+
+        try {
+            assertWithMessage("Created user named %s and type %s: %s", name, type,
+                    result).that(result.isSuccess()).isTrue();
+            assertWithMessage("%s is an admin user", user).that(
+                    mUserManager.isUserAdmin(user.getIdentifier())).isTrue();
+            assertWithMessage("Create user with name %s", name).that(
+                    mUserManager.getUserInfo(user.getIdentifier()).name).isEqualTo(name);
+
+        } finally {
+            if (user != null) {
+                removeUser(user.getIdentifier());
+            }
+        }
+    }
+
+    @Test
+    public void testCreateGuestUser() throws Exception {
+        assertCanAddUser();
+
+        String name = "CarDevicePolicyManagerTest.testCreateUser";
+        int type = CarDevicePolicyManager.USER_TYPE_GUEST;
+        Log.d(TAG, "creating new user with name " + name + " and type " + type);
+        CreateUserResult result = mCarDpm.createUser(name, type);
+        Log.d(TAG, "result: " + result);
+        UserHandle user = result.getUserHandle();
+
+        try {
+            assertWithMessage("Created user named %s and type %s: %s", name, type,
+                    result).that(result.isSuccess()).isTrue();
+            assertWithMessage("%s is a guest user", user).that(
+                    mUserManager.isGuestUser(user.getIdentifier())).isTrue();
+            assertWithMessage("%s is not an admin user", user).that(
+                    mUserManager.isUserAdmin(user.getIdentifier())).isFalse();
+            assertWithMessage("Create user with name %s", name).that(
+                    mUserManager.getUserInfo(user.getIdentifier()).name).isEqualTo(name);
+
         } finally {
             if (user != null) {
                 removeUser(user.getIdentifier());
