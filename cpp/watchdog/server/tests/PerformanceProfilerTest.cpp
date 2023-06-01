@@ -60,6 +60,7 @@ constexpr int kTestTopNStatsPerCategory = 5;
 constexpr int kTestTopNStatsPerSubcategory = 5;
 constexpr int kTestMaxUserSwitchEvents = 3;
 constexpr std::chrono::seconds kTestSystemEventDataCacheDurationSec = 60s;
+constexpr time_t kTestNow = static_cast<time_t>(1'683'270'000);
 
 MATCHER_P(IoStatsViewEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStatsView::bytes,
@@ -623,10 +624,10 @@ TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(now, mMockUidStatsCollector,
-                                                      mMockProcStatCollector, &resourceStats));
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
 
     const auto actual = mCollectorPeer->getBoottimeCollectionInfo();
 
@@ -654,9 +655,8 @@ TEST_F(PerformanceProfilerTest, TestOnWakeUpCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(
-            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+    ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
+                                                    mMockProcStatCollector));
 
     const auto actual = mCollectorPeer->getWakeUpCollectionInfo();
 
@@ -684,12 +684,11 @@ TEST_F(PerformanceProfilerTest, TestOnSystemStartup) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(now, mMockUidStatsCollector,
+    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
                                                       mMockProcStatCollector, &resourceStats));
-    ASSERT_RESULT_OK(
-            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+    ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
+                                                    mMockProcStatCollector));
 
     auto actualBoottimeCollection = mCollectorPeer->getBoottimeCollectionInfo();
     auto actualWakeUpCollection = mCollectorPeer->getWakeUpCollectionInfo();
@@ -716,8 +715,7 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, 100, 101, mMockUidStatsCollector,
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow, 100, 101, mMockUidStatsCollector,
                                                         mMockProcStatCollector));
 
     const auto& actualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
@@ -791,8 +789,8 @@ TEST_F(PerformanceProfilerTest, TestOnUserSwitchCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(nextUidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(nextProcStatInfo));
 
-    now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, 100, 101, mMockUidStatsCollector,
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow + 2, 100, 101,
+                                                        mMockUidStatsCollector,
                                                         mMockProcStatCollector));
 
     auto& continuationActualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
@@ -843,10 +841,8 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
         });
     }
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
     for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
-        ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, userId, userId + 1,
+        ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow, userId, userId + 1,
                                                             mMockUidStatsCollector,
                                                             mMockProcStatCollector));
     }
@@ -875,7 +871,7 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionsMaxCacheSize) {
     });
     expectedEvents.erase(expectedEvents.begin());
 
-    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, userId, userId + 1,
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(kTestNow, userId, userId + 1,
                                                         mMockUidStatsCollector,
                                                         mMockProcStatCollector));
 
@@ -894,11 +890,11 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(now, SystemState::NORMAL_MODE,
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
-                                                      mMockProcStatCollector, &resourceStats));
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
@@ -927,11 +923,10 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onCustomCollection(now, SystemState::NORMAL_MODE, {},
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onCustomCollection(kTestNow, SystemState::NORMAL_MODE, {},
                                                     mMockUidStatsCollector, mMockProcStatCollector,
-                                                    &resourceStats));
+                                                    &actualResourceStats));
 
     const auto actual = mCollectorPeer->getCustomCollectionInfo();
 
@@ -1105,11 +1100,11 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(firstUidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(firstProcStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(now, SystemState::NORMAL_MODE,
+    ResourceStats actualResourceStats = {};
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
-                                                      mMockProcStatCollector, &resourceStats));
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
 
     auto [secondUidStats, secondUserPackageSummaryStats] = sampleUidStats(/*multiplier=*/2);
     const auto [secondProcStatInfo, secondSystemSummaryStats] = sampleProcStat(/*multiplier=*/2);
@@ -1123,9 +1118,10 @@ TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(secondUidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(secondProcStatInfo));
 
-    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(now, SystemState::NORMAL_MODE,
+    ASSERT_RESULT_OK(mCollector->onPeriodicCollection(kTestNow, SystemState::NORMAL_MODE,
                                                       mMockUidStatsCollector,
-                                                      mMockProcStatCollector, &resourceStats));
+                                                      mMockProcStatCollector,
+                                                      &actualResourceStats));
 
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
@@ -1154,9 +1150,8 @@ TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     ResourceStats resourceStats = {};
-    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(now, mMockUidStatsCollector,
+    ASSERT_RESULT_OK(mCollector->onBoottimeCollection(kTestNow, mMockUidStatsCollector,
                                                       mMockProcStatCollector, &resourceStats));
 
     auto actual = mCollectorPeer->getBoottimeCollectionInfo();
@@ -1165,7 +1160,8 @@ TEST_F(PerformanceProfilerTest, TestBoottimeCollectionCacheEviction) {
 
     // Call |onPeriodicCollection| 1 hour past the last boot-time collection event.
     ASSERT_RESULT_OK(
-            mCollector->onPeriodicCollection(now + kTestSystemEventDataCacheDurationSec.count(),
+            mCollector->onPeriodicCollection(kTestNow +
+                                                     kTestSystemEventDataCacheDurationSec.count(),
                                              SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                              mMockProcStatCollector, &resourceStats));
 
@@ -1181,9 +1177,8 @@ TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(
-            mCollector->onWakeUpCollection(now, mMockUidStatsCollector, mMockProcStatCollector));
+    ASSERT_RESULT_OK(mCollector->onWakeUpCollection(kTestNow, mMockUidStatsCollector,
+                                                    mMockProcStatCollector));
 
     auto actual = mCollectorPeer->getWakeUpCollectionInfo();
 
@@ -1193,7 +1188,8 @@ TEST_F(PerformanceProfilerTest, TestWakeUpCollectionCacheEviction) {
 
     // Call |onPeriodicCollection| 1 hour past the last wake-up collection event.
     ASSERT_RESULT_OK(
-            mCollector->onPeriodicCollection(now + kTestSystemEventDataCacheDurationSec.count(),
+            mCollector->onPeriodicCollection(kTestNow +
+                                                     kTestSystemEventDataCacheDurationSec.count(),
                                              SystemState::NORMAL_MODE, mMockUidStatsCollector,
                                              mMockProcStatCollector, &resourceStats));
 
@@ -1209,8 +1205,7 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
     EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
 
-    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    time_t updatedNow = now;
+    time_t updatedNow = kTestNow;
 
     for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
         ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(updatedNow, userId, userId + 1,
@@ -1223,7 +1218,7 @@ TEST_F(PerformanceProfilerTest, TestUserSwitchCollectionCacheEviction) {
 
     EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents);
 
-    updatedNow = now + kTestSystemEventDataCacheDurationSec.count();
+    updatedNow = kTestNow + kTestSystemEventDataCacheDurationSec.count();
     ResourceStats resourceStats = {};
     for (int i = 1; i <= kTestMaxUserSwitchEvents; ++i) {
         ASSERT_RESULT_OK(mCollector->onPeriodicCollection(updatedNow, SystemState::NORMAL_MODE,
