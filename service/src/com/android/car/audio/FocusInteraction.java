@@ -353,10 +353,17 @@ final class FocusInteraction {
         mInteractionMatrix = new SparseArray<>(infos.size());
         for (int rowIndex = 0; rowIndex < infos.size(); rowIndex++) {
             CarAudioContextInfo rowInfo = infos.get(rowIndex);
+            int rowLegacyContext = CarAudioContext.getLegacyContextFromInfo(rowInfo);
             SparseArray<Integer> rowDecisions = new SparseArray<>(infos.size());
             for (int columnIndex = 0; columnIndex < infos.size(); columnIndex++) {
                 CarAudioContextInfo columnInfo = infos.get(columnIndex);
-                rowDecisions.append(columnInfo.getId(), INTERACTION_CONCURRENT);
+                int columnLegacyContext = CarAudioContext.getLegacyContextFromInfo(columnInfo);
+                int focusDecision = CarAudioContext.isInvalidContextId(columnLegacyContext)
+                        ? INTERACTION_REJECT
+                        : CarAudioContext.isInvalidContextId(rowLegacyContext)
+                        ? INTERACTION_EXCLUSIVE
+                        : INTERACTION_MATRIX.get(rowLegacyContext).get(columnLegacyContext);
+                rowDecisions.append(columnInfo.getId(), focusDecision);
             }
             mInteractionMatrix.append(rowInfo.getId(), rowDecisions);
         }
