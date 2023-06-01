@@ -125,11 +125,15 @@ public final class ControlledRemoteCarTaskView extends RemoteCarTaskView {
             Slogf.d(TAG, "Starting (" + mConfig.mActivityIntent.getComponent() + ") on "
                     + launchBounds);
         }
+        Intent fillInIntent = null;
+        if ((mConfig.mActivityIntent.getFlags() & Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS) != 0) {
+            fillInIntent = new Intent().addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+        }
         startActivity(
                 PendingIntent.getActivity(mContext, /* requestCode= */ 0,
                         mConfig.mActivityIntent,
                         PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT),
-                /* fillInIntent= */ null, options, launchBounds);
+                fillInIntent, options, launchBounds);
     }
 
     @Override
