@@ -201,6 +201,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         public void binderDied() {
             Slogf.w(TAG_EVS, "StreamCallback has died");
             synchronized (mLock) {
+                mStreamCallback.asBinder().unlinkToDeath(this, 0);
                 if (requestActivityIfNecessaryLocked()) {
                     Slogf.i(TAG_EVS, "Requested to launch the activity.");
                 } else {
