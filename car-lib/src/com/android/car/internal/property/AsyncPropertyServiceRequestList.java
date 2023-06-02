@@ -16,9 +16,13 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcel;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +58,7 @@ public final class AsyncPropertyServiceRequestList extends
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public AsyncPropertyServiceRequestList[] newArray(int size) {
             return new AsyncPropertyServiceRequestList[size];
         }

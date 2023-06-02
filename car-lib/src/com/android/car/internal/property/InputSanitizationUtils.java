@@ -16,15 +16,23 @@
 
 package com.android.car.internal.property;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
+
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyManager;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Common utility functions used by {@link CarPropertyManager} stack to sanitize input arguments.
  *
  * @hide
  */
-public class InputSanitizationUtils {
+public final class InputSanitizationUtils {
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
+    private InputSanitizationUtils() {
+    }
 
     /**
      * Sanitizes the {@code updateRateHz} passed to {@link
