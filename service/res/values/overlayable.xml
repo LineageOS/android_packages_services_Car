@@ -121,6 +121,8 @@
           <item type="integer" name="config_oemCarService_thread_pool_size"/>
           <item type="integer" name="config_allowedSystemUptimeForRemoteAccess"/>
           <item type="bool" name="config_assignPassengerActivityToForegroundCpuGroup"/>
+          <item type="integer" name="config_notifyApStateChange_max_retry"/>
+          <item type="integer" name="config_notifyApStateChange_retry_sleep_ms"/>
 
           <!-- Params from config.xml that can be overlaid -->
 

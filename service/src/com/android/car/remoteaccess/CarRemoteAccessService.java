@@ -109,8 +109,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private static final long ALLOWED_TIME_FOR_REMOTE_TASK_CLIENT_INIT_MS = 30_000;
     private static final long SHUTDOWN_WARNING_MARGIN_IN_MS = 5000;
     private static final long INVALID_ALLOWED_SYSTEM_UPTIME = -1;
-    private static final int NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
-    private static final int NOTIFY_AP_STATE_MAX_RETRY = 10;
+    private static final int DEFAULT_NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS = 100;
+    private static final int DEFAULT_NOTIFY_AP_STATE_MAX_RETRY = 10;
     // The buffer time after all the tasks for a specific remote task client service is completed
     // before we unbind the service.
     private static final int TASK_UNBIND_DELAY_MS = 1000;
@@ -147,7 +147,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     @GuardedBy("mLock")
     private boolean mIsWakeupRequired;
     @GuardedBy("mLock")
-    private int mNotifyApPowerStateRetryCount;
+    private int mNotifyApStateChangeRetryCount;
     @GuardedBy("mLock")
     private final ArrayMap<String, Integer> mUidByName = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -306,6 +306,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
     private final UserManager mUserManager;
     private final long mShutdownTimeInMs;
     private final long mAllowedSystemUptimeMs;
+    private final int mNotifyApStateChangeMaxRetry;
+    private final int mNotifyApStateChangeRetrySleepInMs;
 
     private String mWakeupServiceName = "";
     private String mVehicleId = "";
@@ -373,6 +375,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         // TODO(b/263807920): CarService restart should be handled.
         systemInterface.scheduleActionForBootCompleted(() -> searchForRemoteTaskClientPackages(),
                 PACKAGE_SEARCH_DELAY, PACKAGE_SEARCH_DELAY_RAND_RANGE);
+        mNotifyApStateChangeMaxRetry = getNotifyApStateChangeMaxRetry();
+        mNotifyApStateChangeRetrySleepInMs = getNotifyApStateChangeRetrySleepInMs();
     }
 
     @VisibleForTesting
@@ -846,6 +850,28 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         return timeout * MILLI_TO_SECOND;
     }
 
+    private int getNotifyApStateChangeRetrySleepInMs() {
+        int notifyApStateChangeRetrySleepInMs = mContext.getResources()
+                .getInteger(R.integer.config_notifyApStateChange_retry_sleep_ms);
+        if (notifyApStateChangeRetrySleepInMs < 0) {
+            Slogf.e(TAG, "Invalid config_notifyApStateChange_retry_sleep_ms from RRO: "
+                    + notifyApStateChangeRetrySleepInMs + ", must be a positive integer");
+            notifyApStateChangeRetrySleepInMs = DEFAULT_NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS;
+        }
+        return notifyApStateChangeRetrySleepInMs;
+    }
+
+    private int getNotifyApStateChangeMaxRetry() {
+        int notifyApStateChangeMaxRetry = mContext.getResources()
+                .getInteger(R.integer.config_notifyApStateChange_max_retry);
+        if (notifyApStateChangeMaxRetry < 0) {
+            Slogf.e(TAG, "Invalid config_notifyApStateChange_max_retry from RRO: "
+                    + notifyApStateChangeMaxRetry + ", must be a positive integer");
+            notifyApStateChangeMaxRetry = DEFAULT_NOTIFY_AP_STATE_MAX_RETRY;
+        }
+        return notifyApStateChangeMaxRetry;
+    }
+
     // Gets the UID name for the specified UID. Read from a cached map if exists. Uses package
     // manager to get UID if it does not exist in cached map.
     @GuardedBy("mLock")
@@ -980,8 +1006,8 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         synchronized (mLock) {
             isReadyForRemoteTask = mIsReadyForRemoteTask;
             isWakeupRequired = mIsWakeupRequired;
-            mNotifyApPowerStateRetryCount++;
-            if (mNotifyApPowerStateRetryCount > NOTIFY_AP_STATE_MAX_RETRY) {
+            mNotifyApStateChangeRetryCount++;
+            if (mNotifyApStateChangeRetryCount > mNotifyApStateChangeMaxRetry) {
                 Slogf.e(TAG, "Reached max retry count for trying to notify AP state change, "
                         + "Failed to notify AP state Change!!!");
                 return;
@@ -989,12 +1015,12 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
         if (!mRemoteAccessHalWrapper.notifyApStateChange(isReadyForRemoteTask, isWakeupRequired)) {
             Slogf.e(TAG, "Cannot notify AP state change, waiting for "
-                    + NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS + "ms and retry");
-            mHandler.postNotifyApStateChange(NOTIFY_AP_STATE_RETRY_SLEEP_IN_MS);
+                    + mNotifyApStateChangeRetrySleepInMs + "ms and retry");
+            mHandler.postNotifyApStateChange(mNotifyApStateChangeRetrySleepInMs);
             return;
         }
         synchronized (mLock) {
-            mNotifyApPowerStateRetryCount = 0;
+            mNotifyApStateChangeRetryCount = 0;
         }
         if (DEBUG) {
             Slogf.d(TAG, "Notified AP about new state, isReadyForRemoteTask: %B, "
