@@ -938,7 +938,7 @@ public class PropertyHalServiceIds {
         if (p != null) {
             // Property ID exists.  Return read permission.
             if (p.first == null) {
-                Slogf.e(TAG, "propId is not available for reading : 0x" + toHexString(propId));
+                Slogf.d(TAG, "propId is not available for reading : 0x" + toHexString(propId));
             }
             return p.first;
         } else if (isVendorProperty(propId)) {
@@ -960,7 +960,7 @@ public class PropertyHalServiceIds {
         if (p != null) {
             // Property ID exists.  Return write permission.
             if (p.second == null) {
-                Slogf.e(TAG, "propId is not writable : 0x" + toHexString(propId));
+                Slogf.d(TAG, "propId is not writable : 0x" + toHexString(propId));
             }
             return p.second;
         } else if (isVendorProperty(propId)) {
