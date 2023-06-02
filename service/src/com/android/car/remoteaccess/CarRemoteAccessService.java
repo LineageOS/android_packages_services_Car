@@ -26,6 +26,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -1630,7 +1631,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         // instead fo equals, so two same string might not "==" each other.
         private void postServiceTimeout(Integer uid, long msgTimeMs) {
             synchronized (mHandlerLock) {
-                removeMessages(MSG_SERVICE_TIMEOUT, uid);
+                HandlerHelper.removeEqualMessages(this, MSG_SERVICE_TIMEOUT, uid);
                 Message msg = obtainMessage(MSG_SERVICE_TIMEOUT, uid);
                 sendMessageAtTime(msg, msgTimeMs);
             }
@@ -1674,7 +1675,7 @@ public final class CarRemoteAccessService extends ICarRemoteAccessService.Stub
         }
 
         private void cancelServiceTimeout(int uid) {
-            removeMessages(MSG_SERVICE_TIMEOUT, uid);
+            HandlerHelper.removeEqualMessages(this, MSG_SERVICE_TIMEOUT, uid);
         }
 
         private void cancelAllServiceTimeout() {
