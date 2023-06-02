@@ -486,10 +486,15 @@ Result<void> PerformanceProfiler::onSystemStartup() {
     return {};
 }
 
+void PerformanceProfiler::onCarWatchdogServiceRegistered() {
+    Mutex::Autolock lock(mMutex);
+    mDoSendResourceUsageStats =
+            sysprop::syncResourceUsageStatsWithCarServiceEnabled().value_or(false);
+}
+
 Result<void> PerformanceProfiler::onBoottimeCollection(
         time_t time, const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector,
-        [[maybe_unused]] ResourceStats* resourceStats) {
+        const wp<ProcStatCollectorInterface>& procStatCollector, ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
@@ -497,15 +502,15 @@ Result<void> PerformanceProfiler::onBoottimeCollection(
         return result;
     }
     Mutex::Autolock lock(mMutex);
-    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
-                         procStatCollectorSp, &mBoottimeCollection);
+    return processLocked(time, SystemState::NORMAL_MODE, std::unordered_set<std::string>(),
+                         uidStatsCollectorSp, procStatCollectorSp, &mBoottimeCollection,
+                         resourceStats);
 }
 
 Result<void> PerformanceProfiler::onPeriodicCollection(
-        time_t time, [[maybe_unused]] SystemState systemState,
+        time_t time, SystemState systemState,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector,
-        [[maybe_unused]] ResourceStats* resourceStats) {
+        const wp<ProcStatCollectorInterface>& procStatCollector, ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     clearExpiredSystemEventCollections(time);
@@ -514,8 +519,8 @@ Result<void> PerformanceProfiler::onPeriodicCollection(
         return result;
     }
     Mutex::Autolock lock(mMutex);
-    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
-                         procStatCollectorSp, &mPeriodicCollection);
+    return processLocked(time, systemState, std::unordered_set<std::string>(), uidStatsCollectorSp,
+                         procStatCollectorSp, &mPeriodicCollection, resourceStats);
 }
 
 Result<void> PerformanceProfiler::onUserSwitchCollection(
@@ -544,8 +549,9 @@ Result<void> PerformanceProfiler::onUserSwitchCollection(
     if (mUserSwitchCollections.size() > mMaxUserSwitchEvents) {
         mUserSwitchCollections.erase(mUserSwitchCollections.begin());
     }
-    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
-                         procStatCollectorSp, &mUserSwitchCollections.back());
+    return processLocked(time, SystemState::NORMAL_MODE, std::unordered_set<std::string>(),
+                         uidStatsCollectorSp, procStatCollectorSp, &mUserSwitchCollections.back(),
+                         /*resourceStats=*/nullptr);
 }
 
 Result<void> PerformanceProfiler::onWakeUpCollection(
@@ -558,16 +564,15 @@ Result<void> PerformanceProfiler::onWakeUpCollection(
         return result;
     }
     Mutex::Autolock lock(mMutex);
-    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
-                         procStatCollectorSp, &mWakeUpCollection);
+    return processLocked(time, SystemState::NORMAL_MODE, std::unordered_set<std::string>(),
+                         uidStatsCollectorSp, procStatCollectorSp, &mWakeUpCollection,
+                         /*resourceStats=*/nullptr);
 }
 
 Result<void> PerformanceProfiler::onCustomCollection(
-        time_t time, [[maybe_unused]] SystemState systemState,
-        const std::unordered_set<std::string>& filterPackages,
+        time_t time, SystemState systemState, const std::unordered_set<std::string>& filterPackages,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const wp<ProcStatCollectorInterface>& procStatCollector,
-        [[maybe_unused]] ResourceStats* resourceStats) {
+        const wp<ProcStatCollectorInterface>& procStatCollector, ResourceStats* resourceStats) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
     auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
@@ -575,14 +580,18 @@ Result<void> PerformanceProfiler::onCustomCollection(
         return result;
     }
     Mutex::Autolock lock(mMutex);
-    return processLocked(time, filterPackages, uidStatsCollectorSp, procStatCollectorSp,
-                         &mCustomCollection);
+    return processLocked(time, systemState, filterPackages, uidStatsCollectorSp,
+                         procStatCollectorSp, &mCustomCollection, resourceStats);
 }
 
+// TODO(b/266008677): Use the systemState variable to correctly attribute the mode of the I/O
+// usage stats when collecting the resource usage stats.
 Result<void> PerformanceProfiler::processLocked(
-        time_t time, const std::unordered_set<std::string>& filterPackages,
+        time_t time, [[maybe_unused]] SystemState systemState,
+        const std::unordered_set<std::string>& filterPackages,
         const sp<UidStatsCollectorInterface>& uidStatsCollector,
-        const sp<ProcStatCollectorInterface>& procStatCollector, CollectionInfo* collectionInfo) {
+        const sp<ProcStatCollectorInterface>& procStatCollector, CollectionInfo* collectionInfo,
+        [[maybe_unused]] ResourceStats* resourceStats) {
     if (collectionInfo->maxCacheSize == 0) {
         return Error() << "Maximum cache size cannot be 0";
     }

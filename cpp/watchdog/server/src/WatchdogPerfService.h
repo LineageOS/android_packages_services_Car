@@ -88,6 +88,8 @@ public:
     // Callback to perform actions (such as clearing stats from previous system startup events)
     // before starting boot-time or wake-up collections.
     virtual android::base::Result<void> onSystemStartup() = 0;
+    // Callback to perform actions once CarWatchdogService is registered.
+    virtual void onCarWatchdogServiceRegistered() = 0;
     // Callback to process the data collected during boot-time.
     virtual android::base::Result<void> onBoottimeCollection(
             time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
