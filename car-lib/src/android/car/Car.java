@@ -308,7 +308,8 @@ public final class Car {
      *
      * @hide
      * @deprecated {@link ExperimentalCarUserManager} was an experimental feature and is no longer
-     * supported. It will be marked @Removed in VIC and hard removed in X.
+     * supported. It will be marked {@code @removed} in the next major release and hard removed in
+     * the release after that.
      */
     @Deprecated
     @OptionalFeature

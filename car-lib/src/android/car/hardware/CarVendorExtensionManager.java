@@ -34,13 +34,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @deprecated consider using {@link CarPropertyManager} instead.
- *
  * API to access custom vehicle properties defined by OEMs.
  * <p>
  * System permission {@link Car#PERMISSION_VENDOR_EXTENSION} is required to get this manager.
  * </p>
  * @hide
+ * @deprecated consider using {@link CarPropertyManager} instead.
  */
 @Deprecated
 @SystemApi
