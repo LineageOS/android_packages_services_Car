@@ -88,6 +88,7 @@ import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerDumpProto.CpmsStateProto;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
@@ -486,7 +487,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {
         synchronized (mLock) {
-            proto.write(CarPowerDumpProto.CURRENT_STATE, mCurrentState.mState);
+            long currentStateToken = proto.start(CarPowerDumpProto.CURRENT_STATE);
+            proto.write(CpmsStateProto.CAN_POSTPONE, mCurrentState.mCanPostpone);
+            proto.write(CpmsStateProto.CAR_POWER_MANAGER_STATE,
+                    mCurrentState.mCarPowerStateListenerState);
+            proto.write(CpmsStateProto.SHUTDOWN_TYPE, mCurrentState.mShutdownType);
+            proto.write(CpmsStateProto.STATE, mCurrentState.mState);
+            proto.write(CpmsStateProto.STATE_NAME, mCurrentState.stateToString());
+            proto.end(currentStateToken);
             proto.write(CarPowerDumpProto.SHUTDOWN_START_TIME, mShutdownStartTime);
             proto.write(CarPowerDumpProto.LAST_SLEEP_ENTRY_TIME, mLastSleepEntryTime);
             proto.write(CarPowerDumpProto.NEXT_WAKEUP_SEC, mNextWakeupSec);

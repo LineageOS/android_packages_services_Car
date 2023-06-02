@@ -21,16 +21,14 @@ package com.android.car.power;
 option java_multiple_files = true;
 
 message CarPowerDumpProto {
-  enum CarPowerState {
-    WAIT_FOR_VHAL = 0;
-    ON = 1;
-    SHUTDOWN_PREPARE = 2;
-    WAIT_FOR_FINISH = 3;
-    SUSPEND = 4;
-    SIMULATE_SLEEP = 5;
-    SIMULATE_HIBERNATION = 6;
+  message CpmsStateProto {
+    optional bool can_postpone = 1;
+    optional int32 car_power_manager_state = 2;
+    optional int32 shutdown_type = 3;
+    optional int32 state = 4;
+    optional string state_name = 5;
   }
-  optional CarPowerState current_state = 1;
+  optional CpmsStateProto current_state = 1;
   optional int64 shutdown_start_time = 2;
   optional int64 last_sleep_entry_time = 3;
   optional int32 next_wakeup_sec = 4;
@@ -81,10 +79,10 @@ message CarPowerDumpProto {
       optional string policy_group_id = 1;
       optional PolicyGroup policy_group = 2;
     }
-    repeated ComponentNameToValue custom_component_mappings = 1;
-    repeated PowerPolicy registered_power_policies = 2;
-    repeated IdToPolicyGroup power_policy_group_mappings = 3;
-    repeated PowerPolicy preemptive_power_policies = 4;
+    repeated ComponentNameToValue custom_component_mappings = 6;
+    repeated PowerPolicy registered_power_policies = 7;
+    repeated IdToPolicyGroup power_policy_group_mappings = 8;
+    repeated PowerPolicy preemptive_power_policies = 9;
   }
 
   message PowerComponentHandlerProto {
@@ -113,10 +111,10 @@ message CarPowerDumpProto {
       optional bool is_driver_display = 4;
       optional int64 last_user_activity_time = 5;
     }
-    optional bool is_auto_power_saving = 1;
-    optional bool boot_completed = 2;
-    optional int32 no_user_screen_off_timeout_ms = 3;
-    repeated DisplayPowerInfoProto display_power_infos = 4;
+    optional bool is_auto_power_saving = 11;
+    optional bool boot_completed = 12;
+    optional int32 no_user_screen_off_timeout_ms = 13;
+    repeated DisplayPowerInfoProto display_power_infos = 14;
   }
 
   optional PolicyReaderProto policy_reader = 30;
