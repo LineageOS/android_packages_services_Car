@@ -56,6 +56,7 @@ import com.google.android.car.kitchensink.audio.AudioMirrorTestFragment;
 import com.google.android.car.kitchensink.audio.AudioTestFragment;
 import com.google.android.car.kitchensink.audio.AudioUserAssignmentFragment;
 import com.google.android.car.kitchensink.audio.CarAudioInputTestFragment;
+import com.google.android.car.kitchensink.audio.OemCarServiceTestFragment;
 import com.google.android.car.kitchensink.audiorecorder.AudioRecorderTestFragment;
 import com.google.android.car.kitchensink.backup.BackupAndRestoreFragment;
 import com.google.android.car.kitchensink.biometrics.BiometricPromptTestFragment;
@@ -295,7 +296,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("inject motion", InjectMotionTestFragment.class),
             new FragmentMenuEntry("inject key", InjectKeyTestFragment.class),
             new FragmentMenuEntry("window insets full screen",
-                    WindowInsetsFullScreenFragment.class));
+                    WindowInsetsFullScreenFragment.class),
+            new FragmentMenuEntry("oem car service", OemCarServiceTestFragment.class));
 
     private Car mCarApi;
     private CarHvacManager mHvacManager;
