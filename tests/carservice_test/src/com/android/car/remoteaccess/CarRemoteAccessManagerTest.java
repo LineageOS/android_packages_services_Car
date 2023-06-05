@@ -84,6 +84,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -171,8 +172,9 @@ public class CarRemoteAccessManagerTest extends MockedCarTestBase {
         }
 
         private boolean knownPackage(String packageName) {
-            return packageName.equals(PACKAGE_NAME_1) || packageName.equals(PACKAGE_NAME_2)
-                    || packageName.equals(NO_PERMISSION_PACKAGE);
+            return Objects.equals(packageName, PACKAGE_NAME_1)
+                    || Objects.equals(packageName, PACKAGE_NAME_2)
+                    || Objects.equals(packageName, NO_PERMISSION_PACKAGE);
         }
 
         @Override
