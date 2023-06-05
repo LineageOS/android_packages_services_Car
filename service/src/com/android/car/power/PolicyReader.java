@@ -52,6 +52,8 @@ import com.android.car.power.CarPowerDumpProto.PolicyReaderProto;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.ComponentNameToValue;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.IdToPolicyGroup;
 import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.IdToPolicyGroup.PolicyGroup;
+import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.IdToPolicyGroup.PolicyGroup.StateToDefaultPolicy;
+import com.android.car.power.CarPowerDumpProto.PolicyReaderProto.PowerPolicy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -359,43 +361,63 @@ public final class PolicyReader {
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    void dumpProtoPowerPolicies(
+            ProtoOutputStream proto, long fieldNumber, ArrayMap<String, CarPowerPolicy> policies) {
+        for (int i = 0; i < policies.size(); i++) {
+            long policiesToken = proto.start(fieldNumber);
+            CarPowerPolicy powerPolicy = policies.valueAt(i);
+            proto.write(PowerPolicy.POLICY_ID, powerPolicy.getPolicyId());
+            int[] enabledComponents = powerPolicy.getEnabledComponents();
+            for (int j = 0; j < enabledComponents.length; j++) {
+                proto.write(PowerPolicy.ENABLED_COMPONENTS,
+                        powerComponentToString(enabledComponents[j]));
+            }
+            int[] disabledComponents = powerPolicy.getDisabledComponents();
+            for (int j = 0; j < disabledComponents.length; j++) {
+                proto.write(PowerPolicy.DISABLED_COMPONENTS,
+                        powerComponentToString(disabledComponents[j]));
+            }
+            proto.end(policiesToken);
+        }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dumpProto(ProtoOutputStream proto) {
         long policyReaderToken = proto.start(CarPowerDumpProto.POLICY_READER);
 
         for (int i = 0; i < mCustomComponents.size(); i++) {
-            long customComponentMappingToken = proto.start(
-                    PolicyReaderProto.CUSTOM_COMPONENT_MAPPING);
+            long customComponentMappingsToken = proto.start(
+                    PolicyReaderProto.CUSTOM_COMPONENT_MAPPINGS);
             Object key = mCustomComponents.keyAt(i);
             proto.write(ComponentNameToValue.COMPONENT_NAME, key.toString());
             proto.write(ComponentNameToValue.COMPONENT_VALUE,
-                        mCustomComponents.get(key).toString());
-            proto.end(customComponentMappingToken);
+                        mCustomComponents.get(key).intValue());
+            proto.end(customComponentMappingsToken);
         }
 
-        for (int i = 0; i < mRegisteredPowerPolicies.size(); i++) {
-            proto.write(PolicyReaderProto.REGISTERED_POWER_POLICY,
-                    toString(mRegisteredPowerPolicies.valueAt(i)));
-        }
+        dumpProtoPowerPolicies(
+                proto, PolicyReaderProto.REGISTERED_POWER_POLICIES, mRegisteredPowerPolicies);
 
         for (int i = 0; i < mPolicyGroups.size(); i++) {
-            long powerPolicyGroupMappingToken = proto.start(
-                    PolicyReaderProto.POWER_POLICY_GROUP_MAPPING);
-            String key = mPolicyGroups.keyAt(i);
-            proto.write(IdToPolicyGroup.POLICY_GROUP_ID, key);
-            SparseArray<String> group = mPolicyGroups.get(key);
+            long powerPolicyGroupMappingsToken = proto.start(
+                    PolicyReaderProto.POWER_POLICY_GROUP_MAPPINGS);
+            String policyGroupId = mPolicyGroups.keyAt(i);
+            proto.write(IdToPolicyGroup.POLICY_GROUP_ID, policyGroupId);
+            SparseArray<String> group = mPolicyGroups.get(policyGroupId);
+            long policyGroupMappingsToken = proto.start(IdToPolicyGroup.POLICY_GROUP);
             for (int j = 0; j < group.size(); j++) {
-                long policyGroupMappingToken = proto.start(IdToPolicyGroup.POLICY_GROUP_MAPPING);
-                proto.write(PolicyGroup.STATE, vhalPowerStateToString(group.keyAt(j)));
-                proto.write(PolicyGroup.DEFAULT_POLICY, group.valueAt(j));
-                proto.end(policyGroupMappingToken);
+                long defaultPolicyMappingsToken = proto.start(PolicyGroup.DEFAULT_POLICY_MAPPINGS);
+                proto.write(StateToDefaultPolicy.STATE, vhalPowerStateToString(group.keyAt(j)));
+                proto.write(StateToDefaultPolicy.DEFAULT_POLICY_ID, group.valueAt(j));
+                proto.end(defaultPolicyMappingsToken);
             }
-            proto.end(powerPolicyGroupMappingToken);
+            proto.end(policyGroupMappingsToken);
+            proto.end(powerPolicyGroupMappingsToken);
         }
 
-        for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
-            proto.write(PolicyReaderProto.PREEMPTIVE_POWER_POLICY,
-                    toString(mPreemptivePowerPolicies.valueAt(i)));
-        }
+        dumpProtoPowerPolicies(
+                proto, PolicyReaderProto.PREEMPTIVE_POWER_POLICIES, mPreemptivePowerPolicies);
+
         proto.end(policyReaderToken);
     }
 

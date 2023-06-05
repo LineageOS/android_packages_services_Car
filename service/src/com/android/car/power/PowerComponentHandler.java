@@ -252,12 +252,12 @@ public final class PowerComponentHandler {
 
             for (int i = 0; i < mRegisteredComponents.size(); ++i) {
                 long powerComponentStateMappingToken = proto.start(
-                        PowerComponentHandlerProto.POWER_COMPONENT_STATE_MAPPING);
+                        PowerComponentHandlerProto.POWER_COMPONENT_STATE_MAPPINGS);
                 int component = mRegisteredComponents.get(i);
                 proto.write(
                         PowerComponentToState.POWER_COMPONENT, powerComponentToString(component));
                 proto.write(PowerComponentToState.STATE, mComponentStates.get(
-                        component, /* valueIfKeyNotFound= */ false) ? "on" : "off");
+                        component, /* valueIfKeyNotFound= */ false));
                 proto.end(powerComponentStateMappingToken);
             }
 

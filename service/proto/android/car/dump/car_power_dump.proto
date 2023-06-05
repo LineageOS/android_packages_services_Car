@@ -63,28 +63,36 @@ message CarPowerDumpProto {
   message PolicyReaderProto {
     message ComponentNameToValue {
       optional string component_name = 1;
-      optional string component_value = 2;
+      optional int32 component_value = 2;
+    }
+    message PowerPolicy {
+      optional string policy_id = 1;
+      repeated string enabled_components = 2;
+      repeated string disabled_components = 3;
     }
     message IdToPolicyGroup {
       message PolicyGroup {
-        optional string state = 1;
-        optional string default_policy = 2;
+        message StateToDefaultPolicy {
+          optional string state = 1;
+          optional string default_policy_id = 2;
+        }
+        repeated StateToDefaultPolicy default_policy_mappings = 1;
       }
       optional string policy_group_id = 1;
-      optional PolicyGroup policy_group_mapping = 2;
+      optional PolicyGroup policy_group = 2;
     }
-    repeated ComponentNameToValue custom_component_mapping = 1;
-    repeated string registered_power_policy = 2;
-    repeated IdToPolicyGroup power_policy_group_mapping = 3;
-    repeated string preemptive_power_policy = 4;
+    repeated ComponentNameToValue custom_component_mappings = 1;
+    repeated PowerPolicy registered_power_policies = 2;
+    repeated IdToPolicyGroup power_policy_group_mappings = 3;
+    repeated PowerPolicy preemptive_power_policies = 4;
   }
 
   message PowerComponentHandlerProto {
     message PowerComponentToState {
       optional string power_component = 1;
-      optional string state = 2;
+      optional bool state = 2;
     }
-    repeated PowerComponentToState power_component_state_mapping = 1;
+    repeated PowerComponentToState power_component_state_mappings = 1;
     repeated string components_off_by_policy = 2;
     optional string last_modified_components = 3;
   }
@@ -98,10 +106,17 @@ message CarPowerDumpProto {
   }
 
   message ScreenOffHandlerProto {
+    message DisplayPowerInfoProto {
+      optional int32 display_id = 1;
+      optional int32 user_id = 2;
+      optional int32 mode = 3;
+      optional bool is_driver_display = 4;
+      optional int64 last_user_activity_time = 5;
+    }
     optional bool is_auto_power_saving = 1;
     optional bool boot_completed = 2;
     optional int32 no_user_screen_off_timeout_ms = 3;
-    repeated string display_power_info = 4;
+    repeated DisplayPowerInfoProto display_power_infos = 4;
   }
 
   optional PolicyReaderProto policy_reader = 30;
