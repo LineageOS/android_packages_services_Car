@@ -33,10 +33,10 @@
 
 package android.automotive.watchdog.internal;
 parcelable SystemSummaryUsageStats {
-  int cpuNonIdleCycles;
-  int cpuNonIdleTimeMillis;
-  int cpuIdleTimeMillis;
-  int contextSwitchesCount;
+  long cpuNonIdleCycles;
+  long cpuNonIdleTimeMillis;
+  long cpuIdleTimeMillis;
+  long contextSwitchesCount;
   int ioBlockedProcessCount;
   int totalProcessCount;
   int totalMajorPageFaults;
