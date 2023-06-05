@@ -69,7 +69,7 @@
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Тургундарды көзөмөлдөө тутумунун абалын окууга мүмкүнчүлүк алуу"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Тургундарды көзөмөлдөө тутумундагы статусту окуп, маалыматты аныктоого мүмкүнчүлүк берет"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Тургундарды көзөмөлдөө тутумунун диаграммасы"</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Тургундарды көзөмөлдөө тутумун аныктоо диаграммасын иштетүүнү жана токтотууну көзөмөлдөөгө мүмкүнчүлүк берет"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Тургундарды көзөмөлдөө системасын аныктоо диаграммасын иштетүүнү жана токтотууну көзөмөлдөөгө мүмкүнчүлүк берет"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"мүчүлүштүктөрдү аныктоо дайындарын окуу"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Унаадагы мүчүлүштүктөрдү аныктоо дайындарын окуу."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"мүчүлүштүктөрдү аныктоо дайындарын тазалоо"</string>
