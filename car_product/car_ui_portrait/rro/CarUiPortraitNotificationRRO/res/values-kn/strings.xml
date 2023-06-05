@@ -17,5 +17,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="notification_header" msgid="7197574085752162581">"ಅಧಿಸೂಚನೆ ಕೇಂದ್ರ"</string>
+    <string name="notification_header" msgid="7197574085752162581">"ನೋಟಿಫಿಕೇಶನ್ ಕೇಂದ್ರ"</string>
 </resources>
