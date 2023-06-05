@@ -1176,7 +1176,8 @@ public final class CarRemoteAccessServiceUnitTest {
             mBootComplete = runnable;
             return null;
         }).when(mSystemInterface)
-                .scheduleActionForBootCompleted(any(Runnable.class), any(Duration.class));
+                .scheduleActionForBootCompleted(any(Runnable.class), any(Duration.class),
+                        any(Duration.class));
     }
 
     private static PackagePrepForTest createPackagePrepForTest(String packageName, String className,
