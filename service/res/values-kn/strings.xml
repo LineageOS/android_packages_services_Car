@@ -34,7 +34,7 @@
     <string name="car_permission_desc_speed" msgid="2047965198165448241">"ಕಾರಿನ ವೇಗದ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"ಕಾರಿನ ಚಲನಶೀಲ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"ಕಾರಿನ ಚಲನಶೀಲ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ."</string>
-    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"ಕಾರಿನ ಪೂರೈಕೆದಾರ ಚಾನಲ್‌ಗೆ ಪ್ರವೇಶ"</string>
+    <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"ಕಾರಿನ ಪೂರೈಕೆದಾರ ಚಾನಲ್‌ಗೆ ಆ್ಯಕ್ಸೆಸ್"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"ನಿಮ್ಮ ಕಾರಿನ ನಿರ್ದಿಷ್ಟ ಮಾಹಿತಿಯನ್ನು ವಿನಿಮಯ ಮಾಡಿಕೊಳ್ಳಲು, ನಿಮ್ಮ ಕಾರಿನ ಮಾರಾಟಗಾರ ಚಾನಲ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"ಕಾರಿನ ರೇಡಿಯೊವನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"ಕಾರಿನ ರೇಡಿಯೋವನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
@@ -45,7 +45,7 @@
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ಕಾರಿನ ಆಡಿಯೋ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ವಾಹನದ HAL ಸಂಪರ್ಕಸಾಧನವನ್ನು ಅನುಕರಿಸಿ"</string>
-    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಕಡಿಮೆ ಆಗಿರುವ ಅಧಿಸೂಚನೆ ಸ್ವೀಕರಿಸಿ"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಕಡಿಮೆ ಆಗಿರುವ ನೋಟಿಫಿಕೇಶನ್ ಸ್ವೀಕರಿಸಿ"</string>
     <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"ಕಾರಿನಲ್ಲಿರುವ ಇತರ ಆಡಿಯೋ ಪ್ಲೇ ಆಗುತ್ತಿರುವುದರ ಪರಿಣಾಮವಾಗಿ ವಾಲ್ಯೂಮ್ ಕಡಿಮೆ ಆದಾಗ  ಅದರ ಕುರಿತಂತೆ ಸೂಚನೆ ನೀಡಲು ಆ್ಯಪ್ ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"ನಿಮ್ಮ ಕಾರಿನ ವಾಹನ ಎಚ್‌ಎಎಲ್ ಅನ್ನು ಆಂತರಿಕ ಪರೀಕ್ಷೆಗಾಗಿ ಅನುಕರಿಸಿ"</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸು."</string>
@@ -62,7 +62,7 @@
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ಸಲಕರಣೆ ಕ್ಲಸ್ಟರ್ ನ್ಯಾವಿಗೇಶನ್ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
-    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶ"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಆ್ಯಕ್ಸೆಸ್"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶವನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP ಮೋಡ್‌ನಲ್ಲಿ USB ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಿ"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP ಮೋಡ್‌ನಲ್ಲಿ ಸಾಧನದ ಜೊತೆಗೆ ಸಂವಹನ ನಡೆಸಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
