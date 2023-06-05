@@ -24,6 +24,8 @@ import android.car.remoteaccess.CarRemoteAccessManager;
 import android.car.remoteaccess.RemoteTaskClientRegistrationInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -49,6 +51,8 @@ public final class KitchenSinkRemoteTaskService extends Service {
     static final String TASK_ID_KEY = "TaskId";
     static final String TASK_DATA_KEY = "TaskData";
     static final String TASK_DURATION_KEY = "TaskDuration";
+    private final HandlerThread mHandlerThread = new HandlerThread(getClass().getSimpleName());
+    private Handler mHandler;
 
     private final RemoteTaskClient mRemoteTaskClient = new RemoteTaskClient();
 
@@ -62,6 +66,8 @@ public final class KitchenSinkRemoteTaskService extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate");
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
         synchronized (mLock) {
             mSharedPref = getDefaultSharedPreferences(this);
         }
@@ -90,6 +96,7 @@ public final class KitchenSinkRemoteTaskService extends Service {
     public void onDestroy() {
         Log.i(TAG, "onDestroy");
         disconnectCar();
+        mHandlerThread.quitSafely();
     }
 
     private void disconnectCar() {
@@ -129,10 +136,18 @@ public final class KitchenSinkRemoteTaskService extends Service {
                         taskListJson, taskId, taskDataStr, remainingTimeSec));
                 sharedPrefEditor.apply();
             }
+
+            // Report task done after 5s.
+            mHandler.postDelayed(() -> {
+                if (mRemoteAccessManager != null) {
+                    mRemoteAccessManager.reportRemoteTaskDone(taskId);
+                }
+            }, /* delayMillis= */ 5000);
         }
 
         @Override
         public void onShutdownStarting(CarRemoteAccessManager.CompletableRemoteTaskFuture future) {
+            mHandlerThread.quitSafely();
             future.complete();
         }
 
