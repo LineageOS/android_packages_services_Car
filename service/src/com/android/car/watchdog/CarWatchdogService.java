@@ -280,13 +280,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @VisibleForTesting
     public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
+        this(context, carServiceBuiltinPackageContext, watchdogStorage,
+                timeSource, /*watchdogProcessHandler=*/ null);
+    }
+
+    @VisibleForTesting
+    CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
+            WatchdogStorage watchdogStorage, TimeSource timeSource,
+            WatchdogProcessHandler watchdogProcessHandler) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
-        mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
-                mCarWatchdogDaemonHelper);
+        mWatchdogProcessHandler = watchdogProcessHandler != null ? watchdogProcessHandler
+                : new WatchdogProcessHandler(mWatchdogServiceForSystem, mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, carServiceBuiltinPackageContext,
                 mCarWatchdogDaemonHelper, mPackageInfoHandler, mWatchdogStorage, timeSource);
         mConnectionListener = (isConnected) -> {
