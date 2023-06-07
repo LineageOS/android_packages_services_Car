@@ -19,6 +19,7 @@ package com.google.android.car.kitchensink.audio;
 import static android.R.layout.simple_spinner_dropdown_item;
 import static android.R.layout.simple_spinner_item;
 import static android.car.CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER;
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_AUDIO_MIRRORING;
 import static android.car.media.CarAudioManager.INVALID_REQUEST_ID;
 
 import android.car.Car;
@@ -41,6 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -188,14 +190,19 @@ public final class AudioUserAssignmentFragment extends Fragment {
         Log.d(TAG, "handleToggleAssignUserAudio");
         int position = mUserSpinner.getSelectedItemPosition();
         int userId = mUserAdapter.getItem(position);
+        OccupantZoneInfo info = getOccupantZoneForUser(userId);
 
-        boolean isUserAssigned =
-                mCarAudioManager.isMediaAudioAllowedInPrimaryZone(getOccupantZoneForUser(userId));
+        if (info == null) {
+            showToast("User " + userId + " is not assigned to any occupant zone");
+            return;
+        }
+
+        boolean isUserAssigned = mCarAudioManager.isMediaAudioAllowedInPrimaryZone(info);
 
         Log.d(TAG, "handleToggleAssignUserAudio is user assigned " + isUserAssigned);
 
         if (isUserAssigned) {
-            Log.d(TAG, "handleToggleAssignUserAudio user is already assigned");
+            showToast("User " + userId + " is already allowed to play in primary zone");
             return;
         }
         handleRequestUserToPlayInMainCabin(userId);
@@ -206,6 +213,21 @@ public final class AudioUserAssignmentFragment extends Fragment {
         OccupantZoneInfo info = getOccupantZoneForUser(userId);
         if (info == null) {
             Log.e(TAG, "Can not find occupant zone info for user" + userId);
+            showToast("User " + userId + " is not currently assigned to any occupant zone");
+            return;
+        }
+
+        if (mCarAudioManager.isMediaAudioAllowedInPrimaryZone(info)) {
+            showToast("User " + userId + " is already allowed to play in primary zone");
+            return;
+        }
+
+        int carAudioZoneId = mCarOccupantZoneManager.getAudioZoneIdForOccupant(info);
+
+        if (mCarAudioManager.isAudioFeatureEnabled(AUDIO_FEATURE_AUDIO_MIRRORING)
+                && !mCarAudioManager.getMirrorAudioZonesForAudioZone(carAudioZoneId).isEmpty()) {
+            showToast("Can not enable primary zone playback as user " + userId
+                    + " is currently mirroring with another zone");
             return;
         }
 
@@ -219,10 +241,15 @@ public final class AudioUserAssignmentFragment extends Fragment {
 
     private void requestToPlayAudioInPrimaryZone(OccupantZoneInfo info) {
         Log.d(TAG, "requestUserToPlayInMainCabin occupant " + info);
-        long requestId =
-                mCarAudioManager.requestMediaAudioOnPrimaryZone(info,
-                        ContextCompat.getMainExecutor(getActivity().getApplicationContext()),
-                        mCallback);
+        long requestId;
+        try {
+            requestId = mCarAudioManager.requestMediaAudioOnPrimaryZone(info,
+                    ContextCompat.getMainExecutor(getActivity().getApplicationContext()),
+                    mCallback);
+        } catch (Exception e) {
+            showToast("Error while requesting media playback: " + e.getMessage());
+            return;
+        }
         if (requestId == INVALID_REQUEST_ID) {
             handleRequestRejected(info);
             return;
@@ -317,6 +344,7 @@ public final class AudioUserAssignmentFragment extends Fragment {
     private void onCarReady(Car car, boolean ready) {
         Log.i(TAG, String.format("connectCar ready %b", ready));
         if (!ready) {
+            showToast("Car service not ready!");
             return;
         }
 
@@ -356,6 +384,11 @@ public final class AudioUserAssignmentFragment extends Fragment {
                         occupantZoneInfo));
                 continue;
             }
+
+            // Do not include driver in the list as driver already owns the primary zone
+            if (occupantZoneInfo.occupantType == OCCUPANT_TYPE_DRIVER) {
+                continue;
+            }
             Log.i(TAG, String.format("setUserInfo occupant zone %s has user %d",
                     occupantZoneInfo, userId));
             userList.add(userId);
@@ -365,11 +398,21 @@ public final class AudioUserAssignmentFragment extends Fragment {
             counter++;
         }
 
+        if (userList.isEmpty()) {
+            showToast("Audio playback to primary zone is not supported on this device");
+            return;
+        }
+
         Integer[] userArray = userList.toArray(Integer[]::new);
         mUserAdapter = new ArrayAdapter<>(mContext, simple_spinner_item, userArray);
         mUserAdapter.setDropDownViewResource(simple_spinner_dropdown_item);
         mUserSpinner.setAdapter(mUserAdapter);
         mUserSpinner.setEnabled(true);
         mUserSpinner.setSelection(myIndex);
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "Showed toast message: " + message);
     }
 }
