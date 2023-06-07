@@ -109,11 +109,19 @@ public final class AudioMirrorTestFragment extends Fragment {
             showToast("Must select two distinct zones to mirror");
             return;
         }
-        if (isZoneCurrentlyMirroring(zoneOne) || isZoneCurrentlyMirroring(zoneTwo)) {
+        if (isZoneCurrentlyMirroringOrCastingToPrimaryZone(zoneOne)
+                || isZoneCurrentlyMirroringOrCastingToPrimaryZone(zoneTwo)) {
             return;
         }
 
-        int status = mCarAudioManager.canEnableAudioMirror();
+        int status;
+        try {
+            status = mCarAudioManager.canEnableAudioMirror();
+        } catch (Exception e) {
+            showToast("Error while enabling mirror: " + e.getMessage());
+            return;
+        }
+
         if (status != AUDIO_MIRROR_CAN_ENABLE) {
             showToast("Can not enable any more zones for mirroring, status " + status);
             return;
@@ -133,12 +141,21 @@ public final class AudioMirrorTestFragment extends Fragment {
         showToast("Requested mirroring for audio zones [" + zoneOne + ", " + zoneTwo + "]");
     }
 
-    private boolean isZoneCurrentlyMirroring(int zoneOne) {
-        List<Integer> mirroringZones = mCarAudioManager.getMirrorAudioZonesForAudioZone(zoneOne);
+    private boolean isZoneCurrentlyMirroringOrCastingToPrimaryZone(int audioZoneId) {
+        List<Integer> mirroringZones = mCarAudioManager.getMirrorAudioZonesForAudioZone(
+                audioZoneId);
         if (mirroringZones.size() != 0) {
-            showToast("Zone " + zoneOne + " is already mirroring");
+            showToast("Zone " + audioZoneId + " is already mirroring");
             return true;
         }
+
+        OccupantZoneInfo info = mCarOccupantZoneManager.getOccupantForAudioZoneId(audioZoneId);
+        if (mCarAudioManager.isMediaAudioAllowedInPrimaryZone(info)) {
+            showToast("Can not enable mirror, occupant in audio zone " + audioZoneId
+                    + " is currently playing audio in primary zone");
+            return true;
+        }
+
         return false;
     }
 
