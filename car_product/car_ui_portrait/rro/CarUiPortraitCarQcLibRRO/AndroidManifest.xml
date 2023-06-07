@@ -19,7 +19,6 @@
     <application android:hasCode="false"/>
     <!--  priority should be greater than car-ui-customization  -->
     <overlay android:priority="11"
-             android:targetName="car-qc-lib"
              android:targetPackage="will.be.replaced.too"
              android:resourcesMap="@xml/overlays"
              android:isStatic="false"/>
