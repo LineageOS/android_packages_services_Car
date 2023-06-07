@@ -288,6 +288,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
             if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
+                // close the root taskViewPanel if visible. This can happen if an app crashes
+                // leaving the underlying BlankActivity visible.
+                if (mRootTaskViewPanel.isVisible()) {
+                    mRootTaskViewPanel.closePanel(/* animated= */ false);
+                }
                 setFocusToBackgroundApp();
                 return;
             }
