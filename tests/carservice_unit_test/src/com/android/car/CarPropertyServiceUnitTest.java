@@ -63,6 +63,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -498,7 +499,9 @@ public final class CarPropertyServiceUnitTest {
         when(mMockHandler2.asBinder()).thenReturn(mBinder2);
         // Initially SPEED_ID is not subscribed, so should return -1.
         when(mHalService.getSubscribedUpdateRateHz(SPEED_ID)).thenReturn(-1f);
-        CarPropertyValue mValue = mock(CarPropertyValue.class);
+        long timestampNanos = Duration.ofSeconds(1).toNanos();
+        CarPropertyValue<Float> mValue =
+                new CarPropertyValue<>(SPEED_ID, 0, timestampNanos, 0f);
         when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(mValue);
 
         // Register the first listener.
@@ -553,7 +556,9 @@ public final class CarPropertyServiceUnitTest {
         when(mMockHandler2.asBinder()).thenReturn(mBinder2);
         // Initially HVAC_TEMP is not subscribed, so should return -1.
         when(mHalService.getSubscribedUpdateRateHz(HVAC_TEMP)).thenReturn(-1f);
-        CarPropertyValue mValue = mock(CarPropertyValue.class);
+        long timestampNanos = Duration.ofSeconds(1).toNanos();
+        CarPropertyValue<Float> mValue =
+                new CarPropertyValue<>(HVAC_TEMP, 0, timestampNanos, 0f);
         when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(mValue);
 
         // Register the first listener.

@@ -59,6 +59,7 @@ import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.property.CarPropertyServiceClient;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 import com.android.modules.expresslog.Histogram;
@@ -170,11 +171,13 @@ public class CarPropertyService extends ICarProperty.Stub
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<IBinder, Client> mClientMap = new ArrayMap<>();
+    private final Map<IBinder, CarPropertyServiceClient> mClientMap = new ArrayMap<>();
     @GuardedBy("mLock")
-    private final SparseArray<List<Client>> mPropIdClientMap = new SparseArray<>();
+    private final SparseArray<List<CarPropertyServiceClient>> mPropIdClientMap =
+            new SparseArray<>();
     @GuardedBy("mLock")
-    private final SparseArray<SparseArray<Client>> mSetOperationClientMap = new SparseArray<>();
+    private final SparseArray<SparseArray<CarPropertyServiceClient>> mSetOperationClientMap =
+            new SparseArray<>();
     private final HandlerThread mHandlerThread =
             CarServiceUtils.getHandlerThread(getClass().getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
@@ -190,109 +193,6 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         mPropertyHalService = propertyHalService;
         mContext = context;
-    }
-
-    // Helper class to keep track of listeners to this service.
-    private final class Client implements IBinder.DeathRecipient {
-        private final ICarPropertyEventListener mListener;
-        private final IBinder mListenerBinder;
-        private final Object mLock = new Object();
-        // propId->rate map.
-        @GuardedBy("mLock")
-        private final SparseArray<Float> mRateMap = new SparseArray<>();
-        @GuardedBy("mLock")
-        private boolean mIsDead = false;
-
-        Client(ICarPropertyEventListener listener) {
-            mListener = listener;
-            mListenerBinder = listener.asBinder();
-
-            try {
-                mListenerBinder.linkToDeath(this, 0);
-            } catch (RemoteException e) {
-                mIsDead = true;
-            }
-        }
-
-        /**
-         * Returns whether this client is already dead.
-         *
-         * Caller should not assume this client is alive after getting True response because the
-         * binder might die after this function checks the status. Caller should only use this
-         * function to fail early.
-         */
-        boolean isDead() {
-            synchronized (mLock) {
-                return mIsDead;
-            }
-        }
-
-        void addProperty(int propId, float rate) {
-            synchronized (mLock) {
-                if (mIsDead) {
-                    return;
-                }
-                mRateMap.put(propId, rate);
-            }
-        }
-
-        float getRate(int propId) {
-            synchronized (mLock) {
-                // Return 0 if no key found, since that is the slowest rate.
-                return mRateMap.get(propId, 0.0f);
-            }
-        }
-
-        int removeProperty(int propId) {
-            synchronized (mLock) {
-                mRateMap.remove(propId);
-                if (mRateMap.size() == 0) {
-                    mListenerBinder.unlinkToDeath(this, 0);
-                }
-                return mRateMap.size();
-            }
-        }
-
-        /**
-         * Handler to be called when client died.
-         *
-         * Remove the listener from HAL service and unregister if this is the last client.
-         */
-        @Override
-        public void binderDied() {
-            List<Integer> propIds = new ArrayList<>();
-            synchronized (mLock) {
-                mIsDead = true;
-
-                if (DBG) {
-                    Slogf.d(TAG, "binderDied %s", mListenerBinder);
-                }
-
-                // Because we set mIsDead to true here, we are sure mRateMap would not have new
-                // elements. The propIds here is going to cover all the prop Ids that we need to
-                // unregister.
-                for (int i = 0; i < mRateMap.size(); i++) {
-                    propIds.add(mRateMap.keyAt(i));
-                }
-            }
-
-            CarPropertyService.this.unregisterListenerBinderForProps(propIds, mListenerBinder);
-        }
-
-        /**
-         * Calls onEvent function on the listener if the binder is alive.
-         *
-         * There is still chance when onEvent might fail because binderDied is not called before
-         * this function.
-         */
-        void onEvent(List<CarPropertyEvent> events) throws RemoteException {
-            synchronized (mLock) {
-                if (mIsDead) {
-                    return;
-                }
-            }
-            mListener.onEvent(events);
-        }
     }
 
     @Override
@@ -372,13 +272,14 @@ public class CarPropertyService extends ICarProperty.Stub
                     + " updateRateHz=" + sanitizedUpdateRateHz);
         }
 
-        Client finalClient;
+        CarPropertyServiceClient finalClient;
         synchronized (mLock) {
             // Get or create the client for this iCarPropertyEventListener
             IBinder listenerBinder = iCarPropertyEventListener.asBinder();
-            Client client = mClientMap.get(listenerBinder);
+            CarPropertyServiceClient client = mClientMap.get(listenerBinder);
             if (client == null) {
-                client = new Client(iCarPropertyEventListener);
+                client = new CarPropertyServiceClient(iCarPropertyEventListener,
+                        this::unregisterListenerBinderForProps);
                 if (client.isDead()) {
                     Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
                     return;
@@ -387,7 +288,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
             client.addProperty(propertyId, sanitizedUpdateRateHz);
             // Insert the client into the propertyId --> clients map
-            List<Client> clients = mPropIdClientMap.get(propertyId);
+            List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propertyId);
             if (clients == null) {
                 clients = new ArrayList<>();
                 mPropIdClientMap.put(propertyId, clients);
@@ -423,7 +324,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     private void getAndDispatchPropertyInitValue(CarPropertyConfig carPropertyConfig,
-            Client client) {
+            CarPropertyServiceClient client) {
         List<CarPropertyEvent> events = new ArrayList<>();
         for (int areaId : carPropertyConfig.getAreaIds()) {
             CarPropertyValue value = getPropertySafe(carPropertyConfig.getPropertyId(), areaId);
@@ -479,8 +380,8 @@ public class CarPropertyService extends ICarProperty.Stub
     @GuardedBy("mLock")
     private void unregisterListenerBinderLocked(int propId, IBinder listenerBinder) {
         float updateMaxRate = 0f;
-        Client client = mClientMap.get(listenerBinder);
-        List<Client> propertyClients = mPropIdClientMap.get(propId);
+        CarPropertyServiceClient client = mClientMap.get(listenerBinder);
+        List<CarPropertyServiceClient> propertyClients = mPropIdClientMap.get(propId);
         if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
             // Do not attempt to unregister an invalid propId
             Slogf.e(TAG, "unregisterListener: propId is not in config list:0x%s",
@@ -514,8 +415,8 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         // Other listeners are still subscribed.  Calculate the new rate
         for (int i = 0; i < propertyClients.size(); i++) {
-            Client c = propertyClients.get(i);
-            float rate = c.getRate(propId);
+            CarPropertyServiceClient c = propertyClients.get(i);
+            float rate = c.getUpdateRateHz(propId);
             updateMaxRate = Math.max(rate, updateMaxRate);
         }
         if (Float.compare(updateMaxRate,
@@ -691,9 +592,10 @@ public class CarPropertyService extends ICarProperty.Stub
 
         IBinder listenerBinder = iCarPropertyEventListener.asBinder();
         synchronized (mLock) {
-            Client client = mClientMap.get(listenerBinder);
+            CarPropertyServiceClient client = mClientMap.get(listenerBinder);
             if (client == null) {
-                client = new Client(iCarPropertyEventListener);
+                client = new CarPropertyServiceClient(iCarPropertyEventListener,
+                        this::unregisterListenerBinderForProps);
             }
             if (client.isDead()) {
                 Slogf.w(TAG, "the ICarPropertyEventListener is already dead");
@@ -709,11 +611,12 @@ public class CarPropertyService extends ICarProperty.Stub
 
     // Updates recorder for set operation.
     @GuardedBy("mLock")
-    private void updateSetOperationRecorderLocked(int propId, int areaId, Client client) {
+    private void updateSetOperationRecorderLocked(int propId, int areaId,
+            CarPropertyServiceClient client) {
         if (mSetOperationClientMap.get(propId) != null) {
             mSetOperationClientMap.get(propId).put(areaId, client);
         } else {
-            SparseArray<Client> areaIdToClient = new SparseArray<>();
+            SparseArray<CarPropertyServiceClient> areaIdToClient = new SparseArray<>();
             areaIdToClient.put(areaId, client);
             mSetOperationClientMap.put(propId, areaIdToClient);
         }
@@ -721,8 +624,8 @@ public class CarPropertyService extends ICarProperty.Stub
 
     // Clears map when client unregister for property.
     @GuardedBy("mLock")
-    private void clearSetOperationRecorderLocked(int propId, Client client) {
-        SparseArray<Client> areaIdToClient = mSetOperationClientMap.get(propId);
+    private void clearSetOperationRecorderLocked(int propId, CarPropertyServiceClient client) {
+        SparseArray<CarPropertyServiceClient> areaIdToClient = mSetOperationClientMap.get(propId);
         if (areaIdToClient != null) {
             List<Integer> indexNeedToRemove = new ArrayList<>();
             for (int index = 0; index < areaIdToClient.size(); index++) {
@@ -744,12 +647,12 @@ public class CarPropertyService extends ICarProperty.Stub
     // Implement PropertyHalListener interface
     @Override
     public void onPropertyChange(List<CarPropertyEvent> events) {
-        Map<Client, List<CarPropertyEvent>> eventsToDispatch = new ArrayMap<>();
+        Map<CarPropertyServiceClient, List<CarPropertyEvent>> eventsToDispatch = new ArrayMap<>();
         synchronized (mLock) {
             for (int i = 0; i < events.size(); i++) {
                 CarPropertyEvent event = events.get(i);
                 int propId = event.getCarPropertyValue().getPropertyId();
-                List<Client> clients = mPropIdClientMap.get(propId);
+                List<CarPropertyServiceClient> clients = mPropIdClientMap.get(propId);
                 if (clients == null) {
                     Slogf.e(TAG, "onPropertyChange: no listener registered for propId=0x%s",
                             toHexString(propId));
@@ -757,7 +660,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 }
 
                 for (int j = 0; j < clients.size(); j++) {
-                    Client c = clients.get(j);
+                    CarPropertyServiceClient c = clients.get(j);
                     List<CarPropertyEvent> p = eventsToDispatch.get(c);
                     if (p == null) {
                         // Initialize the linked list for the listener
@@ -776,7 +679,7 @@ public class CarPropertyService extends ICarProperty.Stub
         // the callback, we would call callback on an unregistered client which should be ok because
         // 'onEvent' is an async oneway callback that might be delivered after unregistration
         // anyway.
-        for (Client client : eventsToDispatch.keySet()) {
+        for (CarPropertyServiceClient client : eventsToDispatch.keySet()) {
             try {
                 client.onEvent(eventsToDispatch.get(client));
             } catch (RemoteException ex) {
@@ -789,7 +692,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     @Override
     public void onPropertySetError(int property, int areaId, int errorCode) {
-        Client lastOperatedClient = null;
+        CarPropertyServiceClient lastOperatedClient = null;
         synchronized (mLock) {
             if (mSetOperationClientMap.get(property) != null
                     && mSetOperationClientMap.get(property).get(areaId) != null) {
@@ -806,7 +709,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     private void dispatchToLastClient(int property, int areaId, int errorCode,
-            Client lastOperatedClient) {
+            CarPropertyServiceClient lastOperatedClient) {
         try {
             List<CarPropertyEvent> eventList = new ArrayList<>();
             eventList.add(
