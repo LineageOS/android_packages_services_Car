@@ -487,6 +487,7 @@
     
     <!-- Remote access test -->
     <string name="refresh_remote_task">Refresh</string>
+    <string name="clear_remote_task">Clear</string>
     <string name="task_time">Time</string>
     <string name="task_id">Task ID</string>
     <string name="task_data">Task Data</string>

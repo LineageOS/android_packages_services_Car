@@ -25,7 +25,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TableRow.LayoutParams;
@@ -59,8 +58,8 @@ public final class RemoteAccessTestFragment extends Fragment {
         View v = inflater.inflate(R.layout.remote_access, container,
                 /* attachToRoot= */ false);
 
-        Button b = v.findViewById(R.id.refresh_remote_task_btn);
-        b.setOnClickListener(this::refresh);
+        v.findViewById(R.id.refresh_remote_task_btn).setOnClickListener(this::refresh);
+        v.findViewById(R.id.clear_remote_task_btn).setOnClickListener(this::clear);
         return v;
     }
 
@@ -128,5 +127,10 @@ public final class RemoteAccessTestFragment extends Fragment {
             Log.e(TAG, "failed to parse task JSON: " + taskListJson, e);
         }
         showTaskInfoList(tasks);
+    }
+
+    private void clear(View v) {
+        mSharedPref.edit().putString(KitchenSinkRemoteTaskService.PREF_KEY, "{}").apply();
+        refresh(v);
     }
 }
