@@ -18,6 +18,7 @@ package com.android.systemui.car.displayarea;
 
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_COLLAPSE_NOTIFICATION_PANEL;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_STATE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_LAUNCHER_READY;
@@ -96,6 +97,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     mCarFullScreenTouchHandler.enable(requested);
                     Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
                     intent.putExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED, requested);
+                    if (componentName != null) {
+                        intent.putExtra(INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE,
+                                componentName.flattenToString());
+                    }
                     mApplicationContext.sendBroadcastAsUser(intent,
                             new UserHandle(ActivityManager.getCurrentUser()));
                 }
@@ -251,10 +256,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 }
                 boolean hideSystemBar = intent.getBooleanExtra(
                         INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE, false);
-                if (hideSystemBar == mIsImmersive) {
-                    mCarUiDisplaySystemBarsController.requestImmersiveMode(
-                            mApplicationContext.getDisplayId(), hideSystemBar);
-                }
+                mCarUiDisplaySystemBarsController.requestImmersiveMode(
+                        mApplicationContext.getDisplayId(), hideSystemBar);
             }
         };
         mApplicationContext.registerReceiverForAllUsers(immersiveModeChangeReceiver,
