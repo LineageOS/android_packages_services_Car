@@ -32,6 +32,7 @@ import android.car.ICarResultReceiver;
 import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BuildHelper;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
@@ -2135,7 +2136,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         private void handleDisplayStateChange(int displayId, boolean on) {
-            removeMessages(MSG_DISPLAY_STATE_CHANGE, displayId);
+            HandlerHelper.removeEqualMessages(this, MSG_DISPLAY_STATE_CHANGE, displayId);
             Message msg = obtainMessage(MSG_DISPLAY_STATE_CHANGE, displayId);
             msg.arg1 = on ? Display.STATE_ON : Display.STATE_OFF;
             sendMessageDelayed(msg, MAIN_DISPLAY_EVENT_DELAY_MS);

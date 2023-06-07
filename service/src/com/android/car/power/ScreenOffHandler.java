@@ -23,6 +23,7 @@ import android.annotation.IntDef;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZoneCallback;
+import android.car.builtin.os.HandlerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.settings.CarSettings;
@@ -524,7 +525,7 @@ final class ScreenOffHandler {
         }
 
         private void cancelUserActivityTimeout(int displayId) {
-            removeMessages(MSG_USER_ACTIVITY_TIMEOUT, displayId);
+            HandlerHelper.removeEqualMessages(this, MSG_USER_ACTIVITY_TIMEOUT, displayId);
         }
 
         @Override
