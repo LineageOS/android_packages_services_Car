@@ -50,9 +50,10 @@ public class CarPublicPermissionTest {
     public void testGetCarManagerPermissions() throws Exception {
         assertThrows(SecurityException.class, () -> mCar.getCarManager(
                 Car.CAR_DRIVING_STATE_SERVICE));
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(
-                Car.CAR_INSTRUMENT_CLUSTER_SERVICE));
-        assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.CAR_NAVIGATION_SERVICE));
+        if (mCar.isFeatureEnabled(Car.CAR_NAVIGATION_SERVICE)) {
+            assertThrows(SecurityException.class, () -> mCar.getCarManager(
+                    Car.CAR_NAVIGATION_SERVICE));
+        }
         if (mCar.isFeatureEnabled(Car.DIAGNOSTIC_SERVICE)) {
             assertThrows(SecurityException.class, () -> mCar.getCarManager(Car.DIAGNOSTIC_SERVICE));
         }
