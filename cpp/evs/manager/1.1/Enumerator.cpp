@@ -238,17 +238,32 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
 
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> Enumerator::getCameraList(getCameraList_cb list_cb) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
+        list_cb({});
+        return Void();
+    }
+
     hardware::hidl_vec<CameraDesc_1_0> cameraList;
-    mServiceFactory->getService()->getCameraList_1_1([&cameraList](auto cameraList_1_1) {
-        cameraList.resize(cameraList_1_1.size());
-        unsigned i = 0;
-        for (auto&& cam : cameraList_1_1) {
-            cameraList[i++] = cam.v1;
+    mServiceFactory->getService()->getCameraList([&cameraList](auto enumeratedCameras) {
+        cameraList.resize(enumeratedCameras.size());
+        unsigned count = 0;
+        for (auto&& cam : enumeratedCameras) {
+            cameraList[count++] = cam;
         }
     });
 
-    list_cb(cameraList);
+    // Update the cached device list.
+    for (auto&& desc : cameraList) {
+        auto it = mCameraDevices.find(desc.cameraId);
+        if (it != mCameraDevices.end()) {
+            it->second.v1 = desc;
+        } else {
+            CameraDesc desc_1_1 = { .v1 = desc };
+            mCameraDevices.emplace(desc.cameraId, desc_1_1);
+        }
+    }
 
+    list_cb(cameraList);
     return Void();
 }
 
