@@ -3290,7 +3290,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         String packageName = args[1];
         int userId;
-        if (args.length > 2 && args[2].equals("--user")) {
+        if (args.length > 2 && Objects.equals(args[2], "--user")) {
             try {
                 userId = Integer.parseInt(args[3]);
             } catch (NumberFormatException e) {

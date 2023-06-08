@@ -103,6 +103,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 public class ICarImpl extends ICar.Stub {
@@ -768,7 +769,7 @@ public class ICarImpl extends ICar.Stub {
                     writer.println("Must pass services to dump when using --services");
                     return;
                 }
-                if (args[length - 1].equals("--proto")) {
+                if (Objects.equals(args[length - 1], "--proto")) {
                     length -= 2;
                     dumpToProto = true;
                     if (length > 1) {
