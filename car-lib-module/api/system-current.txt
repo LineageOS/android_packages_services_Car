@@ -704,18 +704,18 @@ package android.car.diagnostic {
   }
 
   public final class CarDiagnosticManager {
-    method public boolean clearFreezeFrames(long...);
-    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getFreezeFrame(long);
-    method public long[] getFreezeFrameTimestamps();
-    method @Nullable public android.car.diagnostic.CarDiagnosticEvent getLatestLiveFrame();
-    method public boolean isClearFreezeFramesSupported();
-    method public boolean isFreezeFrameNotificationSupported();
-    method public boolean isGetFreezeFrameSupported();
-    method public boolean isLiveFrameSupported();
-    method public boolean isSelectiveClearFreezeFramesSupported();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL) public boolean clearFreezeFrames(long...);
+    method @Nullable @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public android.car.diagnostic.CarDiagnosticEvent getFreezeFrame(long);
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public long[] getFreezeFrameTimestamps();
+    method @Nullable @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public android.car.diagnostic.CarDiagnosticEvent getLatestLiveFrame();
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public boolean isClearFreezeFramesSupported();
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public boolean isFreezeFrameNotificationSupported();
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public boolean isGetFreezeFrameSupported();
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public boolean isLiveFrameSupported();
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public boolean isSelectiveClearFreezeFramesSupported();
     method public void onCarDisconnected();
-    method public boolean registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, @android.car.diagnostic.CarDiagnosticManager.FrameType int, int);
-    method public void unregisterListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL) public boolean registerListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener, @android.car.diagnostic.CarDiagnosticManager.FrameType int, int);
+    method @RequiresPermission(anyOf={android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL, android.car.Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR}) public void unregisterListener(android.car.diagnostic.CarDiagnosticManager.OnDiagnosticEventListener);
     field public static final int FRAME_TYPE_FREEZE = 1; // 0x1
     field public static final int FRAME_TYPE_LIVE = 0; // 0x0
   }
