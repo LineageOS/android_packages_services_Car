@@ -411,10 +411,10 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Z_MOVE = 339741505; // 0x14400b41
     field @RequiresPermission("android.car.permission.CONTROL_CAR_MIRRORS") public static final int MIRROR_Z_POS = 339741504; // 0x14400b40
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int NIGHT_MODE = 287310855; // 0x11200407
-    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME = 299896065; // 0x11e00d01
-    field @RequiresPermission("android.car.permission.CLEAR_CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067; // 0x11e00d03
-    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_FREEZE_FRAME_INFO = 299896066; // 0x11e00d02
-    field @RequiresPermission("android.car.permission.CAR_DIAGNOSTICS") public static final int OBD2_LIVE_FRAME = 299896064; // 0x11e00d00
+    field @Deprecated public static final int OBD2_FREEZE_FRAME = 299896065; // 0x11e00d01
+    field @Deprecated public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067; // 0x11e00d03
+    field @Deprecated public static final int OBD2_FREEZE_FRAME_INFO = 299896066; // 0x11e00d02
+    field @Deprecated public static final int OBD2_LIVE_FRAME = 299896064; // 0x11e00d00
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_AUTO_APPLY = 287310851; // 0x11200403
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int PARKING_BRAKE_ON = 287310850; // 0x11200402
     field @RequiresPermission("android.car.permission.CAR_MILEAGE") public static final int PERF_ODOMETER = 291504644; // 0x11600204
