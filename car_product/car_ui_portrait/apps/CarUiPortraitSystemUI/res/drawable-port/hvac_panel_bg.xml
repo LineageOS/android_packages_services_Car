@@ -25,11 +25,11 @@
     </item>
     <item>
         <shape>
-            <solid android:color="@color/car_surface_variant"/>
+            <solid android:color="@color/car_panel_border"/>
             <corners android:radius="@dimen/hvac_panel_bg_radius"/>
         </shape>
     </item>
-    <item android:top="@dimen/hvac_panel_stroke_width">
+    <item android:top="@dimen/car_panel_border_width">
         <shape>
             <solid android:color="@color/hvac_background_color"/>
             <corners android:radius="@dimen/hvac_panel_bg_radius"/>

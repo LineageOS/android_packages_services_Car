@@ -126,4 +126,5 @@
     <color name="car_focus_ring">@color/car_primary</color>
     <color name="car_focus_background">#990856cf</color>
 
+    <color name="car_panel_border">#ffffff</color>
 </resources>
