@@ -19,6 +19,7 @@ package com.android.car.portraitlauncher.homeactivities;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
 
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_APP_GRID_VISIBILITY_CHANGE;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_NOTIFICATION;
 import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_COLLAPSE_RECENTS;
@@ -146,6 +147,7 @@ import java.util.Set;
 public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public static final String TAG = CarUiPortraitHomeScreen.class.getSimpleName();
     private static final boolean DBG = Build.IS_DEBUGGABLE;
+    private static final long IMMERSIVE_MODE_REQUEST_TIMEOUT = 500;
     private static final String SAVED_BACKGROUND_APP_COMPONENT_NAME =
             "SAVED_BACKGROUND_APP_COMPONENT_NAME";
     private static final IActivityManager sActivityManager = ActivityManager.getService();
@@ -170,6 +172,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private TaskViewPanel mRootTaskViewPanel;
 
     private InputManagerGlobal mInputManagerGlobal;
+
+    private ComponentName mUnhandledImmersiveModeRequestComponent;
+    private long mUnhandledImmersiveModeRequestTimestamp;
+    private boolean mUnhandledImmersiveModeRequest;
 
     /** Messenger for communicating with {@link CarUiPortraitService}. */
     private Messenger mService = null;
@@ -288,7 +294,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // This is to prevent showing a blank panel to the user if an app crashes and reveals
             // the blank activity underneath.
             if (mTaskCategoryManager.isBlankActivity(taskInfo)) {
+                // close the root taskViewPanel if visible. This can happen if an app crashes
+                // leaving the underlying BlankActivity visible.
+                if (mRootTaskViewPanel.isVisible()) {
+                    mRootTaskViewPanel.closePanel(/* animated= */ false);
+                }
                 setFocusToBackgroundApp();
+                mRootTaskViewPanel.setCurrentTask(taskInfo);
                 return;
             }
 
@@ -300,7 +312,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 logIfDebuggable("Opening in root task view: ");
                 mRootTaskViewPanel.setCurrentTask(taskInfo);
 
-                if (mAppGridTaskViewPanel.isOpen()) {
+                // Open immersive mode if there is unhandled immersive mode request.
+                if (shouldOpenFullScreenPanel(taskInfo)) {
+                    mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
+                            /* showToolBar= */ true, mNavBarHeight);
+                    setUnhandledImmersiveModeRequest(/* componentName= */ null, /* timestamp= */ 0,
+                            /* requested= */ false);
+                } else if (mAppGridTaskViewPanel.isOpen()) {
                     // Animate the root task view to expand on top of the app grid task view.
                     mRootTaskViewPanel.expandPanel();
                 } else {
@@ -360,6 +378,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 } else if (mRootTaskViewPanel.isOpen()) {
                     mAppGridTaskViewPanel.fadeInPanel();
                     mRootTaskViewPanel.fadeOutPanel();
+                } else if (mRootTaskViewPanel.isFullScreen()) {
+                    mAppGridTaskViewPanel.openPanel();
+                    mRootTaskViewPanel.closePanel();
                 } else {
                     mAppGridTaskViewPanel.openPanel();
                 }
@@ -373,9 +394,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 //    center. Make sure the app grid panel is closed already in case we are
                 //    interrupting a running animation.
                 // 2 - Open the root task view panel if it is closed:
-                //    a) If the app grid panel is already open then use an expand animation
+                //    a) If there is a fresh unhandled immersive mode request, open the root task
+                //       view panel to full screen.
+                //    b) If the app grid panel is already open then use an expand animation
                 //       to open the root task view on top of the app grid task view.
-                //    b) Otherwise, simply open the app grid panel.
+                //    c) Otherwise, simply open the root task view panel.
                 if (mRootTaskViewPanel.isOpen()
                         && mTaskCategoryManager.isNotificationActivity(taskInfo)) {
                     if (mAppGridTaskViewPanel.isOpen()) {
@@ -383,7 +406,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     }
                     mRootTaskViewPanel.closePanel();
                 } else {
-                    if (mAppGridTaskViewPanel.isOpen()) {
+                    if (shouldOpenFullScreenPanel(taskInfo)) {
+                        mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true,
+                                /* showToolBar= */ true, mNavBarHeight);
+                        setUnhandledImmersiveModeRequest(/* componentName= */ null,
+                                /* timestamp= */ 0, /* requested= */ false);
+                    } else
+                        if (mAppGridTaskViewPanel.isOpen()) {
                         mRootTaskViewPanel.expandPanel();
                     } else {
                         mRootTaskViewPanel.openPanel();
@@ -399,6 +428,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         } catch (RemoteException e) {
             Log.w(TAG, "Unable to set focus on background app: ", e);
         }
+    }
+
+    private boolean shouldOpenFullScreenPanel(ActivityManager.RunningTaskInfo taskInfo) {
+        return taskInfo.baseActivity.equals(mUnhandledImmersiveModeRequestComponent)
+                && mUnhandledImmersiveModeRequest
+                && System.currentTimeMillis() - mUnhandledImmersiveModeRequestTimestamp
+                < IMMERSIVE_MODE_REQUEST_TIMEOUT;
     }
 
     /**
@@ -1021,20 +1057,46 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                 });
     }
 
-    private void onImmersiveModeRequested(boolean requested, boolean animate) {
-        logIfDebuggable("onImmersiveModeRequested = " + requested);
-        if (requested && (!mCarUiPortraitDriveStateController.isDrivingStateMoving()
-                || mIsSUWInProgress)) {
-            int bottomAdjustment = mIsSUWInProgress ? 0 : mNavBarHeight;
-            mRootTaskViewPanel.openFullScreenPanel(animate, !mIsSUWInProgress, bottomAdjustment);
-        } else {
-            if (mTaskViewManager.getRootTaskCount() > 0) {
-                mRootTaskViewPanel.openPanel(animate);
-            } else {
-                // Don't animate if there is no task in the panel.
-                mRootTaskViewPanel.closePanel(/* animated = */ false);
-            }
+    private void onImmersiveModeRequested(boolean requested, ComponentName componentName) {
+        logIfDebuggable("onImmersiveModeRequested = " + requested + " cmp="  + componentName);
+
+        // Ignore the immersive mode request for app grid, since it's not in root task view panel.
+        // Handle the app grid task in TaskStackListener.
+        if (mTaskCategoryManager.isAppGridActivity(componentName)) {
+            return;
         }
+
+        if (componentName == null) {
+            // Quit immersive mode if the car is moving and in immersive mode.
+            if (mCarUiPortraitDriveStateController.isDrivingStateMoving()
+                    && mRootTaskViewPanel.isFullScreen()) {
+                mRootTaskViewPanel.openPanel();
+            }
+            return;
+        }
+
+        // Only handles the immersive mode request here if requesting component has the same package
+        // name as the current top task.
+        if (!mRootTaskViewPanel.isPackageOnTop(componentName)) {
+            // Save the component and timestamp of the latest immersive mode request, in case any
+            // race condition with TaskStackListener.
+            setUnhandledImmersiveModeRequest(componentName, System.currentTimeMillis(), requested);
+            return;
+        }
+
+        if (requested) {
+            mRootTaskViewPanel.openFullScreenPanel(/* animated= */ true, /* showToolBar= */ true,
+                    mNavBarHeight);
+        } else {
+            mRootTaskViewPanel.openPanel();
+        }
+    }
+
+    private void setUnhandledImmersiveModeRequest(ComponentName componentName, long timestamp,
+            boolean requested) {
+        mUnhandledImmersiveModeRequestComponent = componentName;
+        mUnhandledImmersiveModeRequestTimestamp = timestamp;
+        mUnhandledImmersiveModeRequest = requested;
     }
 
     /**
@@ -1050,12 +1112,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     recreate();
                     break;
                 case MSG_IMMERSIVE_MODE_REQUESTED:
-                    onImmersiveModeRequested(intToBool(msg.arg1), /* animate = */ true);
+                    onImmersiveModeRequested(intToBool(msg.arg1),
+                            getComponentNameFromBundle(msg.getData()));
                     break;
                 case MSG_SUW_IN_PROGRESS:
                     mIsSUWInProgress = intToBool(msg.arg1);
                     logIfDebuggable("Get intent about the SUW is " + mIsSUWInProgress);
-                    onImmersiveModeRequested(mIsSUWInProgress, /* animate = */ false);
+                    if (mIsSUWInProgress) {
+                        mRootTaskViewPanel.openFullScreenPanel(/* animated= */
+                                false, /* showToolBar= */ false, /* bottomAdjustment= */ 0);
+                    } else {
+                        mRootTaskViewPanel.closePanel();
+                    }
                     break;
                 case MSG_IMMERSIVE_MODE_CHANGE:
                     boolean hideNavBar = intToBool(msg.arg1);
@@ -1071,6 +1139,13 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     super.handleMessage(msg);
             }
         }
+    }
+
+    private ComponentName getComponentNameFromBundle(Bundle bundle) {
+        String cmpString = bundle.getString(INTENT_EXTRA_IMMERSIVE_MODE_REQUESTED_SOURCE);
+        return (cmpString == null)
+                ? null
+                : ComponentName.unflattenFromString(cmpString);
     }
 
     void doBindService() {
