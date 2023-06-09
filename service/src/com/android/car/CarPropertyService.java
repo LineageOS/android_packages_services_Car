@@ -158,6 +158,15 @@ public class CarPropertyService extends ICarProperty.Stub
             "automotive_os.value_subscription_update_rate",
             new Histogram.UniformOptions(/* binCount= */ 101, /* minValue= */ 0,
                     /* exclusiveMaxValue= */ 101));
+    private static final Histogram sGetAsyncLatencyHistogram = new Histogram(
+            "automotive_os.value_get_async_latency",
+            new Histogram.UniformOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* exclusiveMaxValue= */ 1000));
+
+    private static final Histogram sSetAsyncLatencyHistogram = new Histogram(
+            "automotive_os.value_set_async_latency",
+            new Histogram.UniformOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* exclusiveMaxValue= */ 1000));
 
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
@@ -874,6 +883,7 @@ public class CarPropertyService extends ICarProperty.Stub
             IAsyncPropertyResultCallback asyncPropertyResultCallback, long timeoutInMs) {
         validateGetSetAsyncParameters(getPropertyServiceRequestsParcelable,
                 asyncPropertyResultCallback, timeoutInMs);
+        long currentTime = System.currentTimeMillis();
         List<AsyncPropertyServiceRequest> getPropertyServiceRequests =
                 getPropertyServiceRequestsParcelable.getList();
         for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
@@ -881,7 +891,8 @@ public class CarPropertyService extends ICarProperty.Stub
                     getPropertyServiceRequests.get(i).getAreaId());
         }
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                asyncPropertyResultCallback, timeoutInMs);
+                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        sGetAsyncLatencyHistogram.logSample((float) System.currentTimeMillis() - currentTime);
     }
 
     /**
@@ -893,6 +904,7 @@ public class CarPropertyService extends ICarProperty.Stub
             long timeoutInMs) {
         validateGetSetAsyncParameters(setPropertyServiceRequests, asyncPropertyResultCallback,
                 timeoutInMs);
+        long currentTime = System.currentTimeMillis();
         List<AsyncPropertyServiceRequest> setPropertyServiceRequestList =
                 setPropertyServiceRequests.getList();
         for (int i = 0; i < setPropertyServiceRequestList.size(); i++) {
@@ -923,7 +935,8 @@ public class CarPropertyService extends ICarProperty.Stub
             }
         }
         mPropertyHalService.setCarPropertyValuesAsync(setPropertyServiceRequestList,
-                asyncPropertyResultCallback, timeoutInMs);
+                asyncPropertyResultCallback, timeoutInMs, currentTime);
+        sSetAsyncLatencyHistogram.logSample((float) System.currentTimeMillis() - currentTime);
     }
 
     /**

@@ -27,6 +27,7 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
@@ -237,7 +238,8 @@ public final class CarPropertyServiceUnitTest {
         mService.getPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).getCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
+        verify(mHalService).getCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
+                anyLong());
     }
 
     @Test
@@ -315,7 +317,8 @@ public final class CarPropertyServiceUnitTest {
         mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
+        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
+                anyLong());
     }
 
     @Test
@@ -329,7 +332,8 @@ public final class CarPropertyServiceUnitTest {
         mService.setPropertiesAsync(new AsyncPropertyServiceRequestList(requests),
                 mAsyncPropertyResultCallback, ASYNC_TIMEOUT_MS);
 
-        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS));
+        verify(mHalService).setCarPropertyValuesAsync(eq(requests), any(), eq(ASYNC_TIMEOUT_MS),
+                anyLong());
     }
 
     @Test
