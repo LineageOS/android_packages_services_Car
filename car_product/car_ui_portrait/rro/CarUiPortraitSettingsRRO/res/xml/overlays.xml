@@ -16,6 +16,7 @@
   -->
 <overlay>
     <item target="color/icon_color_default" value="@color/top_level_icon_default"/>
+    <item target="color/top_level_injected_default_background" value="@android:color/transparent" />
     <item target="color/top_level_icon_default" value="@color/top_level_icon_default"/>
     <item target="color/top_level_accessibility_background" value="@color/top_level_icon_background"/>
     <item target="color/top_level_applications_background" value="@color/top_level_icon_background"/>
