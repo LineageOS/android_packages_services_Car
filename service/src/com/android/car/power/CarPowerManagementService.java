@@ -2835,6 +2835,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return timeout >= 0 ? timeout : DEFAULT_COMPLETION_WAIT_TIMEOUT;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private static String actionOnFinishToString(int actionOnFinish) {
         switch (actionOnFinish) {
             case ACTION_ON_FINISH_SHUTDOWN:
