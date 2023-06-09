@@ -26,6 +26,7 @@ import android.car.Car;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
 import android.os.Process;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -117,7 +118,7 @@ public class CarWatchdogManagerPermissionTest {
                 CarWatchdogManager.TIMEOUT_CRITICAL);
         mUiAutomation.dropShellPermissionIdentity();
         synchronized (actualSessionId) {
-            actualSessionId.wait(6000);
+            actualSessionId.wait(isEmulator() ? 30000 : 6000);
         }
 
         expectPermissionException(Car.PERMISSION_USE_CAR_WATCHDOG,
@@ -213,5 +214,10 @@ public class CarWatchdogManagerPermissionTest {
         SecurityException thrown = assertThrows(SecurityException.class, runnable);
         String exceptionBuilder = "requires any of [" + String.join(", ", permissions) + "]";
         assertThat(thrown.getMessage()).isEqualTo(exceptionBuilder);
+    }
+
+    private static boolean isEmulator() {
+        return SystemProperties.getBoolean("ro.boot.qemu", false)
+                || SystemProperties.getBoolean("ro.kernel.qemu", false);
     }
 }
