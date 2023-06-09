@@ -31,9 +31,8 @@
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:orientation="vertical"
-        android:layout_weight="0.6"
-        android:gravity="center_vertical | start"
-        android:layout_marginEnd="@dimen/seekbar_margin_end">
+        android:layout_weight="1"
+        android:gravity="center_vertical|start">
         <SeekBar
             android:id="@+id/optional_seek_bar"
             android:layout_width="match_parent"
@@ -51,19 +50,21 @@
             android:id="@+id/optional_progress_bar"
             android:layout_width="match_parent"
             android:layout_height="@dimen/progress_bar_height"
-            style="@android:style/Widget.ProgressBar.Horizontal"
             android:splitTrack="false"
             android:progressTint="@color/seek_bar_color"
             android:progressBackgroundTint="@color/seek_bar_background_tint_color"
             android:paddingStart="@dimen/seekbar_padding"
             android:paddingEnd="@dimen/seekbar_padding"
-            android:max="@integer/optional_seekbar_max"/>
+            android:max="@integer/optional_seekbar_max"
+            style="@android:style/Widget.ProgressBar.Horizontal"/>
     </LinearLayout>
     <TextView
         android:id="@+id/optional_times"
-        android:layout_width="@dimen/seekbar_times_width"
-        android:layout_height="match_parent"
-        style="@style/TextAppearance.Car.Sub.Medium"
-        android:gravity="center_vertical | end"
-        android:textColor="@color/car_on_surface_variant"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/seekbar_times_width"
+        android:layout_marginStart="@dimen/seekbar_margin_end"
+        android:gravity="center_vertical|end"
+        android:textColor="@color/car_on_surface_variant"
+        style="@style/TextAppearance.Car.Sub.Medium"/>
 </LinearLayout>
