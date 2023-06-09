@@ -49,6 +49,7 @@ import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.hardware.input.InputManager;
 import android.hardware.input.InputManagerGlobal;
 import android.os.Build;
@@ -620,6 +621,10 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         initializeCards();
+
+        Drawable background =
+                getResources().getDrawable(R.drawable.control_bar_background, getTheme());
+        mControlBarView.setBackground(background);
 
         mRootTaskViewPanel.post(() -> mRootTaskViewPanel.refresh(getTheme()));
         mAppGridTaskViewPanel.post(() -> mAppGridTaskViewPanel.refresh(getTheme()));
