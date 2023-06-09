@@ -4273,6 +4273,120 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void getMirrorAudioZonesForAudioZone_withoutMirroringEnabled()
+            throws Exception {
+        mCarAudioService.init();
+        assignOccupantToAudioZones();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirroring zones for non mirror zone %s", TEST_REAR_RIGHT_ZONE_ID)
+                .that(zones).asList().isEmpty();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForAudioZone_withMirroringEnabled() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirroring zones for mirror zone %s", TEST_REAR_RIGHT_ZONE_ID).that(zones)
+                .asList().containsExactly(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+    }
+
+    @Test
+    public void getMirrorAudioZonesForAudioZone_afterDisableMirror() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        long requestId = mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+        callback.reset(1);
+        mCarAudioService.disableAudioMirror(requestId);
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirroring zones for mirror zone %s after disabling mirroring",
+                TEST_REAR_RIGHT_ZONE_ID).that(zones).asList().isEmpty();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForAudioZone_afterPassengerLogout() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+        callback.reset(1);
+        simulateLogoutRightPassengers();
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForAudioZone(TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirroring zones for mirror zone %s after logout",
+                TEST_REAR_RIGHT_ZONE_ID).that(zones).asList().isEmpty();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForMirrorRequest_withMirroringEnabled() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        long requestId = mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForMirrorRequest(requestId);
+
+        expectWithMessage("Mirroring zones for mirror request %s", requestId).that(zones).asList()
+                .containsExactly(TEST_REAR_LEFT_ZONE_ID, TEST_REAR_RIGHT_ZONE_ID);
+    }
+
+    @Test
+    public void getMirrorAudioZonesForMirrorRequest_afterDisableMirror() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        long requestId = mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+        callback.reset(1);
+        mCarAudioService.disableAudioMirror(requestId);
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForMirrorRequest(TEST_REAR_RIGHT_ZONE_ID);
+
+        expectWithMessage("Mirroring zones for mirror request %s after disabling mirroring",
+                requestId).that(zones).asList().isEmpty();
+    }
+
+    @Test
+    public void getMirrorAudioZonesForMirrorRequest_afterPassengerLogout() throws Exception {
+        mCarAudioService.init();
+        TestAudioZonesMirrorStatusCallbackCallback callback =
+                getAudioZonesMirrorStatusCallback();
+        assignOccupantToAudioZones();
+        long requestId = mCarAudioService.enableMirrorForAudioZones(TEST_MIRROR_AUDIO_ZONES);
+        callback.waitForCallback();
+        callback.reset(1);
+        simulateLogoutRightPassengers();
+        callback.waitForCallback();
+
+        int[] zones = mCarAudioService.getMirrorAudioZonesForMirrorRequest(requestId);
+
+        expectWithMessage("Mirroring zones for mirror request %s after logout",
+                TEST_REAR_RIGHT_ZONE_ID).that(zones).asList().isEmpty();
+    }
+
+    @Test
     public void onAudioVolumeGroupChanged_dispatchCallbackEvent() throws RemoteException {
         CarAudioService useCoreAudioCarAudioService =
                 getCarAudioServiceUsingCoreAudioRoutingAndVolume();
@@ -4514,6 +4628,13 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void simulateLogoutPassengers() throws Exception {
         when(mMockOccupantZoneService.getUserForOccupant(TEST_REAR_LEFT_OCCUPANT_ZONE_ID))
                 .thenReturn(UserManagerHelper.USER_NULL);
+        when(mMockOccupantZoneService.getUserForOccupant(TEST_REAR_RIGHT_OCCUPANT_ZONE_ID))
+                .thenReturn(UserManagerHelper.USER_NULL);
+
+        assignOccupantToAudioZones();
+    }
+
+    private void simulateLogoutRightPassengers() throws Exception {
         when(mMockOccupantZoneService.getUserForOccupant(TEST_REAR_RIGHT_OCCUPANT_ZONE_ID))
                 .thenReturn(UserManagerHelper.USER_NULL);
 
