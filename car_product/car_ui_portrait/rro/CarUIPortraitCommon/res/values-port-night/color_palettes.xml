@@ -125,4 +125,5 @@
     <!-- control focus colors -->
     <color name="car_focus_background">#99b0c5ff</color>
 
+    <color name="car_panel_border">#4D5057</color>
 </resources>
