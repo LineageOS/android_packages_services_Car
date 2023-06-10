@@ -22,4 +22,6 @@ android_test {
     ],
 
     instrumentation_for: "CarDeveloperOptions",
+
+    test_suites: ["automotive-general-tests"],
 }
