@@ -1954,6 +1954,8 @@ package android.car.projection {
     field public static final android.os.Parcelable.Creator<android.car.projection.ProjectionStatus> CREATOR;
     field public static final int PROJECTION_STATE_ACTIVE_BACKGROUND = 3; // 0x3
     field public static final int PROJECTION_STATE_ACTIVE_FOREGROUND = 2; // 0x2
+    field public static final int PROJECTION_STATE_ATTEMPTING = 4; // 0x4
+    field public static final int PROJECTION_STATE_FINISHING = 5; // 0x5
     field public static final int PROJECTION_STATE_INACTIVE = 0; // 0x0
     field public static final int PROJECTION_STATE_READY_TO_PROJECT = 1; // 0x1
     field public static final int PROJECTION_TRANSPORT_NONE = 0; // 0x0
