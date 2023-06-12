@@ -22,6 +22,7 @@
              android:targetName="CarNotification"
              android:targetPackage="com.android.car.notification"
              android:resourcesMap="@xml/overlays"
-             android:category="caruiportrait.notifications"
-             android:isStatic="false" />
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
 </manifest>
