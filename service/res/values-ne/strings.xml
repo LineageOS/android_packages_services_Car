@@ -81,7 +81,7 @@
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"निदानसम्बन्धी डेटा हटाउने"</string>
     <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"कारको निदानसम्बन्धी डेटा हटाउने।"</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS प्रकाशक"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS सन्देशहरू प्रकाशित गर्ने"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS म्यासेजहरू प्रकाशित गर्ने"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS को सदस्य"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS का सन्देशहरूको सदस्यता लिनुहोस्"</string>
     <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS क्लाइन्ट सेवा"</string>
