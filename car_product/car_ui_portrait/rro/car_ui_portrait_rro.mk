@@ -78,7 +78,6 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.htmlviewer.googlecaruiportrait.rro; \
     com.android.managedprovisioning.googlecaruiportrait.rro; \
     com.android.permissioncontroller.googlecaruiportrait.rro; \
-    com.android.providers.settings.caruiportrait.rro; \
     com.android.settings.intelligence.googlecaruiportrait.rro; \
     com.android.vending.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.dev.googlecaruiportrait.rro; \
