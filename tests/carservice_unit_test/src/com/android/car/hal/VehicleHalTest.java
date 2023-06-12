@@ -31,6 +31,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -711,6 +712,54 @@ public class VehicleHalTest {
         verify(mSubscriptionClient).subscribe(eq(new SubscribeOptions[]{expectedOptions1}));
         verify(mSubscriptionClient, never())
                 .subscribe(eq(new SubscribeOptions[]{expectedOptions2}));
+    }
+
+    @Test
+    public void testSubscribeProperty_precisionThresholdMetOverThreshold() throws Exception {
+        // Arrange
+        int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds1);
+        reset(mSubscriptionClient);
+
+        // Assert
+        // Sampling rate is 60.00099...
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1 + 0.001f, areaIds1);
+
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_precisionThresholdMetUnderThreshold() throws Exception {
+        // Arrange
+        int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds1);
+        reset(mSubscriptionClient);
+
+        // Assert
+        // Sampling rate is 59.9990005
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1 - 0.001f, areaIds1);
+
+        verify(mSubscriptionClient, never()).subscribe(any());
+    }
+
+    @Test
+    public void testSubscribeProperty_precisionThresholdNotMet() throws Exception {
+        // Arrange
+        int[] areaIds1 = new int[] {AREA_ID_1, AREA_ID_2};
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1, areaIds1);
+        reset(mSubscriptionClient);
+
+        // Assert
+        // Sampling rate is 60.00109
+        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
+                ANY_SAMPLING_RATE_1 + 0.0011f, areaIds1);
+
+        verify(mSubscriptionClient, times(1)).subscribe(any());
     }
 
     @Test

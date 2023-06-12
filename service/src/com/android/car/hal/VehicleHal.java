@@ -567,7 +567,11 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
                 Pair<Integer, Integer> propertyAndAreadId = Pair.create(property, areaIds[i]);
                 Float savedSampleRateHz = mUpdateRateByPropIdAreadId.get(propertyAndAreadId);
                 if (savedSampleRateHz != null
-                        && savedSampleRateHz - sampleRateHz < PRECISION_THRESHOLD) {
+                        && Math.abs(savedSampleRateHz - sampleRateHz) < PRECISION_THRESHOLD) {
+                    if (DBG) {
+                        Slogf.d(CarLog.TAG_HAL, "Property: %s is already subscribed at rate: %f hz",
+                                toCarPropertyLog(property), sampleRateHz);
+                    }
                     continue;
                 }
                 areaIdList.add(areaIds[i]);
