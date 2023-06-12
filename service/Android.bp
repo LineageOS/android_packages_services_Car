@@ -64,6 +64,14 @@ filegroup {
     ],
 }
 
+filegroup {
+    name: "car-service-non-dump-proto-srcs",
+    srcs: [
+        "proto/android/car/telemetry/*.proto",
+        "proto/android/car/watchdog/*.proto",
+    ],
+}
+
 java_defaults {
     name: "carservice-updatable-min-java-defaults",
 
@@ -74,15 +82,13 @@ java_defaults {
         ":android.car.watchdoglib-src",
         ":cartelemetry-cardata-proto-srcs",
         ":cartelemetryservice-proto-srcs",
+        ":car-service-non-dump-proto-srcs",
         ":com.android.car.procfsinspector-client-src",
-        ":statslog-Car-java-gen",
-        ":iscriptexecutor_aidl",
         ":dump-javastream-protos",
-        // list all non-dump proto srcs here
-        "proto/android/car/telemetry/*.proto",
-        "proto/android/car/watchdog/*.proto",
+        ":iscriptexecutor_aidl",
+        ":statslog-Car-java-gen",
         "src/**/*.java",
-        ],
+    ],
 
     aidl: {
         include_dirs: [
@@ -128,6 +134,7 @@ java_defaults {
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
+        "libprotobuf-java-lite",
         "modules-utils-expresslog",
     ],
 
