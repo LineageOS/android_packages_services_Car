@@ -203,6 +203,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mWatchdogPerfHandler.processPackageChangedIntent(intent);
                     break;
                 }
+                default:
+                    Slogf.i(TAG, "Ignoring unknown intent %s", intent);
             }
         }
     };
@@ -820,6 +822,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             // ON covers resume.
             case CarPowerManager.STATE_ON:
                 return PowerCycle.POWER_CYCLE_RESUME;
+            default:
+                Slogf.e(TAG, "Invalid power state: %d", powerState);
         }
         return -1;
     }
@@ -830,6 +834,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return "GARAGE_MODE_OFF";
             case GarageMode.GARAGE_MODE_ON:
                 return "GARAGE_MODE_ON";
+            default:
+                Slogf.e(TAG, "Invalid garage mode: %d", garageMode);
         }
         return "INVALID";
     }
