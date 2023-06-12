@@ -55,7 +55,6 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.carlauncher.googlecaruiportrait.rro; \
     com.android.car.carlauncher.media.caruiportrait.rro; \
     com.android.car.developeroptions.googlecaruiportrait.rro; \
-    com.android.car.dialer.caruiportrait.rro; \
     com.android.car.dialer.googlecaruiportrait.rro; \
     com.android.car.dialer.googlecaruiportrait.toolbar.rro; \
     com.android.car.faceenroll.googlecaruiportrait.rro; \
