@@ -21,5 +21,7 @@
     <overlay android:priority="11"
              android:targetPackage="will.be.replaced.too"
              android:resourcesMap="@xml/overlays"
-             android:isStatic="false"/>
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true"/>
 </manifest>
