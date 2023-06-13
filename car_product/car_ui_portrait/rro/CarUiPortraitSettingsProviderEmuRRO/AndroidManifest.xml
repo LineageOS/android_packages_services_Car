@@ -21,6 +21,7 @@
              android:targetName="SettingsProvider"
              android:targetPackage="com.android.providers.settings"
              android:resourcesMap="@xml/overlays"
-             android:category="caruiportrait.settings.provider.emu"
-             android:isStatic="false" />
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true" />
 </manifest>
