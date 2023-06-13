@@ -97,7 +97,6 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.templates.host.googlecaruiportrait.rro; \
     com.google.android.carassistant.googlecaruiportrait.rro; \
-    com.google.android.car.evs.caruiportrait.rro; \
     com.google.android.carui.ats.googlecaruiportrait.rro; \
     com.google.android.companiondevicesupport.googlecaruiportrait.rro; \
     com.google.android.embedded.projection.googlecaruiportrait.rro; \
