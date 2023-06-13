@@ -218,12 +218,47 @@ public final class CarFeatureController implements CarServiceBase {
             writer.println(" mAvailableExperimentalFeatures:" + mAvailableExperimentalFeatures);
             writer.println(" mPendingEnabledFeatures:" + mPendingEnabledFeatures);
             writer.println(" mPendingDisabledFeatures:" + mPendingDisabledFeatures);
+            dumpConfigFile(writer);
         }
     }
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpProto(ProtoOutputStream proto) {}
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpConfigFile(IndentingPrintWriter writer) {
+        writer.println(" mFeatureConfigFile:");
+        FileInputStream fis;
+        try {
+            synchronized (mLock) {
+                fis = mFeatureConfigFile.openRead();
+            }
+        } catch (FileNotFoundException e) {
+            Slogf.i(TAG, "Feature config file not found");
+            return;
+        }
+        writer.increaseIndent();
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+            while (true) {
+                String line = reader.readLine();
+                if (line == null) {
+                    break;
+                }
+                writer.println(line);
+            }
+        } catch (IOException e) {
+            Slogf.w(TAG, "Cannot read config file", e);
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                Slogf.e(TAG, "Couldn't close FileInputStream");
+            }
+        }
+        writer.decreaseIndent();
+    }
 
     /** Check {@link Car#isFeatureEnabled(String)} */
     public boolean isFeatureEnabled(String featureName) {
