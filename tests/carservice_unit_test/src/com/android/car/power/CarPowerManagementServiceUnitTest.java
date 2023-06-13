@@ -606,20 +606,36 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    public void testDefinePowerPolicyFromCommand() throws Exception {
+    public void testDefinePowerPolicy_validPolicy() {
+        String policyId = "policy_id_valid";
+
+        int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
+                new String[]{"WIFI"});
+
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
+        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
+    }
+
+    @Test
+    public void testDefinePowerPolicy_doubleRegistered() {
         String policyId = "policy_id_valid";
         int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI"});
         assertThat(status).isEqualTo(PolicyOperationStatus.OK);
-        assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
 
         status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI", "NFC"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
 
-        policyId = "policy_id_for_invalid_component";
-        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "INVALID_COMPONENT"},
-                new String[]{"WIFI"});
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
+    }
+
+    @Test
+    public void testDefinePowerPolicy_invalidComponent() {
+        String policyId = "policy_id_for_invalid_component";
+
+        int status = mService.definePowerPolicy(
+                policyId, new String[]{"AUDIO", "INVALID_COMPONENT"}, new String[]{"WIFI"});
+
         assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
     }
 
