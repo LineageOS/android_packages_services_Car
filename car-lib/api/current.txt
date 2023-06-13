@@ -446,7 +446,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_FORE_AFT_MOVE = 356518810; // 0x15400b9a
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_FORE_AFT_POS = 356518809; // 0x15400b99
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_MOVE = 356518806; // 0x15400b96
-    field @Deprecated @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_POS = 289409941; // 0x11400b95
+    field @Deprecated public static final int SEAT_HEADREST_HEIGHT_POS = 289409941; // 0x11400b95
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEADREST_HEIGHT_POS_V2 = 356518820; // 0x15400ba4
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEIGHT_MOVE = 356518796; // 0x15400b8c
     field @RequiresPermission("android.car.permission.CONTROL_CAR_SEATS") public static final int SEAT_HEIGHT_POS = 356518795; // 0x15400b8b

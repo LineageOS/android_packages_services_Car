@@ -3234,30 +3234,18 @@ public final class VehiclePropertyIds {
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804;
 
     /**
-     * @deprecated This property is deprecated because it is defined as type {@link
-     * VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, which means all seats use the same value. Use
-     * {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead which fixes this issue by being defined as type
+     * Headrest height position.
+     *
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
+     *
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * @deprecated because it is defined as type {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL},
+     * which means all seats use the same value. Use {@link #SEAT_HEADREST_HEIGHT_POS_V2} instead
+     * which fixes this issue by being defined as type
      * {@link VehicleAreaType#VEHICLE_AREA_TYPE_SEAT}.
-     *
-     * <p>Headrest height position.
-     *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE} or
-     *  {@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Integer} property type
-     * </ul>
-     *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.CONTROL_CAR_SEATS" to read
-     *  and write property.
-     * </ul>
      */
     @Deprecated
-    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
     @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_HEIGHT_POS = 289409941;
 
