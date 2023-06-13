@@ -69,7 +69,6 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.messenger.googlecaruiportrait.toolbar.rro; \
     com.android.car.notification.caruiportrait.rro; \
     com.android.car.portraitlauncher.googlecaruiportrait.rro; \
-    com.android.car.portraitlauncher.rro; \
     com.android.car.radio.caruiportrait.rro; \
     com.android.car.radio.googlecaruiportrait.rro; \
     com.android.car.radio.googlecaruiportrait.toolbar.rro; \
