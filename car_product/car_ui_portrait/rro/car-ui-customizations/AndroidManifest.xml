@@ -23,7 +23,7 @@
              android:targetPackage="will.be.replaced.too"
              android:category="will.be.replaced"
              android:resourcesMap="@xml/overlays"
-             android:isStatic="false"
-             android:requiredSystemPropertyName="ro.build.car_ui_rros_enabled"
-             android:requiredSystemPropertyValue="true"/>
+             android:requiredSystemPropertyName="car.ui.config"
+             android:requiredSystemPropertyValue="rickybobby"
+             android:isStatic="true"/>
 </manifest>
