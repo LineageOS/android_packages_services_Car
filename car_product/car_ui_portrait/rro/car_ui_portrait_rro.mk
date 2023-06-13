@@ -54,7 +54,6 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.carlauncher.googlecaruiportrait.rro; \
     com.android.car.carlauncher.media.caruiportrait.rro; \
-    com.android.car.caruiportrait.rro; \
     com.android.car.developeroptions.googlecaruiportrait.rro; \
     com.android.car.dialer.caruiportrait.rro; \
     com.android.car.dialer.googlecaruiportrait.rro; \
