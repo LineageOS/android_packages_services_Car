@@ -166,6 +166,9 @@ public class TaskViewPanel extends RelativeLayout {
     /** The drag threshold after which the panel transitions to the close mode. */
     private final int mDragThreshold;
 
+    /** The top margin for task view panel. */
+    private final int mPanelTopMargin;
+
     /** The height of the grip bar. */
     private int mGripBarHeight;
 
@@ -213,6 +216,7 @@ public class TaskViewPanel extends RelativeLayout {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         mDragThreshold = (int) getResources().getDimension(R.dimen.panel_drag_threshold);
+        mPanelTopMargin = (int) getResources().getDimension(R.dimen.panel_default_top_margin);
 
         mOpenState = new State(/* hasGripBar = */ true, /* isVisible = */ true,
                 /* isFullScreen */false, /* hasToolBar = */ false,
@@ -511,9 +515,7 @@ public class TaskViewPanel extends RelativeLayout {
         int parentWidth = ((ViewGroup) getParent()).getWidth();
         int parentHeight = ((ViewGroup) getParent()).getHeight();
 
-        int panelHeight = parentWidth + mOpenState.mInsets.bottom + mGripBarHeight + 1;
-        int panelTop = Math.max(0, parentHeight - panelHeight);
-        mOpenState.mBounds.set(0, panelTop, parentWidth, parentHeight);
+        mOpenState.mBounds.set(0, mPanelTopMargin + mGripBarHeight, parentWidth, parentHeight);
         mCloseState.mBounds.set(0, parentHeight, parentWidth,
                 parentHeight + mOpenState.mBounds.height());
         mFullScreenState.mBounds.set(0, 0, parentWidth, parentHeight);

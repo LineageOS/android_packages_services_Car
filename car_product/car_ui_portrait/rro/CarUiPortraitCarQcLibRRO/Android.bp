@@ -24,6 +24,5 @@ runtime_resource_overlay {
     ],
     package_name: "com.android.systemui.caruiportrait.qc.rro",
     target_package_name: "com.android.systemui",
-    category: "caruiportrait.systemui",
 }
 

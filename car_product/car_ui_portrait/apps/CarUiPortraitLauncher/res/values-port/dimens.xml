@@ -20,7 +20,7 @@
     <dimen name="grip_bar_height">6dp</dimen>
     <dimen name="grip_bar_width">120dp</dimen>
     <dimen name="corner_radius">@dimen/car_portrait_ui_window_rounded_corner_radius</dimen>
-    <dimen name="panel_default_top_margin">517dp</dimen>
+    <dimen name="panel_default_top_margin">612dp</dimen>
     <dimen name="panel_drag_threshold">375dp</dimen>
     <dimen name="toolbar_back_button_start_margin">24dp</dimen>
     <dimen name="panel_elevation">36dp</dimen>

@@ -48,33 +48,25 @@ PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderEmuRRO
 endif
 
+PRODUCT_PRODUCT_PROPERTIES += \
+    car.ui.config=rickybobby
+
 PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
-    com.android.car.carlauncher.apps.caruiportrait.rro; \
     com.android.car.carlauncher.googlecaruiportrait.rro; \
-    com.android.car.carlauncher.media.caruiportrait.rro; \
-    com.android.car.caruiportrait.rro; \
     com.android.car.developeroptions.googlecaruiportrait.rro; \
-    com.android.car.dialer.caruiportrait.rro; \
     com.android.car.dialer.googlecaruiportrait.rro; \
     com.android.car.dialer.googlecaruiportrait.toolbar.rro; \
     com.android.car.faceenroll.googlecaruiportrait.rro; \
     com.android.car.home.googlecaruiportrait.rro; \
     com.android.car.linkviewer.googlecaruiportrait.rro; \
-    com.android.car.media.caruiportrait.rro; \
-    com.android.car.media.common.caruiportrait.rro; \
     com.android.car.media.googlecaruiportrait.rro; \
     com.android.car.media.googlecaruiportrait.toolbar.rro; \
-    com.nadroid.car.messenger.caruiportrait.rro; \
     com.android.car.messenger.googlecaruiportrait.rro; \
     com.android.car.messenger.googlecaruiportrait.toolbar.rro; \
-    com.android.car.notification.caruiportrait.rro; \
     com.android.car.portraitlauncher.googlecaruiportrait.rro; \
-    com.android.car.portraitlauncher.rro; \
-    com.android.car.radio.caruiportrait.rro; \
     com.android.car.radio.googlecaruiportrait.rro; \
     com.android.car.radio.googlecaruiportrait.toolbar.rro; \
     com.android.car.rotaryplayground.googlecaruiportrait.rro; \
-    com.android.car.settings.caruiportrait.rro; \
     com.android.car.settings.googlecaruiportrait.rro; \
     com.android.car.systemupdater.googlecaruiportrait.rro; \
     com.android.car.themeplayground.googlecaruiportrait.rro; \
@@ -85,16 +77,12 @@ PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.htmlviewer.googlecaruiportrait.rro; \
     com.android.managedprovisioning.googlecaruiportrait.rro; \
     com.android.permissioncontroller.googlecaruiportrait.rro; \
-    com.android.providers.settings.caruiportrait.emu.rro; \
-    com.android.providers.settings.caruiportrait.rro; \
     com.android.settings.intelligence.googlecaruiportrait.rro; \
-    com.android.systemui.caruiportrait.qc.rro; \
     com.android.vending.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.dev.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.inputmethod.googlecaruiportrait.rro; \
     com.google.android.apps.automotive.templates.host.googlecaruiportrait.rro; \
     com.google.android.carassistant.googlecaruiportrait.rro; \
-    com.google.android.car.evs.caruiportrait.rro; \
     com.google.android.carui.ats.googlecaruiportrait.rro; \
     com.google.android.companiondevicesupport.googlecaruiportrait.rro; \
     com.google.android.embedded.projection.googlecaruiportrait.rro; \
