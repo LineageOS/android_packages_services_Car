@@ -525,7 +525,7 @@ public class PropertyHalServiceIds {
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
         mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_CURRENT, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
-                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
+                    null));
         mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_SET, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
@@ -570,7 +570,7 @@ public class PropertyHalServiceIds {
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
         mHalPropIdToPermissions.put(VehicleProperty.HVAC_ACTUAL_FAN_SPEED_RPM, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
-                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
+                    null));
         mHalPropIdToPermissions.put(VehicleProperty.HVAC_POWER_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
