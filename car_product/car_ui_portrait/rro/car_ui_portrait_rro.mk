@@ -48,6 +48,9 @@ PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderEmuRRO
 endif
 
+PRODUCT_PRODUCT_PROPERTIES += \
+    car.ui.config=rickybobby
+
 PORTRAIT_RRO_PACKAGES := com.android.car.calendar.googlecaruiportrait.rro; \
     com.android.car.carlauncher.apps.caruiportrait.rro; \
     com.android.car.carlauncher.googlecaruiportrait.rro; \

@@ -19,7 +19,8 @@
     <application android:hasCode="false" />
     <overlay
         android:targetPackage="android"
+        android:requiredSystemPropertyName="car.ui.config"
+        android:requiredSystemPropertyValue="rickybobby"
         android:isStatic="true"
-        android:priority="20"
-        android:category="caruiportrait.rro"/>
+        android:priority="20"/>
 </manifest>
