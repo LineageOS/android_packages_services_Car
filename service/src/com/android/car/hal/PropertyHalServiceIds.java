@@ -900,9 +900,6 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
         mHalPropIdsForUnits.add(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
 
-        mHalPropIdToPermissions.put(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION, new Pair<>(
-                Car.PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO,
-                null));
         mHalPropIdToPermissions.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
                 new Pair<>(Car.PERMISSION_CAR_INFO, null));
         mHalPropIdToPermissions.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,

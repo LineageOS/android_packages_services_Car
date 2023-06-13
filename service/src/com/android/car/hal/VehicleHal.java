@@ -978,6 +978,15 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     }
 
     /**
+     * Gets the property config for a property, returns {@code null} if not supported.
+     */
+    public @Nullable HalPropConfig getPropConfig(int propId) {
+        synchronized (mLock) {
+            return mAllProperties.get(propId);
+        }
+    }
+
+    /**
      * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
      */
     public boolean isAidlVhal() {
