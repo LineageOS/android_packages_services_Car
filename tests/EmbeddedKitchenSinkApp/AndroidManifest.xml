@@ -234,9 +234,10 @@
     <uses-permission android:name="android.permission.DUMP"/>
 
     <!-- Allow backup is set to false for KitchenSinkApp to avoid infinite loop during backup -->
-    <application android:label="@string/app_title"
-                 android:allowBackup="false"
-         android:icon="@drawable/ic_launcher">
+    <application
+        android:label="@string/app_title"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
         <!-- This is for embedded mode.
             showForAllUsers is required to be able to launch Kitchensink as system user for
@@ -244,6 +245,16 @@
             user and we need to launch the activity as system user as well to access the data stored
             by the service.
         -->
+
+        <activity android:name=".KitchenSink2Activity"
+            android:exported="true"
+            android:theme="@style/Theme.CarUi.NoToolbar"
+            android:label="@string/app_title">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".KitchenSinkActivity"
              android:theme="@style/KitchenSinkActivityTheme"
              android:label="@string/app_title"

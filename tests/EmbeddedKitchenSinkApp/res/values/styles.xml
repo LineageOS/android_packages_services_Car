@@ -38,6 +38,8 @@
         <item name="android:background">@drawable/button_background</item>
     </style>
 
+    <style name="KitchenSinkActivityDividerStyle" parent="@style/Preference.CarUi.Divider" />
+
     <style name="RadioButtonStyle" parent="Widget.AppCompat.CompoundButton.RadioButton">
         <item name="android:background">@drawable/focus_highlight_background</item>
     </style>
