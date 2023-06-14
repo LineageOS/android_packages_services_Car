@@ -144,6 +144,16 @@ public class CarPropertyService extends ICarProperty.Stub
             new Histogram.UniformOptions(/* binCount= */ 17, /* minValue= */ 0,
                     /* exclusiveMaxValue= */ 17));
 
+    private static final Histogram sGetPropertySyncLatencyHistogram = new Histogram(
+            "automotive_os.value_sync_get_property_latency",
+            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
+
+    private static final Histogram sSetPropertySyncLatencyHistogram = new Histogram(
+            "automotive_os.value_sync_set_property_latency",
+            new Histogram.ScaledRangeOptions(/* binCount= */ 20, /* minValue= */ 0,
+                    /* firstBinWidth= */ 2, /* scaleFactor= */ 1.5f));
+
     private final Context mContext;
     private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
@@ -640,11 +650,14 @@ public class CarPropertyService extends ICarProperty.Stub
             throws IllegalArgumentException, ServiceSpecificException {
         validateGetParameters(propertyId, areaId);
         Trace.traceBegin(TRACE_TAG, "CarPropertyValue#getProperty");
+        float currentTimeMs = System.currentTimeMillis();
         try {
             return runSyncOperationCheckLimit(() -> {
                 return mPropertyHalService.getProperty(propertyId, areaId);
             });
         } finally {
+            sGetPropertySyncLatencyHistogram.logSample((float) System.currentTimeMillis()
+                    - currentTimeMs);
             Trace.traceEnd(TRACE_TAG);
         }
     }
@@ -703,6 +716,7 @@ public class CarPropertyService extends ICarProperty.Stub
             throws IllegalArgumentException, ServiceSpecificException {
         requireNonNull(iCarPropertyEventListener);
         validateSetParameters(carPropertyValue);
+        long currentTimeMs = System.currentTimeMillis();
 
         runSyncOperationCheckLimit(() -> {
             mPropertyHalService.setProperty(carPropertyValue);
@@ -722,6 +736,8 @@ public class CarPropertyService extends ICarProperty.Stub
             mClientMap.put(listenerBinder, client);
             updateSetOperationRecorderLocked(carPropertyValue.getPropertyId(),
                     carPropertyValue.getAreaId(), client);
+            sSetPropertySyncLatencyHistogram.logSample((float) System.currentTimeMillis()
+                    - currentTimeMs);
         }
     }
 
