@@ -186,7 +186,14 @@ public final class BluetoothDeviceManager {
             // If a device was allowed to connected then its assumed it has a connection policy
             // value of ALLOWED.
             addDevice(device);
-            triggerConnections(device);
+
+            // Do not trigger connections based on the connection status of PAN. PAN is known to
+            // allow connections, just to tear it down immediately. A race condition can cause the
+            // connection to continually be brought up and down as a result, unless timing is
+            // perfect
+            if (profile != BluetoothProfile.PAN) {
+                triggerConnections(device);
+            }
         }
     }
 
