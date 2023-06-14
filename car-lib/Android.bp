@@ -139,7 +139,7 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --stub-packages android.car* " +
+    args: "--hide UnavailableSymbol --hide HiddenSuperclass --stub-packages android.car* " +
         "--hide-package com.android.internal --hide-package com.android.car.internal ",
     installable: false,
     check_api: {
