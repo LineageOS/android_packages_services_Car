@@ -4178,22 +4178,13 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle Maps Service (VMS) message.
      *
-     * <p>Property Config:
-     * <ul>
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
-     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
-     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
-     *  <li>{@code Object[]} property type
-     * </ul>
+     * <p>Not exposed through {@link android.car.hardware.property.CarPropertyManager}.
      *
-     * <p>Required Permission:
-     * <ul>
-     *  <li>Signature|Privileged permission "android.car.permission.VMS_PUBLISHER" or
-     *  Signature|Privileged permission "android.car.permission.VMS_SUBSCRIBER" to read and write
-     *  property.
-     * </ul>
+     * <p>Trying to get/set this property will cause {@link SecurityException}.
+     *
+     * @deprecated use {@link android.car.vms.VmsClientManager} instead.
      */
-    @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    @Deprecated
     @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_MAP_SERVICE = 299895808;
     /**
