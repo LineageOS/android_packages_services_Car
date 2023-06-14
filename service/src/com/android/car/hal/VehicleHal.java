@@ -77,7 +77,6 @@ import java.util.stream.Collectors;
  * corresponding Car*Service for Car*Manager API.
  */
 public class VehicleHal implements VehicleHalCallback, CarSystemService {
-
     private static final boolean DBG = Slogf.isLoggable(CarLog.TAG_HAL, Log.DEBUG);;
     private static final long TRACE_TAG = TraceHelper.TRACE_TAG_CAR_SERVICE;
 
@@ -231,7 +230,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             // Create map of all properties
             for (HalPropConfig p : configs) {
                 if (DBG) {
-                    Slogf.i(CarLog.TAG_HAL, "Add config for prop: 0x%x config: %s", p.getPropId(),
+                    Slogf.d(CarLog.TAG_HAL, "Add config for prop: 0x%x config: %s", p.getPropId(),
                             p.toString());
                 }
                 mAllProperties.put(p.getPropId(), p);
@@ -549,10 +548,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             synchronized (mLock) {
                 assertServiceOwnerLocked(service, property);
                 for (int i = 0; i < filteredAreaIds.length; i++) {
-                    Slogf.i(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
-                            + " %s, areaId: %d, SampleRateHz: %f",
-                            VehiclePropertyIds.toString(opts.propId), filteredAreaIds[i],
-                            samplingRateHz);
+                    if (DBG) {
+                        Slogf.d(CarLog.TAG_HAL, "Update subscription rate for propertyId:"
+                                        + " %s, areaId: %d, SampleRateHz: %f",
+                                VehiclePropertyIds.toString(opts.propId), filteredAreaIds[i],
+                                samplingRateHz);
+                    }
                     mUpdateRateByPropIdAreadId.put(Pair.create(property,
                                     filteredAreaIds[i]), samplingRateHz);
                 }
@@ -607,7 +608,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
      */
     public void unsubscribeProperty(HalServiceBase service, int property) {
         if (DBG) {
-            Slogf.i(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
+            Slogf.d(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
                     + ", " + toCarPropertyLog(property));
         }
         HalPropConfig config;
@@ -712,7 +713,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
     public HalPropValue get(int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         if (DBG) {
-            Slogf.i(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
+            Slogf.d(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
                     + toCarAreaLog(areaId));
         }
         return getValueWithRetry(mPropValueBuilder.build(propertyId, areaId));
@@ -1282,7 +1283,7 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
         void submit(HalPropValue propValue)
                 throws IllegalArgumentException, ServiceSpecificException {
             if (DBG) {
-                Slogf.i(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropId)
+                Slogf.d(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropId)
                         + toCarAreaLog(mAreaId));
             }
             setValueWithRetry(propValue);
@@ -1328,7 +1329,12 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             throws ServiceSpecificException, IllegalArgumentException {
         Retrier retrier = new Retrier(action, operation, requestValue, maxDurationForRetryMs,
                 sleepBetweenRetryMs, maxRetries);
-        return retrier.invokeAction();
+        HalPropValue result = retrier.invokeAction();
+        if (DBG) {
+            Slogf.d(CarLog.TAG_HAL, "Invoked retriable action for %sProperty: %s, for retrier: %s",
+                    operation, toCarPropertyLog(requestValue.getPropId()), retrier);
+        }
+        return result;
     }
 
     private static final class Retrier {
@@ -1372,6 +1378,17 @@ public class VehicleHal implements VehicleHalCallback, CarSystemService {
             } catch (RemoteException e) {
                 return sleepAndTryAgain(e);
             }
+        }
+
+        public String toString() {
+            return "Retrier{"
+                    + ", Operation=" + mOperation
+                    + ", RequestValue=" + mRequestValue
+                    + ", MaxDurationForRetryMs=" + mMaxDurationForRetryMs
+                    + ", SleepBetweenRetriesMs=" + mSleepBetweenRetryMs
+                    + ", MaxRetries=" + mMaxDurationForRetryMs
+                    + ", StartTime=" + mStartTime
+                    + "}";
         }
 
         private HalPropValue sleepAndTryAgain(Exception e)
