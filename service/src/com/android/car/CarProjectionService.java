@@ -68,6 +68,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
+import android.util.SparseIntArray;
 import android.util.proto.ProtoOutputStream;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
@@ -1033,10 +1034,24 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     private void ensureApConfiguration() {
         // Always prefer 5GHz configuration whenever it is available.
         SoftApConfiguration apConfig = mWifiManager.getSoftApConfiguration();
-        if (apConfig != null && apConfig.getBand() != SoftApConfiguration.BAND_5GHZ
-                && mWifiManager.is5GHzBandSupported()) {
+        if (apConfig == null) {
+            throw new NullPointerException("getSoftApConfiguration returned null");
+        }
+        if (!mWifiManager.is5GHzBandSupported()) return;  // Not an error, but nothing to do.
+        SparseIntArray channels = apConfig.getChannels();
+
+        // 5GHz is already enabled.
+        if (channels.get(SoftApConfiguration.BAND_5GHZ, -1) != -1) return;
+
+        if (mWifiManager.isBridgedApConcurrencySupported()) {
+            // Enable dual band if supported.
             mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
-                    .setBand(SoftApConfiguration.BAND_5GHZ).build());
+                    .setBands(new int[] {SoftApConfiguration.BAND_2GHZ,
+                            SoftApConfiguration.BAND_5GHZ}).build());
+        } else {
+            // Only enable 5GHz if dual band AP isn't supported.
+            mWifiManager.setSoftApConfiguration(new SoftApConfiguration.Builder(apConfig)
+                    .setBands(new int[] {SoftApConfiguration.BAND_5GHZ}).build());
         }
     }
 
