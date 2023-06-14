@@ -57,7 +57,7 @@
 
           audioVolumeAdjustmentContextsVersion - Integer version number currently limited to
                                                  numbers listed above. -->
-    <integer name="audioVolumeAdjustmentContextsVersion">2</integer>
+    <integer name="audioVolumeAdjustmentContextsVersion">1</integer>
 
     <!--  Configuration to persist global mute state. If this is set to true,
           Android will restore the global mute state on boot. If audioUseCarVolumeGroupMuting is

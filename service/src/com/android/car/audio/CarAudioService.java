@@ -42,7 +42,6 @@ import static android.view.KeyEvent.KEYCODE_VOLUME_MUTE;
 import static android.view.KeyEvent.KEYCODE_VOLUME_UP;
 
 import static com.android.car.audio.CarAudioUtils.convertVolumeChangeToEvent;
-import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
@@ -372,11 +371,6 @@ public final class CarAudioService extends ICarAudio.Stub implements CarServiceB
                 mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
         boolean useCarVolumeGroupMuting = mUseDynamicRouting && mContext.getResources().getBoolean(
                 R.bool.audioUseCarVolumeGroupMuting);
-        if (mAudioVolumeAdjustmentContextsVersion != VERSION_TWO && useCarVolumeGroupMuting) {
-            throw new IllegalArgumentException("audioUseCarVolumeGroupMuting is enabled but "
-                    + "this requires audioVolumeAdjustmentContextsVersion 2,"
-                    + " instead version " + mAudioVolumeAdjustmentContextsVersion + " was found");
-        }
         mUseCarVolumeGroupEvents = mUseDynamicRouting && mContext.getResources().getBoolean(
                 R.bool.audioUseCarVolumeGroupEvent);
         mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
