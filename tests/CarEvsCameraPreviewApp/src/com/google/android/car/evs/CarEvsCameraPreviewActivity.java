@@ -274,7 +274,7 @@ public class CarEvsCameraPreviewActivity extends Activity
         mPreviewContainer.addView(mEvsView, 0);
         View closeButton = mRootView.findViewById(R.id.close_button);
         if (closeButton != null) {
-            closeButton.setOnClickListener(v -> finish());
+            closeButton.setOnClickListener(v -> handleCloseButtonTriggered());
         }
 
         int width = WindowManager.LayoutParams.MATCH_PARENT;
@@ -475,5 +475,13 @@ public class CarEvsCameraPreviewActivity extends Activity
         } catch (Exception e) {
             Log.w(TAG, "CarEvsService is not available.");
         }
+    }
+
+    private void handleCloseButtonTriggered() {
+        // It is possible that we've been stopped but a video stream is still active.
+        synchronized (mLock) {
+            handleVideoStreamLocked(STREAM_STATE_STOPPED);
+        }
+        finish();
     }
 }
