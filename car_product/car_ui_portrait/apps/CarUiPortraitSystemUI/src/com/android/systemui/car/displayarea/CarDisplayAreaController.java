@@ -185,7 +185,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mCarDeviceProvisionedController = deviceProvisionedController;
         mCarFullScreenTouchHandler = new CarFullScreenTouchHandler(mShellExecutor);
         mLoadingViewController = loadingViewController;
-        mLoadingViewController.start();
+        if (applicationContext.getResources().getConfiguration().orientation
+                == Configuration.ORIENTATION_PORTRAIT) {
+            mLoadingViewController.start();
+        }
 
         BroadcastReceiver taskViewReadyReceiver = new BroadcastReceiver() {
             @Override
