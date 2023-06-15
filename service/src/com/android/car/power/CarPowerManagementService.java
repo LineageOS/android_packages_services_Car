@@ -1690,6 +1690,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    @VisibleForTesting
+    String getCurrentPowerPolicyGroupId() {
+        synchronized (mLock) {
+            return mCurrentPowerPolicyGroupId;
+        }
+    }
+
     /**
      * @see android.car.hardware.power.CarPowerManager#addPowerPolicyListener
      */

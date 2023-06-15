@@ -729,6 +729,40 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    public void testSetPowerPolicyGroup() throws Exception {
+        grantPowerPolicyPermission();
+        String policyIdNoWifi = "policy_id_no_wifi";
+        mService.definePowerPolicy(
+                /* powerPolicyId= */ policyIdNoWifi, /* enabledComponents= */ new String[]{},
+                /* disabledComponents= */ new String[]{"WIFI"});
+        String policyIdNoBluetooth = "policy_id_no_bluetooth";
+        mService.definePowerPolicy(
+                /* powerPolicyId= */ policyIdNoBluetooth, /* enabledComponents= */ new String[]{},
+                /* disabledComponents= */ new String[]{"BLUETOOTH"});
+        String policyGroupId = "policy_group_id";
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(new StringWriter(), "  ")) {
+            boolean status = mService.definePowerPolicyGroupFromCommand(new String[]{
+                    "define-power-policy-group", policyGroupId, "WaitForVHAL:" + policyIdNoWifi,
+                    "On:" + policyIdNoBluetooth}, writer);
+            assertWithMessage("define power policy group from command status").that(
+                    status).isTrue();
+        }
+
+        mService.setPowerPolicyGroup(policyGroupId);
+
+        assertWithMessage("current power policy group id").that(
+                mService.getCurrentPowerPolicyGroupId()).isEqualTo(policyGroupId);
+    }
+
+    @Test
+    public void testSetPowerPolicyGroup_notRegistered() throws Exception {
+        grantPowerPolicyPermission();
+        assertThrows("set power policy group throws exception",
+                IllegalArgumentException.class,
+                () -> mService.setPowerPolicyGroup("policy_group_id_not_registered"));
+    }
+
+    @Test
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyIdEnableAudioWifi = "policy_id_enable_audio_wifi";
