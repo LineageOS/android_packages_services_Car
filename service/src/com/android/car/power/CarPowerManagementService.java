@@ -2708,6 +2708,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Dumps the current Silent Mode.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpSilentMode(IndentingPrintWriter writer) {
         mSilentModeHandler.dump(writer);
     }
