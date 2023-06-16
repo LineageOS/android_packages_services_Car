@@ -192,19 +192,11 @@ public final class AudioUserAssignmentFragment extends Fragment {
         int userId = mUserAdapter.getItem(position);
         OccupantZoneInfo info = getOccupantZoneForUser(userId);
 
-        if (info == null) {
-            showToast("User " + userId + " is not assigned to any occupant zone");
+        if (mRequestIdToOccupantZone.containsValue(info)) {
+            handleCancelMediaAudioOnPrimaryZone(info);
             return;
         }
 
-        boolean isUserAssigned = mCarAudioManager.isMediaAudioAllowedInPrimaryZone(info);
-
-        Log.d(TAG, "handleToggleAssignUserAudio is user assigned " + isUserAssigned);
-
-        if (isUserAssigned) {
-            showToast("User " + userId + " is already allowed to play in primary zone");
-            return;
-        }
         handleRequestUserToPlayInMainCabin(userId);
     }
 
@@ -228,11 +220,6 @@ public final class AudioUserAssignmentFragment extends Fragment {
                 && !mCarAudioManager.getMirrorAudioZonesForAudioZone(carAudioZoneId).isEmpty()) {
             showToast("Can not enable primary zone playback as user " + userId
                     + " is currently mirroring with another zone");
-            return;
-        }
-
-        if (mRequestIdToOccupantZone.containsValue(info)) {
-            handleCancelMediaAudioOnPrimaryZone(info);
             return;
         }
 
@@ -294,21 +281,29 @@ public final class AudioUserAssignmentFragment extends Fragment {
         return null;
     }
 
-    private void handleCancelMediaAudioOnPrimaryZone(
-            OccupantZoneInfo info) {
+    private void handleCancelMediaAudioOnPrimaryZone(OccupantZoneInfo info) {
         Log.d(TAG, "handleCancelMediaAudioOnPrimaryZone");
         int index = mRequestIdToOccupantZone.indexOfValue(info);
         if (index < 0) {
-            Log.d(TAG, "handleCancelMediaAudioOnPrimaryZone user not assigned");
+            showToast("Occupant " + info + " not currently assign to play media in primary zone");
             return;
         }
+
         long requestId = mRequestIdToOccupantZone.keyAt(index);
+
         mRequestIdToOccupantZone.remove(requestId);
-        if (!mCarAudioManager.cancelMediaAudioOnPrimaryZone(requestId)) {
-            Log.d(TAG, "handleCancelMediaAudioOnPrimaryZone could not unassigned");
+        boolean cancelled;
+        try {
+            cancelled = mCarAudioManager.cancelMediaAudioOnPrimaryZone(requestId);
+        } catch (Exception e) {
+            showToast("Could not cancel media on primary zone: " + e.getMessage());
             return;
         }
-        Log.d(TAG, "handleCancelMediaAudioOnPrimaryZone could unassigned");
+        if (!cancelled) {
+            showToast("Could not unassigned request " + requestId + " for occupant " + info);
+            return;
+        }
+        showToast("Unassigned request " + requestId + " for occupant " + info);
         mToggleUserAssignButton.setText(R.string.assign_user);
     }
 
