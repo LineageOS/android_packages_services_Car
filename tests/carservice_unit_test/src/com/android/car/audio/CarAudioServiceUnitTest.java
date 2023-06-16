@@ -726,7 +726,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         when(mMockResources.getBoolean(audioUseCarVolumeGroupEvent))
                 .thenReturn(mUseCarVolumeGroupEvents);
         when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
-                .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO);
+                .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
         when(mMockResources.getBoolean(audioPersistMasterMuteState)).thenReturn(mPersistMasterMute);
     }
 
@@ -749,19 +749,6 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         expectWithMessage("Car Audio Service Construction")
                 .that(thrown).hasMessageThat().contains("Context");
-    }
-
-    @Test
-    public void constructor_withInvalidVolumeConfiguration_fails() {
-        when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
-                .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_ONE);
-
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> new CarAudioService(mMockContext));
-
-        expectWithMessage("Car Audio Service Construction")
-                .that(thrown).hasMessageThat()
-                .contains("requires audioVolumeAdjustmentContextsVersion 2");
     }
 
     @Test
@@ -3219,8 +3206,43 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         expectWithMessage("Media volume group volume after volume down")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
                         TEST_PRIMARY_ZONE_GROUP_0)).isEqualTo(primaryGroupVolumeBefore);
-        expectWithMessage("Call volume group volume after volume do")
+        expectWithMessage("Call volume group volume after volume down")
                 .that(mCarAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_2)).isLessThan(voiceVolumeGroupBefore);
+    }
+
+    @Test
+    public void onKeyEvent_forVolumeDownEvent_inPrimaryZone_withVersionTwoVolumeList() {
+        CarAudioService carAudioService = getCarAudioServiceWithVersionTwoVolumeList();
+        int primaryGroupVolumeBefore = carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_0);
+        int voiceVolumeGroupBefore = carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_PRIMARY_ZONE_GROUP_2);
+        AudioPlaybackCallback callback = getCarAudioPlaybackCallback();
+        callback.onPlaybackConfigChanged(List.of(
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_VOICE_COMMUNICATION)
+                        .setDeviceAddress(CALL_TEST_DEVICE)
+                        .build(),
+                new AudioPlaybackConfigurationBuilder()
+                        .setUsage(USAGE_MEDIA)
+                        .setDeviceAddress(MEDIA_TEST_DEVICE)
+                        .build())
+        );
+        CarInputService.KeyEventListener listener = getAudioKeyEventListener();
+        when(mMockOccupantZoneService.getOccupantZoneIdForSeat(TEST_SEAT))
+                .thenReturn(PRIMARY_OCCUPANT_ZONE);
+        when(mMockOccupantZoneService.getAudioZoneIdForOccupant(PRIMARY_OCCUPANT_ZONE))
+                .thenReturn(PRIMARY_AUDIO_ZONE);
+        KeyEvent keyEvent = new KeyEvent(ACTION_DOWN, KEYCODE_VOLUME_DOWN);
+
+        listener.onKeyEvent(keyEvent, TEST_DISPLAY_TYPE, TEST_SEAT);
+
+        expectWithMessage("Media volume group volume after volume down for volume list two")
+                .that(carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
+                        TEST_PRIMARY_ZONE_GROUP_0)).isEqualTo(primaryGroupVolumeBefore);
+        expectWithMessage("Call volume group volume after volume down for volume list two")
+                .that(carAudioService.getGroupVolume(PRIMARY_AUDIO_ZONE,
                         TEST_PRIMARY_ZONE_GROUP_2)).isLessThan(voiceVolumeGroupBefore);
     }
 
@@ -4742,6 +4764,16 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
         CarAudioService carAudioService =
                 new CarAudioService(mMockContext, mTemporaryAudioConfigurationWithoutMirroringFile
                         .getFile().getAbsolutePath(), mCarVolumeCallbackHandler);
+        carAudioService.init();
+        return carAudioService;
+    }
+
+    private CarAudioService getCarAudioServiceWithVersionTwoVolumeList() {
+        when(mMockResources.getInteger(audioVolumeAdjustmentContextsVersion))
+                .thenReturn(AUDIO_CONTEXT_PRIORITY_LIST_VERSION_TWO);
+        CarAudioService carAudioService =
+                new CarAudioService(mMockContext, mTemporaryAudioConfigurationFile.getFile()
+                        .getAbsolutePath(), mCarVolumeCallbackHandler);
         carAudioService.init();
         return carAudioService;
     }
