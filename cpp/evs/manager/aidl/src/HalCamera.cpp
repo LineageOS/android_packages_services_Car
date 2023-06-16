@@ -200,7 +200,7 @@ void HalCamera::requestNewFrame(std::shared_ptr<VirtualCamera> client, int64_t l
     req.timestamp = lastTimestamp;
 
     std::lock_guard<std::mutex> lock(mFrameMutex);
-    mNextRequests->push_back(req);
+    mNextRequests.push_back(req);
 }
 
 ScopedAStatus HalCamera::clientStreamStarting() {
@@ -212,23 +212,14 @@ ScopedAStatus HalCamera::clientStreamStarting() {
     return mHwCamera->startVideoStream(ref<HalCamera>());
 }
 
-void HalCamera::cancelCaptureRequestFromClientLocked(std::deque<struct FrameRequest>* requests,
-                                                     const VirtualCamera* client) {
-    auto it = requests->begin();
-    while (it != requests->end()) {
-        if (it->client.lock().get() == client) {
-            requests->erase(it);
-            return;
-        }
-        ++it;
-    }
-}
-
 void HalCamera::clientStreamEnding(const VirtualCamera* client) {
     {
         std::lock_guard<std::mutex> lock(mFrameMutex);
-        cancelCaptureRequestFromClientLocked(mNextRequests, client);
-        cancelCaptureRequestFromClientLocked(mCurrentRequests, client);
+        mNextRequests.erase(std::remove_if(mNextRequests.begin(), mNextRequests.end(),
+                                           [client](const auto& r) {
+                                               return r.client.lock().get() == client;
+                                           }),
+                            mNextRequests.end());
     }
 
     // Do we still have a running client?
@@ -304,64 +295,66 @@ ScopedAStatus HalCamera::deliverFrame(const std::vector<BufferDesc>& buffers) {
     //           but this must be derived from current framerate.
     constexpr int64_t kThreshold = 16'000;  // ms
     unsigned frameDeliveries = 0;
+    std::deque<FrameRequest> currentRequests;
     {
-        // Handle frame requests from v1.1 clients
         std::lock_guard<std::mutex> lock(mFrameMutex);
-        std::swap(mCurrentRequests, mNextRequests);
-        while (!mCurrentRequests->empty()) {
-            auto req = mCurrentRequests->front();
-            mCurrentRequests->pop_front();
-            std::shared_ptr<VirtualCamera> vCam = req.client.lock();
-            if (!vCam) {
-                // Ignore a client already dead.
-                continue;
-            }
+        currentRequests.insert(currentRequests.end(),
+                               std::make_move_iterator(mNextRequests.begin()),
+                               std::make_move_iterator(mNextRequests.end()));
+        mNextRequests.clear();
+    }
 
-            if (timestamp - req.timestamp < kThreshold) {
-                // Skip current frame because it arrives too soon.
-                LOG(DEBUG) << "Skips a frame from " << getId();
-                mNextRequests->push_back(req);
-
-                // Reports a skipped frame
-                mUsageStats->framesSkippedToSync();
-            } else {
-                if (!vCam->deliverFrame(buffers[0])) {
-                    LOG(WARNING) << getId() << " failed to forward the buffer to " << vCam.get();
-                } else {
-                    LOG(DEBUG) << getId() << " forwarded the buffer #" << buffers[0].bufferId
-                               << " to " << vCam.get() << " from " << this;
-                    ++frameDeliveries;
-                }
-            }
+    while (!currentRequests.empty()) {
+        auto req = currentRequests.front();
+        currentRequests.pop_front();
+        std::shared_ptr<VirtualCamera> vCam = req.client.lock();
+        if (!vCam) {
+            // Ignore a client already dead.
+            continue;
         }
 
-        if (frameDeliveries < 1) {
-            // If none of our clients could accept the frame, then return it
-            // right away.
-            LOG(INFO) << "Trivially rejecting frame (" << buffers[0].bufferId << ") from "
-                      << getId() << " with no acceptance";
-            if (!mHwCamera->doneWithFrame(buffers).isOk()) {
-                LOG(WARNING) << "Failed to return buffers";
-            }
+        if (timestamp - req.timestamp < kThreshold) {
+            // Skip current frame because it arrives too soon.
+            LOG(DEBUG) << "Skips a frame from " << getId();
+            mUsageStats->framesSkippedToSync();
+            continue;
+        }
 
-            // Reports a returned buffer
-            mUsageStats->framesReturned(buffers);
+        if (!vCam->deliverFrame(buffers[0])) {
+            LOG(WARNING) << getId() << " failed to forward the buffer to " << vCam.get();
         } else {
-            // Add an entry for this frame in our tracking list.
-            unsigned i;
-            for (i = 0; i < mFrames.size(); ++i) {
-                if (mFrames[i].refCount == 0) {
-                    break;
-                }
-            }
-
-            if (i == mFrames.size()) {
-                mFrames.push_back(buffers[0].bufferId);
-            } else {
-                mFrames[i].frameId = buffers[0].bufferId;
-            }
-            mFrames[i].refCount = frameDeliveries;
+            LOG(DEBUG) << getId() << " forwarded the buffer #" << buffers[0].bufferId << " to "
+                       << vCam.get() << " from " << this;
+            ++frameDeliveries;
         }
+    }
+
+    if (frameDeliveries < 1) {
+        // If none of our clients could accept the frame, then return it
+        // right away.
+        LOG(INFO) << "Trivially rejecting frame (" << buffers[0].bufferId << ") from " << getId()
+                  << " with no acceptance";
+        if (!mHwCamera->doneWithFrame(buffers).isOk()) {
+            LOG(WARNING) << "Failed to return buffers";
+        }
+
+        // Reports a returned buffer
+        mUsageStats->framesReturned(buffers);
+    } else {
+        // Add an entry for this frame in our tracking list.
+        unsigned i;
+        for (i = 0; i < mFrames.size(); ++i) {
+            if (mFrames[i].refCount == 0) {
+                break;
+            }
+        }
+
+        if (i == mFrames.size()) {
+            mFrames.push_back(buffers[0].bufferId);
+        } else {
+            mFrames[i].frameId = buffers[0].bufferId;
+        }
+        mFrames[i].refCount = frameDeliveries;
     }
 
     return ScopedAStatus::ok();
