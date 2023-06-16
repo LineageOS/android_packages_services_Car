@@ -17,6 +17,7 @@ package com.android.car.internal.user;
 
 import android.annotation.ColorInt;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -116,7 +117,7 @@ public final class UserHelper {
      *
      * @hide
      */
-    @NonNull
+    @Nullable
     public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
@@ -129,7 +130,19 @@ public final class UserHelper {
         userManager.setUserIcon(user.getIdentifier(), bitmap);
         return bitmap;
     }
-
+    /**
+     * Returns the default user icon for guest users.
+     *
+     * @param context Current application context
+     * @return Bitmap of the user icon.
+     *
+     * @hide
+     */
+    @NonNull
+    public static Bitmap getGuestDefaultIcon(@NonNull Context context) {
+        Preconditions.checkArgument(context != null, "Context cannot be null");
+        return CarUserIconProvider.getGuestDefaultUserIcon(context.getResources());
+    }
     /**
      * Get the user icon color for a given user id. This should not be the guest user.
      *
