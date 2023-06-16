@@ -15,11 +15,13 @@
   ~ limitations under the License.
   -->
 
-<!-- With this feature, the device can display multiple tasks at the same time on a single display,
+<permissions>
+    <!-- With this feature, the device can display multiple tasks at the same time on a single display,
     and the user can perform multiple actions on different tasks simultaneously. Apps open in split
     screen mode by default, instead of full screen. The device decides how to show apps. Apps open
     in split screen mode by default, instead of full screen. Unlike Android's multi-window mode,
     where users can choose how to display apps, the device determines how apps are shown.-->
-<permissions>
     <feature name="android.software.car.splitscreen_multitasking"/>
+    <!-- Disallow third-party IME apps. -->
+    <unavailable-feature name="android.software.input_methods"/>
 </permissions>
