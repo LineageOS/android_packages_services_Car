@@ -18,6 +18,7 @@ package android.car.diagnostic;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarLibLog;
@@ -137,6 +138,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * @return true if the registration was successful; false otherwise
      * @throws IllegalArgumentException
      */
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
     public boolean registerListener(
             OnDiagnosticEventListener listener, @FrameType int frameType, int rate) {
@@ -165,6 +167,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * Unregister a listener, causing it to stop receiving all diagnostic events.
      * @param listener
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public void unregisterListener(OnDiagnosticEventListener listener) {
         synchronized (mActiveListeners) {
@@ -212,6 +217,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * @return A CarDiagnostic event for the most recently known live frame if one is present.
      *         null if no live frame has been recorded by the vehicle.
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public @Nullable CarDiagnosticEvent getLatestLiveFrame() {
         try {
@@ -230,6 +238,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * assume that a timestamp obtained via this call will be indefinitely valid for retrieval
      * of the actual diagnostic data, and must be prepared to handle a missing frame.
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public long[] getFreezeFrameTimestamps() {
         try {
@@ -248,6 +259,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * For this reason it cannot be assumed that a timestamp will yield a valid frame,
      * even if it was initially obtained via a call to getFreezeFrameTimestamps().
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public @Nullable CarDiagnosticEvent getFreezeFrame(long timestamp) {
         try {
@@ -267,6 +281,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * a false return from this method should be used by the client as cause for invalidating
      * its local knowledge of the vehicle diagnostic state.
      */
+    @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
     @AddedInOrBefore(majorVersion = 33)
     public boolean clearFreezeFrames(long... timestamps) {
         try {
@@ -280,6 +295,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * Returns true if this vehicle supports sending live frame information.
      * @return
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isLiveFrameSupported() {
         try {
@@ -293,6 +311,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * Returns true if this vehicle supports supports sending notifications to
      * registered listeners when new freeze frames happen.
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isFreezeFrameNotificationSupported() {
         try {
@@ -306,6 +327,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      * Returns whether the underlying HAL supports retrieving freeze frames
      * stored in vehicle memory using timestamp.
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isGetFreezeFrameSupported() {
         try {
@@ -325,6 +349,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      *
      * @return
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isClearFreezeFramesSupported() {
         try {
@@ -344,6 +371,9 @@ public final class CarDiagnosticManager extends CarManagerBase {
      *
      * @return
      */
+    @RequiresPermission(anyOf = {
+            Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+            Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR})
     @AddedInOrBefore(majorVersion = 33)
     public boolean isSelectiveClearFreezeFramesSupported() {
         try {
