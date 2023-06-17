@@ -1067,7 +1067,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         // Ignore the immersive mode request for app grid, since it's not in root task view panel.
         // Handle the app grid task in TaskStackListener.
-        if (mTaskCategoryManager.isAppGridActivity(componentName)) {
+        if (mTaskCategoryManager.isAppGridActivity(componentName)
+                || mTaskCategoryManager.isBlankActivity(componentName)) {
             return;
         }
 

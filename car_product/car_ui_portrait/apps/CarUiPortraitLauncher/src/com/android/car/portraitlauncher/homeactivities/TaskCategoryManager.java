@@ -112,6 +112,10 @@ class TaskCategoryManager {
         return mBlankActivityComponent.equals(taskInfo.baseActivity);
     }
 
+    boolean isBlankActivity(ComponentName componentName) {
+        return mBlankActivityComponent.equals(componentName);
+    }
+
     boolean isAppGridActivity(ComponentName componentName) {
         return mAppGridActivityComponent.equals(componentName);
     }

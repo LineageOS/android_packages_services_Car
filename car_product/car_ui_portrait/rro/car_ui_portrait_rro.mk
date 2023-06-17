@@ -43,7 +43,7 @@ PRODUCT_PACKAGES += \
 endif
 
 # Set necessary framework configs for SUW to run at boot.
-ifneq ($(filter $(TARGET_PRODUCT), gcar_ui_portrait_suw),)
+ifneq ($(filter $(TARGET_PRODUCT), gcar_portrait_suw),)
 PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderEmuRRO
 endif
