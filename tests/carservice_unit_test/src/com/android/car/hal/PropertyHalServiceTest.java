@@ -60,7 +60,6 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceSpecificException;
 import android.util.ArraySet;
 
 import androidx.test.runner.AndroidJUnit4;
@@ -2318,28 +2317,25 @@ public class PropertyHalServiceTest {
     public void testGetPropertySyncErrorPropStatus() throws Exception {
         HalPropValue value = mPropValueBuilder.build(
                 AidlVehiclePropValueBuilder.newBuilder(INT32_PROP)
-                        .setStatus(VehiclePropertyStatus.ERROR).build());
+                        .setStatus(VehiclePropertyStatus.ERROR).addIntValues(0).build());
         when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
 
-        // If the property has ERROR status, getProperty will throw ServiceSpecificException with
-        // STATUS_INTERNAL_ERROR as error code.
-        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
-                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
-        assertThat(e.errorCode).isEqualTo(STATUS_INTERNAL_ERROR);
+        assertThat(mPropertyHalService.getProperty(INT32_PROP, /*areaId=*/0)).isEqualTo(
+                new CarPropertyValue<>(INT32_PROP, /*areaId=*/0,
+                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Integer.valueOf(0)));
     }
 
     @Test
     public void testGetPropertySyncUnavailablePropStatus() throws Exception {
         HalPropValue value = mPropValueBuilder.build(
                 AidlVehiclePropValueBuilder.newBuilder(INT32_PROP)
-                        .setStatus(VehiclePropertyStatus.UNAVAILABLE).build());
+                        .setStatus(VehiclePropertyStatus.UNAVAILABLE).addIntValues(0).build());
         when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
 
-        // If the property has UNAVAILABLE status, getProperty will throw ServiceSpecificException
-        // with STATUS_NOT_AVAILABLE as error code.
-        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
-                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
-        assertThat(e.errorCode).isEqualTo(STATUS_NOT_AVAILABLE);
+        assertThat(mPropertyHalService.getProperty(INT32_PROP, /*areaId=*/0)).isEqualTo(
+                new CarPropertyValue<>(INT32_PROP, /*areaId=*/0,
+                        CarPropertyValue.STATUS_UNAVAILABLE, /*timestampNanos=*/0,
+                        Integer.valueOf(0)));
     }
 
     @Test
@@ -2349,11 +2345,9 @@ public class PropertyHalServiceTest {
                 AidlVehiclePropValueBuilder.newBuilder(INT32_PROP).build());
         when(mVehicleHal.get(INT32_PROP, /* areaId= */ 0)).thenReturn(value);
 
-        // If the property value is not valid and cannot be converted to CarPropertyValue,
-        // getProperty will throw ServiceSpecificException with STATUS_INTERNAL_ERROR.
-        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
-                () -> mPropertyHalService.getProperty(INT32_PROP, /* areaId= */ 0));
-        assertThat(e.errorCode).isEqualTo(STATUS_INTERNAL_ERROR);
+        assertThat(mPropertyHalService.getProperty(INT32_PROP, /*areaId=*/0)).isEqualTo(
+                new CarPropertyValue<>(INT32_PROP, /*areaId=*/0,
+                        CarPropertyValue.STATUS_ERROR, /*timestampNanos=*/0, Integer.valueOf(0)));
     }
 
     @Test

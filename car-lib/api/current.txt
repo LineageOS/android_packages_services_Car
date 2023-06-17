@@ -596,7 +596,7 @@ package android.car.hardware {
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
-    method @Deprecated @android.car.hardware.CarPropertyValue.PropertyStatus public int getStatus();
+    method @android.car.hardware.CarPropertyValue.PropertyStatus public int getStatus();
     method public long getTimestamp();
     method @NonNull public T getValue();
     method public void writeToParcel(android.os.Parcel, int);

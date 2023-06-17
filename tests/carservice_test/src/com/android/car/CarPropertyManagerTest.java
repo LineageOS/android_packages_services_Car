@@ -266,10 +266,14 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     private void setUpTargetSdk() {
-        // Default will use R
-        getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
+        getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.CUR_DEVELOPMENT;
         if (mTestName.getMethodName().endsWith("BeforeR")) {
             getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.Q;
+        } else if (mTestName.getMethodName().endsWith("BeforeS")
+                || mTestName.getMethodName().endsWith("AfterR")) {
+            getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.R;
+        } else if (mTestName.getMethodName().endsWith("AfterS")) {
+            getContext().getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.S;
         }
     }
 
@@ -359,63 +363,62 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     /**
      * Test {@link CarPropertyManager#getIntArrayProperty(int, int)} when vhal returns a value with
-     * error status before R.
+     * error status before S.
      */
     @Test
-    public void testGetIntArrayPropertyWithErrorStatusBeforeR() {
+    public void testGetIntArrayPropertyWithErrorStatusBeforeS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isLessThan(Build.VERSION_CODES.R);
-        assertThrows(IllegalStateException.class,
-                () -> mManager.getIntArrayProperty(PROP_VALUE_STATUS_ERROR_INT_ARRAY, 0));
+                .isLessThan(Build.VERSION_CODES.S);
+        assertThat(mManager.getIntArrayProperty(PROP_VALUE_STATUS_ERROR_INT_ARRAY, 0)).isEqualTo(
+                new int[0]);
     }
 
     /**
      * Test {@link CarPropertyManager#getIntArrayProperty(int, int)} when vhal returns a value with
-     * error status equal or after R.
+     * error status equal or after S.
      */
     @Test
-    public void testGetIntArrayPropertyWithErrorStatusEqualAfterR() {
+    public void testGetIntArrayPropertyWithErrorStatusEqualAfterS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isAtLeast(Build.VERSION_CODES.R);
+                .isAtLeast(Build.VERSION_CODES.S);
         assertThrows(CarInternalErrorException.class,
                 () -> mManager.getIntArrayProperty(PROP_VALUE_STATUS_ERROR_INT_ARRAY, 0));
     }
 
     /**
      * Test {@link CarPropertyManager#getIntArrayProperty(int, int)} when vhal returns a value with
-     * unknown status before R.
+     * unknown status before S.
      */
     @Test
-    public void testGetIntArrayPropertyWithUnknownStatusBeforeR() {
+    public void testGetIntArrayPropertyWithUnknownStatusBeforeS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isLessThan(Build.VERSION_CODES.R);
-        assertThrows(IllegalStateException.class,
-                () -> mManager.getIntArrayProperty(PROP_VALUE_STATUS_UNKNOWN_INT_ARRAY, 0));
+                .isLessThan(Build.VERSION_CODES.S);
+        assertThat(mManager.getIntArrayProperty(PROP_VALUE_STATUS_UNKNOWN_INT_ARRAY, 0)).isEqualTo(
+                new int[0]);
     }
 
     /**
      * Test {@link CarPropertyManager#getIntArrayProperty(int, int)} when vhal returns a value with
-     * unknown status equal or after R.
+     * unknown status equal or after S.
      */
     @Test
-    public void testGetIntArrayPropertyWithUnknownStatusEqualAfterR() {
+    public void testGetIntArrayPropertyWithUnknownStatusEqualAfterS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isAtLeast(Build.VERSION_CODES.R);
+                .isAtLeast(Build.VERSION_CODES.S);
         assertThrows(CarInternalErrorException.class,
                 () -> mManager.getIntArrayProperty(PROP_VALUE_STATUS_UNKNOWN_INT_ARRAY, 0));
     }
 
     /**
      * Test {@link CarPropertyManager#getIntProperty(int, int)} when vhal returns a value with
-     * unavailable status before R.
+     * unavailable status before S.
      */
     @Test
-    public void testGetIntPropertyWithUnavailableStatusBeforeR() {
+    public void testGetIntPropertyWithUnavailableStatusBeforeS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isLessThan(Build.VERSION_CODES.R);
-        assertThrows(IllegalStateException.class,
-                () -> mManager.getIntProperty(PROP_VALUE_STATUS_UNAVAILABLE_INT, 0));
-
+                .isLessThan(Build.VERSION_CODES.S);
+        assertThat(
+                mManager.getIntProperty(PROP_VALUE_STATUS_UNAVAILABLE_INT, 0)).isEqualTo(0);
     }
 
     /**
@@ -423,7 +426,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      * unavailable status equal or after R.
      */
     @Test
-    public void testGetIntPropertyWithUnavailableStatusEqualAfterR() {
+    public void testGetIntPropertyWithUnavailableStatusEqualAfterS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isAtLeast(Build.VERSION_CODES.R);
         assertThrows(PropertyNotAvailableException.class,
@@ -435,13 +438,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      * error status before R.
      */
     @Test
-    public void testGetBooleanPropertyWithErrorStatusBeforeR() {
+    public void testGetBooleanPropertyWithErrorStatusBeforeS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isLessThan(Build.VERSION_CODES.R);
-        mManager.setProperty(Boolean.class, PROP_VALUE_STATUS_ERROR_BOOLEAN,
-                0, FAKE_BOOLEAN_PROPERTY_VALUE);
-        assertThrows(IllegalStateException.class,
-                () -> mManager.getBooleanProperty(PROP_VALUE_STATUS_ERROR_BOOLEAN, 0));
+                .isLessThan(Build.VERSION_CODES.S);
+        assertThat(mManager.getBooleanProperty(PROP_VALUE_STATUS_ERROR_BOOLEAN, 0)).isEqualTo(
+                false);
     }
 
     /**
@@ -449,27 +450,22 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      * error status equal or after R.
      */
     @Test
-    public void testGetBooleanPropertyWithErrorStatusEqualAfterR() {
+    public void testGetBooleanPropertyWithErrorStatusEqualAfterS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isAtLeast(Build.VERSION_CODES.R);
-        mManager.setProperty(Boolean.class, PROP_VALUE_STATUS_ERROR_BOOLEAN,
-                0, FAKE_BOOLEAN_PROPERTY_VALUE);
         assertThrows(CarInternalErrorException.class,
                 () -> mManager.getBooleanProperty(PROP_VALUE_STATUS_ERROR_BOOLEAN, 0));
     }
 
     /**
      * Test {@link CarPropertyManager#getFloatProperty(int, int)} when vhal returns a value with
-     * unavailable status before R.
+     * unavailable status before S.
      */
     @Test
-    public void testGetFloatPropertyWithUnavailableStatusBeforeR() {
+    public void testGetFloatPropertyWithUnavailableStatusBeforeS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
-                .isLessThan(Build.VERSION_CODES.R);
-        mManager.setProperty(Float.class, PROP_VALUE_STATUS_UNAVAILABLE_FLOAT,
-                0, FAKE_FLOAT_PROPERTY_VALUE);
-        assertThrows(IllegalStateException.class,
-                () -> mManager.getFloatProperty(PROP_VALUE_STATUS_UNAVAILABLE_FLOAT, 0));
+                .isLessThan(Build.VERSION_CODES.S);
+        assertThat(mManager.getFloatProperty(PROP_VALUE_STATUS_UNAVAILABLE_FLOAT, 0)).isEqualTo(0f);
     }
 
     /**
@@ -477,11 +473,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
      * unavailable status equal or after R.
      */
     @Test
-    public void testGetFloatPropertyWithUnavailableStatusEqualAfterR() {
+    public void testGetFloatPropertyWithUnavailableStatusEqualAfterS() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isAtLeast(Build.VERSION_CODES.R);
-        mManager.setProperty(Float.class, PROP_VALUE_STATUS_UNAVAILABLE_FLOAT,
-                0, FAKE_FLOAT_PROPERTY_VALUE);
         assertThrows(PropertyNotAvailableException.class,
                 () -> mManager.getFloatProperty(PROP_VALUE_STATUS_UNAVAILABLE_FLOAT, 0));
     }
@@ -576,23 +570,76 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testRegisterPropertyGetInitialValueErrorFromVhal() throws Exception {
-        for (int propId : List.of(
-                PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
-                PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
-                PROP_CAUSE_STATUS_CODE_INVALID_ARG,
-                PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
-                PROP_CAUSE_STATUS_CODE_TRY_AGAIN)) {
-            TestCallback callback = new TestCallback(/* initValueCount= */ 1,
-                    /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+    public void testRegisterPropertyGetInitialValueHandleNotAvailableStatusCode() throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 1,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
 
-            mManager.registerCallback(callback, propId,
-                    CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
 
-            // We should not receive any initial value event.
-            assertThrows(IllegalStateException.class, () -> callback.assertRegisterCompleted(
-                    /* timeoutInMs=*/ 1000));
-        }
+        callback.assertRegisterCompleted();
+        List<CarPropertyValue> carPropertyValues = callback.getInitialValues();
+        assertThat(carPropertyValues).hasSize(1);
+        assertThat(carPropertyValues.get(0).getStatus()).isEqualTo(
+                CarPropertyValue.STATUS_UNAVAILABLE);
+    }
+
+    @Test
+    public void testRegisterPropertyGetInitialValueHandleAccessDeniedStatusCodes()
+            throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 1,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+
+        callback.assertRegisterCompleted();
+        List<CarPropertyValue> carPropertyValues = callback.getInitialValues();
+        assertThat(carPropertyValues).hasSize(1);
+        assertThat(carPropertyValues.get(0).getStatus()).isEqualTo(
+                CarPropertyValue.STATUS_ERROR);
+    }
+
+    @Test
+    public void testRegisterPropertyGetInitialValueHandleInternalErrorStatusCodes()
+            throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 1,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+
+        callback.assertRegisterCompleted();
+        List<CarPropertyValue> carPropertyValues = callback.getInitialValues();
+        assertThat(carPropertyValues).hasSize(1);
+        assertThat(carPropertyValues.get(0).getStatus()).isEqualTo(
+                CarPropertyValue.STATUS_ERROR);
+    }
+
+    @Test
+    public void testRegisterPropertyGetInitialValueHandleInvalidArgStatusCode() throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 1,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+
+        // We should not receive any initial value event.
+        assertThrows(IllegalStateException.class, () -> callback.assertRegisterCompleted(
+                /* timeoutInMs=*/ 1000));
+    }
+
+    @Test
+    public void testRegisterPropertyGetInitialValueHandleTryAgainStatusCode() throws Exception {
+        TestCallback callback = new TestCallback(/* initValueCount= */ 1,
+                /* changeEventCount= */ 0, /* errorEventCount= */ 0);
+
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+
+        // We should not receive any initial value event.
+        assertThrows(IllegalStateException.class, () -> callback.assertRegisterCompleted(
+                /* timeoutInMs=*/ 1000));
     }
 
     @Test
@@ -771,9 +818,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     @Test
     public void testOnChangeEventWithSameAreaId() throws Exception {
         // init
-        mManager.setProperty(Integer.class,
-                CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
-        TestCallback callback = new TestCallback(/* initValueCount= */ 1, /* changeEventCount= */ 1,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 2, /* changeEventCount= */ 1,
                 /* errorEventCount= */ 0);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
         callback.assertRegisterCompleted();
@@ -806,9 +851,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     @Test
     public void testOnChangeEventWithDifferentAreaId() throws Exception {
         // init
-        mManager.setProperty(Integer.class,
-                CUSTOM_SEAT_INT_PROP_2, DRIVER_SIDE_AREA_ID, 1);
-        TestCallback callback = new TestCallback(/* initValueCount= */ 1, /* changeEventCount= */ 2,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 2, /* changeEventCount= */ 2,
                 /* errorEventCount= */ 0);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_2, 0);
         callback.assertRegisterCompleted();
@@ -839,10 +882,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testOnChangeEventPropErrorStatusIgnored() throws Exception {
+    public void testOnChangeEventPropErrorStatus() throws Exception {
         // init
-        mManager.setProperty(Integer.class, CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
-        TestCallback callback = new TestCallback(/* initValueCount= */ 1, /* changeEventCount= */ 1,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 2, /* changeEventCount= */ 1,
                 /* errorEventCount= */ 0);
 
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
@@ -858,14 +900,15 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         getAidlMockedVehicleHal().injectEvent(prop);
 
-        assertThat(callback.getChangeEventCounter()).isEqualTo(0);
+        List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
+        assertThat(carPropertyValues).hasSize(1);
+        assertThat(carPropertyValues.get(0).getStatus()).isEqualTo(CarPropertyValue.STATUS_ERROR);
     }
 
     @Test
     public void testOnChangeEventPropUnavailableStatus() throws Exception {
         // init
-        mManager.setProperty(Integer.class, CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
-        TestCallback callback = new TestCallback(/* initValueCount= */ 1, /* changeEventCount= */ 1,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 2, /* changeEventCount= */ 1,
                 /* errorEventCount= */ 0);
 
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
@@ -874,20 +917,23 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = CUSTOM_SEAT_INT_PROP_1;
+        prop.areaId = DRIVER_SIDE_AREA_ID;
         prop.value = new RawPropValues();
         prop.status = VehiclePropertyStatus.UNAVAILABLE;
         prop.timestamp = SystemClock.elapsedRealtimeNanos();
 
         getAidlMockedVehicleHal().injectEvent(prop);
 
-        assertThat(callback.getChangeEventCounter()).isEqualTo(0);
+        List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
+        assertThat(carPropertyValues).hasSize(1);
+        assertThat(carPropertyValues.get(0).getStatus()).isEqualTo(
+                CarPropertyValue.STATUS_UNAVAILABLE);
     }
 
     @Test
     public void testOnChangeEventInvalidPayload() throws Exception {
         // init
-        mManager.setProperty(Integer.class, CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
-        TestCallback callback = new TestCallback(/* initValueCount= */ 1, /* changeEventCount= */ 0,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 2, /* changeEventCount= */ 0,
                 /* errorEventCount= */ 0);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
         callback.assertRegisterCompleted();
@@ -934,31 +980,36 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         float newEnoughWheelLeftFrontValue = 33.33f;
         long newEnoughWheelLeftFrontTimestampNanos = Duration.ofSeconds(2).toNanos();
 
-        TestCallback callback = new TestCallback(/* initValueCount= */ 0, /* changeEventCount= */ 2,
+        TestCallback callback = new TestCallback(/* initValueCount= */ 4, /* changeEventCount= */ 2,
                 /* errorEventCount= */ 0);
         assertThat(mManager.registerCallback(callback, VehiclePropertyIds.TIRE_PRESSURE,
                 1f)).isTrue();
+        callback.assertRegisterCompleted();
 
+        long currentElapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos();
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
-                        wheelLeftFrontValue, wheelLeftFrontTimestampNanos));
+                        wheelLeftFrontValue,
+                        currentElapsedRealtimeNanos + wheelLeftFrontTimestampNanos));
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
-                        notNewEnoughWheelLeftFrontValue, notNewEnoughWheelLeftFrontTimestampNanos));
+                        notNewEnoughWheelLeftFrontValue,
+                        currentElapsedRealtimeNanos + notNewEnoughWheelLeftFrontTimestampNanos));
         getAidlMockedVehicleHal().injectEvent(
                 newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
-                        newEnoughWheelLeftFrontValue, newEnoughWheelLeftFrontTimestampNanos));
+                        newEnoughWheelLeftFrontValue,
+                        currentElapsedRealtimeNanos + newEnoughWheelLeftFrontTimestampNanos));
 
         List<CarPropertyValue> carPropertyValues = callback.waitAndGetChangeEvents();
         assertThat(carPropertyValues).hasSize(2);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(0),
                 VehicleAreaWheel.WHEEL_LEFT_FRONT, wheelLeftFrontValue,
-                wheelLeftFrontTimestampNanos);
+                currentElapsedRealtimeNanos + wheelLeftFrontTimestampNanos);
 
         assertTirePressureCarPropertyValue(carPropertyValues.get(1),
                 VehicleAreaWheel.WHEEL_LEFT_FRONT, newEnoughWheelLeftFrontValue,
-                newEnoughWheelLeftFrontTimestampNanos);
+                currentElapsedRealtimeNanos + newEnoughWheelLeftFrontTimestampNanos);
     }
 
     @Test

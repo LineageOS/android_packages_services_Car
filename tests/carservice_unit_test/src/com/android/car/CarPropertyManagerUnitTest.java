@@ -360,6 +360,81 @@ public final class CarPropertyManagerUnitTest {
     }
 
     @Test
+    public void testGetProperty_returnsValueWithUnavailableStatusBeforeU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0)).isEqualTo(
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, /*areaId=*/0,
+                        CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f));
+    }
+
+    @Test
+    public void testGetProperty_valueWithUnavailableStatusThrowsAfterU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                CarPropertyValue.STATUS_UNAVAILABLE, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThrows(PropertyNotAvailableException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_returnsValueWithErrorStatusBeforeU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                CarPropertyValue.STATUS_ERROR, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0)).isEqualTo(
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, /*areaId=*/0,
+                        CarPropertyValue.STATUS_ERROR, TEST_TIMESTAMP, 17.0f));
+    }
+
+    @Test
+    public void testGetProperty_valueWithErrorStatusThrowsAfterU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                CarPropertyValue.STATUS_ERROR, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThrows(CarInternalErrorException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
+    public void testGetProperty_returnsValueWithUnknownStatusBeforeU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.TIRAMISU);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                /*unknown status=*/999, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, /*areaId=*/ 0)).isEqualTo(
+                new CarPropertyValue<>(HVAC_TEMPERATURE_SET, /*areaId=*/0, /*status=*/999,
+                        TEST_TIMESTAMP, 17.0f));
+    }
+
+    @Test
+    public void testGetProperty_valueWithUnknownStatusThrowsAfterU() throws RemoteException {
+        setAppTargetSdk(Build.VERSION_CODES.UPSIDE_DOWN_CAKE);
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                /*unknown status=*/999, TEST_TIMESTAMP, 17.0f);
+
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThrows(CarInternalErrorException.class,
+                () -> mCarPropertyManager.getProperty(HVAC_TEMPERATURE_SET, 0));
+    }
+
+    @Test
     public void testGetPropertyWithClass() throws Exception {
         CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
 
@@ -1908,6 +1983,16 @@ public final class CarPropertyManagerUnitTest {
     @Test
     public void testGetCarPropertyConfig_unsupported() throws Exception {
         assertThat(mCarPropertyManager.getCarPropertyConfig(/* propId= */ 0)).isNull();
+    }
+
+    @Test
+    public void testIsPropertyAvailable_withValueWithNotAvailableStatus() throws Exception {
+        CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0,
+                CarPropertyValue.STATUS_ERROR, TEST_TIMESTAMP, 17.0f);
+        when(mICarProperty.getProperty(HVAC_TEMPERATURE_SET, 0)).thenReturn(value);
+
+        assertThat(mCarPropertyManager.isPropertyAvailable(HVAC_TEMPERATURE_SET, /* areaId= */ 0))
+                .isFalse();
     }
 
     @Test

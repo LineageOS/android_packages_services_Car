@@ -44,6 +44,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.os.Trace;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -55,6 +56,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.property.AsyncPropertyServiceRequest;
 import com.android.car.internal.property.AsyncPropertyServiceRequestList;
 import com.android.car.internal.property.CarPropertyConfigList;
+import com.android.car.internal.property.CarPropertyHelper;
 import com.android.car.internal.property.IAsyncPropertyResultCallback;
 import com.android.car.internal.property.InputSanitizationUtils;
 import com.android.car.internal.util.ArrayUtils;
@@ -425,11 +427,35 @@ public class CarPropertyService extends ICarProperty.Stub
     private void getAndDispatchPropertyInitValue(CarPropertyConfig carPropertyConfig,
             Client client) {
         List<CarPropertyEvent> events = new ArrayList<>();
+        int propertyId = carPropertyConfig.getPropertyId();
         for (int areaId : carPropertyConfig.getAreaIds()) {
-            CarPropertyValue value = getPropertySafe(carPropertyConfig.getPropertyId(), areaId);
-            if (value != null) {
+            CarPropertyValue carPropertyValue = null;
+            try {
+                carPropertyValue = getProperty(propertyId, areaId);
+            } catch (ServiceSpecificException e) {
+                Slogf.w("Get initial carPropertyValue for registerCallback failed - property ID: "
+                                + "%s, area ID $s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId), e);
+                int errorCode = CarPropertyHelper.getVhalSystemErrorCode(e.errorCode);
+                long timestampNanos = SystemClock.elapsedRealtimeNanos();
+                Object defaultValue = CarPropertyHelper.getDefaultValue(
+                        carPropertyConfig.getPropertyType());
+                if (CarPropertyHelper.isNotAvailableVehicleHalStatusCode(errorCode)) {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_UNAVAILABLE, timestampNanos, defaultValue);
+                } else {
+                    carPropertyValue = new CarPropertyValue<>(propertyId, areaId,
+                            CarPropertyValue.STATUS_ERROR, timestampNanos, defaultValue);
+                }
+            } catch (Exception e) {
+                // Do nothing.
+                Slogf.e("Get initial carPropertyValue for registerCallback failed - property ID: "
+                                + "%s, area ID $s, exception: %s",
+                        VehiclePropertyIds.toString(propertyId), Integer.toHexString(areaId), e);
+            }
+            if (carPropertyValue != null) {
                 CarPropertyEvent event = new CarPropertyEvent(
-                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
+                        CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, carPropertyValue);
                 events.add(event);
             }
         }
