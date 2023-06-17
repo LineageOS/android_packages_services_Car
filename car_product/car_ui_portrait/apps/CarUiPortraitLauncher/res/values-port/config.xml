@@ -19,6 +19,8 @@
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.waze/androidx.car.app.activity.CarAppActivity</item>
+        <item>androidx.car.app.sample.navigation/androidx.car.app.activity.CarAppActivity</item>
+        <item>com.sygic.aura/androidx.car.app.activity.CarAppActivity</item>
     </string-array>
 
     <string name="config_notificationActivity" translatable="false">
